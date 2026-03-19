@@ -1,0 +1,77 @@
+# DeerFlow docker image cache
+docker/.cache/
+# OS generated files
+.DS_Store
+*.local
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv
+venv/
+backend/.venv/
+frontend/.venv/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Configuration files
+config.yaml
+mcp_config.json
+extensions_config.json
+
+# IDE
+.idea/
+.vscode/
+
+# Coverage report
+coverage.xml
+coverage/
+.deer-flow/
+backend/.deer-flow/
+.deerflow-no-nginx/
+.claude/
+skills/custom/*
+!skills/custom/.gitkeep
+!skills/custom/network-traffic-analysis/
+!skills/custom/network-traffic-analysis/**
+logs/
+log/
+backend/log/
+backend/logs/
+
+# Local git hooks (keep only on this machine, do not push)
+.githooks/
+
+# pnpm
+.pnpm-store
+sandbox_image_cache.tar
+frontend/node_modules/
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
+
+# ignore the legacy `web` folder
+web/
+
+# Deployment artifacts
+backend/Dockerfile.langgraph
+config.yaml.bak
+backend/.langgraph_api/
+
+# Local network traffic datasets
+datasets/network-traffic/raw/**
+datasets/network-traffic/processed/**
+datasets/network-traffic/outputs/**
+!datasets/network-traffic/raw/.gitkeep
+!datasets/network-traffic/processed/.gitkeep
+!datasets/network-traffic/outputs/.gitkeep

@@ -1,0 +1,141 @@
+canonical_fields:
+  timestamp:
+    - timestamp
+    - ts
+    - time
+    - event_time
+    - start_time
+    - flow_start
+    - first_seen
+  src_ip:
+    - src_ip
+    - source_ip
+    - src
+    - sip
+    - src_addr
+    - source_address
+  dst_ip:
+    - dst_ip
+    - destination_ip
+    - dest_ip
+    - dst
+    - dip
+    - dst_addr
+    - destination_address
+  src_port:
+    - src_port
+    - source_port
+    - sport
+    - l4_src_port
+  dst_port:
+    - dst_port
+    - destination_port
+    - dest_port
+    - dport
+    - l4_dst_port
+  protocol:
+    - protocol
+    - proto
+    - l4_proto
+    - transport
+  app_protocol:
+    - app_protocol
+    - application_protocol
+    - app_proto
+    - l7_proto
+  service:
+    - service
+    - app_service
+    - destination_service
+  bytes:
+    - bytes
+    - byte_count
+    - bytes_total
+    - total_bytes
+    - octets
+    - in_bytes
+  packets:
+    - packets
+    - packet_count
+    - total_packets
+    - pkts
+  flow_duration:
+    - flow_duration
+    - duration
+    - session_duration
+    - elapsed_ms
+  duration_ms:
+    - duration_ms
+    - elapsed_ms
+    - duration_millis
+    - session_duration_ms
+  session_state:
+    - session_state
+    - state
+    - connection_state
+    - flow_state
+  rule_name:
+    - rule_name
+    - rule
+    - policy_rule
+    - detection_rule
+  tcp_flags:
+    - tcp_flags
+    - tcp_flags_seen
+    - flags
+  dns_query:
+    - dns_query
+    - dns_qname
+    - query_name
+    - domain
+  tls_sni:
+    - tls_sni
+    - sni
+    - server_name
+    - tls_server_name
+  http_host:
+    - http_host
+    - host
+    - http_hostname
+  direction:
+    - direction
+    - traffic_direction
+    - flow_direction
+  action:
+    - action
+    - status
+    - outcome
+    - verdict
+    - decision
+  asset_id:
+    - asset_id
+    - host_id
+    - endpoint_id
+  user_id:
+    - user_id
+    - username
+    - account_id
+  device_id:
+    - device_id
+    - appliance_id
+    - sensor_device_id
+  sensor_id:
+    - sensor_id
+    - probe_id
+    - sensor
+  dataset_label:
+    - dataset_label
+    - dataset
+    - dataset_name
+  traffic_family:
+    - traffic_family
+    - traffic_type
+    - family
+default_metrics:
+  - count
+  - sum:bytes
+  - sum:packets
+  - avg:flow_duration
+notes:
+  - "Add aliases here when a new vendor or export format uses different column names."
+  - "Canonical fields are used to build the unified 'flows' view for network-traffic-analysis."

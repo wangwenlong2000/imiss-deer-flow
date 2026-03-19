@@ -1,0 +1,7 @@
+interface:
+  display_name: "Network Traffic Analysis"
+  short_description: "Preprocess PCAP files or analyze tabular network traffic datasets with repeatable traffic operators."
+  default_prompt: "Use $network-traffic-analysis to preprocess PCAP files or inspect, summarize, and export insights from network traffic datasets. Treat a bare filename like Geodo.pcap or Gmail.flow.csv as a valid first reference, and always call network_traffic_prepare or network_traffic_analyze before any generic ls, web_search, or upload/path clarification."
+
+policy:
+  allow_implicit_invocation: true
