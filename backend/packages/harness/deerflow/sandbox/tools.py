@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 
@@ -243,11 +244,24 @@ def validate_local_bash_command_paths(command: str, thread_data: ThreadDataState
     if thread_data is None:
         raise SandboxRuntimeError("Thread data not available for local sandbox")
 
+    # Optional escape hatch for trusted local environments.
+    # Set DEERFLOW_LOCAL_BASH_ALLOW_UNSAFE_PATHS=1 to bypass absolute-path checks.
+    if os.getenv("DEERFLOW_LOCAL_BASH_ALLOW_UNSAFE_PATHS", "0") == "1":
+        return
+
     command = normalize_dataset_virtual_paths_in_command(command)
     unsafe_paths: list[str] = []
     allowed_virtual_roots = {VIRTUAL_PATH_PREFIX, *_read_only_virtual_to_actual_mappings().keys()}
 
-    for absolute_path in _ABSOLUTE_PATH_PATTERN.findall(command):
+    for match in _ABSOLUTE_PATH_PATTERN.finditer(command):
+        absolute_path = match.group(0)
+
+        # Ignore URL path segments, e.g. `https://example.com/path` where `/path`
+        # would otherwise be matched as an absolute file path.
+        prefix = command[max(0, match.start() - 10) : match.start()].lower()
+        if prefix.endswith("http:/") or prefix.endswith("https:/"):
+            continue
+
         if any(absolute_path == root or absolute_path.startswith(f"{root}/") for root in allowed_virtual_roots):
             continue
 
