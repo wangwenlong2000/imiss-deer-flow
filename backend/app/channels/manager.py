@@ -11,6 +11,7 @@ from typing import Any
 
 from app.channels.message_bus import InboundMessage, InboundMessageType, MessageBus, OutboundMessage, ResolvedAttachment
 from app.channels.store import ChannelStore
+from deerflow.monitoring import write_run_event_log
 
 logger = logging.getLogger(__name__)
 
@@ -500,6 +501,20 @@ class ChannelManager:
             config=run_config,
             context=run_context,
         )
+        write_run_event_log(
+            thread_id,
+            "runs.wait.result",
+            {
+                "channel_name": msg.channel_name,
+                "chat_id": msg.chat_id,
+                "assistant_id": assistant_id,
+                "input_text": msg.text,
+                "config": run_config,
+                "context": run_context,
+                "result": result,
+            },
+            source="channels.manager",
+        )
 
         response_text = _extract_response_text(result)
         artifacts = _extract_artifacts(result)
@@ -549,6 +564,21 @@ class ChannelManager:
         last_published_text = ""
         last_publish_at = 0.0
         stream_error: BaseException | None = None
+        chunk_index = 0
+
+        write_run_event_log(
+            thread_id,
+            "runs.stream.start",
+            {
+                "channel_name": msg.channel_name,
+                "chat_id": msg.chat_id,
+                "assistant_id": assistant_id,
+                "input_text": msg.text,
+                "config": run_config,
+                "context": run_context,
+            },
+            source="channels.manager",
+        )
 
         try:
             async for chunk in client.runs.stream(
@@ -559,6 +589,7 @@ class ChannelManager:
                 context=run_context,
                 stream_mode=["messages-tuple", "values"],
             ):
+                chunk_index += 1
                 event = getattr(chunk, "event", "")
                 data = getattr(chunk, "data", None)
 
@@ -571,6 +602,22 @@ class ChannelManager:
                     snapshot_text = _extract_response_text(data)
                     if snapshot_text:
                         latest_text = snapshot_text
+
+                write_run_event_log(
+                    thread_id,
+                    "runs.stream.chunk",
+                    {
+                        "channel_name": msg.channel_name,
+                        "chat_id": msg.chat_id,
+                        "assistant_id": assistant_id,
+                        "chunk_index": chunk_index,
+                        "event": event,
+                        "data": data,
+                        "latest_text": latest_text,
+                        "current_message_id": current_message_id,
+                    },
+                    source="channels.manager",
+                )
 
                 if not latest_text or latest_text == last_published_text:
                     continue
@@ -594,6 +641,19 @@ class ChannelManager:
         except Exception as exc:
             stream_error = exc
             logger.exception("[Manager] streaming error: thread_id=%s", thread_id)
+            write_run_event_log(
+                thread_id,
+                "runs.stream.error",
+                {
+                    "channel_name": msg.channel_name,
+                    "chat_id": msg.chat_id,
+                    "assistant_id": assistant_id,
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                    "latest_text": latest_text,
+                },
+                source="channels.manager",
+            )
         finally:
             result = last_values if last_values is not None else {"messages": [{"type": "ai", "content": latest_text}]}
             response_text = _extract_response_text(result)
@@ -614,6 +674,22 @@ class ChannelManager:
                 len(response_text),
                 len(artifacts),
                 stream_error,
+            )
+            write_run_event_log(
+                thread_id,
+                "runs.stream.final",
+                {
+                    "channel_name": msg.channel_name,
+                    "chat_id": msg.chat_id,
+                    "assistant_id": assistant_id,
+                    "result": result,
+                    "response_text": response_text,
+                    "artifacts": artifacts,
+                    "has_error": stream_error is not None,
+                    "error_type": type(stream_error).__name__ if stream_error else None,
+                    "error": str(stream_error) if stream_error else None,
+                },
+                source="channels.manager",
             )
             await self.bus.publish_outbound(
                 OutboundMessage(
