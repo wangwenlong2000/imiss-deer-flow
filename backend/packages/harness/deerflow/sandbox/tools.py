@@ -98,11 +98,26 @@ def _thread_virtual_to_actual_mappings(thread_data: ThreadDataState) -> dict[str
 
 def _read_only_virtual_to_actual_mappings() -> dict[str, str]:
     """Build virtual-to-actual mappings for shared read-only dataset roots."""
-    return {
+    mappings = {
         virtual: actual
         for virtual, actual in _READ_ONLY_LOCAL_DATASET_MAPPINGS.items()
         if Path(actual).exists()
     }
+
+    # Expose configured skills mount (default: /mnt/skills) as read-only.
+    # This allows read_file/ls tools to inspect SKILL.md in local sandbox mode.
+    try:
+        from deerflow.config import get_app_config
+
+        config = get_app_config()
+        skills_path = config.skills.get_skills_path()
+        if skills_path.exists():
+            mappings[config.skills.container_path] = str(skills_path)
+    except Exception:
+        # Keep dataset mappings available even if app config is temporarily unavailable.
+        pass
+
+    return mappings
 
 
 def _thread_actual_to_virtual_mappings(thread_data: ThreadDataState) -> dict[str, str]:
@@ -230,9 +245,10 @@ def validate_local_bash_command_paths(command: str, thread_data: ThreadDataState
 
     command = normalize_dataset_virtual_paths_in_command(command)
     unsafe_paths: list[str] = []
+    allowed_virtual_roots = {VIRTUAL_PATH_PREFIX, *_read_only_virtual_to_actual_mappings().keys()}
 
     for absolute_path in _ABSOLUTE_PATH_PATTERN.findall(command):
-        if absolute_path == VIRTUAL_PATH_PREFIX or absolute_path.startswith(f"{VIRTUAL_PATH_PREFIX}/"):
+        if any(absolute_path == root or absolute_path.startswith(f"{root}/") for root in allowed_virtual_roots):
             continue
 
         if any(
@@ -245,7 +261,8 @@ def validate_local_bash_command_paths(command: str, thread_data: ThreadDataState
 
     if unsafe_paths:
         unsafe = ", ".join(sorted(dict.fromkeys(unsafe_paths)))
-        raise PermissionError(f"Unsafe absolute paths in command: {unsafe}. Use paths under {VIRTUAL_PATH_PREFIX}")
+        allowed = ", ".join(sorted(allowed_virtual_roots))
+        raise PermissionError(f"Unsafe absolute paths in command: {unsafe}. Use paths under: {allowed}")
 
 
 def replace_virtual_paths_in_command(command: str, thread_data: ThreadDataState | None) -> str:
