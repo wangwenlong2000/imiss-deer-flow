@@ -414,6 +414,42 @@ def _make_async_iterator(items):
 
 
 class TestChannelManager:
+    def test_handle_chat_writes_wait_jsonl_when_enabled(self, monkeypatch, tmp_path):
+        from app.channels.manager import ChannelManager
+
+        monkeypatch.setenv("DEERFLOW_RUN_EVENT_LOG_ENABLED", "1")
+        monkeypatch.setenv("DEERFLOW_RUN_EVENT_LOG_DIR", str(tmp_path))
+
+        async def go():
+            bus = MessageBus()
+            store = ChannelStore(path=Path(tempfile.mkdtemp()) / "store.json")
+            manager = ChannelManager(bus=bus, store=store)
+
+            outbound_received = []
+
+            async def capture_outbound(msg):
+                outbound_received.append(msg)
+
+            bus.subscribe_outbound(capture_outbound)
+
+            mock_client = _make_mock_langgraph_client()
+            manager._client = mock_client
+
+            await manager.start()
+            await bus.publish_inbound(InboundMessage(channel_name="test", chat_id="chat1", user_id="user1", text="hi"))
+            await _wait_for(lambda: len(outbound_received) >= 1)
+            await manager.stop()
+
+        _run(go())
+
+        log_path = tmp_path / "test-thread-123.jsonl"
+        assert log_path.exists()
+        records = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+        wait_record = next(record for record in records if record["event"] == "runs.wait.result")
+        assert wait_record["source"] == "channels.manager"
+        assert wait_record["payload"]["chat_id"] == "chat1"
+        assert wait_record["payload"]["result"]["messages"][-1]["content"] == "Hello from agent!"
+
     def test_handle_chat_creates_thread(self):
         from app.channels.manager import ChannelManager
 
@@ -631,6 +667,63 @@ class TestChannelManager:
             assert all(msg.thread_ts == "om-source-1" for msg in outbound_received)
 
         _run(go())
+
+    def test_handle_feishu_chat_writes_stream_jsonl_when_enabled(self, monkeypatch, tmp_path):
+        from app.channels.manager import ChannelManager
+
+        monkeypatch.setattr("app.channels.manager.STREAM_UPDATE_MIN_INTERVAL_SECONDS", 0.0)
+        monkeypatch.setenv("DEERFLOW_RUN_EVENT_LOG_ENABLED", "1")
+        monkeypatch.setenv("DEERFLOW_RUN_EVENT_LOG_DIR", str(tmp_path))
+
+        async def go():
+            bus = MessageBus()
+            store = ChannelStore(path=Path(tempfile.mkdtemp()) / "store.json")
+            manager = ChannelManager(bus=bus, store=store)
+
+            outbound_received = []
+
+            async def capture_outbound(msg):
+                outbound_received.append(msg)
+
+            bus.subscribe_outbound(capture_outbound)
+
+            stream_events = [
+                _make_stream_part(
+                    "messages-tuple",
+                    [
+                        {"id": "ai-1", "content": "Hello", "type": "AIMessageChunk"},
+                        {"langgraph_node": "agent"},
+                    ],
+                ),
+                _make_stream_part(
+                    "values",
+                    {
+                        "messages": [
+                            {"type": "human", "content": "hi"},
+                            {"type": "ai", "content": "Hello"},
+                        ]
+                    },
+                ),
+            ]
+
+            mock_client = _make_mock_langgraph_client()
+            mock_client.runs.stream = MagicMock(return_value=_make_async_iterator(stream_events))
+            manager._client = mock_client
+
+            await manager.start()
+            await bus.publish_inbound(InboundMessage(channel_name="feishu", chat_id="chat1", user_id="user1", text="hi"))
+            await _wait_for(lambda: any(msg.is_final for msg in outbound_received))
+            await manager.stop()
+
+        _run(go())
+
+        log_path = tmp_path / "test-thread-123.jsonl"
+        assert log_path.exists()
+        records = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+        events = [record["event"] for record in records]
+        assert "runs.stream.start" in events
+        assert "runs.stream.chunk" in events
+        assert "runs.stream.final" in events
 
     def test_handle_feishu_stream_error_still_sends_final(self, monkeypatch):
         """When the stream raises mid-way, a final outbound with is_final=True must still be published."""

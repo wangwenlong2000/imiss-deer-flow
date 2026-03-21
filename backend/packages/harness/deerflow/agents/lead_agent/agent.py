@@ -8,6 +8,7 @@ from deerflow.agents.lead_agent.prompt import apply_prompt_template
 from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
 from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+from deerflow.agents.middlewares.run_history_middleware import RunHistoryMiddleware
 from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 from deerflow.agents.middlewares.title_middleware import TitleMiddleware
 from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
@@ -201,6 +202,7 @@ Being proactive with task management demonstrates thoroughness and ensures all r
 # TodoListMiddleware should be before ClarificationMiddleware to allow todo management
 # TitleMiddleware generates title after first exchange
 # MemoryMiddleware queues conversation for memory update (after TitleMiddleware)
+# RunHistoryMiddleware writes final state to local JSONL monitoring logs when enabled
 # ViewImageMiddleware should be before ClarificationMiddleware to inject image details before LLM
 # ToolErrorHandlingMiddleware should be before ClarificationMiddleware to convert tool exceptions to ToolMessages
 # ClarificationMiddleware should be last to intercept clarification requests after model calls
@@ -232,6 +234,9 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
 
     # Add MemoryMiddleware (after TitleMiddleware)
     middlewares.append(MemoryMiddleware(agent_name=agent_name))
+
+    # Persist final run history to local JSONL logs when monitoring is enabled.
+    middlewares.append(RunHistoryMiddleware())
 
     # Add ViewImageMiddleware only if the current model supports vision.
     # Use the resolved runtime model_name from make_lead_agent to avoid stale config values.
