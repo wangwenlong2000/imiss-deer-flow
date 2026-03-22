@@ -121,7 +121,7 @@ export function InputBox({
     "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
   > & {
     mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-    reasoning_effort?: "minimal" | "low" | "medium" | "high";
+    reasoning_effort?: "minimum" | "low" | "medium" | "high";
   };
   extraHeader?: React.ReactNode;
   isNewThread?: boolean;
@@ -133,7 +133,7 @@ export function InputBox({
       "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
     > & {
       mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-      reasoning_effort?: "minimal" | "low" | "medium" | "high";
+      reasoning_effort?: "minimum" | "low" | "medium" | "high";
     },
   ) => void;
   onSubmit?: (message: PromptInputMessage) => void;
@@ -218,14 +218,14 @@ export function InputBox({
       onContextChange?.({
         ...context,
         mode: getResolvedMode(mode, supportThinking),
-        reasoning_effort: mode === "ultra" ? "high" : mode === "pro" ? "medium" : mode === "thinking" ? "low" : "minimal",
+        reasoning_effort: mode === "ultra" ? "high" : mode === "pro" ? "medium" : mode === "thinking" ? "low" : "minimum",
       });
     },
     [onContextChange, context, supportThinking],
   );
 
   const handleReasoningEffortSelect = useCallback(
-    (effort: "minimal" | "low" | "medium" | "high") => {
+    (effort: "minimum" | "low" | "medium" | "high") => {
       onContextChange?.({
         ...context,
         reasoning_effort: effort,
@@ -589,7 +589,7 @@ export function InputBox({
               <PromptInputActionMenuTrigger className="gap-1! px-2!">
                 <div className="text-xs font-normal">
                   {t.inputBox.reasoningEffort}:
-                  {context.reasoning_effort === "minimal" && " " + t.inputBox.reasoningEffortMinimal}
+                  {context.reasoning_effort === "minimum" && " " + t.inputBox.reasoningEffortMinimal}
                   {context.reasoning_effort === "low" && " " + t.inputBox.reasoningEffortLow}
                   {context.reasoning_effort === "medium" && " " + t.inputBox.reasoningEffortMedium}
                   {context.reasoning_effort === "high" && " " + t.inputBox.reasoningEffortHigh}
@@ -603,11 +603,11 @@ export function InputBox({
                   <PromptInputActionMenu>
                     <PromptInputActionMenuItem
                       className={cn(
-                        context.reasoning_effort === "minimal"
+                        context.reasoning_effort === "minimum"
                           ? "text-accent-foreground"
                           : "text-muted-foreground/65",
                       )}
-                      onSelect={() => handleReasoningEffortSelect("minimal")}
+                      onSelect={() => handleReasoningEffortSelect("minimum")}
                     >
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-1 font-bold">
@@ -617,7 +617,7 @@ export function InputBox({
                           {t.inputBox.reasoningEffortMinimalDescription}
                         </div>
                       </div>
-                      {context.reasoning_effort === "minimal" ? (
+                      {context.reasoning_effort === "minimum" ? (
                         <CheckIcon className="ml-auto size-4" />
                       ) : (
                         <div className="ml-auto size-4" />
