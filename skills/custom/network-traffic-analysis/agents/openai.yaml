@@ -1,7 +1,7 @@
 interface:
   display_name: "Network Traffic Analysis"
-  short_description: "Preprocess PCAP files or analyze tabular network traffic datasets with repeatable traffic operators."
-  default_prompt: "Use $network-traffic-analysis to preprocess PCAP files or inspect, summarize, and export insights from network traffic datasets. Treat a bare filename like Geodo.pcap or Gmail.flow.csv as a valid first reference, and always call network_traffic_prepare or network_traffic_analyze before any generic ls, web_search, or upload/path clarification."
+  short_description: "Investigate uploaded or local PCAP/flow/packet files with a strict enterprise-grade workflow for overview, scan review, session review, protocol review, anomaly screening, asset relations, SQL investigation, and export."
+  default_prompt: "Use $network-traffic-analysis as a strict workflow, not as a loose suggestion. Resolve input in this order: uploaded file first, then /mnt/datasets/network-traffic/raw or /mnt/datasets/network-traffic/processed. For .pcap or .pcapng input, run /mnt/skills/custom/network-traffic-analysis/scripts/prepare_pcap.py first. For .flow.csv, .packet.csv, or other tabular files, run /mnt/skills/custom/network-traffic-analysis/scripts/analyze.py starting with inspect unless schema is already confirmed. Use --view auto unless the user explicitly requests flow or packet view. Prefer overview-report for enterprise summaries, scan-review for scan triage, session-review for connection-quality questions, protocol-review for DNS/TLS/HTTP/protocol questions, packet-review for packet-level flags and handshake questions, and detect-anomaly with packet-focused rules when the user asks about SYN-only, RST-heavy, ICMP probing, handshake failure, or small-packet bursts. Do not replace this workflow with ad hoc code."
 
 policy:
   allow_implicit_invocation: true

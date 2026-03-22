@@ -11,6 +11,19 @@ def normalize_name(value: str) -> str:
     return re.sub(r"[^a-z0-9]", "", value.lower())
 
 
+def is_explicit_path_reference(value: str) -> bool:
+    ref = value.strip()
+    normalized = ref.replace("\\", "/")
+    return (
+        normalized.startswith("/")
+        or normalized.startswith("./")
+        or normalized.startswith("../")
+        or bool(re.match(r"^[A-Za-z]:[/\\]", ref))
+        or "/" in normalized
+        or "\\" in ref
+    )
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
@@ -51,7 +64,7 @@ def _dedupe(paths: list[Path]) -> list[Path]:
 
 
 def _has_path_hint(value: str) -> bool:
-    return "/" in value or "\\" in value
+    return is_explicit_path_reference(value)
 
 
 def resolve_reference(reference: str) -> ResolutionResult:

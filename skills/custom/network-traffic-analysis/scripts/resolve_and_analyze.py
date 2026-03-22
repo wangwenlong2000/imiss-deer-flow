@@ -9,6 +9,20 @@ from pathlib import Path
 from file_resolution import resolve_reference
 
 
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
+def to_repo_relative_display(value: str | Path) -> str:
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(repo_root()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Resolve a local network traffic dataset reference and run analyze.py on the resolved file."
@@ -50,7 +64,7 @@ def main() -> int:
     if resolution.status != "resolved":
         print(resolution.message, file=sys.stderr)
         for match in resolution.matches:
-            print(match, file=sys.stderr)
+            print(to_repo_relative_display(match), file=sys.stderr)
         return 1
 
     resolved_file = resolution.matches[0]
@@ -70,7 +84,7 @@ def main() -> int:
         *forwarded,
     ]
 
-    print(f"Resolved '{args.reference}' -> {resolved_file}", file=sys.stderr)
+    print(f"Resolved '{args.reference}' -> {to_repo_relative_display(resolved_file)}", file=sys.stderr)
     completed = subprocess.run(command, check=False)
     return completed.returncode
 

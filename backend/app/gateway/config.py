@@ -8,7 +8,10 @@ DEFAULT_CORS_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
+    "http://localhost:33000",
+    "http://127.0.0.1:33000",
 ]
+
 
 
 def _parse_cors_origins(cors_origins_str: str | None) -> list[str]:

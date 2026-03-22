@@ -1,295 +1,540 @@
 ---
 name: network-traffic-analysis
-description: Use this skill when the user wants to analyze network traffic datasets, including raw packet captures (.pcap/.pcapng/.cap) and tabular flow logs stored as CSV, Parquet, Excel, JSON, or JSONL files. Supports host-side PCAP preprocessing, schema inspection, protocol and port distribution, source and destination IP top-N analysis, time-series aggregation, filtering, grouping, anomaly checks, SQL queries, and result export for datasets under datasets/network-traffic or user-provided paths.
+description: Use this skill when the user wants to investigate network traffic with a strict, enterprise-style workflow. Supports uploaded files and server-side local datasets, including raw packet captures (.pcap/.pcapng/.cap) and structured flow logs stored as CSV, Parquet, Excel, JSON, or JSONL. Supports preprocessing PCAP into packet.csv and flow.csv, then running inspect, summary, overview-report, scan-review, session-review, protocol-review, packet-review, top-N, distribution, timeseries, filtering, aggregation, anomaly screening, SQL investigation, and export.
 metadata:
-  short-description: Preprocess PCAP files or analyze tabular network traffic logs with host-side tools.
+  short-description: Investigate network traffic with a strict script-driven workflow using read_file and bash.
 ---
 
 # Network Traffic Analysis Skill
 
-Use this skill for both raw packet captures and structured network traffic datasets. The workflow is intentionally strict so the agent answers with repeatable analysis instead of improvising.
+This skill is a strict, script-driven network traffic investigation workflow.
 
-This skill is designed to work against datasets already present on the server under `datasets/network-traffic/`.
-Do not require upload or `/mnt/user-data/...` access unless the user explicitly says the file only exists in the sandbox workspace.
+Use it for enterprise-style traffic review, security investigation support, anomaly screening, communication analysis, and evidence export.
 
-There are now two backend tools for this skill:
+## Hard rules
 
-- `network_traffic_prepare`: preprocess `.pcap` and `.pcapng` files into standardized `packet.csv` and `flow.csv`
-- `network_traffic_analyze`: analyze one or more tabular datasets that already exist on the host
+These rules are mandatory for this skill:
 
-## Workflow
+- Always use this skill's workflow when the task is network traffic analysis
+- Always run the provided scripts through `bash`
+- Never replace this workflow with ad hoc Python, JavaScript, SQL generators, or generic one-off code
+- Never rely on backend custom tools for this skill
+- Never read full network traffic data files into model context with `read_file`
+- Never skip `inspect` when the current thread has not already confirmed the schema
+- Never silently switch to unrelated paths or generic directory probing
+- Never guess missing fields, data source meaning, or protocol semantics
+- If the input cannot be resolved cleanly, stop and report the exact reason instead of improvising
 
-### 1. Locate the files
+## Input resolution order
 
-First classify the user input:
+Resolve the input in this exact order:
 
-- If the user references `.pcap`, `.pcapng`, or asks to analyze raw packet captures, call `network_traffic_prepare` first.
-- If the user references `.csv`, `.parquet`, `.json`, `.jsonl`, `.xlsx`, `.xls`, or a prepared dataset name, call `network_traffic_analyze` directly.
-- If the user asks to compare multiple files together, pass multiple references in one tool call rather than analyzing only one file.
-- Treat a bare filename such as `Geodo.pcap`, `Gmail.pcap`, or `Gmail.flow.csv` as a complete and valid first reference. Do not require a directory path before the first tool call.
+1. Uploaded files under `/mnt/user-data/uploads`
+2. Local datasets under:
+   - `/mnt/datasets/network-traffic/raw`
+   - `/mnt/datasets/network-traffic/processed`
 
-Execution discipline:
+Rules:
 
-- Do not call `ls` or browse directories first when the user already named the target dataset.
-- Do not call `web_search` to find a local dataset that should live under `datasets/network-traffic/`.
-- Do not call `ask_clarification` before you have actually tried `network_traffic_prepare` or `network_traffic_analyze` with the user-provided dataset reference.
-- Do not try to rediscover the processed output path after `network_traffic_prepare` if the tool already returned `flow.csv`.
-- Use the returned `flow.csv` path from `network_traffic_prepare` directly as the next `network_traffic_analyze` reference.
-- Prefer filename, relative dataset path, or the tool-returned path. Only escalate to manual path questions if the tool itself reports ambiguity or not-found.
+- If an exact uploaded file match exists in `<uploaded_files>`, use it
+- If there is no uploaded match, resolve the file under `/mnt/datasets/network-traffic/...`
+- If both uploaded and local files match the same name, use the uploaded file unless the user explicitly says to use the local dataset
+- Do not browse unrelated directories before checking these known roots
+- Do not invent alternate paths
 
-Always resolve local dataset references before asking the user for upload or an absolute path.
+## File type handling
 
-Prefer the dedicated backend tool first:
+Classify the input immediately:
 
-- `network_traffic_prepare`
-- `network_traffic_analyze`
+- Raw capture: `.pcap`, `.pcapng`, `.cap`
+- Structured traffic data: `.csv`, `.parquet`, `.json`, `.jsonl`, `.xlsx`, `.xls`
 
-These tools run on the host and can access the repository datasets directly. Use them before generic file tools, generic bash steps, or any `/mnt/user-data/...` path probing.
+Rules:
 
-Hard requirement for named local datasets:
+- Raw capture must go through `prepare_pcap.py` first
+- Structured traffic data must go through `analyze.py`
+- Do not treat structured traffic data as plain chat text
 
-- If the user names `Geodo.pcap`, `Gmail.pcap`, `Gmail.flow.csv`, or any similar dataset reference, call the dedicated network traffic tool first.
-- Do not inspect `/mnt/user-data/uploads`, `/mnt/user-data/workspace`, or other sandbox directories before trying the dedicated tool.
-- Do not claim a dataset is missing until `network_traffic_prepare` or `network_traffic_analyze` returns an actual not-found or ambiguous result.
-- Do not ask the user for an absolute path on the first turn when they already provided a concrete filename.
-- Only ask for a more specific path after the dedicated tool explicitly reports `ambiguous` or `not_found`.
+## Allowed tools and assets
 
-Prefer files under:
+Use only these assets for execution:
 
-- `datasets/network-traffic/raw/`
-- `datasets/network-traffic/processed/`
+- `read_file` for:
+  - this `SKILL.md`
+  - referenced skill files
+  - small metadata or reference files
+  - short, line-limited previews when strictly necessary
+- `bash` for:
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/prepare_pcap.py`
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/analyze.py`
 
-If the user provided explicit file paths, use those instead.
+Do not use `read_file` to load full CSV, JSON, Excel, Parquet, or PCAP content into the model.
 
-The script also accepts shorthand file references:
+## Flow vs packet selection
 
-- full relative path, for example `datasets/network-traffic/processed/ustc_tfc2016/flow/Gmail.flow.csv`
-- dataset-relative path suffix, for example `ustc_tfc2016/flow/Gmail.flow.csv`
-- exact filename, for example `Gmail.flow.csv`
+Use these rules to choose the analysis view:
 
-If a shorthand matches multiple files, stop and ask the user to disambiguate instead of guessing.
+- If the user explicitly names `*.flow.csv`, use the `flow` view
+- If the user explicitly names `*.packet.csv`, use the `packet` view
+- If the user does not specify, use `--view auto`
+- In `auto` mode:
+  - Prefer `flow` for overview, ranking, distribution, trends, asset relations, and most anomaly triage
+  - Prefer `packet` for TCP flags, SYN-only behavior, handshake quality, RST-heavy traffic, ICMP probing, and packet-level burst questions
+- When the investigation starts broad and then needs protocol-detail validation, first use `flow`, then drill down into `packet`
 
-Important local-file rule:
+## Mandatory execution workflow
 
-- If the user names a file that should exist under `datasets/network-traffic/`, do not ask the user to upload it first.
-- Do not require a public URL for files that are expected to be on the server already.
-- First try the filename or relative path directly with `--files`, because the script resolves shorthand recursively under both default roots.
-- For example, if the user says `Gmail.flow.csv`, call the script with `--files Gmail.flow.csv` before asking any follow-up question.
-- For example, if the user says `Geodo.pcap`, call `network_traffic_prepare(references=["Geodo.pcap"])` before asking for any directory or path detail.
-- Only ask for upload or an explicit path if the shorthand resolution actually fails or matches multiple files.
+### Step 1. Resolve the file path
 
-Preferred order when the user asks about a known local dataset:
+Use the exact resolved path from:
 
-1. call the dedicated tool with the exact user-provided filename or reference
-2. if resolved, pass the resolved match into `analyze.py`
-3. if ambiguous, ask the user to disambiguate between the returned candidates
-4. if not found, ask for a more specific local path
-5. only suggest upload if local resolution truly fails and the user confirms the file is not already on the server
+- `/mnt/user-data/uploads/<filename>`
+- or `/mnt/datasets/network-traffic/raw/...`
+- or `/mnt/datasets/network-traffic/processed/...`
 
-Preferred tool call:
+### Step 2. Classify the file
 
-```text
-network_traffic_analyze(
-  reference="Gmail.flow.csv",
-  action="summary"
-)
+- If raw capture: preprocess first
+- If tabular traffic data: inspect first, then analyze
+
+### Step 3. Execute the correct script
+
+For raw capture:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/prepare_pcap.py --files <resolved-input-path> --format json
 ```
 
-Preferred PCAP preparation call:
+Then take the generated `flow.csv` path and continue with `analyze.py`.
 
-```text
-network_traffic_prepare(
-  references=["corp-day1.pcap", "corp-day2.pcap"],
-  dataset_name="corp-day1-day2"
-)
+Output location rules:
+
+- If the input came from `/mnt/user-data/uploads/...`, the generated outputs should stay under `/mnt/user-data/workspace/network-traffic/<dataset-name>/...`
+- If the input came from `/mnt/datasets/network-traffic/raw/...`, the generated outputs should go under `/mnt/datasets/network-traffic/processed/<dataset-name>/...`
+- Always use the `flow_csv` path returned by `prepare_pcap.py` for the next step
+- Do not guess or reconstruct the processed output path by hand
+
+For tabular traffic data:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action inspect
 ```
 
-Then analyze the resulting `flow.csv`:
+### Step 4. Inspect before deep analysis
 
-```text
-network_traffic_analyze(
-  reference="corp-day1-day2.flow.csv",
-  action="summary"
-)
+Unless schema was already confirmed in the current thread, run:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action inspect
 ```
 
-If `network_traffic_prepare` returns an explicit `flow.csv` path, use that exact path in the next step instead of probing the filesystem.
+### Step 5. Choose the correct analysis action
 
-Example for a named local PCAP:
+Use the smallest correct action from the script:
 
-```text
-network_traffic_prepare(
-  references=["Geodo.pcap"]
-)
-```
+- `summary`
+- `overview-report`
+- `scan-review`
+- `session-review`
+- `protocol-review`
+- `packet-review`
+- `topn`
+- `distribution`
+- `timeseries`
+- `filter`
+- `aggregate`
+- `detect-anomaly`
+- `query`
+- `export`
 
-Then immediately:
+Do not substitute these with self-written code.
 
-```text
-network_traffic_analyze(
-  reference="<flow.csv returned by network_traffic_prepare>",
-  action="distribution",
-  dimension="dst_port",
-  limit=10
-)
-```
+## Enterprise capability coverage
 
-The resolver is generic for future datasets. It searches recursively under both:
+### 1. Overview and inventory
 
-- `datasets/network-traffic/processed/`
-- `datasets/network-traffic/raw/`
+Use for:
 
-and supports:
+- Dataset sanity check
+- Record, byte, packet, and time-range summary
+- Unique source and destination counts
+- High-level protocol and service inventory
 
-- exact filenames
-- dataset-relative suffixes
-- normalized name matches for similar naming conventions
+Primary actions:
 
-For example, if the resolver returns one local path, immediately use that path in the analysis command rather than asking for upload.
+- `inspect`
+- `summary`
+- `overview-report`
+- `distribution`
 
-Host execution rule:
+### 2. Heavy hitters and communication concentration
 
-- Use `network_traffic_analyze` as the primary execution path.
-- Use `network_traffic_prepare` first only for PCAP input, then `network_traffic_analyze` on the generated `flow.csv`.
-- If the user already provided `csv`, `parquet`, `json`, `jsonl`, `xlsx`, or `xls`, do not preprocess; analyze directly.
-- Only fall back to manual host-side script execution if the tools themselves fail unexpectedly.
-- Do not inspect `/mnt/user-data/datasets` or require sandbox upload when the dataset is expected to already exist under `datasets/network-traffic/`.
-- Treat `datasets/network-traffic/` as the authoritative local dataset root for this skill.
+Use for:
 
-### 2. Inspect first
+- Top source IPs
+- Top destination IPs
+- Top destination ports
+- Top services
+- Top application protocols
+- Traffic concentration by bytes, packets, or flow count
 
-For tabular datasets, always start with `inspect` unless the schema was already confirmed in the current thread.
+Primary actions:
 
-For PCAP datasets:
+- `topn`
+- `aggregate`
+- `query`
 
-1. preprocess first with `network_traffic_prepare`
-2. use the generated `flow.csv` returned by the tool as the default analysis input
-3. then inspect or summarize that generated flow file
+### 3. Distribution and protocol mix
 
-```text
-network_traffic_analyze(reference="flows.csv", action="inspect")
-```
+Use for:
 
-### 3. Choose the smallest useful action
+- Protocol mix
+- Port mix
+- App-protocol mix
+- Service mix
+- Direction mix
+- Action mix
+- Traffic-family mix
 
-- Use `summary` for overall traffic statistics and protocol mix
-- Use `topn` for most active IPs, ports, protocols, or destinations
-- Use `timeseries` for minute, hour, or day buckets
-- Use `distribution` for categorical breakdowns
-- Use `filter` for narrowed rows before export or review
-- Use `aggregate` for grouped metrics
-- Use `detect-anomaly` for simple rule-based anomaly discovery
-- Use `query` when the user explicitly asks for SQL or you need a custom computation
-- Use `export` when the result set is too large for chat or the user asks for a file
+Primary actions:
 
-### 4. Prefer the unified `flows` view
+- `distribution`
+- `aggregate`
+- `protocol-review`
 
-The script standardizes common fields into a single DuckDB view named `flows`.
+### 4. Time-series and burst analysis
 
-Canonical fields:
+Use for:
 
-- `timestamp`
+- Hourly traffic profile
+- Daily traffic profile
+- Burst windows
+- Byte spikes
+- Activity concentration by time bucket
+
+Primary actions:
+
+- `timeseries`
+- `detect-anomaly --rule volume-spike`
+- `query`
+
+### 5. Asset, endpoint, and peer analysis
+
+Use for:
+
+- Which hosts contact the most peers
+- Which destinations are contacted by the most unique sources
+- Which assets, users, devices, or sensors are most active
+- Which communication relationships are unusually broad
+
+Primary actions:
+
+- `aggregate`
+- `topn`
+- `query`
+
+Relevant fields when available:
+
 - `src_ip`
 - `dst_ip`
-- `src_port`
-- `dst_port`
-- `protocol`
+- `asset_id`
+- `device_id`
+- `user_id`
+- `sensor_id`
+- `direction`
+
+### 6. Session quality and connection outcome analysis
+
+Use for:
+
+- Allowed vs denied traffic
+- Session-state distribution
+- Reset-heavy traffic
+- Failed or abnormal connection concentration
+- Short-lived low-byte connection patterns
+
+Primary actions:
+
+- `distribution`
+- `session-review`
+- `aggregate`
+- `query`
+- `detect-anomaly --rule failure-rate`
+
+Relevant fields when available:
+
+- `action`
+- `session_state`
+- `tcp_flags`
+- `duration_ms`
+- `flow_duration`
 - `bytes`
 - `packets`
-- `flow_duration`
-- `direction`
-- `action`
-- `source_table`
-- `source_file`
 
-### 5. Common command patterns
+### 7. Protocol field investigation
+
+Use for:
+
+- DNS query analysis
+- TLS SNI analysis
+- HTTP host analysis
+- Rule-name and action review
+- TCP flag concentration
+
+Primary actions:
+
+- `distribution`
+- `protocol-review`
+- `topn`
+- `query`
+- `filter`
+
+Relevant fields when available:
+
+- `dns_query`
+- `tls_sni`
+- `http_host`
+- `rule_name`
+- `tcp_flags`
+- `action`
+
+### 8. Rule-based anomaly screening
+
+Current anomaly handling is investigation-grade and rule-based.
+
+Use it for:
+
+- Wide destination spread from one source
+- Wide destination port spread from one source
+- Rare destination ports
+- Volume spikes
+- Failure-rate concentration
+
+Primary actions:
+
+- `detect-anomaly`
+- `query`
+
+Interpretation rule:
+
+- Treat anomaly results as investigation leads, not final attack attribution
+
+### 9. Packet-level review and handshake analysis
+
+Use for:
+
+- TCP flags distribution
+- SYN-only behavior
+- RST-heavy traffic
+- Handshake-quality review
+- ICMP probing
+- Small-packet burst patterns
+- Protocol-detail validation after a broad flow-level screen
+
+Primary actions:
+
+- `packet-review`
+- `protocol-review --view packet`
+- `session-review --view packet`
+- `detect-anomaly --rule syn-scan`
+- `detect-anomaly --rule rst-heavy`
+- `detect-anomaly --rule handshake-failure`
+- `detect-anomaly --rule icmp-probe`
+- `detect-anomaly --rule small-packet-burst`
+
+## Standard investigation playbooks
+
+### Playbook A. Executive traffic overview
+
+Run in this order:
+
+1. `inspect`
+2. `overview-report --view auto`
+3. If needed, `protocol-review --view auto`
+
+### Playbook B. Host and peer investigation
+
+Run in this order:
+
+1. `inspect`
+2. `summary`
+3. `topn` on `src_ip`
+4. `query` or `aggregate` for unique destination spread
+
+### Playbook C. Rare-port and long-tail screening
+
+Run in this order:
+
+1. `inspect`
+2. `detect-anomaly --rule rare-port`
+3. `query` for port-level detail and bytes
+
+### Playbook D. Volume and timing anomaly screening
+
+Run in this order:
+
+1. `inspect`
+2. `timeseries`
+3. `detect-anomaly --rule volume-spike`
+
+### Playbook E. Failure and reset investigation
+
+Run in this order:
+
+1. `inspect`
+2. `session-review --view auto`
+3. `detect-anomaly --rule failure-rate`
+4. `query` for affected hosts
+
+### Playbook F. Protocol field investigation
+
+Run in this order:
+
+1. `inspect`
+2. `protocol-review --view auto`
+3. `query` or `distribution` on one of:
+   - `dns_query`
+   - `tls_sni`
+   - `http_host`
+   - `rule_name`
+
+### Playbook G. Packet-level scan and handshake investigation
+
+Run in this order:
+
+1. `inspect`
+2. `packet-review --view packet`
+3. `detect-anomaly --rule syn-scan --view packet`
+4. If needed, `session-review --view packet`
+
+## Standard command patterns
 
 Summary:
 
-```text
-network_traffic_analyze(reference="flows.csv", action="summary")
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action summary
+```
+
+Enterprise overview report:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action overview-report --view auto
+```
+
+Scan review:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action scan-review --view auto --limit 20
+```
+
+Session review:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action session-review --view auto --limit 20
+```
+
+Protocol review:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action protocol-review --view auto --limit 20
+```
+
+Packet review:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action packet-review --view packet --limit 20
 ```
 
 Top source IPs by bytes:
 
-```text
-network_traffic_analyze(
-  reference="flows.csv",
-  action="topn",
-  dimension="src_ip",
-  metric="bytes",
-  limit=10
-)
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action topn --dimension src_ip --metric bytes --limit 10
 ```
 
-Hourly traffic trend:
+Destination port distribution:
 
-```text
-network_traffic_analyze(
-  reference="flows.csv",
-  action="timeseries",
-  interval="hour"
-)
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action distribution --dimension dst_port --limit 10
 ```
 
-Filtered export:
+Hourly trend:
 
-```text
-network_traffic_analyze(
-  reference="flows.csv",
-  action="export",
-  filters="[{\"field\":\"dst_port\",\"op\":\"in\",\"value\":[80,443]},{\"field\":\"timestamp\",\"op\":\"gte\",\"value\":\"2026-03-16T00:00:00\"}]",
-  output_file="datasets/network-traffic/outputs/web-traffic.csv"
-)
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action timeseries --interval hour
+```
+
+Rare-port screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule rare-port
+```
+
+Failure-rate screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule failure-rate
+```
+
+Volume-spike screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule volume-spike
+```
+
+Packet-level SYN scan screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule syn-scan --view packet
+```
+
+Packet-level reset-heavy screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule rst-heavy --view packet
+```
+
+Packet-level handshake-failure screening:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule handshake-failure --view packet
 ```
 
 Custom SQL:
 
-```text
-network_traffic_analyze(
-  reference="flows.csv",
-  action="query",
-  sql="SELECT src_ip, COUNT(*) AS flows, SUM(bytes) AS total_bytes FROM flows GROUP BY src_ip ORDER BY total_bytes DESC LIMIT 10"
-)
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action query --sql "<enterprise-investigation-sql>"
 ```
 
-### 6. Filters
+Export:
 
-Pass filters as JSON. Supported operators:
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action export --filters "<json-filters>" --output-file /mnt/user-data/outputs/<result-file>.csv
+```
 
-- `eq`
-- `neq`
-- `gt`
-- `gte`
-- `lt`
-- `lte`
-- `in`
-- `contains`
-- `startswith`
-- `endswith`
-- `in_cidr`
+## Output discipline
 
-### 7. Answering rules
+When replying:
 
-When you answer the user:
+- State exactly which file was analyzed
+- State whether the source came from uploads or local datasets
+- State which script and which action or SQL was used
+- Present measured findings first
+- Separate findings from interpretation
+- Keep interpretation conservative
+- For anomaly analysis, use language such as:
+  - suspicious
+  - notable
+  - rare
+  - concentrated
+  - bursty
+  - investigation-worthy
+- Do not claim malware family, attack phase, product identity, or threat intent unless the data directly supports it
 
-- name the files used
-- mention important filters and time windows
-- summarize the main finding first
-- mention export paths when files were written
-- say when a result is based on simple anomaly heuristics rather than a trained detector
-- do not claim a local dataset is inaccessible unless the script returned a real resolution or file error
-- do not propose synthetic sample generation when the user already named a concrete local dataset such as `Gmail.flow.csv`
-- do not ask for an absolute path before trying the resolver on the local dataset reference
-- do not ask for `/mnt/user-data/...` paths when the user is clearly referring to a server-side dataset managed under `datasets/network-traffic/`
-- do not claim the server dataset is inaccessible unless `network_traffic_analyze` itself returns a concrete file-resolution or execution error
+## Non-negotiable boundaries
 
-### 8. Boundaries
-
-Current boundaries:
-
-- Tabular datasets are analyzed directly with `network_traffic_analyze`
-- PCAP input is supported only through `network_traffic_prepare`, which uses host-side Python and `scapy`, then hands the generated `flow.csv` to `network_traffic_analyze`
-- Do not treat PCAP input as directly queryable tabular data before preprocessing
-- vector retrieval or RAG is still out of scope
-- MCP-backed live data access is still out of scope
+- Uploaded files are the primary input
+- Local datasets are secondary inputs
+- Execution must go through the provided scripts
+- Anomaly detection is rule-based, not model-based detection
+- RAG and vector retrieval are out of scope for this skill
+- No backend-tool path is part of this workflow

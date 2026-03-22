@@ -17,7 +17,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from file_resolution import normalize_name
+from file_resolution import is_explicit_path_reference, normalize_name
 
 try:
     from scapy.all import DNS, DNSQR, ICMP, IP, Raw, TCP, UDP, Ether, IPv6, PcapReader, RawPcapReader  # type: ignore
@@ -33,6 +33,16 @@ PCAP_PATTERNS = ("*.pcap", "*.pcapng", "*.cap")
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
+
+
+def to_repo_relative_display(value: str | Path) -> str:
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(repo_root()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
 
 
 def get_search_roots() -> list[Path]:
@@ -79,7 +89,7 @@ def resolve_pcap_reference(reference: str) -> list[str]:
     if not deduped:
         raise ValueError(f"PCAP reference '{reference}' was not found under datasets/network-traffic/raw or processed.")
     if len(deduped) > 1:
-        sample = "\n".join(f"  - {item}" for item in deduped[:10])
+        sample = "\n".join(f"  - {to_repo_relative_display(item)}" for item in deduped[:10])
         raise ValueError(
             f"PCAP reference '{reference}' matched multiple files. Use a more specific path.\nCandidates:\n{sample}"
         )
@@ -95,6 +105,8 @@ def discover_pcaps(values: list[str]) -> list[str]:
                 files.extend(str(item.resolve()) for item in sorted(path.rglob(pattern)))
         elif path.exists():
             files.append(str(path.resolve()))
+        elif is_explicit_path_reference(value):
+            raise ValueError(f"PCAP path '{value}' does not exist.")
         else:
             files.extend(resolve_pcap_reference(value))
     deduped: list[str] = []
@@ -437,11 +449,12 @@ def extract_packet_fields(packet: Any, source_file: str, packet_number: int) -> 
 def parse_packet_rows(pcap_file: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     packet_number = 0
+    display_source = to_repo_relative_display(pcap_file)
     try:
         with PcapReader(pcap_file) as reader:
             for packet in reader:
                 packet_number += 1
-                rows.append(extract_packet_fields(packet, pcap_file, packet_number))
+                rows.append(extract_packet_fields(packet, display_source, packet_number))
     except Exception:
         # Fallback for edge-case captures where RawPcapReader is more tolerant.
         rows.clear()
@@ -457,7 +470,7 @@ def parse_packet_rows(pcap_file: str) -> list[dict[str, Any]]:
                     except Exception:
                         continue
                 packet.time = getattr(metadata, "sec", 0) + getattr(metadata, "usec", 0) / 1_000_000
-                rows.append(extract_packet_fields(packet, pcap_file, packet_number))
+                rows.append(extract_packet_fields(packet, display_source, packet_number))
     return rows
 
 
@@ -602,6 +615,22 @@ def default_dataset_name(pcap_files: list[str]) -> str:
     return f"batch-{digest}"
 
 
+def input_source_type(paths: list[str]) -> str:
+    normalized = [Path(item).as_posix() for item in paths]
+    if normalized and all(path.startswith("/mnt/user-data/uploads/") for path in normalized):
+        return "uploads"
+    if normalized and all("/datasets/network-traffic/" in path.replace("\\", "/") for path in normalized):
+        return "local-dataset"
+    return "mixed"
+
+
+def default_output_dir_for_inputs(dataset_name: str, pcap_files: list[str]) -> Path:
+    source_type = input_source_type(pcap_files)
+    if source_type == "uploads":
+        return Path("/mnt/user-data/workspace") / "network-traffic" / dataset_name
+    return repo_root() / "datasets" / "network-traffic" / "processed" / dataset_name
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Preprocess PCAP files into standardized packet.csv and flow.csv files.")
     parser.add_argument("--files", nargs="+", required=True, help="PCAP files, directories, or shorthand references")
@@ -621,7 +650,8 @@ def main() -> int:
             parser.error("No PCAP files were found from --files")
 
         dataset_name = sanitize_name(args.dataset_name or default_dataset_name(pcap_files))
-        output_dir = Path(args.output_dir) if args.output_dir else repo_root() / "datasets" / "network-traffic" / "processed" / dataset_name
+        source_type = input_source_type(pcap_files)
+        output_dir = Path(args.output_dir) if args.output_dir else default_output_dir_for_inputs(dataset_name, pcap_files)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         packet_rows: list[dict[str, Any]] = []
@@ -766,12 +796,14 @@ def main() -> int:
         metadata = {
             "dataset_name": dataset_name,
             "engine": "scapy",
-            "source_files": pcap_files,
+            "input_source_type": source_type,
+            "source_files": [to_repo_relative_display(item) for item in pcap_files],
             "packet_rows": len(packet_rows),
             "flow_rows": len(flow_rows),
-            "per_file_packet_rows": packet_counts,
-            "packet_csv": str(packet_path),
-            "flow_csv": str(flow_path),
+            "per_file_packet_rows": {to_repo_relative_display(key): value for key, value in packet_counts.items()},
+            "packet_csv": to_repo_relative_display(packet_path),
+            "flow_csv": to_repo_relative_display(flow_path),
+            "metadata": to_repo_relative_display(metadata_path),
         }
         metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -785,9 +817,9 @@ def main() -> int:
                         f"Source PCAP files: {len(pcap_files)}",
                         f"Packet rows: {len(packet_rows)}",
                         f"Flow rows: {len(flow_rows)}",
-                        f"packet.csv: {packet_path}",
-                        f"flow.csv: {flow_path}",
-                        f"metadata: {metadata_path}",
+                        f"packet.csv: {to_repo_relative_display(packet_path)}",
+                        f"flow.csv: {to_repo_relative_display(flow_path)}",
+                        f"metadata: {to_repo_relative_display(metadata_path)}",
                     ]
                 )
             )

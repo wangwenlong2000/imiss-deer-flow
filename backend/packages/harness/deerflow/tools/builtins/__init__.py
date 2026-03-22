@@ -10,8 +10,8 @@ __all__ = [
     "setup_agent",
     "present_file_tool",
     "ask_clarification_tool",
-    "network_traffic_prepare_tool",
-    "network_traffic_analyze_tool",
+#    "network_traffic_prepare_tool",
+#    "network_traffic_analyze_tool",
     "view_image_tool",
     "task_tool",
 ]

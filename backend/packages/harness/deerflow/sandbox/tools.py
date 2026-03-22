@@ -32,6 +32,11 @@ _DATASET_PATH_ALIASES = {
     "datasets/network-traffic": "/mnt/datasets/network-traffic",
     "./datasets/network-traffic": "/mnt/datasets/network-traffic",
 }
+_UPLOADS_VIRTUAL_PREFIX = f"{VIRTUAL_PATH_PREFIX}/uploads/"
+_TEXT_DATA_FILE_EXTENSIONS = {".csv", ".json", ".jsonl"}
+_BINARY_DATA_FILE_EXTENSIONS = {".parquet", ".xlsx", ".xls", ".pcap", ".pcapng", ".cap"}
+_DEFAULT_DATA_PREVIEW_LINES = 20
+_MAX_DATA_PREVIEW_LINES = 50
 
 
 def replace_virtual_path(path: str, thread_data: ThreadDataState | None) -> str:
@@ -106,7 +111,7 @@ def _read_only_virtual_to_actual_mappings() -> dict[str, str]:
     }
 
     # Expose configured skills mount (default: /mnt/skills) as read-only.
-    # This allows read_file/ls tools to inspect SKILL.md in local sandbox mode.
+    # This allows read_file/ls to access SKILL.md in local sandbox mode.
     try:
         from deerflow.config import get_app_config
 
@@ -115,7 +120,7 @@ def _read_only_virtual_to_actual_mappings() -> dict[str, str]:
         if skills_path.exists():
             mappings[config.skills.container_path] = str(skills_path)
     except Exception:
-        # Keep dataset mappings available even if app config is temporarily unavailable.
+        # Keep dataset mappings available even if app config is unavailable.
         pass
 
     return mappings
@@ -136,6 +141,28 @@ def normalize_dataset_virtual_path(path: str) -> str:
             rest = normalized[len(alias) :].lstrip("/")
             return f"{virtual_base}/{rest}" if rest else virtual_base
     return normalized
+
+
+def _is_uploaded_data_file(requested_path: str) -> bool:
+    normalized = normalize_dataset_virtual_path(requested_path)
+    if not normalized.startswith(_UPLOADS_VIRTUAL_PREFIX):
+        return False
+    lower_path = normalized.lower()
+    return any(
+        lower_path.endswith(ext)
+        for ext in (*_TEXT_DATA_FILE_EXTENSIONS, *_BINARY_DATA_FILE_EXTENSIONS)
+    )
+
+
+def _uploaded_data_file_kind(requested_path: str) -> str | None:
+    lower_path = normalize_dataset_virtual_path(requested_path).lower()
+    for ext in _TEXT_DATA_FILE_EXTENSIONS:
+        if lower_path.endswith(ext):
+            return "text"
+    for ext in _BINARY_DATA_FILE_EXTENSIONS:
+        if lower_path.endswith(ext):
+            return "binary"
+    return None
 
 
 def normalize_dataset_virtual_paths_in_command(command: str) -> str:
@@ -245,7 +272,6 @@ def validate_local_bash_command_paths(command: str, thread_data: ThreadDataState
         raise SandboxRuntimeError("Thread data not available for local sandbox")
 
     # Optional escape hatch for trusted local environments.
-    # Set DEERFLOW_LOCAL_BASH_ALLOW_UNSAFE_PATHS=1 to bypass absolute-path checks.
     if os.getenv("DEERFLOW_LOCAL_BASH_ALLOW_UNSAFE_PATHS", "0") == "1":
         return
 
@@ -256,8 +282,8 @@ def validate_local_bash_command_paths(command: str, thread_data: ThreadDataState
     for match in _ABSOLUTE_PATH_PATTERN.finditer(command):
         absolute_path = match.group(0)
 
-        # Ignore URL path segments, e.g. `https://example.com/path` where `/path`
-        # would otherwise be matched as an absolute file path.
+        # Ignore URL path segments, e.g. `https://example.com/path` where
+        # `/path` would otherwise be matched as an absolute file path.
         prefix = command[max(0, match.start() - 10) : match.start()].lower()
         if prefix.endswith("http:/") or prefix.endswith("https:/"):
             continue
@@ -533,6 +559,28 @@ def read_file_tool(
         sandbox = ensure_sandbox_initialized(runtime)
         ensure_thread_directories_exist(runtime)
         requested_path = path
+        data_file_kind = _uploaded_data_file_kind(requested_path) if _is_uploaded_data_file(requested_path) else None
+        if data_file_kind == "binary":
+            return (
+                f"Error: Direct read_file access is disabled for uploaded binary data files: {requested_path}\n"
+                "Use a skill-specific script or bash command to inspect or analyze this file instead."
+            )
+        if data_file_kind == "text":
+            if start_line is None and end_line is None:
+                start_line = 1
+                end_line = _DEFAULT_DATA_PREVIEW_LINES
+            elif start_line is None or end_line is None:
+                return (
+                    f"Error: Uploaded data file previews must specify both start_line and end_line: {requested_path}\n"
+                    f"Use a small range of at most {_MAX_DATA_PREVIEW_LINES} lines."
+                )
+            elif end_line < start_line:
+                return f"Error: end_line must be greater than or equal to start_line for {requested_path}"
+            elif (end_line - start_line + 1) > _MAX_DATA_PREVIEW_LINES:
+                return (
+                    f"Error: Uploaded data file previews are limited to {_MAX_DATA_PREVIEW_LINES} lines: {requested_path}\n"
+                    "Use a smaller line range or analyze the file with a script instead."
+                )
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             path = _resolve_local_tool_path(path, thread_data, allow_read_only=True)
@@ -541,6 +589,11 @@ def read_file_tool(
             return "(empty)"
         if start_line is not None and end_line is not None:
             content = "\n".join(content.splitlines()[start_line - 1 : end_line])
+            if data_file_kind == "text":
+                return (
+                    f"(previewing lines {start_line}-{end_line} from uploaded data file {requested_path})\n"
+                    f"{content}"
+                ).strip()
         return content
     except SandboxError as e:
         return f"Error: {e}"

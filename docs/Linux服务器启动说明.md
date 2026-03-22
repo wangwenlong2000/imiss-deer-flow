@@ -1,5 +1,38 @@
 # Linux 服务器启动说明
 
+如果是你这套 Linux 服务器启动方式，直接用这组：
+
+```bash
+cd ~/imiss-deer-flow-main
+source backend/.venv/bin/activate
+make linux-server-start
+```
+
+如果要先停再重启：
+
+```bash
+cd ~/imiss-deer-flow-main
+source backend/.venv/bin/activate
+make linux-server-stop
+make linux-server-start
+```
+
+查看状态：
+
+```bash
+cd ~/imiss-deer-flow-main
+make linux-server-status
+```
+
+看日志：
+
+```bash
+cd ~/imiss-deer-flow-main
+tail -f logs/langgraph.log
+tail -f logs/gateway.log
+```
+
+如果你要，我也可以再给你一版“前端、gateway、langgraph 分别单独启动”的命令。
 这份文档记录当前项目在 Linux 服务器上的可用启动方式。
 
 适用场景：
