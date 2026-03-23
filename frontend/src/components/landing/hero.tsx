@@ -17,60 +17,51 @@ export function Hero({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="absolute inset-0 z-0 bg-black/40">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,#b9ddff_0%,#e9f6ff_52%,#d5ebff_100%)]">
         <Galaxy
           mouseRepulsion={false}
           starSpeed={0.2}
           density={0.6}
-          glowIntensity={0.35}
-          twinkleIntensity={0.3}
-          speed={0.5}
+          glowIntensity={0.2}
+          twinkleIntensity={0.18}
+          speed={0.35}
         />
       </div>
       <FlickeringGrid
-        className="absolute inset-0 z-0 translate-y-8 mask-[url(/images/deer.svg)] mask-size-[100vw] mask-center mask-no-repeat md:mask-size-[72vh]"
+        className="absolute inset-0 z-0 translate-y-8 opacity-60"
         squareSize={4}
         gridGap={4}
-        color={"white"}
-        maxOpacity={0.3}
-        flickerChance={0.25}
+        color={"#1677c8"}
+        maxOpacity={0.18}
+        flickerChance={0.16}
       />
       <div className="container-md relative z-10 mx-auto flex h-screen flex-col items-center justify-center">
-        <h1 className="flex items-center gap-2 text-4xl font-bold md:text-6xl">
+        <h1 className="flex items-center gap-2 text-4xl font-bold text-[#0b4f88] md:text-6xl">
           <WordRotate
             words={[
-              "Deep Research",
-              "Collect Data",
-              "Analyze Data",
-              "Generate Webpages",
-              "Vibe Coding",
-              "Generate Slides",
-              "Generate Images",
-              "Generate Podcasts",
-              "Generate Videos",
-              "Generate Songs",
-              "Organize Emails",
-              "Do Anything",
-              "Learn Anything",
+              "城市数据汇聚",
+              "多源数据分析",
+              "异常事件识别",
+              "城市运行洞察",
+              "专题报告生成",
+              "辅助决策支撑",
             ]}
           />{" "}
-          <div>with DeerFlow</div>
+          <div>平台</div>
         </h1>
         <p
           className="mt-8 scale-105 text-center text-2xl text-shadow-sm"
-          style={{ color: "rgb(184,184,192)" }}
+          style={{ color: "rgb(74,110,145)" }}
         >
-          An open-source SuperAgent harness that researches, codes, and creates.
-          With
+          面向中国移动城市超脑建设场景打造的城市数据分析门户，支持
           <br />
-          the help of sandboxes, memories, tools, skills and subagents, it
-          handles
+          网络流量、时空轨迹、地理空间、遥感影像、统计年鉴等多源数据的
           <br />
-          different levels of tasks that could take minutes to hours.
+          统一接入、专题洞察、异常识别与辅助决策输出。
         </p>
-        <Link href="/workspace">
+        <Link href="/workspace/chats/new">
           <Button className="size-lg mt-8 scale-108" size="lg">
-            <span className="text-md">Get Started with 2.0</span>
+            <span className="text-md">启动城市超脑</span>
             <ChevronRightIcon className="size-4" />
           </Button>
         </Link>

@@ -10,6 +10,10 @@ import { AuroraText } from "../ui/aurora-text";
 
 let waved = false;
 
+const platformGreeting = "欢迎使用城市超脑数据分析平台";
+const platformDescription =
+  "这里可以围绕网络流量、时空轨迹、地理空间、遥感影像、统计年鉴等多源城市数据开展智能分析、异常识别与专题研判。";
+
 export function Welcome({
   className,
   mode,
@@ -26,9 +30,11 @@ export function Welcome({
     }
     return ["var(--color-foreground)"];
   }, [isUltra]);
+
   useEffect(() => {
     waved = true;
   }, []);
+
   return (
     <div
       className={cn(
@@ -42,9 +48,9 @@ export function Welcome({
         ) : (
           <div className="flex items-center gap-2">
             <div className={cn("inline-block", !waved ? "animate-wave" : "")}>
-              {isUltra ? "🚀" : "👋"}
+              {isUltra ? "🔍" : "👋"}
             </div>
-            <AuroraText colors={colors}>{t.welcome.greeting}</AuroraText>
+            <AuroraText colors={colors}>{platformGreeting}</AuroraText>
           </div>
         )}
       </div>
@@ -60,11 +66,7 @@ export function Welcome({
         </div>
       ) : (
         <div className="text-muted-foreground text-sm">
-          {t.welcome.description.includes("\n") ? (
-            <pre className="whitespace-pre">{t.welcome.description}</pre>
-          ) : (
-            <p>{t.welcome.description}</p>
-          )}
+          <p>{platformDescription}</p>
         </div>
       )}
     </div>
