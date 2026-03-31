@@ -1,0 +1,9 @@
+description: Use this skill when the user wants to preprocess law/regulation datasets, build or rebuild BM25/vector indexes, retrieve legal evidence through mandatory dual-path retrieval from built indexes, or answer grounded law/regulation questions from the indexed corpus.
+
+interface:
+  display_name: "Law Regulations RAG"
+  short_description: "Preprocess law/regulation datasets, build BM25/vector indexes, and run mandatory dual-path retrieval with a strict script-driven workflow."
+  default_prompt: "Use $law-regulations-rag as a strict workflow, not as a loose suggestion. Resolve inputs from uploads first, then /mnt/datasets/law-regulations/raw, /processed, and /index. If only raw files exist, run preprocess.py first. If the user asks to build indexes, build both BM25 and vector indexes by default with build_index.py. If the user asks to rebuild or refresh indexes, run build_index.py with force-rebuild settings when supported. If the user asks a law/regulation question grounded in the indexed corpus, use retrieve.py instead of rebuilding. Retrieval in this skill is mandatory dual-path retrieval over both BM25 and vector indexes, not single-path retrieval. If indexes are missing when retrieval is requested, preprocess if needed, then build both indexes, then run retrieval. Use the THUOCL law user dictionary for BM25 tokenization and use models.yaml for vector retrieval configuration. Do not replace this workflow with ad hoc code."
+
+policy:
+  allow_implicit_invocation: true

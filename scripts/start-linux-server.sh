@@ -13,9 +13,9 @@ if [ ! -x "$REPO_ROOT/backend/.venv/bin/python" ]; then
 fi
 
 export DEER_FLOW_CONFIG_PATH="${DEER_FLOW_CONFIG_PATH:-$REPO_ROOT/config.yaml}"
-export LANGGRAPH_PORT="${LANGGRAPH_PORT:-3024}"
-export GATEWAY_PORT="${GATEWAY_PORT:-38001}"
-export FRONTEND_PORT="${FRONTEND_PORT:-33000}"
+export LANGGRAPH_PORT="${LANGGRAPH_PORT:-2126}"
+export GATEWAY_PORT="${GATEWAY_PORT:-8002}"
+export FRONTEND_PORT="${FRONTEND_PORT:-33005}"
 
 echo "Starting DeerFlow on server ports:"
 echo "  LangGraph: $LANGGRAPH_PORT"

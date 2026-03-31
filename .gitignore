@@ -45,6 +45,8 @@ skills/custom/*
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**
+!skills/custom/law-regulations-rag/
+!skills/custom/law-regulations-rag/**
 logs/
 log/
 backend/log/

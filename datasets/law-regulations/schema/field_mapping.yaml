@@ -1,0 +1,148 @@
+canonical_fields:
+  record_id:
+    - record_id
+    - id
+    - doc_id
+    - article_id
+    - chunk_id
+    - uid
+
+  name:
+    - name
+    - title
+    - article_name
+    - provision_name
+    - entry_name
+
+  law_title:
+    - law_title
+    - law_name
+    - document_title
+    - regulation_title
+    - policy_title
+    - statute_title
+
+  article_no:
+    - article_no
+    - article
+    - article_number
+    - clause_no
+    - provision_no
+    - section_no
+    - item_no
+
+  article_title:
+    - article_title
+    - clause_title
+    - provision_title
+    - section_title
+
+  chapter:
+    - chapter
+    - chapter_no
+    - chapter_title
+
+  section:
+    - section
+    - section_name
+    - section_title
+    - part
+    - part_title
+
+  content:
+    - content
+    - text
+    - article_text
+    - clause_text
+    - body
+    - main_text
+    - full_text
+
+  document_type:
+    - document_type
+    - doc_type
+    - type
+    - category
+    - instrument_type
+
+  issuer:
+    - issuer
+    - issuing_body
+    - promulgation_authority
+    - authority
+    - department
+    - agency
+
+  publish_date:
+    - publish_date
+    - promulgation_date
+    - issue_date
+    - release_date
+    - announced_date
+
+  effective_date:
+    - effective_date
+    - effective_from
+    - start_date
+    - enforcement_date
+    - valid_from
+
+  expiry_date:
+    - expiry_date
+    - effective_to
+    - end_date
+    - valid_to
+
+  effect_status:
+    - effect_status
+    - status
+    - validity
+    - legal_status
+    - current_status
+
+  jurisdiction:
+    - jurisdiction
+    - region
+    - area
+    - applicable_region
+    - locale
+
+  topic:
+    - topic
+    - subject
+    - theme
+    - keyword
+    - keywords
+
+  source:
+    - source
+    - source_file
+    - file_name
+    - origin
+    - dataset_source
+
+  source_url:
+    - source_url
+    - url
+    - link
+    - reference_url
+
+  version:
+    - version
+    - revision
+    - amendment_version
+
+  language:
+    - language
+    - lang
+
+default_metrics:
+  - count
+  - count_distinct:law_title
+  - count_distinct:article_no
+
+notes:
+  - "Add aliases here when a new legal dataset or export format uses different column names."
+  - "Canonical fields are used to build the unified 'law_articles' view for law-regulation-rag."
+  - "For LeCoQA-style data, 'name' and 'content' are sufficient minimum fields."
+  - "If 'law_title' or 'article_no' are missing, the pipeline may derive them from 'name' when possible."

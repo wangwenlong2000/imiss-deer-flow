@@ -26,11 +26,17 @@ _LOCAL_BASH_SYSTEM_PATH_PREFIXES = (
 )
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 _READ_ONLY_LOCAL_DATASET_MAPPINGS = {
+    "/mnt/datasets": str((_REPO_ROOT / "datasets").resolve()),
     "/mnt/datasets/network-traffic": str((_REPO_ROOT / "datasets" / "network-traffic").resolve()),
+    "/mnt/datasets/law-regulations": str((_REPO_ROOT / "datasets" / "law-regulations").resolve()),
 }
 _DATASET_PATH_ALIASES = {
+    "datasets": "/mnt/datasets",
+    "./datasets": "/mnt/datasets",
     "datasets/network-traffic": "/mnt/datasets/network-traffic",
     "./datasets/network-traffic": "/mnt/datasets/network-traffic",
+    "datasets/law-regulations": "/mnt/datasets/law-regulations",
+    "./datasets/law-regulations": "/mnt/datasets/law-regulations",
 }
 _UPLOADS_VIRTUAL_PREFIX = f"{VIRTUAL_PATH_PREFIX}/uploads/"
 _TEXT_DATA_FILE_EXTENSIONS = {".csv", ".json", ".jsonl"}

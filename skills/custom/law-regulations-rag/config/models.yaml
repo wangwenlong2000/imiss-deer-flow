@@ -1,0 +1,24 @@
+models:
+  - name: qwen-plus
+    type: chat
+    display_name: Qwen Plus
+    use: langchain_openai:ChatOpenAI
+    model: qwen-plus
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+    temperature: 0.7
+    supports_vision: true
+
+  - name: law-embedding
+    type: embedding
+    display_name: Law Embedding
+    use: openai:embeddings
+    model: text-embedding-v3
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    dimensions: 1024
+    query_prefix: ""
+    max_batch_size: 10
+    retry_times: 3
+    retry_interval: 1.5

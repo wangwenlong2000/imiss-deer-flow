@@ -1,0 +1,6534 @@
+{
+  "corpus_total": 55348,
+  "queries_total": 1543,
+  "duplicate_doc_ids": [],
+  "missing_positive_ids": [],
+  "title_mismatch": [
+    {
+      "query_id": 3,
+      "doc_id": 504,
+      "match_name": "中华人民共和国民法典第一百四十四条",
+      "corpus_title": "中华人民共和国民法典第九百六十七条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 795,
+      "match_name": "中华人民共和国民法典第一百四十六条",
+      "corpus_title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 797,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第一百五十四条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 805,
+      "match_name": "中华人民共和国民法典第九百六十七条",
+      "corpus_title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 19,
+      "doc_id": 46292,
+      "match_name": "基本农田保护条例第十七条",
+      "corpus_title": "土地管理法实施条例第十二条"
+    },
+    {
+      "query_id": 19,
+      "doc_id": 52954,
+      "match_name": "土地管理法实施条例第十二条",
+      "corpus_title": "基本农田保护条例第十七条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 984,
+      "match_name": "农村土地承包法第二十三条",
+      "corpus_title": "中华人民共和国民法典第三百三十三条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 990,
+      "match_name": "中华人民共和国民法典第三百三十三条",
+      "corpus_title": "中华人民共和国民法典第三百三十九条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 993,
+      "match_name": "中华人民共和国民法典第三百三十九条",
+      "corpus_title": "中华人民共和国民法典第三百四十二条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 11080,
+      "match_name": "中华人民共和国民法典第三百四十二条",
+      "corpus_title": "农村土地承包法第二十三条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 573,
+      "match_name": "农村土地承包法第六条",
+      "corpus_title": "中华人民共和国民法典第一千零八十七条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11063,
+      "match_name": "农村土地承包法第二十七条",
+      "corpus_title": "农村土地承包法第六条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11084,
+      "match_name": "农村土地承包法第三十一条",
+      "corpus_title": "农村土地承包法第二十七条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11088,
+      "match_name": "中华人民共和国民法典第一千零八十七条",
+      "corpus_title": "农村土地承包法第三十一条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 573,
+      "match_name": "农村土地承包法第六条",
+      "corpus_title": "中华人民共和国民法典第一千零八十七条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11063,
+      "match_name": "农村土地承包法第二十七条",
+      "corpus_title": "农村土地承包法第六条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11084,
+      "match_name": "农村土地承包法第三十一条",
+      "corpus_title": "农村土地承包法第二十七条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11088,
+      "match_name": "中华人民共和国民法典第一千零八十七条",
+      "corpus_title": "农村土地承包法第三十一条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1115,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1129,
+      "match_name": "中华人民共和国民法典第一千一百六十五条",
+      "corpus_title": "中华人民共和国民法典第一千一百七十九条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第一千一百七十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 76,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第九百九十六条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 76,
+      "doc_id": 1216,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百九十六条"
+    },
+    {
+      "query_id": 77,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第九百九十六条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 77,
+      "doc_id": 1216,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百九十六条"
+    },
+    {
+      "query_id": 78,
+      "doc_id": 1148,
+      "match_name": "中华人民共和国民法典第一千零五条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十八条"
+    },
+    {
+      "query_id": 78,
+      "doc_id": 1225,
+      "match_name": "中华人民共和国民法典第一千一百九十八条",
+      "corpus_title": "中华人民共和国民法典第一千零五条"
+    },
+    {
+      "query_id": 79,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千零五条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 79,
+      "doc_id": 1225,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千零五条"
+    },
+    {
+      "query_id": 80,
+      "doc_id": 1171,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 80,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千二百二十一条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1115,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千零二条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1222,
+      "match_name": "中华人民共和国民法典第一千一百六十五条",
+      "corpus_title": "中华人民共和国民法典第一千零二条"
+    },
+    {
+      "query_id": 83,
+      "doc_id": 1147,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十七条"
+    },
+    {
+      "query_id": 83,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千一百九十七条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 84,
+      "doc_id": 1148,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十八条"
+    },
+    {
+      "query_id": 84,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千一百九十八条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 85,
+      "doc_id": 1133,
+      "match_name": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 85,
+      "doc_id": 24512,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条"
+    },
+    {
+      "query_id": 86,
+      "doc_id": 1133,
+      "match_name": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 86,
+      "doc_id": 24512,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条"
+    },
+    {
+      "query_id": 88,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 88,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1132,
+      "match_name": "中华人民共和国民法典第一千零三条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十二条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第一千零一十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1223,
+      "match_name": "中华人民共和国民法典第一千一百八十二条",
+      "corpus_title": "中华人民共和国民法典第一千零三条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1231,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第一千零一十一条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1168,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1171,
+      "match_name": "中华人民共和国民法典第一千二百一十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千二百二十一条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1153,
+      "match_name": "中华人民共和国民法典第一千零四条",
+      "corpus_title": "中华人民共和国民法典第一千二百零三条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1173,
+      "match_name": "中华人民共和国民法典第一千二百零三条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十三条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1224,
+      "match_name": "中华人民共和国民法典第一千二百二十三条",
+      "corpus_title": "中华人民共和国民法典第一千零四条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 10687,
+      "match_name": "最高人民法院关于审理食品药品纠纷案件适用法律若干问题的规定第二条",
+      "corpus_title": "药品管理法第一百一十六条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 23390,
+      "match_name": "药品管理法第一百一十六条",
+      "corpus_title": "最高人民法院关于审理食品药品纠纷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 93,
+      "doc_id": 1153,
+      "match_name": "食品安全法第一百四十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百零三条"
+    },
+    {
+      "query_id": 93,
+      "doc_id": 9280,
+      "match_name": "中华人民共和国民法典第一千二百零三条",
+      "corpus_title": "食品安全法第一百四十八条"
+    },
+    {
+      "query_id": 96,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第一千零四条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 96,
+      "doc_id": 1224,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第一千零四条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 830,
+      "match_name": "中华人民共和国民法典第一千零一十八条",
+      "corpus_title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 1238,
+      "match_name": "中华人民共和国民法典第一千零一十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 1239,
+      "match_name": "中华人民共和国民法典第一百七十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 830,
+      "match_name": "中华人民共和国民法典第一千零一十八条",
+      "corpus_title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 1238,
+      "match_name": "中华人民共和国民法典第一千零一十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 1239,
+      "match_name": "中华人民共和国民法典第一百七十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 830,
+      "match_name": "中华人民共和国民法典第一千零一十八条",
+      "corpus_title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 1238,
+      "match_name": "中华人民共和国民法典第一千零一十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 1239,
+      "match_name": "中华人民共和国民法典第一百七十九条",
+      "corpus_title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 124,
+      "doc_id": 1145,
+      "match_name": "中华人民共和国民法典第一千零二十四条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十五条"
+    },
+    {
+      "query_id": 124,
+      "doc_id": 1244,
+      "match_name": "中华人民共和国民法典第一千一百九十五条",
+      "corpus_title": "中华人民共和国民法典第一千零二十四条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1215,
+      "match_name": "中华人民共和国民法典第一千零三十二条",
+      "corpus_title": "中华人民共和国民法典第九百九十五条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1243,
+      "match_name": "中华人民共和国民法典第一千零三十三条",
+      "corpus_title": "中华人民共和国民法典第一千零二十三条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1252,
+      "match_name": "中华人民共和国民法典第九百九十五条",
+      "corpus_title": "中华人民共和国民法典第一千零三十二条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1253,
+      "match_name": "中华人民共和国民法典第一千零二十三条",
+      "corpus_title": "中华人民共和国民法典第一千零三十三条"
+    },
+    {
+      "query_id": 141,
+      "doc_id": 1176,
+      "match_name": "个人信息保护法第二十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十六条"
+    },
+    {
+      "query_id": 141,
+      "doc_id": 4118,
+      "match_name": "中华人民共和国民法典第一千二百二十六条",
+      "corpus_title": "个人信息保护法第二十八条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 1252,
+      "match_name": "宪法第四十条",
+      "corpus_title": "中华人民共和国民法典第一千零三十二条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 8365,
+      "match_name": "中华人民共和国民法典第一千零三十二条",
+      "corpus_title": "治安管理处罚法第八十七条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 31875,
+      "match_name": "治安管理处罚法第八十七条",
+      "corpus_title": "宪法第四十条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1132,
+      "match_name": "中华人民共和国民法典第九百九十条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十二条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1133,
+      "match_name": "中华人民共和国民法典第一千一百八十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1210,
+      "match_name": "中华人民共和国民法典第一千一百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 159,
+      "doc_id": 1240,
+      "match_name": "中华人民共和国民法典第一千零二十三条",
+      "corpus_title": "中华人民共和国民法典第一千零二十条"
+    },
+    {
+      "query_id": 159,
+      "doc_id": 1243,
+      "match_name": "中华人民共和国民法典第一千零二十条",
+      "corpus_title": "中华人民共和国民法典第一千零二十三条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 188,
+      "match_name": "中华人民共和国民法典第一百八十六条",
+      "corpus_title": "中华人民共和国民法典第六百五十一条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 189,
+      "match_name": "中华人民共和国民法典第六百五十一条",
+      "corpus_title": "中华人民共和国民法典第六百五十二条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 193,
+      "match_name": "中华人民共和国民法典第六百五十二条",
+      "corpus_title": "中华人民共和国民法典第六百五十六条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 837,
+      "match_name": "电力法第五十九条",
+      "corpus_title": "中华人民共和国民法典第一百八十六条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 19125,
+      "match_name": "中华人民共和国民法典第六百五十六条",
+      "corpus_title": "电力法第五十九条"
+    },
+    {
+      "query_id": 212,
+      "doc_id": 189,
+      "match_name": "电力供应与使用条例第三十一条",
+      "corpus_title": "中华人民共和国民法典第六百五十二条"
+    },
+    {
+      "query_id": 212,
+      "doc_id": 36542,
+      "match_name": "中华人民共和国民法典第六百五十二条",
+      "corpus_title": "电力供应与使用条例第三十一条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 2,
+      "match_name": "电力法第五十九条",
+      "corpus_title": "中华人民共和国民法典第四百六十五条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 188,
+      "match_name": "中华人民共和国民法典第四百六十五条",
+      "corpus_title": "中华人民共和国民法典第六百五十一条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 19125,
+      "match_name": "中华人民共和国民法典第六百五十一条",
+      "corpus_title": "电力法第五十九条"
+    },
+    {
+      "query_id": 226,
+      "doc_id": 299,
+      "match_name": "中华人民共和国民法典第一百三十五条",
+      "corpus_title": "中华人民共和国民法典第七百六十二条"
+    },
+    {
+      "query_id": 226,
+      "doc_id": 786,
+      "match_name": "中华人民共和国民法典第七百六十二条",
+      "corpus_title": "中华人民共和国民法典第一百三十五条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 42,
+      "match_name": "中华人民共和国民法典第一百四十四条",
+      "corpus_title": "中华人民共和国民法典第五百零五条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 45,
+      "match_name": "中华人民共和国民法典第一百四十六条",
+      "corpus_title": "中华人民共和国民法典第五百零八条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 795,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 797,
+      "match_name": "中华人民共和国民法典第一百五十四条",
+      "corpus_title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第五百零五条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 805,
+      "match_name": "中华人民共和国民法典第五百零八条",
+      "corpus_title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 236,
+      "doc_id": 305,
+      "match_name": "中华人民共和国民法典第四百四十五条",
+      "corpus_title": "中华人民共和国民法典第七百六十八条"
+    },
+    {
+      "query_id": 236,
+      "doc_id": 1096,
+      "match_name": "中华人民共和国民法典第七百六十八条",
+      "corpus_title": "中华人民共和国民法典第四百四十五条"
+    },
+    {
+      "query_id": 248,
+      "doc_id": 23579,
+      "match_name": "最高人民法院关于适用《仲裁法》若干问题的解释第九条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第三十三条"
+    },
+    {
+      "query_id": 248,
+      "doc_id": 27707,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第三十三条",
+      "corpus_title": "最高人民法院关于适用《仲裁法》若干问题的解释第九条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 440,
+      "match_name": "中华人民共和国民法典第四百四十七条",
+      "corpus_title": "中华人民共和国民法典第九百零三条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 1098,
+      "match_name": "中华人民共和国民法典第四百五十三条",
+      "corpus_title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 1104,
+      "match_name": "中华人民共和国民法典第九百零三条",
+      "corpus_title": "中华人民共和国民法典第四百五十三条"
+    },
+    {
+      "query_id": 268,
+      "doc_id": 435,
+      "match_name": "中华人民共和国民法典第一百八十条",
+      "corpus_title": "中华人民共和国民法典第八百九十八条"
+    },
+    {
+      "query_id": 268,
+      "doc_id": 831,
+      "match_name": "中华人民共和国民法典第八百九十八条",
+      "corpus_title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 285,
+      "doc_id": 226,
+      "match_name": "中华人民共和国民法典第三百八十七条",
+      "corpus_title": "中华人民共和国民法典第六百八十九条"
+    },
+    {
+      "query_id": 285,
+      "doc_id": 1038,
+      "match_name": "中华人民共和国民法典第六百八十九条",
+      "corpus_title": "中华人民共和国民法典第三百八十七条"
+    },
+    {
+      "query_id": 294,
+      "doc_id": 231,
+      "match_name": "中华人民共和国民法典第一百八十八条",
+      "corpus_title": "中华人民共和国民法典第六百九十四条"
+    },
+    {
+      "query_id": 294,
+      "doc_id": 839,
+      "match_name": "中华人民共和国民法典第六百九十四条",
+      "corpus_title": "中华人民共和国民法典第一百八十八条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 804,
+      "match_name": "社会保险法第六十条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14396,
+      "match_name": "社会保险法第六十三条",
+      "corpus_title": "社会保险法第六十条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14399,
+      "match_name": "劳动法第七十二条",
+      "corpus_title": "社会保险法第六十三条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14773,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "劳动法第七十二条"
+    },
+    {
+      "query_id": 325,
+      "doc_id": 11522,
+      "match_name": "保险法第五十六条",
+      "corpus_title": "保险法第十八条"
+    },
+    {
+      "query_id": 325,
+      "doc_id": 11560,
+      "match_name": "保险法第十八条",
+      "corpus_title": "保险法第五十六条"
+    },
+    {
+      "query_id": 327,
+      "doc_id": 82,
+      "match_name": "最高人民法院关于适用《保险法》若干问题的解释（三）第十三条",
+      "corpus_title": "中华人民共和国民法典第五百四十五条"
+    },
+    {
+      "query_id": 327,
+      "doc_id": 27677,
+      "match_name": "中华人民共和国民法典第五百四十五条",
+      "corpus_title": "最高人民法院关于适用《保险法》若干问题的解释（三）第十三条"
+    },
+    {
+      "query_id": 335,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 335,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 337,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 337,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 338,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 338,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 342,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 342,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 343,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 343,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 344,
+      "doc_id": 21636,
+      "match_name": "行政诉讼法第二十五条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 344,
+      "doc_id": 22281,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 345,
+      "doc_id": 7515,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "环境保护法第五十八条"
+    },
+    {
+      "query_id": 345,
+      "doc_id": 21636,
+      "match_name": "环境保护法第五十八条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 346,
+      "doc_id": 7515,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "环境保护法第五十八条"
+    },
+    {
+      "query_id": 346,
+      "doc_id": 21636,
+      "match_name": "环境保护法第五十八条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 374,
+      "doc_id": 11621,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "保险法第一百一十七条"
+    },
+    {
+      "query_id": 374,
+      "doc_id": 14441,
+      "match_name": "保险法第一百一十七条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 747,
+      "match_name": "劳动合同法第二条",
+      "corpus_title": "中华人民共和国民法典第九十六条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 752,
+      "match_name": "劳动合同法实施条例第三条",
+      "corpus_title": "中华人民共和国民法典第一百零一条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 3387,
+      "match_name": "劳动合同法实施条例第四条",
+      "corpus_title": "村民委员会组织法第六条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 14436,
+      "match_name": "中华人民共和国民法典第九十六条",
+      "corpus_title": "劳动合同法第二条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 38057,
+      "match_name": "中华人民共和国民法典第一百零一条",
+      "corpus_title": "劳动合同法实施条例第三条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 38058,
+      "match_name": "村民委员会组织法第六条",
+      "corpus_title": "劳动合同法实施条例第四条"
+    },
+    {
+      "query_id": 377,
+      "doc_id": 30094,
+      "match_name": "劳动合同法实施条例第二十一条",
+      "corpus_title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十二条"
+    },
+    {
+      "query_id": 377,
+      "doc_id": 38075,
+      "match_name": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十二条",
+      "corpus_title": "劳动合同法实施条例第二十一条"
+    },
+    {
+      "query_id": 381,
+      "doc_id": 13037,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "公司法第四十四条"
+    },
+    {
+      "query_id": 381,
+      "doc_id": 14441,
+      "match_name": "公司法第四十四条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 382,
+      "doc_id": 13209,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "公司法第二百一十六条"
+    },
+    {
+      "query_id": 382,
+      "doc_id": 14441,
+      "match_name": "公司法第二百一十六条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 383,
+      "doc_id": 13037,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "公司法第四十四条"
+    },
+    {
+      "query_id": 383,
+      "doc_id": 14441,
+      "match_name": "公司法第四十四条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 13037,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "公司法第四十四条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14441,
+      "match_name": "劳动合同法第十条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14444,
+      "match_name": "劳动合同法第八十二条",
+      "corpus_title": "劳动合同法第十条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14516,
+      "match_name": "劳动合同法实施条例第七条",
+      "corpus_title": "劳动合同法第八十二条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 38061,
+      "match_name": "公司法第四十四条",
+      "corpus_title": "劳动合同法实施条例第七条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 1142,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十二条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 1143,
+      "match_name": "中华人民共和国民法典第一千一百九十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十三条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 14441,
+      "match_name": "中华人民共和国民法典第一千一百九十三条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 1142,
+      "match_name": "劳动合同法第七条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十二条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 1143,
+      "match_name": "中华人民共和国民法典第一千一百九十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十三条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 14441,
+      "match_name": "中华人民共和国民法典第一千一百九十三条",
+      "corpus_title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 389,
+      "doc_id": 30096,
+      "match_name": "劳动合同法实施条例第六条",
+      "corpus_title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十四条"
+    },
+    {
+      "query_id": 389,
+      "doc_id": 38060,
+      "match_name": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十四条",
+      "corpus_title": "劳动合同法实施条例第六条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 13953,
+      "match_name": "劳动合同法第八条",
+      "corpus_title": "就业促进法第二十七条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14442,
+      "match_name": "劳动合同法第二十六条",
+      "corpus_title": "劳动合同法第八条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14460,
+      "match_name": "劳动合同法第三十九条",
+      "corpus_title": "劳动合同法第二十六条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14473,
+      "match_name": "就业促进法第二十七条",
+      "corpus_title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 14460,
+      "match_name": "民事诉讼法第十三条",
+      "corpus_title": "劳动合同法第二十六条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 14461,
+      "match_name": "民事诉讼法第一百二十六条",
+      "corpus_title": "劳动合同法第二十七条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 21591,
+      "match_name": "劳动合同法第二十六条",
+      "corpus_title": "民事诉讼法第十三条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 21704,
+      "match_name": "劳动合同法第二十七条",
+      "corpus_title": "民事诉讼法第一百二十六条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 14438,
+      "match_name": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第五十条",
+      "corpus_title": "劳动合同法第四条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 14473,
+      "match_name": "劳动合同法第四条",
+      "corpus_title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 30112,
+      "match_name": "劳动合同法第三十九条",
+      "corpus_title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第五十条"
+    },
+    {
+      "query_id": 442,
+      "doc_id": 13040,
+      "match_name": "劳动合同法第三十九条",
+      "corpus_title": "公司法第四十七条"
+    },
+    {
+      "query_id": 442,
+      "doc_id": 14473,
+      "match_name": "公司法第四十七条",
+      "corpus_title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 448,
+      "doc_id": 47508,
+      "match_name": "中华人民共和国刑法第三百三十五条",
+      "corpus_title": "医疗事故处理条例第二条"
+    },
+    {
+      "query_id": 448,
+      "doc_id": 55222,
+      "match_name": "医疗事故处理条例第二条",
+      "corpus_title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 449,
+      "doc_id": 47508,
+      "match_name": "中华人民共和国刑法第三百三十五条",
+      "corpus_title": "医疗事故处理条例第二条"
+    },
+    {
+      "query_id": 449,
+      "doc_id": 55222,
+      "match_name": "医疗事故处理条例第二条",
+      "corpus_title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 452,
+      "doc_id": 28427,
+      "match_name": "中华人民共和国刑法第三百三十六条",
+      "corpus_title": "关于审理非法行医刑事案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 452,
+      "doc_id": 55224,
+      "match_name": "关于审理非法行医刑事案件具体应用法律若干问题的解释第二条",
+      "corpus_title": "中华人民共和国刑法第三百三十六条"
+    },
+    {
+      "query_id": 455,
+      "doc_id": 54996,
+      "match_name": "中华人民共和国刑法第三百三十五条",
+      "corpus_title": "中华人民共和国刑法第一百四十一条"
+    },
+    {
+      "query_id": 455,
+      "doc_id": 55222,
+      "match_name": "中华人民共和国刑法第一百四十一条",
+      "corpus_title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 458,
+      "doc_id": 1168,
+      "match_name": "中华人民共和国民法典第一千二百二十一条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 458,
+      "doc_id": 1171,
+      "match_name": "中华人民共和国民法典第一千二百一十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 465,
+      "doc_id": 1168,
+      "match_name": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第二条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 465,
+      "doc_id": 29686,
+      "match_name": "中华人民共和国民法典第一千二百一十八条",
+      "corpus_title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 466,
+      "doc_id": 1168,
+      "match_name": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第一条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 466,
+      "doc_id": 29685,
+      "match_name": "中华人民共和国民法典第一千二百一十八条",
+      "corpus_title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 1168,
+      "match_name": "母婴保健法第十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 1171,
+      "match_name": "中华人民共和国民法典第一千二百一十八条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 8952,
+      "match_name": "中华人民共和国民法典第一千二百二十一条",
+      "corpus_title": "母婴保健法第十八条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 1115,
+      "match_name": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第三条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 1118,
+      "match_name": "中华人民共和国民法典第一千一百六十五条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十八条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 29687,
+      "match_name": "中华人民共和国民法典第一千一百六十八条",
+      "corpus_title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 507,
+      "match_name": "合伙企业法第二十六条",
+      "corpus_title": "中华人民共和国民法典第九百七十条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11153,
+      "match_name": "合伙企业法第六十七条",
+      "corpus_title": "合伙企业法第二十六条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11194,
+      "match_name": "合伙企业法第六十八条",
+      "corpus_title": "合伙企业法第六十七条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11195,
+      "match_name": "中华人民共和国民法典第九百七十条",
+      "corpus_title": "合伙企业法第六十八条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 510,
+      "match_name": "合伙企业法第二条",
+      "corpus_title": "中华人民共和国民法典第九百七十三条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11129,
+      "match_name": "合伙企业法第五十五条",
+      "corpus_title": "合伙企业法第二条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11182,
+      "match_name": "合伙企业法第五十七条",
+      "corpus_title": "合伙企业法第五十五条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11184,
+      "match_name": "中华人民共和国民法典第九百七十三条",
+      "corpus_title": "合伙企业法第五十七条"
+    },
+    {
+      "query_id": 483,
+      "doc_id": 72,
+      "match_name": "中华人民共和国民法典第九百七十五条",
+      "corpus_title": "中华人民共和国民法典第五百三十五条"
+    },
+    {
+      "query_id": 483,
+      "doc_id": 512,
+      "match_name": "中华人民共和国民法典第五百三十五条",
+      "corpus_title": "中华人民共和国民法典第九百七十五条"
+    },
+    {
+      "query_id": 484,
+      "doc_id": 47,
+      "match_name": "中华人民共和国民法典第九百七十六条",
+      "corpus_title": "中华人民共和国民法典第五百一十条"
+    },
+    {
+      "query_id": 484,
+      "doc_id": 513,
+      "match_name": "中华人民共和国民法典第五百一十条",
+      "corpus_title": "中华人民共和国民法典第九百七十六条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11160,
+      "match_name": "合伙企业法第四十四条",
+      "corpus_title": "合伙企业法第三十三条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11171,
+      "match_name": "合伙企业法第五十三条",
+      "corpus_title": "合伙企业法第四十四条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11180,
+      "match_name": "合伙企业法第五十四条",
+      "corpus_title": "合伙企业法第五十三条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11181,
+      "match_name": "合伙企业法第三十三条",
+      "corpus_title": "合伙企业法第五十四条"
+    },
+    {
+      "query_id": 505,
+      "doc_id": 10890,
+      "match_name": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第四条",
+      "corpus_title": "商标法第十条"
+    },
+    {
+      "query_id": 505,
+      "doc_id": 31786,
+      "match_name": "商标法第十条",
+      "corpus_title": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第四条"
+    },
+    {
+      "query_id": 514,
+      "doc_id": 10893,
+      "match_name": "最高人民法院关于审理涉及驰名商标保护的民事纠纷案件应用法律若干问题的解释第九条",
+      "corpus_title": "商标法第十三条"
+    },
+    {
+      "query_id": 514,
+      "doc_id": 23541,
+      "match_name": "商标法第十三条",
+      "corpus_title": "最高人民法院关于审理涉及驰名商标保护的民事纠纷案件应用法律若干问题的解释第九条"
+    },
+    {
+      "query_id": 524,
+      "doc_id": 31808,
+      "match_name": "商标法实施条例第六十七条",
+      "corpus_title": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第二十六条"
+    },
+    {
+      "query_id": 524,
+      "doc_id": 43055,
+      "match_name": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第二十六条",
+      "corpus_title": "商标法实施条例第六十七条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 25583,
+      "match_name": "中华人民共和国刑法第二百一十三条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 25584,
+      "match_name": "中华人民共和国刑法第二百一十四条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 30910,
+      "match_name": "中华人民共和国刑法第二百一十五条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释（三）第一条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55077,
+      "match_name": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第一条",
+      "corpus_title": "中华人民共和国刑法第二百一十三条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55078,
+      "match_name": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释（三）第一条",
+      "corpus_title": "中华人民共和国刑法第二百一十四条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55079,
+      "match_name": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第二条",
+      "corpus_title": "中华人民共和国刑法第二百一十五条"
+    },
+    {
+      "query_id": 550,
+      "doc_id": 939,
+      "match_name": "中华人民共和国民法典第三百七十三条",
+      "corpus_title": "中华人民共和国民法典第二百八十八条"
+    },
+    {
+      "query_id": 550,
+      "doc_id": 1024,
+      "match_name": "中华人民共和国民法典第二百八十八条",
+      "corpus_title": "中华人民共和国民法典第三百七十三条"
+    },
+    {
+      "query_id": 552,
+      "doc_id": 962,
+      "match_name": "中华人民共和国民法典第三百七十四条",
+      "corpus_title": "中华人民共和国民法典第三百一十一条"
+    },
+    {
+      "query_id": 552,
+      "doc_id": 1025,
+      "match_name": "中华人民共和国民法典第三百一十一条",
+      "corpus_title": "中华人民共和国民法典第三百七十四条"
+    },
+    {
+      "query_id": 562,
+      "doc_id": 872,
+      "match_name": "最高人民法院关于适用《民法典》物权编的解释（一）第四条",
+      "corpus_title": "中华人民共和国民法典第二百二十一条"
+    },
+    {
+      "query_id": 562,
+      "doc_id": 26554,
+      "match_name": "中华人民共和国民法典第二百二十一条",
+      "corpus_title": "最高人民法院关于适用《民法典》物权编的解释（一）第四条"
+    },
+    {
+      "query_id": 570,
+      "doc_id": 860,
+      "match_name": "中华人民共和国民法典第三百六十五条",
+      "corpus_title": "中华人民共和国民法典第二百零九条"
+    },
+    {
+      "query_id": 570,
+      "doc_id": 1016,
+      "match_name": "中华人民共和国民法典第二百零九条",
+      "corpus_title": "中华人民共和国民法典第三百六十五条"
+    },
+    {
+      "query_id": 578,
+      "doc_id": 608,
+      "match_name": "土地管理法第九条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十二条"
+    },
+    {
+      "query_id": 578,
+      "doc_id": 5046,
+      "match_name": "中华人民共和国民法典第一千一百二十二条",
+      "corpus_title": "土地管理法第九条"
+    },
+    {
+      "query_id": 580,
+      "doc_id": 804,
+      "match_name": "土地管理法第六十二条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 580,
+      "doc_id": 5099,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "土地管理法第六十二条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 240,
+      "match_name": "中华人民共和国民法典第三百六十六条",
+      "corpus_title": "中华人民共和国民法典第七百零三条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 242,
+      "match_name": "中华人民共和国民法典第三百六十八条",
+      "corpus_title": "中华人民共和国民法典第七百零五条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 1017,
+      "match_name": "中华人民共和国民法典第七百零三条",
+      "corpus_title": "中华人民共和国民法典第三百六十六条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 1019,
+      "match_name": "中华人民共和国民法典第七百零五条",
+      "corpus_title": "中华人民共和国民法典第三百六十八条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 880,
+      "match_name": "中华人民共和国民法典第三百六十七条",
+      "corpus_title": "中华人民共和国民法典第二百二十九条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1018,
+      "match_name": "中华人民共和国民法典第三百六十八条",
+      "corpus_title": "中华人民共和国民法典第三百六十七条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1019,
+      "match_name": "中华人民共和国民法典第三百七十一条",
+      "corpus_title": "中华人民共和国民法典第三百六十八条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1022,
+      "match_name": "中华人民共和国民法典第二百二十九条",
+      "corpus_title": "中华人民共和国民法典第三百七十一条"
+    },
+    {
+      "query_id": 604,
+      "doc_id": 5686,
+      "match_name": "最高人民法院、最高人民检察院关于办理非法利用信息网络、帮助信息网络犯罪活动等刑事案件适用法律若干问题的解释第十七条",
+      "corpus_title": "反电信网络诈骗法第三十八条"
+    },
+    {
+      "query_id": 604,
+      "doc_id": 24980,
+      "match_name": "反电信网络诈骗法第三十八条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理非法利用信息网络、帮助信息网络犯罪活动等刑事案件适用法律若干问题的解释第十七条"
+    },
+    {
+      "query_id": 606,
+      "doc_id": 1203,
+      "match_name": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第二条",
+      "corpus_title": "中华人民共和国民法典第一千二百五十三条"
+    },
+    {
+      "query_id": 606,
+      "doc_id": 30614,
+      "match_name": "中华人民共和国民法典第一千二百五十三条",
+      "corpus_title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 619,
+      "doc_id": 1206,
+      "match_name": "道路交通安全法第三十一条",
+      "corpus_title": "中华人民共和国民法典第一千二百五十六条"
+    },
+    {
+      "query_id": 619,
+      "doc_id": 7954,
+      "match_name": "中华人民共和国民法典第一千二百五十六条",
+      "corpus_title": "道路交通安全法第三十一条"
+    },
+    {
+      "query_id": 620,
+      "doc_id": 1195,
+      "match_name": "中华人民共和国民法典第一千二百五十四条",
+      "corpus_title": "中华人民共和国民法典第一千二百四十五条"
+    },
+    {
+      "query_id": 620,
+      "doc_id": 1204,
+      "match_name": "中华人民共和国民法典第一千二百四十五条",
+      "corpus_title": "中华人民共和国民法典第一千二百五十四条"
+    },
+    {
+      "query_id": 623,
+      "doc_id": 344,
+      "match_name": "中华人民共和国民法典第四百四十七条",
+      "corpus_title": "中华人民共和国民法典第八百零七条"
+    },
+    {
+      "query_id": 623,
+      "doc_id": 1098,
+      "match_name": "中华人民共和国民法典第八百零七条",
+      "corpus_title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 624,
+      "doc_id": 330,
+      "match_name": "中华人民共和国民法典第一百五十七条",
+      "corpus_title": "中华人民共和国民法典第七百九十三条"
+    },
+    {
+      "query_id": 624,
+      "doc_id": 808,
+      "match_name": "中华人民共和国民法典第七百九十三条",
+      "corpus_title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 328,
+      "match_name": "最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（一）第一条",
+      "corpus_title": "中华人民共和国民法典第七百九十一条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 343,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "中华人民共和国民法典第八百零六条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第七百九十一条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 31393,
+      "match_name": "中华人民共和国民法典第八百零六条",
+      "corpus_title": "最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（一）第一条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 89,
+      "match_name": "公司法第二十条",
+      "corpus_title": "中华人民共和国民法典第五百五十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 225,
+      "match_name": "公司法第六十三条",
+      "corpus_title": "中华人民共和国民法典第六百八十八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 323,
+      "match_name": "中华人民共和国民法典第六十七条",
+      "corpus_title": "中华人民共和国民法典第七百八十六条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 328,
+      "match_name": "中华人民共和国民法典第七十五条",
+      "corpus_title": "中华人民共和国民法典第七百九十一条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 469,
+      "match_name": "中华人民共和国民法典第八十三条",
+      "corpus_title": "中华人民共和国民法典第九百三十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 510,
+      "match_name": "中华人民共和国民法典第一百六十四条",
+      "corpus_title": "中华人民共和国民法典第九百七十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 718,
+      "match_name": "中华人民共和国民法典第一百六十七条",
+      "corpus_title": "中华人民共和国民法典第六十七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 726,
+      "match_name": "中华人民共和国民法典第一百七十八条",
+      "corpus_title": "中华人民共和国民法典第七十五条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 734,
+      "match_name": "中华人民共和国民法典第三百零七条",
+      "corpus_title": "中华人民共和国民法典第八十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第三百零八条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 815,
+      "match_name": "中华人民共和国民法典第五百五十二条",
+      "corpus_title": "中华人民共和国民法典第一百六十四条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 818,
+      "match_name": "中华人民共和国民法典第六百八十八条",
+      "corpus_title": "中华人民共和国民法典第一百六十七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 829,
+      "match_name": "中华人民共和国民法典第七百八十六条",
+      "corpus_title": "中华人民共和国民法典第一百七十八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 958,
+      "match_name": "中华人民共和国民法典第七百九十一条",
+      "corpus_title": "中华人民共和国民法典第三百零七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 959,
+      "match_name": "中华人民共和国民法典第九百三十二条",
+      "corpus_title": "中华人民共和国民法典第三百零八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1119,
+      "match_name": "中华人民共和国民法典第九百七十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十九条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1120,
+      "match_name": "中华人民共和国民法典第一千二百五十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百七十条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1121,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百七十一条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1202,
+      "match_name": "中华人民共和国民法典第一千一百六十九条",
+      "corpus_title": "中华人民共和国民法典第一千二百五十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 13013,
+      "match_name": "中华人民共和国民法典第一千一百七十条",
+      "corpus_title": "公司法第二十条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 13056,
+      "match_name": "中华人民共和国民法典第一千一百七十一条",
+      "corpus_title": "公司法第六十三条"
+    },
+    {
+      "query_id": 659,
+      "doc_id": 34533,
+      "match_name": "政府信息公开条例第二十一条",
+      "corpus_title": "国有土地上房屋征收与补偿条例第二十九条"
+    },
+    {
+      "query_id": 659,
+      "doc_id": 42884,
+      "match_name": "国有土地上房屋征收与补偿条例第二十九条",
+      "corpus_title": "政府信息公开条例第二十一条"
+    },
+    {
+      "query_id": 666,
+      "doc_id": 34,
+      "match_name": "中华人民共和国民法典第五百零二条",
+      "corpus_title": "中华人民共和国民法典第四百九十七条"
+    },
+    {
+      "query_id": 666,
+      "doc_id": 39,
+      "match_name": "中华人民共和国民法典第四百九十七条",
+      "corpus_title": "中华人民共和国民法典第五百零二条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 809,
+      "match_name": "最高人民法院关于适用《行政诉讼法》的解释第一条",
+      "corpus_title": "中华人民共和国民法典第一百五十八条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 31489,
+      "match_name": "国有土地上房屋征收与补偿条例第二十六条",
+      "corpus_title": "最高人民法院关于适用《行政诉讼法》的解释第一条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 34530,
+      "match_name": "中华人民共和国民法典第一百五十八条",
+      "corpus_title": "国有土地上房屋征收与补偿条例第二十六条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 34519,
+      "match_name": "政府信息公开条例第十一条",
+      "corpus_title": "国有土地上房屋征收与补偿条例第十五条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 34533,
+      "match_name": "政府信息公开条例第十四条",
+      "corpus_title": "国有土地上房屋征收与补偿条例第二十九条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 42874,
+      "match_name": "国有土地上房屋征收与补偿条例第十五条",
+      "corpus_title": "政府信息公开条例第十一条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 42877,
+      "match_name": "国有土地上房屋征收与补偿条例第二十九条",
+      "corpus_title": "政府信息公开条例第十四条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 795,
+      "match_name": "行政诉讼法第七十五条",
+      "corpus_title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 797,
+      "match_name": "最高人民法院关于适用《行政诉讼法》的解释第九十九条",
+      "corpus_title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第一百四十四条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 805,
+      "match_name": "中华人民共和国民法典第一百四十六条",
+      "corpus_title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 22331,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "行政诉讼法第七十五条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 31587,
+      "match_name": "中华人民共和国民法典第一百五十四条",
+      "corpus_title": "最高人民法院关于适用《行政诉讼法》的解释第九十九条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 3408,
+      "match_name": "妇女权益保障法第三十二条",
+      "corpus_title": "村民委员会组织法第二十七条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 14078,
+      "match_name": "妇女权益保障法第三十三条",
+      "corpus_title": "妇女权益保障法第三十二条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 14079,
+      "match_name": "最高人民法院关于审理涉及农村土地承包纠纷案件适用法律问题的解释第二十二条",
+      "corpus_title": "妇女权益保障法第三十三条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 30898,
+      "match_name": "村民委员会组织法第二十七条",
+      "corpus_title": "最高人民法院关于审理涉及农村土地承包纠纷案件适用法律问题的解释第二十二条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 2370,
+      "match_name": "行政诉讼法第三十八条",
+      "corpus_title": "国家赔偿法第二条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 2372,
+      "match_name": "国家赔偿法第二条",
+      "corpus_title": "国家赔偿法第四条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 22294,
+      "match_name": "国家赔偿法第四条",
+      "corpus_title": "行政诉讼法第三十八条"
+    },
+    {
+      "query_id": 702,
+      "doc_id": 380,
+      "match_name": "中华人民共和国民法典第八百四十五条",
+      "corpus_title": "中华人民共和国民法典第八百四十三条"
+    },
+    {
+      "query_id": 702,
+      "doc_id": 382,
+      "match_name": "中华人民共和国民法典第八百四十三条",
+      "corpus_title": "中华人民共和国民法典第八百四十五条"
+    },
+    {
+      "query_id": 707,
+      "doc_id": 797,
+      "match_name": "最高人民法院关于审理技术合同纠纷案件适用法律若干问题的解释第一条",
+      "corpus_title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 707,
+      "doc_id": 28477,
+      "match_name": "中华人民共和国民法典第一百四十六条",
+      "corpus_title": "最高人民法院关于审理技术合同纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 714,
+      "doc_id": 100,
+      "match_name": "中华人民共和国民法典第八百五十七条",
+      "corpus_title": "中华人民共和国民法典第五百六十三条"
+    },
+    {
+      "query_id": 714,
+      "doc_id": 394,
+      "match_name": "中华人民共和国民法典第五百六十三条",
+      "corpus_title": "中华人民共和国民法典第八百五十七条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 84,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条",
+      "corpus_title": "中华人民共和国民法典第五百四十七条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 233,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条",
+      "corpus_title": "中华人民共和国民法典第六百九十六条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 30136,
+      "match_name": "中华人民共和国民法典第五百四十七条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 30155,
+      "match_name": "中华人民共和国民法典第六百九十六条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条"
+    },
+    {
+      "query_id": 722,
+      "doc_id": 1042,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条",
+      "corpus_title": "中华人民共和国民法典第三百九十一条"
+    },
+    {
+      "query_id": 722,
+      "doc_id": 30155,
+      "match_name": "中华人民共和国民法典第三百九十一条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条"
+    },
+    {
+      "query_id": 723,
+      "doc_id": 234,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条",
+      "corpus_title": "中华人民共和国民法典第六百九十七条"
+    },
+    {
+      "query_id": 723,
+      "doc_id": 30136,
+      "match_name": "中华人民共和国民法典第六百九十七条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 724,
+      "doc_id": 232,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条",
+      "corpus_title": "中华人民共和国民法典第六百九十五条"
+    },
+    {
+      "query_id": 724,
+      "doc_id": 30136,
+      "match_name": "中华人民共和国民法典第六百九十五条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 238,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条",
+      "corpus_title": "中华人民共和国民法典第七百零一条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 239,
+      "match_name": "中华人民共和国民法典第七百零一条",
+      "corpus_title": "中华人民共和国民法典第七百零二条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 30136,
+      "match_name": "中华人民共和国民法典第七百零二条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 727,
+      "doc_id": 29723,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第二条",
+      "corpus_title": "最高人民法院关于审理独立保函纠纷案件若干问题的规定第六条"
+    },
+    {
+      "query_id": 727,
+      "doc_id": 30118,
+      "match_name": "最高人民法院关于审理独立保函纠纷案件若干问题的规定第六条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第二条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第三百九十五条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 1046,
+      "match_name": "中华人民共和国民法典第四百零二条",
+      "corpus_title": "中华人民共和国民法典第三百九十五条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 1053,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第四百零二条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 1048,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第五十一条",
+      "corpus_title": "中华人民共和国民法典第三百九十七条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 1068,
+      "match_name": "中华人民共和国民法典第三百九十七条",
+      "corpus_title": "中华人民共和国民法典第四百一十七条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 30167,
+      "match_name": "中华人民共和国民法典第四百一十七条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十一条"
+    },
+    {
+      "query_id": 748,
+      "doc_id": 262,
+      "match_name": "中华人民共和国民法典第四百零五条",
+      "corpus_title": "中华人民共和国民法典第七百二十五条"
+    },
+    {
+      "query_id": 748,
+      "doc_id": 1056,
+      "match_name": "中华人民共和国民法典第七百二十五条",
+      "corpus_title": "中华人民共和国民法典第四百零五条"
+    },
+    {
+      "query_id": 758,
+      "doc_id": 1074,
+      "match_name": "中华人民共和国民法典第四百三十九条",
+      "corpus_title": "中华人民共和国民法典第四百二十三条"
+    },
+    {
+      "query_id": 758,
+      "doc_id": 1090,
+      "match_name": "中华人民共和国民法典第四百二十三条",
+      "corpus_title": "中华人民共和国民法典第四百三十九条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 1092,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第五十八条",
+      "corpus_title": "中华人民共和国民法典第四百四十一条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 30174,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第五十九条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十八条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 30175,
+      "match_name": "中华人民共和国民法典第四百四十一条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十九条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 22297,
+      "match_name": "政府信息公开条例第二条",
+      "corpus_title": "行政诉讼法第四十一条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 24445,
+      "match_name": "政府信息公开条例第三十六条",
+      "corpus_title": "最高人民法院关于行政诉讼证据若干问题的规定第二十四条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 28048,
+      "match_name": "行政诉讼法第四十一条",
+      "corpus_title": "最高人民法院关于审理政府信息公开行政案件若干问题的规定第五条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 42865,
+      "match_name": "最高人民法院关于审理政府信息公开行政案件若干问题的规定第五条",
+      "corpus_title": "政府信息公开条例第二条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 42899,
+      "match_name": "最高人民法院关于行政诉讼证据若干问题的规定第二十四条",
+      "corpus_title": "政府信息公开条例第三十六条"
+    },
+    {
+      "query_id": 792,
+      "doc_id": 42895,
+      "match_name": "政府信息公开条例第三十七条",
+      "corpus_title": "政府信息公开条例第三十二条"
+    },
+    {
+      "query_id": 792,
+      "doc_id": 42900,
+      "match_name": "政府信息公开条例第三十二条",
+      "corpus_title": "政府信息公开条例第三十七条"
+    },
+    {
+      "query_id": 850,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第一百一十九条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 850,
+      "doc_id": 770,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第一百一十九条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 46,
+      "match_name": "中华人民共和国民法典第一百八十条",
+      "corpus_title": "中华人民共和国民法典第五百零九条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第五百零九条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 831,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 854,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第一百八十六条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 854,
+      "doc_id": 837,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第一百八十六条"
+    },
+    {
+      "query_id": 891,
+      "doc_id": 55136,
+      "match_name": "中华人民共和国刑法第二百六十四条",
+      "corpus_title": "中华人民共和国刑法第二百六十三条"
+    },
+    {
+      "query_id": 891,
+      "doc_id": 55137,
+      "match_name": "中华人民共和国刑法第二百六十三条",
+      "corpus_title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 900,
+      "doc_id": 1139,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百八十九条"
+    },
+    {
+      "query_id": 900,
+      "doc_id": 1149,
+      "match_name": "中华人民共和国民法典第一千一百八十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 902,
+      "doc_id": 1115,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 902,
+      "doc_id": 1149,
+      "match_name": "中华人民共和国民法典第一千一百六十五条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 904,
+      "doc_id": 1149,
+      "match_name": "中华人民共和国民法典第一千二百零一条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 904,
+      "doc_id": 1151,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千二百零一条"
+    },
+    {
+      "query_id": 914,
+      "doc_id": 22326,
+      "match_name": "最高人民法院关于适用《行政诉讼法》的解释第一条",
+      "corpus_title": "行政诉讼法第七十条"
+    },
+    {
+      "query_id": 914,
+      "doc_id": 31489,
+      "match_name": "行政诉讼法第七十条",
+      "corpus_title": "最高人民法院关于适用《行政诉讼法》的解释第一条"
+    },
+    {
+      "query_id": 915,
+      "doc_id": 1121,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百七十一条"
+    },
+    {
+      "query_id": 915,
+      "doc_id": 1149,
+      "match_name": "中华人民共和国民法典第一千一百七十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1141,
+      "match_name": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第五条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十一条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1149,
+      "match_name": "中华人民共和国民法典第一千一百九十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1150,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千二百条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 24514,
+      "match_name": "中华人民共和国民法典第一千二百条",
+      "corpus_title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第五条"
+    },
+    {
+      "query_id": 918,
+      "doc_id": 5340,
+      "match_name": "学位条例第二条",
+      "corpus_title": "教育法第二十二条"
+    },
+    {
+      "query_id": 918,
+      "doc_id": 8550,
+      "match_name": "教育法第二十二条",
+      "corpus_title": "学位条例第二条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 1149,
+      "match_name": "未成年人保护法第三十五条",
+      "corpus_title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 1150,
+      "match_name": "中华人民共和国民法典第一千一百九十九条",
+      "corpus_title": "中华人民共和国民法典第一千二百条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 13246,
+      "match_name": "中华人民共和国民法典第一千二百条",
+      "corpus_title": "未成年人保护法第三十五条"
+    },
+    {
+      "query_id": 922,
+      "doc_id": 114,
+      "match_name": "教育法第八十三条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 922,
+      "doc_id": 5401,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "教育法第八十三条"
+    },
+    {
+      "query_id": 925,
+      "doc_id": 194,
+      "match_name": "中华人民共和国民法典第六百六十四条",
+      "corpus_title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 925,
+      "doc_id": 201,
+      "match_name": "中华人民共和国民法典第六百五十七条",
+      "corpus_title": "中华人民共和国民法典第六百六十四条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 114,
+      "match_name": "教育法第二十九条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 115,
+      "match_name": "教育法第三十条",
+      "corpus_title": "中华人民共和国民法典第五百七十八条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 120,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第五百八十三条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 5347,
+      "match_name": "中华人民共和国民法典第五百七十八条",
+      "corpus_title": "教育法第二十九条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 5348,
+      "match_name": "中华人民共和国民法典第五百八十三条",
+      "corpus_title": "教育法第三十条"
+    },
+    {
+      "query_id": 930,
+      "doc_id": 194,
+      "match_name": "中华人民共和国民法典第六百六十七条",
+      "corpus_title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 930,
+      "doc_id": 204,
+      "match_name": "中华人民共和国民法典第六百五十七条",
+      "corpus_title": "中华人民共和国民法典第六百六十七条"
+    },
+    {
+      "query_id": 935,
+      "doc_id": 23636,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第九十条"
+    },
+    {
+      "query_id": 935,
+      "doc_id": 25352,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第九十条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 936,
+      "doc_id": 23636,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第九十条"
+    },
+    {
+      "query_id": 936,
+      "doc_id": 25352,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第九十条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 23637,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第九十一条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 25352,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十六条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 25366,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第九十一条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十六条"
+    },
+    {
+      "query_id": 941,
+      "doc_id": 25364,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十五条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十四条"
+    },
+    {
+      "query_id": 941,
+      "doc_id": 25365,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十四条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十五条"
+    },
+    {
+      "query_id": 943,
+      "doc_id": 21651,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条",
+      "corpus_title": "民事诉讼法第七十三条"
+    },
+    {
+      "query_id": 943,
+      "doc_id": 25352,
+      "match_name": "民事诉讼法第七十三条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 944,
+      "doc_id": 23564,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第十八条"
+    },
+    {
+      "query_id": 944,
+      "doc_id": 25353,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第十八条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 48,
+      "match_name": "中华人民共和国民法典第一百八十八条",
+      "corpus_title": "中华人民共和国民法典第五百一十一条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 839,
+      "match_name": "中华人民共和国民法典第一百九十二条",
+      "corpus_title": "中华人民共和国民法典第一百八十八条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 843,
+      "match_name": "中华人民共和国民法典第五百一十一条",
+      "corpus_title": "中华人民共和国民法典第一百九十二条"
+    },
+    {
+      "query_id": 955,
+      "doc_id": 207,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十六条",
+      "corpus_title": "中华人民共和国民法典第六百七十条"
+    },
+    {
+      "query_id": 955,
+      "doc_id": 25376,
+      "match_name": "中华人民共和国民法典第六百七十条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十六条"
+    },
+    {
+      "query_id": 958,
+      "doc_id": 214,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三十条",
+      "corpus_title": "中华人民共和国民法典第六百七十七条"
+    },
+    {
+      "query_id": 958,
+      "doc_id": 25380,
+      "match_name": "中华人民共和国民法典第六百七十七条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三十条"
+    },
+    {
+      "query_id": 964,
+      "doc_id": 25373,
+      "match_name": "最高人民法院关于民事诉讼证据的若干规定第五十三条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十三条"
+    },
+    {
+      "query_id": 964,
+      "doc_id": 28207,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十三条",
+      "corpus_title": "最高人民法院关于民事诉讼证据的若干规定第五十三条"
+    },
+    {
+      "query_id": 966,
+      "doc_id": 237,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十四条",
+      "corpus_title": "中华人民共和国民法典第七百条"
+    },
+    {
+      "query_id": 966,
+      "doc_id": 25374,
+      "match_name": "中华人民共和国民法典第七百条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十四条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 21693,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十九条",
+      "corpus_title": "民事诉讼法第一百一十五条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 21694,
+      "match_name": "民事诉讼法第一百一十五条",
+      "corpus_title": "民事诉讼法第一百一十六条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 25369,
+      "match_name": "民事诉讼法第一百一十六条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十九条"
+    },
+    {
+      "query_id": 969,
+      "doc_id": 25359,
+      "match_name": "人民检察院刑事诉讼规则第六百七十九条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条"
+    },
+    {
+      "query_id": 969,
+      "doc_id": 26348,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条",
+      "corpus_title": "人民检察院刑事诉讼规则第六百七十九条"
+    },
+    {
+      "query_id": 975,
+      "doc_id": 16599,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条",
+      "corpus_title": "银行业监督管理法第十九条"
+    },
+    {
+      "query_id": 975,
+      "doc_id": 25363,
+      "match_name": "银行业监督管理法第十九条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条"
+    },
+    {
+      "query_id": 976,
+      "doc_id": 808,
+      "match_name": "中华人民共和国刑法第二百二十五条",
+      "corpus_title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 976,
+      "doc_id": 55091,
+      "match_name": "中华人民共和国民法典第一百五十七条",
+      "corpus_title": "中华人民共和国刑法第二百二十五条"
+    },
+    {
+      "query_id": 977,
+      "doc_id": 808,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条",
+      "corpus_title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 977,
+      "doc_id": 25363,
+      "match_name": "中华人民共和国民法典第一百五十七条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条"
+    },
+    {
+      "query_id": 984,
+      "doc_id": 476,
+      "match_name": "物业管理条例第十一条",
+      "corpus_title": "中华人民共和国民法典第九百三十九条"
+    },
+    {
+      "query_id": 984,
+      "doc_id": 34550,
+      "match_name": "中华人民共和国民法典第九百三十九条",
+      "corpus_title": "物业管理条例第十一条"
+    },
+    {
+      "query_id": 986,
+      "doc_id": 30381,
+      "match_name": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十四条",
+      "corpus_title": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 986,
+      "doc_id": 30626,
+      "match_name": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第一条",
+      "corpus_title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十四条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 922,
+      "match_name": "物业管理条例第六条",
+      "corpus_title": "中华人民共和国民法典第二百七十一条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 30384,
+      "match_name": "中华人民共和国民法典第二百七十一条",
+      "corpus_title": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第四条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 30628,
+      "match_name": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第四条",
+      "corpus_title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十六条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 34545,
+      "match_name": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十六条",
+      "corpus_title": "物业管理条例第六条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 476,
+      "match_name": "物业管理条例第二十一条",
+      "corpus_title": "中华人民共和国民法典第九百三十九条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34560,
+      "match_name": "物业管理条例第二十五条",
+      "corpus_title": "物业管理条例第二十一条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34564,
+      "match_name": "物业管理条例第二十六条",
+      "corpus_title": "物业管理条例第二十五条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34565,
+      "match_name": "中华人民共和国民法典第九百三十九条",
+      "corpus_title": "物业管理条例第二十六条"
+    },
+    {
+      "query_id": 996,
+      "doc_id": 481,
+      "match_name": "物业管理条例第四十一条",
+      "corpus_title": "中华人民共和国民法典第九百四十四条"
+    },
+    {
+      "query_id": 996,
+      "doc_id": 34580,
+      "match_name": "中华人民共和国民法典第九百四十四条",
+      "corpus_title": "物业管理条例第四十一条"
+    },
+    {
+      "query_id": 998,
+      "doc_id": 479,
+      "match_name": "物业管理条例第三十五条",
+      "corpus_title": "中华人民共和国民法典第九百四十二条"
+    },
+    {
+      "query_id": 998,
+      "doc_id": 34574,
+      "match_name": "中华人民共和国民法典第九百四十二条",
+      "corpus_title": "物业管理条例第三十五条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 479,
+      "match_name": "中华人民共和国民法典第六条",
+      "corpus_title": "中华人民共和国民法典第九百四十二条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 480,
+      "match_name": "中华人民共和国民法典第九百四十二条",
+      "corpus_title": "中华人民共和国民法典第九百四十三条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 657,
+      "match_name": "中华人民共和国民法典第九百四十三条",
+      "corpus_title": "中华人民共和国民法典第六条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 95,
+      "match_name": "中华人民共和国民法典第九百四十九条",
+      "corpus_title": "中华人民共和国民法典第五百五十八条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 486,
+      "match_name": "中华人民共和国民法典第九百五十条",
+      "corpus_title": "中华人民共和国民法典第九百四十九条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 487,
+      "match_name": "中华人民共和国民法典第五百五十八条",
+      "corpus_title": "中华人民共和国民法典第九百五十条"
+    },
+    {
+      "query_id": 1020,
+      "doc_id": 23637,
+      "match_name": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第六条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第九十一条"
+    },
+    {
+      "query_id": 1020,
+      "doc_id": 30482,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第九十一条",
+      "corpus_title": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第六条"
+    },
+    {
+      "query_id": 1027,
+      "doc_id": 1179,
+      "match_name": "中华人民共和国民法典第一千二百三十条",
+      "corpus_title": "中华人民共和国民法典第一千二百二十九条"
+    },
+    {
+      "query_id": 1027,
+      "doc_id": 1180,
+      "match_name": "中华人民共和国民法典第一千二百二十九条",
+      "corpus_title": "中华人民共和国民法典第一千二百三十条"
+    },
+    {
+      "query_id": 1029,
+      "doc_id": 21636,
+      "match_name": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第八条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 1029,
+      "doc_id": 30484,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第八条"
+    },
+    {
+      "query_id": 1030,
+      "doc_id": 21636,
+      "match_name": "最高人民法院关于审理环境民事公益诉讼案件适用法律若干问题的解释第十九条",
+      "corpus_title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 1030,
+      "doc_id": 25480,
+      "match_name": "民事诉讼法第五十八条",
+      "corpus_title": "最高人民法院关于审理环境民事公益诉讼案件适用法律若干问题的解释第十九条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 320,
+      "match_name": "中华人民共和国民法典第四百四十七条",
+      "corpus_title": "中华人民共和国民法典第七百八十三条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 373,
+      "match_name": "中华人民共和国民法典第四百四十八条",
+      "corpus_title": "中华人民共和国民法典第八百三十六条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 440,
+      "match_name": "中华人民共和国民法典第四百四十九条",
+      "corpus_title": "中华人民共和国民法典第九百零三条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 496,
+      "match_name": "中华人民共和国民法典第七百八十三条",
+      "corpus_title": "中华人民共和国民法典第九百五十九条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1098,
+      "match_name": "中华人民共和国民法典第八百三十六条",
+      "corpus_title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1099,
+      "match_name": "中华人民共和国民法典第九百零三条",
+      "corpus_title": "中华人民共和国民法典第四百四十八条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1100,
+      "match_name": "中华人民共和国民法典第九百五十九条",
+      "corpus_title": "中华人民共和国民法典第四百四十九条"
+    },
+    {
+      "query_id": 1036,
+      "doc_id": 105,
+      "match_name": "中华人民共和国民法典第四百四十七条",
+      "corpus_title": "中华人民共和国民法典第五百六十八条"
+    },
+    {
+      "query_id": 1036,
+      "doc_id": 1098,
+      "match_name": "中华人民共和国民法典第五百六十八条",
+      "corpus_title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1038,
+      "doc_id": 62,
+      "match_name": "中华人民共和国民法典第四百四十七条",
+      "corpus_title": "中华人民共和国民法典第五百二十五条"
+    },
+    {
+      "query_id": 1038,
+      "doc_id": 1098,
+      "match_name": "中华人民共和国民法典第五百二十五条",
+      "corpus_title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1079,
+      "doc_id": 680,
+      "match_name": "最高人民法院关于适用《民法典》总则编若干问题的解释第七条",
+      "corpus_title": "中华人民共和国民法典第二十九条"
+    },
+    {
+      "query_id": 1079,
+      "doc_id": 22976,
+      "match_name": "中华人民共和国民法典第二十九条",
+      "corpus_title": "最高人民法院关于适用《民法典》总则编若干问题的解释第七条"
+    },
+    {
+      "query_id": 1085,
+      "doc_id": 30774,
+      "match_name": "中华人民共和国刑法第二百六十四条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 1085,
+      "doc_id": 55137,
+      "match_name": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第一条",
+      "corpus_title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 30775,
+      "match_name": "中华人民共和国刑法第二百六十四条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 30779,
+      "match_name": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第二条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第六条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 55137,
+      "match_name": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第六条",
+      "corpus_title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1090,
+      "doc_id": 778,
+      "match_name": "中华人民共和国刑法第二百六十四条",
+      "corpus_title": "中华人民共和国民法典第一百二十七条"
+    },
+    {
+      "query_id": 1090,
+      "doc_id": 55137,
+      "match_name": "中华人民共和国民法典第一百二十七条",
+      "corpus_title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1103,
+      "doc_id": 55137,
+      "match_name": "中华人民共和国刑法第二百六十七条",
+      "corpus_title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1103,
+      "doc_id": 55140,
+      "match_name": "中华人民共和国刑法第二百六十四条",
+      "corpus_title": "中华人民共和国刑法第二百六十七条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 21602,
+      "match_name": "最高人民法院关于适用《民事诉讼法》的解释第十八条",
+      "corpus_title": "民事诉讼法第二十四条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 21613,
+      "match_name": "民事诉讼法第二十四条",
+      "corpus_title": "民事诉讼法第三十五条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 23564,
+      "match_name": "民事诉讼法第三十五条",
+      "corpus_title": "最高人民法院关于适用《民事诉讼法》的解释第十八条"
+    },
+    {
+      "query_id": 1150,
+      "doc_id": 243,
+      "match_name": "中华人民共和国民法典第一百三十六条",
+      "corpus_title": "中华人民共和国民法典第七百零六条"
+    },
+    {
+      "query_id": 1150,
+      "doc_id": 787,
+      "match_name": "中华人民共和国民法典第七百零六条",
+      "corpus_title": "中华人民共和国民法典第一百三十六条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 808,
+      "match_name": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第二条",
+      "corpus_title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23225,
+      "match_name": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第三条",
+      "corpus_title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23226,
+      "match_name": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第四条",
+      "corpus_title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23227,
+      "match_name": "中华人民共和国民法典第一百五十七条",
+      "corpus_title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第四条"
+    },
+    {
+      "query_id": 1160,
+      "doc_id": 70,
+      "match_name": "中华人民共和国民法典第一百八十条",
+      "corpus_title": "中华人民共和国民法典第五百三十三条"
+    },
+    {
+      "query_id": 1160,
+      "doc_id": 831,
+      "match_name": "中华人民共和国民法典第五百三十三条",
+      "corpus_title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 804,
+      "match_name": "土地管理法第四十四条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 5081,
+      "match_name": "土地管理法实施条例第三十一条",
+      "corpus_title": "土地管理法第四十四条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 46311,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "土地管理法实施条例第三十一条"
+    },
+    {
+      "query_id": 1164,
+      "doc_id": 46,
+      "match_name": "中华人民共和国民法典第一百一十九条",
+      "corpus_title": "中华人民共和国民法典第五百零九条"
+    },
+    {
+      "query_id": 1164,
+      "doc_id": 770,
+      "match_name": "中华人民共和国民法典第五百零九条",
+      "corpus_title": "中华人民共和国民法典第一百一十九条"
+    },
+    {
+      "query_id": 1165,
+      "doc_id": 613,
+      "match_name": "中华人民共和国民法典第一千一百二十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1165,
+      "doc_id": 615,
+      "match_name": "中华人民共和国民法典第一千一百二十七条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十九条"
+    },
+    {
+      "query_id": 1169,
+      "doc_id": 617,
+      "match_name": "最高人民法院关于适用《民法典》继承编的解释（一）第十条",
+      "corpus_title": "中华人民共和国民法典第一千一百三十一条"
+    },
+    {
+      "query_id": 1169,
+      "doc_id": 24561,
+      "match_name": "中华人民共和国民法典第一千一百三十一条",
+      "corpus_title": "最高人民法院关于适用《民法典》继承编的解释（一）第十条"
+    },
+    {
+      "query_id": 1170,
+      "doc_id": 641,
+      "match_name": "中华人民共和国民法典第十六条",
+      "corpus_title": "中华人民共和国民法典第一千一百五十五条"
+    },
+    {
+      "query_id": 1170,
+      "doc_id": 667,
+      "match_name": "中华人民共和国民法典第一千一百五十五条",
+      "corpus_title": "中华人民共和国民法典第十六条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 645,
+      "match_name": "中华人民共和国民法典第一千一百六十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百五十九条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 647,
+      "match_name": "中华人民共和国民法典第一千一百六十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十一条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 648,
+      "match_name": "中华人民共和国民法典第一千一百六十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十二条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 649,
+      "match_name": "中华人民共和国民法典第一千一百五十九条",
+      "corpus_title": "中华人民共和国民法典第一千一百六十三条"
+    },
+    {
+      "query_id": 1175,
+      "doc_id": 607,
+      "match_name": "中华人民共和国民法典第一千一百二十七条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十一条"
+    },
+    {
+      "query_id": 1175,
+      "doc_id": 613,
+      "match_name": "中华人民共和国民法典第一千一百二十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1191,
+      "doc_id": 609,
+      "match_name": "中华人民共和国民法典第一千一百二十七条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十三条"
+    },
+    {
+      "query_id": 1191,
+      "doc_id": 613,
+      "match_name": "中华人民共和国民法典第一千一百二十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1197,
+      "doc_id": 610,
+      "match_name": "中华人民共和国民法典第一千一百三十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十四条"
+    },
+    {
+      "query_id": 1197,
+      "doc_id": 619,
+      "match_name": "中华人民共和国民法典第一千一百二十四条",
+      "corpus_title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1198,
+      "doc_id": 607,
+      "match_name": "中华人民共和国民法典第四十六条",
+      "corpus_title": "中华人民共和国民法典第一千一百二十一条"
+    },
+    {
+      "query_id": 1198,
+      "doc_id": 697,
+      "match_name": "中华人民共和国民法典第一千一百二十一条",
+      "corpus_title": "中华人民共和国民法典第四十六条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 617,
+      "match_name": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第七条",
+      "corpus_title": "中华人民共和国民法典第一千一百三十一条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 619,
+      "match_name": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第八条",
+      "corpus_title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 644,
+      "match_name": "中华人民共和国民法典第一千一百三十一条",
+      "corpus_title": "中华人民共和国民法典第一千一百五十八条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 24630,
+      "match_name": "中华人民共和国民法典第一千一百三十三条",
+      "corpus_title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第七条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 24631,
+      "match_name": "中华人民共和国民法典第一千一百五十八条",
+      "corpus_title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第八条"
+    },
+    {
+      "query_id": 1204,
+      "doc_id": 528,
+      "match_name": "中华人民共和国民法典第一千一百五十七条",
+      "corpus_title": "中华人民共和国民法典第一千零四十二条"
+    },
+    {
+      "query_id": 1204,
+      "doc_id": 643,
+      "match_name": "中华人民共和国民法典第一千零四十二条",
+      "corpus_title": "中华人民共和国民法典第一千一百五十七条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 619,
+      "match_name": "中华人民共和国民法典第一千一百四十五条",
+      "corpus_title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 631,
+      "match_name": "中华人民共和国民法典第一千一百四十六条",
+      "corpus_title": "中华人民共和国民法典第一千一百四十五条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 632,
+      "match_name": "中华人民共和国民法典第一千一百三十三条",
+      "corpus_title": "中华人民共和国民法典第一千一百四十六条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 498,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条",
+      "corpus_title": "中华人民共和国民法典第九百六十一条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 500,
+      "match_name": "中华人民共和国民法典第九百六十一条",
+      "corpus_title": "中华人民共和国民法典第九百六十三条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 501,
+      "match_name": "中华人民共和国民法典第九百六十三条",
+      "corpus_title": "中华人民共和国民法典第九百六十四条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 25375,
+      "match_name": "中华人民共和国民法典第九百六十四条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 498,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条",
+      "corpus_title": "中华人民共和国民法典第九百六十一条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 500,
+      "match_name": "中华人民共和国民法典第九百六十一条",
+      "corpus_title": "中华人民共和国民法典第九百六十三条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 501,
+      "match_name": "中华人民共和国民法典第九百六十三条",
+      "corpus_title": "中华人民共和国民法典第九百六十四条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 25375,
+      "match_name": "中华人民共和国民法典第九百六十四条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1219,
+      "doc_id": 25359,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条"
+    },
+    {
+      "query_id": 1219,
+      "doc_id": 25375,
+      "match_name": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条",
+      "corpus_title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 217,
+      "match_name": "中华人民共和国民法典第一百四十七条",
+      "corpus_title": "中华人民共和国民法典第六百八十条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 798,
+      "match_name": "中华人民共和国民法典第一百四十八条",
+      "corpus_title": "中华人民共和国民法典第一百四十七条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 799,
+      "match_name": "中华人民共和国民法典第一百五十条",
+      "corpus_title": "中华人民共和国民法典第一百四十八条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 801,
+      "match_name": "中华人民共和国民法典第一百五十一条",
+      "corpus_title": "中华人民共和国民法典第一百五十条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 802,
+      "match_name": "中华人民共和国民法典第六百八十条",
+      "corpus_title": "中华人民共和国民法典第一百五十一条"
+    },
+    {
+      "query_id": 1299,
+      "doc_id": 284,
+      "match_name": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第八条",
+      "corpus_title": "中华人民共和国民法典第七百四十七条"
+    },
+    {
+      "query_id": 1299,
+      "doc_id": 30405,
+      "match_name": "中华人民共和国民法典第七百四十七条",
+      "corpus_title": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第八条"
+    },
+    {
+      "query_id": 1303,
+      "doc_id": 30181,
+      "match_name": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第五条",
+      "corpus_title": "最高人民法院关于适用《民法典》有关担保制度的解释第六十五条"
+    },
+    {
+      "query_id": 1303,
+      "doc_id": 30402,
+      "match_name": "最高人民法院关于适用《民法典》有关担保制度的解释第六十五条",
+      "corpus_title": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第五条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 2370,
+      "match_name": "行政许可法第七十六条",
+      "corpus_title": "国家赔偿法第二条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 2372,
+      "match_name": "国家赔偿法第二条",
+      "corpus_title": "国家赔偿法第四条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 4482,
+      "match_name": "国家赔偿法第四条",
+      "corpus_title": "行政许可法第七十六条"
+    },
+    {
+      "query_id": 1400,
+      "doc_id": 55034,
+      "match_name": "中华人民共和国刑法第一百九十三条",
+      "corpus_title": "中华人民共和国刑法第一百七十五条之一"
+    },
+    {
+      "query_id": 1400,
+      "doc_id": 55055,
+      "match_name": "中华人民共和国刑法第一百七十五条之一",
+      "corpus_title": "中华人民共和国刑法第一百九十三条"
+    },
+    {
+      "query_id": 1407,
+      "doc_id": 11678,
+      "match_name": "中华人民共和国刑法第一百九十八条",
+      "corpus_title": "保险法第一百七十四条"
+    },
+    {
+      "query_id": 1407,
+      "doc_id": 55060,
+      "match_name": "保险法第一百七十四条",
+      "corpus_title": "中华人民共和国刑法第一百九十八条"
+    },
+    {
+      "query_id": 1410,
+      "doc_id": 25224,
+      "match_name": "中华人民共和国刑法第二百六十六条",
+      "corpus_title": "最高人民法院、最高人民检察院关于办理诈骗刑事案件具体应用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 1410,
+      "doc_id": 55139,
+      "match_name": "最高人民法院、最高人民检察院关于办理诈骗刑事案件具体应用法律若干问题的解释第三条",
+      "corpus_title": "中华人民共和国刑法第二百六十六条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54869,
+      "match_name": "中华人民共和国刑法第二百六十六条",
+      "corpus_title": "中华人民共和国刑法第二十六条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54870,
+      "match_name": "中华人民共和国刑法第二十六条",
+      "corpus_title": "中华人民共和国刑法第二十七条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54871,
+      "match_name": "中华人民共和国刑法第二十七条",
+      "corpus_title": "中华人民共和国刑法第二十八条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 55139,
+      "match_name": "中华人民共和国刑法第二十八条",
+      "corpus_title": "中华人民共和国刑法第二百六十六条"
+    },
+    {
+      "query_id": 1416,
+      "doc_id": 54868,
+      "match_name": "中华人民共和国刑法第二百一十条",
+      "corpus_title": "中华人民共和国刑法第二十五条"
+    },
+    {
+      "query_id": 1416,
+      "doc_id": 55074,
+      "match_name": "中华人民共和国刑法第二十五条",
+      "corpus_title": "中华人民共和国刑法第二百一十条"
+    },
+    {
+      "query_id": 1417,
+      "doc_id": 55037,
+      "match_name": "中华人民共和国刑法第二百一十条",
+      "corpus_title": "中华人民共和国刑法第一百七十七条之一"
+    },
+    {
+      "query_id": 1417,
+      "doc_id": 55074,
+      "match_name": "中华人民共和国刑法第一百七十七条之一",
+      "corpus_title": "中华人民共和国刑法第二百一十条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 548,
+      "match_name": "中华人民共和国民法典第一百五十三条",
+      "corpus_title": "中华人民共和国民法典第一千零六十二条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 550,
+      "match_name": "中华人民共和国民法典第一百五十七条",
+      "corpus_title": "中华人民共和国民法典第一千零六十四条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 804,
+      "match_name": "中华人民共和国民法典第一千零六十二条",
+      "corpus_title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 808,
+      "match_name": "中华人民共和国民法典第一千零六十四条",
+      "corpus_title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 1427,
+      "doc_id": 194,
+      "match_name": "中华人民共和国民法典第六百五十八条",
+      "corpus_title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 1427,
+      "doc_id": 195,
+      "match_name": "中华人民共和国民法典第六百五十七条",
+      "corpus_title": "中华人民共和国民法典第六百五十八条"
+    },
+    {
+      "query_id": 1432,
+      "doc_id": 195,
+      "match_name": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第三十二条",
+      "corpus_title": "中华人民共和国民法典第六百五十八条"
+    },
+    {
+      "query_id": 1432,
+      "doc_id": 24655,
+      "match_name": "中华人民共和国民法典第六百五十八条",
+      "corpus_title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第三十二条"
+    },
+    {
+      "query_id": 1446,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第八百一十条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1446,
+      "doc_id": 347,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第八百一十条"
+    },
+    {
+      "query_id": 1462,
+      "doc_id": 363,
+      "match_name": "固体废物污染环境防治法第二十二条",
+      "corpus_title": "中华人民共和国民法典第八百二十六条"
+    },
+    {
+      "query_id": 1462,
+      "doc_id": 8590,
+      "match_name": "中华人民共和国民法典第八百二十六条",
+      "corpus_title": "固体废物污染环境防治法第二十二条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 33,
+      "match_name": "消费者权益保护法第二十六条",
+      "corpus_title": "中华人民共和国民法典第四百九十六条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 370,
+      "match_name": "中华人民共和国民法典第四百九十六条",
+      "corpus_title": "中华人民共和国民法典第八百三十三条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 12836,
+      "match_name": "中华人民共和国民法典第八百三十三条",
+      "corpus_title": "消费者权益保护法第二十六条"
+    },
+    {
+      "query_id": 1473,
+      "doc_id": 374,
+      "match_name": "中华人民共和国民法典第四百五十条",
+      "corpus_title": "中华人民共和国民法典第八百三十七条"
+    },
+    {
+      "query_id": 1473,
+      "doc_id": 1101,
+      "match_name": "中华人民共和国民法典第八百三十七条",
+      "corpus_title": "中华人民共和国民法典第四百五十条"
+    },
+    {
+      "query_id": 1478,
+      "doc_id": 369,
+      "match_name": "海商法第二条",
+      "corpus_title": "中华人民共和国民法典第八百三十二条"
+    },
+    {
+      "query_id": 1478,
+      "doc_id": 11786,
+      "match_name": "中华人民共和国民法典第八百三十二条",
+      "corpus_title": "海商法第二条"
+    },
+    {
+      "query_id": 1482,
+      "doc_id": 360,
+      "match_name": "铁路法第五十八条",
+      "corpus_title": "中华人民共和国民法典第八百二十三条"
+    },
+    {
+      "query_id": 1482,
+      "doc_id": 16004,
+      "match_name": "中华人民共和国民法典第八百二十三条",
+      "corpus_title": "铁路法第五十八条"
+    },
+    {
+      "query_id": 1485,
+      "doc_id": 360,
+      "match_name": "中华人民共和国民法典第一千二百一十三条",
+      "corpus_title": "中华人民共和国民法典第八百二十三条"
+    },
+    {
+      "query_id": 1485,
+      "doc_id": 1163,
+      "match_name": "中华人民共和国民法典第八百二十三条",
+      "corpus_title": "中华人民共和国民法典第一千二百一十三条"
+    },
+    {
+      "query_id": 1492,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第五百八十四条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1492,
+      "doc_id": 121,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第五百八十四条"
+    },
+    {
+      "query_id": 1497,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第八百一十四条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1497,
+      "doc_id": 351,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第八百一十四条"
+    },
+    {
+      "query_id": 1501,
+      "doc_id": 114,
+      "match_name": "中华人民共和国民法典第五百八十四条",
+      "corpus_title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1501,
+      "doc_id": 121,
+      "match_name": "中华人民共和国民法典第五百七十七条",
+      "corpus_title": "中华人民共和国民法典第五百八十四条"
+    },
+    {
+      "query_id": 1527,
+      "doc_id": 2,
+      "match_name": "中华人民共和国民法典第一百九十二条",
+      "corpus_title": "中华人民共和国民法典第四百六十五条"
+    },
+    {
+      "query_id": 1527,
+      "doc_id": 843,
+      "match_name": "中华人民共和国民法典第四百六十五条",
+      "corpus_title": "中华人民共和国民法典第一百九十二条"
+    },
+    {
+      "query_id": 1542,
+      "doc_id": 11543,
+      "match_name": "建筑法第四十八条",
+      "corpus_title": "保险法第三十九条"
+    },
+    {
+      "query_id": 1542,
+      "doc_id": 16411,
+      "match_name": "保险法第三十九条",
+      "corpus_title": "建筑法第四十八条"
+    }
+  ],
+  "evidence_text_mismatch": [
+    {
+      "query_id": 3,
+      "doc_id": 504,
+      "title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 795,
+      "title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 797,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 3,
+      "doc_id": 805,
+      "title": "中华人民共和国民法典第九百六十七条"
+    },
+    {
+      "query_id": 19,
+      "doc_id": 46292,
+      "title": "基本农田保护条例第十七条"
+    },
+    {
+      "query_id": 19,
+      "doc_id": 52954,
+      "title": "土地管理法实施条例第十二条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 984,
+      "title": "农村土地承包法第二十三条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 990,
+      "title": "中华人民共和国民法典第三百三十三条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 993,
+      "title": "中华人民共和国民法典第三百三十九条"
+    },
+    {
+      "query_id": 27,
+      "doc_id": 11080,
+      "title": "中华人民共和国民法典第三百四十二条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 573,
+      "title": "农村土地承包法第六条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11063,
+      "title": "农村土地承包法第二十七条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11084,
+      "title": "农村土地承包法第三十一条"
+    },
+    {
+      "query_id": 37,
+      "doc_id": 11088,
+      "title": "中华人民共和国民法典第一千零八十七条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 573,
+      "title": "农村土地承包法第六条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11063,
+      "title": "农村土地承包法第二十七条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11084,
+      "title": "农村土地承包法第三十一条"
+    },
+    {
+      "query_id": 38,
+      "doc_id": 11088,
+      "title": "中华人民共和国民法典第一千零八十七条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1115,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1129,
+      "title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第一千一百七十九条"
+    },
+    {
+      "query_id": 75,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 76,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第九百九十六条"
+    },
+    {
+      "query_id": 76,
+      "doc_id": 1216,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 77,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第九百九十六条"
+    },
+    {
+      "query_id": 77,
+      "doc_id": 1216,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 78,
+      "doc_id": 1148,
+      "title": "中华人民共和国民法典第一千零五条"
+    },
+    {
+      "query_id": 78,
+      "doc_id": 1225,
+      "title": "中华人民共和国民法典第一千一百九十八条"
+    },
+    {
+      "query_id": 79,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千零五条"
+    },
+    {
+      "query_id": 79,
+      "doc_id": 1225,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 80,
+      "doc_id": 1171,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 80,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1115,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千零二条"
+    },
+    {
+      "query_id": 82,
+      "doc_id": 1222,
+      "title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 83,
+      "doc_id": 1147,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 83,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千一百九十七条"
+    },
+    {
+      "query_id": 84,
+      "doc_id": 1148,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 84,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千一百九十八条"
+    },
+    {
+      "query_id": 85,
+      "doc_id": 1133,
+      "title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条"
+    },
+    {
+      "query_id": 85,
+      "doc_id": 24512,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 86,
+      "doc_id": 1133,
+      "title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第三条"
+    },
+    {
+      "query_id": 86,
+      "doc_id": 24512,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 88,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 88,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1132,
+      "title": "中华人民共和国民法典第一千零三条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第一千零一十一条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1223,
+      "title": "中华人民共和国民法典第一千一百八十二条"
+    },
+    {
+      "query_id": 90,
+      "doc_id": 1231,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1168,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1171,
+      "title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 91,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1153,
+      "title": "中华人民共和国民法典第一千零四条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1173,
+      "title": "中华人民共和国民法典第一千二百零三条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 1224,
+      "title": "中华人民共和国民法典第一千二百二十三条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 10687,
+      "title": "最高人民法院关于审理食品药品纠纷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 92,
+      "doc_id": 23390,
+      "title": "药品管理法第一百一十六条"
+    },
+    {
+      "query_id": 93,
+      "doc_id": 1153,
+      "title": "食品安全法第一百四十八条"
+    },
+    {
+      "query_id": 93,
+      "doc_id": 9280,
+      "title": "中华人民共和国民法典第一千二百零三条"
+    },
+    {
+      "query_id": 96,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第一千零四条"
+    },
+    {
+      "query_id": 96,
+      "doc_id": 1224,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 830,
+      "title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 1238,
+      "title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 112,
+      "doc_id": 1239,
+      "title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 830,
+      "title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 1238,
+      "title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 113,
+      "doc_id": 1239,
+      "title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 830,
+      "title": "中华人民共和国民法典第一千零一十八条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 1238,
+      "title": "中华人民共和国民法典第一千零一十九条"
+    },
+    {
+      "query_id": 115,
+      "doc_id": 1239,
+      "title": "中华人民共和国民法典第一百七十九条"
+    },
+    {
+      "query_id": 124,
+      "doc_id": 1145,
+      "title": "中华人民共和国民法典第一千零二十四条"
+    },
+    {
+      "query_id": 124,
+      "doc_id": 1244,
+      "title": "中华人民共和国民法典第一千一百九十五条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1215,
+      "title": "中华人民共和国民法典第一千零三十二条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1243,
+      "title": "中华人民共和国民法典第一千零三十三条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1252,
+      "title": "中华人民共和国民法典第九百九十五条"
+    },
+    {
+      "query_id": 139,
+      "doc_id": 1253,
+      "title": "中华人民共和国民法典第一千零二十三条"
+    },
+    {
+      "query_id": 141,
+      "doc_id": 1176,
+      "title": "个人信息保护法第二十八条"
+    },
+    {
+      "query_id": 141,
+      "doc_id": 4118,
+      "title": "中华人民共和国民法典第一千二百二十六条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 1252,
+      "title": "宪法第四十条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 8365,
+      "title": "中华人民共和国民法典第一千零三十二条"
+    },
+    {
+      "query_id": 144,
+      "doc_id": 31875,
+      "title": "治安管理处罚法第八十七条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1132,
+      "title": "中华人民共和国民法典第九百九十条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1133,
+      "title": "中华人民共和国民法典第一千一百八十二条"
+    },
+    {
+      "query_id": 158,
+      "doc_id": 1210,
+      "title": "中华人民共和国民法典第一千一百八十三条"
+    },
+    {
+      "query_id": 159,
+      "doc_id": 1240,
+      "title": "中华人民共和国民法典第一千零二十三条"
+    },
+    {
+      "query_id": 159,
+      "doc_id": 1243,
+      "title": "中华人民共和国民法典第一千零二十条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 188,
+      "title": "中华人民共和国民法典第一百八十六条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 189,
+      "title": "中华人民共和国民法典第六百五十一条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 193,
+      "title": "中华人民共和国民法典第六百五十二条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 837,
+      "title": "电力法第五十九条"
+    },
+    {
+      "query_id": 207,
+      "doc_id": 19125,
+      "title": "中华人民共和国民法典第六百五十六条"
+    },
+    {
+      "query_id": 212,
+      "doc_id": 189,
+      "title": "电力供应与使用条例第三十一条"
+    },
+    {
+      "query_id": 212,
+      "doc_id": 36542,
+      "title": "中华人民共和国民法典第六百五十二条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 2,
+      "title": "电力法第五十九条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 188,
+      "title": "中华人民共和国民法典第四百六十五条"
+    },
+    {
+      "query_id": 214,
+      "doc_id": 19125,
+      "title": "中华人民共和国民法典第六百五十一条"
+    },
+    {
+      "query_id": 226,
+      "doc_id": 299,
+      "title": "中华人民共和国民法典第一百三十五条"
+    },
+    {
+      "query_id": 226,
+      "doc_id": 786,
+      "title": "中华人民共和国民法典第七百六十二条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 42,
+      "title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 45,
+      "title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 795,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 797,
+      "title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第五百零五条"
+    },
+    {
+      "query_id": 233,
+      "doc_id": 805,
+      "title": "中华人民共和国民法典第五百零八条"
+    },
+    {
+      "query_id": 236,
+      "doc_id": 305,
+      "title": "中华人民共和国民法典第四百四十五条"
+    },
+    {
+      "query_id": 236,
+      "doc_id": 1096,
+      "title": "中华人民共和国民法典第七百六十八条"
+    },
+    {
+      "query_id": 248,
+      "doc_id": 23579,
+      "title": "最高人民法院关于适用《仲裁法》若干问题的解释第九条"
+    },
+    {
+      "query_id": 248,
+      "doc_id": 27707,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第三十三条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 440,
+      "title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 1098,
+      "title": "中华人民共和国民法典第四百五十三条"
+    },
+    {
+      "query_id": 267,
+      "doc_id": 1104,
+      "title": "中华人民共和国民法典第九百零三条"
+    },
+    {
+      "query_id": 268,
+      "doc_id": 435,
+      "title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 268,
+      "doc_id": 831,
+      "title": "中华人民共和国民法典第八百九十八条"
+    },
+    {
+      "query_id": 285,
+      "doc_id": 226,
+      "title": "中华人民共和国民法典第三百八十七条"
+    },
+    {
+      "query_id": 285,
+      "doc_id": 1038,
+      "title": "中华人民共和国民法典第六百八十九条"
+    },
+    {
+      "query_id": 294,
+      "doc_id": 231,
+      "title": "中华人民共和国民法典第一百八十八条"
+    },
+    {
+      "query_id": 294,
+      "doc_id": 839,
+      "title": "中华人民共和国民法典第六百九十四条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 804,
+      "title": "社会保险法第六十条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14396,
+      "title": "社会保险法第六十三条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14399,
+      "title": "劳动法第七十二条"
+    },
+    {
+      "query_id": 312,
+      "doc_id": 14773,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 325,
+      "doc_id": 11522,
+      "title": "保险法第五十六条"
+    },
+    {
+      "query_id": 325,
+      "doc_id": 11560,
+      "title": "保险法第十八条"
+    },
+    {
+      "query_id": 327,
+      "doc_id": 82,
+      "title": "最高人民法院关于适用《保险法》若干问题的解释（三）第十三条"
+    },
+    {
+      "query_id": 327,
+      "doc_id": 27677,
+      "title": "中华人民共和国民法典第五百四十五条"
+    },
+    {
+      "query_id": 335,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 335,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 337,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 337,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 338,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 338,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 342,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 342,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 343,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 343,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 344,
+      "doc_id": 21636,
+      "title": "行政诉讼法第二十五条"
+    },
+    {
+      "query_id": 344,
+      "doc_id": 22281,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 345,
+      "doc_id": 7515,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 345,
+      "doc_id": 21636,
+      "title": "环境保护法第五十八条"
+    },
+    {
+      "query_id": 346,
+      "doc_id": 7515,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 346,
+      "doc_id": 21636,
+      "title": "环境保护法第五十八条"
+    },
+    {
+      "query_id": 374,
+      "doc_id": 11621,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 374,
+      "doc_id": 14441,
+      "title": "保险法第一百一十七条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 747,
+      "title": "劳动合同法第二条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 752,
+      "title": "劳动合同法实施条例第三条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 3387,
+      "title": "劳动合同法实施条例第四条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 14436,
+      "title": "中华人民共和国民法典第九十六条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 38057,
+      "title": "中华人民共和国民法典第一百零一条"
+    },
+    {
+      "query_id": 376,
+      "doc_id": 38058,
+      "title": "村民委员会组织法第六条"
+    },
+    {
+      "query_id": 377,
+      "doc_id": 30094,
+      "title": "劳动合同法实施条例第二十一条"
+    },
+    {
+      "query_id": 377,
+      "doc_id": 38075,
+      "title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十二条"
+    },
+    {
+      "query_id": 381,
+      "doc_id": 13037,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 381,
+      "doc_id": 14441,
+      "title": "公司法第四十四条"
+    },
+    {
+      "query_id": 382,
+      "doc_id": 13209,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 382,
+      "doc_id": 14441,
+      "title": "公司法第二百一十六条"
+    },
+    {
+      "query_id": 383,
+      "doc_id": 13037,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 383,
+      "doc_id": 14441,
+      "title": "公司法第四十四条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 13037,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14441,
+      "title": "劳动合同法第十条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14444,
+      "title": "劳动合同法第八十二条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 14516,
+      "title": "劳动合同法实施条例第七条"
+    },
+    {
+      "query_id": 384,
+      "doc_id": 38061,
+      "title": "公司法第四十四条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 1142,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 1143,
+      "title": "中华人民共和国民法典第一千一百九十二条"
+    },
+    {
+      "query_id": 386,
+      "doc_id": 14441,
+      "title": "中华人民共和国民法典第一千一百九十三条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 1142,
+      "title": "劳动合同法第七条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 1143,
+      "title": "中华人民共和国民法典第一千一百九十二条"
+    },
+    {
+      "query_id": 387,
+      "doc_id": 14441,
+      "title": "中华人民共和国民法典第一千一百九十三条"
+    },
+    {
+      "query_id": 389,
+      "doc_id": 30096,
+      "title": "劳动合同法实施条例第六条"
+    },
+    {
+      "query_id": 389,
+      "doc_id": 38060,
+      "title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第三十四条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 13953,
+      "title": "劳动合同法第八条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14442,
+      "title": "劳动合同法第二十六条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14460,
+      "title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 397,
+      "doc_id": 14473,
+      "title": "就业促进法第二十七条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 14460,
+      "title": "民事诉讼法第十三条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 14461,
+      "title": "民事诉讼法第一百二十六条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 21591,
+      "title": "劳动合同法第二十六条"
+    },
+    {
+      "query_id": 404,
+      "doc_id": 21704,
+      "title": "劳动合同法第二十七条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 14438,
+      "title": "最高人民法院关于审理劳动争议案件适用法律问题的解释（一）第五十条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 14473,
+      "title": "劳动合同法第四条"
+    },
+    {
+      "query_id": 437,
+      "doc_id": 30112,
+      "title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 442,
+      "doc_id": 13040,
+      "title": "劳动合同法第三十九条"
+    },
+    {
+      "query_id": 442,
+      "doc_id": 14473,
+      "title": "公司法第四十七条"
+    },
+    {
+      "query_id": 448,
+      "doc_id": 47508,
+      "title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 448,
+      "doc_id": 55222,
+      "title": "医疗事故处理条例第二条"
+    },
+    {
+      "query_id": 449,
+      "doc_id": 47508,
+      "title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 449,
+      "doc_id": 55222,
+      "title": "医疗事故处理条例第二条"
+    },
+    {
+      "query_id": 452,
+      "doc_id": 28427,
+      "title": "中华人民共和国刑法第三百三十六条"
+    },
+    {
+      "query_id": 452,
+      "doc_id": 55224,
+      "title": "关于审理非法行医刑事案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 455,
+      "doc_id": 54996,
+      "title": "中华人民共和国刑法第三百三十五条"
+    },
+    {
+      "query_id": 455,
+      "doc_id": 55222,
+      "title": "中华人民共和国刑法第一百四十一条"
+    },
+    {
+      "query_id": 458,
+      "doc_id": 1168,
+      "title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 458,
+      "doc_id": 1171,
+      "title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 465,
+      "doc_id": 1168,
+      "title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 465,
+      "doc_id": 29686,
+      "title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 466,
+      "doc_id": 1168,
+      "title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 466,
+      "doc_id": 29685,
+      "title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 1168,
+      "title": "母婴保健法第十八条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 1171,
+      "title": "中华人民共和国民法典第一千二百一十八条"
+    },
+    {
+      "query_id": 470,
+      "doc_id": 8952,
+      "title": "中华人民共和国民法典第一千二百二十一条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 1115,
+      "title": "最高人民法院关于审理医疗损害责任纠纷案件适用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 1118,
+      "title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 472,
+      "doc_id": 29687,
+      "title": "中华人民共和国民法典第一千一百六十八条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 507,
+      "title": "合伙企业法第二十六条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11153,
+      "title": "合伙企业法第六十七条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11194,
+      "title": "合伙企业法第六十八条"
+    },
+    {
+      "query_id": 476,
+      "doc_id": 11195,
+      "title": "中华人民共和国民法典第九百七十条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 510,
+      "title": "合伙企业法第二条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11129,
+      "title": "合伙企业法第五十五条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11182,
+      "title": "合伙企业法第五十七条"
+    },
+    {
+      "query_id": 478,
+      "doc_id": 11184,
+      "title": "中华人民共和国民法典第九百七十三条"
+    },
+    {
+      "query_id": 483,
+      "doc_id": 72,
+      "title": "中华人民共和国民法典第九百七十五条"
+    },
+    {
+      "query_id": 483,
+      "doc_id": 512,
+      "title": "中华人民共和国民法典第五百三十五条"
+    },
+    {
+      "query_id": 484,
+      "doc_id": 47,
+      "title": "中华人民共和国民法典第九百七十六条"
+    },
+    {
+      "query_id": 484,
+      "doc_id": 513,
+      "title": "中华人民共和国民法典第五百一十条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11160,
+      "title": "合伙企业法第四十四条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11171,
+      "title": "合伙企业法第五十三条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11180,
+      "title": "合伙企业法第五十四条"
+    },
+    {
+      "query_id": 489,
+      "doc_id": 11181,
+      "title": "合伙企业法第三十三条"
+    },
+    {
+      "query_id": 505,
+      "doc_id": 10890,
+      "title": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第四条"
+    },
+    {
+      "query_id": 505,
+      "doc_id": 31786,
+      "title": "商标法第十条"
+    },
+    {
+      "query_id": 514,
+      "doc_id": 10893,
+      "title": "最高人民法院关于审理涉及驰名商标保护的民事纠纷案件应用法律若干问题的解释第九条"
+    },
+    {
+      "query_id": 514,
+      "doc_id": 23541,
+      "title": "商标法第十三条"
+    },
+    {
+      "query_id": 524,
+      "doc_id": 31808,
+      "title": "商标法实施条例第六十七条"
+    },
+    {
+      "query_id": 524,
+      "doc_id": 43055,
+      "title": "最高人民法院关于审理商标授权确权行政案件若干问题的规定第二十六条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 25583,
+      "title": "中华人民共和国刑法第二百一十三条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 25584,
+      "title": "中华人民共和国刑法第二百一十四条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 30910,
+      "title": "中华人民共和国刑法第二百一十五条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55077,
+      "title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55078,
+      "title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释（三）第一条"
+    },
+    {
+      "query_id": 542,
+      "doc_id": 55079,
+      "title": "最高人民法院、最高人民检察院关于办理侵犯知识产权刑事案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 550,
+      "doc_id": 939,
+      "title": "中华人民共和国民法典第三百七十三条"
+    },
+    {
+      "query_id": 550,
+      "doc_id": 1024,
+      "title": "中华人民共和国民法典第二百八十八条"
+    },
+    {
+      "query_id": 552,
+      "doc_id": 962,
+      "title": "中华人民共和国民法典第三百七十四条"
+    },
+    {
+      "query_id": 552,
+      "doc_id": 1025,
+      "title": "中华人民共和国民法典第三百一十一条"
+    },
+    {
+      "query_id": 562,
+      "doc_id": 872,
+      "title": "最高人民法院关于适用《民法典》物权编的解释（一）第四条"
+    },
+    {
+      "query_id": 562,
+      "doc_id": 26554,
+      "title": "中华人民共和国民法典第二百二十一条"
+    },
+    {
+      "query_id": 570,
+      "doc_id": 860,
+      "title": "中华人民共和国民法典第三百六十五条"
+    },
+    {
+      "query_id": 570,
+      "doc_id": 1016,
+      "title": "中华人民共和国民法典第二百零九条"
+    },
+    {
+      "query_id": 578,
+      "doc_id": 608,
+      "title": "土地管理法第九条"
+    },
+    {
+      "query_id": 578,
+      "doc_id": 5046,
+      "title": "中华人民共和国民法典第一千一百二十二条"
+    },
+    {
+      "query_id": 580,
+      "doc_id": 804,
+      "title": "土地管理法第六十二条"
+    },
+    {
+      "query_id": 580,
+      "doc_id": 5099,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 240,
+      "title": "中华人民共和国民法典第三百六十六条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 242,
+      "title": "中华人民共和国民法典第三百六十八条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 1017,
+      "title": "中华人民共和国民法典第七百零三条"
+    },
+    {
+      "query_id": 586,
+      "doc_id": 1019,
+      "title": "中华人民共和国民法典第七百零五条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 880,
+      "title": "中华人民共和国民法典第三百六十七条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1018,
+      "title": "中华人民共和国民法典第三百六十八条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1019,
+      "title": "中华人民共和国民法典第三百七十一条"
+    },
+    {
+      "query_id": 587,
+      "doc_id": 1022,
+      "title": "中华人民共和国民法典第二百二十九条"
+    },
+    {
+      "query_id": 604,
+      "doc_id": 5686,
+      "title": "最高人民法院、最高人民检察院关于办理非法利用信息网络、帮助信息网络犯罪活动等刑事案件适用法律若干问题的解释第十七条"
+    },
+    {
+      "query_id": 604,
+      "doc_id": 24980,
+      "title": "反电信网络诈骗法第三十八条"
+    },
+    {
+      "query_id": 606,
+      "doc_id": 1203,
+      "title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 606,
+      "doc_id": 30614,
+      "title": "中华人民共和国民法典第一千二百五十三条"
+    },
+    {
+      "query_id": 619,
+      "doc_id": 1206,
+      "title": "道路交通安全法第三十一条"
+    },
+    {
+      "query_id": 619,
+      "doc_id": 7954,
+      "title": "中华人民共和国民法典第一千二百五十六条"
+    },
+    {
+      "query_id": 620,
+      "doc_id": 1195,
+      "title": "中华人民共和国民法典第一千二百五十四条"
+    },
+    {
+      "query_id": 620,
+      "doc_id": 1204,
+      "title": "中华人民共和国民法典第一千二百四十五条"
+    },
+    {
+      "query_id": 623,
+      "doc_id": 344,
+      "title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 623,
+      "doc_id": 1098,
+      "title": "中华人民共和国民法典第八百零七条"
+    },
+    {
+      "query_id": 624,
+      "doc_id": 330,
+      "title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 624,
+      "doc_id": 808,
+      "title": "中华人民共和国民法典第七百九十三条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 328,
+      "title": "最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（一）第一条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 343,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第七百九十一条"
+    },
+    {
+      "query_id": 631,
+      "doc_id": 31393,
+      "title": "中华人民共和国民法典第八百零六条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 89,
+      "title": "公司法第二十条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 225,
+      "title": "公司法第六十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 323,
+      "title": "中华人民共和国民法典第六十七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 328,
+      "title": "中华人民共和国民法典第七十五条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 469,
+      "title": "中华人民共和国民法典第八十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 510,
+      "title": "中华人民共和国民法典第一百六十四条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 718,
+      "title": "中华人民共和国民法典第一百六十七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 726,
+      "title": "中华人民共和国民法典第一百七十八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 734,
+      "title": "中华人民共和国民法典第三百零七条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第三百零八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 815,
+      "title": "中华人民共和国民法典第五百五十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 818,
+      "title": "中华人民共和国民法典第六百八十八条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 829,
+      "title": "中华人民共和国民法典第七百八十六条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 958,
+      "title": "中华人民共和国民法典第七百九十一条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 959,
+      "title": "中华人民共和国民法典第九百三十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1119,
+      "title": "中华人民共和国民法典第九百七十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1120,
+      "title": "中华人民共和国民法典第一千二百五十二条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1121,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 1202,
+      "title": "中华人民共和国民法典第一千一百六十九条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 13013,
+      "title": "中华人民共和国民法典第一千一百七十条"
+    },
+    {
+      "query_id": 651,
+      "doc_id": 13056,
+      "title": "中华人民共和国民法典第一千一百七十一条"
+    },
+    {
+      "query_id": 659,
+      "doc_id": 34533,
+      "title": "政府信息公开条例第二十一条"
+    },
+    {
+      "query_id": 659,
+      "doc_id": 42884,
+      "title": "国有土地上房屋征收与补偿条例第二十九条"
+    },
+    {
+      "query_id": 666,
+      "doc_id": 34,
+      "title": "中华人民共和国民法典第五百零二条"
+    },
+    {
+      "query_id": 666,
+      "doc_id": 39,
+      "title": "中华人民共和国民法典第四百九十七条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 809,
+      "title": "最高人民法院关于适用《行政诉讼法》的解释第一条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 31489,
+      "title": "国有土地上房屋征收与补偿条例第二十六条"
+    },
+    {
+      "query_id": 668,
+      "doc_id": 34530,
+      "title": "中华人民共和国民法典第一百五十八条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 34519,
+      "title": "政府信息公开条例第十一条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 34533,
+      "title": "政府信息公开条例第十四条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 42874,
+      "title": "国有土地上房屋征收与补偿条例第十五条"
+    },
+    {
+      "query_id": 670,
+      "doc_id": 42877,
+      "title": "国有土地上房屋征收与补偿条例第二十九条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 795,
+      "title": "行政诉讼法第七十五条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 797,
+      "title": "最高人民法院关于适用《行政诉讼法》的解释第九十九条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第一百四十四条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 805,
+      "title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 22331,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 674,
+      "doc_id": 31587,
+      "title": "中华人民共和国民法典第一百五十四条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 3408,
+      "title": "妇女权益保障法第三十二条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 14078,
+      "title": "妇女权益保障法第三十三条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 14079,
+      "title": "最高人民法院关于审理涉及农村土地承包纠纷案件适用法律问题的解释第二十二条"
+    },
+    {
+      "query_id": 676,
+      "doc_id": 30898,
+      "title": "村民委员会组织法第二十七条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 2370,
+      "title": "行政诉讼法第三十八条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 2372,
+      "title": "国家赔偿法第二条"
+    },
+    {
+      "query_id": 677,
+      "doc_id": 22294,
+      "title": "国家赔偿法第四条"
+    },
+    {
+      "query_id": 702,
+      "doc_id": 380,
+      "title": "中华人民共和国民法典第八百四十五条"
+    },
+    {
+      "query_id": 702,
+      "doc_id": 382,
+      "title": "中华人民共和国民法典第八百四十三条"
+    },
+    {
+      "query_id": 707,
+      "doc_id": 797,
+      "title": "最高人民法院关于审理技术合同纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 707,
+      "doc_id": 28477,
+      "title": "中华人民共和国民法典第一百四十六条"
+    },
+    {
+      "query_id": 714,
+      "doc_id": 100,
+      "title": "中华人民共和国民法典第八百五十七条"
+    },
+    {
+      "query_id": 714,
+      "doc_id": 394,
+      "title": "中华人民共和国民法典第五百六十三条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 84,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 233,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 30136,
+      "title": "中华人民共和国民法典第五百四十七条"
+    },
+    {
+      "query_id": 721,
+      "doc_id": 30155,
+      "title": "中华人民共和国民法典第六百九十六条"
+    },
+    {
+      "query_id": 722,
+      "doc_id": 1042,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第三十九条"
+    },
+    {
+      "query_id": 722,
+      "doc_id": 30155,
+      "title": "中华人民共和国民法典第三百九十一条"
+    },
+    {
+      "query_id": 723,
+      "doc_id": 234,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 723,
+      "doc_id": 30136,
+      "title": "中华人民共和国民法典第六百九十七条"
+    },
+    {
+      "query_id": 724,
+      "doc_id": 232,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 724,
+      "doc_id": 30136,
+      "title": "中华人民共和国民法典第六百九十五条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 238,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第二十条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 239,
+      "title": "中华人民共和国民法典第七百零一条"
+    },
+    {
+      "query_id": 725,
+      "doc_id": 30136,
+      "title": "中华人民共和国民法典第七百零二条"
+    },
+    {
+      "query_id": 727,
+      "doc_id": 29723,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第二条"
+    },
+    {
+      "query_id": 727,
+      "doc_id": 30118,
+      "title": "最高人民法院关于审理独立保函纠纷案件若干问题的规定第六条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第三百九十五条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 1046,
+      "title": "中华人民共和国民法典第四百零二条"
+    },
+    {
+      "query_id": 740,
+      "doc_id": 1053,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 1048,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十一条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 1068,
+      "title": "中华人民共和国民法典第三百九十七条"
+    },
+    {
+      "query_id": 742,
+      "doc_id": 30167,
+      "title": "中华人民共和国民法典第四百一十七条"
+    },
+    {
+      "query_id": 748,
+      "doc_id": 262,
+      "title": "中华人民共和国民法典第四百零五条"
+    },
+    {
+      "query_id": 748,
+      "doc_id": 1056,
+      "title": "中华人民共和国民法典第七百二十五条"
+    },
+    {
+      "query_id": 758,
+      "doc_id": 1074,
+      "title": "中华人民共和国民法典第四百三十九条"
+    },
+    {
+      "query_id": 758,
+      "doc_id": 1090,
+      "title": "中华人民共和国民法典第四百二十三条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 1092,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十八条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 30174,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第五十九条"
+    },
+    {
+      "query_id": 770,
+      "doc_id": 30175,
+      "title": "中华人民共和国民法典第四百四十一条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 22297,
+      "title": "政府信息公开条例第二条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 24445,
+      "title": "政府信息公开条例第三十六条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 28048,
+      "title": "行政诉讼法第四十一条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 42865,
+      "title": "最高人民法院关于审理政府信息公开行政案件若干问题的规定第五条"
+    },
+    {
+      "query_id": 789,
+      "doc_id": 42899,
+      "title": "最高人民法院关于行政诉讼证据若干问题的规定第二十四条"
+    },
+    {
+      "query_id": 792,
+      "doc_id": 42895,
+      "title": "政府信息公开条例第三十七条"
+    },
+    {
+      "query_id": 792,
+      "doc_id": 42900,
+      "title": "政府信息公开条例第三十二条"
+    },
+    {
+      "query_id": 850,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第一百一十九条"
+    },
+    {
+      "query_id": 850,
+      "doc_id": 770,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 46,
+      "title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第五百零九条"
+    },
+    {
+      "query_id": 852,
+      "doc_id": 831,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 854,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第一百八十六条"
+    },
+    {
+      "query_id": 854,
+      "doc_id": 837,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 891,
+      "doc_id": 55136,
+      "title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 891,
+      "doc_id": 55137,
+      "title": "中华人民共和国刑法第二百六十三条"
+    },
+    {
+      "query_id": 900,
+      "doc_id": 1139,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 900,
+      "doc_id": 1149,
+      "title": "中华人民共和国民法典第一千一百八十九条"
+    },
+    {
+      "query_id": 902,
+      "doc_id": 1115,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 902,
+      "doc_id": 1149,
+      "title": "中华人民共和国民法典第一千一百六十五条"
+    },
+    {
+      "query_id": 904,
+      "doc_id": 1149,
+      "title": "中华人民共和国民法典第一千二百零一条"
+    },
+    {
+      "query_id": 904,
+      "doc_id": 1151,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 914,
+      "doc_id": 22326,
+      "title": "最高人民法院关于适用《行政诉讼法》的解释第一条"
+    },
+    {
+      "query_id": 914,
+      "doc_id": 31489,
+      "title": "行政诉讼法第七十条"
+    },
+    {
+      "query_id": 915,
+      "doc_id": 1121,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 915,
+      "doc_id": 1149,
+      "title": "中华人民共和国民法典第一千一百七十一条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1141,
+      "title": "最高人民法院关于确定民事侵权精神损害赔偿责任若干问题的解释第五条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1149,
+      "title": "中华人民共和国民法典第一千一百九十一条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 1150,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 916,
+      "doc_id": 24514,
+      "title": "中华人民共和国民法典第一千二百条"
+    },
+    {
+      "query_id": 918,
+      "doc_id": 5340,
+      "title": "学位条例第二条"
+    },
+    {
+      "query_id": 918,
+      "doc_id": 8550,
+      "title": "教育法第二十二条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 1149,
+      "title": "未成年人保护法第三十五条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 1150,
+      "title": "中华人民共和国民法典第一千一百九十九条"
+    },
+    {
+      "query_id": 919,
+      "doc_id": 13246,
+      "title": "中华人民共和国民法典第一千二百条"
+    },
+    {
+      "query_id": 922,
+      "doc_id": 114,
+      "title": "教育法第八十三条"
+    },
+    {
+      "query_id": 922,
+      "doc_id": 5401,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 925,
+      "doc_id": 194,
+      "title": "中华人民共和国民法典第六百六十四条"
+    },
+    {
+      "query_id": 925,
+      "doc_id": 201,
+      "title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 114,
+      "title": "教育法第二十九条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 115,
+      "title": "教育法第三十条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 120,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 5347,
+      "title": "中华人民共和国民法典第五百七十八条"
+    },
+    {
+      "query_id": 927,
+      "doc_id": 5348,
+      "title": "中华人民共和国民法典第五百八十三条"
+    },
+    {
+      "query_id": 930,
+      "doc_id": 194,
+      "title": "中华人民共和国民法典第六百六十七条"
+    },
+    {
+      "query_id": 930,
+      "doc_id": 204,
+      "title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 935,
+      "doc_id": 23636,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 935,
+      "doc_id": 25352,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第九十条"
+    },
+    {
+      "query_id": 936,
+      "doc_id": 23636,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 936,
+      "doc_id": 25352,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第九十条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 23637,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 25352,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十六条"
+    },
+    {
+      "query_id": 940,
+      "doc_id": 25366,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第九十一条"
+    },
+    {
+      "query_id": 941,
+      "doc_id": 25364,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十五条"
+    },
+    {
+      "query_id": 941,
+      "doc_id": 25365,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十四条"
+    },
+    {
+      "query_id": 943,
+      "doc_id": 21651,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二条"
+    },
+    {
+      "query_id": 943,
+      "doc_id": 25352,
+      "title": "民事诉讼法第七十三条"
+    },
+    {
+      "query_id": 944,
+      "doc_id": 23564,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三条"
+    },
+    {
+      "query_id": 944,
+      "doc_id": 25353,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第十八条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 48,
+      "title": "中华人民共和国民法典第一百八十八条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 839,
+      "title": "中华人民共和国民法典第一百九十二条"
+    },
+    {
+      "query_id": 946,
+      "doc_id": 843,
+      "title": "中华人民共和国民法典第五百一十一条"
+    },
+    {
+      "query_id": 955,
+      "doc_id": 207,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十六条"
+    },
+    {
+      "query_id": 955,
+      "doc_id": 25376,
+      "title": "中华人民共和国民法典第六百七十条"
+    },
+    {
+      "query_id": 958,
+      "doc_id": 214,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第三十条"
+    },
+    {
+      "query_id": 958,
+      "doc_id": 25380,
+      "title": "中华人民共和国民法典第六百七十七条"
+    },
+    {
+      "query_id": 964,
+      "doc_id": 25373,
+      "title": "最高人民法院关于民事诉讼证据的若干规定第五十三条"
+    },
+    {
+      "query_id": 964,
+      "doc_id": 28207,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十三条"
+    },
+    {
+      "query_id": 966,
+      "doc_id": 237,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十四条"
+    },
+    {
+      "query_id": 966,
+      "doc_id": 25374,
+      "title": "中华人民共和国民法典第七百条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 21693,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十九条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 21694,
+      "title": "民事诉讼法第一百一十五条"
+    },
+    {
+      "query_id": 967,
+      "doc_id": 25369,
+      "title": "民事诉讼法第一百一十六条"
+    },
+    {
+      "query_id": 969,
+      "doc_id": 25359,
+      "title": "人民检察院刑事诉讼规则第六百七十九条"
+    },
+    {
+      "query_id": 969,
+      "doc_id": 26348,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条"
+    },
+    {
+      "query_id": 975,
+      "doc_id": 16599,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条"
+    },
+    {
+      "query_id": 975,
+      "doc_id": 25363,
+      "title": "银行业监督管理法第十九条"
+    },
+    {
+      "query_id": 976,
+      "doc_id": 808,
+      "title": "中华人民共和国刑法第二百二十五条"
+    },
+    {
+      "query_id": 976,
+      "doc_id": 55091,
+      "title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 977,
+      "doc_id": 808,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第十三条"
+    },
+    {
+      "query_id": 977,
+      "doc_id": 25363,
+      "title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 984,
+      "doc_id": 476,
+      "title": "物业管理条例第十一条"
+    },
+    {
+      "query_id": 984,
+      "doc_id": 34550,
+      "title": "中华人民共和国民法典第九百三十九条"
+    },
+    {
+      "query_id": 986,
+      "doc_id": 30381,
+      "title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十四条"
+    },
+    {
+      "query_id": 986,
+      "doc_id": 30626,
+      "title": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 922,
+      "title": "物业管理条例第六条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 30384,
+      "title": "中华人民共和国民法典第二百七十一条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 30628,
+      "title": "最高人民法院关于审理物业服务纠纷案件适用法律若干问题的解释第四条"
+    },
+    {
+      "query_id": 987,
+      "doc_id": 34545,
+      "title": "最高人民法院关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释第十六条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 476,
+      "title": "物业管理条例第二十一条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34560,
+      "title": "物业管理条例第二十五条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34564,
+      "title": "物业管理条例第二十六条"
+    },
+    {
+      "query_id": 989,
+      "doc_id": 34565,
+      "title": "中华人民共和国民法典第九百三十九条"
+    },
+    {
+      "query_id": 996,
+      "doc_id": 481,
+      "title": "物业管理条例第四十一条"
+    },
+    {
+      "query_id": 996,
+      "doc_id": 34580,
+      "title": "中华人民共和国民法典第九百四十四条"
+    },
+    {
+      "query_id": 998,
+      "doc_id": 479,
+      "title": "物业管理条例第三十五条"
+    },
+    {
+      "query_id": 998,
+      "doc_id": 34574,
+      "title": "中华人民共和国民法典第九百四十二条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 479,
+      "title": "中华人民共和国民法典第六条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 480,
+      "title": "中华人民共和国民法典第九百四十二条"
+    },
+    {
+      "query_id": 1008,
+      "doc_id": 657,
+      "title": "中华人民共和国民法典第九百四十三条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 95,
+      "title": "中华人民共和国民法典第九百四十九条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 486,
+      "title": "中华人民共和国民法典第九百五十条"
+    },
+    {
+      "query_id": 1013,
+      "doc_id": 487,
+      "title": "中华人民共和国民法典第五百五十八条"
+    },
+    {
+      "query_id": 1020,
+      "doc_id": 23637,
+      "title": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第六条"
+    },
+    {
+      "query_id": 1020,
+      "doc_id": 30482,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第九十一条"
+    },
+    {
+      "query_id": 1027,
+      "doc_id": 1179,
+      "title": "中华人民共和国民法典第一千二百三十条"
+    },
+    {
+      "query_id": 1027,
+      "doc_id": 1180,
+      "title": "中华人民共和国民法典第一千二百二十九条"
+    },
+    {
+      "query_id": 1029,
+      "doc_id": 21636,
+      "title": "最高人民法院关于审理环境侵权责任纠纷案件适用法律若干问题的解释第八条"
+    },
+    {
+      "query_id": 1029,
+      "doc_id": 30484,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 1030,
+      "doc_id": 21636,
+      "title": "最高人民法院关于审理环境民事公益诉讼案件适用法律若干问题的解释第十九条"
+    },
+    {
+      "query_id": 1030,
+      "doc_id": 25480,
+      "title": "民事诉讼法第五十八条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 320,
+      "title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 373,
+      "title": "中华人民共和国民法典第四百四十八条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 440,
+      "title": "中华人民共和国民法典第四百四十九条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 496,
+      "title": "中华人民共和国民法典第七百八十三条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1098,
+      "title": "中华人民共和国民法典第八百三十六条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1099,
+      "title": "中华人民共和国民法典第九百零三条"
+    },
+    {
+      "query_id": 1032,
+      "doc_id": 1100,
+      "title": "中华人民共和国民法典第九百五十九条"
+    },
+    {
+      "query_id": 1036,
+      "doc_id": 105,
+      "title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1036,
+      "doc_id": 1098,
+      "title": "中华人民共和国民法典第五百六十八条"
+    },
+    {
+      "query_id": 1038,
+      "doc_id": 62,
+      "title": "中华人民共和国民法典第四百四十七条"
+    },
+    {
+      "query_id": 1038,
+      "doc_id": 1098,
+      "title": "中华人民共和国民法典第五百二十五条"
+    },
+    {
+      "query_id": 1079,
+      "doc_id": 680,
+      "title": "最高人民法院关于适用《民法典》总则编若干问题的解释第七条"
+    },
+    {
+      "query_id": 1079,
+      "doc_id": 22976,
+      "title": "中华人民共和国民法典第二十九条"
+    },
+    {
+      "query_id": 1085,
+      "doc_id": 30774,
+      "title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1085,
+      "doc_id": 55137,
+      "title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第一条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 30775,
+      "title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 30779,
+      "title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 1087,
+      "doc_id": 55137,
+      "title": "最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释第六条"
+    },
+    {
+      "query_id": 1090,
+      "doc_id": 778,
+      "title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1090,
+      "doc_id": 55137,
+      "title": "中华人民共和国民法典第一百二十七条"
+    },
+    {
+      "query_id": 1103,
+      "doc_id": 55137,
+      "title": "中华人民共和国刑法第二百六十七条"
+    },
+    {
+      "query_id": 1103,
+      "doc_id": 55140,
+      "title": "中华人民共和国刑法第二百六十四条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 21602,
+      "title": "最高人民法院关于适用《民事诉讼法》的解释第十八条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 21613,
+      "title": "民事诉讼法第二十四条"
+    },
+    {
+      "query_id": 1145,
+      "doc_id": 23564,
+      "title": "民事诉讼法第三十五条"
+    },
+    {
+      "query_id": 1150,
+      "doc_id": 243,
+      "title": "中华人民共和国民法典第一百三十六条"
+    },
+    {
+      "query_id": 1150,
+      "doc_id": 787,
+      "title": "中华人民共和国民法典第七百零六条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 808,
+      "title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第二条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23225,
+      "title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23226,
+      "title": "最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释第四条"
+    },
+    {
+      "query_id": 1159,
+      "doc_id": 23227,
+      "title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 1160,
+      "doc_id": 70,
+      "title": "中华人民共和国民法典第一百八十条"
+    },
+    {
+      "query_id": 1160,
+      "doc_id": 831,
+      "title": "中华人民共和国民法典第五百三十三条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 804,
+      "title": "土地管理法第四十四条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 5081,
+      "title": "土地管理法实施条例第三十一条"
+    },
+    {
+      "query_id": 1163,
+      "doc_id": 46311,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 1164,
+      "doc_id": 46,
+      "title": "中华人民共和国民法典第一百一十九条"
+    },
+    {
+      "query_id": 1164,
+      "doc_id": 770,
+      "title": "中华人民共和国民法典第五百零九条"
+    },
+    {
+      "query_id": 1165,
+      "doc_id": 613,
+      "title": "中华人民共和国民法典第一千一百二十九条"
+    },
+    {
+      "query_id": 1165,
+      "doc_id": 615,
+      "title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1169,
+      "doc_id": 617,
+      "title": "最高人民法院关于适用《民法典》继承编的解释（一）第十条"
+    },
+    {
+      "query_id": 1169,
+      "doc_id": 24561,
+      "title": "中华人民共和国民法典第一千一百三十一条"
+    },
+    {
+      "query_id": 1170,
+      "doc_id": 641,
+      "title": "中华人民共和国民法典第十六条"
+    },
+    {
+      "query_id": 1170,
+      "doc_id": 667,
+      "title": "中华人民共和国民法典第一千一百五十五条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 645,
+      "title": "中华人民共和国民法典第一千一百六十一条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 647,
+      "title": "中华人民共和国民法典第一千一百六十二条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 648,
+      "title": "中华人民共和国民法典第一千一百六十三条"
+    },
+    {
+      "query_id": 1171,
+      "doc_id": 649,
+      "title": "中华人民共和国民法典第一千一百五十九条"
+    },
+    {
+      "query_id": 1175,
+      "doc_id": 607,
+      "title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1175,
+      "doc_id": 613,
+      "title": "中华人民共和国民法典第一千一百二十一条"
+    },
+    {
+      "query_id": 1191,
+      "doc_id": 609,
+      "title": "中华人民共和国民法典第一千一百二十七条"
+    },
+    {
+      "query_id": 1191,
+      "doc_id": 613,
+      "title": "中华人民共和国民法典第一千一百二十三条"
+    },
+    {
+      "query_id": 1197,
+      "doc_id": 610,
+      "title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1197,
+      "doc_id": 619,
+      "title": "中华人民共和国民法典第一千一百二十四条"
+    },
+    {
+      "query_id": 1198,
+      "doc_id": 607,
+      "title": "中华人民共和国民法典第四十六条"
+    },
+    {
+      "query_id": 1198,
+      "doc_id": 697,
+      "title": "中华人民共和国民法典第一千一百二十一条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 617,
+      "title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第七条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 619,
+      "title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第八条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 644,
+      "title": "中华人民共和国民法典第一千一百三十一条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 24630,
+      "title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1203,
+      "doc_id": 24631,
+      "title": "中华人民共和国民法典第一千一百五十八条"
+    },
+    {
+      "query_id": 1204,
+      "doc_id": 528,
+      "title": "中华人民共和国民法典第一千一百五十七条"
+    },
+    {
+      "query_id": 1204,
+      "doc_id": 643,
+      "title": "中华人民共和国民法典第一千零四十二条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 619,
+      "title": "中华人民共和国民法典第一千一百四十五条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 631,
+      "title": "中华人民共和国民法典第一千一百四十六条"
+    },
+    {
+      "query_id": 1206,
+      "doc_id": 632,
+      "title": "中华人民共和国民法典第一千一百三十三条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 498,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 500,
+      "title": "中华人民共和国民法典第九百六十一条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 501,
+      "title": "中华人民共和国民法典第九百六十三条"
+    },
+    {
+      "query_id": 1214,
+      "doc_id": 25375,
+      "title": "中华人民共和国民法典第九百六十四条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 498,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 500,
+      "title": "中华人民共和国民法典第九百六十一条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 501,
+      "title": "中华人民共和国民法典第九百六十三条"
+    },
+    {
+      "query_id": 1216,
+      "doc_id": 25375,
+      "title": "中华人民共和国民法典第九百六十四条"
+    },
+    {
+      "query_id": 1219,
+      "doc_id": 25359,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第二十五条"
+    },
+    {
+      "query_id": 1219,
+      "doc_id": 25375,
+      "title": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定第九条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 217,
+      "title": "中华人民共和国民法典第一百四十七条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 798,
+      "title": "中华人民共和国民法典第一百四十八条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 799,
+      "title": "中华人民共和国民法典第一百五十条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 801,
+      "title": "中华人民共和国民法典第一百五十一条"
+    },
+    {
+      "query_id": 1222,
+      "doc_id": 802,
+      "title": "中华人民共和国民法典第六百八十条"
+    },
+    {
+      "query_id": 1299,
+      "doc_id": 284,
+      "title": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第八条"
+    },
+    {
+      "query_id": 1299,
+      "doc_id": 30405,
+      "title": "中华人民共和国民法典第七百四十七条"
+    },
+    {
+      "query_id": 1303,
+      "doc_id": 30181,
+      "title": "最高人民法院关于审理融资租赁合同纠纷案件适用法律问题的解释第五条"
+    },
+    {
+      "query_id": 1303,
+      "doc_id": 30402,
+      "title": "最高人民法院关于适用《民法典》有关担保制度的解释第六十五条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 2370,
+      "title": "行政许可法第七十六条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 2372,
+      "title": "国家赔偿法第二条"
+    },
+    {
+      "query_id": 1362,
+      "doc_id": 4482,
+      "title": "国家赔偿法第四条"
+    },
+    {
+      "query_id": 1400,
+      "doc_id": 55034,
+      "title": "中华人民共和国刑法第一百九十三条"
+    },
+    {
+      "query_id": 1400,
+      "doc_id": 55055,
+      "title": "中华人民共和国刑法第一百七十五条之一"
+    },
+    {
+      "query_id": 1407,
+      "doc_id": 11678,
+      "title": "中华人民共和国刑法第一百九十八条"
+    },
+    {
+      "query_id": 1407,
+      "doc_id": 55060,
+      "title": "保险法第一百七十四条"
+    },
+    {
+      "query_id": 1410,
+      "doc_id": 25224,
+      "title": "中华人民共和国刑法第二百六十六条"
+    },
+    {
+      "query_id": 1410,
+      "doc_id": 55139,
+      "title": "最高人民法院、最高人民检察院关于办理诈骗刑事案件具体应用法律若干问题的解释第三条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54869,
+      "title": "中华人民共和国刑法第二百六十六条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54870,
+      "title": "中华人民共和国刑法第二十六条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 54871,
+      "title": "中华人民共和国刑法第二十七条"
+    },
+    {
+      "query_id": 1411,
+      "doc_id": 55139,
+      "title": "中华人民共和国刑法第二十八条"
+    },
+    {
+      "query_id": 1416,
+      "doc_id": 54868,
+      "title": "中华人民共和国刑法第二百一十条"
+    },
+    {
+      "query_id": 1416,
+      "doc_id": 55074,
+      "title": "中华人民共和国刑法第二十五条"
+    },
+    {
+      "query_id": 1417,
+      "doc_id": 55037,
+      "title": "中华人民共和国刑法第二百一十条"
+    },
+    {
+      "query_id": 1417,
+      "doc_id": 55074,
+      "title": "中华人民共和国刑法第一百七十七条之一"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 548,
+      "title": "中华人民共和国民法典第一百五十三条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 550,
+      "title": "中华人民共和国民法典第一百五十七条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 804,
+      "title": "中华人民共和国民法典第一千零六十二条"
+    },
+    {
+      "query_id": 1424,
+      "doc_id": 808,
+      "title": "中华人民共和国民法典第一千零六十四条"
+    },
+    {
+      "query_id": 1427,
+      "doc_id": 194,
+      "title": "中华人民共和国民法典第六百五十八条"
+    },
+    {
+      "query_id": 1427,
+      "doc_id": 195,
+      "title": "中华人民共和国民法典第六百五十七条"
+    },
+    {
+      "query_id": 1432,
+      "doc_id": 195,
+      "title": "最高人民法院关于适用《民法典》婚姻家庭编的解释（一）第三十二条"
+    },
+    {
+      "query_id": 1432,
+      "doc_id": 24655,
+      "title": "中华人民共和国民法典第六百五十八条"
+    },
+    {
+      "query_id": 1446,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第八百一十条"
+    },
+    {
+      "query_id": 1446,
+      "doc_id": 347,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1462,
+      "doc_id": 363,
+      "title": "固体废物污染环境防治法第二十二条"
+    },
+    {
+      "query_id": 1462,
+      "doc_id": 8590,
+      "title": "中华人民共和国民法典第八百二十六条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 33,
+      "title": "消费者权益保护法第二十六条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 370,
+      "title": "中华人民共和国民法典第四百九十六条"
+    },
+    {
+      "query_id": 1469,
+      "doc_id": 12836,
+      "title": "中华人民共和国民法典第八百三十三条"
+    },
+    {
+      "query_id": 1473,
+      "doc_id": 374,
+      "title": "中华人民共和国民法典第四百五十条"
+    },
+    {
+      "query_id": 1473,
+      "doc_id": 1101,
+      "title": "中华人民共和国民法典第八百三十七条"
+    },
+    {
+      "query_id": 1478,
+      "doc_id": 369,
+      "title": "海商法第二条"
+    },
+    {
+      "query_id": 1478,
+      "doc_id": 11786,
+      "title": "中华人民共和国民法典第八百三十二条"
+    },
+    {
+      "query_id": 1482,
+      "doc_id": 360,
+      "title": "铁路法第五十八条"
+    },
+    {
+      "query_id": 1482,
+      "doc_id": 16004,
+      "title": "中华人民共和国民法典第八百二十三条"
+    },
+    {
+      "query_id": 1485,
+      "doc_id": 360,
+      "title": "中华人民共和国民法典第一千二百一十三条"
+    },
+    {
+      "query_id": 1485,
+      "doc_id": 1163,
+      "title": "中华人民共和国民法典第八百二十三条"
+    },
+    {
+      "query_id": 1492,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第五百八十四条"
+    },
+    {
+      "query_id": 1492,
+      "doc_id": 121,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1497,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第八百一十四条"
+    },
+    {
+      "query_id": 1497,
+      "doc_id": 351,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1501,
+      "doc_id": 114,
+      "title": "中华人民共和国民法典第五百八十四条"
+    },
+    {
+      "query_id": 1501,
+      "doc_id": 121,
+      "title": "中华人民共和国民法典第五百七十七条"
+    },
+    {
+      "query_id": 1527,
+      "doc_id": 2,
+      "title": "中华人民共和国民法典第一百九十二条"
+    },
+    {
+      "query_id": 1527,
+      "doc_id": 843,
+      "title": "中华人民共和国民法典第四百六十五条"
+    },
+    {
+      "query_id": 1542,
+      "doc_id": 11543,
+      "title": "建筑法第四十八条"
+    },
+    {
+      "query_id": 1542,
+      "doc_id": 16411,
+      "title": "保险法第三十九条"
+    }
+  ],
+  "duplicate_questions": []
+}
