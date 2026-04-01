@@ -29,10 +29,17 @@ except ImportError:
 
 
 PCAP_PATTERNS = ("*.pcap", "*.pcapng", "*.cap")
+RELATIVE_TIME_EPOCH_THRESHOLD = 946684800  # 2000-01-01T00:00:00Z
+TCP_IDLE_TIMEOUT_SECONDS = 60
+NON_TCP_IDLE_TIMEOUT_SECONDS = 30
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+    script_path = Path(__file__).resolve()
+    for candidate in script_path.parents:
+        if (candidate / "config.yaml").exists():
+            return candidate
+    return script_path.parents[3]
 
 
 def to_repo_relative_display(value: str | Path) -> str:
@@ -128,6 +135,15 @@ def iso_timestamp(epoch_value: float | int | str | None) -> str:
     return datetime.fromtimestamp(value, tz=timezone.utc).isoformat()
 
 
+def coerce_float(value: Any) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def detect_protocol(packet: Any) -> str:
     if packet.haslayer(TCP):
         return "TCP"
@@ -161,29 +177,47 @@ def safe_int(value: Any) -> int | None:
 
 
 def infer_payload_bytes(packet: Any) -> int:
-    try:
-        payload = bytes(packet.payload.payload.payload) if getattr(packet.payload, "payload", None) else b""
-        if payload:
-            return len(payload)
-    except Exception:
-        pass
-
     if packet.haslayer(TCP):
-        try:
+        with suppress(Exception):
+            if packet.haslayer(IP):
+                ip_total_len = safe_int(getattr(packet[IP], "len", None))
+                ip_header_len = int(getattr(packet[IP], "ihl", 5)) * 4
+                tcp_header_len = int(getattr(packet[TCP], "dataofs", 5)) * 4
+                if ip_total_len is not None:
+                    return max(ip_total_len - ip_header_len - tcp_header_len, 0)
+            if packet.haslayer(IPv6):
+                ipv6_payload_len = safe_int(getattr(packet[IPv6], "plen", None))
+                tcp_header_len = int(getattr(packet[TCP], "dataofs", 5)) * 4
+                if ipv6_payload_len is not None:
+                    return max(ipv6_payload_len - tcp_header_len, 0)
+        with suppress(Exception):
             return len(bytes(packet[TCP].payload))
-        except Exception:
-            return 0
+        return 0
     if packet.haslayer(UDP):
-        try:
+        with suppress(Exception):
+            udp_len = safe_int(getattr(packet[UDP], "len", None))
+            if udp_len is not None:
+                return max(udp_len - 8, 0)
+        with suppress(Exception):
             return len(bytes(packet[UDP].payload))
-        except Exception:
-            return 0
+        return 0
     if packet.haslayer(ICMP):
-        try:
+        with suppress(Exception):
             return len(bytes(packet[ICMP].payload))
-        except Exception:
-            return 0
+        return 0
     return 0
+
+
+def normalize_capture_time(epoch_value: Any, base_epoch: float | None) -> Any:
+    if epoch_value in (None, ""):
+        return epoch_value
+    try:
+        value = float(epoch_value)
+    except (TypeError, ValueError):
+        return epoch_value
+    if base_epoch is None:
+        return value
+    return max(value - base_epoch, 0.0)
 
 
 def decode_text(value: bytes) -> str:
@@ -339,8 +373,349 @@ def make_flow_id(source_file: str, src_ip: str, dst_ip: str, src_port: str, dst_
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
 
 
-def extract_packet_fields(packet: Any, source_file: str, packet_number: int) -> dict[str, Any]:
-    timestamp = iso_timestamp(getattr(packet, "time", None))
+def make_conversation_key(row: dict[str, Any]) -> tuple[str, str, tuple[str, str], tuple[str, str]]:
+    endpoint_a = (row["src_ip"], row["src_port"])
+    endpoint_b = (row["dst_ip"], row["dst_port"])
+    ordered = tuple(sorted((endpoint_a, endpoint_b)))
+    return (row["source_file"], row["protocol"], ordered[0], ordered[1])
+
+
+def make_conversation_flow_id(key: tuple[str, str, tuple[str, str], tuple[str, str]]) -> str:
+    source_file, protocol, endpoint_a, endpoint_b = key
+    raw = "|".join(
+        [
+            source_file,
+            protocol,
+            endpoint_a[0],
+            endpoint_a[1],
+            endpoint_b[0],
+            endpoint_b[1],
+        ]
+    )
+    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def make_session_flow_id(
+    key: tuple[str, str, tuple[str, str], tuple[str, str]],
+    session_index: int,
+    start_timestamp: str,
+) -> str:
+    source_file, protocol, endpoint_a, endpoint_b = key
+    raw = "|".join(
+        [
+            source_file,
+            protocol,
+            endpoint_a[0],
+            endpoint_a[1],
+            endpoint_b[0],
+            endpoint_b[1],
+            str(session_index),
+            start_timestamp,
+        ]
+    )
+    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def summarize_session_state(protocol: str, tcp_flags_seen: str) -> str:
+    if protocol != "TCP" or not tcp_flags_seen:
+        return ""
+    flags = {flag.strip().upper() for flag in tcp_flags_seen.split(",") if flag.strip()}
+    if any("R" in flag for flag in flags):
+        return "RST"
+    if any("F" in flag for flag in flags):
+        return "FIN"
+    saw_syn = any("S" in flag and "A" not in flag for flag in flags)
+    saw_syn_ack = any("S" in flag and "A" in flag for flag in flags)
+    saw_ack = any(flag == "A" or ("A" in flag and "S" not in flag and "F" not in flag and "R" not in flag) for flag in flags)
+    if saw_syn and saw_syn_ack and saw_ack:
+        return "ESTABLISHED"
+    if saw_syn and not saw_syn_ack and not saw_ack:
+        return "SYN_ONLY"
+    if saw_syn_ack:
+        return "SYN_ACK"
+    if saw_syn:
+        return "SYN"
+    if saw_ack:
+        return "ACK"
+    return sorted(flags)[-1] if flags else ""
+
+
+def parse_iso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    with suppress(Exception):
+        return datetime.fromisoformat(value)
+    return None
+
+
+def is_tcp_syn_start(tcp_flags: str) -> bool:
+    normalized = (tcp_flags or "").upper()
+    return "S" in normalized and "A" not in normalized and "R" not in normalized and "F" not in normalized
+
+
+def is_tcp_terminator(tcp_flags: str) -> bool:
+    normalized = (tcp_flags or "").upper()
+    return "R" in normalized or "F" in normalized
+
+
+def session_idle_timeout_seconds(protocol: str) -> int:
+    if protocol == "TCP":
+        return TCP_IDLE_TIMEOUT_SECONDS
+    return NON_TCP_IDLE_TIMEOUT_SECONDS
+
+
+def derive_flow_start_reason(row: dict[str, Any], matched_session: dict[str, Any] | None = None) -> str:
+    if matched_session is None:
+        if row["protocol"] == "TCP" and is_tcp_syn_start(str(row.get("tcp_flags", ""))):
+            return "syn"
+        return "first_packet"
+    return "continued"
+
+
+def initialize_flow_session(
+    row: dict[str, Any],
+    key: tuple[str, str, tuple[str, str], tuple[str, str]],
+    session_index: int,
+) -> dict[str, Any]:
+    timestamp = row["timestamp"]
+    bytes_value = int(row["bytes"])
+    return {
+        "timestamp": timestamp,
+        "end_time": timestamp,
+        "start_relative_time_s": row.get("relative_time_s", ""),
+        "end_relative_time_s": row.get("relative_time_s", ""),
+        "time_is_relative": row.get("time_is_relative", "false"),
+        "src_ip": row["src_ip"],
+        "dst_ip": row["dst_ip"],
+        "src_port": row["src_port"],
+        "dst_port": row["dst_port"],
+        "protocol": row["protocol"],
+        "origin_src_ip": row["src_ip"],
+        "origin_dst_ip": row["dst_ip"],
+        "origin_src_port": row["src_port"],
+        "origin_dst_port": row["dst_port"],
+        "ip_version": row["ip_version"],
+        "bytes": bytes_value,
+        "bytes_total": bytes_value,
+        "packets": 1,
+        "packet_count": 1,
+        "payload_bytes": int(row.get("payload_bytes") or 0),
+        "flow_duration": 0.0,
+        "duration": 0.0,
+        "duration_ms": 0,
+        "flow_id": make_session_flow_id(key, session_index, timestamp or ""),
+        "app_protocol": row.get("app_protocol", ""),
+        "service": row.get("service", ""),
+        "tcp_flags": row.get("tcp_flags", ""),
+        "tcp_flags_seen": row.get("tcp_flags", ""),
+        "ttl_min": row.get("ttl"),
+        "ttl_max": row.get("ttl"),
+        "ttl_avg": float(row["ttl"]) if row.get("ttl") not in (None, "") else None,
+        "icmp_type": row.get("icmp_type"),
+        "icmp_code": row.get("icmp_code"),
+        "src_bytes": bytes_value,
+        "dst_bytes": 0,
+        "src_packets": 1,
+        "dst_packets": 0,
+        "direction": "unidirectional",
+        "src_role": "first_seen",
+        "dst_role": "reverse_seen",
+        "action": "observed",
+        "session_state": row.get("session_state", ""),
+        "flow_start_reason": derive_flow_start_reason(row),
+        "flow_end_reason": "",
+        "rule_name": row.get("rule_name", ""),
+        "dns_query": row.get("dns_query", ""),
+        "tls_sni": row.get("tls_sni", ""),
+        "http_host": row.get("http_host", ""),
+        "device_id": row.get("device_id", ""),
+        "sensor_id": row.get("sensor_id", ""),
+        "vlan_id": row.get("vlan_id", ""),
+        "src_zone": row.get("src_zone", ""),
+        "dst_zone": row.get("dst_zone", ""),
+        "src_asset_group": row.get("src_asset_group", ""),
+        "dst_asset_group": row.get("dst_asset_group", ""),
+        "nat_src_ip": row.get("nat_src_ip", ""),
+        "nat_dst_ip": row.get("nat_dst_ip", ""),
+        "dst_asn": row.get("dst_asn", ""),
+        "dst_country": row.get("dst_country", ""),
+        "asset_id": row.get("asset_id", ""),
+        "user_id": row.get("user_id", ""),
+        "source_file": row["source_file"],
+        "_last_seen_dt": parse_iso_datetime(timestamp),
+        "_closed": row["protocol"] == "TCP" and is_tcp_terminator(str(row.get("tcp_flags", ""))),
+    }
+
+
+def update_flow_session(current: dict[str, Any], row: dict[str, Any]) -> None:
+    timestamp = row["timestamp"]
+    bytes_value = int(row["bytes"])
+    current["bytes"] += bytes_value
+    current["bytes_total"] += bytes_value
+    current["packets"] += 1
+    current["packet_count"] += 1
+    current["payload_bytes"] += int(row.get("payload_bytes") or 0)
+    same_direction = (
+        row["src_ip"] == current["origin_src_ip"]
+        and row["dst_ip"] == current["origin_dst_ip"]
+        and row["src_port"] == current["origin_src_port"]
+        and row["dst_port"] == current["origin_dst_port"]
+    )
+    if same_direction:
+        current["src_bytes"] += bytes_value
+        current["src_packets"] += 1
+    else:
+        current["dst_bytes"] += bytes_value
+        current["dst_packets"] += 1
+        current["direction"] = "bidirectional"
+    if timestamp and (not current["timestamp"] or timestamp < current["timestamp"]):
+        current["timestamp"] = timestamp
+    if timestamp and (not current["end_time"] or timestamp > current["end_time"]):
+        current["end_time"] = timestamp
+    row_relative_time = row.get("relative_time_s")
+    if row_relative_time not in (None, ""):
+        if current.get("start_relative_time_s") in (None, "") or float(row_relative_time) < float(current["start_relative_time_s"]):
+            current["start_relative_time_s"] = row_relative_time
+        if current.get("end_relative_time_s") in (None, "") or float(row_relative_time) > float(current["end_relative_time_s"]):
+            current["end_relative_time_s"] = row_relative_time
+    if row.get("tcp_flags"):
+        existing = set(filter(None, str(current.get("tcp_flags_seen", "")).split(",")))
+        existing.add(str(row["tcp_flags"]))
+        current["tcp_flags_seen"] = ",".join(sorted(existing))
+        current["tcp_flags"] = row["tcp_flags"]
+    if not current.get("app_protocol") and row.get("app_protocol"):
+        current["app_protocol"] = row["app_protocol"]
+    if not current.get("service") and row.get("service"):
+        current["service"] = row["service"]
+    if not current.get("rule_name") and row.get("rule_name"):
+        current["rule_name"] = row["rule_name"]
+    if not current.get("dns_query") and row.get("dns_query"):
+        current["dns_query"] = row["dns_query"]
+    if not current.get("tls_sni") and row.get("tls_sni"):
+        current["tls_sni"] = row["tls_sni"]
+    if not current.get("http_host") and row.get("http_host"):
+        current["http_host"] = row["http_host"]
+    ttl_value = row.get("ttl")
+    if ttl_value not in (None, ""):
+        ttl_int = int(ttl_value)
+        if current.get("ttl_min") in (None, "") or ttl_int < int(current["ttl_min"]):
+            current["ttl_min"] = ttl_int
+        if current.get("ttl_max") in (None, "") or ttl_int > int(current["ttl_max"]):
+            current["ttl_max"] = ttl_int
+        if current.get("ttl_avg") in (None, ""):
+            current["ttl_avg"] = float(ttl_int)
+        else:
+            packet_count = current["packets"]
+            previous_sum = float(current["ttl_avg"]) * (packet_count - 1)
+            current["ttl_avg"] = (previous_sum + ttl_int) / packet_count
+    current["_last_seen_dt"] = parse_iso_datetime(timestamp)
+    if row["protocol"] == "TCP" and is_tcp_terminator(str(row.get("tcp_flags", ""))):
+        current["_closed"] = True
+        current["flow_end_reason"] = "tcp_terminator"
+
+
+def finalize_flow_session(flow: dict[str, Any]) -> dict[str, Any]:
+    if flow.get("time_is_relative") == "true":
+        start_rel = coerce_float(flow.get("start_relative_time_s"))
+        end_rel = coerce_float(flow.get("end_relative_time_s"))
+        if start_rel is not None and end_rel is not None:
+            flow["flow_duration"] = max(end_rel - start_rel, 0.0)
+            flow["duration"] = flow["flow_duration"]
+            flow["duration_ms"] = int(max(1, round(flow["flow_duration"] * 1000))) if flow["flow_duration"] > 0 else 0
+    elif flow["timestamp"] and flow["end_time"]:
+        start_dt = datetime.fromisoformat(flow["timestamp"])
+        end_dt = datetime.fromisoformat(flow["end_time"])
+        flow["flow_duration"] = max((end_dt - start_dt).total_seconds(), 0.0)
+        flow["duration"] = flow["flow_duration"]
+        flow["duration_ms"] = int(max(1, round(flow["flow_duration"] * 1000))) if flow["flow_duration"] > 0 else 0
+    flow["session_state"] = summarize_session_state(flow["protocol"], str(flow.get("tcp_flags_seen", "")))
+    if not flow.get("flow_end_reason"):
+        flow["flow_end_reason"] = "idle_timeout_or_end_of_capture" if flow.get("_closed") else "end_of_capture"
+    flow.pop("origin_src_ip", None)
+    flow.pop("origin_dst_ip", None)
+    flow.pop("origin_src_port", None)
+    flow.pop("origin_dst_port", None)
+    flow.pop("_last_seen_dt", None)
+    flow.pop("_closed", None)
+    return flow
+
+
+def expire_inactive_sessions(sessions: list[dict[str, Any]], packet_dt: datetime | None, protocol: str) -> None:
+    if packet_dt is None:
+        return
+    timeout_seconds = session_idle_timeout_seconds(protocol)
+    for session in sessions:
+        if session.get("_closed"):
+            continue
+        last_seen = session.get("_last_seen_dt")
+        if last_seen and (packet_dt - last_seen).total_seconds() > timeout_seconds:
+            session["_closed"] = True
+            session["flow_end_reason"] = "idle_timeout"
+
+
+def score_session_match(session: dict[str, Any], row: dict[str, Any]) -> tuple[int, int, str]:
+    same_direction = (
+        row["src_ip"] == session["origin_src_ip"]
+        and row["dst_ip"] == session["origin_dst_ip"]
+        and row["src_port"] == session["origin_src_port"]
+        and row["dst_port"] == session["origin_dst_port"]
+    )
+    reverse_direction = (
+        row["src_ip"] == session["origin_dst_ip"]
+        and row["dst_ip"] == session["origin_src_ip"]
+        and row["src_port"] == session["origin_dst_port"]
+        and row["dst_port"] == session["origin_src_port"]
+    )
+    direction_score = 3 if same_direction else 2 if reverse_direction else 0
+    state = str(session.get("session_state", "")).upper()
+    maturity_score = 2 if state == "ESTABLISHED" else 1 if state in {"SYN_ACK", "ACK", "SYN", "SYN_ONLY"} else 0
+    return (direction_score, maturity_score, session.get("timestamp", ""))
+
+
+def find_matching_session(
+    sessions: list[dict[str, Any]],
+    row: dict[str, Any],
+    packet_dt: datetime | None,
+) -> dict[str, Any] | None:
+    protocol = row["protocol"]
+    expire_inactive_sessions(sessions, packet_dt, protocol)
+    active_candidates: list[dict[str, Any]] = []
+    for session in sessions:
+        if session.get("_closed"):
+            continue
+        active_candidates.append(session)
+
+    if not active_candidates:
+        return None
+
+    tcp_flags = str(row.get("tcp_flags", ""))
+    if protocol == "TCP" and is_tcp_syn_start(tcp_flags):
+        for session in reversed(active_candidates):
+            same_direction = (
+                row["src_ip"] == session["origin_src_ip"]
+                and row["dst_ip"] == session["origin_dst_ip"]
+                and row["src_port"] == session["origin_src_port"]
+                and row["dst_port"] == session["origin_dst_port"]
+            )
+            if same_direction and session.get("dst_packets", 0) == 0 and session.get("packets", 0) <= 3:
+                return session
+        return None
+
+    ranked = sorted(active_candidates, key=lambda session: score_session_match(session, row))
+    return ranked[-1]
+
+
+def extract_packet_fields(
+    packet: Any,
+    source_file: str,
+    packet_number: int,
+    packet_time: Any | None = None,
+    *,
+    use_relative_time: bool = False,
+) -> dict[str, Any]:
+    normalized_time = packet_time if packet_time is not None else getattr(packet, "time", None)
+    relative_time_s = coerce_float(normalized_time) if use_relative_time else None
+    timestamp = "" if use_relative_time else iso_timestamp(normalized_time)
     src_ip = ""
     dst_ip = ""
     src_port = ""
@@ -392,6 +767,8 @@ def extract_packet_fields(packet: Any, source_file: str, packet_number: int) -> 
 
     return {
         "timestamp": timestamp,
+        "relative_time_s": relative_time_s if relative_time_s is not None else "",
+        "time_is_relative": "true" if use_relative_time else "false",
         "packet_number": packet_number,
         "src_ip": src_ip,
         "dst_ip": dst_ip,
@@ -450,27 +827,66 @@ def parse_packet_rows(pcap_file: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     packet_number = 0
     display_source = to_repo_relative_display(pcap_file)
+    base_epoch: float | None = None
+    use_relative_time = False
     try:
         with PcapReader(pcap_file) as reader:
             for packet in reader:
                 packet_number += 1
-                rows.append(extract_packet_fields(packet, display_source, packet_number))
+                raw_time = getattr(packet, "time", None)
+                if packet_number == 1:
+                    try:
+                        first_time = float(raw_time)
+                        if first_time < RELATIVE_TIME_EPOCH_THRESHOLD:
+                            base_epoch = first_time
+                            use_relative_time = True
+                    except (TypeError, ValueError):
+                        base_epoch = None
+                packet_time = normalize_capture_time(raw_time, base_epoch) if use_relative_time else raw_time
+                rows.append(
+                    extract_packet_fields(
+                        packet,
+                        display_source,
+                        packet_number,
+                        packet_time=packet_time,
+                        use_relative_time=use_relative_time,
+                    )
+                )
     except Exception:
         # Fallback for edge-case captures where RawPcapReader is more tolerant.
         rows.clear()
         packet_number = 0
+        base_epoch = None
+        use_relative_time = False
         with RawPcapReader(pcap_file) as reader:
             for raw_packet, metadata in reader:
                 packet_number += 1
                 try:
-                    packet = IP(raw_packet)
+                    packet = Ether(raw_packet)
                 except Exception:
                     try:
-                        packet = IPv6(raw_packet)
+                        packet = IP(raw_packet)
                     except Exception:
-                        continue
-                packet.time = getattr(metadata, "sec", 0) + getattr(metadata, "usec", 0) / 1_000_000
-                rows.append(extract_packet_fields(packet, display_source, packet_number))
+                        try:
+                            packet = IPv6(raw_packet)
+                        except Exception:
+                            continue
+                raw_time = getattr(metadata, "sec", 0) + getattr(metadata, "usec", 0) / 1_000_000
+                packet.time = raw_time
+                if packet_number == 1:
+                    if raw_time < RELATIVE_TIME_EPOCH_THRESHOLD:
+                        base_epoch = float(raw_time)
+                        use_relative_time = True
+                packet_time = normalize_capture_time(raw_time, base_epoch) if use_relative_time else raw_time
+                rows.append(
+                    extract_packet_fields(
+                        packet,
+                        display_source,
+                        packet_number,
+                        packet_time=packet_time,
+                        use_relative_time=use_relative_time,
+                    )
+                )
     return rows
 
 
@@ -483,127 +899,25 @@ def write_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> Non
 
 
 def build_flow_rows(packet_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    grouped: dict[tuple[str, str, str, str, str, str], dict[str, Any]] = {}
-    for row in packet_rows:
-        key = (
-            row["source_file"],
-            row["src_ip"],
-            row["dst_ip"],
-            row["src_port"],
-            row["dst_port"],
-            row["protocol"],
-        )
-        timestamp = row["timestamp"]
-        bytes_value = int(row["bytes"])
-        if key not in grouped:
-            grouped[key] = {
-                "timestamp": timestamp,
-                "end_time": timestamp,
-                "src_ip": row["src_ip"],
-                "dst_ip": row["dst_ip"],
-                "src_port": row["src_port"],
-                "dst_port": row["dst_port"],
-                "protocol": row["protocol"],
-                "ip_version": row["ip_version"],
-                "bytes": bytes_value,
-                "bytes_total": bytes_value,
-                "packets": 1,
-                "packet_count": 1,
-                "payload_bytes": int(row.get("payload_bytes") or 0),
-                "flow_duration": 0.0,
-                "duration": 0.0,
-                "duration_ms": 0,
-                "flow_id": row["flow_id"],
-                "app_protocol": row.get("app_protocol", ""),
-                "service": row.get("service", ""),
-                "tcp_flags": row.get("tcp_flags", ""),
-                "tcp_flags_seen": row.get("tcp_flags", ""),
-                "ttl_min": row.get("ttl"),
-                "ttl_max": row.get("ttl"),
-                "ttl_avg": float(row["ttl"]) if row.get("ttl") not in (None, "") else None,
-                "icmp_type": row.get("icmp_type"),
-                "icmp_code": row.get("icmp_code"),
-                "src_bytes": bytes_value,
-                "dst_bytes": 0,
-                "src_packets": 1,
-                "dst_packets": 0,
-                "direction": "unknown",
-                "action": "observed",
-                "session_state": row.get("session_state", ""),
-                "rule_name": row.get("rule_name", ""),
-                "dns_query": row.get("dns_query", ""),
-                "tls_sni": row.get("tls_sni", ""),
-                "http_host": row.get("http_host", ""),
-                "device_id": row.get("device_id", ""),
-                "sensor_id": row.get("sensor_id", ""),
-                "vlan_id": row.get("vlan_id", ""),
-                "src_zone": row.get("src_zone", ""),
-                "dst_zone": row.get("dst_zone", ""),
-                "src_asset_group": row.get("src_asset_group", ""),
-                "dst_asset_group": row.get("dst_asset_group", ""),
-                "nat_src_ip": row.get("nat_src_ip", ""),
-                "nat_dst_ip": row.get("nat_dst_ip", ""),
-                "dst_asn": row.get("dst_asn", ""),
-                "dst_country": row.get("dst_country", ""),
-                "asset_id": row.get("asset_id", ""),
-                "user_id": row.get("user_id", ""),
-                "source_file": row["source_file"],
-            }
+    sorted_rows = sorted(packet_rows, key=lambda row: (row.get("timestamp", ""), row.get("packet_number", 0)))
+    grouped_sessions: dict[tuple[str, str, tuple[str, str], tuple[str, str]], list[dict[str, Any]]] = defaultdict(list)
+    session_counters: dict[tuple[str, str, tuple[str, str], tuple[str, str]], int] = defaultdict(int)
+
+    for row in sorted_rows:
+        key = make_conversation_key(row)
+        packet_dt = parse_iso_datetime(row.get("timestamp"))
+        current = find_matching_session(grouped_sessions[key], row, packet_dt)
+        if current is None:
+            session_counters[key] += 1
+            current = initialize_flow_session(row, key, session_counters[key])
+            grouped_sessions[key].append(current)
             continue
-        current = grouped[key]
-        current["bytes"] += bytes_value
-        current["bytes_total"] += bytes_value
-        current["packets"] += 1
-        current["packet_count"] += 1
-        current["payload_bytes"] += int(row.get("payload_bytes") or 0)
-        current["src_bytes"] += bytes_value
-        current["src_packets"] += 1
-        if timestamp and (not current["timestamp"] or timestamp < current["timestamp"]):
-            current["timestamp"] = timestamp
-        if timestamp and (not current["end_time"] or timestamp > current["end_time"]):
-            current["end_time"] = timestamp
-        if row.get("tcp_flags"):
-            existing = set(filter(None, str(current.get("tcp_flags_seen", "")).split(",")))
-            existing.add(str(row["tcp_flags"]))
-            current["tcp_flags_seen"] = ",".join(sorted(existing))
-            current["tcp_flags"] = row["tcp_flags"]
-        if not current.get("app_protocol") and row.get("app_protocol"):
-            current["app_protocol"] = row["app_protocol"]
-        if not current.get("service") and row.get("service"):
-            current["service"] = row["service"]
-        if not current.get("session_state") and row.get("session_state"):
-            current["session_state"] = row["session_state"]
-        if not current.get("rule_name") and row.get("rule_name"):
-            current["rule_name"] = row["rule_name"]
-        if not current.get("dns_query") and row.get("dns_query"):
-            current["dns_query"] = row["dns_query"]
-        if not current.get("tls_sni") and row.get("tls_sni"):
-            current["tls_sni"] = row["tls_sni"]
-        if not current.get("http_host") and row.get("http_host"):
-            current["http_host"] = row["http_host"]
-        ttl_value = row.get("ttl")
-        if ttl_value not in (None, ""):
-            ttl_int = int(ttl_value)
-            if current.get("ttl_min") in (None, "") or ttl_int < int(current["ttl_min"]):
-                current["ttl_min"] = ttl_int
-            if current.get("ttl_max") in (None, "") or ttl_int > int(current["ttl_max"]):
-                current["ttl_max"] = ttl_int
-            if current.get("ttl_avg") in (None, ""):
-                current["ttl_avg"] = float(ttl_int)
-            else:
-                packet_count = current["packets"]
-                previous_sum = float(current["ttl_avg"]) * (packet_count - 1)
-                current["ttl_avg"] = (previous_sum + ttl_int) / packet_count
+        update_flow_session(current, row)
 
     flow_rows: list[dict[str, Any]] = []
-    for flow in grouped.values():
-        if flow["timestamp"] and flow["end_time"]:
-            start_dt = datetime.fromisoformat(flow["timestamp"])
-            end_dt = datetime.fromisoformat(flow["end_time"])
-            flow["flow_duration"] = max((end_dt - start_dt).total_seconds(), 0.0)
-            flow["duration"] = flow["flow_duration"]
-            flow["duration_ms"] = int(round(flow["flow_duration"] * 1000))
-        flow_rows.append(flow)
+    for sessions in grouped_sessions.values():
+        for flow in sessions:
+            flow_rows.append(finalize_flow_session(flow))
     flow_rows.sort(key=lambda item: (item["timestamp"], item["src_ip"], item["dst_ip"], item["src_port"], item["dst_port"]))
     return flow_rows
 
@@ -665,7 +979,7 @@ def main() -> int:
             row["dataset_label"] = dataset_name
             row["traffic_family"] = infer_traffic_family(dataset_name, row["source_file"], row.get("app_protocol", ""), row.get("service", ""))
 
-        packet_rows.sort(key=lambda item: (item["timestamp"], item["source_file"], item["packet_number"]))
+        packet_rows.sort(key=lambda item: (item["source_file"], item["packet_number"]))
         flow_rows = build_flow_rows(packet_rows)
         for row in flow_rows:
             row["dataset_label"] = dataset_name
@@ -680,6 +994,8 @@ def main() -> int:
             packet_rows,
             [
                 "timestamp",
+                "relative_time_s",
+                "time_is_relative",
                 "packet_number",
                 "src_ip",
                 "dst_ip",
@@ -712,6 +1028,8 @@ def main() -> int:
                 "direction",
                 "action",
                 "session_state",
+                "flow_start_reason",
+                "flow_end_reason",
                 "rule_name",
                 "vlan_id",
                 "src_zone",
@@ -739,6 +1057,9 @@ def main() -> int:
             [
                 "timestamp",
                 "end_time",
+                "start_relative_time_s",
+                "end_relative_time_s",
+                "time_is_relative",
                 "src_ip",
                 "dst_ip",
                 "src_port",
@@ -747,8 +1068,12 @@ def main() -> int:
                 "app_protocol",
                 "service",
                 "direction",
+                "src_role",
+                "dst_role",
                 "action",
                 "session_state",
+                "flow_start_reason",
+                "flow_end_reason",
                 "rule_name",
                 "tcp_flags",
                 "ip_version",

@@ -21,26 +21,49 @@ from file_resolution import get_default_search_roots, is_explicit_path_reference
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-try:
-    import duckdb
-except ImportError:
-    os.system(f"{sys.executable} -m pip install duckdb openpyxl pyyaml -q")
-    import duckdb
+duckdb = None
+yaml = None
 
-try:
-    import yaml
-except ImportError:
-    os.system(f"{sys.executable} -m pip install pyyaml -q")
-    import yaml
 
-try:
-    import pytz  # noqa: F401
-except ImportError:
-    os.system(f"{sys.executable} -m pip install pytz -q")
+def ensure_duckdb() -> Any:
+    global duckdb
+    if duckdb is not None:
+        return duckdb
+    try:
+        import duckdb as duckdb_module
+    except ImportError:
+        os.system(f"{sys.executable} -m pip install duckdb openpyxl pyyaml -q")
+        import duckdb as duckdb_module
+    duckdb = duckdb_module
+    return duckdb
+
+
+def ensure_yaml() -> Any:
+    global yaml
+    if yaml is not None:
+        return yaml
+    try:
+        import yaml as yaml_module
+    except ImportError:
+        os.system(f"{sys.executable} -m pip install pyyaml -q")
+        import yaml as yaml_module
+    yaml = yaml_module
+    return yaml
+
+
+def ensure_pytz() -> None:
+    try:
+        import pytz  # noqa: F401
+    except ImportError:
+        os.system(f"{sys.executable} -m pip install pytz -q")
 
 CANONICAL_COLUMNS = [
     "timestamp",
     "end_time",
+    "relative_time_s",
+    "start_relative_time_s",
+    "end_relative_time_s",
+    "time_is_relative",
     "packet_number",
     "src_ip",
     "dst_ip",
@@ -68,6 +91,8 @@ CANONICAL_COLUMNS = [
     "http_host",
     "direction",
     "action",
+    "flow_start_reason",
+    "flow_end_reason",
     "vlan_id",
     "src_zone",
     "dst_zone",
@@ -96,6 +121,9 @@ CANONICAL_COLUMNS = [
 ]
 NUMERIC_COLUMNS = {
     "packet_number",
+    "relative_time_s",
+    "start_relative_time_s",
+    "end_relative_time_s",
     "src_port",
     "dst_port",
     "bytes",
@@ -141,10 +169,35 @@ PACKET_PREFERRED_FIELDS = {
     "mac_dst",
     "pcap_name",
 }
+SUPPORTED_ANOMALY_RULES = [
+    "scan-source",
+    "volume-spike",
+    "rare-port",
+    "failure-rate",
+    "syn-scan",
+    "rst-heavy",
+    "handshake-failure",
+    "icmp-probe",
+    "small-packet-burst",
+]
+CAPABILITY_GUIDANCE = {
+    "overview-report": "Use for dataset-wide communication profile and high-level protocol mix.",
+    "scan-review": "Use for broad-destination or broad-port behavior and likely scan sources.",
+    "session-review": "Use for session quality, short-lived flows, resets, and connection-state triage.",
+    "short-connection-review": "Use for formal short-connection analysis with both wide and narrow flow-level heuristics.",
+    "protocol-review": "Use for DNS/TLS/HTTP/SMTP and other protocol-specific traffic characteristics.",
+    "packet-review": "Use for packet-level flags, ICMP behavior, handshake quality, and burst evidence.",
+    "query": "Use for explicit thresholds, custom filters, and analyst-defined SQL investigations.",
+    "detect-anomaly": "Use only with supported built-in anomaly rules. Query list-capabilities first if unsure.",
+}
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+    script_path = Path(__file__).resolve()
+    for candidate in script_path.parents:
+        if (candidate / "config.yaml").exists():
+            return candidate
+    return script_path.parents[3]
 
 
 def to_repo_relative_display(value: str | Path) -> str:
@@ -176,6 +229,59 @@ def sanitize_table_name(name: str) -> str:
 
 def ensure_cache_dir() -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def build_capability_catalog() -> dict[str, Any]:
+    return {
+        "actions": {
+            "inspect": "Inspect schema, canonical mappings, and table structure.",
+            "summary": "Return high-level record, time-range, and protocol totals.",
+            "overview-report": CAPABILITY_GUIDANCE["overview-report"],
+            "scan-review": CAPABILITY_GUIDANCE["scan-review"],
+            "session-review": CAPABILITY_GUIDANCE["session-review"],
+            "short-connection-review": CAPABILITY_GUIDANCE["short-connection-review"],
+            "protocol-review": CAPABILITY_GUIDANCE["protocol-review"],
+            "packet-review": CAPABILITY_GUIDANCE["packet-review"],
+            "query": CAPABILITY_GUIDANCE["query"],
+            "topn": "Rank a dimension by bytes, packets, flow count, destinations, or ports.",
+            "timeseries": "Aggregate records, bytes, and packets over time buckets.",
+            "distribution": "Show categorical or numeric distribution for one dimension.",
+            "filter": "Return filtered rows for quick triage.",
+            "aggregate": "Run grouped aggregations with analyst-selected metrics.",
+            "detect-anomaly": CAPABILITY_GUIDANCE["detect-anomaly"],
+            "export": "Export a result set to CSV, JSON, or Markdown.",
+        },
+        "detect_anomaly_rules": {
+            "supported": SUPPORTED_ANOMALY_RULES,
+            "rule_guidance": {
+                "scan-source": "Broad-destination or broad-port source behavior.",
+                "volume-spike": "Hourly traffic spikes relative to the average bucket.",
+                "rare-port": "Low-frequency destination ports that may merit review.",
+                "failure-rate": "High proportions of failed or blocked actions.",
+                "syn-scan": "SYN-heavy probing patterns and broad target coverage.",
+                "rst-heavy": "RST-dominant traffic that suggests rejection or abrupt termination.",
+                "handshake-failure": "SYN without SYN-ACK and failed TCP setup patterns.",
+                "icmp-probe": "ICMP probing across many destinations or message types.",
+                "small-packet-burst": "High-volume low-payload burst behavior.",
+            },
+        },
+        "workflow_recommendations": {
+            "current-dataset-overview": ["overview-report", "protocol-review"],
+            "scan-investigation": ["scan-review", "detect-anomaly:scan-source", "query"],
+            "session-quality-or-short-lived-flows": ["session-review", "short-connection-review", "query"],
+            "packet-evidence": ["packet-review", "detect-anomaly:syn-scan", "detect-anomaly:rst-heavy"],
+            "custom-thresholds-or-ad-hoc-hypotheses": ["query"],
+        },
+        "notes": [
+            "If a requested heuristic is not listed under detect_anomaly_rules.supported, do not invent a new rule name.",
+            "Use session-review, scan-review, protocol-review, packet-review, or query as the nearest structured fallback.",
+            "For explicit thresholds or analyst-defined logic, prefer --action query over unsupported anomaly rules.",
+        ],
+    }
+
+
+def render_capability_catalog() -> str:
+    return json.dumps(build_capability_catalog(), ensure_ascii=False, indent=2)
 
 
 def _is_lock_conflict_error(exc: Exception) -> bool:
@@ -253,14 +359,16 @@ def connect_build_db(
 
 
 def load_mapping(path: str | None) -> dict[str, Any]:
+    yaml_module = ensure_yaml()
     if path is None:
         path = str(repo_root() / "datasets" / "network-traffic" / "schema" / "field_mapping.yaml")
     mapping_path = Path(path)
     if not mapping_path.exists():
         raise FileNotFoundError(f"Field mapping file not found: {mapping_path}")
     with open(mapping_path, encoding="utf-8") as f:
-        payload = yaml.safe_load(f) or {}
+        payload = yaml_module.safe_load(f) or {}
     payload.setdefault("canonical_fields", {})
+    payload.setdefault("profiles", {})
     payload.setdefault("default_metrics", ["count", "sum:bytes", "sum:packets", "avg:flow_duration"])
     return payload
 
@@ -375,8 +483,57 @@ def get_columns(con: duckdb.DuckDBPyConnection, table_name: str) -> list[str]:
     return [row[0] for row in con.execute(f"DESCRIBE {quote_identifier(table_name)}").fetchall()]
 
 
-def detect_mapping(columns: list[str], mapping: dict[str, Any]) -> dict[str, str]:
-    aliases = mapping.get("canonical_fields", {})
+def _dedupe_aliases(values: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        normalized = normalize_name(value)
+        if normalized and normalized not in seen:
+            deduped.append(value)
+            seen.add(normalized)
+    return deduped
+
+
+def merged_aliases(mapping: dict[str, Any], profile_name: str | None = None) -> dict[str, list[str]]:
+    aliases: dict[str, list[str]] = {}
+    base_aliases = mapping.get("canonical_fields", {})
+    for canonical in CANONICAL_COLUMNS:
+        aliases[canonical] = list(base_aliases.get(canonical, []))
+
+    if profile_name:
+        profiles = mapping.get("profiles", {})
+        profile = profiles.get(profile_name, {})
+        for canonical, extra_aliases in profile.get("canonical_fields", {}).items():
+            aliases.setdefault(canonical, [])
+            aliases[canonical].extend(extra_aliases or [])
+
+    for canonical in aliases:
+        aliases[canonical] = _dedupe_aliases(aliases[canonical])
+    return aliases
+
+
+def select_mapping_profile(columns: list[str], mapping: dict[str, Any]) -> str | None:
+    normalized = {normalize_name(col): col for col in columns}
+    best_profile: str | None = None
+    best_score = 0
+
+    for profile_name, profile in (mapping.get("profiles", {}) or {}).items():
+        score = 0
+        for aliases in (profile.get("canonical_fields", {}) or {}).values():
+            for alias in aliases or []:
+                if normalize_name(alias) in normalized:
+                    score += 1
+                    break
+        if score > best_score:
+            best_profile = profile_name
+            best_score = score
+
+    return best_profile if best_score > 0 else None
+
+
+def detect_mapping(columns: list[str], mapping: dict[str, Any]) -> tuple[dict[str, str], str | None]:
+    profile_name = select_mapping_profile(columns, mapping)
+    aliases = merged_aliases(mapping, profile_name)
     normalized = {normalize_name(col): col for col in columns}
     resolved: dict[str, str] = {}
     for canonical in CANONICAL_COLUMNS:
@@ -389,7 +546,7 @@ def detect_mapping(columns: list[str], mapping: dict[str, Any]) -> dict[str, str
             if hit:
                 resolved[canonical] = hit
                 break
-    return resolved
+    return resolved, profile_name
 
 
 def timestamp_expr(column_sql: str) -> str:
@@ -402,6 +559,33 @@ def timestamp_expr(column_sql: str) -> str:
     )
 
 
+def numeric_expr(column_sql: str) -> str:
+    return f"try_cast({column_sql} AS DOUBLE)"
+
+
+def booleanish_expr(column_sql: str) -> str:
+    return (
+        "CASE "
+        f"WHEN lower(trim(CAST({column_sql} AS VARCHAR))) IN ('true', '1', 'yes', 'y') THEN TRUE "
+        f"WHEN lower(trim(CAST({column_sql} AS VARCHAR))) IN ('false', '0', 'no', 'n') THEN FALSE "
+        "ELSE NULL END"
+    )
+
+
+def relative_interval_seconds(interval: str) -> int:
+    return {"minute": 60, "hour": 3600, "day": 86400}[interval]
+
+
+def analysis_time_bucket_expr(interval: str) -> str:
+    seconds = relative_interval_seconds(interval)
+    return (
+        "CASE "
+        f"WHEN analysis_time_kind = 'absolute' AND analysis_time_ts IS NOT NULL THEN CAST(DATE_TRUNC('{interval}', analysis_time_ts) AS VARCHAR) "
+        f"WHEN analysis_time_kind = 'relative' AND analysis_time_relative_s IS NOT NULL THEN CONCAT('t+', CAST(CAST(FLOOR(analysis_time_relative_s / {seconds}) * {seconds} AS BIGINT) AS VARCHAR), 's') "
+        "ELSE 'unknown' END"
+    )
+
+
 def build_flows_view(
     con: duckdb.DuckDBPyConnection,
     table_info: dict[str, dict[str, str]],
@@ -410,9 +594,24 @@ def build_flows_view(
     resolved_all: dict[str, dict[str, str]] = {}
     union_selects: list[str] = []
     for table_name, meta in table_info.items():
-        resolved = detect_mapping(get_columns(con, table_name), mapping)
+        resolved, profile_name = detect_mapping(get_columns(con, table_name), mapping)
         resolved_all[table_name] = resolved
+        if profile_name:
+            meta["mapping_profile"] = profile_name
         fields: list[str] = []
+        timestamp_source = resolved.get("timestamp")
+        absolute_time_expr = timestamp_expr(quote_identifier(timestamp_source)) if timestamp_source else "CAST(NULL AS TIMESTAMP)"
+        relative_time_candidates: list[str] = []
+        if resolved.get("start_relative_time_s"):
+            relative_time_candidates.append(numeric_expr(quote_identifier(resolved["start_relative_time_s"])))
+        if resolved.get("relative_time_s"):
+            relative_time_candidates.append(numeric_expr(quote_identifier(resolved["relative_time_s"])))
+        relative_time_candidates.append("CAST(NULL AS DOUBLE)")
+        relative_time_expr_sql = "COALESCE(" + ", ".join(relative_time_candidates) + ")"
+        if resolved.get("time_is_relative"):
+            relative_flag_expr = booleanish_expr(quote_identifier(resolved["time_is_relative"]))
+        else:
+            relative_flag_expr = "CAST(NULL AS BOOLEAN)"
         for canonical in CANONICAL_COLUMNS:
             source = resolved.get(canonical)
             if source:
@@ -431,6 +630,21 @@ def build_flows_view(
                 else:
                     expr = f"CAST(NULL AS VARCHAR) AS {quote_identifier(canonical)}"
             fields.append(expr)
+        fields.append(f"{absolute_time_expr} AS analysis_time_ts")
+        fields.append(f"{relative_time_expr_sql} AS analysis_time_relative_s")
+        fields.append(
+            "CASE "
+            f"WHEN COALESCE({relative_flag_expr}, FALSE) THEN 'relative' "
+            f"WHEN {absolute_time_expr} IS NOT NULL THEN 'absolute' "
+            f"WHEN {relative_time_expr_sql} IS NOT NULL THEN 'relative' "
+            "ELSE 'unknown' END AS analysis_time_kind"
+        )
+        fields.append(
+            "CASE "
+            f"WHEN {absolute_time_expr} IS NOT NULL THEN CAST({absolute_time_expr} AS VARCHAR) "
+            f"WHEN COALESCE({relative_flag_expr}, FALSE) OR {relative_time_expr_sql} IS NOT NULL THEN CONCAT('t+', CAST({relative_time_expr_sql} AS VARCHAR), 's') "
+            "ELSE NULL END AS analysis_time_display"
+        )
         fields.append(f"{quote_literal(table_name)} AS source_table")
         fields.append(f"{quote_literal(meta['file'])} AS source_file")
         union_selects.append(f"SELECT {', '.join(fields)} FROM {quote_identifier(table_name)}")
@@ -466,9 +680,9 @@ def sql_literal(value: Any) -> str:
 def build_where_clause(filters_json: str | None, start_time: str | None, end_time: str | None) -> str:
     clauses: list[str] = []
     if start_time:
-        clauses.append(f"timestamp >= {quote_literal(start_time)}::TIMESTAMP")
+        clauses.append(f"analysis_time_ts >= {quote_literal(start_time)}::TIMESTAMP")
     if end_time:
-        clauses.append(f"timestamp <= {quote_literal(end_time)}::TIMESTAMP")
+        clauses.append(f"analysis_time_ts <= {quote_literal(end_time)}::TIMESTAMP")
     if filters_json:
         payload = json.loads(filters_json)
         if isinstance(payload, dict):
@@ -595,7 +809,7 @@ def infer_analysis_view(
         return "flow"
     if action == "packet-review":
         return "packet"
-    if action in {"overview-report", "scan-review", "session-review", "protocol-review", "summary", "topn", "distribution", "timeseries", "aggregate", "detect-anomaly"}:
+    if action in {"overview-report", "scan-review", "session-review", "short-connection-review", "protocol-review", "summary", "topn", "distribution", "timeseries", "aggregate", "detect-anomaly"}:
         return "flow"
     return "flow"
 
@@ -630,6 +844,8 @@ def inspect_action(con: duckdb.DuckDBPyConnection, table_info: dict[str, dict[st
         parts.append(f"Table: {table_name}")
         parts.append(f"Source file: {meta['file']}")
         parts.append(f"Rows: {row_count}")
+        if meta.get("mapping_profile"):
+            parts.append(f"Detected mapping profile: {meta['mapping_profile']}")
         parts.append(f"Detected canonical fields: {json.dumps(mappings.get(table_name, {}), ensure_ascii=False)}")
         parts.append(f"{'-' * 72}")
         parts.append(f"{'Name':<28} {'Type':<18} {'Nullable'}")
@@ -640,15 +856,21 @@ def inspect_action(con: duckdb.DuckDBPyConnection, table_info: dict[str, dict[st
             parts.append("\nSample rows:")
             parts.append(format_rows([row[0] for row in columns], sample))
     summary = con.execute(
-        "SELECT COUNT(*) AS records, MIN(timestamp) AS min_time, MAX(timestamp) AS max_time, "
+        "SELECT COUNT(*) AS records, "
+        "MIN(analysis_time_ts) AS min_time, MAX(analysis_time_ts) AS max_time, "
+        "MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s, "
+        "MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s, "
         "COUNT(DISTINCT src_ip) AS unique_src_ip, COUNT(DISTINCT dst_ip) AS unique_dst_ip FROM flows"
     ).fetchone()
     parts.append(f"\n{'=' * 72}")
     parts.append("Unified flows view")
     parts.append(f"Records: {summary[0]}")
-    parts.append(f"Time range: {summary[1]} -> {summary[2]}")
-    parts.append(f"Unique src_ip: {summary[3]}")
-    parts.append(f"Unique dst_ip: {summary[4]}")
+    if summary[1] is not None or summary[2] is not None:
+        parts.append(f"Absolute time range: {summary[1]} -> {summary[2]}")
+    if summary[3] is not None or summary[4] is not None:
+        parts.append(f"Relative time range (s): {summary[3]} -> {summary[4]}")
+    parts.append(f"Unique src_ip: {summary[5]}")
+    parts.append(f"Unique dst_ip: {summary[6]}")
     return "\n".join(parts)
 
 
@@ -679,8 +901,10 @@ def overview_report_action(
             WITH base AS (SELECT * FROM flows {where_clause})
             SELECT
                 COUNT(*) AS records,
-                MIN(timestamp) AS min_time,
-                MAX(timestamp) AS max_time,
+                MIN(analysis_time_ts) AS min_time,
+                MAX(analysis_time_ts) AS max_time,
+                MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s,
+                MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s,
                 COUNT(DISTINCT src_ip) AS unique_src_ip,
                 COUNT(DISTINCT dst_ip) AS unique_dst_ip,
                 SUM(COALESCE(bytes, 0)) AS total_bytes,
@@ -1060,6 +1284,124 @@ def session_review_action(
     return "\n\n".join(sections)
 
 
+def short_connection_review_action(
+    con: duckdb.DuckDBPyConnection,
+    mappings: dict[str, dict[str, str]],
+    where_clause: str,
+    limit: int,
+) -> str:
+    available = available_canonical_fields(mappings)
+    duration_expr = "COALESCE(duration_ms, flow_duration, 0)" if "duration_ms" in available else "COALESCE(flow_duration, 0)"
+    bytes_expr = "COALESCE(bytes, 0)"
+    packets_expr = "COALESCE(packets, 0)"
+
+    ensure_required(mappings, ["src_ip", "dst_ip", "dst_port", "protocol", "bytes", "packets"])
+    if "duration_ms" not in available and "flow_duration" not in available:
+        raise ValueError("short-connection-review requires duration_ms or flow_duration in the resolved flow view.")
+
+    sections = ["Analysis view: flow"]
+    sections.append(
+        execute_render(
+            con,
+            f"""
+            WITH scoped AS (
+                SELECT *
+                FROM flows
+                {where_clause}
+            )
+            SELECT
+                COUNT(*) AS total_flows,
+                SUM(CASE WHEN {duration_expr} < 1000 THEN 1 ELSE 0 END) AS wide_short_flows,
+                ROUND(SUM(CASE WHEN {duration_expr} < 1000 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS wide_short_pct,
+                SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
+                ROUND(SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS narrow_short_pct
+            FROM scoped
+            """,
+        )
+    )
+    sections.append(
+        render_section(
+            con,
+            "Top short-connection sources",
+            f"""
+            SELECT src_ip,
+                   COUNT(*) AS wide_short_flows,
+                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
+                   ROUND(AVG({bytes_expr}), 2) AS avg_bytes,
+                   ROUND(AVG({duration_expr}), 2) AS avg_duration_ms
+            FROM flows
+            {where_clause}
+            WHERE src_ip IS NOT NULL
+              AND {duration_expr} < 1000
+            GROUP BY 1
+            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, avg_bytes ASC, src_ip ASC
+            LIMIT {limit}
+            """,
+        )
+    )
+    sections.append(
+        render_section(
+            con,
+            "Top short-connection destination ports",
+            f"""
+            SELECT dst_port,
+                   COUNT(*) AS wide_short_flows,
+                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
+                   SUM({bytes_expr}) AS total_bytes
+            FROM flows
+            {where_clause}
+            WHERE dst_port IS NOT NULL
+              AND {duration_expr} < 1000
+            GROUP BY 1
+            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, total_bytes DESC, CAST(dst_port AS VARCHAR) ASC
+            LIMIT {limit}
+            """,
+        )
+    )
+    sections.append(
+        render_section(
+            con,
+            "Short-connection state and protocol mix",
+            f"""
+            SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
+                   COALESCE(session_state, 'UNKNOWN') AS session_state,
+                   COUNT(*) AS wide_short_flows,
+                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows
+            FROM flows
+            {where_clause}
+            WHERE {duration_expr} < 1000
+            GROUP BY 1, 2
+            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, protocol ASC, session_state ASC
+            LIMIT {limit}
+            """,
+        )
+    )
+    sections.append(
+        render_section(
+            con,
+            "Representative narrow short-connection samples",
+            f"""
+            SELECT src_ip,
+                   dst_ip,
+                   dst_port,
+                   protocol,
+                   {bytes_expr} AS bytes,
+                   {packets_expr} AS packets,
+                   {duration_expr} AS duration_ms,
+                   COALESCE(session_state, 'UNKNOWN') AS session_state
+            FROM flows
+            {where_clause}
+            WHERE {duration_expr} < 1000
+              AND {bytes_expr} < 500
+              AND {packets_expr} <= 3
+            ORDER BY duration_ms ASC, bytes ASC, packets ASC
+            LIMIT {limit}
+            """,
+        )
+    )
+    return "\n\n".join(sections)
+
+
 def protocol_review_action(
     con: duckdb.DuckDBPyConnection,
     mappings: dict[str, dict[str, str]],
@@ -1409,16 +1751,18 @@ def packet_review_action(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Analyze tabular network traffic logs")
-    parser.add_argument("--files", nargs="+", required=True, help="File paths or directories")
+    parser.add_argument("--files", nargs="+", default=[], help="File paths or directories")
     parser.add_argument(
         "--action",
         required=True,
         choices=[
+            "list-capabilities",
             "inspect",
             "summary",
             "overview-report",
             "scan-review",
             "session-review",
+            "short-connection-review",
             "protocol-review",
             "packet-review",
             "query",
@@ -1445,7 +1789,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metric", default="bytes", help="Metric for topn")
     parser.add_argument("--limit", type=int, default=50, help="Row limit")
     parser.add_argument("--interval", choices=["minute", "hour", "day"], default="hour", help="Timeseries bucket size")
-    parser.add_argument("--rule", default="scan-source", help="Anomaly rule")
+    parser.add_argument(
+        "--rule",
+        default="scan-source",
+        help="Anomaly rule. Run --action list-capabilities to see the current supported rules.",
+    )
     parser.add_argument("--view", choices=["auto", "flow", "packet"], default="auto", help="Preferred analysis view")
     return parser
 
@@ -1456,6 +1804,12 @@ def main() -> int:
     args = parser.parse_args()
     cleanup_db_copy: Path | None = None
 
+    if args.action == "list-capabilities":
+        print(render_capability_catalog())
+        return 0
+
+    ensure_pytz()
+    ensure_duckdb()
     files = discover_files(args.files)
     if not files:
         parser.error("No supported files found from --files")
@@ -1507,8 +1861,10 @@ def main() -> int:
                 WITH base AS (SELECT * FROM flows {where_clause})
                 SELECT
                     COUNT(*) AS records,
-                    MIN(timestamp) AS min_time,
-                    MAX(timestamp) AS max_time,
+                    MIN(analysis_time_ts) AS min_time,
+                    MAX(analysis_time_ts) AS max_time,
+                    MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s,
+                    MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s,
                     COUNT(DISTINCT src_ip) AS unique_src_ip,
                     COUNT(DISTINCT dst_ip) AS unique_dst_ip,
                     SUM(COALESCE(bytes, 0)) AS total_bytes,
@@ -1534,6 +1890,8 @@ def main() -> int:
             output = scan_review_action(con, mappings, where_clause, analysis_view, args.limit)
         elif args.action == "session-review":
             output = session_review_action(con, mappings, where_clause, analysis_view, args.limit)
+        elif args.action == "short-connection-review":
+            output = short_connection_review_action(con, mappings, where_clause, args.limit)
         elif args.action == "protocol-review":
             output = protocol_review_action(con, mappings, where_clause, analysis_view, args.limit)
         elif args.action == "packet-review":
@@ -1566,11 +1924,10 @@ def main() -> int:
                 args.output_file,
             )
         elif args.action == "timeseries":
-            ensure_required(mappings, ["timestamp"])
             output = execute_render(
                 con,
                 f"""
-                SELECT DATE_TRUNC('{args.interval}', timestamp) AS bucket,
+                SELECT {analysis_time_bucket_expr(args.interval)} AS bucket,
                        COUNT(*) AS records,
                        SUM(COALESCE(bytes, 0)) AS total_bytes,
                        SUM(COALESCE(packets, 0)) AS total_packets
@@ -1600,7 +1957,7 @@ def main() -> int:
         elif args.action == "filter":
             output = execute_render(
                 con,
-                f"SELECT * FROM flows {where_clause} ORDER BY timestamp NULLS LAST LIMIT {args.limit}",
+                f"SELECT * FROM flows {where_clause} ORDER BY analysis_time_ts NULLS LAST, analysis_time_relative_s NULLS LAST LIMIT {args.limit}",
                 args.output_file,
             )
         elif args.action == "aggregate":
@@ -1625,7 +1982,7 @@ def main() -> int:
             if args.rule == "volume-spike":
                 sql = f"""
                     WITH buckets AS (
-                        SELECT DATE_TRUNC('hour', timestamp) AS bucket, SUM(COALESCE(bytes, 0)) AS total_bytes
+                        SELECT {analysis_time_bucket_expr('hour')} AS bucket, SUM(COALESCE(bytes, 0)) AS total_bytes
                         FROM flows
                         {where_clause}
                         GROUP BY 1
@@ -1728,7 +2085,7 @@ def main() -> int:
                     HAVING COUNT(*) >= 20
                     ORDER BY small_packet_pct DESC, small_packets DESC, packets DESC
                 """
-            else:
+            elif args.rule == "scan-source":
                 sql = f"""
                     SELECT src_ip, COUNT(*) AS flows, COUNT(DISTINCT dst_ip) AS unique_dst_ip,
                            COUNT(DISTINCT dst_port) AS unique_dst_port
@@ -1738,11 +2095,17 @@ def main() -> int:
                     HAVING COUNT(DISTINCT dst_ip) >= 5 OR COUNT(DISTINCT dst_port) >= 10
                     ORDER BY unique_dst_ip DESC, unique_dst_port DESC, flows DESC
                 """
+            else:
+                raise ValueError(
+                    "Unsupported anomaly rule "
+                    f"'{args.rule}'. Supported rules: {', '.join(SUPPORTED_ANOMALY_RULES)}. "
+                    "Run --action list-capabilities to inspect supported workflows and choose a structured action or --action query."
+                )
             output = execute_render(con, sql, args.output_file)
         else:
             if not args.output_file:
                 parser.error("--output-file is required for export")
-            sql = args.sql or f"SELECT * FROM flows {where_clause} ORDER BY timestamp NULLS LAST LIMIT {args.limit}"
+            sql = args.sql or f"SELECT * FROM flows {where_clause} ORDER BY analysis_time_ts NULLS LAST, analysis_time_relative_s NULLS LAST LIMIT {args.limit}"
             output = execute_render(con, sql, args.output_file)
         print(output)
         return 0

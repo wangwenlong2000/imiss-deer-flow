@@ -226,7 +226,7 @@ export const enUS: Translations = {
 
   // Page titles (document title)
   pages: {
-    appName: "DeerFlow",
+    appName: "Urban Brain",
     chats: "Chats",
     newChat: "New chat",
     untitled: "Untitled",

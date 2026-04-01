@@ -148,6 +148,37 @@ models:
   #   temperature: 0.7
 
 # ============================================================================
+# Embedding Configuration
+# ============================================================================
+# Used by standalone embedding scripts such as embed_rag_docs.py.
+embedding:
+  # Supported providers:
+  # - sentence-transformers  (local model, no API key required)
+  # - dashscope              (OpenAI-compatible API)
+  # - openai
+  # - openai-compatible
+  provider: sentence-transformers
+  model: BAAI/bge-m3
+  api_key:
+  base_url:
+  dimensions:
+  device:
+  normalize: true
+
+# ============================================================================
+# Elasticsearch Configuration
+# ============================================================================
+elasticsearch:
+  hosts:
+    - http://localhost:9200
+  index_name: network-traffic-rag
+  api_key:
+  username:
+  password:
+  verify_certs: true
+  request_timeout: 30
+
+# ============================================================================
 # Tool Groups Configuration
 # ============================================================================
 # Define groups of tools for organization and access control
