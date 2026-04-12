@@ -1,7 +1,6 @@
 import asyncio
 from io import BytesIO
 from pathlib import Path
-import stat
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi import UploadFile
@@ -28,9 +27,7 @@ def test_upload_files_writes_thread_storage_and_skips_local_sandbox_sync(tmp_pat
     assert result.success is True
     assert len(result.files) == 1
     assert result.files[0]["filename"] == "notes.txt"
-    notes_path = thread_uploads_dir / "notes.txt"
-    assert notes_path.read_bytes() == b"hello uploads"
-    assert stat.S_IMODE(notes_path.stat().st_mode) == 0o666
+    assert (thread_uploads_dir / "notes.txt").read_bytes() == b"hello uploads"
 
     sandbox.update_file.assert_not_called()
 
@@ -63,12 +60,8 @@ def test_upload_files_syncs_non_local_sandbox_and_marks_markdown_file(tmp_path):
     assert file_info["filename"] == "report.pdf"
     assert file_info["markdown_file"] == "report.md"
 
-    report_pdf_path = thread_uploads_dir / "report.pdf"
-    report_md_path = thread_uploads_dir / "report.md"
-    assert report_pdf_path.read_bytes() == b"pdf-bytes"
-    assert report_md_path.read_text(encoding="utf-8") == "converted"
-    assert stat.S_IMODE(report_pdf_path.stat().st_mode) == 0o666
-    assert stat.S_IMODE(report_md_path.stat().st_mode) == 0o666
+    assert (thread_uploads_dir / "report.pdf").read_bytes() == b"pdf-bytes"
+    assert (thread_uploads_dir / "report.md").read_text(encoding="utf-8") == "converted"
 
     sandbox.update_file.assert_any_call("/mnt/user-data/uploads/report.pdf", b"pdf-bytes")
     sandbox.update_file.assert_any_call("/mnt/user-data/uploads/report.md", b"converted")

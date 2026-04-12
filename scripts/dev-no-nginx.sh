@@ -171,17 +171,6 @@ start_services() {
     wait_port "$GATEWAY_PORT" 40 "Gateway"
     echo "✓ Gateway is up"
 
-    local frontend_pkg_cmd
-    if command -v pnpm >/dev/null 2>&1; then
-        frontend_pkg_cmd="pnpm"
-    elif command -v corepack >/dev/null 2>&1; then
-        frontend_pkg_cmd="corepack pnpm"
-        echo "⚠ pnpm not found, using 'corepack pnpm' fallback"
-    else
-        echo "✗ Neither pnpm nor corepack is available. Install pnpm (>=10) or Node corepack."
-        exit 1
-    fi
-
     if is_listening "$FRONTEND_PORT"; then
         echo "⚠ Frontend port $FRONTEND_PORT is occupied, fallback to 3001"
         FRONTEND_PORT=3001
@@ -192,7 +181,7 @@ start_services() {
         cd "$REPO_ROOT/frontend"
         NEXT_PUBLIC_BACKEND_BASE_URL="http://localhost:$GATEWAY_PORT" \
         NEXT_PUBLIC_LANGGRAPH_BASE_URL="http://localhost:$LANGGRAPH_PORT" \
-        eval "$frontend_pkg_cmd exec next dev --turbo --port \"$FRONTEND_PORT\"" > "$LOG_DIR/frontend.log" 2>&1
+        pnpm exec next dev --turbo --port "$FRONTEND_PORT" > "$LOG_DIR/frontend.log" 2>&1
     ) &
     echo $! > "$PID_DIR/frontend.pid"
     echo "$FRONTEND_PORT" > "$PID_DIR/frontend.port"
