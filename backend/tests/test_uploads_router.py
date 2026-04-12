@@ -1,7 +1,7 @@
 import asyncio
+import stat
 from io import BytesIO
 from pathlib import Path
-import stat
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi import UploadFile

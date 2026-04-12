@@ -53,7 +53,9 @@ def _resolve_sqlite_conn_str(raw: str) -> str:
     """
     if raw == ":memory:" or raw.startswith("file:"):
         return raw
-    return str(resolve_path(raw))
+    resolved = resolve_path(raw)
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    return str(resolved)
 
 
 @contextlib.contextmanager
@@ -124,22 +126,7 @@ def get_checkpointer() -> Checkpointer:
 
     if _checkpointer is not None:
         return _checkpointer
-
-    # Ensure app config is loaded before checking checkpointer config
-    # This prevents returning InMemorySaver when config.yaml actually has a checkpointer section
-    # but hasn't been loaded yet
-    from deerflow.config.app_config import _app_config
     from deerflow.config.checkpointer_config import get_checkpointer_config
-
-    if _app_config is None:
-        # Only load config if it hasn't been initialized yet
-        # In tests, config may be set directly via set_checkpointer_config()
-        try:
-            get_app_config()
-        except FileNotFoundError:
-            # In test environments without config.yaml, this is expected
-            # Tests will set config directly via set_checkpointer_config()
-            pass
 
     config = get_checkpointer_config()
     if config is None:
