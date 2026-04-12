@@ -36,6 +36,19 @@
       ],
       "env": {},
       "description": "PostgreSQL database access"
+    },
+    "elasticsearch": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-elasticsearch"
+      ],
+      "env": {
+        "ELASTICSEARCH_URL": "http://219.245.186.45:9200"
+      },
+      "description": "Elasticsearch search and query"
     }
   },
   "skills": {}

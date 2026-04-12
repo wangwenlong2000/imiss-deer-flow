@@ -59,6 +59,7 @@ export function MessageList({
                 <MessageListItem
                   key={`${group.id}/${msg.id}`}
                   message={msg}
+                  threadId={threadId}
                   isLoading={thread.isLoading}
                 />
               );

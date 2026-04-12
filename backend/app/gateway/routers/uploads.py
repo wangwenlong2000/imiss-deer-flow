@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/threads/{thread_id}/uploads", tags=["uploads"])
 
+_CROSS_USER_WRITABLE_FILE_MODE = 0o666
+
 
 class UploadResponse(BaseModel):
     """Response model for file upload."""
@@ -35,6 +37,18 @@ def get_uploads_dir(thread_id: str) -> Path:
     base_dir = get_paths().sandbox_uploads_dir(thread_id)
     base_dir.mkdir(parents=True, exist_ok=True)
     return base_dir
+
+
+def _set_cross_user_writable(path: Path) -> None:
+    """Make uploaded artifacts writable across container users.
+
+    This prevents overwrite failures when the initial write and sandbox sync
+    happen under different users in shared bind mounts.
+    """
+    try:
+        path.chmod(_CROSS_USER_WRITABLE_FILE_MODE)
+    except OSError as exc:
+        logger.warning(f"Failed to chmod {path} to 0o666: {exc}")
 
 
 @router.post("", response_model=UploadResponse)
@@ -79,6 +93,7 @@ async def upload_files(
             content = await file.read()
             file_path = uploads_dir / safe_filename
             file_path.write_bytes(content)
+            _set_cross_user_writable(file_path)
 
             # Build relative path from backend root
             relative_path = str(paths.sandbox_uploads_dir(thread_id) / safe_filename)
@@ -104,6 +119,7 @@ async def upload_files(
             if file_ext in CONVERTIBLE_EXTENSIONS:
                 md_path = await convert_file_to_markdown(file_path)
                 if md_path:
+                    _set_cross_user_writable(md_path)
                     md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
                     md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
 

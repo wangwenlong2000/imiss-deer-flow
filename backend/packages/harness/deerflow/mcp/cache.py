@@ -74,9 +74,18 @@ async def initialize_mcp_tools() -> list[BaseTool]:
         _mcp_tools_cache = await get_mcp_tools()
         _cache_initialized = True
         _config_mtime = _get_config_mtime()  # Record config file mtime
-        logger.info(f"MCP tools initialized: {len(_mcp_tools_cache)} tool(s) loaded (config mtime: {_config_mtime})")
+        
+        if _mcp_tools_cache:
+            logger.info(
+                "MCP tools initialized: %d tool(s) loaded (config mtime: %s). Tools: %s",
+                len(_mcp_tools_cache),
+                _config_mtime,
+                [tool.name for tool in _mcp_tools_cache],
+            )
+        else:
+            logger.warning("MCP tools initialization completed but no tools were loaded (config mtime: %s)", _config_mtime)
 
-        return _mcp_tools_cache
+        return _mcp_tools_cache or []
 
 
 def get_cached_mcp_tools() -> list[BaseTool]:
