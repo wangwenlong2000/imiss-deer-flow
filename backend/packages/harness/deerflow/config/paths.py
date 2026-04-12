@@ -64,7 +64,12 @@ class Paths:
 
         cwd = Path.cwd()
         if cwd.name == "backend" or (cwd / "pyproject.toml").exists():
-            return cwd / ".deer-flow"
+            local_base = cwd / ".deer-flow"
+            # If local runtime dir exists but is not writable (e.g., created by root),
+            # fallback to user home to keep local commands/tests functional.
+            if local_base.exists() and not os.access(local_base, os.W_OK | os.X_OK):
+                return Path.home() / ".deer-flow"
+            return local_base
 
         return Path.home() / ".deer-flow"
 

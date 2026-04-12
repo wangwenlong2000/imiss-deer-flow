@@ -2,7 +2,6 @@ import os
 
 from pydantic import BaseModel, Field
 
-
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
