@@ -105,6 +105,7 @@ export interface Translations {
     chats: string;
     demoChats: string;
     agents: string;
+    dataCenter: string;
   };
 
   // Agents
@@ -138,6 +139,7 @@ export interface Translations {
   breadcrumb: {
     workspace: string;
     chats: string;
+    dataCenter: string;
   };
 
   // Workspace
@@ -160,6 +162,45 @@ export interface Translations {
   // Chats
   chats: {
     searchChats: string;
+  };
+
+  dataCenter: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    allSources: string;
+    uploadedData: string;
+    addData: string;
+    addDatabase: string;
+    refresh: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyAction: string;
+    selectedDataset: string;
+    availableSources: string;
+    sourceDetail: string;
+    sourceType: string;
+    sourceStatus: string;
+    sourceLocation: string;
+    sourceUpdatedAt: string;
+    sourceDescription: string;
+    noDescription: string;
+    localDataset: string;
+    uploadedFile: string;
+    database: string;
+    vectorStore: string;
+    ready: string;
+    syncing: string;
+    error: string;
+    disabled: string;
+    selectForChat: string;
+    selectedForChat: string;
+    useForChatSuccess: string;
+    chatHint: string;
+    mockHint: string;
+    databaseComingSoonTitle: string;
+    databaseComingSoonDescription: string;
+    databaseComingSoonAction: string;
   };
 
   // Page titles (document title)

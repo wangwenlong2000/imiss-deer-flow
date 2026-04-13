@@ -1,6 +1,7 @@
 import type { Message, Thread } from "@langchain/langgraph-sdk";
 
 import type { Todo } from "../todos";
+import type { ReasoningEffort } from "./reasoning";
 
 export interface AgentThreadState extends Record<string, unknown> {
   title: string;
@@ -17,6 +18,6 @@ export interface AgentThreadContext extends Record<string, unknown> {
   thinking_enabled: boolean;
   is_plan_mode: boolean;
   subagent_enabled: boolean;
-  reasoning_effort?: "minimum" | "low" | "medium" | "high";
+  reasoning_effort?: ReasoningEffort;
   agent_name?: string;
 }

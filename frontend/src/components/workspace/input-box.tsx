@@ -3,16 +3,18 @@
 import type { ChatStatus } from "ai";
 import {
   CheckIcon,
+  DatabaseIcon,
   GraduationCapIcon,
   LightbulbIcon,
   PaperclipIcon,
   PlusIcon,
   SparklesIcon,
   RocketIcon,
+  SearchIcon,
   XIcon,
   ZapIcon,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -56,8 +58,14 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { getBackendBaseURL } from "@/core/config";
+import {
+  readSelectedDataSourceIds,
+  useDataSources,
+  writeSelectedDataSourceIds,
+} from "@/core/data-center";
 import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
+import type { ReasoningEffort } from "@/core/threads/reasoning";
 import type { AgentThreadContext } from "@/core/threads";
 import { textOfMessage } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
@@ -81,7 +89,6 @@ import {
 
 import { useThread } from "./messages/context";
 import { ModeHoverGuide } from "./mode-hover-guide";
-import { Tooltip } from "./tooltip";
 
 type InputMode = "flash" | "thinking" | "pro" | "ultra";
 
@@ -121,7 +128,7 @@ export function InputBox({
     "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
   > & {
     mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-    reasoning_effort?: "minimum" | "low" | "medium" | "high";
+    reasoning_effort?: ReasoningEffort;
   };
   extraHeader?: React.ReactNode;
   isNewThread?: boolean;
@@ -133,19 +140,25 @@ export function InputBox({
       "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
     > & {
       mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-      reasoning_effort?: "minimum" | "low" | "medium" | "high";
+      reasoning_effort?: ReasoningEffort;
     },
   ) => void;
-  onSubmit?: (message: PromptInputMessage) => void;
+  onSubmit?: (
+    message: PromptInputMessage,
+    options?: { extraContext?: Record<string, unknown> },
+  ) => void;
   onStop?: () => void;
 }) {
   const { t } = useI18n();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const { models } = useModels();
+  const { data: dataSourcesResponse } = useDataSources();
   const { thread, isMock } = useThread();
   const { textInput } = usePromptInputController();
   const promptRootRef = useRef<HTMLDivElement | null>(null);
+  const selectionAreaRef = useRef<HTMLDivElement | null>(null);
 
   const [followups, setFollowups] = useState<string[]>([]);
   const [followupsHidden, setFollowupsHidden] = useState(false);
@@ -157,6 +170,36 @@ export function InputBox({
   const [pendingSuggestion, setPendingSuggestion] = useState<string | null>(
     null,
   );
+  const [dataDialogOpen, setDataDialogOpen] = useState(false);
+  const [selectedDataSourceIds, setSelectedDataSourceIds] = useState<string[]>(
+    [],
+  );
+  const [draftSelectedDataSourceIds, setDraftSelectedDataSourceIds] = useState<
+    string[]
+  >([]);
+  const [dataDialogTab, setDataDialogTab] = useState<"sources" | "uploads">(
+    "sources",
+  );
+  const [dataDialogQuery, setDataDialogQuery] = useState("");
+  const [selectionAreaHeight, setSelectionAreaHeight] = useState(0);
+
+  useEffect(() => {
+    setSelectedDataSourceIds(readSelectedDataSourceIds());
+  }, []);
+
+  useEffect(() => {
+    writeSelectedDataSourceIds(selectedDataSourceIds);
+  }, [selectedDataSourceIds]);
+
+  useEffect(() => {
+    if (!dataDialogOpen) {
+      return;
+    }
+
+    setDraftSelectedDataSourceIds(selectedDataSourceIds);
+    setDataDialogQuery("");
+    setDataDialogTab("sources");
+  }, [dataDialogOpen, selectedDataSourceIds]);
 
   useEffect(() => {
     if (models.length === 0) {
@@ -218,14 +261,14 @@ export function InputBox({
       onContextChange?.({
         ...context,
         mode: getResolvedMode(mode, supportThinking),
-        reasoning_effort: mode === "ultra" ? "high" : mode === "pro" ? "medium" : mode === "thinking" ? "low" : "minimum",
+        reasoning_effort: mode === "ultra" ? "high" : mode === "pro" ? "medium" : mode === "thinking" ? "low" : "minimal",
       });
     },
     [onContextChange, context, supportThinking],
   );
 
   const handleReasoningEffortSelect = useCallback(
-    (effort: "minimum" | "low" | "medium" | "high") => {
+    (effort: ReasoningEffort) => {
       onContextChange?.({
         ...context,
         reasoning_effort: effort,
@@ -233,6 +276,62 @@ export function InputBox({
     },
     [onContextChange, context],
   );
+
+  const selectedDataSources = useMemo(() => {
+    return (dataSourcesResponse?.sources ?? []).filter((source) =>
+      selectedDataSourceIds.includes(source.id),
+    );
+  }, [dataSourcesResponse?.sources, selectedDataSourceIds]);
+
+  useEffect(() => {
+    if (!selectedDataSourceIds.length) {
+      setSelectionAreaHeight(0);
+      return;
+    }
+
+    const measure = () => {
+      setSelectionAreaHeight(selectionAreaRef.current?.offsetHeight ?? 0);
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [selectedDataSourceIds, selectedDataSources]);
+
+  const attachments = usePromptInputAttachments();
+
+  const dialogSources = useMemo(() => {
+    return (dataSourcesResponse?.sources ?? [])
+      .filter((source) => source.selectable_in_chat)
+      .filter((source) =>
+        dataDialogTab === "uploads"
+          ? source.type === "uploaded_file"
+          : source.type !== "uploaded_file",
+      )
+      .filter((source) => {
+        const haystack = `${source.name} ${source.description ?? ""} ${source.path ?? ""}`;
+        return haystack
+          .toLowerCase()
+          .includes(dataDialogQuery.trim().toLowerCase());
+      });
+  }, [dataDialogQuery, dataDialogTab, dataSourcesResponse?.sources]);
+
+  const toggleDraftDataSource = useCallback((sourceId: string) => {
+    setDraftSelectedDataSourceIds((current) =>
+      current.includes(sourceId)
+        ? current.filter((id) => id !== sourceId)
+        : [...current, sourceId],
+    );
+  }, []);
+
+  const confirmDataSourceSelection = useCallback(() => {
+    setSelectedDataSourceIds(draftSelectedDataSourceIds);
+    setDataDialogOpen(false);
+  }, [draftSelectedDataSourceIds]);
+
+  const clearDataSourceSelection = useCallback(() => {
+    setSelectedDataSourceIds([]);
+  }, []);
 
   const handleSubmit = useCallback(
     async (message: PromptInputMessage) => {
@@ -246,9 +345,18 @@ export function InputBox({
       setFollowups([]);
       setFollowupsHidden(false);
       setFollowupsLoading(false);
-      onSubmit?.(message);
+      onSubmit?.(message, {
+        extraContext: {
+          selected_data_sources: selectedDataSources.map((source) => ({
+            id: source.id,
+            name: source.name,
+            type: source.type,
+            path: source.path,
+          })),
+        },
+      });
     },
-    [onSubmit, onStop, status],
+    [onSubmit, onStop, selectedDataSources, status],
   );
 
   const requestFormSubmit = useCallback(() => {
@@ -391,10 +499,72 @@ export function InputBox({
             </div>
           </div>
         )}
+        {selectedDataSources.length > 0 && (
+          <div ref={selectionAreaRef} className="px-4 pt-4 pb-2">
+            <div className="flex flex-wrap items-start gap-2">
+              {selectedDataSources.map((source) => (
+                <div
+                  key={source.id}
+                  className="flex min-w-0 max-w-[18rem] items-start gap-2 rounded-2xl border bg-white/90 px-3 py-2 shadow-sm"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setDataDialogOpen(true)}
+                    className="flex min-w-0 items-start gap-2 text-left"
+                  >
+                    <div className="bg-muted mt-0.5 rounded-xl p-2">
+                      <DatabaseIcon className="text-muted-foreground size-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">
+                        {source.name}
+                      </div>
+                      <div className="text-muted-foreground mt-0.5 text-[11px]">
+                        {source.type === "uploaded_file"
+                          ? t.dataCenter.uploadedFile
+                          : source.type === "database"
+                            ? t.dataCenter.database
+                            : source.type === "vector_store"
+                              ? t.dataCenter.vectorStore
+                              : t.dataCenter.localDataset}
+                      </div>
+                    </div>
+                  </button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground size-6 shrink-0 rounded-full"
+                    onClick={() =>
+                      setSelectedDataSourceIds((current) =>
+                        current.filter((id) => id !== source.id),
+                      )
+                    }
+                  >
+                    <XIcon className="size-3.5" />
+                  </Button>
+                </div>
+              ))}
+              {selectedDataSources.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-muted-foreground h-11 rounded-2xl border border-dashed px-3 text-xs"
+                  onClick={clearDataSourceSelection}
+                >
+                  清空全部
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         <PromptInputAttachments>
           {(attachment) => <PromptInputAttachment data={attachment} />}
         </PromptInputAttachments>
-        <PromptInputBody className="absolute top-0 right-0 left-0 z-3">
+        <PromptInputBody
+          className="absolute right-0 left-0 z-3"
+          style={{ top: selectionAreaHeight > 0 ? `${selectionAreaHeight + 8}px` : 0 }}
+        >
           <PromptInputTextarea
             className={cn("size-full")}
             disabled={disabled}
@@ -405,17 +575,32 @@ export function InputBox({
         </PromptInputBody>
         <PromptInputFooter className="flex">
           <PromptInputTools>
-          {/* TODO: Add more connectors here
-          <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger className="px-2!" />
-            <PromptInputActionMenuContent>
-              <PromptInputActionAddAttachments
-                label={t.inputBox.addAttachments}
-              />
-            </PromptInputActionMenuContent>
-          </PromptInputActionMenu> */}
-          <AddAttachmentsButton className="px-2!" />
-          <PromptInputActionMenu>
+            <PromptInputActionMenu>
+              <PromptInputActionMenuTrigger className="px-2!" />
+              <PromptInputActionMenuContent>
+                <PromptInputActionMenuItem onSelect={() => attachments.openFileDialog()}>
+                  <PaperclipIcon className="size-4" />
+                  {t.inputBox.addAttachments}
+                </PromptInputActionMenuItem>
+                <PromptInputActionMenuItem onSelect={() => setDataDialogOpen(true)}>
+                  <DatabaseIcon className="size-4" />
+                  {t.dataCenter.selectForChat}
+                </PromptInputActionMenuItem>
+              </PromptInputActionMenuContent>
+            </PromptInputActionMenu>
+            {selectedDataSources.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setDataDialogOpen(true)}
+                className="text-muted-foreground inline-flex items-center gap-2 px-2 text-xs"
+              >
+                <DatabaseIcon className="size-3" />
+                <span>
+                  {t.dataCenter.selectedDataset} {selectedDataSources.length}
+                </span>
+              </button>
+            )}
+            <PromptInputActionMenu>
             <ModeHoverGuide
               mode={
                 context.mode === "flash" ||
@@ -583,13 +768,13 @@ export function InputBox({
                 </PromptInputActionMenu>
               </DropdownMenuGroup>
             </PromptInputActionMenuContent>
-          </PromptInputActionMenu>
-          {supportReasoningEffort && context.mode !== "flash" && (
-            <PromptInputActionMenu>
+            </PromptInputActionMenu>
+            {supportReasoningEffort && context.mode !== "flash" && (
+              <PromptInputActionMenu>
               <PromptInputActionMenuTrigger className="gap-1! px-2!">
                 <div className="text-xs font-normal">
                   {t.inputBox.reasoningEffort}:
-                  {context.reasoning_effort === "minimum" && " " + t.inputBox.reasoningEffortMinimal}
+                  {context.reasoning_effort === "minimal" && " " + t.inputBox.reasoningEffortMinimal}
                   {context.reasoning_effort === "low" && " " + t.inputBox.reasoningEffortLow}
                   {context.reasoning_effort === "medium" && " " + t.inputBox.reasoningEffortMedium}
                   {context.reasoning_effort === "high" && " " + t.inputBox.reasoningEffortHigh}
@@ -603,11 +788,11 @@ export function InputBox({
                   <PromptInputActionMenu>
                     <PromptInputActionMenuItem
                       className={cn(
-                        context.reasoning_effort === "minimum"
+                        context.reasoning_effort === "minimal"
                           ? "text-accent-foreground"
                           : "text-muted-foreground/65",
                       )}
-                      onSelect={() => handleReasoningEffortSelect("minimum")}
+                      onSelect={() => handleReasoningEffortSelect("minimal")}
                     >
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-1 font-bold">
@@ -617,7 +802,7 @@ export function InputBox({
                           {t.inputBox.reasoningEffortMinimalDescription}
                         </div>
                       </div>
-                      {context.reasoning_effort === "minimum" ? (
+                      {context.reasoning_effort === "minimal" ? (
                         <CheckIcon className="ml-auto size-4" />
                       ) : (
                         <div className="ml-auto size-4" />
@@ -692,49 +877,49 @@ export function InputBox({
                   </PromptInputActionMenu>
                 </DropdownMenuGroup>
               </PromptInputActionMenuContent>
-            </PromptInputActionMenu>
-          )}
-        </PromptInputTools>
-        <PromptInputTools>
-          <ModelSelector
-            open={modelDialogOpen}
-            onOpenChange={setModelDialogOpen}
-          >
-            <ModelSelectorTrigger asChild>
-              <PromptInputButton>
-                <ModelSelectorName className="text-xs font-normal">
-                  {selectedModel?.display_name}
-                </ModelSelectorName>
-              </PromptInputButton>
-            </ModelSelectorTrigger>
-            <ModelSelectorContent>
-              <ModelSelectorInput placeholder={t.inputBox.searchModels} />
-              <ModelSelectorList>
-                {models.map((m) => (
-                  <ModelSelectorItem
-                    key={m.name}
-                    value={m.name}
-                    onSelect={() => handleModelSelect(m.name)}
-                  >
-                    <ModelSelectorName>{m.display_name}</ModelSelectorName>
-                    {m.name === context.model_name ? (
-                      <CheckIcon className="ml-auto size-4" />
-                    ) : (
-                      <div className="ml-auto size-4" />
-                    )}
-                  </ModelSelectorItem>
-                ))}
-              </ModelSelectorList>
-            </ModelSelectorContent>
-          </ModelSelector>
-          <PromptInputSubmit
-            className="rounded-full"
-            disabled={disabled}
-            variant="outline"
-            status={status}
-          />
-        </PromptInputTools>
-      </PromptInputFooter>
+              </PromptInputActionMenu>
+            )}
+          </PromptInputTools>
+          <PromptInputTools>
+            <ModelSelector
+              open={modelDialogOpen}
+              onOpenChange={setModelDialogOpen}
+            >
+              <ModelSelectorTrigger asChild>
+                <PromptInputButton>
+                  <ModelSelectorName className="text-xs font-normal">
+                    {selectedModel?.display_name}
+                  </ModelSelectorName>
+                </PromptInputButton>
+              </ModelSelectorTrigger>
+              <ModelSelectorContent>
+                <ModelSelectorInput placeholder={t.inputBox.searchModels} />
+                <ModelSelectorList>
+                  {models.map((m) => (
+                    <ModelSelectorItem
+                      key={m.name}
+                      value={m.name}
+                      onSelect={() => handleModelSelect(m.name)}
+                    >
+                      <ModelSelectorName>{m.display_name}</ModelSelectorName>
+                      {m.name === context.model_name ? (
+                        <CheckIcon className="ml-auto size-4" />
+                      ) : (
+                        <div className="ml-auto size-4" />
+                      )}
+                    </ModelSelectorItem>
+                  ))}
+                </ModelSelectorList>
+              </ModelSelectorContent>
+            </ModelSelector>
+            <PromptInputSubmit
+              className="rounded-full"
+              disabled={disabled}
+              variant="outline"
+              status={status}
+            />
+          </PromptInputTools>
+        </PromptInputFooter>
       {isNewThread && searchParams.get("mode") !== "skill" && (
         <div className="absolute right-0 -bottom-20 left-0 z-0 flex items-center justify-center">
           <SuggestionList />
@@ -797,6 +982,138 @@ export function InputBox({
             </Button>
             <Button onClick={confirmReplaceAndSend}>
               {t.inputBox.followupConfirmReplace}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={dataDialogOpen} onOpenChange={setDataDialogOpen}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{t.dataCenter.availableSources}</DialogTitle>
+            <DialogDescription>{t.dataCenter.chatHint}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="bg-muted inline-flex rounded-xl p-1">
+                <button
+                  type="button"
+                  onClick={() => setDataDialogTab("sources")}
+                  className={cn(
+                    "rounded-lg px-4 py-2 text-sm transition",
+                    dataDialogTab === "sources"
+                      ? "bg-background shadow-sm"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {t.dataCenter.allSources}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDataDialogTab("uploads")}
+                  className={cn(
+                    "rounded-lg px-4 py-2 text-sm transition",
+                    dataDialogTab === "uploads"
+                      ? "bg-background shadow-sm"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {t.dataCenter.uploadedData}
+                </button>
+              </div>
+              <div className="relative min-w-[16rem] flex-1">
+                <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                <input
+                  value={dataDialogQuery}
+                  onChange={(event) => setDataDialogQuery(event.target.value)}
+                  placeholder={t.dataCenter.searchPlaceholder}
+                  className="bg-background h-10 w-full rounded-xl border pl-9 pr-3 text-sm outline-none transition focus:border-neutral-400"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setDataDialogOpen(false);
+                  router.push("/workspace/data-center");
+                }}
+              >
+                {t.dataCenter.addData}
+              </Button>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border">
+              <div className="text-muted-foreground grid grid-cols-[56px_minmax(0,1.6fr)_120px_180px] border-b bg-muted/40 px-4 py-3 text-xs font-medium">
+                <div />
+                <div>{t.dataCenter.availableSources}</div>
+                <div>{t.dataCenter.sourceType}</div>
+                <div>{t.dataCenter.sourceUpdatedAt}</div>
+              </div>
+              <div className="max-h-[24rem] overflow-y-auto">
+                {dialogSources.length > 0 ? (
+                  dialogSources.map((source) => {
+                    const selected = draftSelectedDataSourceIds.includes(source.id);
+                    return (
+                      <button
+                        key={source.id}
+                        type="button"
+                        onClick={() => toggleDraftDataSource(source.id)}
+                        className={cn(
+                          "grid w-full grid-cols-[56px_minmax(0,1.6fr)_120px_180px] items-center border-b px-4 py-3 text-left transition last:border-b-0",
+                          selected ? "bg-primary/5" : "hover:bg-muted/40",
+                        )}
+                      >
+                        <div className="flex justify-center">
+                          <span
+                            className={cn(
+                              "flex size-5 items-center justify-center rounded-md border transition",
+                              selected
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "bg-background border-neutral-300",
+                            )}
+                          >
+                            {selected && <CheckIcon className="size-3.5" />}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium">
+                            {source.name}
+                          </div>
+                          <div className="text-muted-foreground mt-1 truncate text-xs">
+                            {source.description || source.path || "-"}
+                          </div>
+                        </div>
+                        <div className="text-muted-foreground text-sm">
+                          {source.type === "uploaded_file"
+                            ? t.dataCenter.uploadedFile
+                            : source.type === "database"
+                              ? t.dataCenter.database
+                              : source.type === "vector_store"
+                                ? t.dataCenter.vectorStore
+                                : t.dataCenter.localDataset}
+                        </div>
+                        <div className="text-muted-foreground text-sm">
+                          {source.updated_at
+                            ? source.updated_at.slice(0, 10)
+                            : "-"}
+                        </div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-muted-foreground px-4 py-10 text-center text-sm">
+                    {t.dataCenter.emptyDescription}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDataDialogOpen(false)}>
+              {t.common.cancel}
+            </Button>
+            <Button onClick={confirmDataSourceSelection}>
+              {t.common.save}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -871,20 +1188,5 @@ function SuggestionList() {
         </DropdownMenuContent>
       </DropdownMenu>
     </Suggestions>
-  );
-}
-
-function AddAttachmentsButton({ className }: { className?: string }) {
-  const { t } = useI18n();
-  const attachments = usePromptInputAttachments();
-  return (
-    <Tooltip content={t.inputBox.addAttachments}>
-      <PromptInputButton
-        className={cn("px-2!", className)}
-        onClick={() => attachments.openFileDialog()}
-      >
-        <PaperclipIcon className="size-3" />
-      </PromptInputButton>
-    </Tooltip>
   );
 }
