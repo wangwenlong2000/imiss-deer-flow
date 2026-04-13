@@ -160,6 +160,7 @@ export const enUS: Translations = {
     recentChats: "Recent chats",
     demoChats: "Demo chats",
     agents: "Agents",
+    dataCenter: "Data center",
   },
 
   // Agents
@@ -200,6 +201,7 @@ export const enUS: Translations = {
   breadcrumb: {
     workspace: "Workspace",
     chats: "Chats",
+    dataCenter: "Data center",
   },
 
   // Workspace
@@ -224,12 +226,56 @@ export const enUS: Translations = {
     searchChats: "Search chats",
   },
 
+  dataCenter: {
+    title: "Data center",
+    subtitle:
+      "Manage local datasets, uploaded files, and future database connections in one place.",
+    searchPlaceholder: "Search datasets or sources",
+    allSources: "Data sources",
+    uploadedData: "Uploaded data",
+    addData: "Add data",
+    addDatabase: "Add database",
+    refresh: "Refresh",
+    emptyTitle: "Add your first dataset",
+    emptyDescription:
+      "Connect a database later, or start with local datasets and uploaded files to ground your analysis.",
+    emptyAction: "Add data",
+    selectedDataset: "Selected for chat",
+    availableSources: "Available sources",
+    sourceDetail: "Source detail",
+    sourceType: "Type",
+    sourceStatus: "Status",
+    sourceLocation: "Location",
+    sourceUpdatedAt: "Updated",
+    sourceDescription: "Description",
+    noDescription: "No description yet.",
+    localDataset: "Local dataset",
+    uploadedFile: "Uploaded file",
+    database: "Database",
+    vectorStore: "Vector store",
+    ready: "Ready",
+    syncing: "Syncing",
+    error: "Error",
+      disabled: "Disabled",
+      selectForChat: "Select for chat",
+      selectedForChat: "Selected",
+      useForChatSuccess: "Added to chat context and ready to ask",
+      chatHint:
+        "This prototype keeps the selection in the page and chat UI only. Backend source binding comes next.",
+      mockHint:
+        "First live chain: the data center now reads real gateway sources, while database connections and persistent chat binding come next.",
+      databaseComingSoonTitle: "Database connections come next",
+      databaseComingSoonDescription:
+        "The local dataset and uploaded-file flow is live now. Database connection management, connection testing, and schema preview will land in the next phase.",
+      databaseComingSoonAction: "Got it",
+    },
+
   // Page titles (document title)
   pages: {
     appName: "Urban Brain",
     chats: "Chats",
     newChat: "New chat",
-    untitled: "Untitled",
+    untitled: "New session",
   },
 
   // Tool calls

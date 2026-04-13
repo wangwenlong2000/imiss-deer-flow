@@ -1,0 +1,5 @@
+employee_id,name,department,city,hire_date,salary
+E001,Alice Zhang,Planning,Shanghai,2022-03-14,28000
+E002,Bob Li,Traffic,Hangzhou,2021-07-01,32000
+E003,Carol Wu,Emergency,Nanjing,2023-01-09,25000
+E004,David Sun,Operations,Suzhou,2020-11-23,36000

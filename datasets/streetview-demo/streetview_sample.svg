@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#f4efe4"/>
+  <rect y="220" width="640" height="140" fill="#d8c8ab"/>
+  <rect y="150" width="640" height="90" fill="#c8d7d1"/>
+  <rect x="70" y="120" width="170" height="140" rx="6" fill="#f7f2ea" stroke="#8f7d67"/>
+  <rect x="95" y="150" width="45" height="55" fill="#9ec0d1"/>
+  <rect x="165" y="150" width="45" height="55" fill="#9ec0d1"/>
+  <rect x="145" y="195" width="30" height="65" fill="#6e5847"/>
+  <rect x="300" y="95" width="220" height="165" rx="6" fill="#f2ede3" stroke="#7f7467"/>
+  <rect x="330" y="135" width="50" height="55" fill="#a4c7d8"/>
+  <rect x="395" y="135" width="50" height="55" fill="#a4c7d8"/>
+  <rect x="460" y="135" width="30" height="125" fill="#d3b68c"/>
+  <circle cx="555" cy="255" r="26" fill="#556b2f"/>
+  <circle cx="110" cy="278" r="24" fill="#6b7d3f"/>
+  <text x="28" y="36" font-family="Arial, sans-serif" font-size="22" fill="#3b332a">Streetview Demo</text>
+  <text x="28" y="62" font-family="Arial, sans-serif" font-size="14" fill="#6a5d4d">Sample local dataset for image-source registration and chat selection</text>
+</svg>
