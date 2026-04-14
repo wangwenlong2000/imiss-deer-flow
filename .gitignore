@@ -79,3 +79,16 @@ datasets/network-traffic/outputs/**
 .github/agents/
 .github/hooks/
 .github/skills/
+
+
+
+backend/packages/harness/deerflow/community/aio_sandbox/aio_sandbox_provider.py
+docker/nginx/nginx.conf
+docker/nginx/nginx.local.conf
+docker/docker-compose-dev.yaml
+docker/docker-compose.yaml
+scripts/cleanup-containers.sh
+scripts/deploy.sh
+scripts/docker.sh
+scripts/serve.sh
+scripts/start-daemon.sh
