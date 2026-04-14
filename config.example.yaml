@@ -15,6 +15,19 @@
 config_version: 1
 
 # ============================================================================
+# Docker Port Overrides
+# ============================================================================
+# Used by scripts/update-docker-ports.sh to update docker/nginx related files.
+# Priority when running the script: environment variables > docker_ports > built-in defaults.
+docker_ports:
+  nginx: 2026
+  langgraph: 2024
+  gateway: 8001
+  frontend: 3000
+subnet:
+  dev: 192.168.200.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
+
+# ============================================================================
 # Models Configuration
 # ============================================================================
 # Configure available LLM models for the agent to use
