@@ -45,6 +45,10 @@ skills/custom/*
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**
+!skills/custom/trajectory-preprocess/
+!skills/custom/trajectory-preprocess/**
+!skills/custom/trajectory-anomaly-detection/
+!skills/custom/trajectory-anomaly-detection/**
 logs/
 log/
 backend/log/

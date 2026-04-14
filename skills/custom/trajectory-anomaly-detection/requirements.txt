@@ -1,0 +1,3 @@
+# No required external dependencies.
+# This Skill intentionally runs with the Python standard library.
+# Optional: scikit-learn enables --method isolation-forest if it is already installed.

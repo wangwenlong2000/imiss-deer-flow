@@ -1,0 +1,7 @@
+interface:
+  display_name: "Trajectory Preprocess"
+  short_description: "Clean, denoise, segment, and standardize raw spatiotemporal trajectory files."
+  default_prompt: "Use $trajectory-preprocess when the user asks to clean GPS/check-in trajectories, extract staypoints, segment trips, validate trajectory quality, or prepare data for OD/anomaly/forecasting analysis. Prefer scripts/preprocess_trajectory.py as the full pipeline entrypoint. Run with python3 directly; do not create or activate .venv and do not install python3-venv. If a demo request names /mnt/user-data/workspace/trajectory_sample.csv and it is missing, create it with scripts/create_demo_trajectory_sample.py first and say it is synthesized demo data."
+
+policy:
+  allow_implicit_invocation: true

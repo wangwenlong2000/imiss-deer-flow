@@ -1,0 +1,7 @@
+interface:
+  display_name: "Trajectory Anomaly Detection"
+  short_description: "Detect, rank, and explain anomalous trajectory points, trips, staypoints, and region-level mobility metrics."
+  default_prompt: "Use $trajectory-anomaly-detection when the user asks for abnormal trajectories, anomalous regions, check-in spikes, unusual trips, stay duration anomalies, or Top-K mobility anomalies. Prefer scripts/detect_anomalies.py and summarize summary.json plus anomalies.jsonl. Run with python3 directly; do not create or activate .venv and do not install python3-venv."
+
+policy:
+  allow_implicit_invocation: true
