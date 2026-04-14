@@ -5,7 +5,10 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
+import shutil
+import subprocess
 import sys
 from contextlib import suppress
 from collections import defaultdict
@@ -176,6 +179,22 @@ def safe_int(value: Any) -> int | None:
         return None
 
 
+def safe_float(value: Any) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def resolve_tshark_binary() -> str | None:
+    explicit = os.environ.get("TSHARK_BIN") if "os" in globals() else None
+    if explicit:
+        return explicit
+    return shutil.which("tshark")
+
+
 def infer_payload_bytes(packet: Any) -> int:
     if packet.haslayer(TCP):
         with suppress(Exception):
@@ -294,6 +313,74 @@ def extract_tls_sni(packet: Any) -> str:
                 if name_type == 0:
                     return decode_text(name)
     return ""
+
+
+TSHARK_FIELDS = [
+    "frame.number",
+    "frame.time_epoch",
+    "frame.len",
+    "frame.protocols",
+    "eth.src",
+    "eth.dst",
+    "ip.src",
+    "ipv6.src",
+    "ip.dst",
+    "ipv6.dst",
+    "tcp.srcport",
+    "tcp.dstport",
+    "udp.srcport",
+    "udp.dstport",
+    "ip.ttl",
+    "ipv6.hlim",
+    "ip.len",
+    "ipv6.plen",
+    "tcp.hdr_len",
+    "tcp.len",
+    "tcp.flags.str",
+    "icmp.type",
+    "icmp.code",
+    "dns.qry.name",
+    "tls.handshake.extensions_server_name",
+    "http.host",
+    "vlan.id",
+]
+
+
+def normalize_tshark_value(value: str) -> str:
+    return value.strip()
+
+
+def tshark_protocol(frame_protocols: str, tcp_src: str, udp_src: str, icmp_type: str, src_ip: str, src_ip_v6: str) -> str:
+    protocols = frame_protocols.lower()
+    if tcp_src:
+        return "TCP"
+    if udp_src:
+        return "UDP"
+    if icmp_type:
+        return "ICMP"
+    if "icmpv6" in protocols:
+        return "ICMPV6"
+    if src_ip_v6:
+        return "IPV6"
+    if src_ip:
+        return "IP"
+    return "UNKNOWN"
+
+
+def tshark_payload_bytes(protocol: str, frame_len: int, ip_len: int | None, ipv6_plen: int | None, tcp_hdr_len: int | None, tcp_len: int | None) -> int:
+    if protocol == "TCP":
+        if tcp_len is not None:
+            return max(tcp_len, 0)
+        if ip_len is not None and tcp_hdr_len is not None:
+            return max(ip_len - 20 - tcp_hdr_len, 0)
+        if ipv6_plen is not None and tcp_hdr_len is not None:
+            return max(ipv6_plen - tcp_hdr_len, 0)
+    if protocol == "UDP":
+        if ip_len is not None:
+            return max(ip_len - 20 - 8, 0)
+        if ipv6_plen is not None:
+            return max(ipv6_plen - 8, 0)
+    return max(frame_len, 0)
 
 
 def infer_service(dst_port: str, protocol: str, dns_query: str, tls_sni: str, http_host: str) -> str:
@@ -823,7 +910,175 @@ def extract_packet_fields(
     }
 
 
-def parse_packet_rows(pcap_file: str) -> list[dict[str, Any]]:
+def extract_packet_fields_from_tshark_row(
+    row_values: dict[str, str],
+    source_file: str,
+    *,
+    base_epoch: float | None = None,
+    use_relative_time: bool = False,
+) -> dict[str, Any]:
+    raw_time = safe_float(row_values.get("frame.time_epoch"))
+    packet_number = safe_int(row_values.get("frame.number")) or 0
+    frame_len = safe_int(row_values.get("frame.len")) or 0
+    packet_time = normalize_capture_time(raw_time, base_epoch) if use_relative_time else raw_time
+    timestamp = "" if use_relative_time else iso_timestamp(packet_time)
+    relative_time_s = safe_float(packet_time) if use_relative_time else None
+    src_ip_v4 = normalize_tshark_value(row_values.get("ip.src", ""))
+    dst_ip_v4 = normalize_tshark_value(row_values.get("ip.dst", ""))
+    src_ip_v6 = normalize_tshark_value(row_values.get("ipv6.src", ""))
+    dst_ip_v6 = normalize_tshark_value(row_values.get("ipv6.dst", ""))
+    src_ip = src_ip_v4 or src_ip_v6
+    dst_ip = dst_ip_v4 or dst_ip_v6
+    tcp_src = normalize_tshark_value(row_values.get("tcp.srcport", ""))
+    tcp_dst = normalize_tshark_value(row_values.get("tcp.dstport", ""))
+    udp_src = normalize_tshark_value(row_values.get("udp.srcport", ""))
+    udp_dst = normalize_tshark_value(row_values.get("udp.dstport", ""))
+    src_port = tcp_src or udp_src
+    dst_port = tcp_dst or udp_dst
+    protocol = tshark_protocol(
+        normalize_tshark_value(row_values.get("frame.protocols", "")),
+        tcp_src,
+        udp_src,
+        normalize_tshark_value(row_values.get("icmp.type", "")),
+        src_ip_v4,
+        src_ip_v6,
+    )
+    ttl = safe_int(row_values.get("ip.ttl")) or safe_int(row_values.get("ipv6.hlim"))
+    ip_version = "IPv4" if src_ip_v4 else "IPv6" if src_ip_v6 else ""
+    tcp_flags = normalize_tshark_value(row_values.get("tcp.flags.str", ""))
+    icmp_type = safe_int(row_values.get("icmp.type"))
+    icmp_code = safe_int(row_values.get("icmp.code"))
+    dns_query = normalize_tshark_value(row_values.get("dns.qry.name", "")).rstrip(".")
+    tls_sni = normalize_tshark_value(row_values.get("tls.handshake.extensions_server_name", ""))
+    http_host = normalize_tshark_value(row_values.get("http.host", ""))
+    payload_bytes = tshark_payload_bytes(
+        protocol,
+        frame_len,
+        safe_int(row_values.get("ip.len")),
+        safe_int(row_values.get("ipv6.plen")),
+        safe_int(row_values.get("tcp.hdr_len")),
+        safe_int(row_values.get("tcp.len")),
+    )
+    service = infer_service(dst_port, protocol, dns_query, tls_sni, http_host)
+    app_protocol = infer_app_protocol(dst_port, protocol, dns_query, tls_sni, http_host)
+    session_state = infer_session_state(tcp_flags, protocol)
+    rule_name = infer_rule_name(app_protocol, dns_query, tls_sni, http_host)
+    flow_id = make_flow_id(source_file, src_ip, dst_ip, src_port, dst_port, protocol)
+
+    return {
+        "timestamp": timestamp,
+        "relative_time_s": relative_time_s if relative_time_s is not None else "",
+        "time_is_relative": "true" if use_relative_time else "false",
+        "packet_number": packet_number,
+        "src_ip": src_ip,
+        "dst_ip": dst_ip,
+        "src_port": src_port,
+        "dst_port": dst_port,
+        "protocol": protocol,
+        "ip_version": ip_version,
+        "ttl": ttl,
+        "payload_bytes": payload_bytes,
+        "tcp_flags": tcp_flags,
+        "icmp_type": icmp_type,
+        "icmp_code": icmp_code,
+        "mac_src": normalize_tshark_value(row_values.get("eth.src", "")),
+        "mac_dst": normalize_tshark_value(row_values.get("eth.dst", "")),
+        "flow_id": flow_id,
+        "bytes": frame_len,
+        "frame_len": frame_len,
+        "packet_count": 1,
+        "byte_count": frame_len,
+        "bytes_total": frame_len,
+        "src_bytes": frame_len,
+        "dst_bytes": 0,
+        "src_packets": 1,
+        "dst_packets": 0,
+        "duration_ms": 0,
+        "app_protocol": app_protocol,
+        "service": service,
+        "direction": "unknown",
+        "action": "observed",
+        "session_state": session_state,
+        "rule_name": rule_name,
+        "dns_query": dns_query,
+        "tls_sni": tls_sni,
+        "http_host": http_host,
+        "device_id": "",
+        "sensor_id": "",
+        "vlan_id": normalize_tshark_value(row_values.get("vlan.id", "")),
+        "src_zone": "",
+        "dst_zone": "",
+        "src_asset_group": "",
+        "dst_asset_group": "",
+        "nat_src_ip": "",
+        "nat_dst_ip": "",
+        "dst_asn": "",
+        "dst_country": "",
+        "asset_id": "",
+        "user_id": "",
+        "dataset_label": "",
+        "traffic_family": "",
+        "pcap_name": Path(source_file).name,
+        "source_file": source_file,
+    }
+
+
+def parse_packet_rows_with_tshark(pcap_file: str) -> list[dict[str, Any]]:
+    tshark_bin = resolve_tshark_binary()
+    if not tshark_bin:
+        raise RuntimeError("tshark is not available in PATH.")
+
+    cmd = [
+        tshark_bin,
+        "-r",
+        pcap_file,
+        "-T",
+        "fields",
+        "-E",
+        "header=n",
+        "-E",
+        "separator=\t",
+        "-E",
+        "quote=n",
+        "-E",
+        "occurrence=f",
+    ]
+    for field in TSHARK_FIELDS:
+        cmd.extend(["-e", field])
+
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", check=False)
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise RuntimeError(f"tshark failed for {pcap_file}: {stderr or f'exit code {result.returncode}'}")
+
+    rows: list[dict[str, Any]] = []
+    display_source = to_repo_relative_display(pcap_file)
+    base_epoch: float | None = None
+    use_relative_time = False
+
+    for line_index, line in enumerate(result.stdout.splitlines(), start=1):
+        if not line.strip():
+            continue
+        parts = line.split("\t")
+        if len(parts) < len(TSHARK_FIELDS):
+            parts.extend([""] * (len(TSHARK_FIELDS) - len(parts)))
+        row_values = dict(zip(TSHARK_FIELDS, parts[: len(TSHARK_FIELDS)]))
+        raw_time = safe_float(row_values.get("frame.time_epoch"))
+        if line_index == 1 and raw_time is not None and raw_time < RELATIVE_TIME_EPOCH_THRESHOLD:
+            base_epoch = raw_time
+            use_relative_time = True
+        rows.append(
+            extract_packet_fields_from_tshark_row(
+                row_values,
+                display_source,
+                base_epoch=base_epoch,
+                use_relative_time=use_relative_time,
+            )
+        )
+    return rows
+
+
+def parse_packet_rows_with_scapy(pcap_file: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     packet_number = 0
     display_source = to_repo_relative_display(pcap_file)
@@ -888,6 +1143,27 @@ def parse_packet_rows(pcap_file: str) -> list[dict[str, Any]]:
                     )
                 )
     return rows
+
+
+def parse_packet_rows(pcap_file: str) -> tuple[list[dict[str, Any]], str]:
+    tshark_error: Exception | None = None
+    if resolve_tshark_binary():
+        try:
+            print(f"[prepare_pcap] Using tshark for {to_repo_relative_display(pcap_file)}", file=sys.stderr)
+            return parse_packet_rows_with_tshark(pcap_file), "tshark"
+        except Exception as exc:
+            tshark_error = exc
+            print(
+                f"[prepare_pcap] tshark failed for {to_repo_relative_display(pcap_file)}: {exc}. Falling back to scapy.",
+                file=sys.stderr,
+            )
+    try:
+        print(f"[prepare_pcap] Using scapy for {to_repo_relative_display(pcap_file)}", file=sys.stderr)
+        return parse_packet_rows_with_scapy(pcap_file), "scapy"
+    except Exception:
+        if tshark_error is not None:
+            raise RuntimeError(f"Both tshark and scapy preprocessing failed. tshark error: {tshark_error}")
+        raise
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
@@ -970,10 +1246,12 @@ def main() -> int:
 
         packet_rows: list[dict[str, Any]] = []
         packet_counts: dict[str, int] = defaultdict(int)
+        engines_used: list[str] = []
         for pcap_file in pcap_files:
-            rows = parse_packet_rows(pcap_file)
+            rows, engine = parse_packet_rows(pcap_file)
             packet_rows.extend(rows)
             packet_counts[pcap_file] = len(rows)
+            engines_used.append(engine)
 
         for row in packet_rows:
             row["dataset_label"] = dataset_name
@@ -1120,7 +1398,14 @@ def main() -> int:
 
         metadata = {
             "dataset_name": dataset_name,
-            "engine": "scapy",
+            "engine": (
+                "tshark"
+                if engines_used and all(item == "tshark" for item in engines_used)
+                else "scapy"
+                if engines_used and all(item == "scapy" for item in engines_used)
+                else "hybrid"
+            ),
+            "engines_used": engines_used,
             "input_source_type": source_type,
             "source_files": [to_repo_relative_display(item) for item in pcap_files],
             "packet_rows": len(packet_rows),
