@@ -31,14 +31,16 @@ Resolve the input in this exact order:
 
 1. Uploaded files under `/mnt/user-data/uploads`
 2. Local datasets under:
-   - `/mnt/datasets/network-traffic/raw`
    - `/mnt/datasets/network-traffic/processed`
+   - `/mnt/datasets/network-traffic/raw`
 
 Rules:
 
 - If an exact uploaded file match exists in `<uploaded_files>`, use it
 - If there is no uploaded match, resolve the file under `/mnt/datasets/network-traffic/...`
 - If both uploaded and local files match the same name, use the uploaded file unless the user explicitly says to use the local dataset
+- For local datasets, prefer an existing `processed/<dataset>/...flow.csv` or `processed/<dataset>/...packet.csv` over reusing the raw `pcap`
+- Only fall back to local raw `pcap` when no suitable processed artifact exists, or when the user explicitly asks to rebuild/reprocess
 - Do not browse unrelated directories before checking these known roots
 - Do not invent alternate paths
 
@@ -53,6 +55,8 @@ Rules:
 
 - Raw capture must go through `prepare_pcap.py` first
 - Structured traffic data must go through `analyze.py`
+- Uploaded raw `pcap` must always be preprocessed before analysis
+- Local raw `pcap` should be preprocessed only when there is no suitable processed artifact, or when the user explicitly asks to rebuild/reprocess
 - Do not treat structured traffic data as plain chat text
 
 ## Allowed tools and assets
@@ -67,8 +71,155 @@ Use only these assets for execution:
 - `bash` for:
   - `/mnt/skills/custom/network-traffic-analysis/scripts/prepare_pcap.py`
   - `/mnt/skills/custom/network-traffic-analysis/scripts/analyze.py`
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/build_rag_docs.py`
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/embed_rag_docs.py`
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/index_rag_docs.py`
+  - `/mnt/skills/custom/network-traffic-analysis/scripts/build_full_rag_index.py`
+- `/mnt/skills/custom/network-traffic-analysis/scripts/rag_search.py`
 
 Do not use `read_file` to load full CSV, JSON, Excel, Parquet, or PCAP content into the model.
+
+## RAG document build
+
+Use `build_rag_docs.py` when the user wants retrieval-ready network traffic documents from an existing `*.flow.csv`.
+
+Rules:
+
+- Build RAG docs only from `flow.csv` in the first version
+- Do not run this step on raw `pcap` directly
+- Keep `prepare_pcap.py` for preprocessing and `analyze.py` for measured analysis
+- Use the generated `rag_docs.jsonl` as the handoff artifact for later embedding and Elasticsearch indexing
+
+Command:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/build_rag_docs.py --files <resolved-flow-csv-path> --format json
+```
+
+## RAG embedding
+
+Use `embed_rag_docs.py` when `rag_docs.jsonl` has already been created and the next step is generating local embedding outputs for later Elasticsearch ingestion.
+
+Rules:
+
+- Embedding input must be `rag_docs.jsonl`
+- Embedding configuration should come from `config.yaml`
+- The configured provider may be `dashscope`, `openai`, or another OpenAI-compatible endpoint
+- Default model comes from `config.yaml` `embedding.model`
+- Use a small batch size for embedding providers with strict request limits; the current default is `10`
+- Output is a local `rag_embeddings.jsonl`, not a vector database write
+
+Command:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/embed_rag_docs.py --files <resolved-rag-docs-path> --format json
+```
+
+## RAG Elasticsearch indexing
+
+Use `index_rag_docs.py` when `rag_embeddings.jsonl` has already been created and the next step is writing indexed documents into Elasticsearch.
+
+Rules:
+
+- Elasticsearch input must be `rag_embeddings.jsonl`
+- Elasticsearch connection and index settings should come from `config.yaml`
+- Default index name is `network-traffic-rag`
+- Do not skip local `rag_docs.jsonl` and `rag_embeddings.jsonl`; Elasticsearch is the downstream indexed store, not the only artifact
+- This step writes vectors into Elasticsearch, but it does not yet perform retrieval-time search orchestration
+
+Command:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/index_rag_docs.py --files <resolved-rag-embeddings-path> --format json
+```
+
+## Full RAG index build
+
+Use `build_full_rag_index.py` when the goal is to preprocess all raw pcap files under the network-traffic raw directory, build per-file RAG artifacts, generate embeddings, and append them into one shared Elasticsearch index.
+
+Rules:
+
+- This workflow is recommended for server-side batch indexing
+- Each pcap is processed independently
+- The shared Elasticsearch index is still unified
+- Existing indexed datasets are skipped by default unless `--rebuild-existing` is specified
+
+Command:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/build_full_rag_index.py --raw-dir /mnt/datasets/network-traffic/raw --index-name network-traffic-rag --format json
+```
+
+## RAG search
+
+Use `rag_search.py` when the user is asking about already indexed historical traffic, wants retrieval from the shared Elasticsearch index, or wants cross-dataset evidence recall.
+
+Rules:
+
+- Treat `rag_search.py` as a retrieval tool, not as the high-level workflow router
+- Do not default to `--verbose` in front-end or skill execution
+- Prefer dataset-level filtering when the user names a concrete dataset or pcap
+- Let `rag_search.py` handle metadata filtering, text retrieval, vector retrieval, fusion, and doc_type soft preference
+- Do not use `--doc-type` unless the user explicitly requests a specific document type
+- Prefer `--dataset-name <dataset>` when the user names a specific indexed dataset; `Virut.pcap` should be normalized to `Virut`
+
+Command:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/rag_search.py --query "<user-question>" --format json
+```
+
+## Lead-Agent routing
+
+The lead agent should decide the high-level path before selecting a script.
+
+### `analysis-only`
+
+Use this path when the user is asking about:
+
+- the current uploaded file
+- the currently prepared `flow.csv` or `packet.csv`
+- direct statistics, protocol analysis, anomaly analysis, or investigation on the current dataset
+
+Execution rule:
+
+- Prefer `analyze.py`
+- Use `prepare_pcap.py` first only when the source is raw `pcap` and there is no reusable processed artifact, or when the user explicitly asks to rebuild/reprocess
+- If the requested anomaly heuristic or review path is unclear, first inspect capabilities with `python3 scripts/analyze.py --action list-capabilities`
+- Never invent or guess a `detect-anomaly --rule <name>` value
+- Only use `detect-anomaly` rules that appear under `detect_anomaly_rules.supported` from `python3 scripts/analyze.py --action list-capabilities`
+- If the requested heuristic is not listed there, do not call `detect-anomaly`; map the request to the nearest structured action (`session-review`, `scan-review`, `protocol-review`, `packet-review`) or use `query` for explicit thresholds and analyst-defined logic
+- Prefer `short-connection-review` for formal short-connection analysis on flow data; use `query` only when the user needs custom thresholds or raw samples
+- When the user names a local dataset that already has processed artifacts, prefer those processed files instead of re-running `prepare_pcap.py`
+
+### `rag-only`
+
+Use this path when the user is asking about:
+
+- already indexed historical data
+- the shared Elasticsearch index
+- retrieval across multiple datasets
+- finding similar communication or similar anomalies from indexed data
+
+Execution rule:
+
+- Prefer `rag_search.py`
+- If the user explicitly says "from the index", "based on indexed data", or "do not reprocess/do not run analyze.py", keep the request on the RAG path even if the dataset name looks like a raw `pcap`
+
+### `rag-plus-analysis`
+
+Use this path when the user is asking to:
+
+- retrieve historical evidence first, then verify the current file
+- compare indexed evidence with a current uploaded file
+- use retrieved context to guide a more precise local analysis
+
+Execution rule:
+
+- Run `rag_search.py` first
+- Then run `analyze.py` on the target local or uploaded dataset
+- Keep `analyze.py` as the final structured validation step
+- In the merged answer, treat `analyze.py` as the primary conclusion and use RAG as evidence recall and context
 
 ## Flow vs packet selection
 
@@ -94,7 +245,9 @@ Use the exact resolved path from:
 
 ### Step 2. Classify the file
 
-- If raw capture: preprocess first
+- If raw capture from uploads: preprocess first
+- If local raw capture: first check whether matching processed artifacts already exist; if they do, use the processed files unless the user explicitly asks to rebuild/reprocess
+- If raw capture has no reusable processed artifact: preprocess first
 - If tabular traffic data: inspect first, then analyze
 
 ### Step 3. Execute the correct script
@@ -106,6 +259,14 @@ cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/prepare_pcap.p
 ```
 
 Then take the generated `flow.csv` path and continue with `analyze.py`.
+
+Before running `prepare_pcap.py` on a local raw dataset, check whether a matching processed artifact already exists:
+
+- Preferred reusable paths:
+  - `/mnt/datasets/network-traffic/processed/<dataset-name>/<dataset-name>.flow.csv`
+  - `/mnt/datasets/network-traffic/processed/<dataset-name>/<dataset-name>.packet.csv`
+- If either of these exists and the user did not explicitly request rebuild/reprocess, use the processed artifact instead of re-running preprocessing
+- Do not re-run preprocessing on local raw `pcap` only because the dataset name ends with `.pcap`
 
 Output location rules:
 
@@ -136,6 +297,7 @@ Use the smallest correct action from the script:
 - `overview-report`
 - `scan-review`
 - `session-review`
+- `short-connection-review`
 - `protocol-review`
 - `packet-review`
 - `topn`
@@ -148,6 +310,25 @@ Use the smallest correct action from the script:
 - `export`
 
 Do not substitute these with self-written code.
+
+### Action mapping discipline
+
+Use these intent-to-action mappings before considering lower-level actions:
+
+- "overall overview", "overall profile", "enterprise overview", "traffic summary" -> `overview-report`
+- "scan", "probe", "port sweep", "broad destination spread" -> `scan-review`
+- "session quality", "failure-heavy", "reset-heavy", "handshake abnormal", "handshake anomaly" -> `session-review`
+- "short connection", "short-lived flow", "brief connection", "low-byte short session" -> `short-connection-review`
+- "protocol activity", "DNS/TLS/HTTP investigation", "application protocol mix" -> `protocol-review`
+- "packet-level review", "TCP flags", "SYN-only", "RST-heavy", "ICMP probing", "small-packet burst" -> `packet-review` or `detect-anomaly`
+
+Only use `topn`, `distribution`, `aggregate`, or `query` when:
+
+- the user explicitly asks for a lower-level breakdown,
+- the higher-level action does not expose the needed section,
+- or a precise follow-up drill-down is required after a higher-level action has already run.
+
+Do not replace `overview-report`, `scan-review`, `session-review`, `protocol-review`, or `packet-review` with self-written Python, shell, awk, or one-off SQL if one of those actions already covers the request.
 
 ## Enterprise capability coverage
 
@@ -257,6 +438,7 @@ Primary actions:
 
 - `distribution`
 - `session-review`
+- `short-connection-review`
 - `aggregate`
 - `query`
 - `detect-anomaly --rule failure-rate`
@@ -327,6 +509,8 @@ Use for:
 - SYN-only behavior
 - RST-heavy traffic
 - Handshake-quality review
+- Handshake anomaly review
+- Large reset ratio review
 - ICMP probing
 - Small-packet burst patterns
 - Protocol-detail validation after a broad flow-level screen
@@ -433,6 +617,12 @@ Session review:
 cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action session-review --view auto --limit 20
 ```
 
+Short-connection review:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action short-connection-review --view flow --limit 20
+```
+
 Protocol review:
 
 ```bash
@@ -479,6 +669,30 @@ Volume-spike screening:
 
 ```bash
 cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/analyze.py --files <resolved-input-path> --action detect-anomaly --rule volume-spike
+```
+
+Build first-version RAG docs:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/build_rag_docs.py --files <resolved-flow-csv-path> --format json
+```
+
+Embed first-version RAG docs:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/embed_rag_docs.py --files <resolved-rag-docs-path> --format json
+```
+
+Index first-version RAG docs into Elasticsearch:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/index_rag_docs.py --files <resolved-rag-embeddings-path> --format json
+```
+
+Batch-build a unified RAG index from all raw pcaps:
+
+```bash
+cd /mnt/skills/custom/network-traffic-analysis && python3 scripts/build_full_rag_index.py --raw-dir /mnt/datasets/network-traffic/raw --index-name network-traffic-rag --format json
 ```
 
 Packet-level SYN scan screening:
@@ -536,5 +750,6 @@ When replying:
 - Local datasets are secondary inputs
 - Execution must go through the provided scripts
 - Anomaly detection is rule-based, not model-based detection
-- RAG and vector retrieval are out of scope for this skill
+- RAG document construction, embedding, and Elasticsearch indexing are allowed as downstream steps in this workflow
+- Retrieval-time RAG answering still requires a downstream search step such as `rag_search.py` or equivalent workflow integration
 - No backend-tool path is part of this workflow

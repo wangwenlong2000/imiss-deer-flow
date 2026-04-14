@@ -79,3 +79,7 @@ datasets/network-traffic/outputs/**
 !datasets/network-traffic/raw/.gitkeep
 !datasets/network-traffic/processed/.gitkeep
 !datasets/network-traffic/outputs/.gitkeep
+
+.github/agents/
+.github/hooks/
+.github/skills/

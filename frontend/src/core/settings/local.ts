@@ -1,4 +1,5 @@
 import type { AgentThreadContext } from "../threads";
+import type { ReasoningEffort } from "../threads/reasoning";
 
 export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
   notification: {
@@ -25,7 +26,7 @@ export interface LocalSettings {
     "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
   > & {
     mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-    reasoning_effort?: "minimum" | "low" | "medium" | "high";
+    reasoning_effort?: ReasoningEffort;
   };
   layout: {
     sidebar_collapsed: boolean;

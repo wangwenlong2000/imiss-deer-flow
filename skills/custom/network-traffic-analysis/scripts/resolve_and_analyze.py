@@ -10,7 +10,11 @@ from file_resolution import resolve_reference
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+    script_path = Path(__file__).resolve()
+    for candidate in script_path.parents:
+        if (candidate / "config.yaml").exists():
+            return candidate
+    return script_path.parents[3]
 
 
 def to_repo_relative_display(value: str | Path) -> str:

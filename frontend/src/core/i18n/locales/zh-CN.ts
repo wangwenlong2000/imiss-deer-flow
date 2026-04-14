@@ -154,6 +154,7 @@ export const zhCN: Translations = {
     recentChats: "最近的对话",
     demoChats: "演示对话",
     agents: "智能体",
+    dataCenter: "数据中心",
   },
 
   // Agents
@@ -189,6 +190,7 @@ export const zhCN: Translations = {
   breadcrumb: {
     workspace: "工作区",
     chats: "对话",
+    dataCenter: "数据中心",
   },
 
   // Workspace
@@ -213,12 +215,53 @@ export const zhCN: Translations = {
     searchChats: "搜索对话",
   },
 
+  dataCenter: {
+    title: "数据中心",
+    subtitle: "统一管理本地数据集、上传文件，以及后续将接入的数据库连接。",
+    searchPlaceholder: "搜索数据集或数据源",
+    allSources: "数据源",
+    uploadedData: "上传的数据",
+    addData: "添加数据",
+    addDatabase: "添加数据库",
+    refresh: "刷新",
+    emptyTitle: "先添加一个数据源",
+    emptyDescription:
+      "你可以先从本地数据集和上传文件开始，后续再接入数据库，把问答和分析都挂在统一数据中心上。",
+    emptyAction: "添加数据",
+    selectedDataset: "聊天已选数据",
+    availableSources: "可用数据源",
+    sourceDetail: "数据源详情",
+    sourceType: "类型",
+    sourceStatus: "状态",
+    sourceLocation: "位置",
+    sourceUpdatedAt: "更新时间",
+    sourceDescription: "描述",
+    noDescription: "暂时没有描述。",
+    localDataset: "本地数据集",
+    uploadedFile: "上传文件",
+    database: "数据库",
+    vectorStore: "向量库",
+    ready: "可用",
+    syncing: "同步中",
+    error: "异常",
+      disabled: "已停用",
+      selectForChat: "用于问答",
+      selectedForChat: "已选择",
+      useForChatSuccess: "已带入聊天，可直接开始提问",
+      chatHint: "当前是前端原型，选择结果会先同步到页面和聊天输入区，后续再接通后端上下文。",
+      mockHint: "首版真实链路：数据中心列表已改为真实 gateway 数据源，数据库连接和会话级持久绑定下一步继续接通。",
+      databaseComingSoonTitle: "数据库接入下一步实现",
+      databaseComingSoonDescription:
+        "当前已经跑通本地数据集和上传数据链路，数据库连接管理、连接测试和 schema 预览会在第二阶段接入。",
+      databaseComingSoonAction: "我知道了",
+    },
+
   // Page titles (document title)
   pages: {
-    appName: "DeerFlow",
+    appName: "城市超脑",
     chats: "对话",
     newChat: "新对话",
-    untitled: "未命名",
+    untitled: "新会话",
   },
 
   // Tool calls

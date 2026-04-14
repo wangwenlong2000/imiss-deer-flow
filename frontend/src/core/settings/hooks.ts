@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   DEFAULT_LOCAL_SETTINGS,
@@ -9,24 +9,21 @@ import {
 
 export function useLocalSettings(): [
   LocalSettings,
-  (
-    key: keyof LocalSettings,
-    value: Partial<LocalSettings[keyof LocalSettings]>,
+  <K extends keyof LocalSettings>(
+    key: K,
+    value: Partial<LocalSettings[K]>,
   ) => void,
 ] {
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<LocalSettings>(DEFAULT_LOCAL_SETTINGS);
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!mounted) {
       setState(getLocalSettings());
     }
     setMounted(true);
   }, [mounted]);
   const setter = useCallback(
-    (
-      key: keyof LocalSettings,
-      value: Partial<LocalSettings[keyof LocalSettings]>,
-    ) => {
+    <K extends keyof LocalSettings>(key: K, value: Partial<LocalSettings[K]>) => {
       if (!mounted) return;
       setState((prev) => {
         const newState = {

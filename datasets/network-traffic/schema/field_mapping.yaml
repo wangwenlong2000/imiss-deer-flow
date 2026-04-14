@@ -7,6 +7,27 @@ canonical_fields:
     - start_time
     - flow_start
     - first_seen
+  end_time:
+    - end_time
+    - end_timestamp
+    - flow_end
+    - last_seen
+  relative_time_s:
+    - relative_time_s
+    - time_relative_s
+    - frame.time_relative
+  start_relative_time_s:
+    - start_relative_time_s
+    - flow_start_relative_s
+    - relative_start_time_s
+  end_relative_time_s:
+    - end_relative_time_s
+    - flow_end_relative_s
+    - relative_end_time_s
+  time_is_relative:
+    - time_is_relative
+    - uses_relative_time
+    - relative_time_flag
   src_ip:
     - src_ip
     - source_ip
@@ -107,6 +128,14 @@ canonical_fields:
     - outcome
     - verdict
     - decision
+  flow_start_reason:
+    - flow_start_reason
+    - session_start_reason
+    - start_reason
+  flow_end_reason:
+    - flow_end_reason
+    - session_end_reason
+    - end_reason
   asset_id:
     - asset_id
     - host_id
@@ -136,6 +165,58 @@ default_metrics:
   - sum:bytes
   - sum:packets
   - avg:flow_duration
+profiles:
+  wireshark_packet:
+    canonical_fields:
+      timestamp:
+        - frame.time_epoch
+        - frame.time
+        - frame.time_relative
+      src_ip:
+        - ip.src
+        - ipv6.src
+      dst_ip:
+        - ip.dst
+        - ipv6.dst
+      src_port:
+        - tcp.srcport
+        - udp.srcport
+      dst_port:
+        - tcp.dstport
+        - udp.dstport
+      protocol:
+        - _ws.col.Protocol
+        - frame.protocols
+        - ip.proto
+      frame_len:
+        - frame.len
+      payload_bytes:
+        - tcp.len
+        - udp.length
+        - ip.len
+      tcp_flags:
+        - tcp.flags.str
+        - tcp.flags
+      ttl:
+        - ip.ttl
+        - ipv6.hlim
+      ip_version:
+        - ip.version
+      icmp_type:
+        - icmp.type
+      icmp_code:
+        - icmp.code
+      dns_query:
+        - dns.qry.name
+      tls_sni:
+        - tls.handshake.extensions_server_name
+      http_host:
+        - http.host
+      mac_src:
+        - eth.src
+      mac_dst:
+        - eth.dst
 notes:
   - "Add aliases here when a new vendor or export format uses different column names."
   - "Canonical fields are used to build the unified 'flows' view for network-traffic-analysis."
+  - "Profiles let the script auto-detect common export formats such as Wireshark/tshark without rewriting source columns."

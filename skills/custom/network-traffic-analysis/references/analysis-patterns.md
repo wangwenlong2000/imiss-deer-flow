@@ -1,26 +1,27 @@
 # Analysis Patterns
 
-Use these patterns only after the script has confirmed the available canonical fields.
+Use these patterns after the script has confirmed the schema and canonical fields.
 
 ## Hard usage rules
 
-- Start with `inspect` unless schema has already been confirmed in the current thread
-- Use the script action that already fits the investigation goal
-- Do not substitute script actions with ad hoc code
-- Use SQL only when the built-in actions are not specific enough
-- Treat anomaly outputs as leads, not conclusions
+- Start with `inspect` unless schema has already been confirmed in the current thread.
+- Prefer the highest-level built-in action before using `topn`, `aggregate`, `distribution`, or `query`.
+- Do not replace supported actions with ad hoc Python, shell, or one-off SQL.
+- Use SQL only when the built-in actions are not specific enough for the required drill-down.
+- Treat anomaly outputs as investigation leads, not final attribution.
+- Treat `analyze.py` as the primary conclusion source in any `rag-plus-analysis` workflow.
 
-## Standard enterprise analysis layers
+## Standard analysis layers
 
 ### 1. Dataset sanity and overview
 
 Questions this layer answers:
 
-- What is the scope of this traffic set
-- How many records, bytes, and packets are present
-- What is the time range
-- How many unique sources and destinations exist
-- What is the high-level protocol mix
+- What is the scope of this traffic set?
+- How many records, bytes, and packets are present?
+- What is the time range?
+- How many unique sources and destinations exist?
+- What is the high-level protocol mix?
 
 Preferred actions:
 
@@ -33,10 +34,10 @@ Preferred actions:
 
 Questions this layer answers:
 
-- Which sources dominate bytes or packets
-- Which destinations dominate flows
-- Which ports dominate communication
-- Which protocols or services dominate the dataset
+- Which sources dominate bytes or packets?
+- Which destinations dominate flows?
+- Which ports dominate communication?
+- Which protocols or services dominate the dataset?
 
 Preferred actions:
 
@@ -48,22 +49,24 @@ Preferred actions:
 
 Questions this layer answers:
 
-- What does the port landscape look like
-- What is the protocol and service mix
-- How does `action`, `direction`, or `traffic_family` distribute
+- What does the port landscape look like?
+- What is the protocol and service mix?
+- How do `action`, `direction`, or `traffic_family` distribute?
 
 Preferred actions:
 
 - `distribution`
 - `aggregate`
+- `protocol-review`
 
 ### 4. Time and burst behavior
 
 Questions this layer answers:
 
-- Are there spikes
-- Which hour or day is most active
-- Is activity smooth or bursty
+- Are there spikes?
+- Which hour or day is most active?
+- Is activity smooth or bursty?
+- Is the dataset using absolute or relative time?
 
 Preferred actions:
 
@@ -71,13 +74,18 @@ Preferred actions:
 - `detect-anomaly --rule volume-spike`
 - `query`
 
+Interpretation note:
+
+- Absolute-time datasets produce real time buckets.
+- Relative-time datasets produce relative buckets such as `t+0s`.
+
 ### 5. Asset and communication analysis
 
 Questions this layer answers:
 
-- Which hosts contact the most peers
-- Which destinations receive the widest spread of traffic
-- Which assets, devices, users, or sensors stand out
+- Which hosts contact the most peers?
+- Which destinations receive the widest spread of traffic?
+- Which assets, devices, users, or sensors stand out?
 
 Preferred actions:
 
@@ -89,26 +97,27 @@ Preferred actions:
 
 Questions this layer answers:
 
-- How much traffic is allowed, denied, blocked, or reset
-- Are there abnormal session outcomes
-- Are there many short or low-byte connections
+- How much traffic is allowed, denied, blocked, or reset?
+- Are there abnormal session outcomes?
+- Are there many short or low-byte connections?
 
 Preferred actions:
 
-- `distribution`
 - `session-review`
-- `aggregate`
+- `short-connection-review`
 - `detect-anomaly --rule failure-rate`
+- `distribution`
+- `aggregate`
 - `query`
 
 ### 7. Protocol field investigation
 
 Questions this layer answers:
 
-- Which DNS names are most common
-- Which TLS SNIs appear
-- Which HTTP hosts appear
-- Which rule names or TCP flag patterns stand out
+- Which DNS names are most common?
+- Which TLS SNIs appear?
+- Which HTTP hosts appear?
+- Which rule names or TCP flag patterns stand out?
 
 Preferred actions:
 
@@ -122,10 +131,10 @@ Preferred actions:
 
 Questions this layer answers:
 
-- Are packet-level flags dominated by SYN, RST, or other unusual combinations
-- Are there handshake-failure or SYN-only patterns
-- Are there ICMP probes or packet-size anomalies
-- Do packet-level findings confirm a flow-level suspicion
+- Are packet-level flags dominated by SYN, RST, or other unusual combinations?
+- Are there handshake-failure or SYN-only patterns?
+- Are there ICMP probes or packet-size anomalies?
+- Do packet-level findings confirm a flow-level suspicion?
 
 Preferred actions:
 
@@ -142,10 +151,10 @@ Preferred actions:
 
 Questions this layer answers:
 
-- Are there scan-like sources
-- Are there rare destination ports
-- Are there failure-heavy traffic patterns
-- Are there suspicious spikes
+- Are there scan-like sources?
+- Are there rare destination ports?
+- Are there failure-heavy traffic patterns?
+- Are there suspicious spikes?
 
 Preferred actions:
 
@@ -159,8 +168,9 @@ Preferred actions:
 1. `inspect`
 2. `overview-report`
 3. One targeted action:
-   - `topn`
-   - `distribution`
+   - `scan-review`
+   - `short-connection-review`
+   - `protocol-review`
    - `timeseries`
    - `detect-anomaly`
 
@@ -168,17 +178,18 @@ Preferred actions:
 
 1. `inspect`
 2. `overview-report`
-3. `topn` or `scan-review`
-4. `protocol-review`
-5. `session-review`
-6. `timeseries`
-7. `detect-anomaly`
-8. `query`
-9. `export` only if needed
+3. `scan-review`
+4. `short-connection-review`
+5. `protocol-review`
+6. `session-review`
+7. `timeseries`
+8. `detect-anomaly`
+9. `query`
+10. `export` only if needed
 
 ## Interpretation discipline
 
-- Explain what the data shows before saying what it may mean
-- Avoid malware or product attribution from ports alone
-- Avoid claiming normality or maliciousness from one weak signal
-- Call out uncertainty explicitly when interpretation is inferred rather than measured
+- Explain what the data shows before saying what it may mean.
+- Avoid malware or product attribution from ports alone.
+- Avoid claiming normality or maliciousness from one weak signal.
+- Call out uncertainty explicitly when interpretation is inferred rather than measured.

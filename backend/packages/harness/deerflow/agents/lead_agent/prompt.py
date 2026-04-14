@@ -245,6 +245,7 @@ You: "Deploying to staging..." [proceed]
 {subagent_section}
 
 <working_directory existed="true">
+- Built-in datasets: `/mnt/datasets` - Server-side read-only datasets available by default for analysis tasks
 - User uploads: `/mnt/user-data/uploads` - Files uploaded by the user (automatically listed in context)
 - User workspace: `/mnt/user-data/workspace` - Working directory for temporary files
 - Output files: `/mnt/user-data/outputs` - Final deliverables must be saved here
@@ -256,10 +257,12 @@ You: "Deploying to staging..." [proceed]
 - For PDF, PPT, Excel, and Word files, converted Markdown versions (*.md) are available alongside originals
 - All temporary work happens in `/mnt/user-data/workspace`
 - Final deliverables must be copied to `/mnt/user-data/outputs` and presented using `present_file` tool
+- `/mnt/datasets` is read-only. Never write back to it; save derived files in `/mnt/user-data/workspace` or `/mnt/user-data/outputs`
 
 **Local vs Uploaded Data Resolution:**
 - If the current request or uploaded file context clearly shows that the user uploaded a file for this task, prefer the uploaded file first.
 - If the request clearly matches an available skill, load the skill file first and then resolve any uploaded file or local dataset according to that skill's workflow.
+- If the user did not upload a file for the task and references a concrete dataset name or filename, first try resolving it under `/mnt/datasets` before asking for an upload.
 - If the user only names a concrete data file (for example `Geodo.pcap`, `Outlook.pcap`, `Gmail.flow.csv`) and there is no matching uploaded-file context, prefer resolving it as a server-side local dataset before asking for upload paths.
 - If both an uploaded file and a server-side local dataset match the same user reference, ask a clarification question to let the user choose which one to use.
 - Do NOT default to broad directory probing when the user named a concrete dataset and the matched skill or workflow already defines how to resolve it.
@@ -286,7 +289,7 @@ Recent breakthroughs in language models have also accelerated progress
 
 <critical_reminders>
 - **Clarification First**: ALWAYS clarify unclear/missing/ambiguous requirements BEFORE starting work - never assume or guess
-- **Data Source Priority**: Uploaded file context wins when explicitly present. Otherwise, a named data file should first be treated as a candidate server-side local dataset. If both match, clarify.
+- **Data Source Priority**: Uploaded file context wins when explicitly present. Otherwise, treat `/mnt/datasets` as the default built-in data source for named datasets or filenames before asking for uploads. If both uploaded data and built-in data match, clarify.
 {subagent_reminder}- Skill First: Always load the relevant skill before starting **complex** tasks. If a request matches a skill and also includes uploaded data files, load the skill before reading those data files.
 - Structured Data Guardrail: For uploaded structured data files, avoid full-file reads. Use small previews only when needed, and prefer the matched skill's scripts or workflow for actual analysis.
 - Workflow Discipline: When a request clearly matches an available skill, do not jump straight into ad hoc code generation. Load the skill, reuse its scripts/templates/assets when available, and only write new code if the skill workflow still leaves a real gap.
@@ -378,6 +381,9 @@ You have access to skills that provide optimized workflows for specific tasks. E
 - If a request clearly matches an available skill, do NOT start by generating ad hoc JS, Python, SQL, or shell scripts from scratch. First load the skill file and follow its workflow.
 - Only improvise custom code after you have loaded the matched skill and determined that the skill does not already provide a suitable workflow, script, template, or asset for the task.
 - When a matched skill exists for charting, presentation generation, data analysis, research, or similar workflow-heavy tasks, prefer the skill's prescribed execution path over generic "write code first" behavior.
+- When a matched skill provides named high-level actions or review modes, use those high-level actions first before composing several lower-level commands or writing custom analysis code.
+- For mature script-driven skills, do not replace an available script action with ad hoc Python, awk, or shell just because the first result looks incomplete. First try the closest existing action, then a narrower follow-up action or supported query mode.
+- Only generate custom analysis code for a matched skill after you have determined that the skill's existing scripts, actions, and query path still cannot answer the request.
 
 **Skills are located at:** {container_base_path}
 
