@@ -301,3 +301,79 @@ filesystem MCP Server 是一个通过 MCP（Model Context Protocol）协议向 A
 ## 6. 一句话总结
 
 DeerFlow 沙箱负责“在 DeerFlow 内如何安全地执行工具”，filesystem MCP Server 负责“通过 MCP 额外接入哪些文件工具”；二者互补，但安全边界需要分别配置和校验。
+
+## 7. 实战：定制 AIO sandbox 镜像（Conda + location-matcher）
+
+如果你希望 AIO sandbox 启动后默认就带 Conda 虚拟环境，并安装 `skills/custom/location-matcher` 的依赖，可按下面步骤做：
+
+1) 构建自定义镜像（项目根目录执行）
+
+```bash
+make build-aio-sandbox-conda
+```
+
+等价命令：
+
+```bash
+docker build -f docker/aio-sandbox/Dockerfile -t anker-deerflow-aio-sandbox-conda:latest .
+```
+
+2) 在 `config.yaml` 中指定 AIO provider 和镜像
+
+```yaml
+sandbox:
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  image: anker-deerflow-aio-sandbox-conda:latest
+```
+
+3) 启动 DeerFlow
+
+```bash
+make docker-start
+```
+
+说明：该镜像在构建阶段会创建 `deerflow-street` conda 环境并安装 `skills/custom/location-matcher`。同时通过 `PATH` 注入，让 sandbox 内默认 `python/pip` 指向该 conda 环境。
+
+### 7.1 镜像命名约定（推荐）
+
+建议自定义镜像统一使用 `anker-` 前缀，便于和上游公共镜像区分，示例：
+
+- `anker-deerflow-aio-sandbox-conda:latest`
+
+这样在 `docker images`、CI 日志和生产排障时可以快速识别“是否为团队自定义镜像”。
+
+### 7.2 启动后验证 Conda 环境是否生效
+
+完成构建和启动后，可以快速做以下检查。
+
+1) 检查镜像是否存在
+
+```bash
+docker images | grep anker-deerflow-aio-sandbox-conda
+```
+
+2) 在镜像内检查默认 Python 是否来自 conda 环境
+
+```bash
+docker run --rm --entrypoint bash anker-deerflow-aio-sandbox-conda:latest -lc 'python -c "import sys; print(sys.executable)"'
+```
+
+输出路径应包含类似：`/opt/conda/envs/deerflow-street/bin/python`。
+
+> 注意：不要直接执行 `docker run --rm anker-deerflow-aio-sandbox-conda:latest` 来做 conda 验证。
+> 该命令会启动镜像默认入口（AIO sandbox 服务栈），日志里出现 browser 组件重试/失败不代表 conda 环境不可用。
+
+3) 检查 location-matcher 依赖是否已安装
+
+```bash
+docker run --rm --entrypoint bash anker-deerflow-aio-sandbox-conda:latest -lc 'pip show location-matcher-skill'
+docker run --rm --entrypoint bash anker-deerflow-aio-sandbox-conda:latest -lc 'python -c "import elasticsearch; print(elasticsearch.__version__)"'
+```
+
+4) 显式验证 conda activate（可选）
+
+```bash
+docker run --rm --entrypoint bash anker-deerflow-aio-sandbox-conda:latest -lc 'source /opt/conda/etc/profile.d/conda.sh && conda activate deerflow-street && echo "$CONDA_DEFAULT_ENV" && python -c "import sys; print(sys.executable)"'
+```
+
+如果上面检查通过，说明 AIO sandbox 启动后具备了可用的 conda 虚拟环境与 `location-matcher` 依赖。

@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports build-aio-sandbox-conda
 
 PYTHON ?= python
 
@@ -29,6 +29,7 @@ help:
 	@echo ""
 	@echo "Docker Development Commands:"
 	@echo "  make docker-init     - Build the custom k3s image (with pre-cached sandbox image)"
+	@echo "  make build-aio-sandbox-conda - Build custom AIO sandbox image with conda + location-matcher"
 	@echo "  make docker-start    - Start Docker services (mode-aware from config.yaml, localhost:2026)"
 	@echo "  make update-docker-ports-cname - Update Docker/Nginx port config from config.yaml and use current username to rename container name(anker-deer-flow-nginx) and Compose project names (anker-deer-flow) to avoid conflicts when multiple developers on the same machine. This is useful when using Docker development environment with multiple branches or projects."
 	@echo "  make docker-stop     - Stop Docker development services"
@@ -153,6 +154,21 @@ clean: stop
 # Initialize Docker containers and install dependencies
 docker-init:
 	@./scripts/docker.sh init
+
+# Build custom AIO sandbox image with conda env and location-matcher package
+build-aio-sandbox-conda:
+	@PROXY_URL="$${CONTAINER_PROXY_URL:-$${http_proxy:-}}"; \
+	HTTPS_URL="$${CONTAINER_PROXY_URL:-$${https_proxy:-$$PROXY_URL}}"; \
+	docker build \
+		--build-arg http_proxy="$$PROXY_URL" \
+		--build-arg https_proxy="$$HTTPS_URL" \
+		--build-arg HTTP_PROXY="$$PROXY_URL" \
+		--build-arg HTTPS_PROXY="$$HTTPS_URL" \
+		--build-arg all_proxy="$${all_proxy:-}" \
+		--build-arg ALL_PROXY="$${ALL_PROXY:-$${all_proxy:-}}" \
+		--build-arg no_proxy="$${no_proxy:-}" \
+		--build-arg NO_PROXY="$${NO_PROXY:-$${no_proxy:-}}" \
+		-f docker/aio-sandbox/Dockerfile -t anker-deerflow-aio-sandbox-conda:latest .
 
 # Start Docker development environment
 docker-start:

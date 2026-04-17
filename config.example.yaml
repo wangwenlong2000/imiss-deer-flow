@@ -290,6 +290,10 @@ sandbox:
 #   # Default: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 #   # Recommended: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest (works on both x86_64 and arm64)
 #   # image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+#   # Custom image example (with conda env + preinstalled skill package):
+#   # image: anker-deerflow-aio-sandbox-conda:latest
+#   # environment:
+#   #   CONDA_DEFAULT_ENV: deerflow-skill
 #
 #   # Optional: Base port for sandbox containers (default: 8080)
 #   # port: 8080

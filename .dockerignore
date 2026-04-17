@@ -63,9 +63,18 @@ skills/
 frontend/.next
 frontend/node_modules
 backend/.venv
+backend/.uv-cache
+backend/.deer-flow
+backend/.langgraph_api
 backend/htmlcov
 backend/.coverage
 *.md
 !README.md
 !frontend/README.md
 !backend/README.md
+
+# Keep most skills excluded, but include location-matcher pyproject.toml for AIO sandbox custom image build
+!skills/
+!skills/custom/
+!skills/custom/location-matcher/
+!skills/custom/location-matcher/pyproject.toml
