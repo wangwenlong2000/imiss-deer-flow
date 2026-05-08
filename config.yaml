@@ -317,8 +317,8 @@ sandbox:
 #   # Recommended: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest (works on both x86_64 and arm64)
 #   # image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 #
-#   # Optional: Base port for sandbox containers (default: 8080)
-#   # port: 8080
+#   # Optional: Base port for sandbox containers (default: yourself_port)
+#   # port: yourself_port
 
 #   # Optional: Maximum number of concurrent sandbox containers (default: 3)
 #   # When the limit is reached the least-recently-used sandbox is evicted to
