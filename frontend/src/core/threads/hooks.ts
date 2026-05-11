@@ -16,6 +16,7 @@ import type { UploadedFileInfo } from "../uploads";
 import { uploadFiles } from "../uploads";
 
 import type { AgentThread, AgentThreadState } from "./types";
+import { displayMessagesOfThread } from "./utils";
 
 export type ToolEndEvent = {
   name: string;
@@ -154,20 +155,22 @@ export function useThreadStream({
     },
   });
 
+  const displayMessages = displayMessagesOfThread(thread);
+
   // Optimistic messages shown before the server stream responds
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   // Track message count before sending so we know when server has responded
-  const prevMsgCountRef = useRef(thread.messages.length);
+  const prevMsgCountRef = useRef(displayMessages.length);
 
   // Clear optimistic when server messages arrive (count increases)
   useEffect(() => {
     if (
       optimisticMessages.length > 0 &&
-      thread.messages.length > prevMsgCountRef.current
+      displayMessages.length > prevMsgCountRef.current
     ) {
       setOptimisticMessages([]);
     }
-  }, [thread.messages.length, optimisticMessages.length]);
+  }, [displayMessages.length, optimisticMessages.length]);
 
   const sendMessage = useCallback(
     async (
@@ -178,7 +181,7 @@ export function useThreadStream({
       const text = message.text.trim();
 
       // Capture current count before showing optimistic messages
-      prevMsgCountRef.current = thread.messages.length;
+      prevMsgCountRef.current = displayMessages.length;
 
       // Build optimistic files list with uploading status
       const optimisticFiles: FileInMessage[] = (message.files ?? []).map(
@@ -353,7 +356,7 @@ export function useThreadStream({
     optimisticMessages.length > 0
       ? ({
           ...thread,
-          messages: [...thread.messages, ...optimisticMessages],
+          messages: [...displayMessages, ...optimisticMessages],
         } as typeof thread)
       : thread;
 

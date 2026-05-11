@@ -6,6 +6,7 @@ import type { ReasoningEffort } from "./reasoning";
 export interface AgentThreadState extends Record<string, unknown> {
   title: string;
   messages: Message[];
+  raw_messages?: Message[];
   artifacts: string[];
   todos?: Todo[];
 }

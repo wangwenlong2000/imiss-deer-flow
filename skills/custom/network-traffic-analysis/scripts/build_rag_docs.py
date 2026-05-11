@@ -5,34 +5,55 @@ import argparse
 import csv
 import hashlib
 import json
+import re
+import subprocess
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 from file_resolution import is_explicit_path_reference, resolve_reference
+from utils.path import repo_root, to_repo_relative_display, network_traffic_workspace_root
+
+import os
+
+# ---------------------------------------------------------------------------
+# RAG v2 schema constants
+# ---------------------------------------------------------------------------
+RAG_DOC_SCHEMA_VERSION = "rag_doc_v2"
+
+# Actions whose SkillResult output should be converted into action taxonomy docs
+EVIDENCE_ACTIONS = [
+    "inspect",
+    "overview-report",
+    "signature-review",
+    "zeek-review",
+    "dns-tunnel-review",
+    "data-exfiltration-review",
+    "lateral-movement-review",
+    "risk-fusion-review",
+]
+
+
+def _processed_root_for_rag() -> Path:
+    """Resolved processed root for RAG artifacts.
+
+    Local: repo `datasets/network-traffic/processed`
+    AIO: network_traffic_workspace_root / processed
+    """
+    env_path = os.environ.get("NETWORK_TRAFFIC_PROCESSED_ROOT")
+    if env_path:
+        return Path(env_path)
+    ws = network_traffic_workspace_root()
+    if ws.exists():
+        return ws / "processed"
+    return repo_root() / "datasets" / "network-traffic" / "processed"
+
 
 MICROFLOW_DURATION_MS = 10
 COMPACT_MICROFLOW_BYTES = 300
 COMPACT_MICROFLOW_PACKETS = 2
-
-
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
-
-
-def to_repo_relative_display(value: str | Path) -> str:
-    path = Path(value).expanduser()
-    if not path.is_absolute():
-        return path.as_posix()
-    try:
-        return path.resolve().relative_to(repo_root()).as_posix()
-    except ValueError:
-        return path.resolve().as_posix()
 
 
 def discover_files(values: list[str]) -> list[str]:
@@ -84,7 +105,7 @@ def dataset_name_from_file(path: Path) -> str:
 def default_output_dir(dataset_name: str, files: list[str]) -> Path:
     if len(files) == 1:
         return Path(files[0]).resolve().parent / "rag"
-    return repo_root() / "datasets" / "network-traffic" / "processed" / dataset_name / "rag"
+    return _processed_root_for_rag() / dataset_name / "rag"
 
 
 def parse_float(value: Any) -> float:
@@ -266,9 +287,11 @@ def load_flow_rows(files: list[str]) -> list[dict[str, Any]]:
         with open(file_path, encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
             ensure_required_columns(reader.fieldnames)
-            for row in reader:
+            for row_index, row in enumerate(reader, start=1):
                 row = dict(row)
+                row["_raw_source_file"] = row.get("source_file", "")
                 row["_input_file"] = str(Path(file_path).resolve())
+                row["_row_index"] = str(row_index)
                 row["_time_bucket"] = row_time_bucket(row)
                 rows.append(row)
     return rows
@@ -283,10 +306,31 @@ def choose_risk_level(*scores: float) -> str:
     return "low"
 
 
+def _sha256_file(path: Path) -> str:
+    """Compute SHA-256 hex digest of a file."""
+    import hashlib
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def compute_dataset_id(dataset_name: str, source_files: list[str]) -> str:
+    """Compute a stable dataset_id from dataset_name + sorted source file hashes."""
+    parts = [RAG_DOC_SCHEMA_VERSION, dataset_name]
+    for sf in sorted(source_files):
+        p = Path(sf)
+        if p.exists():
+            parts.append(_sha256_file(p))
+    return stable_id(*parts)
+
+
 def build_doc(
     *,
     doc_id: str,
     dataset_name: str,
+    dataset_id: str = "",
     source_file: str,
     doc_type: str,
     title: str,
@@ -294,11 +338,22 @@ def build_doc(
     summary: str,
     keywords: list[str],
     metadata: dict[str, Any],
+    raw_source_file: str = "",
+    source_sha256: str = "",
+    artifact_generation_id: str = "",
 ) -> dict[str, Any]:
-    return {
+    source_file_display = to_repo_relative_display(source_file) if source_file else ""
+    raw_source_file_display = to_repo_relative_display(raw_source_file) if raw_source_file else ""
+    metadata = dict(metadata)
+    if source_file_display:
+        metadata["source_file"] = source_file_display
+    if raw_source_file_display:
+        metadata["raw_source_file"] = raw_source_file_display
+    doc = {
         "doc_id": doc_id,
         "dataset_name": dataset_name,
-        "source_file": source_file,
+        "dataset_id": dataset_id,
+        "source_file": source_file_display,
         "doc_type": doc_type,
         "title": title,
         "content": content,
@@ -306,9 +361,63 @@ def build_doc(
         "keywords": keywords,
         "metadata": metadata,
     }
+    if raw_source_file_display:
+        doc["raw_source_file"] = raw_source_file_display
+    if source_sha256:
+        doc["source_sha256"] = source_sha256
+    if artifact_generation_id:
+        doc["artifact_generation_id"] = artifact_generation_id
+    if metadata.get("provenance_type"):
+        doc["provenance_type"] = metadata["provenance_type"]
+    return doc
 
 
-def flow_summary_doc(row: dict[str, Any], dataset_name: str) -> dict[str, Any]:
+def flow_summary_doc_id(
+    row: dict[str, Any],
+    dataset_name: str,
+    src_ip: str,
+    dst_ip: str,
+    src_port: Any,
+    dst_port: Any,
+    protocol: str,
+    session_state: str,
+) -> str:
+    """Generate a unique doc_id for a flow_summary row.
+
+    Priority: explicit flow_id > (_input_file + _row_index) > heuristic tuple.
+    """
+    flow_id = str(row.get("flow_id") or "").strip()
+    if flow_id:
+        return stable_id(RAG_DOC_SCHEMA_VERSION, dataset_name, "flow_summary", flow_id)
+
+    source_file_raw = row.get("_input_file") or row.get("source_file") or ""
+    source_file = to_repo_relative_display(source_file_raw) if source_file_raw else ""
+    row_index = str(row.get("_row_index") or "").strip()
+    if row_index:
+        return stable_id(
+            RAG_DOC_SCHEMA_VERSION,
+            dataset_name,
+            "flow_summary",
+            source_file,
+            row_index,
+        )
+
+    return stable_id(
+        RAG_DOC_SCHEMA_VERSION,
+        dataset_name,
+        "flow_summary",
+        source_file,
+        row.get("_time_bucket", ""),
+        src_ip,
+        dst_ip,
+        str(src_port),
+        str(dst_port),
+        protocol,
+        session_state,
+    )
+
+
+def flow_summary_doc(row: dict[str, Any], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> dict[str, Any]:
     src_ip = row.get("src_ip", "")
     dst_ip = row.get("dst_ip", "")
     src_port = row.get("src_port", "")
@@ -359,6 +468,9 @@ def flow_summary_doc(row: dict[str, Any], dataset_name: str) -> dict[str, Any]:
         score += 0.3
     if dns_query or tls_sni or http_host or looks_like_normal_microflow:
         score = max(score - 0.2, 0.0)
+
+    source_file = row.get("_input_file", row.get("source_file", ""))
+    raw_source_file = row.get("_raw_source_file", "")
     metadata = {
         "protocol": protocol,
         "app_protocol": app_protocol or service,
@@ -383,11 +495,27 @@ def flow_summary_doc(row: dict[str, Any], dataset_name: str) -> dict[str, Any]:
             [value for value in [dns_query, tls_sni, http_host] if value],
             ["microflow"] if wide_short_connection else [],
         ),
+        "source_file": to_repo_relative_display(source_file) if source_file else "",
+        "raw_source_file": to_repo_relative_display(raw_source_file) if raw_source_file else "",
+        "row_index": row.get("_row_index", ""),
+        "flow_id": row.get("flow_id", ""),
+        "provenance_type": "flow_row",
     }
     return build_doc(
-        doc_id=stable_id(dataset_name, "flow_summary", row.get("flow_id", ""), src_ip, dst_ip, str(src_port), str(dst_port), protocol),
+        doc_id=flow_summary_doc_id(
+            row,
+            dataset_name,
+            src_ip,
+            dst_ip,
+            src_port,
+            dst_port,
+            protocol,
+            session_state,
+        ),
         dataset_name=dataset_name,
-        source_file=row.get("source_file", row.get("_input_file", "")),
+        dataset_id=dataset_id,
+        raw_source_file=raw_source_file,
+        source_file=to_repo_relative_display(source_file) if source_file else "",
         doc_type="flow_summary",
         title=title,
         content=content,
@@ -406,6 +534,8 @@ def flow_summary_doc(row: dict[str, Any], dataset_name: str) -> dict[str, Any]:
             dst_port,
         ),
         metadata=metadata,
+        source_sha256=source_sha256,
+        artifact_generation_id=artifact_generation_id,
     )
 
 
@@ -421,7 +551,7 @@ def is_narrow_short_connection_row(row: dict[str, Any]) -> bool:
     )
 
 
-def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dict[str, Any]]:
+def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = defaultdict(
         lambda: {
             "flows": 0,
@@ -432,6 +562,7 @@ def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
             "protocols": Counter(),
             "app_protocols": Counter(),
             "source_files": Counter(),
+            "raw_source_files": Counter(),
             "traffic_family": Counter(),
             "time_buckets": Counter(),
             "wide_short_connection_count": 0,
@@ -457,9 +588,12 @@ def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
         app_protocol = row.get("app_protocol", "") or row.get("service", "")
         if app_protocol:
             group["app_protocols"][app_protocol] += 1
-        source_file = row.get("source_file", row.get("_input_file", ""))
+        source_file = row.get("_input_file", row.get("source_file", ""))
         if source_file:
             group["source_files"][source_file] += 1
+        raw_source_file = row.get("_raw_source_file", "")
+        if raw_source_file:
+            group["raw_source_files"][raw_source_file] += 1
         traffic_family = row.get("traffic_family", "")
         if traffic_family:
             group["traffic_family"][traffic_family] += 1
@@ -488,6 +622,7 @@ def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
         dominant_bucket = first_top_value(group["time_buckets"])
         traffic_family = first_top_value(group["traffic_family"])
         source_file = first_top_value(group["source_files"])
+        raw_source_file = first_top_value(group["raw_source_files"])
         title = f"Endpoint summary for {host_ip}"
         content = (
             f"Endpoint {host_ip} appears as a source host in {group['flows']} flows, "
@@ -512,9 +647,11 @@ def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
         )
         documents.append(
             build_doc(
-                doc_id=stable_id(dataset_name, "endpoint_summary", host_ip),
+                doc_id=stable_id(dataset_id or dataset_name, "endpoint_summary", host_ip),
                 dataset_name=dataset_name,
+                dataset_id=dataset_id,
                 source_file=source_file,
+                raw_source_file=raw_source_file,
                 doc_type="endpoint_summary",
                 title=title,
                 content=content,
@@ -551,13 +688,19 @@ def endpoint_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
                         "scan-like" if scan_like else "",
                         "microflow" if group["narrow_short_connection_count"] else "",
                     ),
+                    "source_file": to_repo_relative_display(source_file) if source_file else "",
+                    "raw_source_file": to_repo_relative_display(raw_source_file) if raw_source_file else "",
+                    "provenance_type": "flow_aggregate",
+                    "row_count": group["flows"],
                 },
+                source_sha256=source_sha256,
+                artifact_generation_id=artifact_generation_id,
             )
         )
     return documents
 
 
-def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dict[str, Any]]:
+def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> list[dict[str, Any]]:
     grouped: dict[tuple[str, int], dict[str, Any]] = defaultdict(
         lambda: {
             "flows": 0,
@@ -568,6 +711,7 @@ def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dic
             "app_protocols": Counter(),
             "traffic_family": Counter(),
             "source_files": Counter(),
+            "raw_source_files": Counter(),
             "time_buckets": Counter(),
             "wide_short_connection_count": 0,
             "narrow_short_connection_count": 0,
@@ -593,9 +737,12 @@ def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dic
         traffic_family = row.get("traffic_family", "")
         if traffic_family:
             group["traffic_family"][traffic_family] += 1
-        source_file = row.get("source_file", row.get("_input_file", ""))
+        source_file = row.get("_input_file", row.get("source_file", ""))
         if source_file:
             group["source_files"][source_file] += 1
+        raw_source_file = row.get("_raw_source_file", "")
+        if raw_source_file:
+            group["raw_source_files"][raw_source_file] += 1
         if row.get("_time_bucket"):
             group["time_buckets"][row["_time_bucket"]] += 1
         if is_wide_short_connection_row(row):
@@ -612,6 +759,7 @@ def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dic
         top_app_protocols = top_values(group["app_protocols"])
         traffic_family = first_top_value(group["traffic_family"])
         source_file = first_top_value(group["source_files"])
+        raw_source_file = first_top_value(group["raw_source_files"])
         dominant_bucket = first_top_value(group["time_buckets"])
         wide_short_pct = round(group["wide_short_connection_count"] * 100.0 / group["flows"], 2) if group["flows"] else 0.0
         narrow_short_pct = round(group["narrow_short_connection_count"] * 100.0 / group["flows"], 2) if group["flows"] else 0.0
@@ -637,9 +785,11 @@ def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dic
         )
         documents.append(
             build_doc(
-                doc_id=stable_id(dataset_name, "port_summary", protocol, str(dst_port)),
+                doc_id=stable_id(dataset_id or dataset_name, "port_summary", protocol, str(dst_port)),
                 dataset_name=dataset_name,
+                dataset_id=dataset_id,
                 source_file=source_file,
+                raw_source_file=raw_source_file,
                 doc_type="port_summary",
                 title=title,
                 content=content,
@@ -671,13 +821,19 @@ def port_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dic
                     "state_bucket": "",
                     "risk_bucket": choose_risk_level(risk_score),
                     "tags": make_keywords("port-summary", "port-profile", protocol.lower(), str(dst_port)),
+                    "source_file": to_repo_relative_display(source_file) if source_file else "",
+                    "raw_source_file": to_repo_relative_display(raw_source_file) if raw_source_file else "",
+                    "provenance_type": "flow_aggregate",
+                    "row_count": group["flows"],
                 },
+                source_sha256=source_sha256,
+                artifact_generation_id=artifact_generation_id,
             )
         )
     return documents
 
 
-def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dict[str, Any]]:
+def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> list[dict[str, Any]]:
     definitions = [
         ("dns_query", "DNS", "dns", "query"),
         ("tls_sni", "TLS", "tls", "sni"),
@@ -702,6 +858,7 @@ def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
                     "app_protocols": Counter(),
                     "buckets": Counter(),
                     "source_files": Counter(),
+                    "raw_source_files": Counter(),
                     "traffic_family": Counter(),
                     "wide_short_connections": 0,
                     "narrow_short_connections": 0,
@@ -716,7 +873,9 @@ def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
             group["protocols"][row.get("protocol", "")] += 1
             group["app_protocols"][row.get("app_protocol", "") or row.get("service", "")] += 1
             group["buckets"][row.get("_time_bucket", "")] += 1
-            group["source_files"][row.get("source_file", row.get("_input_file", ""))] += 1
+            group["source_files"][row.get("_input_file", row.get("source_file", ""))] += 1
+            if row.get("_raw_source_file"):
+                group["raw_source_files"][row["_raw_source_file"]] += 1
             group["traffic_family"][row.get("traffic_family", "")] += 1
             if is_wide_short_connection_row(row):
                 group["wide_short_connections"] += 1
@@ -732,6 +891,7 @@ def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
             top_protocols = top_values(group["protocols"])
             top_app_protocols = top_values(group["app_protocols"])
             source_file = first_top_value(group["source_files"])
+            raw_source_file = first_top_value(group["raw_source_files"])
             traffic_family = first_top_value(group["traffic_family"])
             dominant_bucket = first_top_value(group["buckets"])
             top_states = top_values(group["states"])
@@ -776,12 +936,18 @@ def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
                 "state_bucket": top_states[0] if top_states else "",
                 "risk_bucket": choose_risk_level(flow_score if field_name == "dns_query" else 0.2),
                 "tags": make_keywords([tag_name, noun, label.lower(), "feature"], [value]),
+                "source_file": to_repo_relative_display(source_file) if source_file else "",
+                "raw_source_file": to_repo_relative_display(raw_source_file) if raw_source_file else "",
+                "provenance_type": "flow_aggregate",
+                "row_count": group["flows"],
             }
             documents.append(
                 build_doc(
-                    doc_id=stable_id(dataset_name, "protocol_summary", field_name, value),
+                    doc_id=stable_id(dataset_id or dataset_name, "protocol_summary", field_name, value),
                     dataset_name=dataset_name,
-                    source_file=source_file,
+                    dataset_id=dataset_id,
+                    source_file=to_repo_relative_display(source_file) if source_file else "",
+                    raw_source_file=raw_source_file,
                     doc_type="protocol_summary",
                     title=title,
                     content=content,
@@ -797,12 +963,14 @@ def protocol_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list
                         [str(port) for port in top_ports_list],
                     ),
                     metadata=metadata,
+                    source_sha256=source_sha256,
+                    artifact_generation_id=artifact_generation_id,
                 )
             )
     return documents
 
 
-def short_connection_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str, Any]:
+def short_connection_doc(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> dict[str, Any]:
     total_flows = len(rows)
     wide_matched = [row for row in rows if is_wide_short_connection_row(row)]
     narrow_matched = [row for row in rows if is_narrow_short_connection_row(row)]
@@ -811,7 +979,8 @@ def short_connection_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[
     app_protocols = Counter((row.get("app_protocol", "") or row.get("service", "")) for row in wide_matched if (row.get("app_protocol", "") or row.get("service", "")))
     states = Counter(row.get("session_state", "") for row in wide_matched if row.get("session_state"))
     ports = Counter(parse_int(row.get("dst_port")) for row in narrow_matched if parse_int(row.get("dst_port")))
-    source_files = Counter(row.get("source_file", row.get("_input_file", "")) for row in rows if row.get("source_file", row.get("_input_file", "")))
+    source_files = Counter(row.get("_input_file", row.get("source_file", "")) for row in rows if row.get("_input_file", row.get("source_file", "")))
+    raw_source_files = Counter(row.get("_raw_source_file", "") for row in rows if row.get("_raw_source_file", ""))
     traffic_families = Counter(row.get("traffic_family", "") for row in narrow_matched if row.get("traffic_family"))
     wide_short_pct = round((len(wide_matched) * 100.0 / total_flows), 2) if total_flows else 0.0
     narrow_short_pct = round((len(narrow_matched) * 100.0 / total_flows), 2) if total_flows else 0.0
@@ -844,9 +1013,11 @@ def short_connection_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[
     if not tls_like and wide_short_pct >= 80.0:
         risk_score = max(risk_score, 0.5)
     return build_doc(
-        doc_id=stable_id(dataset_name, "behavior_summary", "short_connections"),
+        doc_id=stable_id(dataset_id or dataset_name, "behavior_summary", "short_connections"),
         dataset_name=dataset_name,
-        source_file=first_top_value(source_files) if source_files else rows[0].get("source_file", rows[0].get("_input_file", "")) if rows else "",
+        dataset_id=dataset_id,
+        source_file=first_top_value(source_files) if source_files else rows[0].get("_input_file", rows[0].get("source_file", "")) if rows else "",
+        raw_source_file=first_top_value(raw_source_files) if raw_source_files else "",
         doc_type="behavior_summary",
         title=title,
         content=content,
@@ -871,11 +1042,17 @@ def short_connection_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[
             "state_bucket": dominant_state,
             "risk_bucket": choose_risk_level(risk_score),
             "tags": ["behavior-summary", "microflow", "compact-microflow"],
+            "source_file": to_repo_relative_display(source_files.most_common(1)[0][0]) if source_files else "",
+            "raw_source_file": to_repo_relative_display(first_top_value(raw_source_files)) if raw_source_files else "",
+            "provenance_type": "flow_aggregate",
+            "row_count": total_flows,
         },
+        source_sha256=source_sha256,
+        artifact_generation_id=artifact_generation_id,
     )
 
 
-def scan_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str, Any]:
+def scan_summary_doc(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> dict[str, Any]:
     by_source: dict[str, dict[str, Any]] = defaultdict(
         lambda: {
             "flows": 0,
@@ -936,9 +1113,11 @@ def scan_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str,
             min(max_flows / 50.0, 1.0),
         )
     return build_doc(
-        doc_id=stable_id(dataset_name, "anomaly_summary", "scan_sources"),
+        doc_id=stable_id(dataset_id or dataset_name, "anomaly_summary", "scan_sources"),
         dataset_name=dataset_name,
-        source_file=rows[0].get("source_file", rows[0].get("_input_file", "")) if rows else "",
+        dataset_id=dataset_id,
+        source_file=rows[0].get("_input_file", rows[0].get("source_file", "")) if rows else "",
+        raw_source_file=rows[0].get("_raw_source_file", "") if rows else "",
         doc_type="anomaly_summary",
         title=title,
         content=content,
@@ -961,11 +1140,17 @@ def scan_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str,
             "state_bucket": "",
             "risk_bucket": choose_risk_level(risk_score),
             "tags": ["anomaly", "scan", "source"],
+            "source_file": to_repo_relative_display(rows[0].get("_input_file", "")) if rows else "",
+            "raw_source_file": to_repo_relative_display(rows[0].get("_raw_source_file", "")) if rows else "",
+            "provenance_type": "flow_aggregate",
+            "row_count": len(rows),
         },
+        source_sha256=source_sha256,
+        artifact_generation_id=artifact_generation_id,
     )
 
 
-def peak_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str, Any]:
+def peak_summary_doc(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> dict[str, Any]:
     bucket_seconds = choose_time_bucket_seconds(rows)
     buckets: dict[str, dict[str, Any]] = defaultdict(lambda: {"flows": 0, "bytes": 0, "protocols": Counter()})
     for row in rows:
@@ -1018,9 +1203,11 @@ def peak_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str,
             f"ratio {spike_ratio:.2f}, status {spike_status}."
         )
     return build_doc(
-        doc_id=stable_id(dataset_name, "behavior_summary", "traffic_peak"),
+        doc_id=stable_id(dataset_id or dataset_name, "behavior_summary", "traffic_peak"),
         dataset_name=dataset_name,
-        source_file=rows[0].get("source_file", rows[0].get("_input_file", "")) if rows else "",
+        dataset_id=dataset_id,
+        source_file=rows[0].get("_input_file", rows[0].get("source_file", "")) if rows else "",
+        raw_source_file=rows[0].get("_raw_source_file", "") if rows else "",
         doc_type="behavior_summary",
         title=title,
         content=content,
@@ -1043,27 +1230,652 @@ def peak_summary_doc(rows: list[dict[str, Any]], dataset_name: str) -> dict[str,
             "state_bucket": spike_status,
             "risk_bucket": choose_risk_level(min(spike_ratio / 2.0, 1.0) if spike_status == "spike" else 0.2 if len(buckets) > 1 else 0.0),
             "tags": ["behavior-summary", "peak", "timeseries"],
+            "source_file": to_repo_relative_display(rows[0].get("_input_file", "")) if rows else "",
+            "raw_source_file": to_repo_relative_display(rows[0].get("_raw_source_file", "")) if rows else "",
+            "provenance_type": "flow_aggregate",
+            "row_count": len(rows),
         },
+        source_sha256=source_sha256,
+        artifact_generation_id=artifact_generation_id,
     )
 
 
-def anomaly_summary_docs(rows: list[dict[str, Any]], dataset_name: str) -> list[dict[str, Any]]:
+def anomaly_summary_docs(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> list[dict[str, Any]]:
     if not rows:
         return []
     return [
-        short_connection_doc(rows, dataset_name),
-        scan_summary_doc(rows, dataset_name),
-        peak_summary_doc(rows, dataset_name),
+        short_connection_doc(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id),
+        scan_summary_doc(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id),
+        peak_summary_doc(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id),
     ]
 
 
-def build_documents(rows: list[dict[str, Any]], dataset_name: str) -> list[dict[str, Any]]:
+# ---------------------------------------------------------------------------
+# RAG v2: normalize SkillResult → action_finding, action_evidence, action_diagnostic documents
+# ---------------------------------------------------------------------------
+
+_IP_RE = re.compile(r"(?:(?:\d{1,3}\.){3}\d{1,3})")
+_DOMAIN_RE = re.compile(r"(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+(?:com|net|org|io|edu|gov|vps|mydyndns|no-ip|dyn|biz|info|mobi|asia|eu|ru|cn|tw|jp|de|uk|fr|br|br|in|us|co|cc|tk|ml|ga|cf|top|xyz|online|site|store|tech|space|fun|website|pro|name|tel|aero|coop|int|museum|travel|jobs|mobi|cat|asia|tel|post|xxx|arpa|mil|govt|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)(?:\b|$)")
+_PORT_RE = re.compile(r"port[:\s/]*([0-9]{1,5})")
+
+
+def _extract_ips(text: str) -> list[str]:
+    return _IP_RE.findall(text)
+
+
+def _extract_domains(text: str) -> list[str]:
+    return _DOMAIN_RE.findall(text)
+
+
+def _extract_ports(text: str) -> list[int]:
+    return [int(m) for m in _PORT_RE.findall(text)]
+
+
+def _collect_text_from_skill_result(result: dict[str, Any]) -> str:
+    """Collect all human-readable text from a SkillResult for embedding."""
+    parts: list[str] = []
+    summary = result.get("result", {}).get("summary", {})
+    for key in ("title", "overview", "description"):
+        val = summary.get(key)
+        if val:
+            parts.append(str(val))
+    for metric in summary.get("key_metrics", []):
+        parts.append(f"{metric.get('name', '')}={metric.get('value', '')}")
+    for finding in result.get("result", {}).get("findings", []):
+        for key in ("title", "description", "summary", "type"):
+            val = finding.get(key)
+            if val:
+                parts.append(str(val))
+        entities_field = finding.get("entities", [])
+        if isinstance(entities_field, list):
+            for entity in entities_field:
+                if isinstance(entity, dict):
+                    parts.append(f"{entity.get('type', '')}={entity.get('value', '')}")
+                elif isinstance(entity, str):
+                    parts.append(entity)
+        elif isinstance(entities_field, dict):
+            for ek, ev in entities_field.items():
+                parts.append(f"{ek}={ev}")
+    for evidence in result.get("result", {}).get("evidence", []):
+        parts.append(evidence.get("title", ""))
+        if evidence.get("content"):
+            parts.append(evidence["content"])
+        for metric in evidence.get("metrics", []):
+            parts.append(f"{metric.get('name', '')}={metric.get('value', '')}")
+        for row in evidence.get("rows", []):
+            parts.append(" ".join(str(v) for v in row))
+    for warning in result.get("diagnostics", {}).get("warnings", []):
+        parts.append(warning.get("message", ""))
+    return " ".join(p for p in parts if p)
+
+
+def _extract_entities_from_result(result: dict[str, Any]) -> dict[str, list]:
+    """Lightweight entity extraction from a SkillResult."""
+    entities: dict[str, set] = {
+        "src_ips": set(), "dst_ips": set(), "domains": set(),
+        "ports": set(), "protocols": set(), "urls": set(),
+        "services": set(), "users": set(), "assets": set(),
+    }
+    text_blob = _collect_text_from_skill_result(result)
+    for ip in _extract_ips(text_blob):
+        # Heuristic: private IPs likely src, but keep in src_ips for now
+        entities["src_ips"].add(ip)
+    for domain in _extract_domains(text_blob):
+        entities["domains"].add(domain)
+    for port in _extract_ports(text_blob):
+        entities["ports"].add(port)
+    # Try structured entity extraction from findings
+    for finding in result.get("result", {}).get("findings", []):
+        entities_field = finding.get("entities", [])
+        if isinstance(entities_field, list):
+            for entity in entities_field:
+                if not isinstance(entity, dict):
+                    continue
+                etype = entity.get("type", "")
+                evalue = entity.get("value", "")
+                if etype == "src_ip":
+                    entities["src_ips"].add(evalue)
+                elif etype == "dst_ip":
+                    entities["dst_ips"].add(evalue)
+                elif etype in ("domain", "dns_query", "tls_sni", "http_host"):
+                    if evalue:
+                        entities["domains"].add(evalue)
+                elif etype in ("port", "dst_port"):
+                    try:
+                        entities["ports"].add(int(evalue))
+                    except (ValueError, TypeError):
+                        pass
+                elif etype in ("service", "app_protocol", "protocol"):
+                    if evalue:
+                        entities["services"].add(evalue)
+                elif etype == "user":
+                    entities["users"].add(evalue)
+        elif isinstance(entities_field, dict):
+            for ek, ev in entities_field.items():
+                if ek in ("src_ip",):
+                    entities["src_ips"].add(str(ev))
+                elif ek in ("dst_ip",):
+                    entities["dst_ips"].add(str(ev))
+                elif ek in ("domain", "dns_query", "tls_sni", "http_host"):
+                    entities["domains"].add(str(ev))
+                elif ek in ("port", "dst_port"):
+                    try:
+                        entities["ports"].add(int(ev))
+                    except (ValueError, TypeError):
+                        pass
+                elif ek in ("service", "app_protocol", "protocol"):
+                    entities["services"].add(str(ev))
+                elif ek == "user":
+                    entities["users"].add(str(ev))
+    return {k: sorted(v)[:20] for k, v in entities.items()}
+
+
+def _extract_metrics_from_result(result: dict[str, Any]) -> dict[str, Any]:
+    """Extract numeric metrics from SkillResult summary + evidence."""
+    metrics: dict[str, Any] = {}
+    summary = result.get("result", {}).get("summary", {})
+    for m in summary.get("key_metrics", []):
+        name = m.get("name", "")
+        if name:
+            metrics[name] = m.get("value")
+    for evidence in result.get("result", {}).get("evidence", []):
+        for m in evidence.get("metrics", []):
+            name = m.get("name", "")
+            if name and name not in metrics:
+                metrics[name] = m.get("value")
+    return metrics
+
+
+def _extract_evidence_tables(result: dict[str, Any], max_rows: int = 5) -> list[dict[str, Any]]:
+    """Extract table evidence, truncating rows to avoid oversized docs."""
+    tables: list[dict[str, Any]] = []
+    for evidence in result.get("result", {}).get("evidence", []):
+        if evidence.get("type") == "table" and evidence.get("columns") and evidence.get("rows"):
+            tables.append({
+                "title": evidence.get("title", ""),
+                "columns": evidence["columns"],
+                "rows": evidence["rows"][:max_rows],
+                "total_rows": len(evidence["rows"]),
+                "truncated": len(evidence["rows"]) > max_rows,
+            })
+    return tables
+
+
+def _build_flow_filter(
+    dataset_name: str,
+    source_file: str,
+    entities: dict[str, list],
+    hotspot_entities: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build a flow_query filter dict from extracted entities.
+
+    Used by rag_search to do a second-hop lookup of matching flow_summary docs.
+    Priority: src_ip > dst_ip > domain/dns_query > service > port.
+    """
+    flow_filter: dict[str, Any] = {
+        "dataset_name": dataset_name,
+        "source_file": to_repo_relative_display(source_file) if source_file else "",
+    }
+    src_ips = entities.get("src_ips", [])
+    dst_ips = entities.get("dst_ips", [])
+    domains = entities.get("domains", [])
+    ports = entities.get("ports", [])
+    services = entities.get("services", [])
+    if len(src_ips) == 1:
+        flow_filter["primary_entity"] = {"type": "src_ip", "value": src_ips[0]}
+    elif src_ips:
+        flow_filter["primary_entity"] = {"type": "src_ips", "values": src_ips[:5]}
+    if dst_ips:
+        flow_filter["dst_ips"] = dst_ips[:5]
+    if domains:
+        flow_filter["domains"] = domains[:5]
+    if ports:
+        flow_filter["ports"] = [str(p) for p in ports[:10]]
+    if services:
+        flow_filter["services"] = services[:5]
+
+    # If entities are empty, try to infer from hotspot_entities or table rows
+    has_entities = bool(src_ips or dst_ips or domains or ports or services)
+    if not has_entities and hotspot_entities:
+        inferred: dict[str, list] = {"src_ips": [], "domains": [], "services": [], "ports": []}
+        for h in hotspot_entities[:10]:
+            rd = h.get("row_data", {})
+            for k in ("src_ip", "query", "host", "server_name", "service", "conn_state"):
+                v = rd.get(k)
+                if v and str(v):
+                    if k == "src_ip":
+                        inferred["src_ips"].append(str(v))
+                    elif k in ("query", "host", "server_name"):
+                        inferred["domains"].append(str(v))
+                    elif k == "service":
+                        inferred["services"].append(str(v))
+                    break
+        if inferred["src_ips"]:
+            flow_filter["primary_entity"] = {"type": "src_ips", "values": list(dict.fromkeys(inferred["src_ips"]))[:5]}
+        if inferred["domains"]:
+            flow_filter["domains"] = list(dict.fromkeys(inferred["domains"]))[:5]
+        if inferred["services"]:
+            flow_filter["services"] = list(dict.fromkeys(inferred["services"]))[:5]
+
+    return flow_filter
+
+
+def _extract_hotspot_entities(
+    tables: list[dict[str, Any]],
+    top_k: int = 50,
+) -> list[dict[str, Any]]:
+    """Extract top-K hotspot rows from evidence tables as linkable entities.
+
+    Returns list of dicts with entity_type, entity_value, and table context.
+    """
+    hotspots: list[dict[str, Any]] = []
+    for table in tables:
+        title = table.get("title", "").lower()
+        if not any(kw in title for kw in ["hotspot", "top talker", "top quer", "nxdomain", "top host", "top service"]):
+            continue
+        for row in table.get("rows", [])[:top_k]:
+            if isinstance(row, list):
+                cols = table.get("columns", [])
+                row_dict = dict(zip(cols, row))
+            else:
+                row_dict = row
+            entry: dict[str, Any] = {
+                "table_title": table.get("title", ""),
+                "row_data": row_dict,
+            }
+            # Extract key entity fields
+            for k in ("src_ip", "query", "host", "server_name", "service", "conn_state"):
+                if k in row_dict:
+                    entry["entity_type"] = k
+                    entry["entity_value"] = str(row_dict[k])
+                    break
+            hotspots.append(entry)
+    return hotspots
+
+
+def _build_action_finding_doc(
+    *,
+    finding: dict[str, Any],
+    result: dict[str, Any],
+    dataset_name: str,
+    dataset_id: str,
+    source_file: str,
+    source_sha256: str,
+    action_name: str,
+    action_category: str = "",
+    index: int = 0,
+    raw_source_file: str = "",
+) -> dict[str, Any]:
+    """Build an action_finding RAG document from one finding."""
+    finding_id = finding.get("finding_id") or finding.get("id") or f"{action_name}:{index}"
+    title = finding.get("title") or finding.get("name") or action_name.replace("-", " ").title()
+    summary_text = finding.get("description") or finding.get("summary") or ""
+    severity = finding.get("severity") or result.get("result", {}).get("summary", {}).get("severity", "info")
+    confidence = finding.get("confidence")
+    risk_score = finding.get("risk_score")
+    evidence_refs = finding.get("evidence_refs", [])
+    entities = _extract_entities_from_result(result)
+
+    keywords = [action_name, severity] + entities.get("src_ips", [])[:5] + entities.get("domains", [])[:5]
+    canonical_text = _collect_text_from_skill_result(result)
+
+    payload = {
+        "schema_version": RAG_DOC_SCHEMA_VERSION,
+        "doc_type": "action_finding",
+        "dataset": {
+            "dataset_name": dataset_name,
+            "source_file": to_repo_relative_display(source_file) if source_file else "",
+            "input_type": "flow_csv",
+            "traffic_family": "",
+        },
+        "action": {
+            "name": action_name,
+            "category": action_category,
+            "view": "flow",
+            "engine": "hybrid",
+        },
+        "finding": {
+            "id": finding_id,
+            "title": title,
+            "summary": summary_text,
+            "severity": severity,
+            "confidence": confidence,
+            "risk_score": risk_score,
+            "status": "observed",
+        },
+        "security_context": {
+            "threat_tags": [],
+            "attack_stages": [],
+            "mitre_techniques": [],
+            "ioc_candidates": [],
+        },
+        "evidence_refs": evidence_refs,
+        "retrieval_text": {
+            "title": title,
+            "summary": summary_text,
+            "keywords": keywords[:30],
+            "canonical_text": canonical_text,
+        },
+    }
+
+    flow_filter = _build_flow_filter(dataset_name, source_file, entities)
+    payload["flow_filter"] = flow_filter
+
+    doc_id = stable_id(
+        RAG_DOC_SCHEMA_VERSION, dataset_id, action_name, finding_id, str(index)
+    )
+    doc = build_doc(
+        doc_id=doc_id,
+        dataset_name=dataset_name,
+        dataset_id=dataset_id,
+        source_file=to_repo_relative_display(source_file) if source_file else "",
+        doc_type="action_finding",
+        title=title,
+        content=json.dumps(payload, ensure_ascii=False),
+        summary=summary_text[:200] if summary_text else title,
+        keywords=keywords[:30],
+        metadata={
+            "finding_id": finding_id,
+            "action_name": action_name,
+            "severity": severity,
+            "risk_score": risk_score,
+            "confidence": confidence,
+            "schema_version": RAG_DOC_SCHEMA_VERSION,
+        },
+        raw_source_file=raw_source_file,
+        source_sha256=source_sha256,
+    )
+    doc["schema_version"] = RAG_DOC_SCHEMA_VERSION
+    doc["payload"] = payload
+    doc["provenance_type"] = "finding"
+    doc["source_file"] = to_repo_relative_display(source_file) if source_file else ""
+    doc["action_name"] = action_name
+    doc["finding_id"] = finding_id
+    doc["evidence_refs"] = evidence_refs
+    return doc
+
+
+def _build_action_evidence_doc(
+    *,
+    result: dict[str, Any],
+    dataset_name: str,
+    dataset_id: str,
+    source_file: str,
+    source_sha256: str,
+    action_name: str,
+    action_category: str = "",
+    finding: dict[str, Any] | None = None,
+    raw_source_file: str = "",
+) -> dict[str, Any] | None:
+    """Build an action_evidence RAG document from one finding (or action-level if no finding)."""
+    result_data = result.get("result", {})
+    summary = result_data.get("summary", {})
+
+    if finding:
+        finding_id = finding.get("finding_id") or finding.get("id") or f"{action_name}:0"
+        title = finding.get("title") or finding.get("name") or action_name.replace("-", " ").title()
+        summary_text = finding.get("description") or finding.get("summary") or ""
+        severity = finding.get("severity") or summary.get("severity", "info")
+    else:
+        finding_id = f"{action_name}:action-level"
+        title = summary.get("title") or action_name.replace("-", " ").title()
+        summary_text = summary.get("overview", "")
+        severity = summary.get("severity", "info")
+
+    entities = _extract_entities_from_result(result)
+    metrics = _extract_metrics_from_result(result)
+    tables = _extract_evidence_tables(result)
+
+    keywords = [action_name, severity]
+    for vals in entities.values():
+        if isinstance(vals, list):
+            keywords.extend(str(v) for v in vals)
+    canonical_text = _collect_text_from_skill_result(result)
+
+    payload = {
+        "schema_version": RAG_DOC_SCHEMA_VERSION,
+        "doc_type": "action_evidence",
+        "dataset": {
+            "dataset_name": dataset_name,
+            "source_file": to_repo_relative_display(source_file) if source_file else "",
+            "input_type": "flow_csv",
+            "traffic_family": "",
+        },
+        "action": {
+            "name": action_name,
+            "category": action_category,
+            "view": "flow",
+            "engine": "hybrid",
+        },
+        "finding": {
+            "id": finding_id,
+            "title": title,
+            "summary": summary_text,
+            "severity": severity,
+        },
+        "entities": entities,
+        "metrics": metrics,
+        "evidence": {
+            "refs": finding.get("evidence_refs", []) if finding else [],
+            "tables": tables,
+            "sample_rows": tables[0].get("rows", [])[:3] if tables else [],
+            "time_range": {"start": None, "end": None},
+        },
+        "retrieval_text": {
+            "title": title,
+            "summary": summary_text,
+            "keywords": keywords[:30],
+            "canonical_text": canonical_text,
+        },
+    }
+
+    hotspot_entities = _extract_hotspot_entities(tables)
+    flow_filter = _build_flow_filter(dataset_name, source_file, entities, hotspot_entities)
+    payload["flow_filter"] = flow_filter
+    payload["hotspot_entities"] = hotspot_entities
+
+    if finding:
+        doc_id = stable_id(
+            RAG_DOC_SCHEMA_VERSION, dataset_id, action_name, finding_id, "evidence"
+        )
+    else:
+        doc_id = stable_id(RAG_DOC_SCHEMA_VERSION, dataset_name, action_name, "action-level", "evidence")
+
+    doc = build_doc(
+        doc_id=doc_id,
+        dataset_name=dataset_name,
+        dataset_id=dataset_id,
+        source_file=to_repo_relative_display(source_file) if source_file else "",
+        doc_type="action_evidence",
+        title=title,
+        content=json.dumps(payload, ensure_ascii=False),
+        summary=summary_text[:200] if summary_text else title,
+        keywords=keywords[:30],
+        metadata={
+            "finding_id": finding_id,
+            "action_name": action_name,
+            "severity": severity,
+            "schema_version": RAG_DOC_SCHEMA_VERSION,
+        },
+        raw_source_file=raw_source_file,
+        source_sha256=source_sha256,
+    )
+    doc["schema_version"] = RAG_DOC_SCHEMA_VERSION
+    doc["payload"] = payload
+    doc["provenance_type"] = "evidence"
+    doc["source_file"] = to_repo_relative_display(source_file) if source_file else ""
+    doc["action_name"] = action_name
+    doc["finding_id"] = finding_id
+    return doc
+
+
+def _build_action_diagnostic_doc(
+    *,
+    result: dict[str, Any],
+    dataset_name: str,
+    dataset_id: str,
+    source_file: str,
+    source_sha256: str,
+    action_name: str,
+    action_category: str = "",
+    raw_source_file: str = "",
+) -> dict[str, Any] | None:
+    """Build one action_diagnostic document per action run."""
+    diagnostics = result.get("diagnostics", {})
+    warning_count = len(diagnostics.get("warnings", diagnostics.get("errors", [])))
+
+    keywords = [action_name, "diagnostic"]
+    if diagnostics.get("model_version"):
+        keywords.append(diagnostics["model_version"])
+    canonical_text = json.dumps(diagnostics, ensure_ascii=False)
+
+    title = f"Action diagnostic: {action_name}"
+    summary_text = f"Diagnostic for action \'{action_name}\' on dataset \'{dataset_name}\'. "
+    if diagnostics:
+        summary_text += f"Warnings/errors: {warning_count}. "
+
+    payload = {
+        "schema_version": RAG_DOC_SCHEMA_VERSION,
+        "doc_type": "action_diagnostic",
+        "dataset": {
+            "dataset_name": dataset_name,
+            "source_file": to_repo_relative_display(source_file) if source_file else "",
+            "input_type": "flow_csv",
+        },
+        "action": {
+            "name": action_name,
+            "category": action_category,
+            "view": "flow",
+            "engine": "hybrid",
+        },
+        "processing": {
+            "source_sha256": source_sha256,
+            "warning_count": warning_count,
+        },
+        "diagnostics": diagnostics,
+        "retrieval_text": {
+            "title": title,
+            "summary": summary_text,
+            "keywords": keywords[:30],
+            "canonical_text": canonical_text,
+        },
+    }
+
+    doc_id = stable_id(RAG_DOC_SCHEMA_VERSION, dataset_id, action_name, "diagnostic")
+    doc = build_doc(
+        doc_id=doc_id,
+        dataset_name=dataset_name,
+        dataset_id=dataset_id,
+        source_file=to_repo_relative_display(source_file) if source_file else "",
+        doc_type="action_diagnostic",
+        title=title,
+        content=json.dumps(payload, ensure_ascii=False),
+        summary=summary_text[:200],
+        keywords=keywords[:30],
+        metadata={
+            "action_name": action_name,
+            "source_sha256": source_sha256,
+            "warning_count": warning_count,
+            "schema_version": RAG_DOC_SCHEMA_VERSION,
+        },
+        raw_source_file=raw_source_file,
+        source_sha256=source_sha256,
+    )
+    doc["schema_version"] = RAG_DOC_SCHEMA_VERSION
+    doc["payload"] = payload
+    doc["provenance_type"] = "diagnostic"
+    doc["source_file"] = to_repo_relative_display(source_file) if source_file else ""
+    doc["action_name"] = action_name
+    return doc
+
+
+def normalize_skill_result_to_evidence_docs(
+    result: dict[str, Any],
+    *,
+    dataset_name: str,
+    dataset_id: str,
+    source_file: str,
+    source_sha256: str = "",
+    action_name: str,
+    raw_source_file: str = "",
+) -> list[dict[str, Any]]:
+    """Convert a SkillResult dict into action_finding, action_evidence, and action_diagnostic docs.
+
+    - If the result has findings: one action_finding + one action_evidence per finding.
+    - If no findings but the action ran successfully: one action_evidence (action-level).
+    - One action_diagnostic per action run.
+    - If the result status is 'failed', skip (no doc).
+    """
+    if result.get("status") == "failed":
+        return []
+
+    findings = result.get("result", {}).get("findings", [])
+    docs: list[dict[str, Any]] = []
+
+    if findings:
+        for idx, finding in enumerate(findings):
+            doc = _build_action_finding_doc(
+                finding=finding,
+                result=result,
+                dataset_name=dataset_name,
+                dataset_id=dataset_id,
+                source_file=source_file,
+                source_sha256=source_sha256,
+                action_name=action_name,
+                index=idx,
+                raw_source_file=raw_source_file,
+            )
+            docs.append(doc)
+
+    if findings:
+        for finding in findings:
+            doc = _build_action_evidence_doc(
+                result=result,
+                dataset_name=dataset_name,
+                dataset_id=dataset_id,
+                source_file=source_file,
+                source_sha256=source_sha256,
+                action_name=action_name,
+                finding=finding,
+                raw_source_file=raw_source_file,
+            )
+            if doc:
+                docs.append(doc)
+    else:
+        action_doc = _build_action_evidence_doc(
+            result=result,
+            dataset_name=dataset_name,
+            dataset_id=dataset_id,
+            source_file=source_file,
+            source_sha256=source_sha256,
+            action_name=action_name,
+            raw_source_file=raw_source_file,
+        )
+        if action_doc:
+            docs.append(action_doc)
+
+    diagnostic_doc = _build_action_diagnostic_doc(
+        result=result,
+        dataset_name=dataset_name,
+        dataset_id=dataset_id,
+        source_file=source_file,
+        source_sha256=source_sha256,
+        action_name=action_name,
+        raw_source_file=raw_source_file,
+    )
+    if diagnostic_doc:
+        docs.append(diagnostic_doc)
+
+    return docs
+
+
+def build_documents(rows: list[dict[str, Any]], dataset_name: str, dataset_id: str = "", source_sha256: str = "", artifact_generation_id: str = "") -> list[dict[str, Any]]:
     documents: list[dict[str, Any]] = []
-    documents.extend(endpoint_summary_docs(rows, dataset_name))
-    documents.extend(port_summary_docs(rows, dataset_name))
-    documents.extend(flow_summary_doc(row, dataset_name) for row in rows)
-    documents.extend(protocol_summary_docs(rows, dataset_name))
-    documents.extend(anomaly_summary_docs(rows, dataset_name))
+    documents.extend(endpoint_summary_docs(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id))
+    documents.extend(port_summary_docs(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id))
+    documents.extend(flow_summary_doc(row, dataset_name, dataset_id, source_sha256, artifact_generation_id) for row in rows)
+    documents.extend(protocol_summary_docs(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id))
+    documents.extend(anomaly_summary_docs(rows, dataset_name, dataset_id, source_sha256, artifact_generation_id))
     return documents
 
 
@@ -1076,23 +1888,146 @@ def write_jsonl(path: Path, documents: list[dict[str, Any]]) -> None:
 def build_manifest(*, dataset_name: str, files: list[str], docs_path: Path, documents: list[dict[str, Any]]) -> dict[str, Any]:
     counts = Counter(doc["doc_type"] for doc in documents)
     sample_titles = [doc["title"] for doc in documents[:10]]
+
+    id_counts = Counter(doc["doc_id"] for doc in documents)
+    duplicate_doc_ids = [doc_id for doc_id, count in id_counts.items() if count > 1]
+
+    provenance_coverage = {
+        "docs_with_source_file": sum(1 for d in documents if d.get("source_file") or d.get("metadata", {}).get("source_file")),
+        "docs_with_row_index": sum(1 for d in documents if d.get("row_index") or d.get("metadata", {}).get("row_index")),
+        "docs_with_flow_id": sum(1 for d in documents if d.get("flow_id") or d.get("metadata", {}).get("flow_id")),
+        "docs_with_evidence_refs": sum(1 for d in documents if d.get("evidence_refs") or d.get("metadata", {}).get("evidence_refs")),
+    }
+
     return {
         "dataset_name": dataset_name,
         "source_files": [to_repo_relative_display(item) for item in files],
         "document_count": len(documents),
         "document_types": dict(counts),
+        "unique_doc_id_count": len(id_counts),
+        "duplicate_doc_id_count": len(duplicate_doc_ids),
+        "duplicate_doc_id_samples": duplicate_doc_ids[:10],
+        "provenance_coverage": provenance_coverage,
         "output_file": to_repo_relative_display(docs_path),
         "samples": sample_titles,
     }
 
 
+def build_dataset_profile_doc(
+    *,
+    dataset_name: str,
+    dataset_id: str,
+    files: list[str],
+    row_count: int,
+    evidence_doc_count: int,
+    action_names: list[str],
+    source_sha256: str = "",
+    raw_source_files: list[str] | None = None,
+) -> dict[str, Any]:
+    """Single dataset-level profile document (Layer 3)."""
+    source_files = [to_repo_relative_display(f) for f in files]
+    raw_files = [to_repo_relative_display(f) for f in raw_source_files] if raw_source_files else []
+    time_range: dict[str, str | None] = {"start": None, "end": None}
+
+    if files:
+        try:
+            with open(files[0], encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                timestamps = []
+                for row in reader:
+                    ts = row.get("timestamp", "")
+                    if ts:
+                        parsed = parse_timestamp(ts)
+                        if parsed:
+                            timestamps.append(parsed)
+                if timestamps:
+                    timestamps.sort()
+                    time_range = {
+                        "start": timestamps[0].isoformat(),
+                        "end": timestamps[-1].isoformat(),
+                    }
+        except Exception:
+            pass
+
+    content = (
+        f"Dataset '{dataset_name}' contains {row_count} flow rows from {len(files)} source file(s). "
+        f"RAG index produced {evidence_doc_count} action taxonomy documents across {len(action_names)} actions: "
+        f"{', '.join(action_names) or 'none'}. "
+        f"Time range: {time_range['start'] or 'unknown'} to {time_range['end'] or 'unknown'}. "
+        f"Schema version: {RAG_DOC_SCHEMA_VERSION}. "
+        f"Dataset ID: {dataset_id}."
+    )
+    summary = f"Dataset profile: {dataset_name}, {row_count} rows, {evidence_doc_count} evidence docs."
+
+    doc = build_doc(
+        doc_id=stable_id(dataset_id, "dataset_profile"),
+        dataset_name=dataset_name,
+        dataset_id=dataset_id,
+        source_file=source_files[0] if source_files else "",
+        doc_type="dataset_profile",
+        title=f"Dataset profile: {dataset_name}",
+        content=content,
+        summary=summary,
+        keywords=["dataset-profile", dataset_name] + action_names,
+        metadata={
+            "row_count": row_count,
+            "source_files": source_files,
+            "raw_source_files": raw_files,
+            "time_range": time_range,
+            "action_count": len(action_names),
+            "action_names": action_names,
+            "evidence_doc_count": evidence_doc_count,
+            "rag_schema_version": RAG_DOC_SCHEMA_VERSION,
+            "builder_version": "rag-v2",
+            "provenance_type": "dataset_profile",
+        },
+        raw_source_file=raw_files[0] if raw_files else "",
+    )
+    doc["schema_version"] = RAG_DOC_SCHEMA_VERSION
+    doc["provenance_type"] = "dataset_profile"
+    return doc
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Build first-version RAG documents from network flow CSV files.")
+    parser = argparse.ArgumentParser(description="Build RAG documents from network flow CSV files.")
     parser.add_argument("--files", nargs="+", required=True, help="Input flow CSV files, directories, or shorthand references")
     parser.add_argument("--dataset-name", default=None, help="Override dataset name used in rag_docs.jsonl")
     parser.add_argument("--output-dir", default=None, help="Directory for rag_docs.jsonl and rag_manifest.json")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument("--skip-skill-result-analysis", action="store_true", help="Do not run analyze.py actions for structured evidence")
+    parser.add_argument("--actions", nargs="*", default=None, help="Override the default set of actions for evidence generation")
     return parser
+
+
+def _ensure_schema_version(documents: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Assign rag_doc_v2 schema_version to documents that lack one."""
+    for doc in documents:
+        doc["schema_version"] = RAG_DOC_SCHEMA_VERSION
+    return documents
+
+
+def _run_action_skill_result(
+    flow_csv: str,
+    action_name: str,
+) -> dict[str, Any] | None:
+    """Run analyze.py for a single action with --format skill-result-json.
+
+    Returns the parsed JSON dict, or None on failure.
+    """
+    analyze_py = Path(__file__).parent / "analyze.py"
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(analyze_py), "--files", flow_csv, "--action", action_name, "--format", "skill-result-json"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=str(Path(__file__).parent),
+        )
+        if proc.returncode != 0:
+            return None
+        return json.loads(proc.stdout)
+    except Exception:
+        return None
 
 
 def main() -> int:
@@ -1117,27 +2052,96 @@ def main() -> int:
                 output_dir = default_output_dir(dataset_name, files)
                 output_dir.mkdir(parents=True, exist_ok=True)
 
-        documents = build_documents(rows, dataset_name)
+        # Compute shared index fields
+        dataset_id = compute_dataset_id(dataset_name, files)
+        source_sha256 = _sha256_file(Path(files[0])) if len(files) == 1 else ""
+
+        # Layer 1: flow-level documents
+        documents = _ensure_schema_version(build_documents(rows, dataset_name, dataset_id, source_sha256))
+
+        # Layer 2: structured analysis evidence from SkillResult outputs
+        evidence_docs: list[dict[str, Any]] = []
+        actions_to_run = list(EVIDENCE_ACTIONS)
+        if args.actions is not None:
+            actions_to_run = args.actions
+
+        flow_csv = files[0]
+        skipped_actions: list[str] = []
+        successful_actions: list[str] = []
+        if not args.skip_skill_result_analysis:
+            for action_name in actions_to_run:
+                skill_result = _run_action_skill_result(flow_csv, action_name)
+                if skill_result is None:
+                    skipped_actions.append(action_name)
+                    continue
+                successful_actions.append(action_name)
+                docs = normalize_skill_result_to_evidence_docs(
+                    skill_result,
+                    dataset_name=dataset_name,
+                    dataset_id=dataset_id,
+                    source_file=flow_csv,
+                    source_sha256=source_sha256,
+                    action_name=action_name,
+                    raw_source_file=rows[0].get("_raw_source_file", "") if rows else "",
+                )
+                evidence_docs.extend(docs)
+
+        documents.extend(evidence_docs)
+
+        # Layer 3: dataset profile
+        raw_source_files = sorted({row["_raw_source_file"] for row in rows if row.get("_raw_source_file")})
+        dataset_profile = build_dataset_profile_doc(
+            dataset_name=dataset_name,
+            dataset_id=dataset_id,
+            files=files,
+            row_count=len(rows),
+            evidence_doc_count=len(evidence_docs),
+            action_names=[a for a in actions_to_run],
+            source_sha256=source_sha256,
+            raw_source_files=raw_source_files if raw_source_files else None,
+        )
+        documents.append(dataset_profile)
+
         docs_path = output_dir / "rag_docs.jsonl"
         manifest_path = output_dir / "rag_manifest.json"
         write_jsonl(docs_path, documents)
         manifest = build_manifest(dataset_name=dataset_name, files=files, docs_path=docs_path, documents=documents)
+        manifest["builder_version"] = "rag-v2"
+        manifest["schema_versions"] = sorted({doc.get("schema_version", "") for doc in documents if doc.get("schema_version")})
+        manifest["skipped_actions"] = skipped_actions
+        manifest["successful_actions"] = successful_actions
         manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
+        # Build doc_counts for json output
+        doc_counts = Counter(doc["doc_type"] for doc in documents)
+
         if args.format == "json":
-            print(json.dumps(manifest, ensure_ascii=False))
+            output = {
+                "status": "success",
+                "doc_counts": dict(doc_counts),
+                "schema_versions": manifest["schema_versions"],
+                "manifest": manifest,
+            }
+            print(json.dumps(output, ensure_ascii=False))
         else:
-            print(
-                "\n".join(
-                    [
-                        f"Built RAG docs for dataset: {dataset_name}",
-                        f"Source flow files: {len(files)}",
-                        f"Document count: {len(documents)}",
-                        f"rag_docs: {to_repo_relative_display(docs_path)}",
-                        f"manifest: {to_repo_relative_display(manifest_path)}",
-                    ]
-                )
-            )
+            lines = [
+                f"Built RAG docs for dataset: {dataset_name}",
+                f"Source flow files: {len(files)}",
+                f"Document count: {len(documents)}",
+                f"  flow_summary: {doc_counts.get('flow_summary', 0)}",
+                f"  endpoint_summary: {doc_counts.get('endpoint_summary', 0)}",
+                f"  port_summary: {doc_counts.get('port_summary', 0)}",
+                f"  protocol_summary: {doc_counts.get('protocol_summary', 0)}",
+                f"  behavior_summary: {doc_counts.get('behavior_summary', 0)}",
+                f"  anomaly_summary: {doc_counts.get('anomaly_summary', 0)}",
+                f"  action_finding: {doc_counts.get('action_finding', 0)}",
+                f"  action_evidence: {doc_counts.get('action_evidence', 0)}",
+                f"  action_diagnostic: {doc_counts.get('action_diagnostic', 0)}",
+                f"  dataset_profile: {doc_counts.get('dataset_profile', 0)}",
+                f"rag_docs: {to_repo_relative_display(docs_path)}",
+                f"manifest: {to_repo_relative_display(manifest_path)}",
+            ]
+            print("\n".join(lines))
         return 0
     except Exception as exc:
         print(f"Error: {exc}")

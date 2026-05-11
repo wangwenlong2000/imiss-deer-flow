@@ -1,0 +1,7 @@
+duckdb
+pyyaml
+openpyxl
+pytz
+numpy
+scikit-learn
+rrcf

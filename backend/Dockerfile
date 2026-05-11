@@ -14,17 +14,6 @@ RUN apt-get update && apt-get install -y \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
     && apt-get update \
     && apt-get install -y nodejs \
-    # Install tshark for network packet analysis
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" tshark \
-    # Install Zeek (requires adding official repo as not in default Debian slim repos)
-    && apt-get install -y gnupg2 \
-    && curl -fsSL https://download.opensuse.org/repositories/security:zeek/Debian_12/Release.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/zeek.gpg \
-    && echo "deb https://download.opensuse.org/repositories/security:/zeek/Debian_12/ /" > /etc/apt/sources.list.d/zeek.list \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y zeek \
-    # Add Zeek to PATH (installed to /opt/zeek/bin)
-    && ln -sf /opt/zeek/bin/zeek /usr/local/bin/zeek \
-    && ln -sf /opt/zeek/bin/zeekctl /usr/local/bin/zeekctl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Docker CLI (for DooD: allows starting sandbox containers via host Docker socket)

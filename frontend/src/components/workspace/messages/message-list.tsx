@@ -18,6 +18,7 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import type { Subtask } from "@/core/tasks";
 import { useUpdateSubtask } from "@/core/tasks/context";
 import type { AgentThreadState } from "@/core/threads";
+import { displayMessagesOfThread } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
@@ -43,7 +44,7 @@ export function MessageList({
   const { t } = useI18n();
   const rehypePlugins = useRehypeSplitWordsIntoSpans(thread.isLoading);
   const updateSubtask = useUpdateSubtask();
-  const messages = thread.messages;
+  const messages = displayMessagesOfThread(thread);
   if (thread.isThreadLoading && messages.length === 0) {
     return <MessageListSkeleton />;
   }

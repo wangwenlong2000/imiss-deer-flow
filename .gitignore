@@ -45,6 +45,8 @@ skills/custom/*
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**
+skills/custom/network-traffic-analysis/scripts/**/__pycache__/
+skills/custom/network-traffic-analysis/scripts/**/*.pyc
 logs/
 log/
 backend/log/

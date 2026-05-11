@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -11,24 +12,16 @@ from pathlib import Path
 from typing import Any
 
 from file_resolution import is_explicit_path_reference, resolve_reference
+from utils.path import repo_root
 
 try:
     import yaml
-except ImportError:
-    os.system(f"{sys.executable} -m pip install pyyaml -q")
-    import yaml
+except ImportError as exc:
+    raise ImportError("Missing dependency 'pyyaml'. Install it first: pip install pyyaml") from exc
 
 DEFAULT_MODEL = "text-embedding-v3-large"
 LOCAL_PROVIDERS = {"sentence-transformers", "local"}
 REMOTE_PROVIDERS = {"openai", "openai-compatible", "dashscope"}
-
-
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
 
 
 def load_dotenv_file() -> None:
@@ -108,6 +101,13 @@ def resolve_embedding_config(config: dict[str, Any]) -> dict[str, Any]:
     api_key = str(resolve_env_value(embedding.get("api_key")) or "")
     if not api_key:
         api_key = str(os.getenv("OPENAI_API_KEY", "") or os.getenv("DASHSCOPE_API_KEY", ""))
+    local_model_path = resolve_env_value(embedding.get("local_model_path"))
+    if local_model_path and local_model_path.strip():
+        p = Path(local_model_path)
+        if not p.is_absolute():
+            repo_root = Path(config.get("_config_path", ".")).resolve().parent
+            local_model_path = str(repo_root / p)
+        local_model_path = str(local_model_path) if Path(local_model_path).is_dir() else None
     return {
         "provider": provider,
         "model": str(resolve_env_value(embedding.get("model")) or DEFAULT_MODEL),
@@ -116,6 +116,8 @@ def resolve_embedding_config(config: dict[str, Any]) -> dict[str, Any]:
         "dimensions": dimensions,
         "device": str(resolve_env_value(embedding.get("device")) or ""),
         "normalize": parse_bool(resolve_env_value(embedding.get("normalize")), True),
+        "allow_download": parse_bool(resolve_env_value(embedding.get("allow_download")), False),
+        "local_model_path": local_model_path,
         "config_path": str(config.get("_config_path", "")),
     }
 
@@ -194,49 +196,71 @@ def progress_label(processed: int, total: int) -> str:
 def load_openai_client(api_key: str, base_url: str | None = None) -> Any:
     try:
         from openai import OpenAI
-    except ImportError:
-        os.system(f"{sys.executable} -m pip install openai -q")
-        from openai import OpenAI
+    except ImportError as exc:
+        raise ImportError("Missing dependency 'openai'. Install it before using remote embeddings: pip install openai") from exc
     kwargs: dict[str, Any] = {"api_key": api_key}
     if base_url:
         kwargs["base_url"] = base_url
     return OpenAI(**kwargs)
 
 
-def install_sentence_transformers() -> None:
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--upgrade",
-            "sentence-transformers",
-        ]
-    )
-
-
-def load_sentence_transformer(model_name: str, *, device: str | None = None) -> Any:
+def require_sentence_transformers() -> None:
     try:
-        from sentence_transformers import SentenceTransformer
-    except Exception:
-        for module_name in list(sys.modules):
-            if module_name == "sentence_transformers" or module_name.startswith("sentence_transformers."):
-                sys.modules.pop(module_name, None)
-        install_sentence_transformers()
-        from sentence_transformers import SentenceTransformer
-    kwargs: dict[str, Any] = {}
-    if device:
-        kwargs["device"] = device
+        import sentence_transformers  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Missing dependency 'sentence-transformers'. Install it before using local embeddings: pip install sentence-transformers"
+        ) from exc
+
+
+def _load_model_from_path(model_name: str, **kwargs):
+    """Load a SentenceTransformer model, reloading modules if needed."""
+    from sentence_transformers import SentenceTransformer
     try:
         return SentenceTransformer(model_name, **kwargs)
     except Exception:
         for module_name in list(sys.modules):
             if module_name == "sentence_transformers" or module_name.startswith("sentence_transformers."):
                 sys.modules.pop(module_name, None)
-        install_sentence_transformers()
+        require_sentence_transformers()
         from sentence_transformers import SentenceTransformer as RefreshedSentenceTransformer
         return RefreshedSentenceTransformer(model_name, **kwargs)
+
+
+def load_sentence_transformer(
+    model_name: str,
+    *,
+    device: str | None = None,
+    local_model_path: str | None = None,
+    allow_download: bool = False,
+) -> Any:
+    kwargs: dict[str, Any] = {}
+    if device:
+        kwargs["device"] = device
+
+    # 1. Try configured local_model_path first (from config.yaml)
+    if local_model_path and Path(local_model_path).is_dir():
+        return _load_model_from_path(local_model_path, **kwargs)
+
+    # 2. Try HF local cache without network
+    prev = os.environ.pop("HF_HUB_OFFLINE", None)
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    try:
+        return _load_model_from_path(model_name, **kwargs)
+    except Exception as offline_error:
+        if not allow_download:
+            raise RuntimeError(
+                "Local model/cache unavailable and embedding.allow_download=false. "
+                f"model={model_name}, local_model_path={local_model_path or ''}"
+            ) from offline_error
+    finally:
+        if prev is None:
+            os.environ.pop("HF_HUB_OFFLINE", None)
+        else:
+            os.environ["HF_HUB_OFFLINE"] = prev
+
+    # 3. Cache miss and no local copy — allow download from HuggingFace Hub
+    return _load_model_from_path(model_name, **kwargs)
 
 
 def embed_batch_remote(
@@ -288,12 +312,15 @@ def enrich_documents(
     vectors: list[list[float]],
     *,
     model: str,
+    local_model_path: str | None,
     dimensions: int | None,
 ) -> list[dict[str, Any]]:
     enriched: list[dict[str, Any]] = []
     for document, vector in zip(documents, vectors, strict=True):
         payload = dict(document)
         payload["embedding_model"] = model
+        if local_model_path:
+            payload["embedding_local_model_path"] = to_repo_relative_display(local_model_path)
         payload["embedding_dimensions"] = dimensions or len(vector)
         payload["embedding"] = vector
         enriched.append(payload)
@@ -312,6 +339,7 @@ def build_manifest(
     output_file: Path,
     documents: list[dict[str, Any]],
     model: str,
+    local_model_path: str | None,
     dimensions: int | None,
 ) -> dict[str, Any]:
     doc_types: dict[str, int] = {}
@@ -324,10 +352,54 @@ def build_manifest(
         "document_count": len(documents),
         "document_types": doc_types,
         "embedding_model": model,
+        "embedding_local_model_path": to_repo_relative_display(local_model_path) if local_model_path else "",
         "embedding_dimensions": actual_dimensions,
         "output_file": to_repo_relative_display(output_file),
         "samples": sample_doc_ids,
     }
+
+
+def embedding_cache_key(
+    document: dict[str, Any],
+    *,
+    model: str,
+    dimensions: int | None,
+    normalize: bool,
+) -> str:
+    payload = {
+        "doc_id": document.get("doc_id", ""),
+        "schema_version": document.get("schema_version", ""),
+        "content": document.get("content", ""),
+        "summary": document.get("summary", ""),
+        "title": document.get("title", ""),
+        "keywords": document.get("keywords", []),
+        "model": model,
+        "dimensions": dimensions,
+        "normalize": normalize,
+    }
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def load_existing_embedding_cache(
+    path: Path,
+    *,
+    model: str,
+    dimensions: int | None,
+    normalize: bool,
+) -> dict[str, dict[str, Any]]:
+    if not path.exists():
+        return {}
+    cache: dict[str, dict[str, Any]] = {}
+    for row in load_jsonl(path):
+        key = row.get("embedding_cache_key")
+        if not key:
+            key = embedding_cache_key(row, model=model, dimensions=dimensions, normalize=normalize)
+        emb = row.get("embedding")
+        if key and emb:
+            row["embedding_cache_key"] = key
+            cache[key] = row
+    return cache
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -338,6 +410,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-size", type=int, default=10, help="Embedding request batch size")
     parser.add_argument("--output-file", default=None, help="Explicit output JSONL path. Defaults beside rag_docs.jsonl")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument(
+        "--no-reuse-existing",
+        dest="reuse_existing",
+        action="store_false",
+        help="Disable embedding reuse and recompute all documents.",
+    )
+    parser.set_defaults(reuse_existing=True)
     return parser
 
 
@@ -361,7 +440,12 @@ def main() -> int:
         elif provider in LOCAL_PROVIDERS:
             if dimensions is not None:
                 raise ValueError("Local sentence-transformers models do not support overriding dimensions. Leave embedding.dimensions empty.")
-            embedder = load_sentence_transformer(model_name, device=embedding_config["device"] or None)
+            embedder = load_sentence_transformer(
+                model_name,
+                device=embedding_config["device"] or None,
+                local_model_path=embedding_config.get("local_model_path"),
+                allow_download=embedding_config["allow_download"],
+            )
             embed_fn = lambda docs: embed_batch_local(  # noqa: E731
                 embedder,
                 docs,
@@ -379,7 +463,27 @@ def main() -> int:
         if len(files) != 1 and args.output_file:
             raise ValueError("--output-file can only be used with a single input file.")
 
+        # Load embedding cache for incremental reuse
+        if args.output_file:
+            cache_path = Path(args.output_file).resolve().with_name("rag_embeddings.jsonl")
+        elif len(files) == 1:
+            cache_path = Path(files[0]).resolve().with_name("rag_embeddings.jsonl")
+        else:
+            cache_path = Path(files[0]).resolve().with_name("rag_embeddings.jsonl")
+        existing_cache = (
+            load_existing_embedding_cache(
+                cache_path,
+                model=model_name,
+                dimensions=dimensions,
+                normalize=embedding_config["normalize"],
+            )
+            if args.reuse_existing
+            else {}
+        )
+
         all_enriched: list[dict[str, Any]] = []
+        total_reused = 0
+        total_computed = 0
         total_input_files = len(files)
         for file_path in files:
             source_path = Path(file_path).resolve()
@@ -389,26 +493,67 @@ def main() -> int:
             ensure_document_shape(documents, source_path)
 
             document_count = len(documents)
-            chunked_documents = batched(documents, max(args.batch_size, 1))
-            total_chunks = len(chunked_documents)
-            processed_docs = 0
+            log = sys.stderr if args.format == "json" else sys.stdout
             print(
                 f"Embedding input {files.index(file_path) + 1}/{total_input_files}: "
-                f"{to_repo_relative_display(source_path)} ({document_count} documents, batch_size={max(args.batch_size, 1)})"
+                f"{to_repo_relative_display(source_path)} ({document_count} documents, batch_size={max(args.batch_size, 1)})",
+                file=log,
             )
-            vectors: list[list[float]] = []
-            for chunk_index, chunk in enumerate(chunked_documents, start=1):
+
+            # Compute cache keys and identify hits/misses
+            output_rows: list[dict[str, Any] | None] = []
+            pending_docs: list[dict[str, Any]] = []
+            pending_indices: list[int] = []
+            for i, doc in enumerate(documents):
+                key = embedding_cache_key(doc, model=model_name, dimensions=dimensions, normalize=embedding_config["normalize"])
+                cached = existing_cache.get(key)
+                if cached is not None:
+                    output_rows.append(cached)
+                    total_reused += 1
+                else:
+                    output_rows.append(None)
+                    pending_indices.append(i)
+                    pending_docs.append(doc)
+
+            if not pending_docs:
+                print(f"  All {document_count} documents found in cache, skipping embedding.", file=log)
+                all_enriched.extend([r for r in output_rows if r is not None])
+                continue
+
+            # Embed only cache-miss documents
+            chunked_pending = batched(pending_docs, max(args.batch_size, 1))
+            total_chunks = len(chunked_pending)
+            processed_docs = 0
+            print(
+                f"  {len(pending_docs)}/{document_count} documents need embedding, {len(documents) - len(pending_docs)} cached",
+                file=log,
+            )
+            all_vectors: list[list[float]] = []
+            for chunk_index, chunk in enumerate(chunked_pending, start=1):
                 chunk_vectors = embed_fn(chunk)
-                vectors.extend(chunk_vectors)
+                all_vectors.extend(chunk_vectors)
                 processed_docs += len(chunk)
                 print(
-                    f"Embedding progress: {progress_label(processed_docs, document_count)} "
-                    f"({processed_docs}/{document_count} docs, batch {chunk_index}/{total_chunks})"
+                    f"Embedding progress: {progress_label(processed_docs, len(pending_docs))} "
+                    f"({processed_docs}/{len(pending_docs)} docs, batch {chunk_index}/{total_chunks})",
+                    file=log,
                 )
 
-            all_enriched.extend(
-                enrich_documents(documents, vectors, model=model_name, dimensions=dimensions)
+            # Enrich pending docs with their embeddings and attach cache keys
+            enriched_pending = enrich_documents(
+                pending_docs,
+                all_vectors,
+                model=model_name,
+                local_model_path=embedding_config.get("local_model_path"),
+                dimensions=dimensions,
             )
+            for idx, enriched in zip(pending_indices, enriched_pending):
+                key = embedding_cache_key(documents[idx], model=model_name, dimensions=dimensions, normalize=embedding_config["normalize"])
+                enriched["embedding_cache_key"] = key
+                output_rows[idx] = enriched
+                total_computed += 1
+
+            all_enriched.extend([r for r in output_rows if r is not None])
 
         if args.output_file:
             output_path = Path(args.output_file).resolve()
@@ -423,6 +568,7 @@ def main() -> int:
             output_file=output_path,
             documents=all_enriched,
             model=model_name,
+            local_model_path=embedding_config.get("local_model_path"),
             dimensions=dimensions,
         )
         manifest["embedding_provider"] = provider
@@ -430,26 +576,40 @@ def main() -> int:
         manifest["base_url"] = embedding_config["base_url"] or ""
         manifest["device"] = embedding_config["device"] or ""
         manifest["normalize"] = embedding_config["normalize"]
+        manifest["allow_download"] = embedding_config["allow_download"]
+        manifest["reuse_existing"] = args.reuse_existing
+        if args.reuse_existing:
+            total_processed = total_reused + total_computed
+            manifest["embedding_reuse"] = {
+                "reused_count": total_reused,
+                "computed_count": total_computed,
+                "cache_hit_rate": round(total_reused / total_processed, 4) if total_processed > 0 else 0.0,
+            }
         manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
         if args.format == "json":
-            print(json.dumps(manifest, ensure_ascii=False))
+            print(json.dumps({
+                "status": "success",
+                "manifest": manifest,
+            }, ensure_ascii=False))
         else:
-            print(
-                "\n".join(
-                    [
-                        f"Embedding provider: {provider}",
-                        f"Embedding model: {model_name}",
-                        f"Input files: {len(files)}",
-                        f"Document count: {len(all_enriched)}",
-                        f"rag_embeddings: {to_repo_relative_display(output_path)}",
-                        f"manifest: {to_repo_relative_display(manifest_path)}",
-                    ]
-                )
-            )
+            lines = [
+                f"Embedding provider: {provider}",
+                f"Embedding model: {model_name}",
+                f"Input files: {len(files)}",
+                f"Document count: {len(all_enriched)}",
+            ]
+            if args.reuse_existing:
+                reuse = manifest.get("embedding_reuse", {})
+                lines.append(f"Cache reused: {reuse.get('reused_count', 0)}, computed: {reuse.get('computed_count', 0)}, hit rate: {reuse.get('cache_hit_rate', 0):.1%}")
+            lines.extend([
+                f"rag_embeddings: {to_repo_relative_display(output_path)}",
+                f"manifest: {to_repo_relative_display(manifest_path)}",
+            ])
+            print("\n".join(lines))
         return 0
     except Exception as exc:
-        print(f"Error: {exc}")
+        print(f"Error: {exc}", file=sys.stderr)
         return 1
 
 

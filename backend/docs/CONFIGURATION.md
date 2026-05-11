@@ -172,8 +172,8 @@ sandbox:
 ```yaml
 sandbox:
   use: deerflow.community.aio_sandbox:AioSandboxProvider
+  image: deerflow-sandbox:network-tools  # Custom image with tshark + zeek
   port: 8080
-  auto_start: true
   container_prefix: deer-flow-sandbox
 
   # Optional: Additional mounts
@@ -182,6 +182,8 @@ sandbox:
       container_path: /path/in/container
       read_only: false
 ```
+
+Build that image from [docker/sandbox/Dockerfile](../../docker/sandbox/Dockerfile) before starting the app.
 
 ### Skills
 

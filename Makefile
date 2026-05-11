@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all
 
 PYTHON ?= python
 
@@ -11,6 +11,7 @@ help:
 	@echo "  make check           - Check if all required tools are installed"
 	@echo "  make install         - Install all dependencies (frontend + backend)"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
+	@echo "  make sandbox-build   - Build the custom sandbox image (auto-prefixed by user)"
 	@echo "  make dev             - Start all services in development mode (with hot-reloading)"
 	@echo "  make dev-no-nginx    - Start local services without nginx (no sudo needed)"
 	@echo "  make stop-no-nginx   - Stop local no-nginx services"
@@ -29,6 +30,7 @@ help:
 	@echo ""
 	@echo "Docker Development Commands:"
 	@echo "  make docker-init     - Build the custom k3s image (with pre-cached sandbox image)"
+	@echo "  make docker-build-all - Build all Docker images used by DeerFlow"
 	@echo "  make docker-start    - Start Docker services (mode-aware from config.yaml, localhost:2026)"
 	@echo "  make update-docker-ports-cname - Update Docker/Nginx port config from config.yaml and use current username to rename container name(anker-deer-flow-nginx) and Compose project names (anker-deer-flow) to avoid conflicts when multiple developers on the same machine. This is useful when using Docker development environment with multiple branches or projects."
 	@echo "  make docker-stop     - Stop Docker development services"
@@ -90,6 +92,19 @@ setup-sandbox:
 		echo "  Please install Docker: https://docs.docker.com/get-docker/"; \
 		exit 1; \
 	fi
+
+# Build the custom sandbox image used by AioSandboxProvider
+sandbox-build:
+	@echo "=========================================="
+	@echo "  Building Custom Sandbox Image"
+	@echo "=========================================="
+	@echo ""
+	@SANDBOX_TAG="$${SANDBOX_TAG:-$${USER:-deerflow}}-deerflow-sandbox:network-tools"; \
+	docker build -f docker/sandbox/Dockerfile -t "$$SANDBOX_TAG" . && \
+	echo "" && \
+	echo "✓ Custom sandbox image built: $$SANDBOX_TAG" || \
+	(echo "" && echo "✗ Sandbox build failed" && exit 1)
+	@echo ""
 
 # Start all services in development mode (with hot-reloading)
 dev:
@@ -154,9 +169,35 @@ clean: stop
 docker-init:
 	@./scripts/docker.sh init
 
+# Build all Docker images used by DeerFlow
+docker-build-all:
+	@./scripts/docker.sh build-all
+
 # Start Docker development environment
 docker-start:
 	@./scripts/docker.sh start
+
+# Install Python packages in running containers
+# Usage: make docker-install PACKAGE=duckdb
+#        make docker-install PACKAGE="duckdb openpyxl pyyaml"
+docker-install:
+ifndef PACKAGE
+	@echo "Usage: make docker-install PACKAGE=<package1> [package2] ..."
+	@echo "Example: make docker-install PACKAGE=\"duckdb openpyxl pyyaml\""
+else
+	@./scripts/docker.sh install $(PACKAGE)
+endif
+
+# Install system (apt) packages in running containers
+# Usage: make docker-install-system SYSTEM=vim
+#        make docker-install-system SYSTEM="curl wget htop"
+docker-install-system:
+ifndef SYSTEM
+	@echo "Usage: make docker-install-system SYSTEM=<pkg1> [pkg2] ..."
+	@echo "Example: make docker-install-system SYSTEM=\"vim curl htop\""
+else
+	@./scripts/docker.sh install-system $(SYSTEM)
+endif
 
 # Update Docker and Nginx ports from config.yaml
 docker-update-ports-cname:

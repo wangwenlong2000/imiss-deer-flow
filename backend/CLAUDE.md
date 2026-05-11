@@ -215,6 +215,7 @@ Proxied through nginx: `/api/langgraph/*` → LangGraph, all other `/api/*` → 
 **Implementations**:
 - `LocalSandboxProvider` - Singleton local filesystem execution with path mappings
 - `AioSandboxProvider` (`packages/harness/deerflow/community/`) - Docker-based isolation
+- AIO sandbox containers are built from the image configured in `config.yaml` under `sandbox.image`; if skills need system tools like tshark or zeek, install them in that image rather than only in `backend/Dockerfile`
 
 **Virtual Path System**:
 - Agent sees: `/mnt/user-data/{workspace,uploads,outputs}`, `/mnt/skills`
