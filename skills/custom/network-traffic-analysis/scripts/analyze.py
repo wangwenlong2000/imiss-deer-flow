@@ -1,22 +1,131 @@
 #!/usr/bin/env python3
+"""Network traffic analysis entry point.
+
+This module serves as the CLI entry point. All business logic has been
+refactored into purpose-specific modules under utils/, actions/, and
+sibling packages (anomaly_models, feature_engineering, etc.).
+"""
 from __future__ import annotations
 
 import argparse
-import hashlib
-import ipaddress
 import json
 import logging
-import os
-import re
-import shutil
+import math
 import sys
-import tempfile
-import time
+import uuid
 from contextlib import suppress
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Safe duckdb import — does not crash if duckdb is missing
+try:
+    import duckdb as _duckdb_module  # type: ignore
+    _DUCKDB_AVAILABLE = True
+    _DUCKDB_EXCEPTIONS = (
+        _duckdb_module.ParserException,
+        _duckdb_module.BinderException,
+        _duckdb_module.CatalogException,
+        _duckdb_module.ConversionException,
+    )
+    _DUCKDB_EXCEPTION_MAP = {
+        "ParserException": _duckdb_module.ParserException,
+        "BinderException": _duckdb_module.BinderException,
+        "CatalogException": _duckdb_module.CatalogException,
+        "ConversionException": _duckdb_module.ConversionException,
+        "IOException": _duckdb_module.IOException,
+    }
+except ImportError:
+    _duckdb_module = None  # type: ignore
+    _DUCKDB_AVAILABLE = False
+    _DUCKDB_EXCEPTIONS = (Exception,)
+    _DUCKDB_EXCEPTION_MAP = {}
+
+# Import all action functions from their dedicated modules
+from actions import (
+    detect_anomaly_action,
+    inspect_action,
+    overview_report_action,
+    packet_review_action,
+    periodicity_review_action,
+    protocol_drift_section,
+    protocol_review_action,
+    scan_review_action,
+    session_review_action,
+    short_connection_review_action,
+    timeseries_action,
+)
+from actions.behavior_analysis_action import execute_behavior_analysis
+from actions.device_identification_action import execute_device_identification
+from actions.encrypted_flow_analysis_action import execute_encrypted_flow_analysis
+from actions.graph_analysis_action import execute_graph_analysis
+from actions.qos_analysis_action import execute_qos_analysis
+from actions.root_cause_action import execute_root_cause_analysis
+from actions.threat_intel_match_action import execute_threat_intel_match
+from actions.forecast_traffic_action import execute_forecast_analysis
+from analysis.anomaly_models import score_generic_candidates, score_scan_candidates, score_session_candidates, score_short_connection_candidates, score_timeseries_rcf
+from capability_catalog import build_capability_catalog, render_capability_catalog
+from constants import (
+    CACHE_DIR,
+    CANONICAL_COLUMNS,
+    CAPABILITY_GUIDANCE,
+    FLOW_PREFERRED_FIELDS,
+    NUMERIC_COLUMNS,
+    PACKET_PREFERRED_FIELDS,
+    SUPPORTED_ANOMALY_RULES,
+    SUPPORTED_PATTERNS,
+)
+from utils.db import connect_build_db, connect_cached_db
+from analysis.feature_engineering import failure_rate_candidate_sql, handshake_failure_candidate_sql, icmp_probe_candidate_sql, rare_port_candidate_sql, rows_from_query, rst_heavy_candidate_sql, scan_candidate_sql, session_candidate_sql, short_connection_candidate_sql, small_packet_burst_candidate_sql, source_microflow_summary_sql, volume_spike_candidate_sql
 from file_resolution import get_default_search_roots, is_explicit_path_reference, normalize_name, resolve_reference
+from utils.formatter import export_rows, format_rows, render_rows_section, render_section
+from core.schema_mapping import (
+    add_ip_udf,
+    analysis_time_bucket_expr,
+    available_canonical_fields,
+    booleanish_expr,
+    build_flows_view,
+    build_where_clause,
+    detect_mapping,
+    ensure_required,
+    execute_render,
+    get_columns,
+    infer_analysis_view,
+    load_mapping,
+    load_sources,
+    metric_sql,
+    numeric_expr,
+    quote_identifier,
+    quote_literal,
+    relative_interval_seconds,
+    sanitize_table_name,
+    sql_literal,
+    timestamp_expr,
+)
+from analysis.review import risk_fusion_review_action, signature_review_action
+from analysis.signature_matching import scan_signature_hits
+from utils.io import ensure_cache_dir, ensure_duckdb, ensure_pytz, ensure_yaml, load_json, save_json
+from utils.math import (
+    _coerce_event_seconds,
+    _dominant_periodicity,
+    _lag_autocorrelation,
+    _mean_std,
+    _safe_float_local,
+    _safe_ratio_local,
+    _safe_text,
+    _shannon_entropy,
+    _text_entropy_local,
+    _zscore,
+)
+from utils.path import compute_cache_key, discover_files, repo_root, resolve_file_reference, to_repo_relative_display
+from utils.zeek import (
+    _discover_zeek_logs,
+    _load_zeek_json_rows,
+    _private_ip_predicate,
+    _signature_source_candidates,
+    _zeek_semantic_candidates,
+    _zeek_value,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -25,1777 +134,348 @@ duckdb = None
 yaml = None
 
 
-def ensure_duckdb() -> Any:
-    global duckdb
-    if duckdb is not None:
-        return duckdb
-    try:
-        import duckdb as duckdb_module
-    except ImportError:
-        os.system(f"{sys.executable} -m pip install duckdb openpyxl pyyaml -q")
-        import duckdb as duckdb_module
-    duckdb = duckdb_module
-    return duckdb
-
-
-def ensure_yaml() -> Any:
-    global yaml
-    if yaml is not None:
-        return yaml
-    try:
-        import yaml as yaml_module
-    except ImportError:
-        os.system(f"{sys.executable} -m pip install pyyaml -q")
-        import yaml as yaml_module
-    yaml = yaml_module
-    return yaml
-
-
-def ensure_pytz() -> None:
-    try:
-        import pytz  # noqa: F401
-    except ImportError:
-        os.system(f"{sys.executable} -m pip install pytz -q")
-
-CANONICAL_COLUMNS = [
-    "timestamp",
-    "end_time",
-    "relative_time_s",
-    "start_relative_time_s",
-    "end_relative_time_s",
-    "time_is_relative",
-    "packet_number",
-    "src_ip",
-    "dst_ip",
-    "src_port",
-    "dst_port",
-    "protocol",
-    "app_protocol",
-    "service",
-    "bytes",
-    "packets",
-    "flow_duration",
-    "duration_ms",
-    "session_state",
-    "rule_name",
-    "tcp_flags",
-    "tcp_flags_seen",
-    "ip_version",
-    "frame_len",
-    "ttl",
-    "payload_bytes",
-    "icmp_type",
-    "icmp_code",
-    "dns_query",
-    "tls_sni",
-    "http_host",
-    "direction",
-    "action",
-    "flow_start_reason",
-    "flow_end_reason",
-    "vlan_id",
-    "src_zone",
-    "dst_zone",
-    "src_asset_group",
-    "dst_asset_group",
-    "nat_src_ip",
-    "nat_dst_ip",
-    "dst_asn",
-    "dst_country",
-    "asset_id",
-    "user_id",
-    "device_id",
-    "sensor_id",
-    "pcap_name",
-    "mac_src",
-    "mac_dst",
-    "packet_count",
-    "byte_count",
-    "bytes_total",
-    "src_bytes",
-    "dst_bytes",
-    "src_packets",
-    "dst_packets",
-    "dataset_label",
-    "traffic_family",
-]
-NUMERIC_COLUMNS = {
-    "packet_number",
-    "relative_time_s",
-    "start_relative_time_s",
-    "end_relative_time_s",
-    "src_port",
-    "dst_port",
-    "bytes",
-    "packets",
-    "flow_duration",
-    "duration_ms",
-    "frame_len",
-    "ttl",
-    "payload_bytes",
-    "icmp_type",
-    "icmp_code",
-    "vlan_id",
-    "dst_asn",
-    "packet_count",
-    "byte_count",
-    "bytes_total",
-    "src_bytes",
-    "dst_bytes",
-    "src_packets",
-    "dst_packets",
-}
-CACHE_DIR = Path(tempfile.gettempdir()) / ".network-traffic-analysis-cache"
-SUPPORTED_PATTERNS = ("*.csv", "*.parquet", "*.json", "*.jsonl", "*.xlsx", "*.xls")
-FLOW_PREFERRED_FIELDS = {
-    "flow_duration",
-    "duration_ms",
-    "app_protocol",
-    "service",
-    "direction",
-    "action",
-    "session_state",
-    "traffic_family",
-}
-PACKET_PREFERRED_FIELDS = {
-    "packet_number",
-    "frame_len",
-    "ttl",
-    "payload_bytes",
-    "tcp_flags",
-    "icmp_type",
-    "icmp_code",
-    "mac_src",
-    "mac_dst",
-    "pcap_name",
-}
-SUPPORTED_ANOMALY_RULES = [
-    "scan-source",
-    "volume-spike",
-    "rare-port",
-    "failure-rate",
-    "syn-scan",
-    "rst-heavy",
-    "handshake-failure",
-    "icmp-probe",
-    "small-packet-burst",
-]
-CAPABILITY_GUIDANCE = {
-    "overview-report": "Use for dataset-wide communication profile and high-level protocol mix.",
-    "scan-review": "Use for broad-destination or broad-port behavior and likely scan sources.",
-    "session-review": "Use for session quality, short-lived flows, resets, and connection-state triage.",
-    "short-connection-review": "Use for formal short-connection analysis with both wide and narrow flow-level heuristics.",
-    "protocol-review": "Use for DNS/TLS/HTTP/SMTP and other protocol-specific traffic characteristics.",
-    "packet-review": "Use for packet-level flags, ICMP behavior, handshake quality, and burst evidence.",
-    "query": "Use for explicit thresholds, custom filters, and analyst-defined SQL investigations.",
-    "detect-anomaly": "Use only with supported built-in anomaly rules. Query list-capabilities first if unsure.",
-}
-
-
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
-
-
-def to_repo_relative_display(value: str | Path) -> str:
-    path = Path(value).expanduser()
-    if not path.is_absolute():
-        return path.as_posix()
-    try:
-        return path.resolve().relative_to(repo_root()).as_posix()
-    except ValueError:
-        return path.resolve().as_posix()
-
-
-def quote_identifier(value: str) -> str:
-    return '"' + value.replace('"', '""') + '"'
-
-
-def quote_literal(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
-
-
-def sanitize_table_name(name: str) -> str:
-    name = re.sub(r"[^\w]", "_", name)
-    if name and name[0].isdigit():
-        name = f"t_{name}"
-    if name.lower() == "flows":
-        name = "flows_source"
-    return name
-
-
-def ensure_cache_dir() -> None:
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def build_capability_catalog() -> dict[str, Any]:
-    return {
-        "actions": {
-            "inspect": "Inspect schema, canonical mappings, and table structure.",
-            "summary": "Return high-level record, time-range, and protocol totals.",
-            "overview-report": CAPABILITY_GUIDANCE["overview-report"],
-            "scan-review": CAPABILITY_GUIDANCE["scan-review"],
-            "session-review": CAPABILITY_GUIDANCE["session-review"],
-            "short-connection-review": CAPABILITY_GUIDANCE["short-connection-review"],
-            "protocol-review": CAPABILITY_GUIDANCE["protocol-review"],
-            "packet-review": CAPABILITY_GUIDANCE["packet-review"],
-            "query": CAPABILITY_GUIDANCE["query"],
-            "topn": "Rank a dimension by bytes, packets, flow count, destinations, or ports.",
-            "timeseries": "Aggregate records, bytes, and packets over time buckets.",
-            "distribution": "Show categorical or numeric distribution for one dimension.",
-            "filter": "Return filtered rows for quick triage.",
-            "aggregate": "Run grouped aggregations with analyst-selected metrics.",
-            "detect-anomaly": CAPABILITY_GUIDANCE["detect-anomaly"],
-            "export": "Export a result set to CSV, JSON, or Markdown.",
-        },
-        "detect_anomaly_rules": {
-            "supported": SUPPORTED_ANOMALY_RULES,
-            "rule_guidance": {
-                "scan-source": "Broad-destination or broad-port source behavior.",
-                "volume-spike": "Hourly traffic spikes relative to the average bucket.",
-                "rare-port": "Low-frequency destination ports that may merit review.",
-                "failure-rate": "High proportions of failed or blocked actions.",
-                "syn-scan": "SYN-heavy probing patterns and broad target coverage.",
-                "rst-heavy": "RST-dominant traffic that suggests rejection or abrupt termination.",
-                "handshake-failure": "SYN without SYN-ACK and failed TCP setup patterns.",
-                "icmp-probe": "ICMP probing across many destinations or message types.",
-                "small-packet-burst": "High-volume low-payload burst behavior.",
-            },
-        },
-        "workflow_recommendations": {
-            "current-dataset-overview": ["overview-report", "protocol-review"],
-            "scan-investigation": ["scan-review", "detect-anomaly:scan-source", "query"],
-            "session-quality-or-short-lived-flows": ["session-review", "short-connection-review", "query"],
-            "packet-evidence": ["packet-review", "detect-anomaly:syn-scan", "detect-anomaly:rst-heavy"],
-            "custom-thresholds-or-ad-hoc-hypotheses": ["query"],
-        },
-        "notes": [
-            "If a requested heuristic is not listed under detect_anomaly_rules.supported, do not invent a new rule name.",
-            "Use session-review, scan-review, protocol-review, packet-review, or query as the nearest structured fallback.",
-            "For explicit thresholds or analyst-defined logic, prefer --action query over unsupported anomaly rules.",
-        ],
-    }
-
-
-def render_capability_catalog() -> str:
-    return json.dumps(build_capability_catalog(), ensure_ascii=False, indent=2)
-
-
-def _is_lock_conflict_error(exc: Exception) -> bool:
-    message = str(exc)
-    return "Conflicting lock is held" in message or "Could not set lock on file" in message
-
-
-def connect_cached_db(db_path: Path, *, max_attempts: int = 5) -> tuple[duckdb.DuckDBPyConnection, Path | None]:
-    """Open a cached DuckDB database with lock-aware retries.
-
-    Prefer read-only access for cache hits. If another process briefly holds a
-    write lock, retry a few times and finally fall back to a per-process copy.
-    """
-    last_exc: Exception | None = None
-
-    for attempt in range(1, max_attempts + 1):
-        try:
-            return duckdb.connect(str(db_path), read_only=True), None
-        except Exception as exc:
-            if not _is_lock_conflict_error(exc):
-                raise
-            last_exc = exc
-            if attempt < max_attempts:
-                time.sleep(min(0.5 * attempt, 2.0))
-
-    # Final fallback: open a read-only copy to avoid cross-process lock
-    # contention while preserving cached contents.
-    copy_path = db_path.with_name(f"{db_path.stem}.{os.getpid()}.readonly.duckdb")
-    shutil.copy2(db_path, copy_path)
-    try:
-        return duckdb.connect(str(copy_path), read_only=True), copy_path
-    except Exception:
-        with suppress(Exception):
-            copy_path.unlink()
-        if last_exc is not None:
-            raise last_exc
-        raise
-
-
-def connect_build_db(
-    db_path: Path,
-    tables_path: Path,
-    mappings_path: Path,
-    *,
-    max_attempts: int = 5,
-) -> tuple[duckdb.DuckDBPyConnection, Path | None, bool]:
-    """Open a writable cache DB for build, or attach to a cache built by another process.
-
-    Returns `(connection, cleanup_copy, cache_ready)`. When `cache_ready` is True,
-    the sidecar metadata files already exist and the caller should treat the cache as
-    fully built instead of rebuilding sources.
-    """
-    last_exc: Exception | None = None
-
-    for attempt in range(1, max_attempts + 1):
-        try:
-            return duckdb.connect(str(db_path)), None, False
-        except Exception as exc:
-            if not _is_lock_conflict_error(exc):
-                raise
-            last_exc = exc
-            if db_path.exists() and tables_path.exists() and mappings_path.exists():
-                con, cleanup = connect_cached_db(db_path, max_attempts=max_attempts)
-                return con, cleanup, True
-            if attempt < max_attempts:
-                time.sleep(min(0.5 * attempt, 2.0))
-
-    if db_path.exists() and tables_path.exists() and mappings_path.exists():
-        con, cleanup = connect_cached_db(db_path, max_attempts=max_attempts)
-        return con, cleanup, True
-
-    if last_exc is not None:
-        raise last_exc
-    raise RuntimeError(f"Failed to open writable cache database: {db_path}")
-
-
-def load_mapping(path: str | None) -> dict[str, Any]:
-    yaml_module = ensure_yaml()
-    if path is None:
-        path = str(repo_root() / "datasets" / "network-traffic" / "schema" / "field_mapping.yaml")
-    mapping_path = Path(path)
-    if not mapping_path.exists():
-        raise FileNotFoundError(f"Field mapping file not found: {mapping_path}")
-    with open(mapping_path, encoding="utf-8") as f:
-        payload = yaml_module.safe_load(f) or {}
-    payload.setdefault("canonical_fields", {})
-    payload.setdefault("profiles", {})
-    payload.setdefault("default_metrics", ["count", "sum:bytes", "sum:packets", "avg:flow_duration"])
-    return payload
-
-
-def discover_files(values: list[str]) -> list[str]:
-    files: list[str] = []
-    for value in values:
-        path = Path(value)
-        if path.is_dir():
-            for pattern in SUPPORTED_PATTERNS:
-                files.extend(str(p) for p in sorted(path.rglob(pattern)))
-        elif path.exists():
-            files.append(str(path))
-        elif is_explicit_path_reference(value):
-            raise ValueError(f"File path '{value}' does not exist.")
-        else:
-            files.extend(resolve_file_reference(value))
-    deduped: list[str] = []
-    seen: set[str] = set()
-    for item in files:
-        norm = str(Path(item))
-        if norm not in seen:
-            deduped.append(norm)
-            seen.add(norm)
-    return deduped
-
-
-def resolve_file_reference(reference: str) -> list[str]:
-    result = resolve_reference(reference)
-    if result.status == "resolved":
-        return result.matches
-    if result.status == "ambiguous":
-        sample = "\n".join(f"  - {to_repo_relative_display(path)}" for path in result.matches[:10])
-        raise ValueError(
-            f"File reference '{reference}' matched multiple datasets. "
-            f"Use a more specific path.\nCandidates:\n{sample}"
-        )
-    raise ValueError(result.message)
-
-
-def compute_cache_key(files: list[str], mapping: dict[str, Any]) -> str:
-    hasher = hashlib.sha256()
-    for file_path in sorted(files):
-        hasher.update(file_path.encode("utf-8"))
-        try:
-            with open(file_path, "rb") as f:
-                while chunk := f.read(8192):
-                    hasher.update(chunk)
-        except OSError:
-            pass
-    hasher.update(json.dumps(mapping, sort_keys=True).encode("utf-8"))
-    return hasher.hexdigest()
-
-
-def save_json(path: Path, payload: Any) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-
-def load_json(path: Path) -> Any | None:
-    if not path.exists():
-        return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def load_sources(con: duckdb.DuckDBPyConnection, files: list[str]) -> dict[str, dict[str, str]]:
-    table_info: dict[str, dict[str, str]] = {}
-    for file_path in files:
-        path = Path(file_path)
-        if not path.exists():
-            logger.warning(f"File not found: {file_path}")
-            continue
-        table_name = sanitize_table_name(path.stem)
-        base_name = table_name
-        counter = 1
-        while table_name in table_info:
-            table_name = f"{base_name}_{counter}"
-            counter += 1
-
-        ext = path.suffix.lower()
-        if ext == ".csv":
-            sql = (
-                f"CREATE TABLE {quote_identifier(table_name)} AS "
-                f"SELECT * FROM read_csv_auto("
-                f"{quote_literal(str(path))}, "
-                f"delim=',', header=true, SAMPLE_SIZE=-1, ignore_errors=true, null_padding=true)"
-            )
-        elif ext == ".parquet":
-            sql = f"CREATE TABLE {quote_identifier(table_name)} AS SELECT * FROM read_parquet({quote_literal(str(path))})"
-        elif ext in {".json", ".jsonl"}:
-            sql = f"CREATE TABLE {quote_identifier(table_name)} AS SELECT * FROM read_json_auto({quote_literal(str(path))}, format='auto')"
-        elif ext in {".xlsx", ".xls"}:
-            con.execute("INSTALL spatial; LOAD spatial;")
-            sql = (
-                f"CREATE TABLE {quote_identifier(table_name)} AS "
-                f"SELECT * FROM st_read({quote_literal(str(path))}, open_options = ['HEADERS=FORCE', 'FIELD_TYPES=AUTO'])"
-            )
-        else:
-            logger.warning(f"Unsupported file format: {ext} ({file_path})")
-            continue
-
-        try:
-            con.execute(sql)
-            table_info[table_name] = {"file": to_repo_relative_display(path)}
-        except Exception as exc:
-            logger.warning(f"Failed to load {file_path}: {exc}")
-    return table_info
-
-
-def get_columns(con: duckdb.DuckDBPyConnection, table_name: str) -> list[str]:
-    return [row[0] for row in con.execute(f"DESCRIBE {quote_identifier(table_name)}").fetchall()]
-
-
-def _dedupe_aliases(values: list[str]) -> list[str]:
-    deduped: list[str] = []
-    seen: set[str] = set()
-    for value in values:
-        normalized = normalize_name(value)
-        if normalized and normalized not in seen:
-            deduped.append(value)
-            seen.add(normalized)
-    return deduped
-
-
-def merged_aliases(mapping: dict[str, Any], profile_name: str | None = None) -> dict[str, list[str]]:
-    aliases: dict[str, list[str]] = {}
-    base_aliases = mapping.get("canonical_fields", {})
-    for canonical in CANONICAL_COLUMNS:
-        aliases[canonical] = list(base_aliases.get(canonical, []))
-
-    if profile_name:
-        profiles = mapping.get("profiles", {})
-        profile = profiles.get(profile_name, {})
-        for canonical, extra_aliases in profile.get("canonical_fields", {}).items():
-            aliases.setdefault(canonical, [])
-            aliases[canonical].extend(extra_aliases or [])
-
-    for canonical in aliases:
-        aliases[canonical] = _dedupe_aliases(aliases[canonical])
-    return aliases
-
-
-def select_mapping_profile(columns: list[str], mapping: dict[str, Any]) -> str | None:
-    normalized = {normalize_name(col): col for col in columns}
-    best_profile: str | None = None
-    best_score = 0
-
-    for profile_name, profile in (mapping.get("profiles", {}) or {}).items():
-        score = 0
-        for aliases in (profile.get("canonical_fields", {}) or {}).values():
-            for alias in aliases or []:
-                if normalize_name(alias) in normalized:
-                    score += 1
-                    break
-        if score > best_score:
-            best_profile = profile_name
-            best_score = score
-
-    return best_profile if best_score > 0 else None
-
-
-def detect_mapping(columns: list[str], mapping: dict[str, Any]) -> tuple[dict[str, str], str | None]:
-    profile_name = select_mapping_profile(columns, mapping)
-    aliases = merged_aliases(mapping, profile_name)
-    normalized = {normalize_name(col): col for col in columns}
-    resolved: dict[str, str] = {}
-    for canonical in CANONICAL_COLUMNS:
-        exact = normalized.get(normalize_name(canonical))
-        if exact:
-            resolved[canonical] = exact
-            continue
-        for alias in aliases.get(canonical, []):
-            hit = normalized.get(normalize_name(alias))
-            if hit:
-                resolved[canonical] = hit
-                break
-    return resolved, profile_name
-
-
-def timestamp_expr(column_sql: str) -> str:
-    return (
-        f"COALESCE(try_cast({column_sql} AS TIMESTAMP), "
-        f"to_timestamp(try_cast({column_sql} AS DOUBLE)), "
-        f"try_strptime(CAST({column_sql} AS VARCHAR), '%Y-%m-%d %H:%M:%S'), "
-        f"try_strptime(CAST({column_sql} AS VARCHAR), '%Y-%m-%dT%H:%M:%S'), "
-        f"try_strptime(CAST({column_sql} AS VARCHAR), '%Y-%m-%dT%H:%M:%S.%f'))"
-    )
-
-
-def numeric_expr(column_sql: str) -> str:
-    return f"try_cast({column_sql} AS DOUBLE)"
-
-
-def booleanish_expr(column_sql: str) -> str:
-    return (
-        "CASE "
-        f"WHEN lower(trim(CAST({column_sql} AS VARCHAR))) IN ('true', '1', 'yes', 'y') THEN TRUE "
-        f"WHEN lower(trim(CAST({column_sql} AS VARCHAR))) IN ('false', '0', 'no', 'n') THEN FALSE "
-        "ELSE NULL END"
-    )
-
-
-def relative_interval_seconds(interval: str) -> int:
-    return {"minute": 60, "hour": 3600, "day": 86400}[interval]
-
-
-def analysis_time_bucket_expr(interval: str) -> str:
-    seconds = relative_interval_seconds(interval)
-    return (
-        "CASE "
-        f"WHEN analysis_time_kind = 'absolute' AND analysis_time_ts IS NOT NULL THEN CAST(DATE_TRUNC('{interval}', analysis_time_ts) AS VARCHAR) "
-        f"WHEN analysis_time_kind = 'relative' AND analysis_time_relative_s IS NOT NULL THEN CONCAT('t+', CAST(CAST(FLOOR(analysis_time_relative_s / {seconds}) * {seconds} AS BIGINT) AS VARCHAR), 's') "
-        "ELSE 'unknown' END"
-    )
-
-
-def build_flows_view(
-    con: duckdb.DuckDBPyConnection,
-    table_info: dict[str, dict[str, str]],
-    mapping: dict[str, Any],
-) -> dict[str, dict[str, str]]:
-    resolved_all: dict[str, dict[str, str]] = {}
-    union_selects: list[str] = []
-    for table_name, meta in table_info.items():
-        resolved, profile_name = detect_mapping(get_columns(con, table_name), mapping)
-        resolved_all[table_name] = resolved
-        if profile_name:
-            meta["mapping_profile"] = profile_name
-        fields: list[str] = []
-        timestamp_source = resolved.get("timestamp")
-        absolute_time_expr = timestamp_expr(quote_identifier(timestamp_source)) if timestamp_source else "CAST(NULL AS TIMESTAMP)"
-        relative_time_candidates: list[str] = []
-        if resolved.get("start_relative_time_s"):
-            relative_time_candidates.append(numeric_expr(quote_identifier(resolved["start_relative_time_s"])))
-        if resolved.get("relative_time_s"):
-            relative_time_candidates.append(numeric_expr(quote_identifier(resolved["relative_time_s"])))
-        relative_time_candidates.append("CAST(NULL AS DOUBLE)")
-        relative_time_expr_sql = "COALESCE(" + ", ".join(relative_time_candidates) + ")"
-        if resolved.get("time_is_relative"):
-            relative_flag_expr = booleanish_expr(quote_identifier(resolved["time_is_relative"]))
-        else:
-            relative_flag_expr = "CAST(NULL AS BOOLEAN)"
-        for canonical in CANONICAL_COLUMNS:
-            source = resolved.get(canonical)
-            if source:
-                column = quote_identifier(source)
-                if canonical == "timestamp":
-                    expr = f"{timestamp_expr(column)} AS {quote_identifier(canonical)}"
-                elif canonical in NUMERIC_COLUMNS:
-                    expr = f"try_cast({column} AS DOUBLE) AS {quote_identifier(canonical)}"
-                else:
-                    expr = f"CAST({column} AS VARCHAR) AS {quote_identifier(canonical)}"
-            else:
-                if canonical == "timestamp":
-                    expr = f"CAST(NULL AS TIMESTAMP) AS {quote_identifier(canonical)}"
-                elif canonical in NUMERIC_COLUMNS:
-                    expr = f"CAST(NULL AS DOUBLE) AS {quote_identifier(canonical)}"
-                else:
-                    expr = f"CAST(NULL AS VARCHAR) AS {quote_identifier(canonical)}"
-            fields.append(expr)
-        fields.append(f"{absolute_time_expr} AS analysis_time_ts")
-        fields.append(f"{relative_time_expr_sql} AS analysis_time_relative_s")
-        fields.append(
-            "CASE "
-            f"WHEN COALESCE({relative_flag_expr}, FALSE) THEN 'relative' "
-            f"WHEN {absolute_time_expr} IS NOT NULL THEN 'absolute' "
-            f"WHEN {relative_time_expr_sql} IS NOT NULL THEN 'relative' "
-            "ELSE 'unknown' END AS analysis_time_kind"
-        )
-        fields.append(
-            "CASE "
-            f"WHEN {absolute_time_expr} IS NOT NULL THEN CAST({absolute_time_expr} AS VARCHAR) "
-            f"WHEN COALESCE({relative_flag_expr}, FALSE) OR {relative_time_expr_sql} IS NOT NULL THEN CONCAT('t+', CAST({relative_time_expr_sql} AS VARCHAR), 's') "
-            "ELSE NULL END AS analysis_time_display"
-        )
-        fields.append(f"{quote_literal(table_name)} AS source_table")
-        fields.append(f"{quote_literal(meta['file'])} AS source_file")
-        union_selects.append(f"SELECT {', '.join(fields)} FROM {quote_identifier(table_name)}")
-    if union_selects:
-        # Use a temp view so cached databases can stay read-only while the
-        # current session still gets a unified canonical `flows` relation.
-        con.execute("CREATE OR REPLACE TEMP VIEW flows AS " + " UNION ALL ".join(union_selects))
-    return resolved_all
-
-
-def add_ip_udf(con: duckdb.DuckDBPyConnection) -> None:
-    def ip_in_cidr(ip_value: Any, cidr_value: Any) -> bool:
-        if ip_value in (None, "") or cidr_value in (None, ""):
-            return False
-        try:
-            return ipaddress.ip_address(str(ip_value)) in ipaddress.ip_network(str(cidr_value), strict=False)
-        except ValueError:
-            return False
-
-    con.create_function("ip_in_cidr", ip_in_cidr, ["VARCHAR", "VARCHAR"], "BOOLEAN")
-
-
-def sql_literal(value: Any) -> str:
-    if value is None:
-        return "NULL"
-    if isinstance(value, bool):
-        return "TRUE" if value else "FALSE"
-    if isinstance(value, (int, float)):
-        return str(value)
-    return quote_literal(str(value))
-
-
-def build_where_clause(filters_json: str | None, start_time: str | None, end_time: str | None) -> str:
-    clauses: list[str] = []
-    if start_time:
-        clauses.append(f"analysis_time_ts >= {quote_literal(start_time)}::TIMESTAMP")
-    if end_time:
-        clauses.append(f"analysis_time_ts <= {quote_literal(end_time)}::TIMESTAMP")
-    if filters_json:
-        payload = json.loads(filters_json)
-        if isinstance(payload, dict):
-            payload = [payload]
-        for item in payload:
-            field = quote_identifier(item["field"])
-            op = item.get("op", "eq")
-            value = item.get("value")
-            if op == "eq":
-                clauses.append(f"{field} = {sql_literal(value)}")
-            elif op == "neq":
-                clauses.append(f"{field} <> {sql_literal(value)}")
-            elif op == "gt":
-                clauses.append(f"{field} > {sql_literal(value)}")
-            elif op == "gte":
-                clauses.append(f"{field} >= {sql_literal(value)}")
-            elif op == "lt":
-                clauses.append(f"{field} < {sql_literal(value)}")
-            elif op == "lte":
-                clauses.append(f"{field} <= {sql_literal(value)}")
-            elif op == "in":
-                if not isinstance(value, list) or not value:
-                    raise ValueError("Filter op 'in' requires a non-empty array")
-                clauses.append(f"{field} IN ({', '.join(sql_literal(v) for v in value)})")
-            elif op == "contains":
-                clauses.append(f"CAST({field} AS VARCHAR) ILIKE {quote_literal('%' + str(value) + '%')}")
-            elif op == "startswith":
-                clauses.append(f"CAST({field} AS VARCHAR) ILIKE {quote_literal(str(value) + '%')}")
-            elif op == "endswith":
-                clauses.append(f"CAST({field} AS VARCHAR) ILIKE {quote_literal('%' + str(value))}")
-            elif op == "in_cidr":
-                clauses.append(f"ip_in_cidr(CAST({field} AS VARCHAR), {quote_literal(str(value))})")
-            else:
-                raise ValueError(f"Unsupported filter op: {op}")
-    return "WHERE " + " AND ".join(clauses) if clauses else ""
-
-
-def format_rows(columns: list[str], rows: list[tuple[Any, ...]]) -> str:
-    if not rows:
-        return "Query returned 0 rows."
-    widths = [len(col) for col in columns]
-    for row in rows:
-        for i, value in enumerate(row):
-            widths[i] = min(max(widths[i], len(str(value))), 48)
-    header = " | ".join(columns[i].ljust(widths[i]) for i in range(len(columns)))
-    sep = "-+-".join("-" * widths[i] for i in range(len(columns)))
-    body = []
-    for row in rows:
-        body.append(" | ".join(str(row[i])[:48].ljust(widths[i]) for i in range(len(columns))))
-    return "\n".join([header, sep] + body + [f"\n({len(rows)} rows)"])
-
-
-def export_rows(columns: list[str], rows: list[tuple[Any, ...]], output_file: str) -> str:
-    path = Path(output_file)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    ext = path.suffix.lower()
-    if ext == ".csv":
-        import csv
-
-        with open(path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(columns)
-            writer.writerows(rows)
-    elif ext == ".json":
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump([{columns[i]: row[i] for i in range(len(columns))} for row in rows], f, indent=2, ensure_ascii=False, default=str)
-    elif ext == ".md":
-        with open(path, "w", encoding="utf-8") as f:
-            f.write("| " + " | ".join(columns) + " |\n")
-            f.write("| " + " | ".join("---" for _ in columns) + " |\n")
-            for row in rows:
-                f.write("| " + " | ".join(str(value).replace("|", "\\|") for value in row) + " |\n")
-    else:
-        raise ValueError(f"Unsupported output format: {ext}. Use .csv, .json, or .md")
-    return f"Results exported to {path} ({len(rows)} rows)"
-
-
-def execute_render(con: duckdb.DuckDBPyConnection, sql: str, output_file: str | None = None) -> str:
-    result = con.execute(sql)
-    columns = [item[0] for item in result.description]
-    rows = result.fetchall()
-    if output_file:
-        return export_rows(columns, rows, output_file)
-    return format_rows(columns, rows)
-
-
-def ensure_required(mappings: dict[str, dict[str, str]], columns: list[str]) -> None:
-    available = {key for mapping in mappings.values() for key in mapping.keys()}
-    missing = [column for column in columns if column not in available]
-    if missing:
-        raise ValueError(
-            "Missing required canonical field(s): "
-            + ", ".join(missing)
-            + ". Update datasets/network-traffic/schema/field_mapping.yaml or use compatible files."
-        )
-
-
-def available_canonical_fields(mappings: dict[str, dict[str, str]]) -> set[str]:
-    return {key for mapping in mappings.values() for key in mapping.keys()}
-
-
-def infer_analysis_view(
-    files: list[str],
-    explicit_view: str,
-    *,
-    action: str,
-    dimension: str | None,
-    rule: str | None,
-) -> str:
-    if explicit_view in {"flow", "packet"}:
-        return explicit_view
-
-    lower_files = [Path(item).name.lower() for item in files]
-    if any(".packet." in name or name.endswith("packet.csv") for name in lower_files):
-        return "packet"
-    if any(".flow." in name or name.endswith("flow.csv") for name in lower_files):
-        return "flow"
-
-    if rule in {"syn-scan", "rst-heavy", "handshake-failure", "icmp-probe", "small-packet-burst"}:
-        return "packet"
-    if dimension and dimension in PACKET_PREFERRED_FIELDS:
-        return "packet"
-    if dimension and dimension in FLOW_PREFERRED_FIELDS:
-        return "flow"
-    if action == "packet-review":
-        return "packet"
-    if action in {"overview-report", "scan-review", "session-review", "short-connection-review", "protocol-review", "summary", "topn", "distribution", "timeseries", "aggregate", "detect-anomaly"}:
-        return "flow"
-    return "flow"
-
-
-def metric_sql(metric: str) -> str:
-    if metric == "count":
-        return "COUNT(*) AS count"
-    agg, _, field = metric.partition(":")
-    if not field:
-        raise ValueError(f"Invalid metric specification: {metric}")
-    column = quote_identifier(field)
-    alias = quote_identifier(f"{agg}_{field}")
-    if agg == "sum":
-        return f"SUM(COALESCE({column}, 0)) AS {alias}"
-    if agg == "avg":
-        return f"AVG(COALESCE({column}, 0)) AS {alias}"
-    if agg == "max":
-        return f"MAX({column}) AS {alias}"
-    if agg == "min":
-        return f"MIN({column}) AS {alias}"
-    if agg == "count_distinct":
-        return f"COUNT(DISTINCT {column}) AS {alias}"
-    raise ValueError(f"Unsupported metric aggregation: {agg}")
-
-
-def inspect_action(con: duckdb.DuckDBPyConnection, table_info: dict[str, dict[str, str]], mappings: dict[str, dict[str, str]]) -> str:
-    parts: list[str] = []
-    for table_name, meta in table_info.items():
-        columns = con.execute(f"DESCRIBE {quote_identifier(table_name)}").fetchall()
-        row_count = con.execute(f"SELECT COUNT(*) FROM {quote_identifier(table_name)}").fetchone()[0]
-        parts.append(f"\n{'=' * 72}")
-        parts.append(f"Table: {table_name}")
-        parts.append(f"Source file: {meta['file']}")
-        parts.append(f"Rows: {row_count}")
-        if meta.get("mapping_profile"):
-            parts.append(f"Detected mapping profile: {meta['mapping_profile']}")
-        parts.append(f"Detected canonical fields: {json.dumps(mappings.get(table_name, {}), ensure_ascii=False)}")
-        parts.append(f"{'-' * 72}")
-        parts.append(f"{'Name':<28} {'Type':<18} {'Nullable'}")
-        for col_name, col_type, nullable, *_ in columns:
-            parts.append(f"{col_name:<28} {col_type:<18} {nullable}")
-        sample = con.execute(f"SELECT * FROM {quote_identifier(table_name)} LIMIT 5").fetchall()
-        if sample:
-            parts.append("\nSample rows:")
-            parts.append(format_rows([row[0] for row in columns], sample))
-    summary = con.execute(
-        "SELECT COUNT(*) AS records, "
-        "MIN(analysis_time_ts) AS min_time, MAX(analysis_time_ts) AS max_time, "
-        "MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s, "
-        "MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s, "
-        "COUNT(DISTINCT src_ip) AS unique_src_ip, COUNT(DISTINCT dst_ip) AS unique_dst_ip FROM flows"
-    ).fetchone()
-    parts.append(f"\n{'=' * 72}")
-    parts.append("Unified flows view")
-    parts.append(f"Records: {summary[0]}")
-    if summary[1] is not None or summary[2] is not None:
-        parts.append(f"Absolute time range: {summary[1]} -> {summary[2]}")
-    if summary[3] is not None or summary[4] is not None:
-        parts.append(f"Relative time range (s): {summary[3]} -> {summary[4]}")
-    parts.append(f"Unique src_ip: {summary[5]}")
-    parts.append(f"Unique dst_ip: {summary[6]}")
-    return "\n".join(parts)
-
-
-def render_section(
-    con: duckdb.DuckDBPyConnection,
-    title: str,
-    sql: str,
-    *,
-    output_file: str | None = None,
-) -> str:
-    return title + "\n" + execute_render(con, sql, output_file)
-
-
-def overview_report_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    view: str,
-) -> str:
-    available = available_canonical_fields(mappings)
-    sections = [f"Analysis view: {view}"]
-
-    sections.append(
-        render_section(
-            con,
-            "Overview",
-            f"""
-            WITH base AS (SELECT * FROM flows {where_clause})
-            SELECT
-                COUNT(*) AS records,
-                MIN(analysis_time_ts) AS min_time,
-                MAX(analysis_time_ts) AS max_time,
-                MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s,
-                MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s,
-                COUNT(DISTINCT src_ip) AS unique_src_ip,
-                COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                SUM(COALESCE(bytes, 0)) AS total_bytes,
-                SUM(COALESCE(packets, 0)) AS total_packets
-            FROM base
-            """,
-        )
-    )
-
-    sections.append(
-        render_section(
-            con,
-            "Top protocol mix",
-            f"""
-            SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
-                   COUNT(*) AS records,
-                   SUM(COALESCE(bytes, 0)) AS total_bytes
-            FROM flows
-            {where_clause}
-            GROUP BY 1
-            ORDER BY records DESC, total_bytes DESC, protocol ASC
-            LIMIT 10
-            """,
-        )
-    )
-
-    if "app_protocol" in available:
-        sections.append(
-            render_section(
-                con,
-                "Top application protocol mix",
-                f"""
-                SELECT COALESCE(app_protocol, 'UNKNOWN') AS app_protocol,
-                       COUNT(*) AS records,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY records DESC, total_bytes DESC, app_protocol ASC
-                LIMIT 10
-                """,
-            )
-        )
-
-    if "src_ip" in available:
-        sections.append(
-            render_section(
-                con,
-                "Top source IPs by bytes",
-                f"""
-                SELECT src_ip, COUNT(*) AS records, SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE src_ip IS NOT NULL
-                GROUP BY 1
-                ORDER BY total_bytes DESC, records DESC, src_ip ASC
-                LIMIT 10
-                """,
-            )
-        )
-
-    if "dst_ip" in available:
-        sections.append(
-            render_section(
-                con,
-                "Top destination IPs by bytes",
-                f"""
-                SELECT dst_ip, COUNT(*) AS records, SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE dst_ip IS NOT NULL
-                GROUP BY 1
-                ORDER BY total_bytes DESC, records DESC, dst_ip ASC
-                LIMIT 10
-                """,
-            )
-        )
-
-    if "dst_port" in available:
-        sections.append(
-            render_section(
-                con,
-                "Top destination ports",
-                f"""
-                SELECT dst_port, COUNT(*) AS records, SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE dst_port IS NOT NULL
-                GROUP BY 1
-                ORDER BY records DESC, total_bytes DESC, CAST(dst_port AS VARCHAR) ASC
-                LIMIT 10
-                """,
-            )
-        )
-
-    return "\n\n".join(sections)
-
-
-def scan_review_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    view: str,
-    limit: int,
-) -> str:
-    available = available_canonical_fields(mappings)
-    sections = [f"Analysis view: {view}"]
-
-    if view == "packet":
-        ensure_required(mappings, ["src_ip", "dst_ip", "dst_port", "tcp_flags"])
-        sections.append(
-            render_section(
-                con,
-                "Packet-level scan review",
-                f"""
-                SELECT src_ip,
-                       COUNT(*) AS packets,
-                       COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                       COUNT(DISTINCT dst_port) AS unique_dst_port,
-                       SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE src_ip IS NOT NULL
-                GROUP BY 1
-                HAVING COUNT(DISTINCT dst_ip) >= 5
-                    OR COUNT(DISTINCT dst_port) >= 10
-                    OR SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) >= 10
-                ORDER BY syn_only_packets DESC, unique_dst_ip DESC, unique_dst_port DESC, packets DESC
-                LIMIT {limit}
-                """,
-            )
-        )
-        if "dst_port" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Most targeted destination ports",
-                    f"""
-                    SELECT dst_port,
-                           COUNT(*) AS packets,
-                           COUNT(DISTINCT src_ip) AS unique_src_ip,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets
-                    FROM flows
-                    {where_clause}
-                    WHERE dst_port IS NOT NULL
-                    GROUP BY 1
-                    ORDER BY packets DESC, unique_src_ip DESC, CAST(dst_port AS VARCHAR) ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-    else:
-        ensure_required(mappings, ["src_ip", "dst_ip", "dst_port"])
-        sections.append(
-            render_section(
-                con,
-                "Flow-level scan review",
-                f"""
-                SELECT src_ip,
-                       COUNT(*) AS flows,
-                       COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                       COUNT(DISTINCT dst_port) AS unique_dst_port,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE src_ip IS NOT NULL
-                GROUP BY 1
-                HAVING COUNT(DISTINCT dst_ip) >= 5 OR COUNT(DISTINCT dst_port) >= 10
-                ORDER BY unique_dst_ip DESC, unique_dst_port DESC, flows DESC, total_bytes DESC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-        sections.append(
-            render_section(
-                con,
-                "Rare destination port screening",
-                f"""
-                SELECT dst_port, COUNT(*) AS records, SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE dst_port IS NOT NULL
-                GROUP BY 1
-                HAVING COUNT(*) <= 3
-                ORDER BY records ASC, total_bytes DESC, CAST(dst_port AS VARCHAR) ASC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-    return "\n\n".join(sections)
-
-
-def session_review_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    view: str,
-    limit: int,
-) -> str:
-    available = available_canonical_fields(mappings)
-    sections = [f"Analysis view: {view}"]
-
-    if view == "packet":
-        ensure_required(mappings, ["src_ip", "dst_ip", "protocol"])
-        if "tcp_flags" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Packet handshake and reset summary",
-                    f"""
-                    WITH tcp_packets AS (
-                        SELECT *
-                        FROM flows
-                        {where_clause}
-                        {"AND" if where_clause else "WHERE"} protocol = 'TCP'
-                          AND tcp_flags IS NOT NULL
-                          AND tcp_flags != ''
-                    )
-                    SELECT
-                        COUNT(*) AS tcp_packets,
-                        SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%SA%' THEN 1 ELSE 0 END) AS syn_ack_packets,
-                        SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                        ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS syn_only_pct,
-                        SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                        ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS rst_pct
-                    FROM tcp_packets
-                    """,
-                )
-            )
-        if "tcp_flags" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "TCP flag quality review",
-                    f"""
-                    SELECT COALESCE(tcp_flags, 'UNKNOWN') AS tcp_flags,
-                           COUNT(*) AS packets,
-                           COUNT(DISTINCT src_ip) AS unique_src_ip,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY packets DESC, tcp_flags ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if {"src_ip", "dst_ip", "tcp_flags"}.issubset(available):
-            sections.append(
-                render_section(
-                    con,
-                    "Potential handshake-failure sources",
-                    f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                           ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS syn_only_pct,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                           ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS rst_pct,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING syn_only_packets > 0 OR rst_packets > 0
-                    ORDER BY syn_only_packets DESC, rst_packets DESC, packets DESC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "frame_len" in available or "payload_bytes" in available:
-            length_expr = "COALESCE(payload_bytes, frame_len, bytes, 0)"
-            sections.append(
-                render_section(
-                    con,
-                    "Small-packet concentration",
-                    f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN {length_expr} <= 128 THEN 1 ELSE 0 END) AS small_packets,
-                           ROUND(SUM(CASE WHEN {length_expr} <= 128 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS small_packet_pct
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(*) >= 20
-                    ORDER BY small_packet_pct DESC, packets DESC, src_ip ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-    else:
-        if "session_state" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Session state distribution",
-                    f"""
-                    SELECT COALESCE(session_state, 'UNKNOWN') AS session_state,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, session_state ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "action" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Connection outcome distribution",
-                    f"""
-                    SELECT COALESCE(action, 'UNKNOWN') AS action,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, action ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "src_ip" in available and "action" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Potential failure-heavy sources",
-                    f"""
-                    SELECT src_ip,
-                           COUNT(*) AS flows,
-                           SUM(CASE WHEN LOWER(COALESCE(action, '')) IN ('deny', 'drop', 'block', 'reset', 'reject') THEN 1 ELSE 0 END) AS negative_outcomes,
-                           ROUND(SUM(CASE WHEN LOWER(COALESCE(action, '')) IN ('deny', 'drop', 'block', 'reset', 'reject') THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS negative_pct,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(*) >= 5
-                    ORDER BY negative_pct DESC, negative_outcomes DESC, flows DESC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if {"src_ip", "bytes", "flow_duration"}.issubset(available):
-            sections.append(
-                render_section(
-                    con,
-                    "Short and low-byte connection review",
-                    f"""
-                    SELECT src_ip,
-                           COUNT(*) AS flows,
-                           SUM(CASE WHEN COALESCE(bytes, 0) <= 128 AND COALESCE(flow_duration, 0) <= 1000 THEN 1 ELSE 0 END) AS short_low_byte_flows,
-                           ROUND(SUM(CASE WHEN COALESCE(bytes, 0) <= 128 AND COALESCE(flow_duration, 0) <= 1000 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS short_low_byte_pct
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(*) >= 5
-                    ORDER BY short_low_byte_pct DESC, short_low_byte_flows DESC, flows DESC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-    return "\n\n".join(sections)
-
-
-def short_connection_review_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    limit: int,
-) -> str:
-    available = available_canonical_fields(mappings)
-    duration_expr = "COALESCE(duration_ms, flow_duration, 0)" if "duration_ms" in available else "COALESCE(flow_duration, 0)"
-    bytes_expr = "COALESCE(bytes, 0)"
-    packets_expr = "COALESCE(packets, 0)"
-
-    ensure_required(mappings, ["src_ip", "dst_ip", "dst_port", "protocol", "bytes", "packets"])
-    if "duration_ms" not in available and "flow_duration" not in available:
-        raise ValueError("short-connection-review requires duration_ms or flow_duration in the resolved flow view.")
-
-    sections = ["Analysis view: flow"]
-    sections.append(
-        execute_render(
-            con,
-            f"""
-            WITH scoped AS (
-                SELECT *
-                FROM flows
-                {where_clause}
-            )
-            SELECT
-                COUNT(*) AS total_flows,
-                SUM(CASE WHEN {duration_expr} < 1000 THEN 1 ELSE 0 END) AS wide_short_flows,
-                ROUND(SUM(CASE WHEN {duration_expr} < 1000 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS wide_short_pct,
-                SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
-                ROUND(SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS narrow_short_pct
-            FROM scoped
-            """,
-        )
-    )
-    sections.append(
-        render_section(
-            con,
-            "Top short-connection sources",
-            f"""
-            SELECT src_ip,
-                   COUNT(*) AS wide_short_flows,
-                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
-                   ROUND(AVG({bytes_expr}), 2) AS avg_bytes,
-                   ROUND(AVG({duration_expr}), 2) AS avg_duration_ms
-            FROM flows
-            {where_clause}
-            WHERE src_ip IS NOT NULL
-              AND {duration_expr} < 1000
-            GROUP BY 1
-            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, avg_bytes ASC, src_ip ASC
-            LIMIT {limit}
-            """,
-        )
-    )
-    sections.append(
-        render_section(
-            con,
-            "Top short-connection destination ports",
-            f"""
-            SELECT dst_port,
-                   COUNT(*) AS wide_short_flows,
-                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows,
-                   SUM({bytes_expr}) AS total_bytes
-            FROM flows
-            {where_clause}
-            WHERE dst_port IS NOT NULL
-              AND {duration_expr} < 1000
-            GROUP BY 1
-            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, total_bytes DESC, CAST(dst_port AS VARCHAR) ASC
-            LIMIT {limit}
-            """,
-        )
-    )
-    sections.append(
-        render_section(
-            con,
-            "Short-connection state and protocol mix",
-            f"""
-            SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
-                   COALESCE(session_state, 'UNKNOWN') AS session_state,
-                   COUNT(*) AS wide_short_flows,
-                   SUM(CASE WHEN {duration_expr} < 1000 AND {bytes_expr} < 500 AND {packets_expr} <= 3 THEN 1 ELSE 0 END) AS narrow_short_flows
-            FROM flows
-            {where_clause}
-            WHERE {duration_expr} < 1000
-            GROUP BY 1, 2
-            ORDER BY wide_short_flows DESC, narrow_short_flows DESC, protocol ASC, session_state ASC
-            LIMIT {limit}
-            """,
-        )
-    )
-    sections.append(
-        render_section(
-            con,
-            "Representative narrow short-connection samples",
-            f"""
-            SELECT src_ip,
-                   dst_ip,
-                   dst_port,
-                   protocol,
-                   {bytes_expr} AS bytes,
-                   {packets_expr} AS packets,
-                   {duration_expr} AS duration_ms,
-                   COALESCE(session_state, 'UNKNOWN') AS session_state
-            FROM flows
-            {where_clause}
-            WHERE {duration_expr} < 1000
-              AND {bytes_expr} < 500
-              AND {packets_expr} <= 3
-            ORDER BY duration_ms ASC, bytes ASC, packets ASC
-            LIMIT {limit}
-            """,
-        )
-    )
-    return "\n\n".join(sections)
-
-
-def protocol_review_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    view: str,
-    limit: int,
-) -> str:
-    available = available_canonical_fields(mappings)
-    sections = [f"Analysis view: {view}"]
-
-    if view == "packet":
-        if "protocol" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Packet protocol mix",
-                    f"""
-                    SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
-                           COUNT(*) AS packets,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY packets DESC, total_bytes DESC, protocol ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "tcp_flags" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "TCP flags distribution",
-                    f"""
-                    SELECT COALESCE(tcp_flags, 'UNKNOWN') AS tcp_flags,
-                           COUNT(*) AS packets
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY packets DESC, tcp_flags ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "icmp_type" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "ICMP type and code distribution",
-                    f"""
-                    SELECT COALESCE(CAST(icmp_type AS VARCHAR), 'UNKNOWN') AS icmp_type,
-                           COALESCE(CAST(icmp_code AS VARCHAR), 'UNKNOWN') AS icmp_code,
-                           COUNT(*) AS packets
-                    FROM flows
-                    {where_clause}
-                    WHERE icmp_type IS NOT NULL
-                    GROUP BY 1, 2
-                    ORDER BY packets DESC, icmp_type ASC, icmp_code ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "payload_bytes" in available or "frame_len" in available:
-            size_expr = "COALESCE(payload_bytes, frame_len, bytes, 0)"
-            sections.append(
-                render_section(
-                    con,
-                    "Packet size bands",
-                    f"""
-                    SELECT
-                        CASE
-                            WHEN {size_expr} < 64 THEN '<64'
-                            WHEN {size_expr} < 128 THEN '64-127'
-                            WHEN {size_expr} < 512 THEN '128-511'
-                            WHEN {size_expr} < 1500 THEN '512-1499'
-                            ELSE '1500+'
-                        END AS size_band,
-                        COUNT(*) AS packets
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY packets DESC, size_band ASC
-                    """,
-                )
-            )
-    else:
-        if "protocol" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Flow protocol mix",
-                    f"""
-                    SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, protocol ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "app_protocol" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Application protocol mix",
-                    f"""
-                    SELECT COALESCE(app_protocol, 'UNKNOWN') AS app_protocol,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, app_protocol ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "dns_query" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Top DNS queries",
-                    f"""
-                    SELECT dns_query,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    WHERE dns_query IS NOT NULL AND dns_query != ''
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, dns_query ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "tls_sni" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Top TLS SNI values",
-                    f"""
-                    SELECT tls_sni,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    WHERE tls_sni IS NOT NULL AND tls_sni != ''
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, tls_sni ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-        if "http_host" in available:
-            sections.append(
-                render_section(
-                    con,
-                    "Top HTTP host values",
-                    f"""
-                    SELECT http_host,
-                           COUNT(*) AS records,
-                           SUM(COALESCE(bytes, 0)) AS total_bytes
-                    FROM flows
-                    {where_clause}
-                    WHERE http_host IS NOT NULL AND http_host != ''
-                    GROUP BY 1
-                    ORDER BY records DESC, total_bytes DESC, http_host ASC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-    return "\n\n".join(sections)
-
-
-def packet_review_action(
-    con: duckdb.DuckDBPyConnection,
-    mappings: dict[str, dict[str, str]],
-    where_clause: str,
-    limit: int,
-) -> str:
-    available = available_canonical_fields(mappings)
-    sections = ["Analysis view: packet"]
-
-    if "tcp_flags" in available:
-        sections.append(
-            render_section(
-                con,
-                "Handshake and reset posture",
-                f"""
-                WITH tcp_packets AS (
-                    SELECT *
-                    FROM flows
-                    {where_clause}
-                    {"AND" if where_clause else "WHERE"} protocol = 'TCP'
-                      AND tcp_flags IS NOT NULL
-                      AND tcp_flags != ''
-                )
-                SELECT
-                    COUNT(*) AS tcp_packets,
-                    SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%SA%' THEN 1 ELSE 0 END) AS syn_ack_packets,
-                    SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                    ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS syn_only_pct,
-                    SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                    ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS rst_pct
-                FROM tcp_packets
-                """,
-            )
-        )
-
-    if "protocol" in available:
-        sections.append(
-            render_section(
-                con,
-                "Packet protocol mix",
-                f"""
-                SELECT COALESCE(protocol, 'UNKNOWN') AS protocol,
-                       COUNT(*) AS packets,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY packets DESC, total_bytes DESC, protocol ASC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-    if "tcp_flags" in available:
-        sections.append(
-            render_section(
-                con,
-                "TCP flags distribution",
-                f"""
-                SELECT COALESCE(tcp_flags, 'UNKNOWN') AS tcp_flags,
-                       COUNT(*) AS packets,
-                       COUNT(DISTINCT src_ip) AS unique_src_ip,
-                       COUNT(DISTINCT dst_ip) AS unique_dst_ip
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY packets DESC, tcp_flags ASC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-        if {"src_ip", "dst_ip", "dst_port"}.issubset(available):
-            sections.append(
-                render_section(
-                    con,
-                    "Handshake-anomaly sample sources",
-                    f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                           COUNT(DISTINCT dst_port) AS unique_dst_port
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING syn_only_packets > 0 OR rst_packets > 0
-                    ORDER BY syn_only_packets DESC, rst_packets DESC, unique_dst_ip DESC, unique_dst_port DESC
-                    LIMIT {limit}
-                    """,
-                )
-            )
-
-    if "frame_len" in available or "payload_bytes" in available:
-        size_expr = "COALESCE(payload_bytes, frame_len, bytes, 0)"
-        sections.append(
-            render_section(
-                con,
-                "Packet size profile",
-                f"""
-                SELECT
-                    CASE
-                        WHEN {size_expr} < 64 THEN '<64'
-                        WHEN {size_expr} < 128 THEN '64-127'
-                        WHEN {size_expr} < 512 THEN '128-511'
-                        WHEN {size_expr} < 1500 THEN '512-1499'
-                        ELSE '1500+'
-                    END AS size_band,
-                    COUNT(*) AS packets,
-                    SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY packets DESC, size_band ASC
-                """,
-            )
-        )
-
-    if "icmp_type" in available:
-        sections.append(
-            render_section(
-                con,
-                "ICMP activity review",
-                f"""
-                SELECT COALESCE(CAST(icmp_type AS VARCHAR), 'UNKNOWN') AS icmp_type,
-                       COALESCE(CAST(icmp_code AS VARCHAR), 'UNKNOWN') AS icmp_code,
-                       COUNT(*) AS packets
-                FROM flows
-                {where_clause}
-                WHERE icmp_type IS NOT NULL
-                GROUP BY 1, 2
-                ORDER BY packets DESC, icmp_type ASC, icmp_code ASC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-    if {"src_ip", "dst_ip"}.issubset(available):
-        sections.append(
-            render_section(
-                con,
-                "Top packet talkers",
-                f"""
-                SELECT src_ip,
-                       COUNT(*) AS packets,
-                       COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                WHERE src_ip IS NOT NULL
-                GROUP BY 1
-                ORDER BY packets DESC, total_bytes DESC, src_ip ASC
-                LIMIT {limit}
-                """,
-            )
-        )
-
-    return "\n\n".join(sections)
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Analyze tabular network traffic logs")
     parser.add_argument("--files", nargs="+", default=[], help="File paths or directories")
     parser.add_argument(
         "--action",
-        required=True,
-        choices=[
-            "list-capabilities",
-            "inspect",
-            "summary",
-            "overview-report",
-            "scan-review",
-            "session-review",
-            "short-connection-review",
-            "protocol-review",
-            "packet-review",
-            "query",
-            "topn",
-            "timeseries",
-            "distribution",
-            "filter",
-            "aggregate",
-            "detect-anomaly",
-            "export",
-        ],
+        required=False,
+        choices=sorted(build_capability_catalog()["actions"]),
+    )
+    parser.add_argument(
+        "--self-check",
+        action="store_true",
+        help="Run runtime preflight checks and exit.",
     )
     parser.add_argument("--field-mapping", default=None, help="Path to field mapping YAML")
+    parser.add_argument(
+        "--ingestion-mode",
+        choices=["lenient", "strict"],
+        default="lenient",
+        help="CSV ingestion mode. lenient skips/pads malformed CSV rows; strict fails on malformed CSV input.",
+    )
     parser.add_argument("--filters", default=None, help="JSON array or object of filters")
     parser.add_argument("--group-by", default=None, help="Comma-separated group-by fields")
     parser.add_argument("--metrics", default=None, help="Comma-separated metrics like count,sum:bytes")
-    parser.add_argument("--time-column", default="timestamp", help="Reserved for future custom time-column support")
     parser.add_argument("--start-time", default=None, help="Inclusive time filter")
     parser.add_argument("--end-time", default=None, help="Inclusive time filter")
+    parser.add_argument("--baseline-start", default=None, help="Behavior-analysis baseline window start timestamp")
+    parser.add_argument("--baseline-end", default=None, help="Behavior-analysis baseline window end timestamp")
+    parser.add_argument("--current-start", default=None, help="Behavior-analysis current window start timestamp")
+    parser.add_argument("--current-end", default=None, help="Behavior-analysis current window end timestamp")
     parser.add_argument("--output-file", default=None, help="Export destination")
-    parser.add_argument("--format", default="table", help="Reserved for future output format options")
+    parser.add_argument(
+        "--format",
+        choices=["table", "text", "skill-result-json"],
+        default="table",
+        help="Output format. Use skill-result-json for the shared custom SkillResult envelope.",
+    )
     parser.add_argument("--sql", default=None, help="Custom SQL for query or export")
     parser.add_argument("--dimension", default="src_ip", help="Dimension for topn or distribution")
     parser.add_argument("--metric", default="bytes", help="Metric for topn")
     parser.add_argument("--limit", type=int, default=50, help="Row limit")
-    parser.add_argument("--interval", choices=["minute", "hour", "day"], default="hour", help="Timeseries bucket size")
+    parser.add_argument("--interval", choices=["second", "minute", "hour", "day"], default="hour", help="Timeseries bucket size")
     parser.add_argument(
         "--rule",
         default="scan-source",
         help="Anomaly rule. Run --action list-capabilities to see the current supported rules.",
     )
+    parser.add_argument(
+        "--anomaly-engine",
+        choices=["rule", "iforest", "lof", "rcf", "hybrid"],
+        default="hybrid",
+        help="Anomaly scoring engine for detect-anomaly. rule preserves legacy SQL-only behavior.",
+    )
     parser.add_argument("--view", choices=["auto", "flow", "packet"], default="auto", help="Preferred analysis view")
+    parser.add_argument("--source-ip", default=None, help="Source IP for graph attack path analysis")
+    parser.add_argument("--target-ip", default=None, help="Target IP for graph attack path analysis")
+    parser.add_argument("--horizon", type=int, default=24, help="Forecast horizon (number of future periods)")
+    parser.add_argument("--drift-metric", default="bytes", help="Numeric canonical field to monitor for concept drift")
+    parser.add_argument(
+        "--drift-order-by",
+        choices=["analysis_time", "input_order"],
+        default="analysis_time",
+        help="Ordering used before evaluating the drift stream",
+    )
     return parser
+
+
+def _first_meaningful_line(text: str) -> str:
+    for line in text.splitlines():
+        stripped = line.strip().strip("#").strip()
+        if stripped:
+            return stripped
+    return "Completed."
+
+
+def _skill_result_title(action: str) -> str:
+    return action.replace("-", " ").title()
+
+
+def _skill_result_error(
+    *,
+    code: str,
+    message: str,
+    severity: str = "error",
+    recoverable: bool = True,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    error = {
+        "code": code,
+        "message": message,
+        "severity": severity,
+        "recoverable": recoverable,
+    }
+    if details:
+        error["details"] = details
+    return error
+
+
+def wrap_skill_result(
+    *,
+    action: str,
+    files: list[str],
+    output: str,
+    status: str = "success",
+    errors: list[dict[str, Any]] | None = None,
+    warnings: list[dict[str, Any]] | None = None,
+    result_overrides: dict[str, Any] | None = None,
+    diagnostics_overrides: dict[str, Any] | None = None,
+) -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    errors = errors or []
+    warnings = warnings or []
+    result_overrides = result_overrides or {}
+    diagnostics_overrides = diagnostics_overrides or {}
+    evidence = []
+    if output:
+        evidence.append(
+            {
+                "evidence_id": "e-001",
+                "type": "text",
+                "title": "Raw Action Output",
+                "content": output,
+            }
+        )
+    overview = _first_meaningful_line(output)
+    if status != "success" and errors:
+        overview = errors[0].get("message", "Failed.")
+
+    result = {
+        "summary": {
+            "title": _skill_result_title(action),
+            "overview": overview,
+            "severity": "error" if status == "failed" else "info",
+            "confidence": None,
+            "key_metrics": [],
+        },
+        "findings": [],
+        "evidence": evidence,
+        "artifacts": [],
+    }
+    for key in ("summary", "findings", "evidence", "artifacts"):
+        if key in result_overrides:
+            result[key] = result_overrides[key]
+
+    diagnostics = {
+        "warnings": warnings,
+        "data_quality": {
+            "input_files": len(files),
+        },
+        "provenance": [
+            {
+                "source": to_repo_relative_display(file_path),
+                "type": "input_file",
+            }
+            for file_path in files
+        ],
+        "runtime": {
+            "finished_at": now,
+        },
+    }
+    if diagnostics_overrides:
+        diagnostics["warnings"] = diagnostics_overrides.get("warnings", diagnostics["warnings"])
+        diagnostics["data_quality"].update(diagnostics_overrides.get("data_quality", {}))
+        for key, value in diagnostics_overrides.items():
+            if key not in {"warnings", "data_quality"}:
+                diagnostics[key] = value
+
+    payload = {
+        "schema_version": "1.0",
+        "request_id": str(uuid.uuid4()),
+        "skill_name": "network-traffic-analysis",
+        "scenario": "network_traffic",
+        "capability": action,
+        "status": status,
+        "result": result,
+        "diagnostics": diagnostics,
+        "errors": errors,
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def print_skill_result_error(
+    *,
+    args: argparse.Namespace,
+    files: list[str],
+    code: str,
+    message: str,
+    exit_code: int,
+    recoverable: bool = True,
+    details: dict[str, Any] | None = None,
+) -> int:
+    print(
+        wrap_skill_result(
+            action=args.action,
+            files=files,
+            output="",
+            status="failed",
+            errors=[
+                _skill_result_error(
+                    code=code,
+                    message=message,
+                    recoverable=recoverable,
+                    details=details,
+                )
+            ],
+        )
+    )
+    return exit_code
+
+
+def run_self_check(output_format: str = "text") -> int:
+    """Run runtime preflight checks. Returns 0 if all pass, 1 otherwise."""
+    from utils.path import skill_root, repo_root, dataset_root, uploads_root, outputs_root
+    from core.schema_mapping import default_field_mapping_candidates
+
+    checks: list[dict[str, Any]] = []
+    all_pass = True
+
+    # 1. skill_root
+    sr = skill_root()
+    mounted_runtime = str(sr).startswith("/mnt/skills/")
+    status = "ok" if sr.exists() else "missing"
+    if status != "ok":
+        all_pass = False
+    checks.append({"name": "skill_root", "status": status, "path": str(sr)})
+
+    # 2. dataset_root
+    dr = dataset_root()
+    status = "ok" if dr.exists() else "missing"
+    checks.append({"name": "dataset_root", "status": status, "path": str(dr)})
+
+    # 3. uploads_root
+    ur = uploads_root()
+    status = "ok" if ur.exists() else "missing"
+    checks.append({"name": "uploads_root", "status": status, "path": str(ur)})
+
+    # 4. outputs_root
+    output_root = outputs_root()
+    output_check: dict[str, Any] = {"name": "outputs_root", "path": str(output_root)}
+    if output_root.exists() or output_root.parent.exists():
+        try:
+            output_root.mkdir(parents=True, exist_ok=True)
+            probe_path = output_root / ".network_traffic_write_test"
+            probe_path.write_text("ok", encoding="utf-8")
+            if probe_path.read_text(encoding="utf-8") != "ok":
+                raise OSError("write probe content mismatch")
+            probe_path.unlink(missing_ok=True)
+            output_check["status"] = "ok"
+            output_check["writable"] = True
+        except Exception as exc:
+            output_check["status"] = "failed"
+            output_check["writable"] = False
+            output_check["error"] = str(exc)
+            all_pass = False
+    else:
+        output_check["status"] = "missing"
+        output_check["writable"] = False
+        if mounted_runtime:
+            all_pass = False
+    checks.append(output_check)
+
+    # 5. field_mapping
+    mapping_found = False
+    mapping_path = None
+    searched: list[str] = []
+    for candidate in default_field_mapping_candidates():
+        searched.append(str(candidate))
+        if candidate.exists():
+            mapping_found = True
+            mapping_path = candidate
+            break
+    status = "ok" if mapping_found else "failed"
+    if status != "ok":
+        all_pass = False
+    checks.append({
+        "name": "field_mapping",
+        "status": status,
+        "path": str(mapping_path) if mapping_path else "not found",
+        "searched": searched,
+    })
+
+    # 6. duckdb
+    if _DUCKDB_AVAILABLE:
+        checks.append({"name": "duckdb", "status": "ok", "version": _duckdb_module.__version__})
+    else:
+        checks.append({"name": "duckdb", "status": "failed", "error": "not installed"})
+        all_pass = False
+
+    # 7. pyyaml
+    try:
+        import yaml as _yaml
+        checks.append({"name": "pyyaml", "status": "ok", "version": getattr(_yaml, "__version__", "unknown")})
+    except ImportError:
+        checks.append({"name": "pyyaml", "status": "failed", "error": "not installed"})
+        all_pass = False
+
+    # 8. openpyxl
+    try:
+        import openpyxl as _openpyxl
+        checks.append({"name": "openpyxl", "status": "ok", "version": getattr(_openpyxl, "__version__", "unknown")})
+    except ImportError:
+        checks.append({"name": "openpyxl", "status": "failed", "error": "not installed"})
+        all_pass = False
+
+    # 9. pytz
+    try:
+        import pytz as _pytz
+        checks.append({"name": "pytz", "status": "ok", "version": getattr(_pytz, "__version__", "unknown")})
+    except ImportError:
+        checks.append({"name": "pytz", "status": "failed", "error": "not installed"})
+        all_pass = False
+
+    if output_format == "skill-result-json":
+        errors = [
+            {
+                "code": f"SELF_CHECK_{check['name'].upper()}",
+                "message": f"Self-check failed for {check['name']}",
+                "details": check,
+            }
+            for check in checks
+            if check["status"] not in {"ok", "missing"}
+        ]
+        print(json.dumps({
+            "status": "success" if all_pass else "failed",
+            "checks": checks,
+            "errors": errors,
+        }, indent=2, ensure_ascii=False))
+        return 0 if all_pass else 1
+
+    # Print results
+    print("=== Network Traffic Analysis Self-Check ===")
+    for check in checks:
+        status = check["status"].upper()
+        details = ", ".join(f"{k}={v}" for k, v in check.items() if k not in ("name", "status"))
+        print(f"  [{status}] {check['name']}: {details}")
+    print()
+    if all_pass:
+        print("All checks passed.")
+        return 0
+    else:
+        failed = [c["name"] for c in checks if c["status"] != "ok"]
+        print(f"FAILED: {', '.join(failed)}")
+        return 1
 
 
 def main() -> int:
@@ -1804,17 +484,58 @@ def main() -> int:
     args = parser.parse_args()
     cleanup_db_copy: Path | None = None
 
+    if args.self_check:
+        return run_self_check(args.format)
+
+    if not args.action:
+        parser.error("--action is required (or use --self-check)")
+
     if args.action == "list-capabilities":
-        print(render_capability_catalog())
+        output = render_capability_catalog()
+        if args.format == "skill-result-json":
+            print(wrap_skill_result(action=args.action, files=[], output=output))
+        else:
+            print(output)
         return 0
 
-    ensure_pytz()
-    ensure_duckdb()
-    files = discover_files(args.files)
+    try:
+        ensure_pytz()
+        ensure_duckdb()
+        files = discover_files(args.files)
+    except ValueError as exc:
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=[],
+                code="INPUT_RESOLUTION_ERROR",
+                message=f"Input resolution error: {exc}",
+                exit_code=2,
+            )
+        parser.error(str(exc))
+    except ImportError as exc:
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=[],
+                code="MISSING_DEPENDENCY",
+                message=f"Missing dependency: {exc}",
+                exit_code=3,
+                details={"hint": "Install required packages: pip install duckdb rrcf scikit-learn"},
+            )
+        logger.error(f"Missing dependency: {exc}\nHint: Install required packages: pip install duckdb rrcf scikit-learn")
+        return 3
     if not files:
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=[],
+                code="NO_SUPPORTED_INPUT_FILES",
+                message="No supported files found from --files.",
+                exit_code=2,
+            )
         parser.error("No supported files found from --files")
     mapping = load_mapping(args.field_mapping)
-    cache_key = compute_cache_key(files, mapping)
+    cache_key = compute_cache_key(files, mapping, ingestion_mode=args.ingestion_mode)
     db_path = CACHE_DIR / f"{cache_key}.duckdb"
     tables_path = CACHE_DIR / f"{cache_key}.tables.json"
     mappings_path = CACHE_DIR / f"{cache_key}.mappings.json"
@@ -1823,17 +544,28 @@ def main() -> int:
         con, cleanup_db_copy = connect_cached_db(db_path)
         table_info = load_json(tables_path) or {}
         mappings = load_json(mappings_path) or {}
-        logger.info(f"Cache hit: {db_path}")
+        if args.format != "skill-result-json":
+            logger.info(f"Cache hit: {db_path}")
     else:
         con, cleanup_db_copy, cache_ready = connect_build_db(db_path, tables_path, mappings_path)
         if cache_ready:
             table_info = load_json(tables_path) or {}
             mappings = load_json(mappings_path) or {}
-            logger.info(f"Cache became available during build wait: {db_path}")
+            if args.format != "skill-result-json":
+                logger.info(f"Cache became available during build wait: {db_path}")
         else:
-            table_info = load_sources(con, files)
+            table_info = load_sources(con, files, ingestion_mode=args.ingestion_mode, quiet=args.format == "skill-result-json")
             if not table_info:
-                logger.error("No tables were loaded. Check file paths and formats.")
+                message = "No tables were loaded. Check file paths and formats."
+                if args.format == "skill-result-json":
+                    return print_skill_result_error(
+                        args=args,
+                        files=files,
+                        code="NO_TABLES_LOADED",
+                        message=message,
+                        exit_code=1,
+                    )
+                logger.error(message)
                 return 1
             mappings = build_flows_view(con, table_info, mapping)
             save_json(tables_path, table_info)
@@ -1842,6 +574,17 @@ def main() -> int:
 
     add_ip_udf(con)
     mappings = build_flows_view(con, table_info, mapping)
+
+    # Normalize simple dict filters (e.g. {"src_ip": "10.0.2.108"}) to list format
+    # This allows users to use intuitive JSON objects instead of strict lists
+    if args.filters:
+        try:
+            parsed = json.loads(args.filters)
+            if isinstance(parsed, dict) and "field" not in parsed:
+                args.filters = json.dumps([{"field": k, "value": v} for k, v in parsed.items()])
+        except Exception:
+            pass  # Let downstream code handle malformed JSON
+
     where_clause = build_where_clause(args.filters, args.start_time, args.end_time)
     analysis_view = infer_analysis_view(
         files,
@@ -1854,106 +597,114 @@ def main() -> int:
     try:
         if args.action == "inspect":
             output = inspect_action(con, table_info, mappings)
+            if args.format == "skill-result-json":
+                from actions.inspect_action import build_skill_result_parts as build_inspect_skill_result_parts
+                structured_result = build_inspect_skill_result_parts(con, table_info, mappings, output)
         elif args.action == "summary":
-            output = execute_render(
-                con,
-                f"""
-                WITH base AS (SELECT * FROM flows {where_clause})
-                SELECT
-                    COUNT(*) AS records,
-                    MIN(analysis_time_ts) AS min_time,
-                    MAX(analysis_time_ts) AS max_time,
-                    MIN(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS min_relative_time_s,
-                    MAX(analysis_time_relative_s) FILTER (WHERE analysis_time_kind = 'relative') AS max_relative_time_s,
-                    COUNT(DISTINCT src_ip) AS unique_src_ip,
-                    COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                    SUM(COALESCE(bytes, 0)) AS total_bytes,
-                    SUM(COALESCE(packets, 0)) AS total_packets,
-                    AVG(COALESCE(flow_duration, 0)) AS avg_flow_duration
-                FROM base
-                """,
-            )
-            output += "\n\nTop protocol mix\n" + execute_render(
-                con,
-                f"""
-                SELECT COALESCE(protocol, 'UNKNOWN') AS protocol, COUNT(*) AS records, SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY total_bytes DESC, records DESC, protocol ASC
-                LIMIT 10
-                """,
-            )
+            from actions.summary_action import execute_summary, format_results as format_summary, build_skill_result_parts as build_summary_skill_result_parts
+            summary_results = execute_summary(con, mappings, where_clause, files, limit=args.limit)
+            output = format_summary(summary_results)
+            if args.format == "skill-result-json":
+                structured_result = build_summary_skill_result_parts(con, summary_results, output)
         elif args.action == "overview-report":
             output = overview_report_action(con, mappings, where_clause, analysis_view)
         elif args.action == "scan-review":
-            output = scan_review_action(con, mappings, where_clause, analysis_view, args.limit)
+            from actions.scan import execute_scan_review, format_scan_review, build_skill_result_parts as build_scan_skill_result_parts
+            scan_data = execute_scan_review(con, mappings, where_clause, analysis_view, args.limit)
+            output = format_scan_review(scan_data)
+            if args.format == "skill-result-json":
+                structured_result = build_scan_skill_result_parts(scan_data, output)
         elif args.action == "session-review":
-            output = session_review_action(con, mappings, where_clause, analysis_view, args.limit)
+            from actions.session import execute_session_review, format_session_review, build_skill_result_parts as build_session_skill_result_parts
+            session_data = execute_session_review(con, mappings, where_clause, analysis_view, args.limit)
+            output = format_session_review(session_data)
+            if args.format == "skill-result-json":
+                structured_result = build_session_skill_result_parts(session_data, output)
         elif args.action == "short-connection-review":
-            output = short_connection_review_action(con, mappings, where_clause, args.limit)
+            from actions.short_connection import execute_short_connection_review, format_short_connection_review, build_skill_result_parts as build_short_connection_skill_result_parts
+            short_data = execute_short_connection_review(con, mappings, where_clause, args.limit)
+            output = format_short_connection_review(short_data)
+            if args.format == "skill-result-json":
+                structured_result = build_short_connection_skill_result_parts(short_data, output)
         elif args.action == "protocol-review":
-            output = protocol_review_action(con, mappings, where_clause, analysis_view, args.limit)
+            from actions.protocol_action import execute_protocol_review, format_protocol_review, build_skill_result_parts as build_protocol_skill_result_parts
+            protocol_data = execute_protocol_review(con, mappings, where_clause, analysis_view, args.limit)
+            output = format_protocol_review(protocol_data, con=con, where_clause=where_clause, limit=args.limit)
+            if args.format == "skill-result-json":
+                structured_result = build_protocol_skill_result_parts(protocol_data, output)
+        elif args.action == "dns-tunnel-review":
+            from actions.dns_tunnel import execute_dns_tunnel_review, format_dns_tunnel_review, build_skill_result_parts as build_dns_tunnel_skill_result_parts
+            dns_data = execute_dns_tunnel_review(con, mappings, where_clause, files, args.limit)
+            output = format_dns_tunnel_review(dns_data)
+            if args.format == "skill-result-json":
+                structured_result = build_dns_tunnel_skill_result_parts(dns_data, output)
+        elif args.action == "data-exfiltration-review":
+            from actions.data_exfiltration import execute_data_exfiltration_review, format_data_exfiltration_review, build_skill_result_parts as build_data_exfiltration_skill_result_parts
+            exfil_data = execute_data_exfiltration_review(con, mappings, where_clause, args.limit)
+            output = format_data_exfiltration_review(exfil_data)
+            if args.format == "skill-result-json":
+                structured_result = build_data_exfiltration_skill_result_parts(exfil_data, output)
+        elif args.action == "lateral-movement-review":
+            from actions.lateral_movement import execute_lateral_movement_review, format_lateral_movement_review, build_skill_result_parts as build_lateral_movement_skill_result_parts
+            lateral_data = execute_lateral_movement_review(con, mappings, where_clause, args.limit)
+            output = format_lateral_movement_review(lateral_data)
+            if args.format == "skill-result-json":
+                structured_result = build_lateral_movement_skill_result_parts(lateral_data, output)
+        elif args.action == "zeek-review":
+            from analysis.review import zeek_review_action
+            from actions.zeek_review_adapter import execute_zeek_review, build_skill_result_parts as build_zeek_skill_result_parts
+            output = zeek_review_action(files, args.limit)
+            if args.format == "skill-result-json":
+                zeek_data = execute_zeek_review(files, args.limit)
+                structured_result = build_zeek_skill_result_parts(zeek_data, output, args.limit)
         elif args.action == "packet-review":
-            output = packet_review_action(con, mappings, where_clause, args.limit)
+            from actions.packet import execute_packet_review, format_packet_review, build_skill_result_parts as build_packet_skill_result_parts
+            packet_data = execute_packet_review(con, mappings, where_clause, args.limit)
+            output = format_packet_review(packet_data)
+            if args.format == "skill-result-json":
+                structured_result = build_packet_skill_result_parts(packet_data, output)
+        elif args.action == "signature-review":
+            data = signature_review_action(con, mappings, where_clause, args.limit)
+            from actions.signature_review_adapter import build_skill_result_parts as build_signature_skill_result_parts, render_text
+            output = render_text(data, args.limit)
+            if args.format == "skill-result-json":
+                structured_result = build_signature_skill_result_parts(data)
+        elif args.action == "risk-fusion-review":
+            data = risk_fusion_review_action(con, mappings, where_clause, files, args.limit)
+            from actions.risk_fusion_result_adapter import build_skill_result_parts as build_risk_fusion_skill_result_parts, render_text
+            output = render_text(data, args.limit)
+            if args.format == "skill-result-json":
+                structured_result = build_risk_fusion_skill_result_parts(data)
+        elif args.action == "periodicity-review":
+            from actions.periodicity import execute_periodicity_review, format_periodicity_review, build_skill_result_parts as build_periodicity_skill_result_parts
+            periodicity_data = execute_periodicity_review(con, mappings, where_clause, args.interval, args.limit)
+            output = format_periodicity_review(periodicity_data)
+            if args.format == "skill-result-json":
+                structured_result = build_periodicity_skill_result_parts(periodicity_data, output)
         elif args.action == "query":
             if not args.sql:
+                if args.format == "skill-result-json":
+                    raise ValueError("--sql is required for query")
                 parser.error("--sql is required for query")
             output = execute_render(con, args.sql, args.output_file)
         elif args.action == "topn":
-            ensure_required(mappings, [args.dimension])
-            metric_expr = "SUM(COALESCE(bytes, 0))"
-            if args.metric == "packets":
-                metric_expr = "SUM(COALESCE(packets, 0))"
-            elif args.metric in {"flows", "records"}:
-                metric_expr = "COUNT(*)"
-            elif args.metric == "destinations":
-                metric_expr = "COUNT(DISTINCT dst_ip)"
-            elif args.metric == "ports":
-                metric_expr = "COUNT(DISTINCT dst_port)"
-            output = execute_render(
-                con,
-                f"""
-                SELECT {quote_identifier(args.dimension)} AS dimension_value, {metric_expr} AS metric_value
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY metric_value DESC NULLS LAST, CAST(dimension_value AS VARCHAR) ASC
-                LIMIT {args.limit}
-                """,
-                args.output_file,
-            )
+            from actions.topn_action import execute_topn, format_results as format_topn, build_skill_result_parts as build_topn_skill_result_parts
+            topn_results = execute_topn(con, mappings, where_clause, files, dimension=args.dimension, metric=args.metric, limit=args.limit)
+            output = format_topn(topn_results)
+            if args.format == "skill-result-json":
+                structured_result = build_topn_skill_result_parts(topn_results, output)
         elif args.action == "timeseries":
-            output = execute_render(
-                con,
-                f"""
-                SELECT {analysis_time_bucket_expr(args.interval)} AS bucket,
-                       COUNT(*) AS records,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes,
-                       SUM(COALESCE(packets, 0)) AS total_packets
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY 1
-                """,
-                args.output_file,
-            )
+            from actions.timeseries_action import execute_timeseries, format_results as format_timeseries, build_skill_result_parts as build_timeseries_skill_result_parts
+            ts_results = execute_timeseries(con, where_clause, files, interval=args.interval, limit=args.limit, output_file=args.output_file)
+            output = format_timeseries(ts_results)
+            if args.format == "skill-result-json":
+                structured_result = build_timeseries_skill_result_parts(ts_results, output)
         elif args.action == "distribution":
-            ensure_required(mappings, [args.dimension])
-            output = execute_render(
-                con,
-                f"""
-                SELECT COALESCE(CAST({quote_identifier(args.dimension)} AS VARCHAR), 'NULL') AS bucket,
-                       COUNT(*) AS records,
-                       SUM(COALESCE(bytes, 0)) AS total_bytes
-                FROM flows
-                {where_clause}
-                GROUP BY 1
-                ORDER BY records DESC, total_bytes DESC, bucket ASC
-                LIMIT {args.limit}
-                """,
-                args.output_file,
-            )
+            from actions.distribution_action import execute_distribution, format_results as format_distribution, build_skill_result_parts as build_distribution_skill_result_parts
+            dist_results = execute_distribution(con, mappings, where_clause, files, dimension=args.dimension, limit=args.limit)
+            output = format_distribution(dist_results)
+            if args.format == "skill-result-json":
+                structured_result = build_distribution_skill_result_parts(dist_results, output)
         elif args.action == "filter":
             output = execute_render(
                 con,
@@ -1961,159 +712,353 @@ def main() -> int:
                 args.output_file,
             )
         elif args.action == "aggregate":
-            groups = [item.strip() for item in (args.group_by or "").split(",") if item.strip()]
-            if not groups:
-                parser.error("--group-by is required for aggregate")
-            metric_items = [item.strip() for item in (args.metrics or ",".join(mapping["default_metrics"])).split(",") if item.strip()]
-            order_index = len(groups) + 1
-            output = execute_render(
-                con,
-                f"""
-                SELECT {', '.join(quote_identifier(group) for group in groups)},
-                       {', '.join(metric_sql(metric) for metric in metric_items)}
-                FROM flows
-                {where_clause}
-                GROUP BY {', '.join(quote_identifier(group) for group in groups)}
-                ORDER BY {order_index} DESC NULLS LAST, {', '.join(quote_identifier(group) for group in groups)}
-                """,
-                args.output_file,
-            )
+            from actions.aggregate_action import execute_aggregate, format_results as format_aggregate, build_skill_result_parts as build_aggregate_skill_result_parts
+            agg_results = execute_aggregate(con, mappings, where_clause, files, group_by=args.group_by, metrics=args.metrics, limit=args.limit)
+            output = format_aggregate(agg_results)
+            if args.format == "skill-result-json":
+                structured_result = build_aggregate_skill_result_parts(agg_results, output)
         elif args.action == "detect-anomaly":
-            if args.rule == "volume-spike":
-                sql = f"""
-                    WITH buckets AS (
-                        SELECT {analysis_time_bucket_expr('hour')} AS bucket, SUM(COALESCE(bytes, 0)) AS total_bytes
-                        FROM flows
-                        {where_clause}
-                        GROUP BY 1
-                    )
-                    SELECT bucket, total_bytes, AVG(total_bytes) OVER () AS avg_bytes,
-                           CASE WHEN total_bytes > AVG(total_bytes) OVER () * 2 THEN 'spike' ELSE 'normal' END AS status
-                    FROM buckets
-                    ORDER BY total_bytes DESC
+            anomaly_result = detect_anomaly_action(
+                con,
+                mappings,
+                where_clause,
+                rule=args.rule,
+                engine=args.anomaly_engine,
+                limit=args.limit,
+                output_file=args.output_file,
+            )
+            output = anomaly_result["text"]
+            if args.format == "skill-result-json":
+                structured_result = anomaly_result["skill_result"]
+        elif args.action == "encrypted-flow-analysis":
+            results = execute_encrypted_flow_analysis(con, mappings, where_clause, files, limit=args.limit, view=analysis_view)
+            from actions.encrypted_flow_analysis_action import format_results as format_encrypted
+            from actions.encrypted_flow_analysis_action import build_skill_result_parts as build_encrypted_skill_result_parts
+            output = format_encrypted(results)
+            if args.format == "skill-result-json":
+                structured_result = build_encrypted_skill_result_parts(results, output)
+        elif args.action == "device-identification":
+            results = execute_device_identification(con, mappings, where_clause, files, limit=args.limit)
+            from actions.device_identification_action import format_results as format_device
+            from actions.device_identification_action import build_skill_result_parts as build_device_skill_result_parts
+            output = format_device(results)
+            if args.format == "skill-result-json":
+                structured_result = build_device_skill_result_parts(results, output)
+        elif args.action == "behavior-analysis":
+            results = execute_behavior_analysis(
+                con,
+                mappings,
+                where_clause,
+                files,
+                limit=args.limit,
+                baseline_start=args.baseline_start,
+                baseline_end=args.baseline_end,
+                current_start=args.current_start,
+                current_end=args.current_end,
+            )
+            from actions.behavior_analysis_action import format_results as format_behavior
+            from actions.behavior_analysis_action import build_skill_result_parts as build_behavior_skill_result_parts
+            output = format_behavior(results)
+            if args.format == "skill-result-json":
+                structured_result = build_behavior_skill_result_parts(results, output)
+        elif args.action == "graph-analysis":
+            results = execute_graph_analysis(con, mappings, where_clause, files, limit=args.limit, source_ip=args.source_ip, target_ip=args.target_ip)
+            from actions.graph_analysis_action import format_results as format_graph
+            from actions.graph_analysis_action import build_skill_result_parts as build_graph_skill_result_parts
+            output = format_graph(results)
+            if args.format == "skill-result-json":
+                structured_result = build_graph_skill_result_parts(results, output)
+        elif args.action == "qos-analysis":
+            results = execute_qos_analysis(con, mappings, where_clause, files, limit=args.limit)
+            from actions.qos_analysis_action import format_results as format_qos
+            from actions.qos_analysis_action import build_skill_result_parts as build_qos_skill_result_parts
+            output = format_qos(results)
+            if args.format == "skill-result-json":
+                structured_result = build_qos_skill_result_parts(results, output)
+        elif args.action == "root-cause-analysis":
+            # Run behavior-analysis first to get context for RCA
+            behavior_results = execute_behavior_analysis(
+                con,
+                mappings,
+                where_clause,
+                files,
+                limit=min(args.limit, 50),
+            )
+            results = execute_root_cause_analysis(
+                con, mappings, where_clause, files,
+                limit=args.limit,
+                behavior_context=behavior_results,
+            )
+            from actions.root_cause_action import format_results as format_rca
+            from actions.root_cause_action import build_skill_result_parts as build_rca_skill_result_parts
+            output = format_rca(results)
+            if args.format == "skill-result-json":
+                structured_result = build_rca_skill_result_parts(results, output)
+        elif args.action == "threat-intel-match":
+            results = execute_threat_intel_match(con, mappings, where_clause, files, limit=args.limit)
+            from actions.threat_intel_match_action import format_results as format_threat
+            from actions.threat_intel_match_action import build_skill_result_parts as build_threat_skill_result_parts
+            output = format_threat(results)
+            if args.format == "skill-result-json":
+                structured_result = build_threat_skill_result_parts(results, output)
+        elif args.action == "forecast-traffic":
+            results = execute_forecast_analysis(con, mappings, where_clause, files, horizon=args.horizon, interval=args.interval)
+            from actions.forecast_traffic_action import format_results as format_forecast
+            from actions.forecast_traffic_action import build_skill_result_parts as build_forecast_skill_result_parts
+            output = format_forecast(results)
+            if args.format == "skill-result-json":
+                structured_result = build_forecast_skill_result_parts(results, output)
+        elif args.action == "detect-concept-drift":
+            from analysis.online_learning import OnlineLearner
+
+            metric = args.drift_metric
+            if metric not in NUMERIC_COLUMNS:
+                raise ValueError(f"--drift-metric must be a numeric canonical field, got: {metric}")
+            ensure_required(mappings, [metric])
+            metric_filter = f"{quote_identifier(metric)} IS NOT NULL"
+            scoped_where_clause = (
+                f"{where_clause} AND {metric_filter}"
+                if where_clause
+                else f"WHERE {metric_filter}"
+            )
+            order_clause = "analysis_time_ts NULLS LAST, analysis_time_relative_s NULLS LAST"
+            if args.drift_order_by == "input_order":
+                order_clause = "pcap_name NULLS LAST, packet_number NULLS LAST, analysis_time_ts NULLS LAST, analysis_time_relative_s NULLS LAST"
+            rows = con.execute(
+                f"""
+                SELECT CAST({quote_identifier(metric)} AS DOUBLE) AS metric_value,
+                       TRY_CAST(timestamp AS VARCHAR) AS timestamp
+                FROM flows
+                {scoped_where_clause}
+                ORDER BY {order_clause}
+                LIMIT {max(args.limit, 1)}
                 """
-            elif args.rule == "rare-port":
-                sql = f"""
-                    SELECT dst_port, COUNT(*) AS records
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    HAVING COUNT(*) <= 3
-                    ORDER BY records ASC, dst_port ASC
-                """
-            elif args.rule == "failure-rate":
-                sql = f"""
-                    SELECT action, COUNT(*) AS records,
-                           ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) AS pct
-                    FROM flows
-                    {where_clause}
-                    WHERE action IS NOT NULL
-                    GROUP BY 1
-                    ORDER BY pct DESC, records DESC
-                """
-            elif args.rule == "syn-scan":
-                ensure_required(mappings, ["src_ip", "dst_ip", "dst_port", "tcp_flags"])
-                sql = f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                           COUNT(DISTINCT dst_port) AS unique_dst_port,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) >= 10
-                        OR COUNT(DISTINCT dst_port) >= 10
-                        OR COUNT(DISTINCT dst_ip) >= 5
-                    ORDER BY syn_only_packets DESC, unique_dst_ip DESC, unique_dst_port DESC, packets DESC
-                """
-            elif args.rule == "rst-heavy":
-                ensure_required(mappings, ["src_ip", "tcp_flags"])
-                sql = f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                           ROUND(SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS rst_pct
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(*) >= 10
-                    ORDER BY rst_pct DESC, rst_packets DESC, packets DESC
-                """
-            elif args.rule == "handshake-failure":
-                ensure_required(mappings, ["src_ip", "dst_ip", "tcp_flags"])
-                sql = f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') = 'S' THEN 1 ELSE 0 END) AS syn_only_packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%SA%' THEN 1 ELSE 0 END) AS syn_ack_packets,
-                           SUM(CASE WHEN COALESCE(tcp_flags, '') LIKE '%R%' THEN 1 ELSE 0 END) AS rst_packets,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING syn_only_packets > syn_ack_packets OR rst_packets > 0
-                    ORDER BY syn_only_packets DESC, rst_packets DESC, unique_dst_ip DESC, packets DESC
-                """
-            elif args.rule == "icmp-probe":
-                ensure_required(mappings, ["src_ip", "dst_ip", "icmp_type"])
-                sql = f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                           COUNT(DISTINCT icmp_type) AS unique_icmp_type
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL AND icmp_type IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(DISTINCT dst_ip) >= 5 OR COUNT(*) >= 10
-                    ORDER BY unique_dst_ip DESC, packets DESC, unique_icmp_type DESC
-                """
-            elif args.rule == "small-packet-burst":
-                sql = f"""
-                    SELECT src_ip,
-                           COUNT(*) AS packets,
-                           SUM(CASE WHEN COALESCE(payload_bytes, frame_len, bytes, 0) <= 128 THEN 1 ELSE 0 END) AS small_packets,
-                           ROUND(SUM(CASE WHEN COALESCE(payload_bytes, frame_len, bytes, 0) <= 128 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS small_packet_pct
-                    FROM flows
-                    {where_clause}
-                    WHERE src_ip IS NOT NULL
-                    GROUP BY 1
-                    HAVING COUNT(*) >= 20
-                    ORDER BY small_packet_pct DESC, small_packets DESC, packets DESC
-                """
-            elif args.rule == "scan-source":
-                sql = f"""
-                    SELECT src_ip, COUNT(*) AS flows, COUNT(DISTINCT dst_ip) AS unique_dst_ip,
-                           COUNT(DISTINCT dst_port) AS unique_dst_port
-                    FROM flows
-                    {where_clause}
-                    GROUP BY 1
-                    HAVING COUNT(DISTINCT dst_ip) >= 5 OR COUNT(DISTINCT dst_port) >= 10
-                    ORDER BY unique_dst_ip DESC, unique_dst_port DESC, flows DESC
-                """
-            else:
-                raise ValueError(
-                    "Unsupported anomaly rule "
-                    f"'{args.rule}'. Supported rules: {', '.join(SUPPORTED_ANOMALY_RULES)}. "
-                    "Run --action list-capabilities to inspect supported workflows and choose a structured action or --action query."
+            ).fetchall()
+            stream = [float(row[0]) for row in rows if row[0] is not None]
+            timestamps = [str(row[1]) if row[1] is not None else "" for row in rows if row[0] is not None]
+
+            if len(stream) < 2:
+                output = (
+                    "# Concept Drift Detection Results\n\n"
+                    f"**Metric**: {metric}\n"
+                    f"**Ordered By**: {args.drift_order_by}\n"
+                    f"**Samples Used**: {len(stream)}\n\n"
+                    "Insufficient numeric samples for drift detection."
                 )
-            output = execute_render(con, sql, args.output_file)
+            else:
+                learner = OnlineLearner()
+                drift_result = learner.detect_drift_adwin(stream)
+
+                # Compute additional rolling window statistics
+                window_size = min(100, len(stream) // 4)
+                rolling_stats = []
+                if len(stream) >= window_size * 2:
+                    for i in range(0, len(stream) - window_size + 1, max(1, len(stream) // 20)):
+                        window = stream[i:i + window_size]
+                        w_mean = sum(window) / len(window)
+                        w_var = sum((x - w_mean) ** 2 for x in window) / max(len(window) - 1, 1)
+                        rolling_stats.append({
+                            "window_start": i,
+                            "window_mean": round(w_mean, 2),
+                            "window_std": round(math.sqrt(w_var), 2),
+                            "timestamp": timestamps[i] if i < len(timestamps) else "",
+                        })
+
+                # Stability analysis: compare first half vs second half
+                mid = len(stream) // 2
+                first_half = stream[:mid]
+                second_half = stream[mid:]
+                mean1 = sum(first_half) / len(first_half)
+                mean2 = sum(second_half) / len(second_half)
+                var1 = sum((x - mean1) ** 2 for x in first_half) / max(len(first_half) - 1, 1)
+                var2 = sum((x - mean2) ** 2 for x in second_half) / max(len(second_half) - 1, 1)
+                mean_shift = abs(mean2 - mean1) / max(math.sqrt((var1 + var2) / 2), 1e-6)
+
+                output = "# Concept Drift Detection Results\n\n"
+                output += f"**Metric**: {metric}\n"
+                output += f"**Ordered By**: {args.drift_order_by}\n"
+                output += f"**Total Samples**: {len(stream)}\n\n"
+
+                output += "## Drift Detection Result\n\n"
+                output += f"- **Drift Detected**: {'Yes' if drift_result.drift_detected else 'No'}\n"
+                output += f"- **Drift Type**: {drift_result.drift_type}\n"
+                output += f"- **Severity**: {drift_result.drift_severity}\n"
+                output += f"- **Confidence**: {drift_result.confidence:.2%}\n"
+                output += f"- **Drift Point**: {drift_result.drift_point} (of {len(stream)})\n"
+                output += f"- **Recommendation**: {drift_result.recommendation}\n\n"
+
+                output += "## Stability Analysis\n\n"
+                output += "| Segment | Mean | Std Dev | Samples |\n"
+                output += "|---------|------|---------|--------|\n"
+                output += f"| First Half | {mean1:.2f} | {math.sqrt(var1):.2f} | {len(first_half)} |\n"
+                output += f"| Second Half | {mean2:.2f} | {math.sqrt(var2):.2f} | {len(second_half)} |\n\n"
+                output += f"**Mean Shift (Cohen's d)**: {mean_shift:.2f}\n"
+                if mean_shift > 0.8:
+                    output += "_Large effect size: significant distributional shift_\n\n"
+                elif mean_shift > 0.5:
+                    output += "_Medium effect size: moderate distributional shift_\n\n"
+                elif mean_shift > 0.2:
+                    output += "_Small effect size: mild distributional shift_\n\n"
+                else:
+                    output += "_Negligible effect size: stable distribution_\n\n"
+
+                if rolling_stats:
+                    output += "## Rolling Window Statistics (window={})\n\n".format(window_size)
+                    output += "| Window Start | Mean | Std Dev | Timestamp |\n"
+                    output += "|-------------|------|---------|----------|\n"
+                    for rs in rolling_stats[:10]:
+                        output += f"| {rs['window_start']} | {rs['window_mean']} | {rs['window_std']} | {rs['timestamp']} |\n"
         else:
             if not args.output_file:
+                if args.format == "skill-result-json":
+                    raise ValueError("--output-file is required for export")
                 parser.error("--output-file is required for export")
             sql = args.sql or f"SELECT * FROM flows {where_clause} ORDER BY analysis_time_ts NULLS LAST, analysis_time_relative_s NULLS LAST LIMIT {args.limit}"
             output = execute_render(con, sql, args.output_file)
-        print(output)
+        if args.format == "skill-result-json":
+            result_overrides = {}
+            diagnostics_overrides = {}
+            if "structured_result" in locals():
+                result_overrides = {
+                    key: structured_result[key]
+                    for key in ("summary", "findings", "evidence", "artifacts")
+                    if key in structured_result
+                }
+                diagnostics_overrides = structured_result.get("diagnostics", {})
+            ingestion_tables = []
+            for table_name, meta in table_info.items():
+                ingestion_tables.append(
+                    {
+                        "table": table_name,
+                        "file": meta.get("file"),
+                        "ingestion_mode": meta.get("ingestion_mode", "unknown"),
+                        "rows_loaded": meta.get("rows_loaded"),
+                        "physical_data_rows": meta.get("physical_data_rows"),
+                        "approx_dropped_rows": meta.get("approx_dropped_rows"),
+                        "approx_null_key_rows": meta.get("approx_null_key_rows"),
+                    }
+                )
+            ingestion_warnings: list[dict[str, Any]] = []
+            for meta in table_info.values():
+                msg = meta.get("ingestion_warning")
+                if msg:
+                    ingestion_warnings.append({
+                        "code": "lenient_ingestion",
+                        "message": msg,
+                        "severity": "warning",
+                    })
+            for table_name, meta in table_info.items():
+                dropped = meta.get("approx_dropped_rows") or 0
+                null_key = meta.get("approx_null_key_rows") or 0
+                loaded = meta.get("rows_loaded", 0)
+                degraded_rows = dropped + null_key
+                degradation_pct = round(degraded_rows / max(loaded, 1) * 100, 1) if loaded else 0
+                if degradation_pct >= 10:
+                    ingestion_warnings.append({
+                        "code": "ingestion_degradation",
+                        "message": (
+                            f"Table {table_name} has ~{degraded_rows} degraded rows "
+                            f"({dropped} dropped, {null_key} null-key; {degradation_pct}% of {loaded} loaded). "
+                            f"Results may be incomplete or biased due to discarded CSV lines or rows with NULL src_ip/dst_ip."
+                        ),
+                        "severity": "error",
+                    })
+            for meta in table_info.values():
+                if meta.get("ingestion_mode") in (None, "unknown") and str(meta.get("file", "")).lower().endswith(".csv"):
+                    ingestion_warnings.append(
+                        {
+                            "code": "legacy_cache",
+                            "message": "CSV ingestion metadata is unavailable because this result used a legacy cache. Rebuild the cache to populate row-quality counters.",
+                            "severity": "warning",
+                        }
+                    )
+            if ingestion_tables:
+                diagnostics_overrides.setdefault("data_quality", {})
+                diagnostics_overrides["data_quality"]["ingestion"] = ingestion_tables
+            if ingestion_warnings:
+                existing_warnings = diagnostics_overrides.get("warnings") or []
+                diagnostics_overrides["warnings"] = [*existing_warnings, *ingestion_warnings]
+            print(
+                wrap_skill_result(
+                    action=args.action,
+                    files=files,
+                    output=output,
+                    result_overrides=result_overrides,
+                    diagnostics_overrides=diagnostics_overrides,
+                )
+            )
+        else:
+            print(output)
         return 0
+    except ValueError as exc:
+        # Configuration / user input errors — show clean message
+        message = f"Configuration error: {exc}"
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=files,
+                code="CONFIGURATION_ERROR",
+                message=message,
+                exit_code=2,
+            )
+        logger.error(message)
+        return 2
+    except tuple(_DUCKDB_EXCEPTIONS) as exc:
+        # SQL errors should now be handled by execute_render, but catch here as fallback
+        message = f"SQL error: {exc}"
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=files,
+                code="SQL_ERROR",
+                message=message,
+                exit_code=1,
+                details={"hint": "Run --action inspect to verify schema."},
+            )
+        logger.error(f"{message}\nHint: Run --action inspect to verify schema.")
+        return 1
+    except ImportError as exc:
+        message = f"Missing dependency: {exc}"
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=files,
+                code="MISSING_DEPENDENCY",
+                message=message,
+                exit_code=3,
+                details={"hint": "Install required packages: pip install duckdb rrcf scikit-learn"},
+            )
+        logger.error(f"{message}\nHint: Install required packages: pip install duckdb rrcf scikit-learn")
+        return 3
+    except KeyboardInterrupt:
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=files,
+                code="INTERRUPTED",
+                message="Interrupted by user.",
+                exit_code=130,
+            )
+        logger.error("Interrupted by user.")
+        return 130
     except Exception as exc:
-        logger.error(f"Error: {exc}")
+        # Catch-all for unexpected errors — include type for debugging
+        message = f"Unexpected error ({type(exc).__name__}): {exc}"
+        if args.format == "skill-result-json":
+            return print_skill_result_error(
+                args=args,
+                files=files,
+                code="UNEXPECTED_ERROR",
+                message=message,
+                exit_code=1,
+                recoverable=False,
+            )
+        logger.error(message)
+        logger.debug("Full traceback:", exc_info=True)
         return 1
     finally:
-        con.close()
+        if "con" in locals():
+            con.close()
         if cleanup_db_copy is not None:
             with suppress(Exception):
                 cleanup_db_copy.unlink()

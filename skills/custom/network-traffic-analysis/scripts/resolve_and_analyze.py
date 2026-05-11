@@ -6,25 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from capability_catalog import ACTION_DESCRIPTIONS
 from file_resolution import resolve_reference
-
-
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
-
-
-def to_repo_relative_display(value: str | Path) -> str:
-    path = Path(value).expanduser()
-    if not path.is_absolute():
-        return path.as_posix()
-    try:
-        return path.resolve().relative_to(repo_root()).as_posix()
-    except ValueError:
-        return path.resolve().as_posix()
+from utils.path import repo_root, to_repo_relative_display
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -39,18 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--action",
         required=True,
-        choices=[
-            "inspect",
-            "summary",
-            "query",
-            "topn",
-            "timeseries",
-            "distribution",
-            "filter",
-            "aggregate",
-            "detect-anomaly",
-            "export",
-        ],
+        choices=sorted(ACTION_DESCRIPTIONS),
     )
     parser.add_argument(
         "extra_args",

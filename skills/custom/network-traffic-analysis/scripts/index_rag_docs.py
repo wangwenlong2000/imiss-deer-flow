@@ -2,39 +2,106 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
+import time
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from file_resolution import is_explicit_path_reference, resolve_reference
+from utils.path import repo_root, to_repo_relative_display
 
 try:
     import yaml
-except ImportError:
-    os.system(f"{sys.executable} -m pip install pyyaml -q")
-    import yaml
-
-DEFAULT_INDEX_NAME = "network-traffic-rag"
+except ImportError as exc:
+    raise ImportError("Missing dependency 'pyyaml'. Install it first: pip install pyyaml") from exc
 
 
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
 
+def flatten_rag_doc_for_index(doc: dict[str, Any]) -> dict[str, Any]:
+    """Flatten a RAG document for Elasticsearch indexing.
 
-def to_repo_relative_display(value: str | Path) -> str:
-    path = Path(value).expanduser()
-    if not path.is_absolute():
-        return path.as_posix()
+    Preserves the original `payload` but copies common filter fields to the
+    top level so ES queries do not need nested field access.  v1 documents
+    (without payload) get empty defaults.
+    """
+    payload = doc.get("payload") or {}
+    action = payload.get("action", {})
+    finding = payload.get("finding", {})
+    entities = payload.get("entities", {})
+    security = payload.get("security_context", {})
+    diagnostics = payload.get("diagnostics", {})
+
+    threat_tags = security.get("threat_tags", [])
+    attack_stages = security.get("attack_stages", [])
+    mitre_techniques = security.get("mitre_techniques", [])
+    ioc_candidates = security.get("ioc_candidates", [])
+
+    # Flatten IOC objects into indexable keyword arrays
+    # ioc_candidates: list of {"value": "...", "type": "...", ...}
+    ioc_values: list[str] = []
+    ioc_types: list[str] = []
+    for ioc in ioc_candidates:
+        if isinstance(ioc, dict):
+            val = ioc.get("value")
+            ioc_type = ioc.get("type")
+            if val:
+                ioc_values.append(str(val))
+            if ioc_type:
+                ioc_types.append(str(ioc_type))
+        elif isinstance(ioc, str):
+            # Legacy flat string fallback
+            ioc_values.append(ioc)
+
+    # Flatten metadata provenance fields to top level for ES filtering
+    metadata = doc.get("metadata") or {}
+    row_index_raw = metadata.get("row_index")
     try:
-        return path.resolve().relative_to(repo_root()).as_posix()
-    except ValueError:
-        return path.resolve().as_posix()
+        row_index_val = int(row_index_raw) if row_index_raw not in (None, "", "0") else None
+    except (TypeError, ValueError):
+        row_index_val = None
+
+    flattened = {
+        **doc,
+        "action_name": action.get("name", doc.get("action_name", "")),
+        "action_category": action.get("category", ""),
+        "finding_id": finding.get("id", doc.get("finding_id", "")),
+        "severity": finding.get("severity", doc.get("metadata", {}).get("risk_level", doc.get("severity", ""))),
+        "confidence": finding.get("confidence", doc.get("confidence")),
+        "risk_score": finding.get("risk_score", doc.get("risk_score")),
+        "src_ips": entities.get("src_ips", []),
+        "dst_ips": entities.get("dst_ips", []),
+        "domains": entities.get("domains", []),
+        "ports": entities.get("ports", []),
+        "protocols": entities.get("protocols", []),
+        "services": entities.get("services", []),
+        "threat_tags": threat_tags,
+        "attack_stages": attack_stages,
+        "mitre_techniques": mitre_techniques,
+        "ioc_candidates": ioc_candidates,
+        "ioc_values": ioc_values,
+        "ioc_types": ioc_types,
+        "data_quality": diagnostics.get("data_quality", {}),
+        "coverage": diagnostics.get("coverage", {}),
+        "limitations": diagnostics.get("limitations", []),
+        "warnings": diagnostics.get("warnings", []),
+        "row_index": row_index_val,
+        "flow_id": metadata.get("flow_id", doc.get("flow_id", "")),
+        "time_bucket": metadata.get("time_bucket", doc.get("time_bucket", "")),
+        "provenance_type": metadata.get("provenance_type", doc.get("provenance_type", "")),
+        "raw_source_file": metadata.get("raw_source_file", doc.get("raw_source_file", "")),
+        "evidence_refs": metadata.get("evidence_refs", doc.get("evidence_refs", [])),
+        "entity_type": payload.get("entity_type", doc.get("entity_type", "")),
+        "entity_value": payload.get("entity_value", doc.get("entity_value", "")),
+        "risk_level": metadata.get("risk_level", doc.get("risk_level", "")),
+        "dataset_id": doc.get("dataset_id", ""),
+        "source_sha256": doc.get("source_sha256", ""),
+        "artifact_generation_id": doc.get("artifact_generation_id", ""),
+    }
+    return flattened
 
 
 def resolve_env_value(value: Any) -> Any:
@@ -52,6 +119,31 @@ def parse_bool(value: Any, default: bool = True) -> bool:
     return normalized in {"1", "true", "yes", "y", "on"}
 
 
+def detect_repo_root() -> Path:
+    for candidate in (Path.cwd(), *Path.cwd().parents):
+        if (candidate / "config.yaml").exists():
+            return candidate
+    raise FileNotFoundError("config.yaml file not found")
+
+
+def load_dotenv_file() -> None:
+    dotenv_path = detect_repo_root() / ".env"
+    if not dotenv_path.exists():
+        return
+    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        os.environ[key] = value
+
+
 def get_config_path() -> Path:
     configured = os.getenv("DEER_FLOW_CONFIG_PATH")
     if configured:
@@ -61,11 +153,11 @@ def get_config_path() -> Path:
         if not path.exists():
             raise FileNotFoundError(f"Config file specified by DEER_FLOW_CONFIG_PATH not found at {path}")
         return path.resolve()
-    cwd = Path.cwd()
-    for candidate in (cwd / "config.yaml", cwd.parent / "config.yaml"):
-        if candidate.exists():
-            return candidate.resolve()
-    raise FileNotFoundError("config.yaml file not found in the current directory or its parent directory")
+    for candidate in (Path.cwd(), *Path.cwd().parents):
+        cfg = candidate / "config.yaml"
+        if cfg.exists():
+            return cfg.resolve()
+    raise FileNotFoundError("config.yaml file not found")
 
 
 def load_app_config() -> dict[str, Any]:
@@ -76,21 +168,30 @@ def load_app_config() -> dict[str, Any]:
     return payload
 
 
-def resolve_elasticsearch_config(config: dict[str, Any]) -> dict[str, Any]:
+def resolve_elasticsearch_config(config: dict[str, Any], cli_overrides: dict[str, Any]) -> dict[str, Any]:
     elasticsearch = dict(config.get("elasticsearch") or {})
-    hosts = resolve_env_value(elasticsearch.get("hosts")) or "http://localhost:9200"
+    hosts = cli_overrides.get("es_host") or resolve_env_value(elasticsearch.get("hosts")) or "http://localhost:9200"
     if isinstance(hosts, str):
         host_list = [item.strip() for item in hosts.split(",") if item.strip()]
     elif isinstance(hosts, list):
         host_list = [str(resolve_env_value(item)).strip() for item in hosts if str(resolve_env_value(item)).strip()]
     else:
         host_list = []
+    username = cli_overrides.get("es_username") or str(resolve_env_value(elasticsearch.get("username")) or "")
+    password = cli_overrides.get("es_password") or str(resolve_env_value(elasticsearch.get("password")) or "")
+    api_key = cli_overrides.get("es_api_key") or str(resolve_env_value(elasticsearch.get("api_key")) or "")
+    index_name = cli_overrides.get("es_index") or str(resolve_env_value(elasticsearch.get("index_name")) or "")
+    if not index_name:
+        raise ValueError(
+            "Elasticsearch index name is required. "
+            "Set NETWORK_TRAFFIC_ES_INDEX in .env or config.yaml, or pass --index-name."
+        )
     return {
         "hosts": host_list or ["http://localhost:9200"],
-        "index_name": str(resolve_env_value(elasticsearch.get("index_name")) or DEFAULT_INDEX_NAME),
-        "api_key": str(resolve_env_value(elasticsearch.get("api_key")) or ""),
-        "username": str(resolve_env_value(elasticsearch.get("username")) or ""),
-        "password": str(resolve_env_value(elasticsearch.get("password")) or ""),
+        "index_name": index_name,
+        "api_key": api_key,
+        "username": username,
+        "password": password,
         "verify_certs": parse_bool(resolve_env_value(elasticsearch.get("verify_certs")), True),
         "request_timeout": int(resolve_env_value(elasticsearch.get("request_timeout")) or 30),
         "config_path": str(config.get("_config_path", "")),
@@ -190,14 +291,43 @@ def build_index_mapping(dimensions: int) -> dict[str, Any]:
             "properties": {
                 "doc_id": {"type": "keyword"},
                 "dataset_name": {"type": "keyword"},
+                "dataset_id": {"type": "keyword"},
                 "source_file": {"type": "keyword"},
                 "doc_type": {"type": "keyword"},
+                "schema_version": {"type": "keyword"},
                 "title": {"type": "text"},
                 "content": {"type": "text"},
                 "summary": {"type": "text"},
                 "keywords": {"type": "keyword"},
                 "embedding_model": {"type": "keyword"},
                 "embedding_dimensions": {"type": "integer"},
+                "action_name": {"type": "keyword"},
+                "action_category": {"type": "keyword"},
+                "finding_id": {"type": "keyword"},
+                "severity": {"type": "keyword"},
+                "confidence": {"type": "float"},
+                "risk_score": {"type": "float"},
+                "src_ips": {"type": "ip", "ignore_malformed": True},
+                "dst_ips": {"type": "ip", "ignore_malformed": True},
+                "domains": {"type": "keyword"},
+                "ports": {"type": "integer"},
+                "protocols": {"type": "keyword"},
+                "services": {"type": "keyword"},
+                "threat_tags": {"type": "keyword"},
+                "attack_stages": {"type": "keyword"},
+                "mitre_techniques": {"type": "keyword"},
+                "ioc_candidates": {"type": "object", "enabled": False},
+                "ioc_values": {"type": "keyword"},
+                "ioc_types": {"type": "keyword"},
+                "row_index": {"type": "integer", "ignore_malformed": True},
+                "flow_id": {"type": "keyword"},
+                "time_bucket": {"type": "keyword"},
+                "provenance_type": {"type": "keyword"},
+                "raw_source_file": {"type": "keyword"},
+                "evidence_refs": {"type": "keyword"},
+                "entity_type": {"type": "keyword"},
+                "entity_value": {"type": "keyword"},
+                "risk_level": {"type": "keyword"},
                 "embedding": {
                     "type": "dense_vector",
                     "dims": dimensions,
@@ -215,8 +345,19 @@ def build_index_mapping(dimensions: int) -> dict[str, Any]:
                         "time_bucket": {"type": "keyword"},
                         "risk_level": {"type": "keyword"},
                         "tags": {"type": "keyword"},
+                        "schema_version": {"type": "keyword"},
+                        "action_name": {"type": "keyword"},
+                        "finding_id": {"type": "keyword"},
+                        "severity": {"type": "keyword"},
+                        "row_index": {"type": "integer", "ignore_malformed": True},
+                        "flow_id": {"type": "keyword"},
+                        "source_file": {"type": "keyword"},
+                        "raw_source_file": {"type": "keyword"},
+                        "provenance_type": {"type": "keyword"},
+                        "evidence_refs": {"type": "keyword"},
                     }
                 },
+                "payload": {"type": "object", "enabled": False},
             }
         },
     }
@@ -226,10 +367,10 @@ def load_elasticsearch_client(config: dict[str, Any]) -> tuple[Any, Any]:
     try:
         from elasticsearch import Elasticsearch
         from elasticsearch.helpers import bulk
-    except ImportError:
-        os.system(f"{sys.executable} -m pip install elasticsearch -q")
-        from elasticsearch import Elasticsearch
-        from elasticsearch.helpers import bulk
+    except ImportError as exc:
+        raise ImportError(
+            "Missing dependency 'elasticsearch'. Install it before indexing RAG docs: pip install elasticsearch"
+        ) from exc
 
     kwargs: dict[str, Any] = {
         "hosts": config["hosts"],
@@ -260,6 +401,60 @@ def ensure_index(client: Any, index_name: str, dimensions: int) -> str:
     return "created"
 
 
+def source_delete_filters(documents: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Extract unique (dataset_name, source_file, schema_version) delete filters."""
+    filters: set[tuple[str, str, str]] = set()
+    for doc in documents:
+        dataset_name = str(doc.get("dataset_name") or "")
+        source_file = str(doc.get("source_file") or "")
+        schema_version = str(doc.get("schema_version") or "")
+        if not dataset_name or not source_file:
+            continue
+        filters.add((dataset_name, source_file, schema_version))
+    return [
+        {
+            "dataset_name": dataset_name,
+            "source_file": source_file,
+            "schema_version": schema_version,
+        }
+        for dataset_name, source_file, schema_version in sorted(filters)
+    ]
+
+
+def delete_existing_sources(client: Any, index_name: str, filters: list[dict[str, str]]) -> dict[str, Any]:
+    """Delete existing documents matching each filter before indexing new ones."""
+    results = []
+    total_deleted = 0
+
+    for item in filters:
+        must = [
+            {"term": {"dataset_name": item["dataset_name"]}},
+            {"term": {"source_file": item["source_file"]}},
+        ]
+        if item.get("schema_version"):
+            must.append({"term": {"schema_version": item["schema_version"]}})
+
+        body = {"query": {"bool": {"must": must}}}
+        response = client.delete_by_query(
+            index=index_name,
+            body=body,
+            conflicts="proceed",
+            refresh=True,
+        )
+        deleted = int(response.get("deleted", 0))
+        total_deleted += deleted
+        results.append({
+            "filter": item,
+            "deleted": deleted,
+        })
+
+    return {
+        "replace_mode": "source",
+        "deleted_before_index": total_deleted,
+        "delete_filters": results,
+    }
+
+
 def to_bulk_action(index_name: str, document: dict[str, Any]) -> dict[str, Any]:
     return {
         "_op_type": "index",
@@ -267,6 +462,14 @@ def to_bulk_action(index_name: str, document: dict[str, Any]) -> dict[str, Any]:
         "_id": document["doc_id"],
         "_source": document,
     }
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def build_manifest(
@@ -278,31 +481,75 @@ def build_manifest(
     documents: list[dict[str, Any]],
     index_status: str,
     config: dict[str, Any],
+    index_duration_seconds: float,
+    es_count_by_dataset: dict[str, int] | None = None,
+    replace_result: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    doc_types: dict[str, int] = {}
-    for document in documents:
-        doc_types[document["doc_type"]] = doc_types.get(document["doc_type"], 0) + 1
+    doc_types = Counter(document["doc_type"] for document in documents)
+    dataset_names = sorted({str(document.get("dataset_name", "")) for document in documents if document.get("dataset_name")})
+    provenance_type_counts = Counter(
+        str(
+            document.get("provenance_type")
+            or (document.get("metadata") or {}).get("provenance_type")
+            or "empty"
+        )
+        for document in documents
+    )
     sample_doc_ids = [document["doc_id"] for document in documents[:10]]
+
+    # Dataset-scoped counts
+    input_count_by_dataset: dict[str, int] = {}
+    doc_types_by_dataset: dict[str, dict[str, int]] = {}
+    for doc in documents:
+        ds = doc.get("dataset_name", "unknown")
+        input_count_by_dataset[ds] = input_count_by_dataset.get(ds, 0) + 1
+        dt = doc.get("doc_type", "unknown")
+        if ds not in doc_types_by_dataset:
+            doc_types_by_dataset[ds] = {}
+        doc_types_by_dataset[ds][dt] = doc_types_by_dataset[ds].get(dt, 0) + 1
+
     return {
         "input_files": [to_repo_relative_display(item) for item in input_files],
+        "sha256_source_files": {to_repo_relative_display(item): sha256_file(Path(item)) for item in input_files},
+        "sha256_embedding_file": sha256_file(Path(input_files[0])) if len(input_files) == 1 else "",
         "indexed_count": indexed_count,
-        "document_types": doc_types,
+        "document_types": dict(doc_types),
+        "dataset_names": dataset_names,
+        "provenance_type_counts": dict(provenance_type_counts),
         "index_name": index_name,
         "index_status": index_status,
         "hosts": config["hosts"],
         "output_file": to_repo_relative_display(output_file),
         "samples": sample_doc_ids,
         "config_path": to_repo_relative_display(config["config_path"]) if config["config_path"] else "",
+        "input_document_count": len(documents),
+        "unique_doc_id_count": len(set(d["doc_id"] for d in documents)),
+        "bulk_success_count": indexed_count,
+        "index_duration_seconds": round(index_duration_seconds, 3),
+        # Dataset-scoped validation fields
+        "input_document_count_by_dataset": input_count_by_dataset,
+        "document_types_by_dataset": doc_types_by_dataset,
+        "es_count_by_dataset_after_refresh": es_count_by_dataset or {},
+        # Replace-source cleanup info
+        "replace_mode": replace_result.get("replace_mode", "none") if replace_result else "none",
+        "deleted_before_index": replace_result.get("deleted_before_index", 0) if replace_result else 0,
+        "delete_filters": replace_result.get("delete_filters", []) if replace_result else [],
     }
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Index network traffic RAG embeddings into Elasticsearch.")
     parser.add_argument("--files", nargs="+", required=True, help="rag_embeddings.jsonl files, directories, or shorthand references")
-    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name. Defaults to config.yaml elasticsearch.index_name")
+    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name. Defaults to config.yaml elasticsearch.index_name (set via NETWORK_TRAFFIC_ES_INDEX)")
     parser.add_argument("--output-file", default=None, help="Explicit output manifest path. Defaults beside rag_embeddings.jsonl")
     parser.add_argument("--chunk-size", type=int, default=1000, help="Bulk indexing chunk size")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument("--allow-duplicate-doc-ids", action="store_true", help="Allow duplicate doc_id values; later documents overwrite earlier ones.")
+    parser.add_argument("--es-host", default=None, help="Override Elasticsearch host(s)")
+    parser.add_argument("--es-username", default=None, help="Override Elasticsearch username")
+    parser.add_argument("--es-password", default=None, help="Override Elasticsearch password")
+    parser.add_argument("--es-api-key", default=None, help="Override Elasticsearch API key")
+    parser.add_argument("--replace-source", action="store_true", help="Delete existing docs for the same dataset_name + source_file + schema_version before indexing.")
     return parser
 
 
@@ -310,8 +557,17 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
     try:
+        index_started_at = time.time()
+        load_dotenv_file()
         config = load_app_config()
-        elasticsearch_config = resolve_elasticsearch_config(config)
+        es_cli_overrides = {
+            "es_host": args.es_host,
+            "es_username": args.es_username,
+            "es_password": args.es_password,
+            "es_api_key": args.es_api_key,
+            "es_index": args.index_name,
+        }
+        elasticsearch_config = resolve_elasticsearch_config(config, cli_overrides=es_cli_overrides)
         index_name = args.index_name or elasticsearch_config["index_name"]
 
         files = discover_files(args.files)
@@ -339,13 +595,36 @@ def main() -> int:
         if dimensions is None:
             raise ValueError("No valid documents were found for Elasticsearch indexing.")
 
+        id_counts = Counter(doc["doc_id"] for doc in all_documents)
+        duplicate_ids = [doc_id for doc_id, count in id_counts.items() if count > 1]
+        if duplicate_ids and not args.allow_duplicate_doc_ids:
+            sample = ", ".join(duplicate_ids[:10])
+            raise ValueError(
+                f"Duplicate doc_id found: {len(duplicate_ids)} duplicate IDs. "
+                f"Sample: {sample}. Fix RAG document identity or pass --allow-duplicate-doc-ids explicitly."
+            )
+
         client, bulk = load_elasticsearch_client(elasticsearch_config)
         if not client.ping():
             raise ConnectionError(
                 f"Unable to connect to Elasticsearch hosts: {', '.join(elasticsearch_config['hosts'])}"
             )
         index_status = ensure_index(client, index_name, dimensions)
-        actions = [to_bulk_action(index_name, document) for document in all_documents]
+
+        replace_result: dict[str, Any] = {
+            "replace_mode": "none",
+            "deleted_before_index": 0,
+            "delete_filters": [],
+        }
+        if args.replace_source:
+            filters = source_delete_filters(all_documents)
+            if not filters:
+                raise ValueError(
+                    "--replace-source requested but no dataset_name/source_file filters could be derived."
+                )
+            replace_result = delete_existing_sources(client, index_name, filters)
+
+        actions = [to_bulk_action(index_name, flatten_rag_doc_for_index(document)) for document in all_documents]
         chunk_size = max(int(args.chunk_size), 1)
         total_actions = len(actions)
         success_count = 0
@@ -372,6 +651,19 @@ def main() -> int:
             output_path = Path(files[0]).resolve().with_name("index_manifest.json")
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
+        client.indices.refresh(index=index_name)
+        es_count = client.count(index=index_name)["count"]
+        # Per-dataset ES counts for shared-index validation
+        es_count_by_dataset: dict[str, int] = {}
+        for ds_name in sorted({d.get("dataset_name", "unknown") for d in all_documents if d.get("dataset_name")}):
+            ds_count_resp = client.count(
+                index=index_name,
+                body={"query": {"term": {"dataset_name": ds_name}}},
+            )
+            es_count_by_dataset[ds_name] = ds_count_resp["count"]
+        id_counts = Counter(doc["doc_id"] for doc in all_documents)
+        duplicate_ids = [doc_id for doc_id, count in id_counts.items() if count > 1]
+        schema_versions = sorted({d.get("schema_version", "") for d in all_documents if d.get("schema_version")})
         manifest = build_manifest(
             input_files=files,
             output_file=output_path,
@@ -380,11 +672,22 @@ def main() -> int:
             documents=all_documents,
             index_status=index_status,
             config=elasticsearch_config,
+            index_duration_seconds=time.time() - index_started_at,
+            es_count_by_dataset=es_count_by_dataset,
+            replace_result=replace_result,
         )
+        manifest["es_count_after_refresh"] = es_count
+        manifest["duplicate_doc_id_count"] = len(duplicate_ids)
+        manifest["duplicate_doc_id_samples"] = duplicate_ids[:10]
+        manifest["schema_versions"] = schema_versions
+        manifest["mapping_version"] = "rag-v2-provenance"
         output_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
         if args.format == "json":
-            print(json.dumps(manifest, ensure_ascii=False))
+            print(json.dumps({
+                "status": "success",
+                "manifest": manifest,
+            }, ensure_ascii=False))
         else:
             print(
                 "\n".join(
@@ -399,7 +702,7 @@ def main() -> int:
             )
         return 0
     except Exception as exc:
-        print(f"Error: {exc}")
+        print(f"Error: {exc}", file=sys.stderr)
         return 1
 
 

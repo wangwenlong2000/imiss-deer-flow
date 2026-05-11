@@ -67,7 +67,7 @@ import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
 import type { ReasoningEffort } from "@/core/threads/reasoning";
 import type { AgentThreadContext } from "@/core/threads";
-import { textOfMessage } from "@/core/threads/utils";
+import { displayMessagesOfThread, textOfMessage } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
 
 import {
@@ -159,6 +159,7 @@ export function InputBox({
   const { textInput } = usePromptInputController();
   const promptRootRef = useRef<HTMLDivElement | null>(null);
   const selectionAreaRef = useRef<HTMLDivElement | null>(null);
+  const displayMessages = displayMessagesOfThread(thread);
 
   const [followups, setFollowups] = useState<string[]>([]);
   const [followupsHidden, setFollowupsHidden] = useState(false);
@@ -420,14 +421,14 @@ export function InputBox({
       return;
     }
 
-    const lastAi = [...thread.messages].reverse().find((m) => m.type === "ai");
+    const lastAi = [...displayMessages].reverse().find((m) => m.type === "ai");
     const lastAiId = lastAi?.id ?? null;
     if (!lastAiId || lastAiId === lastGeneratedForAiIdRef.current) {
       return;
     }
     lastGeneratedForAiIdRef.current = lastAiId;
 
-    const recent = thread.messages
+    const recent = displayMessages
       .filter((m) => m.type === "human" || m.type === "ai")
       .map((m) => {
         const role = m.type === "human" ? "user" : "assistant";
@@ -477,7 +478,7 @@ export function InputBox({
       });
 
     return () => controller.abort();
-  }, [context.model_name, disabled, isMock, status, thread.messages, threadId]);
+  }, [context.model_name, disabled, displayMessages, isMock, status, threadId]);
 
   return (
     <div ref={promptRootRef} className="relative">
