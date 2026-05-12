@@ -34,6 +34,57 @@
 ---
 
 ## 2. 分支
+  当前集成分支状态
+
+  feature/skill-router-integration: 5 commits (A+B+C+D 已合并)
+
+  需要交代给 E 的事项
+
+  1. E 需要改的 4 个文件中，2 个还未被修改
+
+  ┌────────────────────────────┬─────────────────────────────────────────────────────────────────────────┐
+  │        E 要改的文件        │                                当前状态                                 │
+  ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ config/app_config.py       │ ⚠️  未修改 — from_file() 里没有调用 load_skill_router_config_from_dict() │
+  ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ agents/thread_state.py     │ ⚠️  未修改 — 还没有 routing_context 字段                                 │
+  ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ agents/lead_agent/agent.py │ ⚠️  未修改 — 还没插入 SkillRouterMiddleware                              │
+  ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ skills/loader.py           │ ⚠️  未修改 — 还没加过滤支持                                              │
+  └────────────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+  这些是 E 自己的任务，需要在 feature/skill-router-agent-integration 分支上完成。
+
+  2. __init__.py 导出状态
+
+  routing/__init__.py 当前导出了：
+  - RoutingContext, SceneTask, SelectedSkill（A 的 schema）
+  - SkillRouterEmbeddingClient, SkillRouterElasticStore, SkillRouterRerankerClient（C 的客户端）
+  - 缺少 should_route, segment_query, resolve, pick_primary（D 的函数）
+
+  E 不需要管这个，但如果后续导入这些函数发现找不到，是正常现象，后续可以补充。
+
+  3. E 的重点注意事项
+
+  E 的任务中，最关键的是第 2 和第 3 步：
+
+  - Middleware 顺序：SkillRouterMiddleware 必须插在 TodoMiddleware 前面。如果顺序反了，Todo 读不到 routing_context。
+  - 配置开关：skill_router.enabled=false 时不能加载 SkillRouterMiddleware，否则会影响原有 Agent 行为。
+  - ThreadState 字段：用 NotRequired[dict | None]，不要破坏原有的 AgentState 结构。
+  - app_config.py 的 from_file()：加一行 load_skill_router_config_from_dict(config_data.get("skill_router", 
+  {}))，不能覆盖或删改已有的 memory/title/subagents/summarization 加载。
+
+  4. E 可以直接使用的已有组件
+
+  from deerflow.routing import SkillRouterEmbeddingClient, SkillRouterElasticStore, SkillRouterRerankerClient
+  from deerflow.routing.query_segmenter import should_route, segment_query
+  from deerflow.routing.resolver import resolve, pick_primary
+  from deerflow.routing.schema import RoutingContext, SceneTask, SelectedSkill
+  from deerflow.config.skill_router_config import get_skill_router_config
+  from deerflow.agents.middlewares.skill_router_middleware import SkillRouterMiddleware
+
+  所有这些在集成分支上都已经可以正常导入了。
 
 ```bash
 git checkout feature/skill-router-integration
