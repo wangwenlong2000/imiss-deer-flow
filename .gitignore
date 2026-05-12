@@ -45,6 +45,10 @@ skills/custom/*
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**
+!skills/custom/location-matcher/
+!skills/custom/location-matcher/**
+skills/custom/location-matcher/scripts/__pycache__
+skills/custom/location-matcher/scripts/test/__pycache__
 logs/
 log/
 backend/log/
@@ -81,3 +85,6 @@ datasets/network-traffic/outputs/**
 .github/skills/
 
 .qwen/
+
+audit-docker-env.sh
+env-audit
