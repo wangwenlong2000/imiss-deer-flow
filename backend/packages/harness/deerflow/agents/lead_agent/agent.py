@@ -10,6 +10,7 @@ from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionM
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
 from deerflow.agents.middlewares.raw_transcript_middleware import RawTranscriptMiddleware
 from deerflow.agents.middlewares.run_history_middleware import RunHistoryMiddleware
+from deerflow.agents.middlewares.skill_router_middleware import SkillRouterMiddleware
 from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 from deerflow.agents.middlewares.title_middleware import TitleMiddleware
 from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
@@ -18,6 +19,7 @@ from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddlewar
 from deerflow.agents.thread_state import ThreadState
 from deerflow.config.agents_config import load_agent_config
 from deerflow.config.app_config import get_app_config
+from deerflow.config.skill_router_config import get_skill_router_config
 from deerflow.config.summarization_config import get_summarization_config
 from deerflow.models import create_chat_model
 
@@ -227,6 +229,10 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     summarization_middleware = _create_summarization_middleware()
     if summarization_middleware is not None:
         middlewares.append(summarization_middleware)
+
+    # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
+    if get_skill_router_config().enabled:
+        middlewares.append(SkillRouterMiddleware())
 
     # Add TodoList middleware if plan mode is enabled
     is_plan_mode = config.get("configurable", {}).get("is_plan_mode", False)

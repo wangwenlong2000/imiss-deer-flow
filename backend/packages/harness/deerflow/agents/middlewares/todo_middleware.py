@@ -76,6 +76,27 @@ class TodoMiddleware(TodoListMiddleware):
         # The todo list exists in state but the original write_todos call is gone.
         # Inject a reminder as a HumanMessage so the model stays aware.
         formatted = _format_todos(todos)
+
+        routing_ctx = state.get("routing_context")
+        routing_hint = ""
+        if routing_ctx and routing_ctx.get("scene_tasks"):
+            scene_tasks = routing_ctx.get("scene_tasks", [])
+            skill_lines: list[str] = []
+            for st in scene_tasks:
+                seg = st.get("segment_text", "")
+                skills = st.get("selected_skills", [])
+                skill_names = [s.get("id", "") for s in skills if s.get("id")]
+                if skill_names:
+                    skill_lines.append(f"- {seg} → 使用: {', '.join(skill_names)}")
+                else:
+                    skill_lines.append(f"- {seg}")
+            routing_hint = (
+                "\n<routing_guidance>\n"
+                "路由结果已给出，请按以下规划执行：\n"
+                + "\n".join(f"  {line}" for line in skill_lines)
+                + "\n</routing_guidance>\n"
+            )
+
         reminder = HumanMessage(
             name="todo_reminder",
             content=(
@@ -85,6 +106,7 @@ class TodoMiddleware(TodoListMiddleware):
                 f"{formatted}\n\n"
                 "Continue tracking and updating this todo list as you work. "
                 "Call `write_todos` whenever the status of any item changes.\n"
+                f"{routing_hint}"
                 "</system_reminder>"
             ),
         )

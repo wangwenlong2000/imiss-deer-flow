@@ -19,7 +19,7 @@ def get_skills_root_path() -> Path:
     return skills_dir
 
 
-def load_skills(skills_path: Path | None = None, use_config: bool = True, enabled_only: bool = False) -> list[Skill]:
+def load_skills(skills_path: Path | None = None, use_config: bool = True, enabled_only: bool = False, available_skills: set[str] | None = None) -> list[Skill]:
     """
     Load all skills from the skills directory.
 
@@ -32,6 +32,8 @@ def load_skills(skills_path: Path | None = None, use_config: bool = True, enable
                      Otherwise defaults to deer-flow/skills
         use_config: Whether to load skills path from config (default: True)
         enabled_only: If True, only return enabled skills (default: False)
+        available_skills: If provided, only return skills whose names are in this set.
+                         If None, return all (enabled) skills.
 
     Returns:
         List of Skill objects, sorted by name
@@ -91,6 +93,10 @@ def load_skills(skills_path: Path | None = None, use_config: bool = True, enable
     # Filter by enabled status if requested
     if enabled_only:
         skills = [skill for skill in skills if skill.enabled]
+
+    # Filter by available skills if requested
+    if available_skills is not None:
+        skills = [skill for skill in skills if skill.name in available_skills]
 
     # Sort by name for consistent ordering
     skills.sort(key=lambda s: s.name)
