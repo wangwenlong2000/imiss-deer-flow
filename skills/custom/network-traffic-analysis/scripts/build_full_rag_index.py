@@ -9,11 +9,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError as exc:
-    raise ImportError("Missing dependency 'pyyaml'. Install it first: pip install pyyaml") from exc
-
+from utils.config import (
+    get_config_path,
+    load_app_config,
+    load_dotenv_file,
+    resolve_elasticsearch_config,
+)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[3]
@@ -23,90 +24,6 @@ EMBED_SCRIPT = SCRIPT_DIR / "embed_rag_docs.py"
 INDEX_SCRIPT = SCRIPT_DIR / "index_rag_docs.py"
 SEARCH_SCRIPT = SCRIPT_DIR / "rag_search.py"
 PCAP_PATTERNS = ("*.pcap", "*.pcapng", "*.cap")
-
-
-def resolve_env_value(value: str | Any) -> Any:
-    if not isinstance(value, str) or not value.startswith("$"):
-        return value
-    env_var = value[1:]
-    if env_var.startswith("{") and env_var.endswith("}"):
-        env_var = env_var[1:-1]
-    return os.environ.get(env_var, value)
-
-
-def get_config_path() -> Path:
-    configured = os.getenv("DEER_FLOW_CONFIG_PATH")
-    if configured:
-        path = Path(configured).expanduser()
-        if not path.is_absolute():
-            path = Path.cwd() / path
-        if not path.exists():
-            raise FileNotFoundError(
-                f"Config file specified by DEER_FLOW_CONFIG_PATH not found at {path}"
-            )
-        return path.resolve()
-    for candidate in (Path.cwd(), *Path.cwd().parents):
-        cfg = candidate / "config.yaml"
-        if cfg.exists():
-            return cfg.resolve()
-    raise FileNotFoundError("config.yaml file not found")
-
-
-def load_app_config() -> dict[str, Any]:
-    config_path = get_config_path()
-    with open(config_path, encoding="utf-8") as handle:
-        payload = yaml.safe_load(handle) or {}
-    payload["_config_path"] = str(config_path)
-    return payload
-
-
-def resolve_elasticsearch_config(
-    config: dict[str, Any], cli_overrides: dict[str, Any]
-) -> dict[str, Any]:
-    elasticsearch = dict(config.get("elasticsearch") or {})
-    hosts = (
-        cli_overrides.get("es_host")
-        or resolve_env_value(elasticsearch.get("hosts"))
-        or "http://localhost:9200"
-    )
-    if isinstance(hosts, str):
-        host_list = [item.strip() for item in hosts.split(",") if item.strip()]
-    elif isinstance(hosts, list):
-        host_list = [
-            str(resolve_env_value(item)).strip()
-            for item in hosts
-            if str(resolve_env_value(item)).strip()
-        ]
-    else:
-        host_list = []
-    username = (
-        cli_overrides.get("es_username")
-        or str(resolve_env_value(elasticsearch.get("username")) or "")
-    )
-    password = (
-        cli_overrides.get("es_password")
-        or str(resolve_env_value(elasticsearch.get("password")) or "")
-    )
-    api_key = (
-        cli_overrides.get("es_api_key")
-        or str(resolve_env_value(elasticsearch.get("api_key")) or "")
-    )
-    index_name = (
-        cli_overrides.get("es_index")
-        or str(resolve_env_value(elasticsearch.get("index_name")) or "")
-    )
-    if not index_name:
-        raise ValueError(
-            "Elasticsearch index name is required. "
-            "Set NETWORK_TRAFFIC_ES_INDEX in .env or config.yaml, or pass --index-name."
-        )
-    return {
-        "hosts": host_list or ["http://localhost:9200"],
-        "index_name": index_name,
-        "api_key": api_key,
-        "username": username,
-        "password": password,
-    }
 
 
 def detect_repo_root() -> Path:
@@ -125,24 +42,6 @@ def to_repo_relative_display(value: str | Path) -> str:
         return path.resolve().relative_to(detect_repo_root()).as_posix()
     except ValueError:
         return path.resolve().as_posix()
-
-
-def load_dotenv_file() -> None:
-    dotenv_path = detect_repo_root() / ".env"
-    if not dotenv_path.exists():
-        return
-    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if not key or key in os.environ:
-            continue
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-            value = value[1:-1]
-        os.environ[key] = value
 
 
 def resolve_script_artifact_path(value: str | Path) -> Path:

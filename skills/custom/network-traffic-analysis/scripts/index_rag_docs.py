@@ -12,13 +12,15 @@ from pathlib import Path
 from typing import Any
 
 from file_resolution import is_explicit_path_reference, resolve_reference
+from utils.config import (
+    get_config_path,
+    load_app_config,
+    load_dotenv_file,
+    parse_bool,
+    resolve_elasticsearch_config,
+    resolve_env_value,
+)
 from utils.path import repo_root, to_repo_relative_display
-
-try:
-    import yaml
-except ImportError as exc:
-    raise ImportError("Missing dependency 'pyyaml'. Install it first: pip install pyyaml") from exc
-
 
 
 def flatten_rag_doc_for_index(doc: dict[str, Any]) -> dict[str, Any]:
@@ -102,100 +104,6 @@ def flatten_rag_doc_for_index(doc: dict[str, Any]) -> dict[str, Any]:
         "artifact_generation_id": doc.get("artifact_generation_id", ""),
     }
     return flattened
-
-
-def resolve_env_value(value: Any) -> Any:
-    if isinstance(value, str) and value.startswith("$"):
-        return os.getenv(value[1:], "")
-    return value
-
-
-def parse_bool(value: Any, default: bool = True) -> bool:
-    if value in (None, ""):
-        return default
-    if isinstance(value, bool):
-        return value
-    normalized = str(value).strip().lower()
-    return normalized in {"1", "true", "yes", "y", "on"}
-
-
-def detect_repo_root() -> Path:
-    for candidate in (Path.cwd(), *Path.cwd().parents):
-        if (candidate / "config.yaml").exists():
-            return candidate
-    raise FileNotFoundError("config.yaml file not found")
-
-
-def load_dotenv_file() -> None:
-    dotenv_path = detect_repo_root() / ".env"
-    if not dotenv_path.exists():
-        return
-    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if not key or key in os.environ:
-            continue
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-            value = value[1:-1]
-        os.environ[key] = value
-
-
-def get_config_path() -> Path:
-    configured = os.getenv("DEER_FLOW_CONFIG_PATH")
-    if configured:
-        path = Path(configured).expanduser()
-        if not path.is_absolute():
-            path = Path.cwd() / path
-        if not path.exists():
-            raise FileNotFoundError(f"Config file specified by DEER_FLOW_CONFIG_PATH not found at {path}")
-        return path.resolve()
-    for candidate in (Path.cwd(), *Path.cwd().parents):
-        cfg = candidate / "config.yaml"
-        if cfg.exists():
-            return cfg.resolve()
-    raise FileNotFoundError("config.yaml file not found")
-
-
-def load_app_config() -> dict[str, Any]:
-    config_path = get_config_path()
-    with open(config_path, encoding="utf-8") as handle:
-        payload = yaml.safe_load(handle) or {}
-    payload["_config_path"] = str(config_path)
-    return payload
-
-
-def resolve_elasticsearch_config(config: dict[str, Any], cli_overrides: dict[str, Any]) -> dict[str, Any]:
-    elasticsearch = dict(config.get("elasticsearch") or {})
-    hosts = cli_overrides.get("es_host") or resolve_env_value(elasticsearch.get("hosts")) or "http://localhost:9200"
-    if isinstance(hosts, str):
-        host_list = [item.strip() for item in hosts.split(",") if item.strip()]
-    elif isinstance(hosts, list):
-        host_list = [str(resolve_env_value(item)).strip() for item in hosts if str(resolve_env_value(item)).strip()]
-    else:
-        host_list = []
-    username = cli_overrides.get("es_username") or str(resolve_env_value(elasticsearch.get("username")) or "")
-    password = cli_overrides.get("es_password") or str(resolve_env_value(elasticsearch.get("password")) or "")
-    api_key = cli_overrides.get("es_api_key") or str(resolve_env_value(elasticsearch.get("api_key")) or "")
-    index_name = cli_overrides.get("es_index") or str(resolve_env_value(elasticsearch.get("index_name")) or "")
-    if not index_name:
-        raise ValueError(
-            "Elasticsearch index name is required. "
-            "Set NETWORK_TRAFFIC_ES_INDEX in .env or config.yaml, or pass --index-name."
-        )
-    return {
-        "hosts": host_list or ["http://localhost:9200"],
-        "index_name": index_name,
-        "api_key": api_key,
-        "username": username,
-        "password": password,
-        "verify_certs": parse_bool(resolve_env_value(elasticsearch.get("verify_certs")), True),
-        "request_timeout": int(resolve_env_value(elasticsearch.get("request_timeout")) or 30),
-        "config_path": str(config.get("_config_path", "")),
-    }
 
 
 def discover_files(values: list[str]) -> list[str]:
