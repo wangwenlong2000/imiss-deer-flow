@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all
 
 PYTHON ?= python
 
@@ -19,6 +19,10 @@ help:
 	@echo "  make linux-server-start  - Start server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-stop   - Stop server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-status - Show server mode status on ports 3024/38001/33000"
+	@echo "  make model-services-start  - Start BGE-M3 + SkillRouter embedding/reranker"
+	@echo "  make model-services-stop   - Stop BGE-M3 + SkillRouter embedding/reranker"
+	@echo "  make model-services-status - Show BGE-M3 + SkillRouter embedding/reranker status"
+	@echo "  make model-services-dogfood - Start and smoke-test all three model services"
 	@echo "  make dev-daemon      - Start all services in background (daemon mode)"
 	@echo "  make start           - Start all services in production mode (optimized, no hot-reloading)"
 	@echo "  make stop            - Stop all running services"
@@ -128,6 +132,22 @@ linux-server-stop:
 
 linux-server-status:
 	@LANGGRAPH_PORT=3024 GATEWAY_PORT=38001 FRONTEND_PORT=33000 ./scripts/dev-no-nginx.sh status
+
+# Start the three local model services used for embedding and reranking
+model-services-start:
+	@./scripts/start-model-services.sh
+
+# Stop the three local model services used for embedding and reranking
+model-services-stop:
+	@./scripts/stop-model-services.sh
+
+# Show the status of the three local model services
+model-services-status:
+	@./scripts/model-services-status.sh
+
+# Start and smoke-test the three local model services
+model-services-dogfood:
+	@./scripts/dogfood_skillrouter_models.sh
 
 # Start all services in production mode (with optimizations)
 start:
