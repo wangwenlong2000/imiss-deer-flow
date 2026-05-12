@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "consulting-analysis",
+    "name": "consulting-analysis",
+    "description": "Use this skill when the user requests to generate, create, or write professional research reports including but not limited to market analysis, consumer insights, brand analysis, financial analysis, industry research, competitive intelligence, investment due diligence, or any consulting-grade analytical report. This skill operates in two phases — (1) generating a structured analysis framework with chapter skeleton, data query requirements, and analysis logic, and (2) after data collection by other skills, producing the final consulting-grade report with structured narratives, embedded charts, and strategic insights."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：consulting-analysis\n描述：Use this skill when the user requests to generate, create, or write professional research reports including but not limited to market analysis, consumer insights, brand analysis, financial analysis, industry research, competitive intelligence, investment due diligence, or any consulting-grade analytical report. This skill operates in two phases — (1) generating a structured analysis framework with chapter skeleton, data query requirements, and analysis logic, and (2) after data collection by other skills, producing the final consulting-grade report with structured narratives, embedded charts, and strategic insights.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Professional Research Report Skill\n## Overview\nThis skill produces professional, consulting-grade research reports in Markdown format, covering domains such as **market analysis, consumer insights, brand strategy, financial analysis, industry research, competitive intelligence, investment research, and macroeconomic analysis**. It operates across two distinct phases:\n1. **Phase 1 — Analysis Framework Generation**: Given a research subject, produce a rigorous analysis framework including chapter skeleton, per-chapter data requirements, analysis logic, and visualization plan.\n2. **Phase 2 — Report Generation**: After data has been collected by other skills, synthesize all inputs into a final polished report.\nThe output adheres to McKinsey/BCG consulting voice standards. The report language follows the `output_locale` setting (default: `zh_CN` for Chinese).\n## Data Authenticity Protocol\n**Strict Adherence Rule**: All data presented in the report and visualized in charts MUST be derived directly from the provided **Data Summary** or **External Search Findings**.\n- **NO Hallucinations**: Do not invent, estimate, or simulate data. If data is missing, state \"Data not available\" rather than fabricating numbers.\n- **Traceable Sources**: Every major claim and chart must be traceable back to the input data package.\n## Core Capabilities\n- **Design analysis frameworks** from scratch given only a research subject and scope\n- Transform raw data into structured, high-depth research reports\n- Follow the **\"Visual Anchor → Data Contrast → Integrated Analysis\"** flow per sub-chapter\n- Produce insights following the **\"Data → User Psychology → Strategy Implication\"** chain\n- Embed pre-generated charts and construct comparison tables\n- Generate inline citations formatted per **GB/T 7714-2015** standards\n- Output reports in the language specified by `output_locale` with professional consulting tone\n- Adapt analytical depth and structure to domain (marketing, finance, industry, etc.)\n## When to Use This Skill\n**Always load this skill when:**\n- User asks for a market analysis, consumer insight report, financial analysis, industry research, or any consulting-grade analytical report\n- User provides a research subject and needs a structured analysis framework before data collection\n- User provides data summaries, analysis frameworks, or chart files to be synthesized into a report\n- User needs a professional consulting-style research report\n- The task involves transforming research findings into structured strategic narratives\n---\n# Phase 1: Analysis Framework Generation\n## Purpose\nGiven a **research subject** (e.g., \"Gen-Z Skincare Market Analysis\", \"NEV Industry Competitive Landscape\", \"Brand X Consumer Profiling\"), produce a complete **analysis framework** that serves as the blueprint for downstream data collection and final report generation.\n## Phase 1 Inputs\n| Input | Description | Required |\n|-------|-------------|----------|\n| **Research Subject** | The topic or question to be analyzed | Yes |\n| **Scope / Constraints** | Geographic scope, time range, industry segment, target audience, etc. | Optional |\n| **Specific Angles** | Any particular angles or hypotheses the user wants explored | Optional |\n| **Domain** | The analytical domain: market, finance, industry, brand, consumer, investment, etc. | Inferred |\n## Phase 1 Workflow\n### Step 1.1: Understand the Research Subject\n- Parse the research subject to identify the **core entity** (market, brand, product, industry, consumer segment, financial instrument, etc.)\n- Identify the **analytical domain** (marketing, finance, industry, competitive, consumer, investment, macro, etc.)\n- Determine the **natural analytical dimensions** based on domain:\n| Domain | Typical Dimensions |\n|--------|--------------------|\n| Market Analysis | Market size, growth trends, market segmentation, growth drivers, competitive landscape, consumer profiling |\n| Brand Analysis | Brand positioning, market share, consumer perception, marketing strategy, competitor comparison |\n| Consumer Insights | Demographic profiling, purchase behavior, decision journey, pain points, scenario analysis |\n| Financial Analysis | Macro environment, industry trends, company fundamentals, financial metrics, valuation, risk assessment |\n| Industry Research | Value chain analysis, market size, competitive landscape, policy environment, technology trends, entry barriers |\n| Investment Due Diligence | Business model, financial health, management assessment, market opportunity, risk factors, exit pathways |\n| Competitive Intelligence | Competitor identification, strategic comparison, SWOT analysis, differentiated positioning, market dynamics |\n### Step 1.2: Select Analysis Frameworks & Models\nBased on the identified domain and research subject, select **one or more** professional analysis frameworks to structure the reasoning in each chapter. The chosen frameworks guide the **Analysis Logic** in the chapter skeleton (Step 1.3).\n###..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/consulting-analysis",
+    "skill_md_path": "skills/public/consulting-analysis/SKILL.md",
+    "skill_md_hash": "sha256:70bdbe8d99ab9a64d340517b0de24afc637faeb763958dac154e5350719354b0",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:6bfebb369b03ac4fb507c193bfa1fe6cd6b93be64d8a527ad675a9cb34767038",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "consulting-analysis"
+  }
+}

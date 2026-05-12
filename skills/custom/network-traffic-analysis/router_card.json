@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "network-traffic-analysis",
+    "name": "network-traffic-analysis",
+    "description": "Use this skill to investigate network traffic in the sandbox using strict script-driven workflows. Handles PCAP preprocessing, structured flow analysis, report export, and optional RAG retrieval over indexed traffic evidence."
+  },
+  "scope": {
+    "scenes": [
+      "network_traffic"
+    ],
+    "is_public": false,
+    "task_types": [
+      "pcap_parse",
+      "protocol_analysis",
+      "anomaly_detect",
+      "domain_analysis",
+      "security_report"
+    ],
+    "input_types": [
+      "pcap",
+      "pcapng",
+      "cap",
+      "csv"
+    ],
+    "output_types": [
+      "flow_csv",
+      "domain_list",
+      "anomaly_findings",
+      "security_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：network-traffic-analysis\n描述：Use this skill to investigate network traffic in the sandbox using strict script-driven workflows. Handles PCAP preprocessing, structured flow analysis, report export, and optional RAG retrieval over indexed traffic evidence.\n适用场景：network_traffic。\n适用任务：pcap_parse, protocol_analysis, anomaly_detect, domain_analysis, security_report。\n输入类型：pcap, pcapng, cap, csv。\n输出类型：flow_csv, domain_list, anomaly_findings, security_report。\n适合使用：分析 pcap 文件中的异常通信；识别网络流量中的可疑域名；统计 DNS、HTTP、TLS 和 TCP 会话。\n不适合使用：分析整治台账合规风险；检索政策法规条款；分析车辆时空轨迹；预测交通路网流量。",
+    "positive_triggers": [
+      "分析 pcap 文件中的异常通信",
+      "识别网络流量中的可疑域名",
+      "统计 DNS、HTTP、TLS 和 TCP 会话"
+    ],
+    "negative_triggers": [
+      "分析整治台账合规风险",
+      "检索政策法规条款",
+      "分析车辆时空轨迹",
+      "预测交通路网流量"
+    ],
+    "keywords": [
+      "pcap",
+      "pcapng",
+      "流量",
+      "DNS",
+      "HTTP",
+      "TLS",
+      "异常通信",
+      "可疑域名"
+    ],
+    "anti_keywords": [
+      "法规",
+      "政策",
+      "台账",
+      "轨迹",
+      "交通流量"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Network Traffic Analysis Skill\nThis skill is a strict, script-driven network traffic investigation workflow for enterprise-style traffic review, anomaly screening, and evidence export.\n## Hard rules\n- Always run the provided scripts through `bash`; never replace this workflow with ad hoc code\n- Never read full network traffic data files into model context with `read_file`\n- Never skip `inspect` before deep analysis on an unconfirmed schema\n- Never guess missing fields, data source meaning, or protocol semantics\n- Never jump into the RAG chain unless the route selection rules below say it is needed\n- During analysis tasks, never run `pip install`, broad `find /mnt`, `grep -r /mnt`, or edit skill/schema/config files unless the user explicitly asks for skill development\n- Never write final reports with heredocs or `cat >`; use `generate_incident_report.py` only\n- If the input cannot be resolved cleanly, stop and report the exact reason\n## Path conventions\n| Root | Purpose |\n| --- | --- |\n| `/mnt/skills/custom/network-traffic-analysis` | Skill root |\n| `/mnt/user-data/uploads` | Uploaded files |\n| `/mnt/user-data/outputs` | Report and export artifacts |\n| `/mnt/datasets/network-traffic` | Platform datasets |\nDo not use `/mnt/skills/custom/datasets` or `/mnt/skills/custom/network-traffic-analysis/datasets` as dataset roots.\nThe field mapping is resolved: explicit CLI → `$NETWORK_TRAFFIC_FIELD_MAPPING` → dataset `schema/field_mapping.yaml` → skill `config/field_mapping.yaml` → repo fallback.\nEnvironment overrides: `NETWORK_TRAFFIC_DATASET_ROOT`, `NETWORK_TRAFFIC_UPLOADS_ROOT`, `NETWORK_TRAFFIC_WORKSPACE_ROOT`, `NETWORK_TRAFFIC_OUTPUTS_ROOT`, `NETWORK_TRAFFIC_FIELD_MAPPING`, `NETWORK_TRAFFIC_PROCESSED_ROOT`.\n## Input resolution order\n1. Explicit path from `<selected_data_sources>` in the current turn\n2. Uploaded files under `/mnt/user-data/uploads`\n3. Platform datasets under `/mnt/datasets/network-traffic/raw` or `processed`\nWhen `<selected_data_sources>` points to a dataset root, prefer in order: `*.flow.csv` → `*.packet.csv` → `rag/rag_docs.jsonl` → raw `*.pcap`/`*.pcapng`/`*.cap`. If both uploaded and local files match the same name, use the uploaded file unless the user explicitly says otherwise.\n## File type handling\n- Raw capture (`.pcap`, `.pcapng`, `.cap`): must go through `prepare_pcap.py` first\n- Structured traffic data (`.csv`, `.parquet`, `.json`, `.jsonl`, `.xlsx`, `.xls`): must go through `analyze.py`\n`prepare_pcap.py` prefers `tshark`, falls back to `scapy`, and when `zeek` is available emits protocol-semantic logs under a `zeek/` subdirectory.\n## Allowed tools\n- File reading: only for this SKILL.md, references, small metadata, and short previews\n- Shell execution: only through the provided scripts — `prepare_pcap.py`, `analyze.py`, `build_rag_docs.py`, `embed_rag_docs.py`, `index_rag_docs.py`, `build_full_rag_index.py`, `rag_search.py`, `generate_incident_report.py`\nDo not call helper modules directly unless debugging implementation internals.\n## Reference use rules\nRead references only when the current task requires them. Do not bulk-read all references.\n| Trigger | Required reference |\n| --- | --- |\n| Route choice is unclear, or user mixes retrieval with current-file analysis | `references/workflow-routing.md` |\n| User asks what actions or capabilities are available | `references/capability-catalog.md` |\n| User asks for an investigation plan, incident workflow, triage sequence, or \"what should I check next\" | `references/playbooks.md` |\n| User asks about advanced analytics, ML, graph, QoS, threat intel, forecasting, or drift | `references/advanced-actions.md` |\n| User asks for JSON, SkillResult, or downstream integration format | `references/input-output-contract.md` |\n| User asks to build, rebuild, index, validate, or troubleshoot RAG | `references/rag-indexing-and-rebuild.md` |\n| User asks about field meaning, canonical schema, timestamps, durations, sessionization, or PCAP-to-flow semantics | `references/field-dictionary.md` and `references/preprocessing-and-time-semantics.md` |\n| User asks for exact command examples | `references/command-patterns.md` |\n## Route selection\n### Route 1: `analysis-only` (default)\nDirect analysis of one file or dataset. Use `prepare_pcap.py` + `analyze.py` only. Do not introduce RAG.\n### Route 2: `rag-only`\nRetrieval from indexed historical data. Start with `rag_search.py`. Only expand into build chain if required artifacts or index do not exist.\n### Route 3: `rag-plus-analysis`\nIndexed evidence first (`rag_search.py`), then measured validation (`analyze.py` on current dataset). Only rebuild RAG if indexed artifacts are missing or stale.\n## Flow vs packet selection\n- User names `*.flow.csv` → `flow` view; `*.packet.csv` → `packet` view\n- No specification → `--view auto` (prefer `flow` for overview/trends/anomaly; prefer `packet` for TCP flags/handshake/ICMP/packet-level burst)\n## Mandatory execution workflow\n### Step 0. Runtime preflight\n```bash\ncd /mnt/skills/c..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "tshark"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator"
+    ],
+    "allowed_file_patterns": [
+      "*.pcap",
+      "*.pcapng",
+      "*.cap",
+      "*.csv"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "network_traffic_analysis",
+    "prefer_when": [
+      "用户上传 pcap/pcapng/cap 文件",
+      "用户要求分析异常通信、协议行为、可疑域名或安全事件"
+    ],
+    "defer_when": [
+      "任务只是通用 CSV 统计，应优先使用 data-analysis",
+      "任务只是生成图表，应优先使用 chart-visualization"
+    ]
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/custom/network-traffic-analysis",
+    "skill_md_path": "skills/custom/network-traffic-analysis/SKILL.md",
+    "skill_md_hash": "sha256:2e85a147ba5a8c389187001694270a828e46c96fb1a3fffba839a9e21b137298",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:48b32d856aeae8889423de2ce83148cc249e94ff2d21846f20c1d2150ddf373d",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "network-traffic-analysis"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "deep-research",
+    "name": "deep-research",
+    "description": "Use this skill instead of WebSearch for ANY question requiring web research. Trigger on queries like \"what is X\", \"explain X\", \"compare X and Y\", \"research X\", or before content generation tasks. Provides systematic multi-angle research methodology instead of single superficial searches. Use this proactively when the user's question needs online information."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：deep-research\n描述：Use this skill instead of WebSearch for ANY question requiring web research. Trigger on queries like \"what is X\", \"explain X\", \"compare X and Y\", \"research X\", or before content generation tasks. Provides systematic multi-angle research methodology instead of single superficial searches. Use this proactively when the user's question needs online information.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Deep Research Skill\n## Overview\nThis skill provides a systematic methodology for conducting thorough web research. **Load this skill BEFORE starting any content generation task** to ensure you gather sufficient information from multiple angles, depths, and sources.\n## When to Use This Skill\n**Always load this skill when:**\n### Research Questions\n- User asks \"what is X\", \"explain X\", \"research X\", \"investigate X\"\n- User wants to understand a concept, technology, or topic in depth\n- The question requires current, comprehensive information from multiple sources\n- A single web search would be insufficient to answer properly\n### Content Generation (Pre-research)\n- Creating presentations (PPT/slides)\n- Creating frontend designs or UI mockups\n- Writing articles, reports, or documentation\n- Producing videos or multimedia content\n- Any content that requires real-world information, examples, or current data\n## Core Principle\n**Never generate content based solely on general knowledge.** The quality of your output directly depends on the quality and quantity of research conducted beforehand. A single search query is NEVER enough.\n## Research Methodology\n### Phase 1: Broad Exploration\nStart with broad searches to understand the landscape:\n1. **Initial Survey**: Search for the main topic to understand the overall context\n2. **Identify Dimensions**: From initial results, identify key subtopics, themes, angles, or aspects that need deeper exploration\n3. **Map the Territory**: Note different perspectives, stakeholders, or viewpoints that exist\nExample:\n```\nTopic: \"AI in healthcare\"\nInitial searches:\n- \"AI healthcare applications 2024\"\n- \"artificial intelligence medical diagnosis\"\n- \"healthcare AI market trends\"\nIdentified dimensions:\n- Diagnostic AI (radiology, pathology)\n- Treatment recommendation systems\n- Administrative automation\n- Patient monitoring\n- Regulatory landscape\n- Ethical considerations\n```\n### Phase 2: Deep Dive\nFor each important dimension identified, conduct targeted research:\n1. **Specific Queries**: Search with precise keywords for each subtopic\n2. **Multiple Phrasings**: Try different keyword combinations and phrasings\n3. **Fetch Full Content**: Use `web_fetch` to read important sources in full, not just snippets\n4. **Follow References**: When sources mention other important resources, search for those too\nExample:\n```\nDimension: \"Diagnostic AI in radiology\"\nTargeted searches:\n- \"AI radiology FDA approved systems\"\n- \"chest X-ray AI detection accuracy\"\n- \"radiology AI clinical trials results\"\nThen fetch and read:\n- Key research papers or summaries\n- Industry reports\n- Real-world case studies\n```\n### Phase 3: Diversity & Validation\nEnsure comprehensive coverage by seeking diverse information types:\n| Information Type | Purpose | Example Searches |\n|-----------------|---------|------------------|\n| **Facts & Data** | Concrete evidence | \"statistics\", \"data\", \"numbers\", \"market size\" |\n| **Examples & Cases** | Real-world applications | \"case study\", \"example\", \"implementation\" |\n| **Expert Opinions** | Authority perspectives | \"expert analysis\", \"interview\", \"commentary\" |\n| **Trends & Predictions** | Future direction | \"trends 2024\", \"forecast\", \"future of\" |\n| **Comparisons** | Context and alternatives | \"vs\", \"comparison\", \"alternatives\" |\n| **Challenges & Criticisms** | Balanced view | \"challenges\", \"limitations\", \"criticism\" |\n### Phase 4: Synthesis Check\nBefore proceeding to content generation, verify:\n- [ ] Have I searched from at least 3-5 different angles?\n- [ ] Have I fetched and read the most important sources in full?\n- [ ] Do I have concrete data, examples, and expert perspectives?\n- [ ] Have I explored both positive aspects and challenges/limitations?\n- [ ] Is my information current and from authoritative sources?\n**If any answer is NO, continue researching before generating content.**\n## Search Strategy Tips\n### Effective Query Patterns\n```\n# Be specific with context\n❌ \"AI trends\"\n✅ \"enterprise AI adoption trends 2024\"\n# Include authoritative source hints\n\"[topic] research paper\"\n\"[topic] McKinsey report\"\n\"[topic] industry analysis\"\n# Search for specific content types\n\"[topic] case study\"\n\"[topic] statistics\"\n\"[topic] expert interview\"\n# Use temporal qualifiers — always use the ACTUAL current year from <current_date>\n\"[topic] 2026\"   # ← replace with real current year, never hardcode a past year\n\"[topic] latest\"\n\"[topic] recent developments\"\n```\n### Temporal Awareness\n**Always check `<current_date>` in your context before forming ANY search query.**\n`<current_date>` gives you the full date: year, month, day, and weekday (e.g. `2026-02-28, Saturday`). Use the right level of precision depending on what the user is asking:\n| User intent | Temporal precision needed | Example query |\n|---|---|---|\n| \"today / this morning / just released\" | **Month + Day** | `\"tech news February 28 2026\"` |\n| \"this week\" | **Week range** | `\"technology releases week of Feb 24 2026\"` |\n| \"recently / latest / new\" ..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/deep-research",
+    "skill_md_path": "skills/public/deep-research/SKILL.md",
+    "skill_md_hash": "sha256:fd14ac3856b8f8c02766a6f2d737df34941956deb9d6b7aa42ab4989a6e450ae",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:137ea4876ff08baae200597bca2832ba8be134474674b32bd479ed44de56ffd4",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "deep-research"
+  }
+}

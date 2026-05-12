@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "data-analysis",
+    "name": "data-analysis",
+    "description": "Use this skill when the user uploads Excel (.xlsx/.xls) or CSV files and wants to perform data analysis, generate statistics, create summaries, pivot tables, SQL queries, or any form of structured data exploration. Supports multi-sheet Excel workbooks, aggregation, filtering, joins, and exporting results to CSV/JSON/Markdown."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [
+      "data_exploration",
+      "sql_query",
+      "statistical_summary",
+      "pivot_table"
+    ],
+    "input_types": [
+      "xlsx",
+      "xls",
+      "csv"
+    ],
+    "output_types": [
+      "csv",
+      "json",
+      "markdown",
+      "statistical_summary"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：data-analysis\n描述：Use this skill when the user uploads Excel (.xlsx/.xls) or CSV files and wants to perform data analysis, generate statistics, create summaries, pivot tables, SQL queries, or any form of structured data exploration. Supports multi-sheet Excel workbooks, aggregation, filtering, joins, and exporting results to CSV/JSON/Markdown.\n适用场景：public。\n适用任务：data_exploration, sql_query, statistical_summary, pivot_table。\n输入类型：xlsx, xls, csv。\n输出类型：csv, json, markdown, statistical_summary。\n适合使用：分析这个 Excel 表格；统计 CSV 中的数据；对这个表格做汇总分析。\n不适合使用：生成图表；画一个图。",
+    "positive_triggers": [
+      "分析这个 Excel 表格",
+      "统计 CSV 中的数据",
+      "对这个表格做汇总分析"
+    ],
+    "negative_triggers": [
+      "生成图表",
+      "画一个图"
+    ],
+    "keywords": [
+      "Excel",
+      "CSV",
+      "DuckDB",
+      "SQL",
+      "统计表",
+      "汇总",
+      "数据透视"
+    ],
+    "anti_keywords": [
+      "可视化",
+      "图表",
+      "画图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Data Analysis Skill\n## Overview\nThis skill analyzes user-uploaded Excel/CSV files using DuckDB — an in-process analytical SQL engine. It supports schema inspection, SQL-based querying, statistical summaries, and result export, all through a single Python script.\n## Core Capabilities\n- Inspect Excel/CSV file structure (sheets, columns, types, row counts)\n- Execute arbitrary SQL queries against uploaded data\n- Generate statistical summaries (mean, median, stddev, percentiles, nulls)\n- Support multi-sheet Excel workbooks (each sheet becomes a table)\n- Export query results to CSV, JSON, or Markdown\n- Handle large files efficiently with DuckDB's columnar engine\n## Workflow\n### Step 1: Understand Requirements\nWhen a user uploads data files and requests analysis, identify:\n- **File location**: Path(s) to uploaded Excel/CSV files under `/mnt/user-data/uploads/`\n- **Analysis goal**: What insights the user wants (summary, filtering, aggregation, comparison, etc.)\n- **Output format**: How results should be presented (table, CSV export, JSON, etc.)\n- You don't need to check the folder under `/mnt/user-data`\n### Step 2: Inspect File Structure\nFirst, inspect the uploaded file to understand its schema:\n```bash\npython /mnt/skills/public/data-analysis/scripts/analyze.py \\\n--files /mnt/user-data/uploads/data.xlsx \\\n--action inspect\n```\nThis returns:\n- Sheet names (for Excel) or filename (for CSV)\n- Column names, data types, and non-null counts\n- Row count per sheet/file\n- Sample data (first 5 rows)\n### Step 3: Perform Analysis\nBased on the schema, construct SQL queries to answer the user's questions.\n#### Run SQL Query\n```bash\npython /mnt/skills/public/data-analysis/scripts/analyze.py \\\n--files /mnt/user-data/uploads/data.xlsx \\\n--action query \\\n--sql \"SELECT category, COUNT(*) as count, AVG(amount) as avg_amount FROM Sheet1 GROUP BY category ORDER BY count DESC\"\n```\n#### Generate Statistical Summary\n```bash\npython /mnt/skills/public/data-analysis/scripts/analyze.py \\\n--files /mnt/user-data/uploads/data.xlsx \\\n--action summary \\\n--table Sheet1\n```\nThis returns for each numeric column: count, mean, std, min, 25%, 50%, 75%, max, null_count.\nFor string columns: count, unique, top value, frequency, null_count.\n#### Export Results\n```bash\npython /mnt/skills/public/data-analysis/scripts/analyze.py \\\n--files /mnt/user-data/uploads/data.xlsx \\\n--action query \\\n--sql \"SELECT * FROM Sheet1 WHERE amount > 1000\" \\\n--output-file /mnt/user-data/outputs/filtered-results.csv\n```\nSupported output formats (auto-detected from extension):\n- `.csv` — Comma-separated values\n- `.json` — JSON array of records\n- `.md` — Markdown table\n### Parameters\n| Parameter | Required | Description |\n|-----------|----------|-------------|\n| `--files` | Yes | Space-separated paths to Excel/CSV files |\n| `--action` | Yes | One of: `inspect`, `query`, `summary` |\n| `--sql` | For `query` | SQL query to execute |\n| `--table` | For `summary` | Table/sheet name to summarize |\n| `--output-file` | No | Path to export results (CSV/JSON/MD) |\n> [!NOTE]\n> Do NOT read the Python file, just call it with the parameters.\n## Table Naming Rules\n- **Excel files**: Each sheet becomes a table named after the sheet (e.g., `Sheet1`, `Sales`, `Revenue`)\n- **CSV files**: Table name is the filename without extension (e.g., `data.csv` → `data`)\n- **Multiple files**: All tables from all files are available in the same query context, enabling cross-file joins\n- **Special characters**: Sheet/file names with spaces or special characters are auto-sanitized (spaces → underscores). Use double quotes for names that start with numbers or contain special characters, e.g., `\"2024_Sales\"`\n## Analysis Patterns\n### Basic Exploration\n```sql\n-- Row count\nSELECT COUNT(*) FROM Sheet1\n-- Distinct values in a column\nSELECT DISTINCT category FROM Sheet1\n-- Value distribution\nSELECT category, COUNT(*) as cnt FROM Sheet1 GROUP BY category ORDER BY cnt DESC\n-- Date range\nSELECT MIN(date_col), MAX(date_col) FROM Sheet1\n```\n### Aggregation & Grouping\n```sql\n-- Revenue by category and month\nSELECT category, DATE_TRUNC('month', order_date) as month,\nSUM(revenue) as total_revenue\nFROM Sales\nGROUP BY category, month\nORDER BY month, total_revenue DESC\n-- Top 10 customers by spend\nSELECT customer_name, SUM(amount) as total_spend\nFROM Orders GROUP BY customer_name\nORDER BY total_spend DESC LIMIT 10\n```\n### Cross-file Joins\n```sql\n-- Join sales with customer info from different files\nSELECT s.order_id, s.amount, c.customer_name, c.region\nFROM sales s\nJOIN customers c ON s.customer_id = c.id\nWHERE s.amount > 500\n```\n### Window Functions\n```sql\n-- Running total and rank\nSELECT order_date, amount,\nSUM(amount) OVER (ORDER BY order_date) as running_total,\nRANK() OVER (ORDER BY amount DESC) as amount_rank\nFROM Sales\n```\n### Pivot-style Analysis\n```sql\n-- Pivot: monthly revenue by category\nSELECT category,\nSUM(CASE WHEN MONTH(date) = 1 THEN revenue END) as Jan,\nSUM(CASE WHEN MONTH(date) = 2 THEN revenue END) as Feb,\nSUM(CASE W..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.xlsx",
+      "*.xls",
+      "*.csv"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_data_processing",
+    "prefer_when": [
+      "用户上传 Excel/CSV 并要求数据分析、统计汇总、SQL 查询"
+    ],
+    "defer_when": [
+      "任务只是生成图表，应优先使用 chart-visualization"
+    ]
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/data-analysis",
+    "skill_md_path": "skills/public/data-analysis/SKILL.md",
+    "skill_md_hash": "sha256:49e7d632be2f363fa2810aa7428e0d39e4601d9ece305a522727bd2ea306e022",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:cb65d1e992116ba7ea5028b2364713fcc811595b19b998cdf6a262de5e9eac99",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "data-analysis"
+  }
+}

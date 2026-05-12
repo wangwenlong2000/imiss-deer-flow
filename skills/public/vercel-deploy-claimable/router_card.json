@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "vercel-deploy-claimable",
+    "name": "vercel-deploy",
+    "description": "Deploy applications and websites to Vercel. Use this skill when the user requests deployment actions such as \"Deploy my app\", \"Deploy this to production\", \"Create a preview deployment\", \"Deploy and give me the link\", or \"Push this live\". No authentication required - returns preview URL and claimable deployment link."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：vercel-deploy\n描述：Deploy applications and websites to Vercel. Use this skill when the user requests deployment actions such as \"Deploy my app\", \"Deploy this to production\", \"Create a preview deployment\", \"Deploy and give me the link\", or \"Push this live\". No authentication required - returns preview URL and claimable deployment link.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Vercel Deploy\nDeploy any project to Vercel instantly. No authentication required.\n## How It Works\n1. Packages your project into a tarball (excludes `node_modules` and `.git`)\n2. Auto-detects framework from `package.json`\n3. Uploads to deployment service\n4. Returns **Preview URL** (live site) and **Claim URL** (transfer to your Vercel account)\n## Usage\n```bash\nbash /mnt/skills/user/vercel-deploy/scripts/deploy.sh [path]\n```\n**Arguments:**\n- `path` - Directory to deploy, or a `.tgz` file (defaults to current directory)\n**Examples:**\n```bash\n# Deploy current directory\nbash /mnt/skills/user/vercel-deploy/scripts/deploy.sh\n# Deploy specific project\nbash /mnt/skills/user/vercel-deploy/scripts/deploy.sh /path/to/project\n# Deploy existing tarball\nbash /mnt/skills/user/vercel-deploy/scripts/deploy.sh /path/to/project.tgz\n```\n## Output\n```\nPreparing deployment...\nDetected framework: nextjs\nCreating deployment package...\nDeploying...\n✓ Deployment successful!\nPreview URL: https://skill-deploy-abc123.vercel.app\nClaim URL:   https://vercel.com/claim-deployment?code=...\n```\nThe script also outputs JSON to stdout for programmatic use:\n```json\n{\n\"previewUrl\": \"https://skill-deploy-abc123.vercel.app\",\n\"claimUrl\": \"https://vercel.com/claim-deployment?code=...\",\n\"deploymentId\": \"dpl_...\",\n\"projectId\": \"prj_...\"\n}\n```\n## Framework Detection\nThe script auto-detects frameworks from `package.json`. Supported frameworks include:\n- **React**: Next.js, Gatsby, Create React App, Remix, React Router\n- **Vue**: Nuxt, Vitepress, Vuepress, Gridsome\n- **Svelte**: SvelteKit, Svelte, Sapper\n- **Other Frontend**: Astro, Solid Start, Angular, Ember, Preact, Docusaurus\n- **Backend**: Express, Hono, Fastify, NestJS, Elysia, h3, Nitro\n- **Build Tools**: Vite, Parcel\n- **And more**: Blitz, Hydrogen, RedwoodJS, Storybook, Sanity, etc.\nFor static HTML projects (no `package.json`), framework is set to `null`.\n## Static HTML Projects\nFor projects without a `package.json`:\n- If there's a single `.html` file not named `index.html`, it gets renamed automatically\n- This ensures the page is served at the root URL (`/`)\n## Present Results to User\nAlways show both URLs:\n```\n✓ Deployment successful!\n- [Preview URL](https://skill-deploy-abc123.vercel.app)\n- [Claim URL](https://vercel.com/claim-deployment?code=...)\nView your site at the Preview URL.\nTo transfer this deployment to your Vercel account, visit the Claim URL.\n```\n## Troubleshooting\n### Network Egress Error\nIf deployment fails due to network restrictions (common on claude.ai), tell the user:\n```\nDeployment failed due to network restrictions. To fix this:\n1. Go to https://claude.ai/settings/capabilities\n2. Add *.vercel.com to the allowed domains\n3. Try deploying again\n```"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/vercel-deploy-claimable",
+    "skill_md_path": "skills/public/vercel-deploy-claimable/SKILL.md",
+    "skill_md_hash": "sha256:6990ad1cf8cfa696bcd809748eca6e86a7d9edc035d2d22c220f031c6f3c027d",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:97de0cfee98a52ad4f49ea7154a78d399971b4e437766b670741d138f0cf267e",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "vercel-deploy-claimable"
+  }
+}
