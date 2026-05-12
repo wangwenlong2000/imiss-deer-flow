@@ -2,13 +2,16 @@
 """Local BGE-M3 embedding service with OpenAI-compatible API."""
 
 import os
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 MODEL_PATH = os.environ.get(
     "BGE_M3_MODEL_PATH",
-    "/home/wwl/imiss-deer-flow-main/.models/bge-m3",
+    str(REPO_ROOT / ".models" / "bge-m3"),
 )
 PORT = int(os.environ.get("BGE_M3_PORT", "7799"))
 HOST = os.environ.get("BGE_M3_HOST", "0.0.0.0")
