@@ -448,7 +448,7 @@ def build_manifest(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Index network traffic RAG embeddings into Elasticsearch.")
     parser.add_argument("--files", nargs="+", required=True, help="rag_embeddings.jsonl files, directories, or shorthand references")
-    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name. Defaults to config.yaml elasticsearch.index_name (set via NETWORK_TRAFFIC_ES_INDEX)")
+    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name. Defaults to config.yaml elasticsearch.index_name (set via ES_INDEX)")
     parser.add_argument("--output-file", default=None, help="Explicit output manifest path. Defaults beside rag_embeddings.jsonl")
     parser.add_argument("--chunk-size", type=int, default=1000, help="Bulk indexing chunk size")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")

@@ -55,7 +55,7 @@ curl -s http://192.168.200.1:7799/v1/embeddings \
 #### .env
 
 ```
-NETWORK_TRAFFIC_EMBEDDING_BASE_URL=http://192.168.200.1:7799/v1
+EMBEDDING_BASE_URL=http://192.168.200.1:7799/v1
 ```
 
 #### config.yaml
@@ -65,12 +65,12 @@ embedding:
   provider: openai-compatible
   model: BAAI/bge-m3
   api_key: unused
-  base_url: $NETWORK_TRAFFIC_EMBEDDING_BASE_URL
+  base_url: $EMBEDDING_BASE_URL
 ```
 
 #### Sandbox Environment
 
-The `sandbox.environment` section in `config.yaml` injects `NETWORK_TRAFFIC_EMBEDDING_BASE_URL` into sandbox containers so `rag_search.py` and `embed_rag_docs.py` can reach the service from inside the sandbox.
+The `sandbox.environment` section in `config.yaml` injects `EMBEDDING_BASE_URL` (and `EMBEDDING_API_KEY`) into sandbox containers so `rag_search.py` and `embed_rag_docs.py` can reach the service from inside the sandbox.
 
 ### Scripts That Use This Service
 
@@ -82,8 +82,8 @@ The `sandbox.environment` section in `config.yaml` injects `NETWORK_TRAFFIC_EMBE
 
 All three scripts resolve the embedding base URL in this priority:
 
-1. `config.yaml` `embedding.base_url` (via `$NETWORK_TRAFFIC_EMBEDDING_BASE_URL`)
-2. Environment variable `NETWORK_TRAFFIC_EMBEDDING_BASE_URL`
+1. `config.yaml` `embedding.base_url` (via `$EMBEDDING_BASE_URL`)
+2. Environment variable `EMBEDDING_BASE_URL`
 3. Empty (falls back to remote API provider behavior)
 
 ### Requirements

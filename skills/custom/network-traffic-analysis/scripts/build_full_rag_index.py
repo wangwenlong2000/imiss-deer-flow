@@ -265,7 +265,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--processed-dir", default=str(repo_default_processed_dir()), help="Directory containing processed datasets")
 
     # Index config
-    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name (falls back to NETWORK_TRAFFIC_ES_INDEX via config.yaml)")
+    parser.add_argument("--index-name", default=None, help="Override Elasticsearch index name (falls back to ES_INDEX via config.yaml)")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     parser.add_argument("--verbose", action="store_true", help="Stream child-script output while running")
 

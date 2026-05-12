@@ -52,8 +52,8 @@ def parse_bool(value: Any, default: bool = True) -> bool:
 def _is_sandbox_environment() -> bool:
     """Return True when running inside a sandbox container where config.yaml is unavailable."""
     return (
-        "NETWORK_TRAFFIC_ES_HOST" in os.environ
-        or "NETWORK_TRAFFIC_EMBEDDING_BASE_URL" in os.environ
+        "ES_URL" in os.environ
+        or "EMBEDDING_BASE_URL" in os.environ
     )
 
 
@@ -94,12 +94,12 @@ def resolve_embedding_config(config: dict[str, Any]) -> dict[str, Any]:
         dimensions = int(dimensions_raw)
     api_key = str(resolve_env_value(embedding.get("api_key")) or "")
     if not api_key:
-        api_key = str(os.getenv("NETWORK_TRAFFIC_EMBEDDING_API_KEY", "")
+        api_key = str(os.getenv("EMBEDDING_API_KEY", "")
                       or os.getenv("OPENAI_API_KEY", "")
                       or os.getenv("DASHSCOPE_API_KEY", ""))
     base_url = str(resolve_env_value(embedding.get("base_url")) or "")
     if not base_url:
-        base_url = str(os.getenv("NETWORK_TRAFFIC_EMBEDDING_BASE_URL", ""))
+        base_url = str(os.getenv("EMBEDDING_BASE_URL", ""))
     local_model_path = resolve_env_value(embedding.get("local_model_path"))
     if local_model_path and local_model_path.strip():
         p = Path(local_model_path)
@@ -126,11 +126,10 @@ def resolve_elasticsearch_config(config: dict[str, Any], cli_overrides: dict[str
     hosts = cli_overrides.get("es_host") or resolve_env_value(elasticsearch.get("hosts"))
     # Sandbox fallback: config.yaml is unavailable, resolve directly from env vars
     if not hosts:
-        hosts = os.getenv("NETWORK_TRAFFIC_ES_HOST", "")
+        hosts = os.getenv("ES_URL", "")
     if not hosts:
         raise ValueError(
-            "Elasticsearch hosts are required. "
-            "Set NETWORK_TRAFFIC_ES_HOST in .env or config.yaml, or pass --es-host."
+            "Elasticsearch hosts are required. Set ES_URL in .env or config.yaml, or pass --es-host."
         )
     if isinstance(hosts, str):
         host_list = [item.strip() for item in hosts.split(",") if item.strip()]
@@ -140,18 +139,17 @@ def resolve_elasticsearch_config(config: dict[str, Any], cli_overrides: dict[str
         host_list = []
     username = cli_overrides.get("es_username") or str(resolve_env_value(elasticsearch.get("username")) or "")
     if not username:
-        username = os.getenv("NETWORK_TRAFFIC_ES_USERNAME", "")
+        username = os.getenv("ES_USERNAME", "")
     password = cli_overrides.get("es_password") or str(resolve_env_value(elasticsearch.get("password")) or "")
     if not password:
-        password = os.getenv("NETWORK_TRAFFIC_ES_PASSWORD", "")
+        password = os.getenv("ES_PASSWORD", "")
     api_key = cli_overrides.get("es_api_key") or str(resolve_env_value(elasticsearch.get("api_key")) or "")
     index_name = cli_overrides.get("es_index") or str(resolve_env_value(elasticsearch.get("index_name")) or "")
     if not index_name:
-        index_name = os.getenv("NETWORK_TRAFFIC_ES_INDEX", "")
+        index_name = os.getenv("ES_INDEX", "")
     if not index_name:
         raise ValueError(
-            "Elasticsearch index name is required. "
-            "Set NETWORK_TRAFFIC_ES_INDEX in .env or config.yaml, or pass --index-name."
+            "Elasticsearch index name is required. Set ES_INDEX in .env or config.yaml, or pass --index-name."
         )
     return {
         "hosts": host_list,
