@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "image-generation",
+    "name": "image-generation",
+    "description": "Use this skill when the user requests to generate, create, imagine, or visualize images including characters, scenes, products, or any visual content. Supports structured prompts and reference images for guided generation."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：image-generation\n描述：Use this skill when the user requests to generate, create, imagine, or visualize images including characters, scenes, products, or any visual content. Supports structured prompts and reference images for guided generation.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Image Generation Skill\n## Overview\nThis skill generates high-quality images using structured prompts and a Python script. The workflow includes creating JSON-formatted prompts and executing image generation with optional reference images.\n## Core Capabilities\n- Create structured JSON prompts for AIGC image generation\n- Support multiple reference images for style/composition guidance\n- Generate images through automated Python script execution\n- Handle various image generation scenarios (character design, scenes, products, etc.)\n## Workflow\n### Step 1: Understand Requirements\nWhen a user requests image generation, identify:\n- Subject/content: What should be in the image\n- Style preferences: Art style, mood, color palette\n- Technical specs: Aspect ratio, composition, lighting\n- Reference images: Any images to guide generation\n- You don't need to check the folder under `/mnt/user-data`\n### Step 2: Create Structured Prompt\nGenerate a structured JSON file in `/mnt/user-data/workspace/` with naming pattern: `{descriptive-name}.json`\n### Step 3: Execute Generation\nCall the Python script:\n```bash\npython /mnt/skills/public/image-generation/scripts/generate.py \\\n--prompt-file /mnt/user-data/workspace/prompt-file.json \\\n--reference-images /path/to/ref1.jpg /path/to/ref2.png \\\n--output-file /mnt/user-data/outputs/generated-image.jpg\n--aspect-ratio 16:9\n```\nParameters:\n- `--prompt-file`: Absolute path to JSON prompt file (required)\n- `--reference-images`: Absolute paths to reference images (optional, space-separated)\n- `--output-file`: Absolute path to output image file (required)\n- `--aspect-ratio`: Aspect ratio of the generated image (optional, default: 16:9)\n[!NOTE]\nDo NOT read the python file, just call it with the parameters.\n## Character Generation Example\nUser request: \"Create a Tokyo street style woman character in 1990s\"\nCreate prompt file: `/mnt/user-data/workspace/asian-woman.json`\n```json\n{\n\"characters\": [{\n\"gender\": \"female\",\n\"age\": \"mid-20s\",\n\"ethnicity\": \"Japanese\",\n\"body_type\": \"slender, elegant\",\n\"facial_features\": \"delicate features, expressive eyes, subtle makeup with emphasis on lips, long dark hair partially wet from rain\",\n\"clothing\": \"stylish trench coat, designer handbag, high heels, contemporary Tokyo street fashion\",\n\"accessories\": \"minimal jewelry, statement earrings, leather handbag\",\n\"era\": \"1990s\"\n}],\n\"negative_prompt\": \"blurry face, deformed, low quality, overly sharp digital look, oversaturated colors, artificial lighting, studio setting, posed, selfie angle\",\n\"style\": \"Leica M11 street photography aesthetic, film-like rendering, natural color palette with slight warmth, bokeh background blur, analog photography feel\",\n\"composition\": \"medium shot, rule of thirds, subject slightly off-center, environmental context of Tokyo street visible, shallow depth of field isolating subject\",\n\"lighting\": \"neon lights from signs and storefronts, wet pavement reflections, soft ambient city glow, natural street lighting, rim lighting from background neons\",\n\"color_palette\": \"muted naturalistic tones, warm skin tones, cool blue and magenta neon accents, desaturated compared to digital photography, film grain texture\"\n}\n```\nExecute generation:\n```bash\npython /mnt/skills/public/image-generation/scripts/generate.py \\\n--prompt-file /mnt/user-data/workspace/cyberpunk-hacker.json \\\n--output-file /mnt/user-data/outputs/cyberpunk-hacker-01.jpg \\\n--aspect-ratio 2:3\n```\nWith reference images:\n```json\n{\n\"characters\": [{\n\"gender\": \"based on [Image 1]\",\n\"age\": \"based on [Image 1]\",\n\"ethnicity\": \"human from [Image 1] adapted to Star Wars universe\",\n\"body_type\": \"based on [Image 1]\",\n\"facial_features\": \"matching [Image 1] with slight weathered look from space travel\",\n\"clothing\": \"Star Wars style outfit - worn leather jacket with utility vest, cargo pants with tactical pouches, scuffed boots, belt with holster\",\n\"accessories\": \"blaster pistol on hip, comlink device on wrist, goggles pushed up on forehead, satchel with supplies, personal vehicle based on [Image 2]\",\n\"era\": \"Star Wars universe, post-Empire era\"\n}],\n\"prompt\": \"Character inspired by [Image 1] standing next to a vehicle inspired by [Image 2] on a bustling alien planet street in Star Wars universe aesthetic. Character wearing worn leather jacket with utility vest, cargo pants with tactical pouches, scuffed boots, belt with blaster holster. The vehicle adapted to Star Wars aesthetic with weathered metal panels, repulsor engines, desert dust covering, parked on the street. Exotic alien marketplace street with multi-level architecture, weathered metal structures, hanging market stalls with colorful awnings, alien species walking by as background characters. Twin suns casting warm golden light, atmospheric dust particles in air, moisture vaporators visible in distance. Gritty lived-in Star Wars aesthetic, practical effects look, film grain texture, cinematic composition.\",\n\"negative_prompt\": \"clean futuristic look, sterile environment, overly CGI appearance, fan..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/image-generation",
+    "skill_md_path": "skills/public/image-generation/SKILL.md",
+    "skill_md_hash": "sha256:a2c5e14823e7dba606e90b24c7abc4f1adb27bbef4a38eff4d61fb304e8b7066",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:ec4705e895c1e8c1539d3dea7c7024b017739bd753288e3333c9dc9981449673",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "image-generation"
+  }
+}

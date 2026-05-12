@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "podcast-generation",
+    "name": "podcast-generation",
+    "description": "Use this skill when the user requests to generate, create, or produce podcasts from text content. Converts written content into a two-host conversational podcast audio format with natural dialogue."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：podcast-generation\n描述：Use this skill when the user requests to generate, create, or produce podcasts from text content. Converts written content into a two-host conversational podcast audio format with natural dialogue.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Podcast Generation Skill\n## Overview\nThis skill generates high-quality podcast audio from text content. The workflow includes creating a structured JSON script (conversational dialogue) and executing audio generation through text-to-speech synthesis.\n## Core Capabilities\n- Convert any text content (articles, reports, documentation) into podcast scripts\n- Generate natural two-host conversational dialogue (male and female hosts)\n- Synthesize speech audio using text-to-speech\n- Mix audio chunks into a final podcast MP3 file\n- Support both English and Chinese content\n## Workflow\n### Step 1: Understand Requirements\nWhen a user requests podcast generation, identify:\n- Source content: The text/article/report to convert into a podcast\n- Language: English or Chinese (based on content)\n- Output location: Where to save the generated podcast\n- You don't need to check the folder under `/mnt/user-data`\n### Step 2: Create Structured Script JSON\nGenerate a structured JSON script file in `/mnt/user-data/workspace/` with naming pattern: `{descriptive-name}-script.json`\nThe JSON structure:\n```json\n{\n\"locale\": \"en\",\n\"lines\": [\n{\"speaker\": \"male\", \"paragraph\": \"dialogue text\"},\n{\"speaker\": \"female\", \"paragraph\": \"dialogue text\"}\n]\n}\n```\n### Step 3: Execute Generation\nCall the Python script:\n```bash\npython /mnt/skills/public/podcast-generation/scripts/generate.py \\\n--script-file /mnt/user-data/workspace/script-file.json \\\n--output-file /mnt/user-data/outputs/generated-podcast.mp3 \\\n--transcript-file /mnt/user-data/outputs/generated-podcast-transcript.md\n```\nParameters:\n- `--script-file`: Absolute path to JSON script file (required)\n- `--output-file`: Absolute path to output MP3 file (required)\n- `--transcript-file`: Absolute path to output transcript markdown file (optional, but recommended)\n> [!IMPORTANT]\n> - Execute the script in one complete call. Do NOT split the workflow into separate steps.\n> - The script handles all TTS API calls and audio generation internally.\n> - Do NOT read the Python file, just call it with the parameters.\n> - Always include `--transcript-file` to generate a readable transcript for the user.\n## Script JSON Format\nThe script JSON file must follow this structure:\n```json\n{\n\"title\": \"The History of Artificial Intelligence\",\n\"locale\": \"en\",\n\"lines\": [\n{\"speaker\": \"male\", \"paragraph\": \"Hello Deer! Welcome back to another episode.\"},\n{\"speaker\": \"female\", \"paragraph\": \"Hey everyone! Today we have an exciting topic to discuss.\"},\n{\"speaker\": \"male\", \"paragraph\": \"That's right! We're going to talk about...\"}\n]\n}\n```\nFields:\n- `title`: Title of the podcast episode (optional, used as heading in transcript)\n- `locale`: Language code - \"en\" for English or \"zh\" for Chinese\n- `lines`: Array of dialogue lines\n- `speaker`: Either \"male\" or \"female\"\n- `paragraph`: The dialogue text for this speaker\n## Script Writing Guidelines\nWhen creating the script JSON, follow these guidelines:\n### Format Requirements\n- Only two hosts: male and female, alternating naturally\n- Target runtime: approximately 10 minutes of dialogue (around 40-60 lines)\n- Start with the male host saying a greeting that includes \"Hello Deer\"\n### Tone & Style\n- Natural, conversational dialogue - like two friends chatting\n- Use casual expressions and conversational transitions\n- Avoid overly formal language or academic tone\n- Include reactions, follow-up questions, and natural interjections\n### Content Guidelines\n- Frequent back-and-forth between hosts\n- Keep sentences short and easy to follow when spoken\n- Plain text only - no markdown formatting in the output\n- Translate technical concepts into accessible language\n- No mathematical formulas, code, or complex notation\n- Make content engaging and accessible for audio-only listeners\n- Exclude meta information like dates, author names, or document structure\n## Podcast Generation Example\nUser request: \"Generate a podcast about the history of artificial intelligence\"\nStep 1: Create script file `/mnt/user-data/workspace/ai-history-script.json`:\n```json\n{\n\"title\": \"The History of Artificial Intelligence\",\n\"locale\": \"en\",\n\"lines\": [\n{\"speaker\": \"male\", \"paragraph\": \"Hello Deer! Welcome back to another fascinating episode. Today we're diving into something that's literally shaping our future - the history of artificial intelligence.\"},\n{\"speaker\": \"female\", \"paragraph\": \"Oh, I love this topic! You know, AI feels so modern, but it actually has roots going back over seventy years.\"},\n{\"speaker\": \"male\", \"paragraph\": \"Exactly! It all started back in the 1950s. The term artificial intelligence was actually coined by John McCarthy in 1956 at a famous conference at Dartmouth.\"},\n{\"speaker\": \"female\", \"paragraph\": \"Wait, so they were already thinking about machines that could think back then? That's incredible!\"},\n{\"speaker\": \"male\", \"paragraph\": \"Right? The early pioneers were so optimistic. They thought we'd have human-level AI within a generation.\"},\n{\"speaker\": \"female\", \"paragraph\": \"But things didn't quite work..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/podcast-generation",
+    "skill_md_path": "skills/public/podcast-generation/SKILL.md",
+    "skill_md_hash": "sha256:5f2f39981c0c8f33448eae78e535cf8dd8853a896f4ab0898a9dc05315bb1ac8",
+    "generated_at": "2026-05-12T13:33:02Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:985b0ce64112878c14a2566e4474b451eaedfa5ef631c685cebee1156c5cf534",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "podcast-generation"
+  }
+}
