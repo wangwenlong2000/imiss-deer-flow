@@ -1,0 +1,74 @@
+{
+  "pdf": "C:\\Users\\admin\\Desktop\\API调试\\西安2024.pdf",
+  "pages": 161,
+  "toc_headings": 187,
+  "matched_headings": 183,
+  "missing_headings": 1,
+  "chunks": 166,
+  "model": "BAAI/bge-small-zh-v1.5",
+  "db_dir": "C:\\Users\\admin\\Desktop\\API调试\\rag_db\\chroma",
+  "collection": "xian_traffic_2024_min",
+  "chunks_file": "C:\\Users\\admin\\Desktop\\API调试\\rag_db\\xian2024_chunks.jsonl",
+  "sample_chunks": [
+    {
+      "id": "xian2024_6c85fa8fd5fb",
+      "source": "西安2024.pdf",
+      "section_path": "2024年西安市交通发展概况一览表",
+      "section_title": "2024年西安市交通发展概况一览表",
+      "section_level": 1,
+      "page_start": 2,
+      "page_end": 2,
+      "part_index": 1,
+      "chars": 1010,
+      "preview": "2024 年西安市交通发展概况一览表\n指标 单位 2024 年 2023 年 2022 年 2021 年 2019 年 社会经济 西安\n市域面积 平方公里 10096.82 中心城区面积 平方公里766 594\n地区生产总值（GDP）* 亿元 13317.78 12756.21 12092.27 11222.22 96"
+    },
+    {
+      "id": "xian2024_28838756fc07",
+      "source": "西安2024.pdf",
+      "section_path": "2024年西安市交通发展概况一览表",
+      "section_title": "2024年西安市交通发展概况一览表",
+      "section_level": 1,
+      "page_start": 2,
+      "page_end": 3,
+      "part_index": 2,
+      "chars": 1024,
+      "preview": "个人机动车拥有量 万辆 448.33 420.96 392.50 369.06 308.26\n机动车千人拥有率* 辆/千人 435.55 405.05 373.54 345.98 291.04\n日均出行总量 万人次 1366 1287 878 1000 1204\n居民出行特征\n公共交通机动化出\n（中心城区） % 54."
+    },
+    {
+      "id": "xian2024_37b88430971f",
+      "source": "西安2024.pdf",
+      "section_path": "2024年西安市交通发展概况一览表",
+      "section_title": "2024年西安市交通发展概况一览表",
+      "section_level": 1,
+      "page_start": 3,
+      "page_end": 3,
+      "part_index": 3,
+      "chars": 460,
+      "preview": "道路噪声 分贝 65.3 65.8 66.0 68.7 70.5\n对外运输\n旅客运输量 万人次/年 5147 4023 2184 3332 15261\n公路\n货物运输量 万吨/年 29901 29075 26166 26527 26901\n旅客发送量 万人次/年 7834 7025 2569 4283 6332\n货物发"
+    },
+    {
+      "id": "xian2024_f8a98d9d3d6d",
+      "source": "西安2024.pdf",
+      "section_path": "2024年西安市城市交通体检指标一览表",
+      "section_title": "2024年西安市城市交通体检指标一览表",
+      "section_level": 1,
+      "page_start": 4,
+      "page_end": 4,
+      "part_index": 1,
+      "chars": 670,
+      "preview": "2024 年西安市城市交通体检指标一览表\n指标 单位 2024 年 2023 年 标准要求\n交通供给 西安\n公里/\n道路 中心城区建成区道路网密度* 6.4 6.3 ≥8 平方公里\n中心城区站点800 米半径人口与就业\n轨道交通 % 58.6 47.2 ≥65\n岗位覆盖率***\n中心城区站点500 米半径覆盖率*** "
+    },
+    {
+      "id": "xian2024_ba16475b2bf6",
+      "source": "西安2024.pdf",
+      "section_path": "卷首语",
+      "section_title": "卷首语",
+      "section_level": 1,
+      "page_start": 5,
+      "page_end": 5,
+      "part_index": 1,
+      "chars": 623,
+      "preview": "卷首语\n2024 年是实现“十四五”规划目标任务的关键一年。面对外部压力加大、 西安\n内部困难增多的复杂严峻形势，以习近平同志为核心的党中央团结带领全党全\n国各族人民推动经济社会发展顺利完成。新质生产力稳步发展，改革开放持续\n深化，重点领域风险化解有序有效，民生保障扎实有力，中国式现代化迈出新\n的坚实步伐。\n这一年西安"
+    }
+  ]
+}

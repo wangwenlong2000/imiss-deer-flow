@@ -1,0 +1,45 @@
+interface:
+  display_name: "Road Traffic Analysis"
+  short_description: "Road traffic realtime query, local/uploaded CSV data analysis, forecasting, anomaly detection, and Xi'an annual-report RAG in one prompt-routed workflow."
+  default_prompt: >-
+    Use $road-traffic-analysis as the single road traffic skill. Route Baidu
+    realtime services, weather, route planning, geocoding, single-road traffic,
+    and around-location traffic to
+    /mnt/skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py.
+    Route future traffic-flow prediction to
+    /mnt/skills/custom/road-traffic-analysis/scripts/forecast_runner.py. Route
+    abnormal flow, outlier, threshold breach, sudden jump, or anomaly detection
+    to /mnt/skills/custom/road-traffic-analysis/scripts/anomaly_runner.py.
+    Document/RAG routing is prompt-driven: decide from the user's wording
+    whether the 2024 Xi'an traffic annual-report vector DB is needed; do not use
+    any script-level intent classifier. Invoke
+    /mnt/skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py query
+    only for annual-report facts, citywide indicators, benchmark/trend context,
+    source-backed governance report wording, or explanation of realtime findings
+    using annual-report context. Do not use RAG for direct current road
+    congestion, weather, route, forecast, or anomaly tasks unless the user also
+    asks for background, benchmarks, cited evidence, or annual-report context.
+    For mixed governance questions, call realtime tools first, then RAG, and
+    cite RAG section_path/pages separately from realtime API measurements. For
+    CSV data analysis, forecast, and anomaly tasks, support uploaded CSV files,
+    inline history when applicable, and the local CSV database under
+    /mnt/skills/custom/road-traffic-analysis/data/csv. When the user asks for
+    built-in, local, existing, sample, or database CSV data, list that directory,
+    choose the best matching .csv from the filename/path, and pass the full path
+    to the appropriate workflow. If the user asks for descriptive analysis such
+    as past days, historical conditions, averages, comparisons, peak/off-peak
+    patterns, or overall CSV traffic performance, inspect the selected CSV first
+    with forecast_runner.py --action inspect, then let the LLM infer semantic
+    columns and write task-specific pandas analysis; do not use a script-level
+    classifier or fixed summary runner. If the user asks for future prediction,
+    use forecast_runner.py. If the user asks for abnormal/outlier behavior, use
+    anomaly_runner.py. If no file or multiple files match, ask the user to
+    choose. Do not rely on fixed column names. Ask only for missing required
+    fields or necessary disambiguation, including city, file, frequency,
+    horizon, threshold, model, or detector preference when unclear. Do not infer
+    historical forecasts or anomalies from a single realtime Baidu response. Use
+    BAIDU_AK from the environment and never write API keys into prompts,
+    examples, logs, or tracked files.
+
+policy:
+  allow_implicit_invocation: true
