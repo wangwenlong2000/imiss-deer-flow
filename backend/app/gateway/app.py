@@ -10,6 +10,7 @@ from app.gateway.routers import (
     artifacts,
     channels,
     data_center,
+    host_files,
     mcp,
     memory,
     models,
@@ -145,6 +146,10 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
                 "description": "Manage datasets and data sources shown in the front-end data center",
             },
             {
+                "name": "host_files",
+                "description": "Serve whitelisted host files for browser access",
+            },
+            {
                 "name": "health",
                 "description": "Health check and system status endpoints",
             },
@@ -183,6 +188,9 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # Data center API is mounted at /api/data-center
     app.include_router(data_center.router)
+
+    # Host files API is mounted at /api/host-files
+    app.include_router(host_files.router)
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:

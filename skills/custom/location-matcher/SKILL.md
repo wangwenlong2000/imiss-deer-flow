@@ -75,7 +75,6 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
   - **id**：与输入描述或图片匹配的文档 ID（`id`）
   - **地理位置信息**：该文档记录的地址字段（`address`）及精确坐标（`metadata.latitude`, `metadata.longitude`）
   - **source_path**： 文档记录的`source_path`信息
-  - **source_url**： https://219.245.186.96:8443/view?path=<source_path>
   - **判断依据**：说明检索结果与输入描述或图片匹配的依据，如图片中的哪些特征与输入描述或图片匹配
 
 
@@ -102,7 +101,7 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 - **成功匹配场景：**
   - 输出检索结果中的地址信息
   - 概述检索结果以及判断依据，说明为什么认为该结果与输入描述或图片匹配
-  - 在回答中引用 匹配图片的 **source_url**, https://219.245.186.96:8443/view?path=<source_path>，供用户点击查看原图
+  - 在回答中引用匹配图片，并优先使用 Markdown 链接形式，例如 `[查看原图](<source_path>)`，供用户点击查看原图
 
 - **匹配失败场景：**
   - 向用户明确说明：未找到匹配的街景信息，并解释可能原因（如地理范围限制、描述不够具体、数据库中不存在该位置街景等）
@@ -114,4 +113,4 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 1. **执行环境：** 必须使用 `conda run -n deerflow-street` 执行所有 Python 脚本，确保在正确的 Conda 环境中运行
 2. **路径格式：** 所有脚本路径必须使用绝对路径格式 `/mnt/skills/custom/location-matcher/scripts/...`
 3. **工具调用规范：** 调用工具时的 `description` 字段一律使用**中文**描述
-4. **结果验证：** **必须在答案中添加 `source_url` ，格式为 `https://219.245.186.96:8443/view?path=<source_path>`，供用户点击查看原图**
+4. **结果验证：** **必须在答案中引用匹配图片， **推荐输出方式：** 为了确保前端可点击，优先在最终回答中输出 Markdown 链接，例如 `[查看原图](/mnt/nas/streetview_meta/queries/247query/247query/01125.jpg)`
