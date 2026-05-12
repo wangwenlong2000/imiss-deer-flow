@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "schema_version": "1.0.0",
   "router_index": {
     "type": "elasticsearch",
@@ -39,7 +39,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:cd47a2168c27527f5ea5a3f66de9f148142b76c63d0c1b62859284b7174f13c8",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "law-regulations-rag"
+      "es_doc_id": "law-regulations-rag",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "network-traffic-analysis",
@@ -66,7 +70,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:48b32d856aeae8889423de2ce83148cc249e94ff2d21846f20c1d2150ddf373d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "network-traffic-analysis"
+      "es_doc_id": "network-traffic-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "bootstrap",
@@ -82,7 +90,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:58050df8e06152bc472500bcd282c5da75dabc6e2e464b9efe1ac2fea7e78365",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "bootstrap"
+      "es_doc_id": "bootstrap",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "chart-visualization",
@@ -105,7 +117,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:7fac295083fab67d466fd67fd39983a7ceb2283d70a03cdbdcf4e2f92bc9c639",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "chart-visualization"
+      "es_doc_id": "chart-visualization",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "claude-to-deerflow",
@@ -121,7 +137,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:88492981a5cfd22106301857a9cea3570e8363c4916dad68b4fd32d110ac0517",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "claude-to-deerflow"
+      "es_doc_id": "claude-to-deerflow",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "consulting-analysis",
@@ -137,7 +157,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:6bfebb369b03ac4fb507c193bfa1fe6cd6b93be64d8a527ad675a9cb34767038",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "consulting-analysis"
+      "es_doc_id": "consulting-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "data-analysis",
@@ -162,7 +186,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:cb65d1e992116ba7ea5028b2364713fcc811595b19b998cdf6a262de5e9eac99",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "data-analysis"
+      "es_doc_id": "data-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "deep-research",
@@ -178,7 +206,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:137ea4876ff08baae200597bca2832ba8be134474674b32bd479ed44de56ffd4",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "deep-research"
+      "es_doc_id": "deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "find-skills",
@@ -194,7 +226,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:c777270134454b83f4de816a8708e615019a36bfe440c6b7608fc89711c9b1ea",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "find-skills"
+      "es_doc_id": "find-skills",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "frontend-design",
@@ -210,7 +246,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:1aeb0dccd8ba9d59e70f0a0c093c9477fd6f13105b978f3b1602723d45d3fc75",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "frontend-design"
+      "es_doc_id": "frontend-design",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "github-deep-research",
@@ -226,7 +266,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:7350bdc60b576076e883415af7d14cd6e14ba943dfe86a7e7adc044eb105484e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "github-deep-research"
+      "es_doc_id": "github-deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "image-generation",
@@ -242,7 +286,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ec4705e895c1e8c1539d3dea7c7024b017739bd753288e3333c9dc9981449673",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "image-generation"
+      "es_doc_id": "image-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "podcast-generation",
@@ -258,7 +306,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:985b0ce64112878c14a2566e4474b451eaedfa5ef631c685cebee1156c5cf534",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "podcast-generation"
+      "es_doc_id": "podcast-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "ppt-generation",
@@ -274,7 +326,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ed40888f4f9a40d34a743d1023a5d6259de48a6493ff1d92ee559c02461a1b3a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "ppt-generation"
+      "es_doc_id": "ppt-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "skill-creator",
@@ -290,7 +346,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:a4d3f6179bb69d3b1ba8f7b58effe328d53f1f0b3d971c599c7ab8028b47af2a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "skill-creator"
+      "es_doc_id": "skill-creator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "surprise-me",
@@ -306,7 +366,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:0e3ed0764bcacb39f519779bb1fd1ab945d3f46cc20cd059f9eac0078d0c164d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "surprise-me"
+      "es_doc_id": "surprise-me",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "vercel-deploy-claimable",
@@ -322,7 +386,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:97de0cfee98a52ad4f49ea7154a78d399971b4e437766b670741d138f0cf267e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "vercel-deploy-claimable"
+      "es_doc_id": "vercel-deploy-claimable",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "video-generation",
@@ -338,7 +406,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ee5b92bf908687c9f8d3c1adc5d269a57911125b803182e2bf641815ec40129f",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "video-generation"
+      "es_doc_id": "video-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     },
     {
       "id": "web-design-guidelines",
@@ -354,7 +426,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ae08d2e251ddf5b9994ab5ad300356c034af39742135dc50378f06fb75194599",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "web-design-guidelines"
+      "es_doc_id": "web-design-guidelines",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-12T14:41:54.633510+00:00",
+      "last_router_error": null
     }
   ]
 }
