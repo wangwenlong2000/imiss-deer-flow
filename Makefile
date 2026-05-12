@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router test-skill-router
 
 PYTHON ?= python
 
@@ -248,3 +248,32 @@ up:
 # Stop and remove production containers
 down:
 	@./scripts/deploy.sh down
+
+# ==========================================
+# SkillRouter Commands
+# ==========================================
+
+# Extract Router Cards from all SKILL.md files
+extract-router-cards:
+	@$(PYTHON) scripts/extract_router_cards.py
+
+# Build full SkillRouter Elasticsearch index (first-time / bulk rebuild)
+build-skill-router-index: extract-router-cards
+	@$(PYTHON) scripts/build_skill_router_registry.py
+	@$(PYTHON) scripts/build_skill_router_es_index.py
+
+# Update a single Skill's Router Card and ES index
+update-skill-router-index:
+	@$(PYTHON) scripts/update_skill_router_index.py $(SKILL)
+
+# Check routing conflicts for a single Skill
+check-skill-router-conflicts:
+	@$(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
+
+# Run full SkillRouter evaluation
+eval-skill-router:
+	@$(PYTHON) scripts/eval_skill_router.py
+
+# Run SkillCreator router update and conflict detection tests
+test-skill-router:
+	@PYTHONPATH=scripts:backend/packages/harness python3 -m pytest backend/tests/test_skill_creator_router_update.py backend/tests/test_skill_router_conflicts.py -v
