@@ -184,6 +184,19 @@ Index names: `network-traffic-rag-smoke` (smoke test), `network-traffic-rag-dev`
 
 Shared-index isolation uses `dataset_name`, `source_file`, and `schema_version`. Use `--replace-source` when reindexing the same dataset/source.
 
+### RAG runtime prerequisites
+
+`rag_search.py` requires both Elasticsearch and an embedding service to compute query vectors.
+
+| Service | Required env vars | How it works |
+| --- | --- | --- |
+| Elasticsearch | `NETWORK_TRAFFIC_ES_HOST`, `NETWORK_TRAFFIC_ES_INDEX`, `NETWORK_TRAFFIC_ES_USERNAME`, `NETWORK_TRAFFIC_ES_PASSWORD` | Injected into sandbox via `sandbox.environment` in `config.yaml` |
+| Embedding | `NETWORK_TRAFFIC_EMBEDDING_API_KEY`, `NETWORK_TRAFFIC_EMBEDDING_BASE_URL` | Local bge-m3 service (default); does not validate the API key. Switch to cloud providers (OpenAI, DashScope) by changing the base URL and setting a real key |
+
+Inside sandbox containers, `config.yaml` is not mounted. All configuration resolves from environment variables directly — scripts fall back to `NETWORK_TRAFFIC_ES_*` and `NETWORK_TRAFFIC_EMBEDDING_*` env vars when config.yaml is unavailable.
+
+If `rag_search.py` fails with "No embedding API key resolved", check that `NETWORK_TRAFFIC_EMBEDDING_API_KEY` is set (use `"unused"` for local bge-m3 service) and that `sandbox.environment` in `config.yaml` includes `NETWORK_TRAFFIC_EMBEDDING_API_KEY: $NETWORK_TRAFFIC_EMBEDDING_API_KEY`.
+
 ## RAG v2 document model
 
 New RAG documents must use `schema_version: rag_doc_v2`. Do not generate or recommend `rag_doc_v1_compat`.

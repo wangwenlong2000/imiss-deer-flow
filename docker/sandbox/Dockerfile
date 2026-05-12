@@ -23,6 +23,8 @@ RUN apt-get update \
       numpy \
       scikit-learn \
       rrcf \
+      openai \
+      elasticsearch \
     && ln -sf /opt/zeek/bin/zeek /usr/local/bin/zeek \
     && ln -sf /opt/zeek/bin/zeekctl /usr/local/bin/zeekctl \
     && rm -rf /var/lib/apt/lists/*

@@ -12,34 +12,16 @@ from pathlib import Path
 from typing import Any
 
 from file_resolution import is_explicit_path_reference, resolve_reference
+from utils.config import (
+    DEFAULT_MODEL,
+    get_config_path,
+    load_app_config,
+    load_dotenv_file,
+    parse_bool,
+    resolve_embedding_config,
+    resolve_env_value,
+)
 from utils.path import repo_root
-
-try:
-    import yaml
-except ImportError as exc:
-    raise ImportError("Missing dependency 'pyyaml'. Install it first: pip install pyyaml") from exc
-
-DEFAULT_MODEL = "text-embedding-v3-large"
-LOCAL_PROVIDERS = {"sentence-transformers", "local"}
-REMOTE_PROVIDERS = {"openai", "openai-compatible", "dashscope"}
-
-
-def load_dotenv_file() -> None:
-    dotenv_path = repo_root() / ".env"
-    if not dotenv_path.exists():
-        return
-    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if not key or key in os.environ:
-            continue
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-            value = value[1:-1]
-        os.environ[key] = value
 
 
 def to_repo_relative_display(value: str | Path) -> str:
@@ -50,76 +32,6 @@ def to_repo_relative_display(value: str | Path) -> str:
         return path.resolve().relative_to(repo_root()).as_posix()
     except ValueError:
         return path.resolve().as_posix()
-
-
-def resolve_env_value(value: Any) -> Any:
-    if isinstance(value, str) and value.startswith("$"):
-        return os.getenv(value[1:], "")
-    return value
-
-
-def parse_bool(value: Any, default: bool = True) -> bool:
-    if value in (None, ""):
-        return default
-    if isinstance(value, bool):
-        return value
-    normalized = str(value).strip().lower()
-    return normalized in {"1", "true", "yes", "y", "on"}
-
-
-def get_config_path() -> Path:
-    configured = os.getenv("DEER_FLOW_CONFIG_PATH")
-    if configured:
-        path = Path(configured).expanduser()
-        if not path.is_absolute():
-            path = Path.cwd() / path
-        if not path.exists():
-            raise FileNotFoundError(f"Config file specified by DEER_FLOW_CONFIG_PATH not found at {path}")
-        return path.resolve()
-    cwd = Path.cwd()
-    for candidate in (cwd / "config.yaml", cwd.parent / "config.yaml"):
-        if candidate.exists():
-            return candidate.resolve()
-    raise FileNotFoundError("config.yaml file not found in the current directory or its parent directory")
-
-
-def load_app_config() -> dict[str, Any]:
-    config_path = get_config_path()
-    with open(config_path, encoding="utf-8") as handle:
-        payload = yaml.safe_load(handle) or {}
-    payload["_config_path"] = str(config_path)
-    return payload
-
-
-def resolve_embedding_config(config: dict[str, Any]) -> dict[str, Any]:
-    embedding = dict(config.get("embedding") or {})
-    dimensions_raw = resolve_env_value(embedding.get("dimensions"))
-    dimensions = None
-    if dimensions_raw not in (None, "") and str(dimensions_raw).strip().lower() != "none":
-        dimensions = int(dimensions_raw)
-    provider = str(resolve_env_value(embedding.get("provider")) or "openai").strip().lower()
-    api_key = str(resolve_env_value(embedding.get("api_key")) or "")
-    if not api_key:
-        api_key = str(os.getenv("OPENAI_API_KEY", "") or os.getenv("DASHSCOPE_API_KEY", ""))
-    local_model_path = resolve_env_value(embedding.get("local_model_path"))
-    if local_model_path and local_model_path.strip():
-        p = Path(local_model_path)
-        if not p.is_absolute():
-            repo_root = Path(config.get("_config_path", ".")).resolve().parent
-            local_model_path = str(repo_root / p)
-        local_model_path = str(local_model_path) if Path(local_model_path).is_dir() else None
-    return {
-        "provider": provider,
-        "model": str(resolve_env_value(embedding.get("model")) or DEFAULT_MODEL),
-        "api_key": api_key,
-        "base_url": str(resolve_env_value(embedding.get("base_url")) or ""),
-        "dimensions": dimensions,
-        "device": str(resolve_env_value(embedding.get("device")) or ""),
-        "normalize": parse_bool(resolve_env_value(embedding.get("normalize")), True),
-        "allow_download": parse_bool(resolve_env_value(embedding.get("allow_download")), False),
-        "local_model_path": local_model_path,
-        "config_path": str(config.get("_config_path", "")),
-    }
 
 
 def discover_files(values: list[str]) -> list[str]:
