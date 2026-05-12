@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "曲江路：轻微拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "road_name": "曲江路"
+    }
+  ],
+  "_fetched_at": 1774952755.251828
+}

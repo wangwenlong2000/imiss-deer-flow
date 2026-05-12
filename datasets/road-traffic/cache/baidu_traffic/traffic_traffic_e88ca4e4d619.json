@@ -1,0 +1,33 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "咸宁西路：双向拥堵；西向东,从乐居场到兴庆路严重拥堵；东向西,从兴庆路到兴庆西路严重拥堵。",
+  "evaluation": {
+    "status": 3,
+    "status_desc": "双向拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 1050,
+          "speed": 3.71,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "西向东,从乐居场到兴庆路"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 780,
+          "speed": 4.52,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "东向西,从兴庆路到兴庆西路"
+        }
+      ],
+      "road_name": "咸宁西路"
+    }
+  ],
+  "_fetched_at": 1774952756.2608013
+}

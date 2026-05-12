@@ -1,0 +1,4529 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031716-2546712593-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 315.27713774432425,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275728,
+            34.24286579999999
+          ],
+          [
+            108.9275889,
+            34.243709
+          ],
+          [
+            108.9276268,
+            34.2457008
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031739-2695175722-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 9.85240327739367,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274574,
+            34.24286599999999
+          ],
+          [
+            108.9274563,
+            34.2427774
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031751-2640748079-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 293.287301880442,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274542,
+            34.242613600000006
+          ],
+          [
+            108.9274035,
+            34.240784899999994
+          ],
+          [
+            108.9273811,
+            34.2399767
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031752-2695175731-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 9.552405152405848,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275712,
+            34.24261709999999
+          ],
+          [
+            108.9275725,
+            34.242703
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "13147489247-12405031739-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 270.8191138321562,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927488,
+            34.2453014
+          ],
+          [
+            108.927467,
+            34.243632100000006
+          ],
+          [
+            108.9274574,
+            34.24286599999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695732-3504838725-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 243.90952678072674,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274769,
+            34.234983400000004
+          ],
+          [
+            108.92749030000002,
+            34.2371769
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744041446-337129697-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 238.17924227874707,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274132,
+            34.2289589
+          ],
+          [
+            108.92741430000001,
+            34.2290266
+          ],
+          [
+            108.9274388,
+            34.23053050000001
+          ],
+          [
+            108.92744810000002,
+            34.23110069999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1979319984-12405031752-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 293.51087724486786,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275316,
+            34.2399777
+          ],
+          [
+            108.927546,
+            34.24093880000001
+          ],
+          [
+            108.9275712,
+            34.24261709999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115500-2941418526-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 122.20002310038512,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276942,
+            34.25143899999999
+          ],
+          [
+            108.9276978,
+            34.25163299999999
+          ],
+          [
+            108.92771330000001,
+            34.252130699999995
+          ],
+          [
+            108.9277578,
+            34.25222399999999
+          ],
+          [
+            108.9277871,
+            34.25227220000001
+          ],
+          [
+            108.9278823,
+            34.25235909999999
+          ],
+          [
+            108.9280061,
+            34.252448099999995
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712591-2526115500-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 295.0292917309869,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276729,
+            34.24878579999999
+          ],
+          [
+            108.9276942,
+            34.25143899999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712593-7171518665-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 202.3904950613552,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276268,
+            34.2457008
+          ],
+          [
+            108.9276479,
+            34.2471144
+          ],
+          [
+            108.927654,
+            34.2475208
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748077-2695175726-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 202.77548159980685,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275162,
+            34.2475222
+          ],
+          [
+            108.927511,
+            34.24713729999999
+          ],
+          [
+            108.9275043,
+            34.24663639999999
+          ],
+          [
+            108.927493,
+            34.2456987
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748079-9139930236-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 305.75876025924384,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273811,
+            34.2399767
+          ],
+          [
+            108.9273729,
+            34.23885959999999
+          ],
+          [
+            108.9273609,
+            34.237227000000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175722-2695175733-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 8.184040756020439,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274563,
+            34.2427774
+          ],
+          [
+            108.9274567,
+            34.2427038
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175724-12405031716-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 10.920610703881307,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927571,
+            34.242767599999986
+          ],
+          [
+            108.9275728,
+            34.24286579999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175726-13147489247-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 44.18019727932015,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927493,
+            34.2456987
+          ],
+          [
+            108.927488,
+            34.2453014
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175731-2695175724-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 7.184525593486671,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275725,
+            34.242703
+          ],
+          [
+            108.927571,
+            34.242767599999986
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175733-12405031751-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 10.032428807338524,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274567,
+            34.2427038
+          ],
+          [
+            108.9274542,
+            34.242613600000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175738-2640748077-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 141.45911091351175,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275414,
+            34.2487942
+          ],
+          [
+            108.9275162,
+            34.2475222
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2997275452-2695175738-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 426.44872608715355,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271944,
+            34.2524433
+          ],
+          [
+            108.9274364,
+            34.25236569999999
+          ],
+          [
+            108.9275444,
+            34.2522859
+          ],
+          [
+            108.9275595,
+            34.2522712
+          ],
+          [
+            108.9275789,
+            34.252226300000004
+          ],
+          [
+            108.9275997,
+            34.252124300000006
+          ],
+          [
+            108.9275831,
+            34.25117879999999
+          ],
+          [
+            108.9275414,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3206221040-1557695732-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 186.89193243240226,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274491,
+            34.2333028
+          ],
+          [
+            108.92747460000001,
+            34.23484609999999
+          ],
+          [
+            108.9274769,
+            34.234983400000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3417099496-1744041446-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 490.43465333617706,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92736490000001,
+            34.2245488
+          ],
+          [
+            108.92736370000002,
+            34.2246767
+          ],
+          [
+            108.9273592,
+            34.225165700000005
+          ],
+          [
+            108.9273536,
+            34.2257808
+          ],
+          [
+            108.9273893,
+            34.227060900000005
+          ],
+          [
+            108.9274085,
+            34.228583400000005
+          ],
+          [
+            108.9274132,
+            34.2289589
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504660397-8519360399-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 334.0246659853441,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273268,
+            34.23498529999999
+          ],
+          [
+            108.9273144,
+            34.23434540000001
+          ],
+          [
+            108.9272846,
+            34.232806599999996
+          ],
+          [
+            108.9272743,
+            34.232183899999995
+          ],
+          [
+            108.9271961,
+            34.231992299999995
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504838725-1979319984-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 311.4583300684469,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92749030000002,
+            34.2371769
+          ],
+          [
+            108.9275316,
+            34.2399777
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504838726-3504660397-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 241.8901112761705,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273594,
+            34.2371605
+          ],
+          [
+            108.9273268,
+            34.23498529999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373419-7137373435-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 237.42865260370664,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272537,
+            34.23108890000001
+          ],
+          [
+            108.9272508,
+            34.2298979
+          ],
+          [
+            108.9272487,
+            34.2290347
+          ],
+          [
+            108.9272385,
+            34.2289541
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373435-7137373464-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 216.7643963397896,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272385,
+            34.2289541
+          ],
+          [
+            108.92723150000002,
+            34.22855349999999
+          ],
+          [
+            108.9272042,
+            34.2270049
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373449-7137421127-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 144.04380733169214,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271907,
+            34.2258429
+          ],
+          [
+            108.9271976,
+            34.22467670000001
+          ],
+          [
+            108.9271983,
+            34.2245475
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373464-7137421187-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 58.124934340322305,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272042,
+            34.2270049
+          ],
+          [
+            108.9271975,
+            34.2264822
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137421187-7137373449-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 71.08976609736341,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271975,
+            34.2264822
+          ],
+          [
+            108.9271907,
+            34.2258429
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7171518665-2546712591-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 140.67250773655996,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927654,
+            34.2475208
+          ],
+          [
+            108.9276729,
+            34.24878579999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "8519360398-3206221040-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 148.25406016529308,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275376,
+            34.2319817
+          ],
+          [
+            108.92745250000002,
+            34.2321789
+          ],
+          [
+            108.9274499,
+            34.23302259999999
+          ],
+          [
+            108.9274491,
+            34.2333028
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930236-3504838726-0",
+        "road_name": "含光路",
+        "hop": 0,
+        "length_m": 7.395758622871749,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": 18.57,
+        "traffic_summary": "整体态势：畅通（均速 18.57 km/h，自北向南畅通；自南向北轻微拥堵）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273609,
+            34.237227000000004
+          ],
+          [
+            108.9273594,
+            34.2371605
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526135961-3504838725-0",
+        "road_name": "光大路",
+        "hop": 1,
+        "length_m": 334.83913144781127,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93113270000002,
+            34.2371632
+          ],
+          [
+            108.9298264,
+            34.237172799999996
+          ],
+          [
+            108.92749030000002,
+            34.2371769
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504838725-2526135961-0",
+        "road_name": "光大路",
+        "hop": 1,
+        "length_m": 334.83913144781127,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92749030000002,
+            34.2371769
+          ],
+          [
+            108.9298264,
+            34.237172799999996
+          ],
+          [
+            108.93113270000002,
+            34.2371632
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695598-3504660397-0",
+        "road_name": "兴化东巷",
+        "hop": 1,
+        "length_m": 341.75587255015216,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9236092,
+            34.2349887
+          ],
+          [
+            108.9273268,
+            34.23498529999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695732-3504660397-0",
+        "road_name": "兴化东巷",
+        "hop": 1,
+        "length_m": 13.800177306815538,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274769,
+            34.234983400000004
+          ],
+          [
+            108.9273268,
+            34.23498529999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504660397-1557695598-0",
+        "road_name": "兴化东巷",
+        "hop": 1,
+        "length_m": 341.75587255015216,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273268,
+            34.23498529999999
+          ],
+          [
+            108.9236092,
+            34.2349887
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504660397-1557695732-0",
+        "road_name": "兴化东巷",
+        "hop": 1,
+        "length_m": 13.800177306815538,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273268,
+            34.23498529999999
+          ],
+          [
+            108.9274769,
+            34.234983400000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131258-2695175733-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 255.6340720545532,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9246757,
+            34.2427137
+          ],
+          [
+            108.925951,
+            34.2427109
+          ],
+          [
+            108.9274567,
+            34.2427038
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2689341036-2695175724-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 334.8146016555417,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312134,
+            34.2427803
+          ],
+          [
+            108.927571,
+            34.242767599999986
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175722-2689341038-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 255.61306948420355,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274563,
+            34.2427774
+          ],
+          [
+            108.9246755,
+            34.24277419999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175724-2695175722-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 10.599458436799523,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927571,
+            34.242767599999986
+          ],
+          [
+            108.9274563,
+            34.2427774
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175731-1628131250-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 334.7506564993451,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275725,
+            34.242703
+          ],
+          [
+            108.9312142,
+            34.242716
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175733-2695175731-0",
+        "road_name": "友谊西路",
+        "hop": 1,
+        "length_m": 10.644787057923605,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274567,
+            34.2427038
+          ],
+          [
+            108.9275725,
+            34.242703
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976015-7137373449-0",
+        "road_name": "吉祥一巷",
+        "hop": 1,
+        "length_m": 176.62095397485572,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9252704,
+            34.225798099999984
+          ],
+          [
+            108.9271907,
+            34.2258429
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373449-1743976015-0",
+        "road_name": "吉祥一巷",
+        "hop": 1,
+        "length_m": 176.62095397485572,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271907,
+            34.2258429
+          ],
+          [
+            108.9252704,
+            34.225798099999984
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976077-7137373464-0",
+        "road_name": "吉祥三巷",
+        "hop": 1,
+        "length_m": 172.0788052912515,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253328,
+            34.227032
+          ],
+          [
+            108.9272042,
+            34.2270049
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373464-1743976077-0",
+        "road_name": "吉祥三巷",
+        "hop": 1,
+        "length_m": 172.0788052912515,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272042,
+            34.2270049
+          ],
+          [
+            108.9253328,
+            34.227032
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976035-7137421187-0",
+        "road_name": "吉祥二巷",
+        "hop": 1,
+        "length_m": 173.68038760620223,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253087,
+            34.22645459999999
+          ],
+          [
+            108.9271975,
+            34.2264822
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137421187-1743976035-0",
+        "road_name": "吉祥二巷",
+        "hop": 1,
+        "length_m": 173.68038760620223,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271975,
+            34.2264822
+          ],
+          [
+            108.9253087,
+            34.22645459999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115500-2526115509-0",
+        "road_name": "大学东路",
+        "hop": 1,
+        "length_m": 340.741542197962,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276942,
+            34.25143899999999
+          ],
+          [
+            108.9281973,
+            34.25144340000001
+          ],
+          [
+            108.9287582,
+            34.251579299999996
+          ],
+          [
+            108.9293183,
+            34.25161159999999
+          ],
+          [
+            108.9313765,
+            34.251616600000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115509-2526115500-0",
+        "road_name": "大学东路",
+        "hop": 1,
+        "length_m": 340.741542197962,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9313765,
+            34.251616600000006
+          ],
+          [
+            108.9293183,
+            34.25161159999999
+          ],
+          [
+            108.9287582,
+            34.251579299999996
+          ],
+          [
+            108.9281973,
+            34.25144340000001
+          ],
+          [
+            108.9276942,
+            34.25143899999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712588-2640748077-0",
+        "road_name": "大学南路",
+        "hop": 1,
+        "length_m": 255.1581925968807,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92474040000002,
+            34.24755050000001
+          ],
+          [
+            108.9275162,
+            34.2475222
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748077-2546712588-0",
+        "road_name": "大学南路",
+        "hop": 1,
+        "length_m": 255.1581925968807,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275162,
+            34.2475222
+          ],
+          [
+            108.92474040000002,
+            34.24755050000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748077-7171518665-0",
+        "road_name": "大学南路",
+        "hop": 1,
+        "length_m": 12.666901974199424,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275162,
+            34.2475222
+          ],
+          [
+            108.927654,
+            34.2475208
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7171518665-2640748077-0",
+        "road_name": "大学南路",
+        "hop": 1,
+        "length_m": 12.666901974199424,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927654,
+            34.2475208
+          ],
+          [
+            108.9275162,
+            34.2475222
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744041446-2408850923-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 322.00539181111225,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274132,
+            34.2289589
+          ],
+          [
+            108.9275505,
+            34.2289585
+          ],
+          [
+            108.9308485,
+            34.2289534
+          ],
+          [
+            108.93091570000001,
+            34.22895329999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744041446-7137373435-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 16.070031871417747,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274132,
+            34.2289589
+          ],
+          [
+            108.9272385,
+            34.2289541
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2408850923-1744041446-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 322.00539181111225,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93091570000001,
+            34.22895329999999
+          ],
+          [
+            108.9308485,
+            34.2289534
+          ],
+          [
+            108.9275505,
+            34.2289585
+          ],
+          [
+            108.9274132,
+            34.2289589
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2631950121-7137373435-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 352.14141544883904,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234082,
+            34.2289567
+          ],
+          [
+            108.9267576,
+            34.2289544
+          ],
+          [
+            108.9272385,
+            34.2289541
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373435-1744041446-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 16.070031871417747,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272385,
+            34.2289541
+          ],
+          [
+            108.9274132,
+            34.2289589
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "7137373435-2631950121-0",
+        "road_name": "崇业路",
+        "hop": 1,
+        "length_m": 352.14141544883904,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9272385,
+            34.2289541
+          ],
+          [
+            108.9267576,
+            34.2289544
+          ],
+          [
+            108.9234082,
+            34.2289567
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1979319984-2640748079-0",
+        "road_name": "水文东巷",
+        "hop": 1,
+        "length_m": 13.834958038662302,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275316,
+            34.2399777
+          ],
+          [
+            108.9273811,
+            34.2399767
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748079-1979319984-0",
+        "road_name": "水文东巷",
+        "hop": 1,
+        "length_m": 13.834958038662302,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273811,
+            34.2399767
+          ],
+          [
+            108.9275316,
+            34.2399777
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748079-9139930258-0",
+        "road_name": "水文东巷",
+        "hop": 1,
+        "length_m": 259.756123244187,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273811,
+            34.2399767
+          ],
+          [
+            108.9245554,
+            34.23999440000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930258-2640748079-0",
+        "road_name": "水文东巷",
+        "hop": 1,
+        "length_m": 259.756123244187,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245554,
+            34.23999440000001
+          ],
+          [
+            108.9273811,
+            34.2399767
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2941418526-2941418513-0",
+        "road_name": "环城南路西段",
+        "hop": 1,
+        "length_m": 311.435563183929,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9280061,
+            34.252448099999995
+          ],
+          [
+            108.9283983,
+            34.25239330000001
+          ],
+          [
+            108.92864920000001,
+            34.252394
+          ],
+          [
+            108.9312789,
+            34.2524009
+          ],
+          [
+            108.931389,
+            34.252401400000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2997275452-2941418526-0",
+        "road_name": "环城南路西段",
+        "hop": 1,
+        "length_m": 74.60529273567904,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9271944,
+            34.2524433
+          ],
+          [
+            108.9280061,
+            34.252448099999995
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9001756687-2997275452-0",
+        "road_name": "环城南路西段",
+        "hop": 1,
+        "length_m": 36.52976604543206,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9268191,
+            34.2523496
+          ],
+          [
+            108.927121,
+            34.2524016
+          ],
+          [
+            108.9271944,
+            34.2524433
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504838725-9139930236-0",
+        "road_name": "西何家村",
+        "hop": 1,
+        "length_m": 13.135186703828511,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92749030000002,
+            34.2371769
+          ],
+          [
+            108.9273609,
+            34.237227000000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3504838726-3504838725-0",
+        "road_name": "西何家村",
+        "hop": 1,
+        "length_m": 12.170605135429579,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273594,
+            34.2371605
+          ],
+          [
+            108.92749030000002,
+            34.2371769
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930236-9139930259-0",
+        "road_name": "西何家村",
+        "hop": 1,
+        "length_m": 257.1188927966101,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9273609,
+            34.237227000000004
+          ],
+          [
+            108.9246945,
+            34.2372266
+          ],
+          [
+            108.9245639,
+            34.2372265
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930260-3504838726-0",
+        "road_name": "西何家村",
+        "hop": 1,
+        "length_m": 256.98197454996017,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245639,
+            34.23716509999999
+          ],
+          [
+            108.9246924,
+            34.23716559999999
+          ],
+          [
+            108.9273594,
+            34.2371605
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712591-2546712592-0",
+        "road_name": "邮电北巷",
+        "hop": 1,
+        "length_m": 336.43650504797824,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276729,
+            34.24878579999999
+          ],
+          [
+            108.9285657,
+            34.248775299999984
+          ],
+          [
+            108.9287562,
+            34.248773
+          ],
+          [
+            108.931333,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712591-2695175738-0",
+        "road_name": "邮电北巷",
+        "hop": 1,
+        "length_m": 12.122732708178432,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276729,
+            34.24878579999999
+          ],
+          [
+            108.9275414,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712592-2546712591-0",
+        "road_name": "邮电北巷",
+        "hop": 1,
+        "length_m": 336.43650504797824,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931333,
+            34.2487942
+          ],
+          [
+            108.9287562,
+            34.248773
+          ],
+          [
+            108.9285657,
+            34.248775299999984
+          ],
+          [
+            108.9276729,
+            34.24878579999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175738-2546712591-0",
+        "road_name": "邮电北巷",
+        "hop": 1,
+        "length_m": 12.122732708178432,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9275414,
+            34.2487942
+          ],
+          [
+            108.9276729,
+            34.24878579999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12999974609-2546712593-0",
+        "road_name": "邮电南巷",
+        "hop": 1,
+        "length_m": 230.7036331481592,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9301367,
+            34.2456987
+          ],
+          [
+            108.9276268,
+            34.2457008
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712593-12999974609-0",
+        "road_name": "邮电南巷",
+        "hop": 1,
+        "length_m": 230.7036331481592,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276268,
+            34.2457008
+          ],
+          [
+            108.9301367,
+            34.2456987
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712593-2695175726-0",
+        "road_name": "邮电南巷",
+        "hop": 1,
+        "length_m": 12.30076646110873,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9276268,
+            34.2457008
+          ],
+          [
+            108.927493,
+            34.2456987
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2695175726-2546712593-0",
+        "road_name": "邮电南巷",
+        "hop": 1,
+        "length_m": 12.30076646110873,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.927493,
+            34.2456987
+          ],
+          [
+            108.9276268,
+            34.2457008
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2225411316-3206221040-0",
+        "road_name": "风华路",
+        "hop": 1,
+        "length_m": 335.25386530048144,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9310959,
+            34.23330489999999
+          ],
+          [
+            108.9274491,
+            34.2333028
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "3206221040-2225411316-0",
+        "road_name": "风华路",
+        "hop": 1,
+        "length_m": 335.25386530048144,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9274491,
+            34.2333028
+          ],
+          [
+            108.9310959,
+            34.23330489999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2225411316-2526135961-0",
+        "road_name": "光大南路",
+        "hop": 2,
+        "length_m": 429.03732923126074,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9310959,
+            34.23330489999999
+          ],
+          [
+            108.93113270000002,
+            34.2371632
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2225411316-9139508576-0",
+        "road_name": "光大南路",
+        "hop": 2,
+        "length_m": 162.44710399520747,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9310959,
+            34.23330489999999
+          ],
+          [
+            108.9311046,
+            34.23190979999999
+          ],
+          [
+            108.9311051,
+            34.231844
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526135961-2225411316-0",
+        "road_name": "光大南路",
+        "hop": 2,
+        "length_m": 429.03732923126074,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93113270000002,
+            34.2371632
+          ],
+          [
+            108.9310959,
+            34.23330489999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139508576-2225411316-0",
+        "road_name": "光大南路",
+        "hop": 2,
+        "length_m": 162.44710399520747,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9311051,
+            34.231844
+          ],
+          [
+            108.9311046,
+            34.23190979999999
+          ],
+          [
+            108.9310959,
+            34.23330489999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031790-2526135961-0",
+        "road_name": "光大路",
+        "hop": 2,
+        "length_m": 292.12687741915107,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9343105,
+            34.2371732
+          ],
+          [
+            108.93113270000002,
+            34.2371632
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526135961-12405031790-0",
+        "road_name": "光大路",
+        "hop": 2,
+        "length_m": 292.12687741915107,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93113270000002,
+            34.2371632
+          ],
+          [
+            108.9343105,
+            34.2371732
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695598-1557695618-0",
+        "road_name": "兴化巷",
+        "hop": 2,
+        "length_m": 241.61102217801638,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9236092,
+            34.2349887
+          ],
+          [
+            108.9235776,
+            34.237161400000005
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695598-9139930238-0",
+        "road_name": "兴化巷",
+        "hop": 2,
+        "length_m": 151.44330968279468,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9236092,
+            34.2349887
+          ],
+          [
+            108.92362000000001,
+            34.23409639999999
+          ],
+          [
+            108.9235653,
+            34.23383919999999
+          ],
+          [
+            108.9234432,
+            34.2336568
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695618-1557695598-0",
+        "road_name": "兴化巷",
+        "hop": 2,
+        "length_m": 241.61102217801638,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9235776,
+            34.237161400000005
+          ],
+          [
+            108.9236092,
+            34.2349887
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930238-1557695598-0",
+        "road_name": "兴化巷",
+        "hop": 2,
+        "length_m": 151.44330968279468,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234432,
+            34.2336568
+          ],
+          [
+            108.9235653,
+            34.23383919999999
+          ],
+          [
+            108.92362000000001,
+            34.23409639999999
+          ],
+          [
+            108.9236092,
+            34.2349887
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131233-1628131258-0",
+        "road_name": "友谊西路",
+        "hop": 2,
+        "length_m": 95.47155165878908,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9236371,
+            34.242707200000005
+          ],
+          [
+            108.9246757,
+            34.2427137
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131250-312690926-0",
+        "road_name": "友谊西路",
+        "hop": 2,
+        "length_m": 294.22215518182185,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312142,
+            34.242716
+          ],
+          [
+            108.934415,
+            34.242705199999996
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2640748080-2689341036-0",
+        "road_name": "友谊西路",
+        "hop": 2,
+        "length_m": 294.27680834689545,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9344148,
+            34.242785000000005
+          ],
+          [
+            108.9325648,
+            34.242777800000006
+          ],
+          [
+            108.9312134,
+            34.2427803
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2689341038-2689341041-0",
+        "road_name": "友谊西路",
+        "hop": 2,
+        "length_m": 533.3638270605325,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9246755,
+            34.24277419999999
+          ],
+          [
+            108.923638,
+            34.2427662
+          ],
+          [
+            108.921732,
+            34.24275709999999
+          ],
+          [
+            108.9200731,
+            34.242766700000004
+          ],
+          [
+            108.91984860000001,
+            34.2427468
+          ],
+          [
+            108.9189761,
+            34.24275149999999
+          ],
+          [
+            108.91887450000002,
+            34.242749999999994
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976015-1744059737-0",
+        "road_name": "吉祥一巷",
+        "hop": 2,
+        "length_m": 170.6438034046581,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9252704,
+            34.225798099999984
+          ],
+          [
+            108.9234152,
+            34.225844599999995
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744059737-1743976015-0",
+        "road_name": "吉祥一巷",
+        "hop": 2,
+        "length_m": 170.6438034046581,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234152,
+            34.225844599999995
+          ],
+          [
+            108.9252704,
+            34.225798099999984
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976077-1744059698-0",
+        "road_name": "吉祥三巷",
+        "hop": 2,
+        "length_m": 176.52449171144738,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253328,
+            34.227032
+          ],
+          [
+            108.9234128,
+            34.22704259999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744059698-1743976077-0",
+        "road_name": "吉祥三巷",
+        "hop": 2,
+        "length_m": 176.52449171144738,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234128,
+            34.22704259999999
+          ],
+          [
+            108.9253328,
+            34.227032
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976035-1744059736-0",
+        "road_name": "吉祥二巷",
+        "hop": 2,
+        "length_m": 174.6130319432066,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253087,
+            34.22645459999999
+          ],
+          [
+            108.9234113,
+            34.226523699999994
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744059736-1743976035-0",
+        "road_name": "吉祥二巷",
+        "hop": 2,
+        "length_m": 174.6130319432066,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234113,
+            34.226523699999994
+          ],
+          [
+            108.9253087,
+            34.22645459999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976000-1743976015-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 141.10200285493258,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9252556,
+            34.224529200000006
+          ],
+          [
+            108.9252704,
+            34.225798099999984
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976015-1743976000-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 141.10200285493258,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9252704,
+            34.225798099999984
+          ],
+          [
+            108.9252556,
+            34.224529200000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976015-1743976035-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 73.08444991806482,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9252704,
+            34.225798099999984
+          ],
+          [
+            108.9253087,
+            34.22645459999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976035-1743976015-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 73.08444991806482,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253087,
+            34.22645459999999
+          ],
+          [
+            108.9252704,
+            34.225798099999984
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976035-1743976077-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 64.24226248226552,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253087,
+            34.22645459999999
+          ],
+          [
+            108.9253328,
+            34.227032
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976077-1743976035-0",
+        "road_name": "吉祥巷",
+        "hop": 2,
+        "length_m": 64.24226248226552,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9253328,
+            34.227032
+          ],
+          [
+            108.9253087,
+            34.22645459999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115509-2887940274-0",
+        "road_name": "大学东路",
+        "hop": 2,
+        "length_m": 284.42568634062314,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9313765,
+            34.251616600000006
+          ],
+          [
+            108.9318406,
+            34.25160209999999
+          ],
+          [
+            108.9324655,
+            34.25155560000001
+          ],
+          [
+            108.9330015,
+            34.2513905
+          ],
+          [
+            108.9334835,
+            34.2512183
+          ],
+          [
+            108.9338191,
+            34.251107000000005
+          ],
+          [
+            108.9343631,
+            34.2511088
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2887940274-2526115509-0",
+        "road_name": "大学东路",
+        "hop": 2,
+        "length_m": 284.4256863406231,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9343631,
+            34.2511088
+          ],
+          [
+            108.9338191,
+            34.251107000000005
+          ],
+          [
+            108.9334835,
+            34.2512183
+          ],
+          [
+            108.9330015,
+            34.2513905
+          ],
+          [
+            108.9324655,
+            34.25155560000001
+          ],
+          [
+            108.9318406,
+            34.25160209999999
+          ],
+          [
+            108.9313765,
+            34.251616600000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131238-2546712588-0",
+        "road_name": "大学南路",
+        "hop": 2,
+        "length_m": 274.9764314295996,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92174900000002,
+            34.2475809
+          ],
+          [
+            108.92474040000002,
+            34.24755050000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712588-1628131238-0",
+        "road_name": "大学南路",
+        "hop": 2,
+        "length_m": 274.9764314295996,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92474040000002,
+            34.24755050000001
+          ],
+          [
+            108.92174900000002,
+            34.2475809
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1743976159-2631950121-0",
+        "road_name": "崇业路",
+        "hop": 2,
+        "length_m": 201.6853577391758,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9212146,
+            34.228979
+          ],
+          [
+            108.9212903,
+            34.228978199999986
+          ],
+          [
+            108.9214775,
+            34.22897629999999
+          ],
+          [
+            108.9234082,
+            34.2289567
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2225411310-2408850923-0",
+        "road_name": "崇业路",
+        "hop": 2,
+        "length_m": 7.217089394708842,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9309942,
+            34.228952899999996
+          ],
+          [
+            108.93091570000001,
+            34.22895329999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2408850923-2225411310-0",
+        "road_name": "崇业路",
+        "hop": 2,
+        "length_m": 7.217089394708842,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93091570000001,
+            34.22895329999999
+          ],
+          [
+            108.9309942,
+            34.228952899999996
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2631950121-1743976159-0",
+        "road_name": "崇业路",
+        "hop": 2,
+        "length_m": 201.6853577391758,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234082,
+            34.2289567
+          ],
+          [
+            108.9214775,
+            34.22897629999999
+          ],
+          [
+            108.9212903,
+            34.228978199999986
+          ],
+          [
+            108.9212146,
+            34.228979
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1744059698-2631950121-0",
+        "road_name": "崇德路",
+        "hop": 2,
+        "length_m": 212.83892991531343,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234128,
+            34.22704259999999
+          ],
+          [
+            108.9234082,
+            34.2289567
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2631950121-1744059698-0",
+        "road_name": "崇德路",
+        "hop": 2,
+        "length_m": 212.83892991531343,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9234082,
+            34.2289567
+          ],
+          [
+            108.9234128,
+            34.22704259999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131240-9139930258-0",
+        "road_name": "水文东巷",
+        "hop": 2,
+        "length_m": 86.56697808115285,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9236137,
+            34.2400003
+          ],
+          [
+            108.9245554,
+            34.23999440000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930258-1628131240-0",
+        "road_name": "水文东巷",
+        "hop": 2,
+        "length_m": 86.56697808115285,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245554,
+            34.23999440000001
+          ],
+          [
+            108.9236137,
+            34.2400003
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930258-9139930259-0",
+        "road_name": "水文南巷",
+        "hop": 2,
+        "length_m": 307.77786410762155,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245554,
+            34.23999440000001
+          ],
+          [
+            108.9245602,
+            34.2384391
+          ],
+          [
+            108.9245639,
+            34.2372265
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930259-9139930258-0",
+        "road_name": "水文南巷",
+        "hop": 2,
+        "length_m": 307.77786410762155,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245639,
+            34.2372265
+          ],
+          [
+            108.9245602,
+            34.2384391
+          ],
+          [
+            108.9245554,
+            34.23999440000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930259-9139930260-0",
+        "road_name": "水文南巷",
+        "hop": 2,
+        "length_m": 6.827378141065443,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245639,
+            34.2372265
+          ],
+          [
+            108.9245639,
+            34.23716509999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930260-9139930259-0",
+        "road_name": "水文南巷",
+        "hop": 2,
+        "length_m": 6.827378141065443,
+        "status_code": 0,
+        "status_label": "未知",
+        "color": "#9ca3af",
+        "speed_kmh": null,
+        "traffic_summary": "当前无实时路况数据"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245639,
+            34.23716509999999
+          ],
+          [
+            108.9245639,
+            34.2372265
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "11892494773-9001756687-0",
+        "road_name": "环城南路西段",
+        "hop": 2,
+        "length_m": 241.8027351011442,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9241906,
+            34.25240049999999
+          ],
+          [
+            108.9247124,
+            34.252370799999994
+          ],
+          [
+            108.9250846,
+            34.2523469
+          ],
+          [
+            108.9268191,
+            34.2523496
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2941418513-9387766623-0",
+        "road_name": "环城南路西段",
+        "hop": 2,
+        "length_m": 273.43269044636673,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931389,
+            34.252401400000004
+          ],
+          [
+            108.931507,
+            34.2524023
+          ],
+          [
+            108.9331392,
+            34.2524044
+          ],
+          [
+            108.9341508,
+            34.2524063
+          ],
+          [
+            108.9342144,
+            34.25240199999999
+          ],
+          [
+            108.934363,
+            34.2523894
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031735-1628131250-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 8.819882774955618,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93121630000002,
+            34.242636700000006
+          ],
+          [
+            108.9312142,
+            34.242716
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031740-2689341036-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 8.273915074047228,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312148,
+            34.2428547
+          ],
+          [
+            108.9312134,
+            34.2427803
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131250-12405031735-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 8.819882774955618,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312142,
+            34.242716
+          ],
+          [
+            108.93121630000002,
+            34.242636700000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131250-2689341036-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 7.150222036671471,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312142,
+            34.242716
+          ],
+          [
+            108.9312134,
+            34.2427803
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115509-2546712592-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 313.8715875341754,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9313765,
+            34.251616600000006
+          ],
+          [
+            108.9313602,
+            34.25082419999999
+          ],
+          [
+            108.93133000000002,
+            34.2491695
+          ],
+          [
+            108.931333,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2526115509-2941418513-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 87.2734640621218,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9313765,
+            34.251616600000006
+          ],
+          [
+            108.931389,
+            34.252401400000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712592-2526115509-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 313.8715875341754,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931333,
+            34.2487942
+          ],
+          [
+            108.93133000000002,
+            34.2491695
+          ],
+          [
+            108.9313602,
+            34.25082419999999
+          ],
+          [
+            108.9313765,
+            34.251616600000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712592-2546712594-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 344.1604236486726,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931333,
+            34.2487942
+          ],
+          [
+            108.9312976,
+            34.2473955
+          ],
+          [
+            108.9312662,
+            34.24569959999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712594-2546712592-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 344.1604236486726,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312662,
+            34.24569959999999
+          ],
+          [
+            108.9312976,
+            34.2473955
+          ],
+          [
+            108.931333,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2628233125-2941418513-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 15.48006105844098,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.93139150000002,
+            34.25254060000001
+          ],
+          [
+            108.931389,
+            34.252401400000004
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2689341036-12405031740-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 8.273915074047228,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312134,
+            34.2427803
+          ],
+          [
+            108.9312148,
+            34.2428547
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2689341036-1628131250-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 7.150222036671471,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312134,
+            34.2427803
+          ],
+          [
+            108.9312142,
+            34.242716
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2941418513-2526115509-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 87.2734640621218,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931389,
+            34.252401400000004
+          ],
+          [
+            108.9313765,
+            34.251616600000006
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2941418513-2628233125-0",
+        "road_name": "红缨路",
+        "hop": 2,
+        "length_m": 15.48006105844098,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931389,
+            34.252401400000004
+          ],
+          [
+            108.93139150000002,
+            34.25254060000001
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1557695618-9139930260-0",
+        "road_name": "西何家村",
+        "hop": 2,
+        "length_m": 90.66827397766184,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9235776,
+            34.237161400000005
+          ],
+          [
+            108.9237526,
+            34.23716209999999
+          ],
+          [
+            108.9244392,
+            34.23716459999999
+          ],
+          [
+            108.9245639,
+            34.23716509999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "9139930259-9139930237-0",
+        "road_name": "西何家村",
+        "hop": 2,
+        "length_m": 90.68565694115335,
+        "status_code": 2,
+        "status_label": "缓行",
+        "color": "#f59e0b",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：缓行（均速 未知 km/h，自东向西轻微拥堵；自西向东畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9245639,
+            34.2372265
+          ],
+          [
+            108.9244392,
+            34.2372265
+          ],
+          [
+            108.9237547,
+            34.23722639999999
+          ],
+          [
+            108.92357740000001,
+            34.23722639999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031717-2689341038-0",
+        "road_name": "边东街",
+        "hop": 2,
+        "length_m": 10.764347400910136,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，自北向南畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9246768,
+            34.242870999999994
+          ],
+          [
+            108.9246755,
+            34.24277419999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "1628131258-12405031733-0",
+        "road_name": "边东街",
+        "hop": 2,
+        "length_m": 11.73109573849005,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，自北向南畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9246757,
+            34.2427137
+          ],
+          [
+            108.9246759,
+            34.24260819999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712588-5265029431-0",
+        "road_name": "边东街",
+        "hop": 2,
+        "length_m": 266.005819388887,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，自北向南畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.92474040000002,
+            34.24755050000001
+          ],
+          [
+            108.9247086,
+            34.2451584
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2689341038-1628131258-0",
+        "road_name": "边东街",
+        "hop": 2,
+        "length_m": 6.727327684722914,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，自北向南畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9246755,
+            34.24277419999999
+          ],
+          [
+            108.9246757,
+            34.2427137
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12405031767-2546712592-0",
+        "road_name": "邮电北巷",
+        "hop": 2,
+        "length_m": 274.0892526896074,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.934315,
+            34.2487858
+          ],
+          [
+            108.931333,
+            34.2487942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712592-12405031767-0",
+        "road_name": "邮电北巷",
+        "hop": 2,
+        "length_m": 274.0892526896074,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.931333,
+            34.2487942
+          ],
+          [
+            108.934315,
+            34.2487858
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "12999974609-2546712594-0",
+        "road_name": "邮电南巷",
+        "hop": 2,
+        "length_m": 103.82076699525575,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9301367,
+            34.2456987
+          ],
+          [
+            108.9312662,
+            34.24569959999999
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "2546712594-12999974609-0",
+        "road_name": "邮电南巷",
+        "hop": 2,
+        "length_m": 103.82076699525575,
+        "status_code": 1,
+        "status_label": "畅通",
+        "color": "#22c55e",
+        "speed_kmh": null,
+        "traffic_summary": "整体态势：畅通（均速 未知 km/h，双向畅通）"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            108.9312662,
+            34.24569959999999
+          ],
+          [
+            108.9301367,
+            34.2456987
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -38,6 +38,10 @@ class TestRunHistoryMiddleware:
         records = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
         assert records[-1]["event"] == "agent.run.final"
         assert records[-1]["payload"]["response_text"] == "这是最终答案"
+        assert [m["content"] for m in records[-1]["payload"]["display_messages"]] == [
+            "帮我分析这个问题",
+            "这是最终答案",
+        ]
         assert records[-1]["payload"]["artifacts"] == ["/mnt/user-data/outputs/report.md"]
         assert records[-1]["payload"]["context"]["agent_name"] == "default"
 

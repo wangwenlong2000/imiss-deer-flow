@@ -26,6 +26,17 @@ type MessageGroup =
   | AssistantClarificationGroup
   | AssistantSubagentGroup;
 
+const INTERNAL_SUMMARY_MESSAGE_NAME = "conversation_summary";
+const INTERNAL_SUMMARY_PREFIX = "Here is a summary of the conversation to date:";
+
+export function isInternalSummaryMessage(message: Message) {
+  return (
+    message.type === "human" &&
+    (message.name === INTERNAL_SUMMARY_MESSAGE_NAME ||
+      extractTextFromMessage(message).startsWith(INTERNAL_SUMMARY_PREFIX))
+  );
+}
+
 export function groupMessages<T>(
   messages: Message[],
   mapper: (group: MessageGroup) => T,
@@ -52,7 +63,7 @@ export function groupMessages<T>(
   }
 
   for (const message of messages) {
-    if (message.name === "todo_reminder") {
+    if (message.name === "todo_reminder" || isInternalSummaryMessage(message)) {
       continue;
     }
 

@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "长安南路：双向畅通；北向南,从长安南路辅路路口到南三环路西段拥堵。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 590,
+          "speed": 11.6,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "北向南,从长安南路辅路路口到南三环路西段"
+        }
+      ],
+      "road_name": "长安南路"
+    }
+  ],
+  "_fetched_at": 1774350840.5473099
+}

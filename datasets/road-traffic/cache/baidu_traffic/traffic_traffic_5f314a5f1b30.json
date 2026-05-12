@@ -1,0 +1,49 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "二环南路西段：自东向西畅通；自西向东轻微拥堵；西向东,从桃园桥到朱雀桥严重拥堵；东向西,从二环南路东段到太白立交拥堵；西向东,南二环附近拥堵；东向西,从太白立交到南二环拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自东向西畅通；自西向东轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 1930,
+          "speed": 14.42,
+          "status": 4,
+          "congestion_trend": "持平",
+          "section_desc": "西向东,从桃园桥到朱雀桥"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 2220,
+          "speed": 18.09,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "东向西,从二环南路东段到太白立交"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 1400,
+          "speed": 29.04,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "西向东,南二环附近"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 620,
+          "speed": 28.27,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "东向西,从太白立交到南二环"
+        }
+      ],
+      "road_name": "二环南路西段"
+    }
+  ],
+  "_fetched_at": 1774953001.5330594
+}

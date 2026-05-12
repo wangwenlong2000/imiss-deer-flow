@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "西沣路：轻微拥堵；南向北,郭杜南街附近严重拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 520,
+          "speed": 5.36,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "南向北,郭杜南街附近"
+        }
+      ],
+      "road_name": "西沣路"
+    }
+  ],
+  "_fetched_at": 1774951347.4926229
+}

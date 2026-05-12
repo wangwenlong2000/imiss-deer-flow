@@ -25,11 +25,7 @@ def is_explicit_path_reference(value: str) -> bool:
 
 
 def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
+    return Path(__file__).resolve().parents[4]
 
 
 def get_default_search_roots() -> list[Path]:

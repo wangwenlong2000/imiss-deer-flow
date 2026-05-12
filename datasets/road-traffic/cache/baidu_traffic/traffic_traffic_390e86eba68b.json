@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "铁永坊：自东向西畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "自东向西畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "铁永坊"
+    }
+  ],
+  "_fetched_at": 1774952754.9085712
+}

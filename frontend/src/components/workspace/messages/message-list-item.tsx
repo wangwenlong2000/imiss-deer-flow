@@ -1,5 +1,6 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { FileIcon, Loader2Icon } from "lucide-react";
+import { useParams } from "next/navigation";
 import { memo, useMemo, type ImgHTMLAttributes } from "react";
 import rehypeKatex from "rehype-katex";
 
@@ -37,12 +38,10 @@ import { MarkdownContent } from "./markdown-content";
 export function MessageListItem({
   className,
   message,
-  threadId,
   isLoading,
 }: {
   className?: string;
   message: Message;
-  threadId: string;
   isLoading?: boolean;
 }) {
   const isHuman = message.type === "human";
@@ -54,7 +53,6 @@ export function MessageListItem({
       <MessageContent
         className={isHuman ? "w-fit" : "w-full"}
         message={message}
-        threadId={threadId}
         isLoading={isLoading}
       />
       {!isLoading && (
@@ -112,23 +110,22 @@ function MessageImage({
 function MessageContent_({
   className,
   message,
-  threadId,
   isLoading = false,
 }: {
   className?: string;
   message: Message;
-  threadId: string;
   isLoading?: boolean;
 }) {
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   const isHuman = message.type === "human";
+  const { thread_id } = useParams<{ thread_id: string }>();
   const components = useMemo(
     () => ({
       img: (props: ImgHTMLAttributes<HTMLImageElement>) => (
-        <MessageImage {...props} threadId={threadId} maxWidth="90%" />
+        <MessageImage {...props} threadId={thread_id} maxWidth="90%" />
       ),
     }),
-    [threadId],
+    [thread_id],
   );
 
   const rawContent = extractContentFromMessage(message);
@@ -154,8 +151,8 @@ function MessageContent_({
   }, [rawContent, isHuman]);
 
   const filesList =
-    files && files.length > 0 && threadId ? (
-      <RichFilesList files={files} threadId={threadId} />
+    files && files.length > 0 && thread_id ? (
+      <RichFilesList files={files} threadId={thread_id} />
     ) : null;
 
   // Uploading state: mock AI message shown while files upload

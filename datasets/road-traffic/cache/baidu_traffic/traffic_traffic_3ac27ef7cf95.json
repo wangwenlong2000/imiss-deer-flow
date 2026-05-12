@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "炭市街：自北向南畅通；自南向北拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南畅通；自南向北拥堵"
+  },
+  "road_traffic": [
+    {
+      "road_name": "炭市街"
+    }
+  ],
+  "_fetched_at": 1774343468.3907247
+}

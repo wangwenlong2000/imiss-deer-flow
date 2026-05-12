@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "环城南路东段：双向轻微拥堵；西向东,安东街附近拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "双向轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 1630,
+          "speed": 21.48,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "西向东,安东街附近"
+        }
+      ],
+      "road_name": "环城南路东段"
+    }
+  ],
+  "_fetched_at": 1774952755.5991693
+}

@@ -1,0 +1,57 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "二环南路东段：自东向西轻微拥堵；自西向东畅通；西向东,南二环附近严重拥堵；东向西,南二环附近严重拥堵；东向西,从兴庆桥到南二环拥堵；西向东,从翠华路到南二环行驶缓慢；西向东,南二环附近行驶缓慢。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自东向西轻微拥堵；自西向东畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 660,
+          "speed": 11.99,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "西向东,南二环附近"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 2740,
+          "speed": 14.91,
+          "status": 4,
+          "congestion_trend": "持平",
+          "section_desc": "东向西,南二环附近"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 1270,
+          "speed": 19.72,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "东向西,从兴庆桥到南二环"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 2080,
+          "speed": 32.19,
+          "status": 2,
+          "congestion_trend": "持平",
+          "section_desc": "西向东,从翠华路到南二环"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 770,
+          "speed": 39.21,
+          "status": 2,
+          "congestion_trend": "缓解",
+          "section_desc": "西向东,南二环附近"
+        }
+      ],
+      "road_name": "二环南路东段"
+    }
+  ],
+  "_fetched_at": 1774953003.6845686
+}

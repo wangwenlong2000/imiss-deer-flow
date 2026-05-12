@@ -1,0 +1,33 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "建设路：双向畅通；西向东,从雁塔北路辅路到太乙路严重拥堵；东向西,从祭台村人行天桥到建设路西段严重拥堵。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 5,
+          "congestion_distance": 790,
+          "speed": 5.37,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "西向东,从雁塔北路辅路到太乙路"
+        },
+        {
+          "road_type": 5,
+          "congestion_distance": 810,
+          "speed": 7.06,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "东向西,从祭台村人行天桥到建设路西段"
+        }
+      ],
+      "road_name": "建设路"
+    }
+  ],
+  "_fetched_at": 1774952754.5685449
+}

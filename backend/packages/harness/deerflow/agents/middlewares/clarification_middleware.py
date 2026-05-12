@@ -1,5 +1,7 @@
 """Middleware for intercepting clarification requests and presenting them to the user."""
 
+import ast
+import json
 from collections.abc import Callable
 from typing import override
 
@@ -32,6 +34,59 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
 
     state_schema = ClarificationMiddlewareState
 
+    def _normalize_options(self, raw_options: object) -> list[str]:
+        """Normalize clarification options into a clean list of strings.
+
+        The model may occasionally pass a single string instead of list[str],
+        for example:
+        - '["a", "b"]'
+        - 'a,b,c'
+        - 'a'
+        This helper makes formatting robust and avoids per-character rendering.
+        """
+        if raw_options is None:
+            return []
+
+        if isinstance(raw_options, (list, tuple, set)):
+            out: list[str] = []
+            for item in raw_options:
+                text = str(item or "").strip()
+                if text:
+                    out.append(text)
+            return out
+
+        if isinstance(raw_options, str):
+            text = raw_options.strip()
+            if not text:
+                return []
+
+            # Try list-like literals first.
+            for parser in (json.loads, ast.literal_eval):
+                try:
+                    parsed = parser(text)
+                except Exception:
+                    continue
+                if isinstance(parsed, (list, tuple, set)):
+                    out: list[str] = []
+                    for item in parsed:
+                        item_text = str(item or "").strip()
+                        if item_text:
+                            out.append(item_text)
+                    if out:
+                        return out
+
+            # Then fall back to comma-separated text.
+            if "," in text:
+                parts = [part.strip() for part in text.split(",")]
+                out = [part for part in parts if part]
+                if out:
+                    return out
+
+            return [text]
+
+        text = str(raw_options).strip()
+        return [text] if text else []
+
     def _is_chinese(self, text: str) -> bool:
         """Check if text contains Chinese characters.
 
@@ -55,7 +110,7 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
         question = args.get("question", "")
         clarification_type = args.get("clarification_type", "missing_info")
         context = args.get("context")
-        options = args.get("options", [])
+        options = self._normalize_options(args.get("options", []))
 
         # Type-specific icons
         type_icons = {

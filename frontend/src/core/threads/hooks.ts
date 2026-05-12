@@ -9,7 +9,11 @@ import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 import { getAPIClient } from "../api";
 import { useI18n } from "../i18n/hooks";
-import type { FileInMessage } from "../messages/utils";
+import {
+  extractTextFromMessage,
+  stripUploadedFilesTag,
+  type FileInMessage,
+} from "../messages/utils";
 import type { LocalSettings } from "../settings";
 import { useUpdateSubtask } from "../tasks/context";
 import type { UploadedFileInfo } from "../uploads";
@@ -30,6 +34,79 @@ export type ThreadStreamOptions = {
   onFinish?: (state: AgentThreadState) => void;
   onToolEnd?: (event: ToolEndEvent) => void;
 };
+
+type PendingOptimisticHuman = {
+  text: string;
+  filenames: string[];
+};
+
+function normalizeMessageText(text: string) {
+  return stripUploadedFilesTag(text).replace(/\s+/g, " ").trim();
+}
+
+function humanMessageMatchesPending(
+  message: Message,
+  pending: PendingOptimisticHuman,
+) {
+  if (message.type !== "human") {
+    return false;
+  }
+
+  const serverText = normalizeMessageText(extractTextFromMessage(message));
+  const pendingText = normalizeMessageText(pending.text);
+  if (serverText || pendingText) {
+    return serverText === pendingText;
+  }
+
+  if (pending.filenames.length === 0) {
+    return true;
+  }
+
+  const files = message.additional_kwargs?.files;
+  if (!Array.isArray(files)) {
+    return false;
+  }
+  const serverFilenames = new Set(
+    files
+      .map((file) => {
+        if (file && typeof file === "object" && "filename" in file) {
+          return String(file.filename ?? "");
+        }
+        return "";
+      })
+      .filter(Boolean),
+  );
+
+  return pending.filenames.every((filename) => serverFilenames.has(filename));
+}
+
+function mergeVisibleMessages(
+  displayMessages: Message[] | undefined,
+  contextMessages: Message[],
+) {
+  if (!displayMessages || displayMessages.length === 0) {
+    return contextMessages;
+  }
+
+  const merged = [...displayMessages];
+  const seenIds = new Set(
+    merged
+      .map((message) => message.id)
+      .filter((id): id is string => typeof id === "string"),
+  );
+
+  for (const message of contextMessages) {
+    if (message.id && seenIds.has(message.id)) {
+      continue;
+    }
+    if (message.id) {
+      seenIds.add(message.id);
+    }
+    merged.push(message);
+  }
+
+  return merged;
+}
 
 export function useThreadStream({
   threadId,
@@ -158,16 +235,32 @@ export function useThreadStream({
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   // Track message count before sending so we know when server has responded
   const prevMsgCountRef = useRef(thread.messages.length);
+  const preSubmitMessageIdsRef = useRef<Set<string>>(new Set());
+  const pendingOptimisticHumanRef = useRef<PendingOptimisticHuman | null>(null);
 
-  // Clear optimistic when server messages arrive (count increases)
+  // Clear optimistic only when the submitted human message is present in the
+  // server state. Tool-heavy turns may stream tool calls before the human
+  // message is reflected, and summarization can replace the whole message list.
   useEffect(() => {
+    const pending = pendingOptimisticHumanRef.current;
+    if (optimisticMessages.length === 0 || !pending) {
+      return;
+    }
+
+    const knownIds = preSubmitMessageIdsRef.current;
+    const hasServerUpdate = thread.messages.some(
+      (message) => message.id && !knownIds.has(message.id),
+    );
     if (
-      optimisticMessages.length > 0 &&
-      thread.messages.length > prevMsgCountRef.current
+      hasServerUpdate &&
+      thread.messages.some((message) =>
+        humanMessageMatchesPending(message, pending),
+      )
     ) {
+      pendingOptimisticHumanRef.current = null;
       setOptimisticMessages([]);
     }
-  }, [thread.messages.length, optimisticMessages.length]);
+  }, [thread.messages, optimisticMessages.length]);
 
   const sendMessage = useCallback(
     async (
@@ -179,6 +272,17 @@ export function useThreadStream({
 
       // Capture current count before showing optimistic messages
       prevMsgCountRef.current = thread.messages.length;
+      preSubmitMessageIdsRef.current = new Set(
+        thread.messages
+          .map((message) => message.id)
+          .filter((id): id is string => typeof id === "string"),
+      );
+      pendingOptimisticHumanRef.current = {
+        text,
+        filenames: (message.files ?? [])
+          .map((file) => file.filename ?? "")
+          .filter(Boolean),
+      };
 
       // Build optimistic files list with uploading status
       const optimisticFiles: FileInMessage[] = (message.files ?? []).map(
@@ -291,6 +395,7 @@ export function useThreadStream({
                 ? error.message
                 : "Failed to upload files.";
             toast.error(errorMessage);
+            pendingOptimisticHumanRef.current = null;
             setOptimisticMessages([]);
             throw error;
           }
@@ -341,6 +446,7 @@ export function useThreadStream({
         );
         void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
       } catch (error) {
+        pendingOptimisticHumanRef.current = null;
         setOptimisticMessages([]);
         throw error;
       }
@@ -348,14 +454,19 @@ export function useThreadStream({
     [thread, _handleOnStart, t.uploads.uploadingFiles, context, queryClient],
   );
 
-  // Merge thread with optimistic messages for display
-  const mergedThread =
-    optimisticMessages.length > 0
-      ? ({
-          ...thread,
-          messages: [...thread.messages, ...optimisticMessages],
-        } as typeof thread)
-      : thread;
+  const visibleMessages = mergeVisibleMessages(
+    thread.values?.display_messages,
+    thread.messages,
+  );
+
+  // Merge thread with persisted UI transcript and optimistic messages for display.
+  const mergedThread = {
+    ...thread,
+    messages:
+      optimisticMessages.length > 0
+        ? [...visibleMessages, ...optimisticMessages]
+        : visibleMessages,
+  } as typeof thread;
 
   return [mergedThread, sendMessage] as const;
 }

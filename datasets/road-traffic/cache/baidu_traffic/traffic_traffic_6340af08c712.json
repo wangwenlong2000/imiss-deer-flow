@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "四府街：自北向南轻微拥堵；自南向北畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南轻微拥堵；自南向北畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "四府街"
+    }
+  ],
+  "_fetched_at": 1775005392.7587526
+}

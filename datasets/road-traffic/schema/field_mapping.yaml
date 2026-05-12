@@ -1,0 +1,22 @@
+# Scaffold mapping for road traffic datasets.
+# Replace these examples with your actual source schemas.
+
+canonical_fields:
+  timestamp:
+    aliases: ["timestamp", "time", "datetime", "ts"]
+  road_segment:
+    aliases: ["road_segment", "segment", "link_id", "road_id"]
+  intersection_id:
+    aliases: ["intersection_id", "junction_id", "cross_id"]
+  direction:
+    aliases: ["direction", "dir"]
+  vehicle_count:
+    aliases: ["vehicle_count", "flow", "volume", "count"]
+  avg_speed:
+    aliases: ["avg_speed", "speed", "mean_speed"]
+  occupancy:
+    aliases: ["occupancy", "occ"]
+  travel_time:
+    aliases: ["travel_time", "tt", "duration"]
+  incident_flag:
+    aliases: ["incident_flag", "incident", "event_flag"]

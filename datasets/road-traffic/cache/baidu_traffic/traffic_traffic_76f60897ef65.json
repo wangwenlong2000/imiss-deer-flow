@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "友谊西路：双向畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "友谊西路"
+    }
+  ],
+  "_fetched_at": 1775006222.041775
+}

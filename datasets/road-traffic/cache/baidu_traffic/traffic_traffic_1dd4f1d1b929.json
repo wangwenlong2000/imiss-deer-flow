@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "水文东巷：自东向西轻微拥堵；自西向东畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自东向西轻微拥堵；自西向东畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "水文东巷"
+    }
+  ],
+  "_fetched_at": 1775006223.7151887
+}

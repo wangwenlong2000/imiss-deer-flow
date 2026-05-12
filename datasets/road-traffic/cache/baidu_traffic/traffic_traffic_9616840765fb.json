@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "邮电北巷：双向畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "邮电北巷"
+    }
+  ],
+  "_fetched_at": 1775006222.6935053
+}

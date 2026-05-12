@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "小寨东路：自东向西拥堵；自西向东轻微拥堵；东向西,从慈恩西路到小寨人行天桥严重拥堵。",
+  "evaluation": {
+    "status": 3,
+    "status_desc": "自东向西拥堵；自西向东轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 4,
+          "congestion_distance": 670,
+          "speed": 2.36,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "东向西,从慈恩西路到小寨人行天桥"
+        }
+      ],
+      "road_name": "小寨东路"
+    }
+  ],
+  "_fetched_at": 1777691435.9028163
+}

@@ -29,6 +29,8 @@ export interface ListFilesResponse {
   count: number;
 }
 
+const UPLOAD_API_TIMEOUT_MS = 30_000;
+
 async function readErrorDetail(
   response: Response,
   fallback: string,
@@ -37,6 +39,31 @@ async function readErrorDetail(
     .json()
     .catch(() => ({ detail: fallback }));
   return error.detail ?? fallback;
+}
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  timeoutMs = UPLOAD_API_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(
+        `Request timed out after ${Math.round(timeoutMs / 1000)}s. Please check backend service status and retry.`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
@@ -52,7 +79,7 @@ export async function uploadFiles(
     formData.append("files", file);
   });
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${getBackendBaseURL()}/api/threads/${threadId}/uploads`,
     {
       method: "POST",
@@ -73,8 +100,11 @@ export async function uploadFiles(
 export async function listUploadedFiles(
   threadId: string,
 ): Promise<ListFilesResponse> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${getBackendBaseURL()}/api/threads/${threadId}/uploads/list`,
+    {
+      method: "GET",
+    },
   );
 
   if (!response.ok) {
@@ -93,7 +123,7 @@ export async function deleteUploadedFile(
   threadId: string,
   filename: string,
 ): Promise<{ success: boolean; message: string }> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${getBackendBaseURL()}/api/threads/${threadId}/uploads/${filename}`,
     {
       method: "DELETE",

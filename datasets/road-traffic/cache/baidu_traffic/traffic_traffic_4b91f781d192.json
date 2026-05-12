@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "案板街：自北向南畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "自北向南畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "案板街"
+    }
+  ],
+  "_fetched_at": 1774400268.5764623
+}

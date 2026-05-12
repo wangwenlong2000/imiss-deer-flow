@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "二环南路东段辅路：双向畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "二环南路东段辅路"
+    }
+  ],
+  "_fetched_at": 1774953001.2114282
+}

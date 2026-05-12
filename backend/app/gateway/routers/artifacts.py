@@ -14,6 +14,41 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["artifacts"])
 
 
+def _resolve_shared_road_traffic_output(path: str) -> Path | None:
+    """Fallback for legacy road-traffic outputs saved outside thread outputs.
+
+    Legacy traffic scripts may persist artifacts under `datasets/road-traffic/outputs`.
+    When the requested artifact path is `/mnt/user-data/outputs/<filename>` and the
+    thread-local file is missing, we try this shared location by filename.
+    """
+    normalized = str(path or "").lstrip("/")
+    prefix = "mnt/user-data/outputs/"
+    if not normalized.startswith(prefix):
+        return None
+
+    filename = Path(normalized[len(prefix) :]).name
+    if not filename:
+        return None
+
+    # Restrict to traffic analysis artifacts only.
+    if not (
+        filename.startswith(("traffic_map_", "report_traffic_", "evidence_traffic_", "taiyi_road_"))
+        and filename.lower().endswith((".html", ".geojson", ".json", ".md"))
+    ):
+        return None
+
+    repo_root = Path(__file__).resolve().parents[4]
+    shared_dir = (repo_root / "datasets" / "road-traffic" / "outputs").resolve()
+    candidate = (shared_dir / filename).resolve()
+    try:
+        candidate.relative_to(shared_dir)
+    except ValueError:
+        return None
+    if candidate.exists() and candidate.is_file():
+        return candidate
+    return None
+
+
 def is_text_file_by_content(path: Path, sample_size: int = 8192) -> bool:
     """Check if file is text by examining content for null bytes."""
     try:
@@ -132,7 +167,11 @@ async def get_artifact(thread_id: str, path: str, request: Request) -> FileRespo
     logger.info(f"Resolving artifact path: thread_id={thread_id}, requested_path={path}, actual_path={actual_path}")
 
     if not actual_path.exists():
-        raise HTTPException(status_code=404, detail=f"Artifact not found: {path}")
+        fallback = _resolve_shared_road_traffic_output(path)
+        if fallback is not None:
+            actual_path = fallback
+        else:
+            raise HTTPException(status_code=404, detail=f"Artifact not found: {path}")
 
     if not actual_path.is_file():
         raise HTTPException(status_code=400, detail=f"Path is not a file: {path}")

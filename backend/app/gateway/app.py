@@ -3,13 +3,13 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.gateway.config import get_gateway_config
 from app.gateway.routers import (
     agents,
     artifacts,
     channels,
-    data_center,
     mcp,
     memory,
     models,
@@ -77,6 +77,8 @@ def create_app() -> FastAPI:
         Configured FastAPI application instance.
     """
 
+    config = get_gateway_config()
+
     app = FastAPI(
         title="DeerFlow API Gateway",
         description="""
@@ -141,17 +143,21 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
                 "description": "Manage IM channel integrations (Feishu, Slack, Telegram)",
             },
             {
-                "name": "data_center",
-                "description": "Manage datasets and data sources shown in the front-end data center",
-            },
-            {
                 "name": "health",
                 "description": "Health check and system status endpoints",
             },
         ],
     )
 
-    # CORS is handled by nginx - no need for FastAPI middleware
+    # nginx keeps same-origin requests simple in the default setup, but local
+    # no-nginx development serves frontend and gateway from different ports.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.cors_origins,
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # Include routers
     # Models API is mounted at /api/models
@@ -180,9 +186,6 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # Channels API is mounted at /api/channels
     app.include_router(channels.router)
-
-    # Data center API is mounted at /api/data-center
-    app.include_router(data_center.router)
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:

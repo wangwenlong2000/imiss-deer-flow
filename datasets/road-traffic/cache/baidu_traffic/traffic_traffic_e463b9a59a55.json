@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "雁南二路辅路：自西向东畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自西向东畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "雁南二路辅路"
+    }
+  ],
+  "_fetched_at": 1774350060.1892505
+}

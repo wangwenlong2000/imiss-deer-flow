@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "太白南路：自北向南畅通；自南向北轻微拥堵；南向北,太白南路立交桥附近拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南畅通；自南向北轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 3320,
+          "speed": 14.41,
+          "status": 3,
+          "congestion_trend": "缓解",
+          "section_desc": "南向北,太白南路立交桥附近"
+        }
+      ],
+      "road_name": "太白南路"
+    }
+  ],
+  "_fetched_at": 1774953950.8588672
+}

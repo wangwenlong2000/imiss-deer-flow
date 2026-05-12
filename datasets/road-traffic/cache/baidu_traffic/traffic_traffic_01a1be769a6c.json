@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "西新街：畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "西新街"
+    }
+  ],
+  "_fetched_at": 1774350825.5229268
+}

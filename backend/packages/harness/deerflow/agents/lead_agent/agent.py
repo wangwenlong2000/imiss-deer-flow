@@ -2,10 +2,12 @@ import logging
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
+from langchain_core.messages import AnyMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 
 from deerflow.agents.lead_agent.prompt import apply_prompt_template
 from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from deerflow.agents.middlewares.display_messages_middleware import DisplayMessagesMiddleware
 from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
 from deerflow.agents.middlewares.run_history_middleware import RunHistoryMiddleware
@@ -21,6 +23,55 @@ from deerflow.config.summarization_config import get_summarization_config
 from deerflow.models import create_chat_model
 
 logger = logging.getLogger(__name__)
+
+
+INTERNAL_SUMMARY_MESSAGE_NAME = "conversation_summary"
+
+
+class DeerFlowSummarizationMiddleware(SummarizationMiddleware):
+    """Summarization middleware whose synthetic summary message is UI-identifiable."""
+
+    def _partition_messages(
+        self,
+        conversation_messages: list[AnyMessage],
+        cutoff_index: int,
+    ) -> tuple[list[AnyMessage], list[AnyMessage]]:
+        messages_to_summarize, preserved_messages = super()._partition_messages(
+            conversation_messages,
+            cutoff_index,
+        )
+
+        # Summarization can run multiple times inside one tool-heavy turn. If the
+        # cutoff advances past the active user prompt, the UI loses that prompt and
+        # shows only tool steps. Keep the latest real user message visible.
+        latest_user_index = next(
+            (
+                index
+                for index in range(len(conversation_messages) - 1, -1, -1)
+                if isinstance(conversation_messages[index], HumanMessage)
+                and conversation_messages[index].name != INTERNAL_SUMMARY_MESSAGE_NAME
+            ),
+            None,
+        )
+        if latest_user_index is not None and latest_user_index < cutoff_index:
+            latest_user_message = conversation_messages[latest_user_index]
+            messages_to_summarize = [
+                message
+                for index, message in enumerate(messages_to_summarize)
+                if index != latest_user_index
+            ]
+            preserved_messages = [latest_user_message, *preserved_messages]
+
+        return messages_to_summarize, preserved_messages
+
+    def _build_new_messages(self, summary: str) -> list[HumanMessage]:
+        return [
+            HumanMessage(
+                content=f"Here is a summary of the conversation to date:\n\n{summary}",
+                name=INTERNAL_SUMMARY_MESSAGE_NAME,
+                additional_kwargs={"internal": True},
+            )
+        ]
 
 
 def _resolve_model_name(requested_model_name: str | None = None) -> str:
@@ -77,7 +128,7 @@ def _create_summarization_middleware() -> SummarizationMiddleware | None:
     if config.summary_prompt is not None:
         kwargs["summary_prompt"] = config.summary_prompt
 
-    return SummarizationMiddleware(**kwargs)
+    return DeerFlowSummarizationMiddleware(**kwargs)
 
 
 def _create_todo_list_middleware(is_plan_mode: bool) -> TodoMiddleware | None:
@@ -234,6 +285,9 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
 
     # Add MemoryMiddleware (after TitleMiddleware)
     middlewares.append(MemoryMiddleware(agent_name=agent_name))
+
+    # Preserve UI-visible transcript separately from summarized model context.
+    middlewares.append(DisplayMessagesMiddleware())
 
     # Persist final run history to local JSONL logs when monitoring is enabled.
     middlewares.append(RunHistoryMiddleware())

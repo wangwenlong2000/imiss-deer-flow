@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "朱雀大街南段：自北向南轻微拥堵；自南向北拥堵；南向北,从青松路到朱雀路环岛行驶缓慢。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南轻微拥堵；自南向北拥堵"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 1970,
+          "speed": 18.01,
+          "status": 2,
+          "congestion_trend": "缓解",
+          "section_desc": "南向北,从青松路到朱雀路环岛"
+        }
+      ],
+      "road_name": "朱雀大街南段"
+    }
+  ],
+  "_fetched_at": 1774953536.500754
+}

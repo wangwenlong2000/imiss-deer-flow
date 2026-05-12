@@ -1,0 +1,14 @@
+{
+  "status": 0,
+  "result": {
+    "location": {
+      "lng": 109.29411400503011,
+      "lat": 34.051643462590974
+    },
+    "precise": 0,
+    "confidence": 25,
+    "comprehension": 100,
+    "level": "乡镇"
+  },
+  "_fetched_at": 1775010526.877249
+}

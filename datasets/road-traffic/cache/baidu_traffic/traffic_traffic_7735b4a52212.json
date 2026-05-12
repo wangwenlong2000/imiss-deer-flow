@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "环城南路西段：自东向西轻微拥堵；自西向东畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自东向西轻微拥堵；自西向东畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "环城南路西段"
+    }
+  ],
+  "_fetched_at": 1775006224.3668523
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 
 import { type PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ArtifactTrigger } from "@/components/workspace/artifacts";
@@ -26,16 +26,11 @@ import { cn } from "@/lib/utils";
 export default function ChatPage() {
   const { t } = useI18n();
   const [settings, setSettings] = useLocalSettings();
-  const [mounted, setMounted] = useState(false);
 
   const { threadId, isNewThread, setIsNewThread, isMock } = useThreadChat();
   useSpecificChatMode();
 
   const { showNotification } = useNotification();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const [thread, sendMessage] = useThreadStream({
     threadId: isNewThread ? undefined : threadId,
@@ -65,25 +60,14 @@ export default function ChatPage() {
   });
 
   const handleSubmit = useCallback(
-    (
-      message: PromptInputMessage,
-      options?: { extraContext?: Record<string, unknown> },
-    ) => {
-      void sendMessage(threadId, message, options?.extraContext);
+    (message: PromptInputMessage) => {
+      void sendMessage(threadId, message);
     },
     [sendMessage, threadId],
   );
   const handleStop = useCallback(async () => {
     await thread.stop();
   }, [thread]);
-
-  if (!mounted) {
-    return (
-      <div className="bg-background flex size-full items-center justify-center">
-        <div className="text-muted-foreground text-sm">{t.common.loading}</div>
-      </div>
-    );
-  }
 
   return (
     <ThreadContext.Provider value={{ thread, isMock }}>

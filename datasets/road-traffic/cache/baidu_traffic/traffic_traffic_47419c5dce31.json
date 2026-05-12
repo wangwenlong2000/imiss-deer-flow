@@ -1,0 +1,41 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "南三环路：双向畅通；东向西,从竹里巷到南三环严重拥堵；东向西,从月登阁桥到马腾空桥拥堵；西向东,丈八五路附近拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 770,
+          "speed": 5.36,
+          "status": 4,
+          "congestion_trend": "加重",
+          "section_desc": "东向西,从竹里巷到南三环"
+        },
+        {
+          "road_type": 2,
+          "congestion_distance": 680,
+          "speed": 21.88,
+          "status": 3,
+          "congestion_trend": "加重",
+          "section_desc": "东向西,从月登阁桥到马腾空桥"
+        },
+        {
+          "road_type": 3,
+          "congestion_distance": 7170,
+          "speed": 21.84,
+          "status": 3,
+          "congestion_trend": "加重",
+          "section_desc": "西向东,丈八五路附近"
+        }
+      ],
+      "road_name": "南三环路"
+    }
+  ],
+  "_fetched_at": 1774951347.1523812
+}

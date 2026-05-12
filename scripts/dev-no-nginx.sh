@@ -9,6 +9,7 @@ PID_DIR="$REPO_ROOT/.deerflow-no-nginx"
 LANGGRAPH_PORT="${LANGGRAPH_PORT:-2024}"
 GATEWAY_PORT="${GATEWAY_PORT:-8001}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+FRONTEND_FALLBACK_MAX_PORT="${FRONTEND_FALLBACK_MAX_PORT:-3010}"
 
 usage() {
     cat <<EOF
@@ -24,7 +25,8 @@ Commands:
 Environment variables (optional):
   LANGGRAPH_PORT   Default: 2024
   GATEWAY_PORT     Default: 8001
-  FRONTEND_PORT    Default: 3000 (auto-fallback to 3001 if occupied)
+  FRONTEND_PORT    Default: 3000
+  FRONTEND_FALLBACK_MAX_PORT  Default: 3010 (auto-pick next free port in range)
 EOF
 }
 
@@ -88,6 +90,21 @@ wait_port() {
     local name="$3"
 
     "$REPO_ROOT/scripts/wait-for-port.sh" "$port" "$timeout" "$name"
+}
+
+pick_frontend_port() {
+    local start_port="$1"
+    local max_port="$2"
+    local p
+
+    for ((p=start_port; p<=max_port; p++)); do
+        if ! is_listening "$p"; then
+            echo "$p"
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 stop_services() {
@@ -171,28 +188,20 @@ start_services() {
     wait_port "$GATEWAY_PORT" 40 "Gateway"
     echo "✓ Gateway is up"
 
-    local frontend_pkg_cmd
-    if command -v pnpm >/dev/null 2>&1; then
-        frontend_pkg_cmd="pnpm"
-    elif command -v corepack >/dev/null 2>&1; then
-        frontend_pkg_cmd="corepack pnpm"
-        echo "⚠ pnpm not found, using 'corepack pnpm' fallback"
-    else
-        echo "✗ Neither pnpm nor corepack is available. Install pnpm (>=10) or Node corepack."
-        exit 1
-    fi
-
     if is_listening "$FRONTEND_PORT"; then
-        echo "⚠ Frontend port $FRONTEND_PORT is occupied, fallback to 3001"
-        FRONTEND_PORT=3001
+        echo "⚠ Frontend port $FRONTEND_PORT is occupied, looking for another free port..."
     fi
+    FRONTEND_PORT="$(pick_frontend_port "$FRONTEND_PORT" "$FRONTEND_FALLBACK_MAX_PORT")" || {
+        echo "✗ No free frontend port found in range ${FRONTEND_PORT}-${FRONTEND_FALLBACK_MAX_PORT}"
+        exit 1
+    }
 
     echo "Starting Frontend on port $FRONTEND_PORT..."
     (
         cd "$REPO_ROOT/frontend"
         NEXT_PUBLIC_BACKEND_BASE_URL="http://localhost:$GATEWAY_PORT" \
         NEXT_PUBLIC_LANGGRAPH_BASE_URL="http://localhost:$LANGGRAPH_PORT" \
-        eval "$frontend_pkg_cmd exec next dev --turbo --port \"$FRONTEND_PORT\"" > "$LOG_DIR/frontend.log" 2>&1
+        pnpm exec next dev --turbo --port "$FRONTEND_PORT" > "$LOG_DIR/frontend.log" 2>&1
     ) &
     echo $! > "$PID_DIR/frontend.pid"
     echo "$FRONTEND_PORT" > "$PID_DIR/frontend.port"

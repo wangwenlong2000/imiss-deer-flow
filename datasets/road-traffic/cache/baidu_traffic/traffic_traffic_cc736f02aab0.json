@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "水文巷：畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "水文巷"
+    }
+  ],
+  "_fetched_at": 1774338408.3566787
+}

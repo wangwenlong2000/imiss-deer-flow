@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "解放市场：自东向西畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "自东向西畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "解放市场"
+    }
+  ],
+  "_fetched_at": 1774343470.3620152
+}

@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "北关正街：自北向南拥堵；自南向北畅通。",
+  "evaluation": {
+    "status": 3,
+    "status_desc": "自北向南拥堵；自南向北畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "北关正街"
+    }
+  ],
+  "_fetched_at": 1774350847.4550805
+}

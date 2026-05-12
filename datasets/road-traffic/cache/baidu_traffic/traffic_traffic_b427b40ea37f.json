@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "友谊东路：自东向西拥堵；自西向东畅通。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自东向西拥堵；自西向东畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "友谊东路"
+    }
+  ],
+  "_fetched_at": 1774952753.60725
+}

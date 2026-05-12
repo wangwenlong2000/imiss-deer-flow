@@ -1,0 +1,41 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "金花南路：双向畅通；北向南,咸宁桥附近拥堵；北向南,东二环路附近行驶缓慢；南向北,东二环路附近行驶缓慢。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 2,
+          "congestion_distance": 550,
+          "speed": 32.9,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "北向南,咸宁桥附近"
+        },
+        {
+          "road_type": 2,
+          "congestion_distance": 620,
+          "speed": 32.62,
+          "status": 2,
+          "congestion_trend": "加重",
+          "section_desc": "北向南,东二环路附近"
+        },
+        {
+          "road_type": 2,
+          "congestion_distance": 850,
+          "speed": 38.16,
+          "status": 2,
+          "congestion_trend": "加重",
+          "section_desc": "南向北,东二环路附近"
+        }
+      ],
+      "road_name": "金花南路"
+    }
+  ],
+  "_fetched_at": 1774953005.012603
+}

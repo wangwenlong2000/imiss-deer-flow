@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "雁塔西路：自东向西畅通；自西向东轻微拥堵。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "自东向西畅通；自西向东轻微拥堵"
+  },
+  "road_traffic": [
+    {
+      "road_name": "雁塔西路"
+    }
+  ],
+  "_fetched_at": 1774955085.73831
+}

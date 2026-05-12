@@ -1,0 +1,77 @@
+{
+  "_fetched_at": 1777031795.9862294,
+  "request": {
+    "mode": "driving",
+    "origin": {
+      "query": "朱雀大街",
+      "provider": "baidu_geocoding_v3",
+      "lat": 34.2471729,
+      "lng": 108.94554452,
+      "confidence": 30,
+      "precise": 0,
+      "level": "道路"
+    },
+    "destination": {
+      "query": "朱雀大街",
+      "provider": "baidu_geocoding_v3",
+      "lat": 34.2471729,
+      "lng": 108.94554452,
+      "confidence": 30,
+      "precise": 0,
+      "level": "道路"
+    }
+  },
+  "response": {
+    "status": 0,
+    "message": "ok",
+    "result": {
+      "origin": {
+        "lng": 108.94554452,
+        "lat": 34.247172933031
+      },
+      "destination": {
+        "lng": 108.94554452,
+        "lat": 34.247172933031
+      },
+      "routes": [
+        {
+          "route_md5": "7c811ea51303fc718d486e4261006b1f",
+          "distance": 1,
+          "duration": 7,
+          "traffic_condition": 1,
+          "toll": 0,
+          "restriction_info": {
+            "status": 0
+          },
+          "steps": [
+            {
+              "leg_index": 0,
+              "distance": 1,
+              "duration": 7,
+              "direction": 6,
+              "turn": 0,
+              "road_type": 3,
+              "road_types": "3",
+              "instruction": "从<b>起点</b>向正南方向出发,沿<b>朱雀大街</b>行驶10米,到达<b>终点</b>",
+              "path": "108.94549915357,34.247163870802;108.9454992434,34.247113887925",
+              "traffic_condition": [
+                {
+                  "status": 1,
+                  "geo_cnt": 1
+                }
+              ],
+              "start_location": {
+                "lng": "108.94549915357",
+                "lat": "34.247163870802"
+              },
+              "end_location": {
+                "lng": "108.9454992434",
+                "lat": "34.247113887925"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

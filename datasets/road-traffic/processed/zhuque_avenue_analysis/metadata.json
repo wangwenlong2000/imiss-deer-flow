@@ -1,0 +1,10 @@
+{
+  "dataset_name": "zhuque_avenue_analysis",
+  "source_files": [
+    "xian_city_simpl.graphml"
+  ],
+  "prepared_at": "2026-04-25T17:26:10",
+  "graph_file": "/home/songqiheng/imiss-deer-flow/datasets/road-traffic/raw/city_graphs/xian_city_simpl.graphml",
+  "metadata": "/home/songqiheng/imiss-deer-flow/datasets/road-traffic/processed/zhuque_avenue_analysis/metadata.json",
+  "note": "Road graph prepared. Use this graph reference with road_traffic_analyze action=congestion-report."
+}

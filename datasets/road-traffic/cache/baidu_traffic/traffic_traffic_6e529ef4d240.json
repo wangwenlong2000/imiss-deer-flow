@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "环城西路北段：自北向南拥堵；自南向北畅通；南向北,环城西路北段辅路附近拥堵。",
+  "evaluation": {
+    "status": 3,
+    "status_desc": "自北向南拥堵；自南向北畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 770,
+          "speed": 16.8,
+          "status": 3,
+          "congestion_trend": "加重",
+          "section_desc": "南向北,环城西路北段辅路附近"
+        }
+      ],
+      "road_name": "环城西路北段"
+    }
+  ],
+  "_fetched_at": 1774400800.2538133
+}

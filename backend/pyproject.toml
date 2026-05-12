@@ -16,7 +16,10 @@ dependencies = [
     "python-telegram-bot>=21.0",
     "langgraph-sdk>=0.1.51",
     "markdown-to-mrkdwn>=0.3.1",
+    "pandas>=2.2.0",
     "scapy>=2.6.1",
+    "statsforecast>=1.7.8",
+    "adtk>=0.6.2",
 ]
 
 [dependency-groups]

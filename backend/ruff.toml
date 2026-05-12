@@ -1,4 +1,4 @@
-line-length = 320
+line-length = 240
 target-version = "py312"
 
 [lint]

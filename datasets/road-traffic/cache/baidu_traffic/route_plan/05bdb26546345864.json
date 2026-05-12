@@ -1,0 +1,14 @@
+{
+  "status": 0,
+  "result": {
+    "location": {
+      "lng": 108.94554451799337,
+      "lat": 34.24717289755689
+    },
+    "precise": 0,
+    "confidence": 30,
+    "comprehension": 100,
+    "level": "道路"
+  },
+  "_fetched_at": 1777031795.8091073
+}

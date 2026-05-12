@@ -1,0 +1,49 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "西安绕城高速：双向畅通；北向南,西咸立交附近严重拥堵；北向南,香王立交附近拥堵；西向东,长安立交附近拥堵；西向东,西安绕城高速附近行驶缓慢。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 1,
+          "congestion_distance": 770,
+          "speed": 13.58,
+          "status": 4,
+          "congestion_trend": "持平",
+          "section_desc": "北向南,西咸立交附近"
+        },
+        {
+          "road_type": 1,
+          "congestion_distance": 830,
+          "speed": 44.28,
+          "status": 3,
+          "congestion_trend": "加重",
+          "section_desc": "北向南,香王立交附近"
+        },
+        {
+          "road_type": 1,
+          "congestion_distance": 7250,
+          "speed": 49.32,
+          "status": 3,
+          "congestion_trend": "持平",
+          "section_desc": "西向东,长安立交附近"
+        },
+        {
+          "road_type": 1,
+          "congestion_distance": 1530,
+          "speed": 55.81,
+          "status": 2,
+          "congestion_trend": "加重",
+          "section_desc": "西向东,西安绕城高速附近"
+        }
+      ],
+      "road_name": "西安绕城高速"
+    }
+  ],
+  "_fetched_at": 1774951350.1691961
+}

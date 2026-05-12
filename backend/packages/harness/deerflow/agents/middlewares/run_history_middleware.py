@@ -8,6 +8,7 @@ from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langgraph.runtime import Runtime
 
+from deerflow.agents.thread_state import merge_display_messages
 from deerflow.monitoring import to_jsonable, write_run_event_log
 
 
@@ -56,11 +57,13 @@ class RunHistoryMiddleware(AgentMiddleware[RunHistoryMiddlewareState]):
             return None
 
         messages = state.get("messages", [])
+        display_messages = merge_display_messages(state.get("display_messages", []), messages)
         payload = {
             "context": to_jsonable(runtime.context),
             "message_count": len(messages),
             "response_text": _extract_final_ai_text(messages),
             "messages": to_jsonable(messages),
+            "display_messages": to_jsonable(display_messages),
             "artifacts": to_jsonable(state.get("artifacts", [])),
             "title": state.get("title"),
             "todos": to_jsonable(state.get("todos")),

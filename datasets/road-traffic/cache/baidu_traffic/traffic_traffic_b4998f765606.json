@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "中心东街：双向畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "中心东街"
+    }
+  ],
+  "_fetched_at": 1774350835.9061325
+}

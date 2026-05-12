@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "雁塔北路：自北向南轻微拥堵；自南向北缓行。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南轻微拥堵；自南向北缓行"
+  },
+  "road_traffic": [
+    {
+      "road_name": "雁塔北路"
+    }
+  ],
+  "_fetched_at": 1774953004.018439
+}

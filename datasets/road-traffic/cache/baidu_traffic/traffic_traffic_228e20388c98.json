@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "环城东路：自北向南拥堵；自南向北畅通；北向南,东大街附近行驶缓慢。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自北向南拥堵；自南向北畅通"
+  },
+  "road_traffic": [
+    {
+      "congestion_sections": [
+        {
+          "road_type": 3,
+          "congestion_distance": 1610,
+          "speed": 21.98,
+          "status": 2,
+          "congestion_trend": "加重",
+          "section_desc": "北向南,东大街附近"
+        }
+      ],
+      "road_name": "环城东路"
+    }
+  ],
+  "_fetched_at": 1774400268.8981535
+}

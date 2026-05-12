@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "大麦市街：自南向北拥堵。",
+  "evaluation": {
+    "status": 2,
+    "status_desc": "自南向北拥堵"
+  },
+  "road_traffic": [
+    {
+      "road_name": "大麦市街"
+    }
+  ],
+  "_fetched_at": 1775005788.4651043
+}

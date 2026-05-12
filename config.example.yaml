@@ -15,19 +15,6 @@
 config_version: 1
 
 # ============================================================================
-# Docker Port Overrides
-# ============================================================================
-# Used by scripts/update-docker-ports.sh to update docker/nginx related files.
-# Priority when running the script: environment variables > docker_ports > built-in defaults.
-docker_ports:
-  nginx: 2026
-  langgraph: 2024
-  gateway: 8001
-  frontend: 3000
-subnet:
-  dev: 192.168.200.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
-
-# ============================================================================
 # Models Configuration
 # ============================================================================
 # Configure available LLM models for the agent to use
@@ -161,37 +148,6 @@ models:
   #   temperature: 0.7
 
 # ============================================================================
-# Embedding Configuration
-# ============================================================================
-# Used by standalone embedding scripts such as embed_rag_docs.py.
-embedding:
-  # Supported providers:
-  # - sentence-transformers  (local model, no API key required)
-  # - dashscope              (OpenAI-compatible API)
-  # - openai
-  # - openai-compatible
-  provider: sentence-transformers
-  model: BAAI/bge-m3
-  api_key:
-  base_url:
-  dimensions:
-  device:
-  normalize: true
-
-# ============================================================================
-# Elasticsearch Configuration
-# ============================================================================
-elasticsearch:
-  hosts:
-    - http://localhost:9200
-  index_name: network-traffic-rag
-  api_key:
-  username:
-  password:
-  verify_certs: true
-  request_timeout: 30
-
-# ============================================================================
 # Tool Groups Configuration
 # ============================================================================
 # Define groups of tools for organization and access control
@@ -201,6 +157,7 @@ tool_groups:
   - name: file:read
   - name: file:write
   - name: bash
+  - name: road-traffic
 
 # ============================================================================
 # Tools Configuration
@@ -267,6 +224,15 @@ tools:
   - name: bash
     group: bash
     use: deerflow.sandbox.tools:bash_tool
+
+  # Road traffic domain tools
+  - name: road_traffic_prepare
+    group: road-traffic
+    use: deerflow.tools.builtins:road_traffic_prepare_tool
+
+  - name: road_traffic_analyze
+    group: road-traffic
+    use: deerflow.tools.builtins:road_traffic_analyze_tool
 
 # ============================================================================
 # Sandbox Configuration

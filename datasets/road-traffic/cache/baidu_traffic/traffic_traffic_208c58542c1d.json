@@ -1,0 +1,15 @@
+{
+  "status": 0,
+  "message": "成功",
+  "description": "光大路：双向畅通。",
+  "evaluation": {
+    "status": 1,
+    "status_desc": "双向畅通"
+  },
+  "road_traffic": [
+    {
+      "road_name": "光大路"
+    }
+  ],
+  "_fetched_at": 1775006224.724567
+}
