@@ -204,7 +204,7 @@ ES_USERNAME=citybrain-street
 ES_PASSWORD=123456
 
 # 现有 RAG 索引，继续保留给 RAG 模块使用
-ES_INDEX=network-traffic-rag-smoke-clean
+NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean
 
 # 新增：SkillRouter 专用索引，用于存储 Router Card 向量
 SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
@@ -212,7 +212,7 @@ SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
 
 其中：
 
-- `ES_INDEX` 是现有 RAG 索引，继续服务网络流量 RAG / 文档片段检索。
+- `NETWORK_TRAFFIC_ES_INDEX` 是现有 RAG 索引，继续服务网络流量 RAG / 文档片段检索。
 - `SKILL_ROUTER_ES_INDEX` 是新增的 SkillRouter 专用索引，只存储 `router_card.routing_text` 的向量和 Router Card 元数据。
 - 两个索引可以部署在同一个 Elasticsearch 服务中，但必须使用不同 index，避免 RAG 文档与 Skill 路由文档混在一起。
 
@@ -517,7 +517,7 @@ ES_PASSWORD=123456
 
 | 环境变量 | 索引名 | 用途 |
 |---|---|---|
-| `ES_INDEX` | `network-traffic-rag-smoke-clean` | 现有 RAG 索引，用于网络流量 RAG / 文档片段检索 |
+| `NETWORK_TRAFFIC_ES_INDEX` | `network-traffic-rag-smoke-clean` | 现有 RAG 索引，用于网络流量 RAG / 文档片段检索 |
 | `SKILL_ROUTER_ES_INDEX` | `citybrain-skill-router-cards` | 新增 SkillRouter 专用索引，用于 Router Card 向量检索 |
 
 二者共用同一个 Elasticsearch 服务，但数据结构、检索目标和生命周期不同，必须分开存储。
@@ -1470,7 +1470,7 @@ ES_USERNAME=citybrain-street
 ES_PASSWORD=123456
 
 # RAG 索引，继续保留给 RAG 模块使用
-ES_INDEX=network-traffic-rag-smoke-clean
+NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean
 
 # SkillRouter 专用索引，新增
 SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
@@ -1479,7 +1479,7 @@ SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
 说明：
 
 - `ES_URL`、`ES_USERNAME`、`ES_PASSWORD` 是 Elasticsearch 公共连接配置。
-- `ES_INDEX` 是现有 RAG 索引，不用于 SkillRouter 路由。
+- `NETWORK_TRAFFIC_ES_INDEX` 是现有 RAG 索引，不用于 SkillRouter 路由。
 - `SKILL_ROUTER_ES_INDEX` 是新增环境变量，专门用于 SkillRouter 的 Router Card 向量索引。
 - RAG 与 SkillRouter 可以共用同一个 ES 服务，但必须使用不同 index。
 
@@ -1632,7 +1632,7 @@ make build-skill-router-index
 - 成功连接 `ES_URL`。
 - 使用 `ES_USERNAME` 和 `ES_PASSWORD` 完成认证。
 - 成功创建或更新 `SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards` 指定的索引。
-- 不修改、不覆盖 `ES_INDEX=network-traffic-rag-smoke-clean` 的 RAG 索引。
+- 不修改、不覆盖 `NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean` 的 RAG 索引。
 - 每个 enabled Skill 在 SkillRouter 专用索引中有一条文档。
 - 每条文档包含 `embedding_vector` 字段。
 - `embedding_vector` 维度与 Embedding API 返回维度一致。
@@ -1647,7 +1647,7 @@ make build-skill-router-index
 | Embedding | `http://192.168.200.1:7800/v1` | 可对 query 和 routing_text 生成 embedding |
 | Reranker | `http://192.168.200.1:7801/v1` | 可对 query-document pair 返回相关性分数 |
 | Elasticsearch | `ES_URL=http://172.17.0.1:3128` | 使用 `ES_USERNAME`、`ES_PASSWORD` 认证后可连接 |
-| RAG 索引 | `ES_INDEX=network-traffic-rag-smoke-clean` | 继续保留给 RAG 模块使用 |
+| RAG 索引 | `NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean` | 继续保留给 RAG 模块使用 |
 | SkillRouter 索引 | `SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards` | 存储 Router Card 向量并支持 Top-K 检索 |
 
 ---
@@ -1744,7 +1744,7 @@ policy_regulation → law-regulations-rag + policy-risk-analysis
 任务：
 
 1. 新增环境变量 `SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards`。
-2. 保留原有 `ES_INDEX=network-traffic-rag-smoke-clean` 供 RAG 使用。
+2. 保留原有 `NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean` 供 RAG 使用。
 3. 编写 `build_skill_router_es_index.py`。
 4. 调用 SkillRouter-Embedding-0.6B API 生成 `routing_text` 向量。
 5. 使用 `ES_URL`、`ES_USERNAME`、`ES_PASSWORD` 连接 ES。
@@ -1824,7 +1824,7 @@ policy_regulation → law-regulations-rag + policy-risk-analysis
 | ES mapping 维度不匹配 | 构建脚本根据 Embedding API 返回维度自动创建 mapping |
 | SkillRouter 索引数据陈旧 | 通过 routing_text_hash 和 skill_md_hash 增量更新 |
 | ES 认证失败 | 检查 `ES_USERNAME`、`ES_PASSWORD` 和 ES 权限配置 |
-| RAG 与 SkillRouter 索引混用 | 强制 SkillRouter 只读写 `SKILL_ROUTER_ES_INDEX`，不读写 `ES_INDEX` |
+| RAG 与 SkillRouter 索引混用 | 强制 SkillRouter 只读写 `SKILL_ROUTER_ES_INDEX`，不读写 `NETWORK_TRAFFIC_ES_INDEX` |
 | Skill Creator 新建 Skill 后无法被路由 | 创建 Skill 后自动生成 Router Card、更新 ES 索引和 registry |
 | 新 Skill 与已有 Skill 边界重叠 | 创建后执行冲突检测，必要时进入 `pending_review` |
 | Router Card 自动生成失败 | 新 Skill 保持 `enabled=false`，写入 `last_router_error` |
@@ -1884,7 +1884,7 @@ TodoMiddleware / Lead Agent
 - 支持多场景、多任务 query。
 - 公共 Skill 按需注入。
 - RAG 索引与 SkillRouter 索引分离。
-- `ES_INDEX` 继续给 RAG 使用。
+- `NETWORK_TRAFFIC_ES_INDEX` 继续给 RAG 使用。
 - 新增 `SKILL_ROUTER_ES_INDEX` 专门存储 Router Card 向量。
 - 向量由 SkillRouter-Embedding-0.6B 构建。
 - 精排由 SkillRouter-Reranker-0.6B 完成。

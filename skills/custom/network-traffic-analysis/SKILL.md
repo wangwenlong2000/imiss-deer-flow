@@ -190,7 +190,7 @@ Shared-index isolation uses `dataset_name`, `source_file`, and `schema_version`.
 
 | Service | Required env vars | How it works |
 | --- | --- | --- |
-| Elasticsearch | `ES_URL`, `ES_INDEX`, `ES_USERNAME`, `ES_PASSWORD` | Injected into sandbox via `sandbox.environment` in `config.yaml` |
+| Elasticsearch | `ES_URL`, `NETWORK_TRAFFIC_ES_INDEX`, `ES_USERNAME`, `ES_PASSWORD` | Injected into sandbox via `sandbox.environment` in `config.yaml` |
 | Embedding | `EMBEDDING_API_KEY`, `EMBEDDING_BASE_URL` | Local bge-m3 service (default); does not validate the API key. Switch to cloud providers (OpenAI, DashScope) by changing the base URL and setting a real key |
 
 Inside sandbox containers, `config.yaml` is not mounted. All configuration resolves from environment variables directly — scripts use `ES_*` for Elasticsearch and `EMBEDDING_*` for embedding service when config.yaml is unavailable.
