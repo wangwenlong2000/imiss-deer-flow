@@ -142,14 +142,19 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             if not candidates:
                 continue
 
-            # L4: Reranker
+            # L4: Reranker — pass full context (scenes, task_types, routing_text, etc.)
             reranker_input = []
             for c in candidates:
                 reranker_input.append({
                     "skill_id": c.get("skill_id", ""),
                     "name": c.get("name", ""),
                     "description": c.get("description", ""),
+                    "routing_text": c.get("routing_text", ""),
                     "body": c.get("body", ""),
+                    "scenes": c.get("scenes", []),
+                    "task_types": c.get("task_types", []),
+                    "input_types": c.get("input_types", []),
+                    "output_types": c.get("output_types", []),
                     "is_public": c.get("is_public", False),
                 })
 
@@ -160,11 +165,10 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 logger.exception("Reranker API failed for segment: %s", seg_text[:80])
                 reranked = []
 
-            # L5: resolve + public skill filter
-            resolved = resolve(query=seg_text, reranked=reranked)
+            # L5: resolve with scene constraint
+            resolved = resolve(query=seg_text, reranked=reranked, scene=seg_scene)
 
             # Build scene task
-            task_types = self._collect_task_types(candidates, seg_scene)
             input_refs = seg.get("input_refs", []) or []
             all_input_refs.extend(input_refs)
 
@@ -177,6 +181,9 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 record_skill_hit(skill_id)
                 # Collect allowed tools from candidates
                 self._collect_allowed_tools(candidates, skill_id, all_allowed_tools)
+
+            # Collect task_types only from selected skills' candidates
+            task_types = self._collect_task_types(candidates, selected_skills_list)
 
             scene_tasks.append(SceneTask(
                 scene_task_id=f"task_{len(scene_tasks)+1:03d}",
@@ -253,10 +260,13 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         return str(content) if content else ""
 
     @staticmethod
-    def _collect_task_types(candidates: list[dict], scene: str | None) -> list[str]:
-        """Collect unique task_types from candidate Router Cards."""
+    def _collect_task_types(candidates: list[dict], selected: list[SelectedSkill]) -> list[str]:
+        """Collect unique task_types only from candidates matching selected skills."""
+        selected_ids = {s.id for s in selected}
         types: list[str] = []
         for c in candidates:
+            if c.get("skill_id") not in selected_ids:
+                continue
             for tt in c.get("task_types", []):
                 if tt not in types:
                     types.append(tt)

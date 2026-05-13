@@ -47,7 +47,7 @@
     "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/ppt-generation",
     "skill_md_path": "skills/public/ppt-generation/SKILL.md",
     "skill_md_hash": "sha256:b377fe7a640b83f26d8a1b197b1fc70306eb693a6fa32e9fb13dc64288255af7",
-    "generated_at": "2026-05-12T13:33:02Z",
+    "generated_at": "2026-05-13T07:32:15Z",
     "generator_version": "0.1.0"
   },
   "embedding": {

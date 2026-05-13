@@ -33,7 +33,15 @@ class SkillRouterRerankerClient:
 
         documents = []
         for c in candidates:
-            doc = f"{c['name']} {c.get('description', '')} {c.get('body', '')}"
+            parts = [
+                c.get("name", ""),
+                c.get("description", ""),
+                c.get("routing_text", ""),
+                ", ".join(c.get("scenes", [])),
+                ", ".join(c.get("task_types", [])),
+                c.get("body", ""),
+            ]
+            doc = " ".join(p for p in parts if p)
             documents.append(doc)
 
         url = f"{self.base_url}/rerank"

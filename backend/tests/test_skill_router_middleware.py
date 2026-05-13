@@ -100,8 +100,13 @@ class TestSegmentQuery:
 # ---------------------------------------------------------------------------
 
 class TestResolve:
-    def _candidate(self, skill_id, is_public=False, score=0.8):
-        return {"skill_id": skill_id, "is_public": is_public, "score": score}
+    def _candidate(self, skill_id, is_public=False, score=0.8, scenes=None):
+        return {
+            "skill_id": skill_id,
+            "is_public": is_public,
+            "score": score,
+            "scenes": scenes or [],
+        }
 
     def test_single_primary(self):
         result = resolve("test", [self._candidate("network-traffic-analysis", score=0.91)])
@@ -137,6 +142,38 @@ class TestResolve:
 
     def test_empty_input(self):
         assert resolve("test", []) == []
+
+    def test_scene_promotes_custom_skill(self):
+        """When scene is known, non-public matching skill becomes primary."""
+        candidates = [
+            self._candidate("data-analysis", is_public=True, score=0.92, scenes=["public"]),
+            self._candidate("find-skills", is_public=True, score=0.88, scenes=["public"]),
+            self._candidate("law-regulations-rag", is_public=False, score=0.85, scenes=["policy_regulation"]),
+        ]
+        result = resolve("test", candidates, scene="policy_regulation")
+        assert len(result) >= 1
+        assert result[0]["id"] == "law-regulations-rag"
+        assert result[0]["role"] == "primary"
+
+    def test_scene_no_match_falls_back(self):
+        """If no candidate matches the scene, fall back to normal scoring."""
+        candidates = [
+            self._candidate("data-analysis", is_public=True, score=0.90, scenes=["public"]),
+        ]
+        result = resolve("test", candidates, scene="network_traffic")
+        assert len(result) >= 1
+        assert result[0]["id"] == "data-analysis"
+        assert result[0]["role"] == "primary"
+
+    def test_scene_primary_not_duplicated(self):
+        """Primary selected via scene match should not appear again."""
+        candidates = [
+            self._candidate("law-regulations-rag", is_public=False, score=0.95, scenes=["policy_regulation"]),
+            self._candidate("data-analysis", is_public=True, score=0.90, scenes=["public"]),
+        ]
+        result = resolve("test", candidates, scene="policy_regulation")
+        ids = [r["id"] for r in result]
+        assert ids.count("law-regulations-rag") == 1
 
 
 class TestPickPrimary:
