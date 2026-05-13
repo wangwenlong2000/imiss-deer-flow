@@ -227,10 +227,16 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             query[:80], routing_ctx.trigger, routing_ctx.route_mode,
             routing_ctx.global_selected_skills, round(elapsed),
         )
+        logger.info(
+            "SkillRouter scope: routed=%d, allowed_tools=%d, trigger=%s",
+            len(ctx.global_selected_skills),
+            len(ctx.global_allowed_tools),
+            ctx.trigger,
+        )
 
         return {
             "routing_context": routing_ctx.model_dump(),
-            "messages": [SystemMessage(content=skills_override_msg)],
+            "messages": [SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"})],
         }
 
     @override
@@ -305,31 +311,44 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         return " + ".join(segments) if segments else "Unknown"
 
     def _build_skills_override(self, ctx: RoutingContext) -> str:
-        """Build the <skills_override> system message text."""
+        """Build a full <skill_system> block with routed skill details.
+
+        When SkillRouter is enabled, the base system prompt contains zero skills.
+        This method generates the authoritative skill list for the current turn,
+        including skill name, description, and container location.
+        """
+        from deerflow.skills import load_skills
+
+        all_skills = load_skills(enabled_only=True)
+        skill_map = {s.name: s for s in all_skills}
+
+        try:
+            from deerflow.config import get_app_config
+
+            container_base_path = get_app_config().skills.container_path
+        except Exception:
+            container_base_path = "/mnt/skills"
+
         lines = [
-            "<skills_override>",
-            "本次请求已由 SkillRouter 路由。",
+            "<skill_system>",
+            "本次请求已由 SkillRouter 路由。以下为本轮可用的 Skills，仅可使用列出的 Skill：",
             "",
-            "请优先使用以下 Skill，不要主动使用未列出的 Skill：",
+            "Only skills listed in the current 'Available Skills' section are available.",
+            "Ignore any skills mentioned in previous turns if they are not listed here.",
+            "Do not call tools associated with unavailable skills.",
             "",
         ]
 
         for idx, skill_id in enumerate(ctx.global_selected_skills, 1):
-            # Find the skill details from scene_tasks
-            task_type_str = ""
-            skill_path = ""
-            for st in ctx.scene_tasks:
-                for ss in st.selected_skills:
-                    if ss.id == skill_id:
-                        task_type_str = ", ".join(st.task_types) if st.task_types else ""
-                        break
-                if task_type_str:
-                    break
-
-            lines.append(f"{idx}. {skill_id}")
-            if task_type_str:
-                lines.append(f"用途：{task_type_str}")
-            lines.append("")
+            skill = skill_map.get(skill_id)
+            if skill:
+                location = skill.get_container_file_path(container_base_path)
+                lines.append(f"  <skill>")
+                lines.append(f"    <name>{skill.name}</name>")
+                lines.append(f"    <description>{skill.description}</description>")
+                lines.append(f"    <location>{location}</location>")
+                lines.append(f"  </skill>")
+                lines.append("")
 
         # Task packages
         if ctx.scene_tasks:
@@ -339,10 +358,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             lines.append("")
 
         lines.extend([
-            "约束：",
-            "- 不要使用未列出的 Skill。",
-            "- 如确需额外 Skill，先说明原因。",
-            "- 若当前请求不需要专业 Skill，则直接普通回答。",
-            "</skills_override>",
+            "Progressive Loading Pattern: Load skill files via read_file using the location path above.",
+            "</skill_system>",
         ])
         return "\n".join(lines)

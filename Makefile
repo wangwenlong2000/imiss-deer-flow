@@ -12,6 +12,8 @@ help:
 	@echo "  make install         - Install all dependencies (frontend + backend)"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
 	@echo "  make sandbox-build   - Build the custom sandbox image (auto-prefixed by user)"
+	@echo "  make docker-install PACKAGE=...        - Install Python packages in running Docker containers"
+	@echo "  make docker-install-system SYSTEM=...   - Install system packages in running Docker containers"
 	@echo "  make dev             - Start all services in development mode (with hot-reloading)"
 	@echo "  make dev-no-nginx    - Start local services without nginx (no sudo needed)"
 	@echo "  make stop-no-nginx   - Stop local no-nginx services"
@@ -19,10 +21,18 @@ help:
 	@echo "  make linux-server-start  - Start server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-stop   - Stop server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-status - Show server mode status on ports 3024/38001/33000"
-	@echo "  make model-services-start  - Start BGE-M3 + SkillRouter embedding/reranker"
+	@echo "  make model-services-start  - Start BGE-M3 + SkillRouter embedding/reranker (uses NETWORK_TRAFFIC_*/SKILLROUTER_* envs)"
 	@echo "  make model-services-stop   - Stop BGE-M3 + SkillRouter embedding/reranker"
 	@echo "  make model-services-status - Show BGE-M3 + SkillRouter embedding/reranker status"
 	@echo "  make model-services-dogfood - Start and smoke-test all three model services"
+	@echo "  make extract-router-cards   - Extract Router Cards from all SKILL.md files"
+	@echo "  make build-skill-router-index - Build Router Card registry and ES index"
+	@echo "  make update-skill-router-index SKILL=... - Update one skill's Router Card and ES index"
+	@echo "  make check-skill-router-conflicts SKILL=... - Check routing conflicts for one skill"
+	@echo "  make eval-skill-router      - Run full SkillRouter evaluation"
+	@echo "  make sync-skill-router-index - Sync all skills into SkillRouter index"
+	@echo "  make check-skill-router-health - Check ES + embedding + reranker health"
+	@echo "  make test-skill-router      - Run SkillRouter test suite"
 	@echo "  make dev-daemon      - Start all services in background (daemon mode)"
 	@echo "  make start           - Start all services in production mode (optimized, no hot-reloading)"
 	@echo "  make stop            - Stop all running services"
@@ -253,7 +263,7 @@ down:
 # SkillRouter Commands
 # ==========================================
 
-# Load .env for SkillRouter targets (ES_URL, ES_USERNAME, ES_PASSWORD, etc.)
+# Load .env for SkillRouter targets (NETWORK_TRAFFIC_ES_INDEX, SKILL_ROUTER_ES_INDEX, ES_URL, ES_USERNAME, ES_PASSWORD, etc.)
 define load-env
 	@set -a; [ -f .env ] && . .env; set +a
 endef

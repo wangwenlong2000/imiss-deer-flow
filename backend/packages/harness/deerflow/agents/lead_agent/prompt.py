@@ -407,7 +407,7 @@ def get_agent_soul(agent_name: str | None) -> str:
     return ""
 
 
-def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagents: int = 3, *, agent_name: str | None = None, available_skills: set[str] | None = None) -> str:
+def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagents: int = 3, *, agent_name: str | None = None, available_skills: set[str] | None = None, prompt_skills: set[str] | None = None) -> str:
     # Get memory context
     memory_context = _get_memory_context(agent_name)
 
@@ -433,8 +433,13 @@ def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagen
         else ""
     )
 
+    # Determine effective skills for rendering.
+    # prompt_skills takes precedence when explicitly provided (even if empty),
+    # enabling SkillRouter to pass set() for zero-skill base prompts.
+    effective_skills = prompt_skills if prompt_skills is not None else available_skills
+
     # Get skills section
-    skills_section = get_skills_prompt_section(available_skills)
+    skills_section = get_skills_prompt_section(effective_skills)
 
     # Format the prompt with dynamic skills and memory
     prompt = SYSTEM_PROMPT_TEMPLATE.format(
