@@ -16,6 +16,7 @@ TodoMiddleware.  On each turn it:
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 try:
@@ -31,6 +32,13 @@ from langgraph.runtime import Runtime
 from deerflow.config.skill_router_config import get_skill_router_config
 from deerflow.routing.embedding_client import SkillRouterEmbeddingClient
 from deerflow.routing.es_store import SkillRouterElasticStore
+from deerflow.routing.metrics import (
+    record_es_error,
+    record_embedding_error,
+    record_request,
+    record_reranker_error,
+    record_skill_hit,
+)
 from deerflow.routing.query_segmenter import segment_query, should_route
 from deerflow.routing.reranker_client import SkillRouterRerankerClient
 from deerflow.routing.resolver import resolve
@@ -69,6 +77,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
     @override
     def before_agent(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         """Execute routing pipeline before the agent runs."""
+        start = time.monotonic()
         messages = state.get("messages") or []
         if not messages:
             return None
@@ -91,12 +100,16 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
 
         # L0: should_route check
         if not should_route(query, uploaded_files):
-            logger.debug("should_route=False for query: %s", query[:80])
+            elapsed = (time.monotonic() - start) * 1000
+            record_request(trigger=False, latency_ms=elapsed)
+            logger.debug("should_route=False query=%r", query[:80])
             return {"routing_context": {"trigger": False}}
 
         # L1: task segmentation
         segments = segment_query(query)
         if not segments:
+            elapsed = (time.monotonic() - start) * 1000
+            record_request(trigger=False, latency_ms=elapsed)
             return {"routing_context": {"trigger": False}}
 
         # Process each segment
@@ -113,6 +126,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             try:
                 query_vec = self.embedding_client.embed_text(seg_text)
             except Exception:
+                record_embedding_error()
                 logger.exception("Embedding API failed for segment: %s", seg_text[:80])
                 continue
 
@@ -121,6 +135,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             try:
                 candidates = self.es_store.search(query_vector=query_vec, top_k=self.top_k, filters=filters)
             except Exception:
+                record_es_error()
                 logger.exception("ES search failed for segment: %s", seg_text[:80])
                 candidates = []
 
@@ -141,6 +156,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             try:
                 reranked = self.reranker_client.rerank(query=seg_text, candidates=reranker_input)
             except Exception:
+                record_reranker_error()
                 logger.exception("Reranker API failed for segment: %s", seg_text[:80])
                 reranked = []
 
@@ -158,6 +174,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 ss = SelectedSkill(id=skill_id, role=r["role"], score=r["score"])
                 all_selected[skill_id] = ss
                 selected_skills_list.append(ss)
+                record_skill_hit(skill_id)
                 # Collect allowed tools from candidates
                 self._collect_allowed_tools(candidates, skill_id, all_allowed_tools)
 
@@ -174,6 +191,8 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             ))
 
         if not scene_tasks:
+            elapsed = (time.monotonic() - start) * 1000
+            record_request(trigger=False, latency_ms=elapsed)
             return {"routing_context": {"trigger": False}}
 
         # L6: build routing_context
@@ -193,6 +212,14 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
 
         # L7: build skills_override system message
         skills_override_msg = self._build_skills_override(routing_ctx)
+
+        elapsed = (time.monotonic() - start) * 1000
+        record_request(trigger=True, latency_ms=elapsed)
+        logger.info(
+            "SkillRouter: query=%r trigger=%s mode=%s skills=%s latency_ms=%d",
+            query[:80], routing_ctx.trigger, routing_ctx.route_mode,
+            routing_ctx.global_selected_skills, round(elapsed),
+        )
 
         return {
             "routing_context": routing_ctx.model_dump(),
