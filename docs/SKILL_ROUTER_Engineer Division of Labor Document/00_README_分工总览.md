@@ -91,7 +91,7 @@ ES_USERNAME=citybrain-street
 ES_PASSWORD=123456
 
 # RAG 索引，继续保留给 RAG 模块使用
-ES_INDEX=network-traffic-rag-smoke-clean
+NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean
 
 # SkillRouter 专用索引，新增
 SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
@@ -102,9 +102,9 @@ SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
 ## 4. 严格约束
 
 ```text
-ES_INDEX 只给 RAG 用。
+NETWORK_TRAFFIC_ES_INDEX 只给 RAG 用。
 SKILL_ROUTER_ES_INDEX 只给 SkillRouter 用。
-SkillRouter 不能写入 ES_INDEX。
+SkillRouter 不能写入 NETWORK_TRAFFIC_ES_INDEX。
 Router Card 文件名统一叫 router_card.json，不使用 root_card.json。
 ```
 
@@ -123,7 +123,7 @@ Router Card 文件名统一叫 router_card.json，不使用 root_card.json。
 
 ## 是否修改公共契约
 
-## 是否影响 ES_INDEX
+## 是否影响 NETWORK_TRAFFIC_ES_INDEX
 
 ## 是否影响 SKILL_ROUTER_ES_INDEX
 ```
