@@ -146,10 +146,10 @@ def resolve_elasticsearch_config(config: dict[str, Any], cli_overrides: dict[str
     api_key = cli_overrides.get("es_api_key") or str(resolve_env_value(elasticsearch.get("api_key")) or "")
     index_name = cli_overrides.get("es_index") or str(resolve_env_value(elasticsearch.get("index_name")) or "")
     if not index_name:
-        index_name = os.getenv("ES_INDEX", "")
+        index_name = os.getenv("NETWORK_TRAFFIC_ES_INDEX", "")
     if not index_name:
         raise ValueError(
-            "Elasticsearch index name is required. Set ES_INDEX in .env or config.yaml, or pass --index-name."
+            "Elasticsearch index name is required. Set NETWORK_TRAFFIC_ES_INDEX in .env or config.yaml, or pass --index-name."
         )
     return {
         "hosts": host_list,

@@ -186,7 +186,7 @@ SKILL_ROUTER_ES_INDEX
 严禁写入：
 
 ```text
-ES_INDEX
+NETWORK_TRAFFIC_ES_INDEX
 ```
 
 ### 6.4 build_skill_router_es_index.py
@@ -220,5 +220,5 @@ law-regulations-rag 文档存在
 embedding_vector 存在
 registry 中对应 Skill 的 es_indexed=true
 registry 中对应 Skill 的 router_status=ready
-ES_INDEX=network-traffic-rag-smoke-clean 未被写入
+NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean 未被写入
 ```

@@ -88,7 +88,7 @@ git checkout -b feature/skill-router-contracts
 | 第 4.2 节 在线服务与环境变量 | 明确 Embedding、Reranker、ES 变量 |
 | 第 5.3 节 Router Card 字段规范 | 写 `router_card.schema.json` 的依据 |
 | 第 6.1 节 Registry 设计 | registry 公共结构 |
-| 第 6.2 节 Elasticsearch 索引划分 | `ES_INDEX` 与 `SKILL_ROUTER_ES_INDEX` 的边界 |
+| 第 6.2 节 Elasticsearch 索引划分 | `NETWORK_TRAFFIC_ES_INDEX` 与 `SKILL_ROUTER_ES_INDEX` 的边界 |
 | 第 10 章 routing_context 设计 | Python schema 的依据 |
 | 第 13 章 ThreadState 扩展 | 后续状态字段依赖 |
 | 第 14 章 配置文件 | `config.yaml` 的最终结构 |
@@ -135,7 +135,7 @@ ES_URL=http://172.17.0.1:3128
 ES_USERNAME=citybrain-street
 ES_PASSWORD=123456
 
-ES_INDEX=network-traffic-rag-smoke-clean
+NETWORK_TRAFFIC_ES_INDEX=network-traffic-rag-smoke-clean
 SKILL_ROUTER_ES_INDEX=citybrain-skill-router-cards
 ```
 
