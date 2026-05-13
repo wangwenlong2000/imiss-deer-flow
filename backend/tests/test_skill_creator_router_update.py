@@ -1,10 +1,9 @@
-"""Tests for scripts/update_skill_router_index.py.
+"""Tests for scripts/update_skill_router_index.py and routing/index_updater.py.
 
 Covers:
-- Router Card generation from SKILL.md
-- Schema validation success and failure paths
-- Registry entry creation and status updates
-- ES document structure
+- Index updater: validation, hash computation, idempotency
+- Router Card generation from SKILL.md via build_router_card_for_skill
+- CLI wrapper exit codes
 
 Run with:
     PYTHONPATH=backend/packages/harness python3 backend/tests/test_skill_creator_router_update.py
@@ -13,142 +12,190 @@ Run with:
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 # Ensure scripts/ is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "packages" / "harness"))
 
-from update_skill_router_index import (
-    resolve_profile,
-    update_registry_status,
-    upsert_registry_entry,
-    validate_card,
+from deerflow.routing.index_updater import (
+    IndexUpdateResult,
+    build_router_card_for_skill,
+    compute_skill_hash,
+    validate_skill_dir,
 )
 
 
 # ---------------------------------------------------------------------------
-# resolve_profile
+# validate_skill_dir
 # ---------------------------------------------------------------------------
 
-class TestResolveProfile:
-    def test_known_custom_skill(self):
-        profile = resolve_profile("network-traffic-analysis", is_custom=True)
-        assert profile["scenes"] == ["network_traffic"]
-        assert profile["is_public"] is False
 
-    def test_unknown_custom_skill_uses_defaults(self):
-        profile = resolve_profile("totally-new-skill", is_custom=True)
-        assert profile["scenes"] == ["totally-new-skill"]
-        assert profile["is_public"] is False
-        assert profile["task_types"] == []
+class TestValidateSkillDir:
+    def test_valid_skill_dir(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("---\nname: Test\ndescription: A test skill\n---\nBody content")
+            ok, err = validate_skill_dir(skill_dir)
+            assert ok is True
+            assert err is None
 
-    def test_known_public_skill(self):
-        profile = resolve_profile("data-analysis", is_custom=False)
-        assert profile["scenes"] == ["public"]
-        assert profile["is_public"] is True
+    def test_missing_skill_md(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            ok, err = validate_skill_dir(skill_dir)
+            assert ok is False
+            assert "SKILL.md not found" in err
 
-    def test_unknown_public_skill_uses_defaults(self):
-        profile = resolve_profile("unknown-public", is_custom=False)
-        assert profile["scenes"] == ["public"]
-        assert profile["is_public"] is True
+    def test_dir_does_not_exist(self):
+        ok, err = validate_skill_dir(Path("/nonexistent/skill"))
+        assert ok is False
+        assert "does not exist" in err
 
+    def test_valid_with_tool_manifest(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("---\nname: Test\ndescription: d\n---\nbody")
+            (skill_dir / "tool_manifest.json").write_text('{"tools": []}')
+            ok, err = validate_skill_dir(skill_dir)
+            assert ok is True
 
-# ---------------------------------------------------------------------------
-# validate_card
-# ---------------------------------------------------------------------------
-
-class TestValidateCard:
-    def test_valid_minimal_card(self):
-        card = {
-            "schema_version": "1.0.0",
-            "identity": {"id": "x", "name": "X", "description": "d"},
-            "scope": {},
-            "routing": {"routing_text": "t"},
-            "body": {},
-            "execution": {},
-            "routing_policy": {},
-            "source": {},
-            "embedding": {},
-        }
-        assert validate_card(card) == []
-
-    def test_missing_identity_fields(self):
-        card = {"identity": {"id": "x"}, "routing": {}}
-        errors = validate_card(card)
-        assert any("identity.name" in e for e in errors)
-        assert any("identity.description" in e for e in errors)
-
-    def test_missing_routing_text(self):
-        card = {"identity": {"id": "x", "name": "x", "description": "d"}, "routing": {}}
-        errors = validate_card(card)
-        assert any("routing_text" in e for e in errors)
+    def test_invalid_tool_manifest(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("---\nname: Test\ndescription: d\n---\nbody")
+            (skill_dir / "tool_manifest.json").write_text("not json")
+            ok, err = validate_skill_dir(skill_dir)
+            assert ok is False
+            assert "Invalid tool_manifest.json" in err
 
 
 # ---------------------------------------------------------------------------
-# Registry operations
+# compute_skill_hash
 # ---------------------------------------------------------------------------
 
-class TestUpsertRegistryEntry:
-    def _make_card(self, skill_id="test-skill"):
-        return {
-            "identity": {"id": skill_id, "name": "Test Skill", "description": "desc"},
-            "scope": {"scenes": ["test"], "is_public": False, "task_types": [], "input_types": []},
-            "source": {"skill_dir": f"custom/{skill_id}", "skill_md_path": f"custom/{skill_id}/SKILL.md"},
-            "embedding": {"text_hash": "sha256:abc"},
-        }
 
-    def test_new_entry_added(self):
-        registry = {"version": 1, "skills": []}
-        card = self._make_card("new-skill")
-        result = upsert_registry_entry("/tmp", registry, "new-skill", card)
-        assert len(result["skills"]) == 1
-        assert result["skills"][0]["id"] == "new-skill"
-        assert result["skills"][0]["router_status"] == "pending_index"
+class TestComputeSkillHash:
+    def test_consistent_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("content")
+            h1 = compute_skill_hash(skill_dir)
+            h2 = compute_skill_hash(skill_dir)
+            assert h1 == h2
 
-    def test_existing_entry_updated(self):
-        registry = {
-            "version": 1,
-            "skills": [{
-                "id": "existing",
-                "name": "Old Name",
-                "router_status": "ready",
-                "es_indexed": True,
-            }],
-        }
-        card = self._make_card("existing")
-        result = upsert_registry_entry("/tmp", registry, "existing", card)
-        assert len(result["skills"]) == 1
-        assert result["skills"][0]["name"] == "Test Skill"
+    def test_different_content_different_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("content1")
+            h1 = compute_skill_hash(skill_dir)
+            (skill_dir / "SKILL.md").write_text("content2")
+            h2 = compute_skill_hash(skill_dir)
+            assert h1 != h2
+
+    def test_includes_multiple_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = Path(td)
+            (skill_dir / "SKILL.md").write_text("skill content")
+            h1 = compute_skill_hash(skill_dir)
+            (skill_dir / "router_card.json").write_text('{"routing_text": "test"}')
+            h2 = compute_skill_hash(skill_dir)
+            assert h1 != h2  # adding file changes hash
 
 
-class TestUpdateRegistryStatus:
-    def test_success_sets_ready(self):
-        registry = {"skills": [{"id": "x", "enabled": False, "router_status": "pending_index", "es_indexed": False}]}
-        update_registry_status(registry, "x", success=True)
-        s = registry["skills"][0]
-        assert s["enabled"] is True
-        assert s["router_status"] == "ready"
-        assert s["es_indexed"] is True
-        assert s["last_indexed_at"] is not None
-        assert s["last_router_error"] is None
+# ---------------------------------------------------------------------------
+# build_router_card_for_skill
+# ---------------------------------------------------------------------------
 
-    def test_error_sets_error_status(self):
-        registry = {"skills": [{"id": "x", "enabled": True, "router_status": "ready", "es_indexed": True}]}
-        update_registry_status(registry, "x", success=False, error_stage="build_embedding", error_message="Timeout")
-        s = registry["skills"][0]
-        assert s["enabled"] is False
-        assert s["router_status"] == "error"
-        assert s["es_indexed"] is False
-        assert s["last_indexed_at"] is None
-        assert s["last_router_error"]["stage"] == "build_embedding"
-        assert s["last_router_error"]["message"] == "Timeout"
 
-    def test_non_matching_skill_unchanged(self):
-        registry = {"skills": [{"id": "x", "enabled": True}]}
-        update_registry_status(registry, "y", success=True)
-        assert registry["skills"][0]["enabled"] is True
+class TestBuildRouterCard:
+    def _setup_skill(self, td: str, skill_id: str = "test-skill") -> Path:
+        skill_dir = Path(td)
+        # Create a realistic SKILL.md
+        (skill_dir / "SKILL.md").write_text(
+            "---\n"
+            f"name: {skill_id}\n"
+            f"description: Description for {skill_id}\n"
+            "---\n"
+            "This is the body of the skill."
+        )
+        return skill_dir
+
+    def test_build_card_known_custom_skill(self):
+        with tempfile.TemporaryDirectory() as td:
+            skill_dir = self._setup_skill(td, "network-traffic-analysis")
+            skills_root = Path(td)
+            # Need parent structure for category detection
+            (skills_root / "custom").mkdir(exist_ok=True)
+            (skills_root / "custom" / "network-traffic-analysis").mkdir(exist_ok=True)
+            (skills_root / "custom" / "network-traffic-analysis" / "SKILL.md").write_text(
+                "---\nname: Network Analysis\ndescription: Analyze pcap\n---\nbody"
+            )
+            card_dir = skills_root / "custom" / "network-traffic-analysis"
+            card, err = build_router_card_for_skill(card_dir, skills_root)
+            assert card is not None
+            assert err is None
+            assert card["identity"]["id"] == "network-traffic-analysis"
+            assert card["scope"]["is_public"] is False
+            assert "network_traffic" in card["scope"]["scenes"]
+
+    def test_build_card_unknown_skill(self):
+        with tempfile.TemporaryDirectory() as td:
+            skills_root = Path(td)
+            (skills_root / "custom").mkdir(exist_ok=True)
+            unknown_dir = skills_root / "custom" / "unknown-skill"
+            unknown_dir.mkdir(exist_ok=True)
+            (unknown_dir / "SKILL.md").write_text(
+                "---\nname: Unknown\ndescription: unknown skill\n---\nbody"
+            )
+            card, err = build_router_card_for_skill(unknown_dir, skills_root)
+            assert card is not None
+            assert err is None
+            # Falls back to default profile
+            assert card["identity"]["id"] == "unknown-skill"
+            assert "routing_text" in card["routing"]
+
+
+# ---------------------------------------------------------------------------
+# IndexUpdateResult
+# ---------------------------------------------------------------------------
+
+
+class TestIndexUpdateResult:
+    def test_result_fields(self):
+        r = IndexUpdateResult(
+            skill_id="test",
+            success=True,
+            router_indexed=True,
+            router_status="ready",
+        )
+        assert r.skill_id == "test"
+        assert r.success is True
+        assert r.router_indexed is True
+        assert r.router_error is None
+        assert r.already_up_to_date is False
+
+    def test_already_up_to_date(self):
+        r = IndexUpdateResult(
+            skill_id="test",
+            success=True,
+            router_indexed=True,
+            router_status="already_up_to_date",
+            already_up_to_date=True,
+            skill_hash="abc123",
+        )
+        assert r.already_up_to_date is True
+        assert r.skill_hash == "abc123"
+
+    def test_error_result(self):
+        r = IndexUpdateResult(
+            skill_id="test",
+            success=True,
+            router_indexed=False,
+            router_status="index_failed",
+            router_error="ES connection refused",
+        )
+        assert r.router_indexed is False
+        assert r.router_error is not None

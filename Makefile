@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router test-skill-router
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router
 
 PYTHON ?= python
 
@@ -274,6 +274,65 @@ check-skill-router-conflicts:
 eval-skill-router:
 	@$(PYTHON) scripts/eval_skill_router.py
 
+# Sync all skills into SkillRouter index (repair / manual sync)
+sync-skill-router-index:
+	@$(PYTHON) -c "\
+from deerflow.routing.index_updater import update_single_skill_index;\
+from pathlib import Path;\
+import json;\
+root = Path('skills');\
+results = [];\
+for cat in ('custom', 'public'):\
+    cd = root / cat;\
+    [results.append(update_single_skill_index(d.name, skill_dir=d, skills_root=root).__dict__) for d in sorted(cd.iterdir()) if d.is_dir() and (d / 'SKILL.md').exists()];\
+print(json.dumps(results, indent=2, ensure_ascii=False))\
+" PYTHONPATH=backend/packages/harness:scripts
+
+# Check SkillRouter service health (ES + embedding + reranker)
+check-skill-router-health:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) -c "\
+import os, sys;\
+try:\
+    from deerflow.routing.es_store import SkillRouterElasticStore;\
+    from deerflow.routing.embedding_client import SkillRouterEmbeddingClient;\
+    from deerflow.routing.reranker_client import SkillRouterRerankerClient;\
+    import httpx;\
+    es = SkillRouterElasticStore();\
+    try:\
+        auth = (es.username, es.password) if es.username else None;\
+        r = httpx.head(f'{es.es_url}/{es.index}', auth=auth, timeout=5);\
+        if r.status_code >= 400:\
+            print(f'ES index not found: {es.index} (status={r.status_code)}');\
+            sys.exit(1);\
+        r2 = httpx.get(f'{es.es_url}/{es.index}/_count', auth=auth, timeout=5);\
+        count = r2.json().get('count', 0) if r2.status_code < 400 else 0;\
+        print(f'ES connected: {es.index} has {count} documents');\
+        if count == 0:\
+            print('WARNING: No skills indexed. Run: make build-skill-router-index');\
+            sys.exit(1);\
+    except Exception as e:\
+        print(f'ES check FAILED: {e}');\
+        sys.exit(1);\
+    try:\
+        emb = SkillRouterEmbeddingClient();\
+        r = httpx.get(f'{emb.base_url}/models', timeout=5);\
+        print(f'Embedding service: OK ({emb.base_url})');\
+    except Exception as e:\
+        print(f'Embedding check FAILED: {e}');\
+        sys.exit(1);\
+    try:\
+        rer = SkillRouterRerankerClient();\
+        r = httpx.get(f'{rer.base_url}/models', timeout=5);\
+        print(f'Reranker service: OK ({rer.base_url})');\
+    except Exception as e:\
+        print(f'Reranker check FAILED: {e}');\
+        sys.exit(1);\
+    print('All SkillRouter services healthy.');\
+except ImportError as e:\
+    print(f'Missing module: {e}');\
+    sys.exit(1);\
+"
+
 # Run SkillCreator router update and conflict detection tests
 test-skill-router:
-	@PYTHONPATH=scripts:backend/packages/harness python3 -m pytest backend/tests/test_skill_creator_router_update.py backend/tests/test_skill_router_conflicts.py -v
+	@PYTHONPATH=scripts:backend/packages/harness python3 -m pytest backend/tests/test_skill_creator_router_update.py backend/tests/test_skill_router_conflicts.py backend/tests/test_index_updater.py backend/tests/test_routing_metrics.py backend/tests/test_eval_skill_router.py backend/tests/test_skill_router_gateway.py -v

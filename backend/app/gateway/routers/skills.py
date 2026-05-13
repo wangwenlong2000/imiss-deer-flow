@@ -2,6 +2,7 @@ import json
 import logging
 import shutil
 import stat
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -124,6 +125,9 @@ class SkillInstallResponse(BaseModel):
     success: bool = Field(..., description="Whether the installation was successful")
     skill_name: str = Field(..., description="Name of the installed skill")
     message: str = Field(..., description="Installation result message")
+    router_indexed: bool = Field(default=True, description="Whether the skill was indexed in the router")
+    router_status: str = Field(default="ready", description="Router indexing status")
+    router_error: str | None = Field(default=None, description="Router indexing error message if any")
 
 
 def _should_ignore_archive_entry(path: Path) -> bool:
@@ -428,8 +432,32 @@ async def install_skill(request: SkillInstallRequest) -> SkillInstallResponse:
             # Move the skill directory to the custom skills directory
             shutil.copytree(skill_dir, target_dir)
 
+            # Update SkillRouter index (non-blocking — failure does not prevent install)
+            router_indexed = True
+            router_status = "ready"
+            router_error = None
+            try:
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "packages" / "harness"))
+                from deerflow.routing.index_updater import update_single_skill_index
+                result = update_single_skill_index(skill_id=skill_name, skill_dir=target_dir, skills_root=skills_root)
+                router_indexed = result.router_indexed
+                router_status = result.router_status
+                router_error = result.router_error
+            except Exception as e:
+                logger.error("SkillRouter index update failed for %s: %s", skill_name, e)
+                router_indexed = False
+                router_status = "index_failed"
+                router_error = str(e)
+
         logger.info(f"Skill '{skill_name}' installed successfully to {target_dir}")
-        return SkillInstallResponse(success=True, skill_name=skill_name, message=f"Skill '{skill_name}' installed successfully")
+        return SkillInstallResponse(
+            success=True,
+            skill_name=skill_name,
+            message=f"Skill '{skill_name}' installed successfully",
+            router_indexed=router_indexed,
+            router_status=router_status,
+            router_error=router_error,
+        )
 
     except HTTPException:
         raise
