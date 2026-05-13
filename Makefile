@@ -253,26 +253,31 @@ down:
 # SkillRouter Commands
 # ==========================================
 
+# Load .env for SkillRouter targets (ES_URL, ES_USERNAME, ES_PASSWORD, etc.)
+define load-env
+	@set -a; [ -f .env ] && . .env; set +a
+endef
+
 # Extract Router Cards from all SKILL.md files
 extract-router-cards:
 	@$(PYTHON) scripts/extract_router_cards.py
 
 # Build full SkillRouter Elasticsearch index (first-time / bulk rebuild)
 build-skill-router-index: extract-router-cards
-	@$(PYTHON) scripts/build_skill_router_registry.py
-	@$(PYTHON) scripts/build_skill_router_es_index.py
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_registry.py
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_es_index.py
 
 # Update a single Skill's Router Card and ES index
 update-skill-router-index:
-	@$(PYTHON) scripts/update_skill_router_index.py $(SKILL)
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/update_skill_router_index.py $(SKILL)
 
 # Check routing conflicts for a single Skill
 check-skill-router-conflicts:
-	@$(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
 
 # Run full SkillRouter evaluation
 eval-skill-router:
-	@$(PYTHON) scripts/eval_skill_router.py
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/eval_skill_router.py
 
 # Sync all skills into SkillRouter index (repair / manual sync)
 sync-skill-router-index:

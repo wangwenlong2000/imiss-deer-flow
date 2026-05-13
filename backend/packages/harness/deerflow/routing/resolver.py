@@ -19,6 +19,7 @@ RERANKER_MIN_SCORE = 0.65
 def resolve(
     query: str,
     reranked: list[dict],
+    scene: str | None = None,
 ) -> list[dict]:
     """Resolve final skill selection from reranker output.
 
@@ -28,7 +29,11 @@ def resolve(
         The task segment text (unused in v1 but available for future logic).
     reranked:
         List of dicts from ``SkillRouterRerankerClient.rerank``, each
-        containing at least ``skill_id``, ``is_public``, and ``score``.
+        containing at least ``skill_id``, ``is_public``, ``scenes``, and ``score``.
+    scene:
+        Optional scene label from the query segmenter (e.g. ``"policy_regulation"``).
+        When set, non-public skills whose ``scenes`` include *scene* are
+        prioritised as primary; public skills are demoted to supporting.
 
     Returns
     -------
@@ -43,16 +48,39 @@ def resolve(
     selected: list[dict] = []
     public_count = 0
 
+    # When a scene is known, promote the highest-scoring non-public skill
+    # whose scenes match the segment scene to primary.
+    if scene:
+        scene_matched = [
+            c for c in reranked
+            if scene in c.get("scenes", []) and not c.get("is_public", False)
+        ]
+        if scene_matched:
+            best = max(scene_matched, key=lambda c: c.get("score", 0.0))
+            selected.append({
+                "id": best["skill_id"],
+                "role": "primary",
+                "score": best["score"],
+            })
+
     for candidate in reranked:
         skill_id = candidate.get("skill_id", "")
+
+        # Already selected as primary via scene match — skip duplicate
+        if selected and skill_id == selected[0]["id"]:
+            continue
+
         is_public = candidate.get("is_public", False)
         score = candidate.get("score", 0.0)
 
-        # Skip candidates below the threshold
         if score < RERANKER_MIN_SCORE:
             continue
 
-        # Enforce public-skill cap
+        # When a scene-matched primary exists, public skills can only be
+        # supporting.
+        if is_public and selected and selected[0]["role"] == "primary":
+            pass  # can still be added as supporting below
+
         if is_public:
             if public_count >= MAX_PUBLIC_SKILLS_PER_SEGMENT:
                 continue

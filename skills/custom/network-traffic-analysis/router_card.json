@@ -102,8 +102,8 @@
   "source": {
     "skill_dir": "home/wwl/imiss-deer-flow-main/skills/custom/network-traffic-analysis",
     "skill_md_path": "skills/custom/network-traffic-analysis/SKILL.md",
-    "skill_md_hash": "sha256:2e85a147ba5a8c389187001694270a828e46c96fb1a3fffba839a9e21b137298",
-    "generated_at": "2026-05-12T13:33:02Z",
+    "skill_md_hash": "sha256:c612672fbf2f8a742c72c3c9fe38db2c05133984e93a7696878c2725fa7119a7",
+    "generated_at": "2026-05-13T07:32:15Z",
     "generator_version": "0.1.0"
   },
   "embedding": {

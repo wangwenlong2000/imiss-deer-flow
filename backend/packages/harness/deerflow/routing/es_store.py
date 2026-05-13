@@ -34,24 +34,25 @@ class SkillRouterElasticStore:
     def search(self, query_vector: list[float], top_k: int, filters: dict | None = None) -> list[dict]:
         """Vector-search the SkillRouter index and return hit ``_source`` dicts.
 
-        ES 9.x excludes ``dense_vector`` fields from the default ``_source``,
-        so ``_source_includes=embedding_vector`` is added to ensure the
-        embedding is available for downstream Reranker processing.
+        Uses ES 9.x top-level ``knn`` syntax with ``filter`` nested inside
+        the KNN clause (not under ``query``).
         """
-        vector_query: dict = {
+        knn_clause: dict = {
             "field": "embedding_vector",
             "query_vector": query_vector,
             "k": top_k,
             "num_candidates": top_k * 2,
         }
 
+        body: dict = {
+            "knn": knn_clause,
+            "size": top_k,
+            "_source": True,
+        }
+
         if filters:
             filter_clauses = [{"term": {k: v}} for k, v in filters.items()]
-            query = {"knn": vector_query, "filter": filter_clauses}
-        else:
-            query = {"knn": vector_query}
-
-        body = {"query": query, "size": top_k, "_source": True}
+            body["knn"]["filter"] = filter_clauses
 
         url = f"{self.es_url}/{self.index}/_search"
         resp = requests.post(
@@ -59,7 +60,6 @@ class SkillRouterElasticStore:
             json=body,
             auth=(self.username, self.password),
             headers={"Content-Type": "application/json"},
-            params={"_source_includes": "embedding_vector"},
             timeout=30,
         )
         resp.raise_for_status()
