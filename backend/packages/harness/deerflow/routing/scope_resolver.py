@@ -13,7 +13,7 @@ class SkillScopeResolver:
     def resolve_base_scope(
         *,
         frontend_enabled_skill_ids: list[str] | None,
-    ) -> list[str]:
+    ) -> tuple[list[str], str]:
         """Calculate the base allowed skill set.
 
         Parameters
@@ -25,8 +25,9 @@ class SkillScopeResolver:
 
         Returns
         -------
-        list[str]
-            Sorted list of skill IDs in the base scope.
+        tuple[list[str], str]
+            Sorted list of skill IDs and the scope mode string:
+            ``"default_all"``, ``"explicit_empty"``, or ``"explicit_subset"``.
         """
         from deerflow.skills import load_skills
 
@@ -34,10 +35,15 @@ class SkillScopeResolver:
         registry_ids = {s.name for s in registry_skills}
 
         if frontend_enabled_skill_ids is None:
-            return sorted(registry_ids)
+            return sorted(registry_ids), "default_all"
 
         frontend_set = set(frontend_enabled_skill_ids)
-        return sorted(registry_ids & frontend_set)
+        intersection = sorted(registry_ids & frontend_set)
+        if len(frontend_set) == 0:
+            mode = "explicit_empty"
+        else:
+            mode = "explicit_subset"
+        return intersection, mode
 
     @staticmethod
     def resolve_final_scope(
