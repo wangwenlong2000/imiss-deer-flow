@@ -343,18 +343,90 @@ def _get_memory_context(agent_name: str | None = None) -> str:
         return ""
 
 
+def _render_skill_system_section(
+    *,
+    skills_list: str,
+    container_base_path: str,
+    empty_available_skills: bool = False,
+    routed_mode: bool = False,
+) -> str:
+    """Render a <skill_system> block that is always complete.
+
+    Never returns "".  An empty skill list still includes the base usage
+    rules so the model knows how to behave when no skills are available.
+    """
+    empty_notice = ""
+    if empty_available_skills:
+        if routed_mode:
+            empty_notice = """
+**Current Available Skills:**
+- The current <available_skills> list is empty.
+- Do not load any skill file from this base section.
+- If SkillRouter injects a later current-turn routed_skill_prompt, use that routed list as the authoritative available skills for this turn.
+- If no routed_skill_prompt is injected, treat this turn as having no available skills.
+"""
+        else:
+            empty_notice = """
+**Current Available Skills:**
+- The current <available_skills> list is empty.
+- Do not load any skill file from this section.
+- If a later current-turn routed_skill_prompt is injected by SkillRouterMiddleware, its <available_skills> list is authoritative for this turn.
+- If no routed_skill_prompt is injected, treat this turn as having no available skills.
+"""
+
+    routed_override_notice = ""
+    if routed_mode:
+        routed_override_notice = """
+**Override Scope:**
+- This routed <skill_system> only defines the authoritative available_skills for the current turn.
+- It does NOT replace the base system prompt.
+- Continue following language_policy, clarification_system, working_directory, response_style, and critical_reminders from the base system prompt.
+"""
+
+    source_attr = ' source="skill_router"' if routed_mode else ""
+    return f"""<skill_system{source_attr}>
+You have access to skills that provide optimized workflows for specific tasks. Each skill contains best practices, frameworks, and references to additional resources.
+
+**Skill Availability Rules:**
+- Only skills listed in the current-turn <available_skills> section are available.
+- Ignore skills mentioned in previous turns if they are not listed in the current turn.
+- Do not call tools associated with unavailable skills.
+- If a later current-turn routed_skill_prompt is injected by SkillRouter, its <available_skills> list is authoritative for this turn.
+{empty_notice}{routed_override_notice}
+**Progressive Loading Pattern:**
+1. When a user query matches an available skill's use case, immediately call `read_file` on the skill's main file using the path attribute provided below.
+2. Read and understand the skill's workflow and instructions.
+3. The skill file contains references to external resources under the same folder.
+4. Load referenced resources only when needed during execution.
+5. Follow the skill's instructions precisely.
+
+**Skill Loading Priority Rules:**
+- If a request clearly matches an available skill and also includes uploaded files, load the skill file before reading uploaded data files.
+- Do NOT read a full uploaded structured data file before loading the matched skill.
+- For uploaded structured data files, use small previews only when needed.
+- Prefer the matched skill's scripts, workflows, or tools for actual analysis.
+- Do not start by generating ad hoc JS, Python, SQL, or shell scripts when a matched skill exists.
+- Only improvise custom code after loading the matched skill and confirming the skill does not already provide a suitable workflow.
+
+**Skills are located at:** {container_base_path}
+
+{skills_list}
+
+</skill_system>"""
+
+
 def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
     """Generate the skills prompt section with available skills list.
 
     Returns the <skill_system>...</skill_system> block listing all enabled skills,
     suitable for injection into any agent's system prompt.
+
+    Semantics:
+    - None: legacy mode, render all registry enabled skills.
+    - empty set: render skill system rules with an empty <available_skills>.
+      Do not load all skills, but keep the base rules.
+    - non-empty set: render only selected skills.
     """
-    # Early return: empty set means zero skills — skip loading all skills
-    if available_skills is not None and len(available_skills) == 0:
-        return ""
-
-    skills = load_skills(enabled_only=True)
-
     try:
         from deerflow.config import get_app_config
 
@@ -363,44 +435,24 @@ def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
     except Exception:
         container_base_path = "/mnt/skills"
 
-    if not skills:
-        return ""
+    # None => all enabled skills (legacy mode)
+    skills = load_skills(enabled_only=True)
 
     if available_skills is not None:
         skills = [skill for skill in skills if skill.name in available_skills]
+
+    is_empty = len(skills) == 0
 
     skill_items = "\n".join(
         f"    <skill>\n        <name>{skill.name}</name>\n        <description>{skill.description}</description>\n        <location>{skill.get_container_file_path(container_base_path)}</location>\n    </skill>" for skill in skills
     )
     skills_list = f"<available_skills>\n{skill_items}\n</available_skills>"
 
-    return f"""<skill_system>
-You have access to skills that provide optimized workflows for specific tasks. Each skill contains best practices, frameworks, and references to additional resources.
-
-**Progressive Loading Pattern:**
-1. When a user query matches a skill's use case, immediately call `read_file` on the skill's main file using the path attribute provided in the skill tag below
-2. Read and understand the skill's workflow and instructions
-3. The skill file contains references to external resources under the same folder
-4. Load referenced resources only when needed during execution
-5. Follow the skill's instructions precisely
-
-**Skill Loading Priority Rules:**
-- If a request clearly matches an available skill and also includes uploaded files, you MUST load the skill file before reading any uploaded data file.
-- Do NOT read a full uploaded structured data file before loading the matched skill. Structured data files include CSV, JSON, JSONL, Parquet, Excel, and similar analytics-oriented files.
-- For uploaded structured data files, use `read_file` only for small previews when needed to confirm schema or sample values. Prefer the matched skill's scripts, workflows, or tools for actual analysis.
-- When a matched skill provides a script-driven workflow, follow that workflow instead of improvising ad hoc analysis code unless the skill explicitly instructs otherwise.
-- If a request clearly matches an available skill, do NOT start by generating ad hoc JS, Python, SQL, or shell scripts from scratch. First load the skill file and follow its workflow.
-- Only improvise custom code after you have loaded the matched skill and determined that the skill does not already provide a suitable workflow, script, template, or asset for the task.
-- When a matched skill exists for charting, presentation generation, data analysis, research, or similar workflow-heavy tasks, prefer the skill's prescribed execution path over generic "write code first" behavior.
-- When a matched skill provides named high-level actions or review modes, use those high-level actions first before composing several lower-level commands or writing custom analysis code.
-- For mature script-driven skills, do not replace an available script action with ad hoc Python, awk, or shell just because the first result looks incomplete. First try the closest existing action, then a narrower follow-up action or supported query mode.
-- Only generate custom analysis code for a matched skill after you have determined that the skill's existing scripts, actions, and query path still cannot answer the request.
-
-**Skills are located at:** {container_base_path}
-
-{skills_list}
-
-</skill_system>"""
+    return _render_skill_system_section(
+        skills_list=skills_list,
+        container_base_path=container_base_path,
+        empty_available_skills=is_empty,
+    )
 
 
 def get_agent_soul(agent_name: str | None) -> str:

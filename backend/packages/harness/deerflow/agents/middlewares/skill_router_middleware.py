@@ -126,6 +126,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 "base_scope_skill_ids": [],
                 "final_scope_skill_ids": [],
                 "allowed_tool_names": [],
+                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="All skills explicitly disabled by user")],
             }
 
         # L0: should_route check
@@ -138,6 +139,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
+                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="Query does not match any skill scope")],
             }
 
         # L1: task segmentation
@@ -150,6 +152,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
+                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="Query cannot be segmented into skill-scoped tasks")],
             }
 
         # Process each segment
@@ -254,6 +257,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
+                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="No skill candidates found for query segments")],
             }
 
         # L6: build routing_context with final_scope filtering
@@ -380,13 +384,14 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         return " + ".join(segments) if segments else "Unknown"
 
     def _build_skills_override(self, ctx: RoutingContext) -> str:
-        """Build a full <skill_system> block with routed skill details.
+        """Build a current-turn authoritative <skill_system> block with routed skill details.
 
-        When SkillRouter is enabled, the base system prompt contains zero skills.
-        This method generates the authoritative skill list for the current turn,
-        including skill name, description, and container location.
+        This message only overrides the available skill list for the current turn.
+        It does NOT replace the base system prompt.  All base rules such as
+        language_policy, clarification_system, working_directory, response_style,
+        and critical_reminders remain active.
         """
-        from deerflow.skills import load_skills
+        from deerflow.agents.lead_agent.prompt import _render_skill_system_section
 
         all_skills = load_skills(enabled_only=True)
         # Build dual-key lookup: index by both name (frontmatter) and skill_path (directory)
@@ -404,36 +409,127 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         except Exception:
             container_base_path = "/mnt/skills"
 
-        lines = [
-            "<skill_system>",
-            "本次请求已由 SkillRouter 路由。以下为本轮可用的 Skills，仅可使用列出的 Skill：",
-            "",
-            "Only skills listed in the current 'Available Skills' section are available.",
-            "Ignore any skills mentioned in previous turns if they are not listed here.",
-            "Do not call tools associated with unavailable skills.",
-            "",
-        ]
-
+        # Build <available_skills> XML for routed skills
+        skill_items = ""
         for idx, skill_id in enumerate(ctx.global_selected_skills, 1):
             skill = skill_map.get(skill_id)
             if skill:
                 location = skill.get_container_file_path(container_base_path)
-                lines.append(f"  <skill>")
-                lines.append(f"    <name>{skill.name}</name>")
-                lines.append(f"    <description>{skill.description}</description>")
-                lines.append(f"    <location>{location}</location>")
-                lines.append(f"  </skill>")
-                lines.append("")
+                skill_items += (
+                    f"    <skill>\n"
+                    f"      <name>{skill.name}</name>\n"
+                    f"      <description>{skill.description}</description>\n"
+                    f"      <location>{location}</location>\n"
+                    f"    </skill>\n"
+                )
 
-        # Task packages
+        skills_list = f"<available_skills>\n{skill_items}</available_skills>"
+
+        # Append task package info when present
+        task_pkg_text = ""
         if ctx.scene_tasks:
-            lines.append("任务包：")
+            task_pkg_lines = [
+                "",
+                "任务包：",
+            ]
             for st in ctx.scene_tasks:
-                lines.append(f"- {st.scene_task_id}：{st.segment_text}")
-            lines.append("")
+                task_pkg_lines.append(f"- {st.scene_task_id}：{st.segment_text}")
+            task_pkg_text = "\n".join(task_pkg_lines) + "\n"
 
-        lines.extend([
-            "Progressive Loading Pattern: Load skill files via read_file using the location path above.",
-            "</skill_system>",
-        ])
-        return "\n".join(lines)
+        # Build the routed <skill_system> using the shared renderer
+        base_system = _render_skill_system_section(
+            skills_list=skills_list,
+            container_base_path=container_base_path,
+            empty_available_skills=(len(ctx.global_selected_skills) == 0),
+            routed_mode=True,
+        )
+
+        # Insert task package text before the closing tag
+        if task_pkg_text:
+            base_system = base_system.replace("\n</skill_system>", task_pkg_text + "\n</skill_system>")
+
+        return base_system
+
+    def _build_no_skill_prompt(self, *, reason: str) -> SystemMessage:
+        """Build a current-turn authoritative empty <skill_system> message.
+
+        Used when SkillRouter is enabled but no skills are available for this
+        turn (query is a greeting, no segmentation matches, or no candidates
+        found).  Makes the skill state explicit instead of silent.
+        """
+        from deerflow.agents.lead_agent.prompt import _render_skill_system_section
+
+        try:
+            from deerflow.config import get_app_config
+
+            container_base_path = get_app_config().skills.container_path
+        except Exception:
+            container_base_path = "/mnt/skills"
+
+        skills_list = "<available_skills>\n</available_skills>"
+
+        content = _render_skill_system_section(
+            skills_list=skills_list,
+            container_base_path=container_base_path,
+            empty_available_skills=True,
+            routed_mode=True,
+        )
+        # Inject the reason for this turn having no skills
+        reason_tag = f"\nRouting result: no matched skills. Reason: {reason}\n"
+        content = content.replace(
+            "\n**Current Available Skills:**",
+            reason_tag + "\n**Current Available Skills:**",
+        )
+
+        return SystemMessage(content=content, additional_kwargs={"message_type": "routed_skill_prompt"})
+
+    def _build_fallback_skill_prompt(self, *, fallback_skill_ids: list[str], reason: str) -> SystemMessage:
+        """Build a current-turn fallback <skill_system> with a reduced skill set.
+
+        Used when SkillRouter has no confident match but still wants to provide
+        a small set of base skills for this turn.
+        """
+        from deerflow.agents.lead_agent.prompt import _render_skill_system_section
+
+        all_skills = load_skills(enabled_only=True)
+        skill_map: dict[str, Any] = {}
+        for s in all_skills:
+            skill_map[s.name] = s
+            if s.skill_path:
+                skill_map[s.skill_path] = s
+
+        try:
+            from deerflow.config import get_app_config
+
+            container_base_path = get_app_config().skills.container_path
+        except Exception:
+            container_base_path = "/mnt/skills"
+
+        skill_items = ""
+        for skill_id in fallback_skill_ids:
+            skill = skill_map.get(skill_id)
+            if skill:
+                location = skill.get_container_file_path(container_base_path)
+                skill_items += (
+                    f"    <skill>\n"
+                    f"      <name>{skill.name}</name>\n"
+                    f"      <description>{skill.description}</description>\n"
+                    f"      <location>{location}</location>\n"
+                    f"    </skill>\n"
+                )
+
+        skills_list = f"<available_skills>\n{skill_items}</available_skills>"
+
+        content = _render_skill_system_section(
+            skills_list=skills_list,
+            container_base_path=container_base_path,
+            empty_available_skills=(len(fallback_skill_ids) == 0),
+            routed_mode=True,
+        )
+        reason_tag = f"\nRouting result: no confident match. Fallback mode: {reason}\n"
+        content = content.replace(
+            "\n**Current Available Skills:**",
+            reason_tag + "\n**Current Available Skills:**",
+        )
+
+        return SystemMessage(content=content, additional_kwargs={"message_type": "routed_skill_prompt"})
