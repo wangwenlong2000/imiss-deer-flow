@@ -82,9 +82,25 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         if not messages:
             return None
 
-        # Find the last user message
+        # Compute base_scope from frontend input
+        from deerflow.routing.scope_resolver import SkillScopeResolver
+
+        frontend_ids = state.get("frontend_enabled_skill_ids")
+        base_scope_ids = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=frontend_ids)
+
+        # Filter old routed_skill_prompt SystemMessages from the message list.
+        # The filtered list is returned as the full messages state, which instructs
+        # LangGraph's reducer to replace accumulated messages.  This prevents
+        # old skill prompts from previous turns from reaching the agent core.
+        cleaned_messages = [
+            msg for msg in messages
+            if not (isinstance(msg, SystemMessage)
+                    and msg.additional_kwargs.get("message_type") == "routed_skill_prompt")
+        ]
+
+        # Find the last user message in the cleaned list
         last_user_msg = None
-        for msg in reversed(messages):
+        for msg in reversed(cleaned_messages):
             if isinstance(msg, HumanMessage):
                 last_user_msg = msg
                 break
@@ -98,25 +114,48 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
 
         uploaded_files = state.get("uploaded_files") or []
 
+        # When frontend explicitly disabled all skills, there's no valid routing scope
+        if frontend_ids is not None and len(base_scope_ids) == 0:
+            elapsed = (time.monotonic() - start) * 1000
+            record_request(trigger=False, latency_ms=elapsed)
+            logger.debug("SkillRouter: empty base_scope (all skills disabled)")
+            return {
+                "routing_context": {"trigger": False},
+                "frontend_enabled_skill_ids": frontend_ids,
+                "base_scope_skill_ids": [],
+                "final_scope_skill_ids": [],
+                "allowed_tool_names": [],
+            }
+
         # L0: should_route check
         if not should_route(query, uploaded_files):
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
             logger.debug("should_route=False query=%r", query[:80])
-            return {"routing_context": {"trigger": False}}
+            return {
+                "routing_context": {"trigger": False},
+                "frontend_enabled_skill_ids": frontend_ids,
+                "base_scope_skill_ids": base_scope_ids,
+            }
 
         # L1: task segmentation
         segments = segment_query(query)
         if not segments:
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
-            return {"routing_context": {"trigger": False}}
+            return {
+                "routing_context": {"trigger": False},
+                "frontend_enabled_skill_ids": frontend_ids,
+                "base_scope_skill_ids": base_scope_ids,
+            }
 
         # Process each segment
         scene_tasks: list[SceneTask] = []
         all_selected: dict[str, SelectedSkill] = {}  # skill_id -> SelectedSkill
         all_input_refs: list[str] = []
         all_allowed_tools: set[str] = set()
+
+        base_scope_set = set(base_scope_ids)
 
         for seg in segments:
             seg_text = seg["text"]
@@ -138,6 +177,13 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                 record_es_error()
                 logger.exception("ES search failed for segment: %s", seg_text[:80])
                 candidates = []
+
+            if not candidates:
+                continue
+
+            # v1: Post-filter — guarantee correctness regardless of ES index state
+            if base_scope_set:
+                candidates = [c for c in candidates if c.get("skill_id") in base_scope_set]
 
             if not candidates:
                 continue
@@ -200,19 +246,32 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         if not scene_tasks:
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
-            return {"routing_context": {"trigger": False}}
+            return {
+                "routing_context": {"trigger": False},
+                "frontend_enabled_skill_ids": frontend_ids,
+                "base_scope_skill_ids": base_scope_ids,
+            }
 
-        # L6: build routing_context
+        # L6: build routing_context with final_scope filtering
         global_skills = list(all_selected.keys())
+        final_skill_ids = SkillScopeResolver.resolve_final_scope(
+            skill_router_enabled=True,
+            base_scope_ids=base_scope_ids,
+            routed_skill_ids=global_skills,
+        )
         confidence = self._compute_confidence(all_selected)
+
+        # allowed_tools collected during resolution.
+        # Phase 2b will add per-tool hard enforcement at the execution layer.
+        final_allowed_tools = sorted(all_allowed_tools)
 
         routing_ctx = RoutingContext(
             route_mode="multi_segment" if len(scene_tasks) > 1 else "single_segment",
             trigger=True,
             primary_goal=self._infer_primary_goal(scene_tasks),
             scene_tasks=scene_tasks,
-            global_selected_skills=global_skills,
-            global_allowed_tools=sorted(all_allowed_tools),
+            global_selected_skills=final_skill_ids,
+            global_allowed_tools=final_allowed_tools,
             confidence=confidence,
             route_reason=f"Matched {len(scene_tasks)} task segment(s) from user query",
         )
@@ -228,15 +287,21 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             routing_ctx.global_selected_skills, round(elapsed),
         )
         logger.info(
-            "SkillRouter scope: routed=%d, allowed_tools=%d, trigger=%s",
-            len(ctx.global_selected_skills),
-            len(ctx.global_allowed_tools),
-            ctx.trigger,
+            "SkillRouter scope: frontend=%r base_scope=%d routed=%d final=%d allowed_tools=%d trigger=%s",
+            frontend_ids, len(base_scope_ids), len(global_skills),
+            len(final_skill_ids), len(final_allowed_tools),
+            routing_ctx.trigger,
         )
+
+        new_routed_skill_msg = SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"})
 
         return {
             "routing_context": routing_ctx.model_dump(),
-            "messages": [SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"})],
+            "frontend_enabled_skill_ids": frontend_ids,
+            "base_scope_skill_ids": base_scope_ids,
+            "final_scope_skill_ids": final_skill_ids,
+            "allowed_tool_names": final_allowed_tools,
+            "messages": cleaned_messages + [new_routed_skill_msg],
         }
 
     @override
@@ -320,7 +385,13 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         from deerflow.skills import load_skills
 
         all_skills = load_skills(enabled_only=True)
-        skill_map = {s.name: s for s in all_skills}
+        # Build dual-key lookup: index by both name (frontmatter) and skill_path (directory)
+        # ES skill_id typically matches skill_path (e.g., "network-traffic-analysis")
+        skill_map: dict[str, Any] = {}
+        for s in all_skills:
+            skill_map[s.name] = s
+            if s.skill_path:
+                skill_map[s.skill_path] = s
 
         try:
             from deerflow.config import get_app_config
