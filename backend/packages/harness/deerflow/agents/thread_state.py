@@ -129,6 +129,7 @@ class ThreadState(AgentState):
 
     # SkillRouter scope tracking — per-turn
     frontend_enabled_skill_ids: NotRequired[list[str] | None]
+    frontend_scope_mode: NotRequired[str]
     base_scope_skill_ids: NotRequired[list[str] | None]
     final_scope_skill_ids: NotRequired[list[str] | None]
     allowed_tool_names: NotRequired[list[str] | None]

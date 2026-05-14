@@ -86,7 +86,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         from deerflow.routing.scope_resolver import SkillScopeResolver
 
         frontend_ids = state.get("frontend_enabled_skill_ids")
-        base_scope_ids = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=frontend_ids)
+        base_scope_ids, scope_mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=frontend_ids)
 
         # Filter old routed_skill_prompt SystemMessages from the message list.
         # The filtered list is returned as the full messages state, which instructs
@@ -122,6 +122,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             return {
                 "routing_context": {"trigger": False},
                 "frontend_enabled_skill_ids": frontend_ids,
+                "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": [],
                 "final_scope_skill_ids": [],
                 "allowed_tool_names": [],
@@ -135,6 +136,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             return {
                 "routing_context": {"trigger": False},
                 "frontend_enabled_skill_ids": frontend_ids,
+                "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
             }
 
@@ -146,6 +148,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             return {
                 "routing_context": {"trigger": False},
                 "frontend_enabled_skill_ids": frontend_ids,
+                "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
             }
 
@@ -249,6 +252,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             return {
                 "routing_context": {"trigger": False},
                 "frontend_enabled_skill_ids": frontend_ids,
+                "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
             }
 

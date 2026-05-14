@@ -65,6 +65,7 @@ import {
 } from "@/core/data-center";
 import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
+import { useSkills } from "@/core/skills/hooks";
 import type { ReasoningEffort } from "@/core/threads/reasoning";
 import type { AgentThreadContext } from "@/core/threads";
 import { displayMessagesOfThread, textOfMessage } from "@/core/threads/utils";
@@ -155,6 +156,7 @@ export function InputBox({
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const { models } = useModels();
   const { data: dataSourcesResponse } = useDataSources();
+  const { skills: registrySkills } = useSkills();
   const { thread, isMock } = useThread();
   const { textInput } = usePromptInputController();
   const promptRootRef = useRef<HTMLDivElement | null>(null);
@@ -183,6 +185,11 @@ export function InputBox({
   );
   const [dataDialogQuery, setDataDialogQuery] = useState("");
   const [selectionAreaHeight, setSelectionAreaHeight] = useState(0);
+
+  // Skill enabled state: synced from Settings → backend on every submit
+  const enabledSkillIds = useMemo(() => {
+    return registrySkills.filter((s) => s.enabled).map((s) => s.name);
+  }, [registrySkills]);
 
   useEffect(() => {
     setSelectedDataSourceIds(readSelectedDataSourceIds());
@@ -284,6 +291,20 @@ export function InputBox({
     );
   }, [dataSourcesResponse?.sources, selectedDataSourceIds]);
 
+  const enabledSkillNames = useMemo(() => {
+    return (
+      registrySkills
+        .filter((s) => s.enabled)
+        .map((s) => s.name)
+    );
+  }, [registrySkills]);
+
+  const skillDetails = useMemo(() => {
+    return registrySkills.filter(
+      (s) => s.enabled && enabledSkillIds.includes(s.name),
+    );
+  }, [registrySkills, enabledSkillIds]);
+
   useEffect(() => {
     if (!selectedDataSourceIds.length) {
       setSelectionAreaHeight(0);
@@ -354,10 +375,11 @@ export function InputBox({
             type: source.type,
             path: source.path,
           })),
+          frontend_enabled_skill_ids: enabledSkillIds,
         },
       });
     },
-    [onSubmit, onStop, selectedDataSources, status],
+    [onSubmit, onStop, selectedDataSources, enabledSkillIds, status],
   );
 
   const requestFormSubmit = useCallback(() => {

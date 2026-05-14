@@ -28,25 +28,28 @@ class TestResolveBaseScope(unittest.TestCase):
     @patch("deerflow.skills.load_skills")
     def test_null_frontend_returns_all_registry(self, mock_load):
         mock_load.return_value = [MockSkill("a"), MockSkill("b"), MockSkill("c")]
-        result = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=None)
+        result, mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=None)
         self.assertEqual(result, ["a", "b", "c"])
+        self.assertEqual(mode, "default_all")
 
     @patch("deerflow.skills.load_skills")
     def test_empty_frontend_returns_empty(self, mock_load):
         mock_load.return_value = [MockSkill("a"), MockSkill("b")]
-        result = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=[])
+        result, mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=[])
         self.assertEqual(result, [])
+        self.assertEqual(mode, "explicit_empty")
 
     @patch("deerflow.skills.load_skills")
     def test_partial_frontend_returns_intersection(self, mock_load):
         mock_load.return_value = [MockSkill("a"), MockSkill("b"), MockSkill("c")]
-        result = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=["a", "x"])
+        result, mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=["a", "x"])
         self.assertEqual(result, ["a"])
+        self.assertEqual(mode, "explicit_subset")
 
     @patch("deerflow.skills.load_skills")
     def test_result_is_sorted(self, mock_load):
         mock_load.return_value = [MockSkill("c"), MockSkill("a"), MockSkill("b")]
-        result = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=["c", "a", "b"])
+        result, mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=["c", "a", "b"])
         self.assertEqual(result, ["a", "b", "c"])
 
 
