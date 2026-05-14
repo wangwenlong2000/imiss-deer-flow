@@ -126,3 +126,9 @@ class ThreadState(AgentState):
     uploaded_files: NotRequired[list[dict] | None]
     viewed_images: Annotated[dict[str, ViewedImageData], merge_viewed_images]  # image_path -> {base64, mime_type}
     routing_context: NotRequired[dict | None]
+
+    # SkillRouter scope tracking — per-turn
+    frontend_enabled_skill_ids: NotRequired[list[str] | None]
+    base_scope_skill_ids: NotRequired[list[str] | None]
+    final_scope_skill_ids: NotRequired[list[str] | None]
+    allowed_tool_names: NotRequired[list[str] | None]

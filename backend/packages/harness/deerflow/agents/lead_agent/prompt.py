@@ -349,6 +349,10 @@ def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
     Returns the <skill_system>...</skill_system> block listing all enabled skills,
     suitable for injection into any agent's system prompt.
     """
+    # Early return: empty set means zero skills — skip loading all skills
+    if available_skills is not None and len(available_skills) == 0:
+        return ""
+
     skills = load_skills(enabled_only=True)
 
     try:
