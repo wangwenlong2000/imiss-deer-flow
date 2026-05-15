@@ -1,0 +1,144 @@
+{
+  "network_traffic": {
+    "name": "网络流量",
+    "description": "网络流量、PCAP、会话、协议、异常通信、恶意流量、网络安全事件分析场景",
+    "example": "JSON：[{'name': '分析对象', 'desc': '需要分析的网络流量文件、数据集或场景名称，如 pcap、Neris、DNS 流量', 'value': ''}, {'name': '分析目标', 'desc': '用户希望识别或总结的目标，如异常通信、恶意域名、协议统计、攻击行为', 'value': ''}, {'name': '输出形式', 'desc': '用户要求的输出，如 summary、报告、表格、图表', 'value': ''}]\n输入：使用网络流量分析 skill 对 Neris 做 summary\n答：{'name': '分析对象', 'value': 'Neris'}, {'name': '分析目标', 'value': '网络流量分析'}, {'name': '输出形式', 'value': 'summary'}",
+    "parameters": [
+      {
+        "name": "分析对象",
+        "desc": "需要分析的网络流量文件、数据集或场景名称，如 pcap、pcapng、Neris、DNS、HTTP、TLS、会话日志等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "分析目标",
+        "desc": "用户希望识别、统计或总结的目标，如异常通信、恶意流量、协议分布、主机行为、IOC、攻击链等",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "输出形式",
+        "desc": "用户期望的结果形式，如 summary、报告、表格、图表、证据清单等",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "network_traffic"
+  },
+  "policy_regulation": {
+    "name": "政策法规",
+    "description": "政策、法规、制度、条例、通知、合规依据、法律条文查询与解读场景",
+    "example": "JSON：[{'name': '政策主题', 'desc': '需要查询或分析的政策法规主题', 'value': ''}, {'name': '地区或层级', 'desc': '国家、省、市、区县或行业层级', 'value': ''}, {'name': '分析目标', 'desc': '查询、解读、对比、合规判断或生成依据', 'value': ''}]\n输入：查一下陕西省施工围挡高度相关政策并判断是否合规\n答：{'name': '政策主题', 'value': '施工围挡高度'}, {'name': '地区或层级', 'value': '陕西省'}, {'name': '分析目标', 'value': '合规判断'}",
+    "parameters": [
+      {
+        "name": "政策主题",
+        "desc": "需要查询、解读、对比或引用的政策法规主题",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "地区或层级",
+        "desc": "政策法规适用的地区、行政层级、行业领域或发布主体",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "分析目标",
+        "desc": "用户需要执行的动作，如查询条文、解释政策、合规判断、生成依据、对比差异等",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "policy_regulation"
+  },
+  "spatiotemporal_trajectory": {
+    "name": "时空轨迹",
+    "description": "人员、车辆、设备、事件等对象的时间序列位置、轨迹回放、停留点、路径、活动范围和时空关联分析场景",
+    "example": "JSON：[{'name': '分析对象', 'desc': '轨迹主体，如人员、车辆、设备、案件对象', 'value': ''}, {'name': '时间范围', 'desc': '轨迹分析时间范围', 'value': ''}, {'name': '空间范围', 'desc': '轨迹涉及区域或地点', 'value': ''}, {'name': '分析目标', 'desc': '回放、聚类、停留点、异常轨迹、同行分析等', 'value': ''}]\n输入：分析车辆 A 在昨天上午的时空轨迹和停留点\n答：{'name': '分析对象', 'value': '车辆 A'}, {'name': '时间范围', 'value': '昨天上午'}, {'name': '分析目标', 'value': '时空轨迹和停留点分析'}",
+    "parameters": [
+      {
+        "name": "分析对象",
+        "desc": "轨迹主体，如人员、车辆、设备、事件、案件对象等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "时间范围",
+        "desc": "需要分析的起止时间、日期、时段或相对时间",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "空间范围",
+        "desc": "轨迹涉及的区域、道路、地点、围栏或行政区划",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "分析目标",
+        "desc": "轨迹回放、停留点识别、路径分析、异常轨迹、同行分析、活动范围分析等",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "spatiotemporal_trajectory"
+  },
+  "street_view_image": {
+    "name": "街景图像",
+    "description": "街景、道路图像、城市部件、门店招牌、占道、违停、环境秩序、图像识别和图像巡检场景",
+    "example": "JSON：[{'name': '图像对象', 'desc': '需要分析的街景图像、视频帧、道路或地点', 'value': ''}, {'name': '识别目标', 'desc': '需要识别的问题或对象', 'value': ''}, {'name': '输出形式', 'desc': '检测结果、表格、报告或标注说明', 'value': ''}]\n输入：帮我识别这张街景图里是否存在占道经营和非机动车乱停放\n答：{'name': '识别目标', 'value': '占道经营、非机动车乱停放'}, {'name': '输出形式', 'value': '识别结果'}",
+    "parameters": [
+      {
+        "name": "图像对象",
+        "desc": "需要分析的街景图像、视频帧、道路、地点或上传图片",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "识别目标",
+        "desc": "需要识别的对象或问题，如占道经营、违停、店外经营、道路破损、广告牌、垃圾堆放等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "输出形式",
+        "desc": "用户期望的输出，如检测结果、表格、报告、标注说明、风险摘要等",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "street_view_image"
+  },
+  "traffic_flow": {
+    "name": "交通流量",
+    "description": "道路交通流量、车流量、人流量、拥堵、速度、路口通行、OD、峰谷变化和交通运行态势分析场景",
+    "example": "JSON：[{'name': '分析区域', 'desc': '道路、路口、区域或监测点', 'value': ''}, {'name': '时间范围', 'desc': '交通流量统计时间范围', 'value': ''}, {'name': '指标', 'desc': '流量、速度、拥堵指数、排队长度、OD 等', 'value': ''}, {'name': '分析目标', 'desc': '统计、预测、对比、异常识别或生成报告', 'value': ''}]\n输入：统计昨天晚高峰解放路路口交通流量并生成趋势表\n答：{'name': '分析区域', 'value': '解放路路口'}, {'name': '时间范围', 'value': '昨天晚高峰'}, {'name': '指标', 'value': '交通流量'}, {'name': '分析目标', 'value': '生成趋势表'}",
+    "parameters": [
+      {
+        "name": "分析区域",
+        "desc": "道路、路口、区域、卡口、监测点或线路名称",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "时间范围",
+        "desc": "交通流量统计或分析的时间范围",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "指标",
+        "desc": "需要分析的交通指标，如流量、速度、拥堵指数、排队长度、OD、人流量、车流量等",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "分析目标",
+        "desc": "统计、预测、对比、异常识别、趋势分析、报告生成等",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "traffic_flow"
+  }
+}
