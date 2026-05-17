@@ -95,6 +95,7 @@ export function groupMessages<T>(
     }
 
     if (message.type === "ai") {
+      const onlyWriteTodos = isOnlyWriteTodosToolCallMessage(message);
       if (hasPresentFiles(message)) {
         groups.push({
           id: message.id,
@@ -107,7 +108,10 @@ export function groupMessages<T>(
           type: "assistant:subagent",
           messages: [message],
         });
-      } else if (hasReasoning(message) || hasToolCalls(message)) {
+      } else if (
+        (hasReasoning(message) || hasToolCalls(message)) &&
+        !onlyWriteTodos
+      ) {
         const lastGroup = groups[groups.length - 1];
         // Accumulate consecutive intermediate AI messages into one processing group.
         if (lastGroup?.type !== "assistant:processing") {
@@ -129,9 +133,43 @@ export function groupMessages<T>(
     }
   }
 
+  const lastUserMessageIndex = findLastUserMessageIndex(messages);
+  if (
+    lastUserMessageIndex >= 0 &&
+    !hasVisibleAssistantAfterIndex(messages, lastUserMessageIndex)
+  ) {
+    const fallbackMessage = findLastAssistantFallbackCandidate(
+      messages,
+      lastUserMessageIndex,
+    );
+    if (fallbackMessage) {
+      groups.push({
+        id: fallbackMessage.id,
+        type: "assistant",
+        messages: [fallbackMessage],
+      });
+    }
+  }
+
   return groups
     .map(mapper)
     .filter((result) => result !== undefined && result !== null) as T[];
+}
+
+function isExplicitlyInternalAssistantMessage(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  if (message.additional_kwargs?.element === "task") {
+    return true;
+  }
+  if (hasPresentFiles(message)) {
+    return true;
+  }
+  if (hasSubagent(message)) {
+    return true;
+  }
+  return false;
 }
 
 function shouldRenderAssistantBubble(message: Message) {
@@ -141,24 +179,74 @@ function shouldRenderAssistantBubble(message: Message) {
   if (message.type !== "ai") {
     return true;
   }
-  if (message.additional_kwargs?.element === "task") {
+  if (isExplicitlyInternalAssistantMessage(message)) {
     return false;
   }
-  if (hasPresentFiles(message) || hasSubagent(message)) {
+
+  // Keep intermediate model/tool orchestration in hidden steps.
+  // A fallback assistant bubble (single message) is injected after grouping
+  // only when this turn has no visible assistant answer at all.
+  if (hasReasoning(message) || hasToolCalls(message)) {
+    if (isOnlyWriteTodosToolCallMessage(message)) {
+      return true;
+    }
     return false;
-  }
-  if (hasReasoning(message)) {
-    return false;
-  }
-  if (hasToolCalls(message)) {
-    const toolCalls = message.tool_calls ?? [];
-    // Preserve final summaries that happen to update todos,
-    // while hiding orchestration/tool-planning chatter.
-    const onlyWriteTodos =
-      toolCalls.length > 0 && toolCalls.every((tc) => tc.name === "write_todos");
-    return onlyWriteTodos;
   }
   return true;
+}
+
+function isOnlyWriteTodosToolCallMessage(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  const toolCalls = message.tool_calls ?? [];
+  return (
+    toolCalls.length > 0 &&
+    toolCalls.every((toolCall) => toolCall.name === "write_todos") &&
+    hasContent(message)
+  );
+}
+
+function findLastUserMessageIndex(messages: Message[]) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (
+      message &&
+      message.type === "human" &&
+      !isInternalMessage(message) &&
+      !isHiddenStepMessage(message)
+    ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function hasVisibleAssistantAfterIndex(messages: Message[], index: number) {
+  for (let i = index + 1; i < messages.length; i += 1) {
+    const message = messages[i];
+    if (message && message.type === "ai" && shouldRenderAssistantBubble(message)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: number) {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "ai") {
+      continue;
+    }
+    if (!hasContent(message)) {
+      continue;
+    }
+    if (isExplicitlyInternalAssistantMessage(message)) {
+      continue;
+    }
+    return message;
+  }
+  return null;
 }
 
 export function isInternalMessage(message: Message) {
