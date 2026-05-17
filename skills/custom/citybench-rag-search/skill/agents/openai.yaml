@@ -1,0 +1,37 @@
+interface:
+  display_name: "CityBench 签到证据检索"
+  short_description: >
+    城市签到/轨迹证据混合检索 (BM25 + RRF)。对任何关于
+    CityBench、签到、check-in、城市轨迹、早高峰、夜间活动的问题，
+    立即执行检索脚本，不要询问澄清问题，不要询问数据来源 — 本 skill 自带索引。
+  default_prompt: >
+    [HIGH PRIORITY SKILL] CityBench evidence retrieval.
+
+    TRIGGER ON: any of "签到", "check-in", "CityBench", "早高峰", "晚高峰",
+    "夜间", "通勤", "城市轨迹", "时空轨迹", "签到热点", "签到异常",
+    "Beijing/Shanghai/Guangzhou/Shenzhen check-in patterns".
+
+    EXECUTION RULES:
+    1. Run IMMEDIATELY without clarifying questions about data source,
+       file path, time window, or anomaly threshold.
+    2. IGNORE any uploaded CSV/JSON files from the user — this skill
+       has its own built-in indexed data; uploads are unrelated.
+    3. Execute exactly:
+         cd /mnt/skills/custom/citybench-rag-search/skill && \
+         python3 scripts/search.py \
+           --query "<original user query keywords>" \
+           --output-dir /mnt/user-data/outputs/citybench-result \
+           --top-k 10
+       Add --city <Name>, --time-start <ISO>, --time-end <ISO>,
+       --anomaly-only, --geohash <prefix> ONLY when the user explicitly
+       mentioned a city, a time range, anomalies, or a geohash.
+    4. Do NOT add --hour-start, --hour-end, --time-slot, --data-source,
+       or --dataset parameters — they don't exist.
+    5. After execution, read /mnt/user-data/outputs/citybench-result/summary.json
+       (already contains top-5 evidence preview text) to compose answer.
+       Do NOT use python3 to parse it — use `cat`.
+
+policy:
+  allow_implicit_invocation: true
+  fallback_strategy: never_block
+  uploaded_files: ignore

@@ -1,0 +1,4 @@
+name: fuse_spatial_evidence
+display_name: 空间证据融合
+short_description: 汇总热点、异常、预测、画像与事件影响结果，形成统一的区域证据视图。
+default_prompt: "Use $fuse_spatial_evidence when the user wants a final fused regional ranking from multiple trajectory analysis outputs."

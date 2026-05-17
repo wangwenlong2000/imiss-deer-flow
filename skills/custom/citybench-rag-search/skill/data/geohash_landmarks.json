@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "Geohash 5-char prefix → 业务地名 + 中心经纬度 + 区域定位。用于把技术编码转换成业务可读地名。",
+    "geohash_precision": 5,
+    "cell_size_km": "约 4.9 × 4.9 km",
+    "source": "geohash 中心点反解 + 高德/百度地图人工校验"
+  },
+  "Shanghai": {
+    "wtw3s": {
+      "landmark": "陆家嘴金融区",
+      "district": "浦东新区",
+      "lat": 31.2231,
+      "lon": 121.4868,
+      "tags": ["CBD", "金融", "通勤目的地"]
+    },
+    "wtw1z": {
+      "landmark": "虹桥商务区",
+      "district": "闵行区/长宁区",
+      "lat": 31.2671,
+      "lon": 121.2671,
+      "tags": ["交通枢纽", "商务", "高铁机场"]
+    },
+    "wtw3e": {
+      "landmark": "徐家汇-人民广场",
+      "district": "徐汇区/黄浦区",
+      "lat": 31.2231,
+      "lon": 121.4429,
+      "tags": ["商圈", "交通枢纽", "通勤走廊"]
+    },
+    "wtw37": {
+      "landmark": "漕河泾-徐汇南",
+      "district": "徐汇区南部",
+      "lat": 31.1792,
+      "lon": 121.4429,
+      "tags": ["科技园区", "居住区", "通勤走廊"]
+    }
+  },
+  "Beijing": {
+    "wx4g0": {
+      "landmark": "国贸-CBD核心区",
+      "district": "朝阳区",
+      "lat": 39.9078,
+      "lon": 116.4429,
+      "tags": ["CBD", "写字楼", "通勤目的地"]
+    },
+    "wx4g2": {
+      "landmark": "东直门-三里屯",
+      "district": "朝阳区",
+      "lat": 39.9517,
+      "lon": 116.4429,
+      "tags": ["商圈", "夜生活", "餐饮"]
+    },
+    "wx4g8": {
+      "landmark": "望京-酒仙桥",
+      "district": "朝阳区北部",
+      "lat": 39.9956,
+      "lon": 116.4429,
+      "tags": ["科技园区", "居住区"]
+    },
+    "wx4eu": {
+      "landmark": "西单-金融街",
+      "district": "西城区",
+      "lat": 39.9078,
+      "lon": 116.3990,
+      "tags": ["金融", "商圈", "通勤目的地"]
+    },
+    "wx4er": {
+      "landmark": "天安门-王府井",
+      "district": "东城区",
+      "lat": 39.9078,
+      "lon": 116.3552,
+      "tags": ["旅游", "商圈", "政务"]
+    }
+  },
+  "Guangzhou": {
+    "ws0e9": {
+      "landmark": "珠江新城-CBD",
+      "district": "天河区",
+      "lat": 23.1187,
+      "lon": 113.3209,
+      "tags": ["CBD", "金融", "写字楼"]
+    },
+    "ws0eh": {
+      "landmark": "天河城-体育中心",
+      "district": "天河区",
+      "lat": 23.1626,
+      "lon": 113.3209,
+      "tags": ["商圈", "通勤目的地"]
+    },
+    "ws0eu": {
+      "landmark": "白云机场片区",
+      "district": "白云区",
+      "lat": 23.2065,
+      "lon": 113.2770,
+      "tags": ["交通枢纽", "机场"]
+    }
+  },
+  "Shenzhen": {
+    "ws10n": {
+      "landmark": "福田CBD",
+      "district": "福田区",
+      "lat": 22.5418,
+      "lon": 114.0540,
+      "tags": ["CBD", "金融", "通勤目的地"]
+    },
+    "ws10p": {
+      "landmark": "罗湖-东门",
+      "district": "罗湖区",
+      "lat": 22.5418,
+      "lon": 114.0980,
+      "tags": ["商圈", "口岸"]
+    }
+  }
+}

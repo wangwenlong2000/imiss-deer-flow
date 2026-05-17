@@ -1,0 +1,4 @@
+name: extract_stay_points
+display_name: 停留点提取
+short_description: 从轨迹中识别驻留事件、停留点和具有 OD 语义的位置。
+default_prompt: "Use $extract_stay_points when the user asks for stay point extraction, dwell events, OD endpoint candidates, or meaningful stops. Run python3 scripts/extract_stay_points.py directly and summarize summary.json."

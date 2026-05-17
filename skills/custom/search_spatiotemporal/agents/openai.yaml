@@ -1,0 +1,4 @@
+name: search_spatiotemporal
+display_name: 时空轨迹检索
+short_description: 按时间窗、小时段、BBox、Geohash、城市和关键词召回轨迹记录。
+default_prompt: "Use $search_spatiotemporal when the user asks to retrieve trajectory records for a time range, region, geohash, bbox, city, or keyword. Run python3 scripts/search_spatiotemporal.py and summarize matches plus summary.json."

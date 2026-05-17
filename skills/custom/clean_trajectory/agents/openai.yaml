@@ -1,0 +1,4 @@
+name: clean_trajectory
+display_name: 轨迹清洗
+short_description: 清洗原始 GPS/签到/信令轨迹，输出标准 cleaned_points.jsonl。
+default_prompt: "Use $clean_trajectory when the user asks to clean raw trajectory data, remove drift points, filter impossible speeds, or standardize GPS/check-in records. Run python3 scripts/clean_trajectory.py directly and summarize summary.json."

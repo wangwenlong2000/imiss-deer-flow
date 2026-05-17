@@ -1,0 +1,25 @@
+# CityBench RAG Skill 依赖说明
+#
+# === 默认模式 (demo) — 零外部依赖 ===
+# 完全使用 Python 标准库，无需安装任何包。
+#
+# === 可选：生产模式 (es) — 完整 RAG ===
+# 仅当需要连接 Elasticsearch + DashScope embedding 时安装：
+#   pip install elasticsearch openai
+#
+# === 可选：地图热力图兜底渲染 ===
+# matplotlib 不可用时，render_heatmap.py 会自动使用 Pillow 输出 PNG：
+#   pip install Pillow
+#
+# === 可选：重建索引 (setup_index.py) ===
+# 仅当从原始 CSV 重新构建 ES 索引时安装：
+#   pip install pandas numpy tqdm jinja2 python-geohash
+
+elasticsearch>=8.10.0  # 仅 es 模式必需
+openai>=1.10.0          # 仅 es 模式必需
+pandas>=2.0.0           # 仅 setup_index.py 必需
+numpy>=1.24.0           # 仅 setup_index.py 必需
+tqdm>=4.65.0            # 仅 setup_index.py 必需
+Jinja2>=3.1.2           # 仅 setup_index.py 必需
+python-geohash>=0.8.5   # 可选，setup_index.py 有纯 Python 兜底
+Pillow>=10.0.0           # 可选，render_heatmap.py 的无 matplotlib PNG 兜底

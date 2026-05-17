@@ -1,0 +1,4 @@
+name: analyze_region_heat
+display_name: 区域热度分析
+short_description: 统计区域签到量、轨迹点密度、独立用户数和 Top 热点网格。
+default_prompt: "Use $analyze_region_heat when the user asks for hotspots, regional activity, check-in volume, user density, or Top active geohash regions. Run python3 scripts/analyze_region_heat.py and summarize region_heat.jsonl."

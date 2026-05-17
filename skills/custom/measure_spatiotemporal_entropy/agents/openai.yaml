@@ -1,0 +1,4 @@
+name: measure_spatiotemporal_entropy
+display_name: 时空熵与活力指数
+short_description: 基于 OD 和活动证据计算流动多样性、时段复杂度和区域活力指数。
+default_prompt: "Use $measure_spatiotemporal_entropy when the user asks for spatiotemporal entropy, vitality, diversity, complexity, or flow-mix index. Run scripts/measure_spatiotemporal_entropy.py and summarize entropy_by_region.jsonl."

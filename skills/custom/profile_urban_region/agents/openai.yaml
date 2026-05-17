@@ -1,0 +1,4 @@
+name: profile_urban_region
+display_name: 城市功能区画像
+short_description: 结合时空轨迹活跃度与 POI 分布识别居住、商业、交通、休闲等区域属性。
+default_prompt: "Use $profile_urban_region when the user asks what type of urban region an area is, or asks for residential/commercial/transit/leisure profiling based on trajectories and POIs."

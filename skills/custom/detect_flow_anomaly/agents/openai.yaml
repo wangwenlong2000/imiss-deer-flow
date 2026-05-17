@@ -1,0 +1,4 @@
+name: detect_flow_anomaly
+display_name: 流量异常检测
+short_description: 检测区域热度、签到量或 OD 流量的异常上升/下降。
+default_prompt: "Use $detect_flow_anomaly when the user asks for abnormal regional flow, check-in spikes, OD flow anomalies, or unusual crowd changes. Run python3 scripts/detect_flow_anomaly.py and summarize flow_anomalies.jsonl."

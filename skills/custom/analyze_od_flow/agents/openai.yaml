@@ -1,0 +1,4 @@
+name: analyze_od_flow
+display_name: OD 流向分析
+short_description: 基于 trip 起终点聚合 OD Matrix，识别主干流向与通勤走廊。
+default_prompt: "Use $analyze_od_flow when the user asks for OD matrix, commute flow, migration corridor, or origin-destination ranking. Run python3 scripts/analyze_od_flow.py on trips.jsonl and summarize top_od_flows.jsonl."
