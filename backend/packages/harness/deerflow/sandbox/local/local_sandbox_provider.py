@@ -43,11 +43,19 @@ class LocalSandboxProvider(SandboxProvider):
         # the primary execution path for network traffic analysis.
         try:
             repo_root = Path(__file__).resolve().parents[6]
-            datasets_path = repo_root / "datasets" / "network-traffic"
-            if datasets_path.exists():
-                mappings["/mnt/datasets/network-traffic"] = str(datasets_path)
+
+            network_traffic_path = repo_root / "datasets" / "network-traffic"
+            if network_traffic_path.exists():
+                mappings["/mnt/datasets/network-traffic"] = str(network_traffic_path)
+            
+            # Video Surveillance
+            surveillance_path = repo_root / "datasets" / "policies-regulations"
+            if surveillance_path.exists():
+                mappings["/mnt/datasets/policies-regulations"] = str(surveillance_path)
+              
+        
         except Exception as e:
-            print(f"Warning: Could not setup network-traffic dataset mapping: {e}")
+            print(f"Warning: Could not setup dataset mapping: {e}")
 
         return mappings
 

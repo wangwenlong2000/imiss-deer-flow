@@ -14,6 +14,9 @@ from pydantic import BaseModel, Field
 
 from deerflow.config.paths import get_paths
 
+from fastapi.responses import FileResponse #修改
+from .uploads import save_thread_upload_from_bytes
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/data-center", tags=["data_center"])
@@ -49,10 +52,26 @@ class RegisterUploadRequest(BaseModel):
     name: str | None = None
     description: str | None = None
 
+class DeleteDataSourceResponse(BaseModel):
+    success: bool
+    source_id: str
+    file_deleted: bool
+    message: str
+
 
 class UploadDataSourceResponse(BaseModel):
     success: bool
     sources: list[DataSourceRecord]
+    message: str
+
+class AttachDataSourcesToThreadRequest(BaseModel):
+    thread_id: str
+    source_ids: list[str]
+
+
+class AttachDataSourcesToThreadResponse(BaseModel):
+    success: bool
+    files: list[dict[str, str]]
     message: str
 
 
@@ -79,7 +98,7 @@ def _workspace_uploads_dir() -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-
+"""
 def _read_registry() -> list[DataSourceRecord]:
     registry_file = _registry_file()
     if not registry_file.exists():
@@ -98,6 +117,31 @@ def _read_registry() -> list[DataSourceRecord]:
         except Exception as exc:  # noqa: BLE001
             logger.warning("Skipping malformed data-center record: %s", exc)
     return records
+"""
+
+def _read_registry() -> list[DataSourceRecord]:
+    try:
+        registry_file = _registry_file()
+        if not registry_file.exists():
+            return []
+
+        try:
+            raw = json.loads(registry_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            logger.warning("Invalid data-center registry, resetting: %s", exc)
+            return []
+
+        records = []
+        for item in raw if isinstance(raw, list) else []:
+            try:
+                records.append(DataSourceRecord.model_validate(item))
+            except Exception as exc:
+                logger.warning("Skipping malformed data-center record: %s", exc)
+        return records
+
+    except Exception as exc:
+        logger.exception("Failed to read data-center registry")
+        return []
 
 
 def _write_registry(records: list[DataSourceRecord]) -> None:
@@ -169,11 +213,66 @@ def _find_registered_source(source_id: str) -> DataSourceRecord | None:
     all_sources = {source.id: source for source in [*_enumerate_local_datasets(), *_read_registry()]}
     return all_sources.get(source_id)
 
+def _is_relative_to(path: Path, parent: Path) -> bool: #删除保护
+    try:
+        path.relative_to(parent)
+        return True
+    except ValueError:
+        return False
 
+"""
 @router.get("/sources", response_model=DataSourceListResponse)
 async def list_data_sources() -> DataSourceListResponse:
     sources = [*_enumerate_local_datasets(), *_read_registry()]
     return DataSourceListResponse(sources=sources, count=len(sources))
+"""
+
+@router.get("/sources", response_model=DataSourceListResponse)
+async def list_data_sources() -> DataSourceListResponse:
+    sources = _read_registry()
+    return DataSourceListResponse(
+        sources=sources,
+        count=len(sources),
+    )
+
+
+@router.get("/sources/{source_id}/download")   #新增下载接口
+async def download_data_source(source_id: str):
+    source = _find_registered_source(source_id)
+
+    if not source:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Data source not found: {source_id}",
+        )
+
+    if source.type != "uploaded_file":
+        raise HTTPException(
+            status_code=400,
+            detail="Only uploaded files can be downloaded",
+        )
+
+    if not source.path:
+        raise HTTPException(
+            status_code=404,
+            detail="Data source has no file path",
+        )
+
+    file_path = Path(source.path)
+
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="Original file not found",
+        )
+
+    filename = str(source.metadata.get("filename") or file_path.name)
+
+    return FileResponse(
+        path=file_path,
+        filename=filename,
+        media_type="application/octet-stream",
+    )
 
 
 @router.get("/sources/{source_id}", response_model=DataSourceRecord)
@@ -275,3 +374,137 @@ async def register_uploaded_file(payload: RegisterUploadRequest) -> DataSourceRe
     records.append(record)
     _write_registry(records)
     return record
+
+
+
+@router.delete("/sources/{source_id}", response_model=DeleteDataSourceResponse)   #删除数据源接口
+async def delete_data_source(source_id: str) -> DeleteDataSourceResponse:
+    records = _read_registry()
+    target = next((record for record in records if record.id == source_id), None)
+
+    if not target:
+        local_source = next(
+            (source for source in _enumerate_local_datasets() if source.id == source_id),
+            None,
+        )
+        if local_source:
+            raise HTTPException(
+                status_code=400,
+                detail="Built-in local datasets cannot be deleted",
+            )
+
+        raise HTTPException(
+            status_code=404,
+            detail=f"Data source not found: {source_id}",
+        )
+
+    if target.type != "uploaded_file":
+        raise HTTPException(
+            status_code=400,
+            detail="Only uploaded files can be deleted from the data center",
+        )
+
+    file_deleted = False
+
+    if target.path:
+        file_path = Path(target.path)
+        uploads_root = _workspace_uploads_dir().resolve()
+
+        try:
+            resolved_file_path = file_path.resolve()
+
+            if resolved_file_path.exists():
+                if not _is_relative_to(resolved_file_path, uploads_root):
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Refusing to delete file outside data-center uploads directory",
+                    )
+
+                if resolved_file_path.is_file():
+                    resolved_file_path.unlink()
+                    file_deleted = True
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Data source path is not a file",
+                    )
+        except HTTPException:
+            raise
+        except Exception as exc:
+            logger.exception("Failed to delete data source file: %s", target.path)
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to delete data source file: {exc}",
+            ) from exc
+
+    remaining_records = [record for record in records if record.id != source_id]
+    _write_registry(remaining_records)
+
+    return DeleteDataSourceResponse(
+        success=True,
+        source_id=source_id,
+        file_deleted=file_deleted,
+        message=f"Deleted data source: {target.name}",
+    )
+
+@router.post("/sources/attach-to-thread", response_model=AttachDataSourcesToThreadResponse)
+async def attach_data_sources_to_thread(
+    payload: AttachDataSourcesToThreadRequest,
+) -> AttachDataSourcesToThreadResponse:
+    if not payload.thread_id:
+        raise HTTPException(status_code=400, detail="thread_id is required")
+
+    if not payload.source_ids:
+        return AttachDataSourcesToThreadResponse(
+            success=True,
+            files=[],
+            message="No data sources selected",
+        )
+
+    attached_files: list[dict[str, str]] = []
+
+    for source_id in payload.source_ids:
+        source = _find_registered_source(source_id)
+
+        if not source:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Data source not found: {source_id}",
+            )
+
+        if source.type != "uploaded_file":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Only uploaded files can be attached to chat: {source_id}",
+            )
+
+        if not source.path:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Data source has no file path: {source_id}",
+            )
+
+        source_path = Path(source.path)
+
+        if not source_path.exists() or not source_path.is_file():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Original file not found: {source_id}",
+            )
+
+        filename = str(source.metadata.get("filename") or source_path.name)
+        content = source_path.read_bytes()
+
+        file_info = await save_thread_upload_from_bytes(
+            thread_id=payload.thread_id,
+            filename=filename,
+            content=content,
+        )
+
+        attached_files.append(file_info)
+
+    return AttachDataSourcesToThreadResponse(
+        success=True,
+        files=attached_files,
+        message=f"Attached {len(attached_files)} data source file(s) to thread",
+    )

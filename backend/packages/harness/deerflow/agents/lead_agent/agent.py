@@ -219,9 +219,9 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     middlewares = build_lead_runtime_middlewares(lazy_init=True)
 
     # Add summarization middleware if enabled
-    summarization_middleware = _create_summarization_middleware()
-    if summarization_middleware is not None:
-        middlewares.append(summarization_middleware)
+    #summarization_middleware = _create_summarization_middleware()
+    #if summarization_middleware is not None:
+    #    middlewares.append(summarization_middleware)
 
     # Add TodoList middleware if plan mode is enabled
     is_plan_mode = config.get("configurable", {}).get("is_plan_mode", False)

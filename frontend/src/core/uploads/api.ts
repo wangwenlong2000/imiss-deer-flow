@@ -6,7 +6,7 @@ import { getBackendBaseURL } from "../config";
 
 export interface UploadedFileInfo {
   filename: string;
-  size: number;
+  size: number | string;
   path: string;
   virtual_path: string;
   artifact_url: string;
@@ -28,6 +28,40 @@ export interface ListFilesResponse {
   files: UploadedFileInfo[];
   count: number;
 }
+
+export interface AttachDataSourcesToThreadResponse {
+  success: boolean;
+  files: UploadedFileInfo[];
+  message: string;
+}
+
+export async function attachDataSourcesToThread(
+  threadId: string,
+  sourceIds: string[],
+): Promise<AttachDataSourcesToThreadResponse> {
+  const response = await fetch(
+    `${getBackendBaseURL()}/api/data-center/sources/attach-to-thread`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        thread_id: threadId,
+        source_ids: sourceIds,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorDetail(response, "Failed to attach data sources"),
+    );
+  }
+
+  return response.json();
+}
+
 
 async function readErrorDetail(
   response: Response,

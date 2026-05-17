@@ -50,92 +50,98 @@ def _set_cross_user_writable(path: Path) -> None:
     except OSError as exc:
         logger.warning(f"Failed to chmod {path} to 0o666: {exc}")
 
+async def save_thread_upload_from_bytes(
+    thread_id: str,
+    filename: str,
+    content: bytes,
+) -> dict[str, str]:
+    """Save bytes as a thread upload and run the same conversion/sandbox sync logic as manual upload."""
+    safe_filename = Path(filename).name
+    if (
+        not safe_filename
+        or safe_filename in {".", ".."}
+        or "/" in safe_filename
+        or "\\" in safe_filename
+    ):
+        raise HTTPException(status_code=400, detail=f"Invalid filename: {filename}")
+
+    uploads_dir = get_uploads_dir(thread_id)
+    paths = get_paths()
+
+    sandbox_provider = get_sandbox_provider()
+    sandbox_id = sandbox_provider.acquire(thread_id)
+    sandbox = sandbox_provider.get(sandbox_id)
+
+    file_path = uploads_dir / safe_filename
+    file_path.write_bytes(content)
+    _set_cross_user_writable(file_path)
+
+    relative_path = str(paths.sandbox_uploads_dir(thread_id) / safe_filename)
+    virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"
+
+    if sandbox_id != "local":
+        sandbox.update_file(virtual_path, content)
+
+    file_info = {
+        "filename": safe_filename,
+        "size": str(len(content)),
+        "path": relative_path,
+        "virtual_path": virtual_path,
+        "artifact_url": f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{safe_filename}",
+    }
+
+    logger.info(f"Saved file: {safe_filename} ({len(content)} bytes) to {relative_path}")
+
+    file_ext = file_path.suffix.lower()
+    if file_ext in CONVERTIBLE_EXTENSIONS:
+        md_path = await convert_file_to_markdown(file_path)
+        if md_path:
+            _set_cross_user_writable(md_path)
+            md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
+            md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
+
+            if sandbox_id != "local":
+                sandbox.update_file(md_virtual_path, md_path.read_bytes())
+
+            file_info["markdown_file"] = md_path.name
+            file_info["markdown_path"] = md_relative_path
+            file_info["markdown_virtual_path"] = md_virtual_path
+            file_info["markdown_artifact_url"] = (
+                f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{md_path.name}"
+            )
+
+    return file_info
+
 
 @router.post("", response_model=UploadResponse)
 async def upload_files(
     thread_id: str,
     files: list[UploadFile] = File(...),
 ) -> UploadResponse:
-    """Upload multiple files to a thread's uploads directory.
-
-    For PDF, PPT, Excel, and Word files, they will be converted to markdown using markitdown.
-    All files (original and converted) are saved to /mnt/user-data/uploads.
-
-    Args:
-        thread_id: The thread ID to upload files to.
-        files: List of files to upload.
-
-    Returns:
-        Upload response with success status and file information.
-    """
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
 
-    uploads_dir = get_uploads_dir(thread_id)
-    paths = get_paths()
     uploaded_files = []
-
-    sandbox_provider = get_sandbox_provider()
-    sandbox_id = sandbox_provider.acquire(thread_id)
-    sandbox = sandbox_provider.get(sandbox_id)
 
     for file in files:
         if not file.filename:
             continue
 
         try:
-            # Normalize filename to prevent path traversal
-            safe_filename = Path(file.filename).name
-            if not safe_filename or safe_filename in {".", ".."} or "/" in safe_filename or "\\" in safe_filename:
-                logger.warning(f"Skipping file with unsafe filename: {file.filename!r}")
-                continue
-
             content = await file.read()
-            file_path = uploads_dir / safe_filename
-            file_path.write_bytes(content)
-            _set_cross_user_writable(file_path)
-
-            # Build relative path from backend root
-            relative_path = str(paths.sandbox_uploads_dir(thread_id) / safe_filename)
-            virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"
-
-            # Keep local sandbox source of truth in thread-scoped host storage.
-            # For non-local sandboxes, also sync to virtual path for runtime visibility.
-            if sandbox_id != "local":
-                sandbox.update_file(virtual_path, content)
-
-            file_info = {
-                "filename": safe_filename,
-                "size": str(len(content)),
-                "path": relative_path,  # Actual filesystem path (relative to backend/)
-                "virtual_path": virtual_path,  # Path for Agent in sandbox
-                "artifact_url": f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{safe_filename}",  # HTTP URL
-            }
-
-            logger.info(f"Saved file: {safe_filename} ({len(content)} bytes) to {relative_path}")
-
-            # Check if file should be converted to markdown
-            file_ext = file_path.suffix.lower()
-            if file_ext in CONVERTIBLE_EXTENSIONS:
-                md_path = await convert_file_to_markdown(file_path)
-                if md_path:
-                    _set_cross_user_writable(md_path)
-                    md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
-                    md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
-
-                    if sandbox_id != "local":
-                        sandbox.update_file(md_virtual_path, md_path.read_bytes())
-
-                    file_info["markdown_file"] = md_path.name
-                    file_info["markdown_path"] = md_relative_path
-                    file_info["markdown_virtual_path"] = md_virtual_path
-                    file_info["markdown_artifact_url"] = f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{md_path.name}"
-
+            file_info = await save_thread_upload_from_bytes(
+                thread_id=thread_id,
+                filename=file.filename,
+                content=content,
+            )
             uploaded_files.append(file_info)
 
         except Exception as e:
             logger.error(f"Failed to upload {file.filename}: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to upload {file.filename}: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to upload {file.filename}: {str(e)}",
+            )
 
     return UploadResponse(
         success=True,

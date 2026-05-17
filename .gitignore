@@ -37,14 +37,32 @@ extensions_config.json
 # Coverage report
 coverage.xml
 coverage/
-.deer-flow/
-backend/.deer-flow/
+
+# DeerFlow local files
+/.deer-flow/
 .deerflow-no-nginx/
 .claude/
+backend/.deer-flow/
+
+# Custom skills
 skills/custom/*
 !skills/custom/.gitkeep
+
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**
+
+
+# Allow policy regulation custom skills
+!skills/custom/policies-regulations/
+!skills/custom/policies-regulations/**
+
+# Do not track local Playwright browser binaries
+skills/custom/policies-regulations/**/node_modules/
+skills/custom/policies-regulations/**/node_modules/**
+skills/custom/policies-regulations/**/.playwright-browsers/
+skills/custom/policies-regulations/**/.playwright-browsers/**
+
+# Logs
 logs/
 log/
 backend/log/

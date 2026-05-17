@@ -8,6 +8,13 @@ export interface UploadDataSourcesResponse {
   message: string;
 }
 
+export interface DeleteDataSourceResponse {
+  success: boolean;
+  source_id: string;
+  file_deleted: boolean;
+  message: string;
+}
+
 async function readErrorDetail(
   response: Response,
   fallback: string,
@@ -23,6 +30,31 @@ export async function listDataSources(): Promise<DataSourceListResponse> {
       await readErrorDetail(response, "Failed to list data sources"),
     );
   }
+  return response.json();
+}
+
+
+export function getDataSourceDownloadUrl(sourceId: string) {
+  return `${getBackendBaseURL()}/api/data-center/sources/${sourceId}/download`;
+}
+
+
+export async function deleteDataSource(
+  sourceId: string,
+): Promise<DeleteDataSourceResponse> {
+  const response = await fetch(
+    `${getBackendBaseURL()}/api/data-center/sources/${sourceId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorDetail(response, "Failed to delete data source"),
+    );
+  }
+
   return response.json();
 }
 

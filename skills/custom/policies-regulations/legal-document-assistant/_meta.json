@@ -1,0 +1,11 @@
+{
+  "owner": "xuleff",
+  "slug": "legal-document-assistant",
+  "displayName": "legal document assistant",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1773914410619,
+    "commit": "https://github.com/openclaw/skills/commit/759e05c097343c5e93d292fd27cdd6536c19aa4f"
+  },
+  "history": []
+}

@@ -63,6 +63,13 @@ import {
   useDataSources,
   writeSelectedDataSourceIds,
 } from "@/core/data-center";
+
+import {
+  useAttachDataSourcesToThread,
+  type UploadedFileInfo,
+} from "@/core/uploads";
+import { toast } from "sonner";
+
 import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
 import type { ReasoningEffort } from "@/core/threads/reasoning";
@@ -172,7 +179,7 @@ export function InputBox({
   );
   const [dataDialogOpen, setDataDialogOpen] = useState(false);
   const [selectedDataSourceIds, setSelectedDataSourceIds] = useState<string[]>(
-    [],
+    () => readSelectedDataSourceIds(),
   );
   const [draftSelectedDataSourceIds, setDraftSelectedDataSourceIds] = useState<
     string[]
@@ -183,10 +190,7 @@ export function InputBox({
   const [dataDialogQuery, setDataDialogQuery] = useState("");
   const [selectionAreaHeight, setSelectionAreaHeight] = useState(0);
 
-  useEffect(() => {
-    setSelectedDataSourceIds(readSelectedDataSourceIds());
-  }, []);
-
+  
   useEffect(() => {
     writeSelectedDataSourceIds(selectedDataSourceIds);
   }, [selectedDataSourceIds]);
@@ -299,6 +303,7 @@ export function InputBox({
   }, [selectedDataSourceIds, selectedDataSources]);
 
   const attachments = usePromptInputAttachments();
+  const attachDataSourcesMutation = useAttachDataSourcesToThread(threadId);
 
   const dialogSources = useMemo(() => {
     return (dataSourcesResponse?.sources ?? [])
@@ -339,12 +344,37 @@ export function InputBox({
         onStop?.();
         return;
       }
+
       if (!message.text) {
         return;
       }
+
       setFollowups([]);
       setFollowupsHidden(false);
       setFollowupsLoading(false);
+
+      let attachedDataCenterFiles: UploadedFileInfo[] = [];
+
+      if (selectedDataSourceIds.length > 0) {
+        try {
+          const response = await attachDataSourcesMutation.mutateAsync(
+            selectedDataSourceIds,
+          );
+
+          attachedDataCenterFiles = response.files;
+
+          setSelectedDataSourceIds([]);
+          writeSelectedDataSourceIds([]);
+
+          toast.success("已从数据中心带入文件，可直接开始提问");
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "数据中心文件带入失败",
+          );
+          return;
+        }
+      }
+
       onSubmit?.(message, {
         extraContext: {
           selected_data_sources: selectedDataSources.map((source) => ({
@@ -353,10 +383,18 @@ export function InputBox({
             type: source.type,
             path: source.path,
           })),
+          attached_data_center_files: attachedDataCenterFiles,
         },
       });
     },
-    [onSubmit, onStop, selectedDataSources, status],
+    [
+      attachDataSourcesMutation,
+      onSubmit,
+      onStop,
+      selectedDataSourceIds,
+      selectedDataSources,
+      status,
+    ],
   );
 
   const requestFormSubmit = useCallback(() => {
@@ -500,7 +538,10 @@ export function InputBox({
           </div>
         )}
         {selectedDataSources.length > 0 && (
-          <div ref={selectionAreaRef} className="px-4 pt-4 pb-2">
+          <div
+            ref={selectionAreaRef}
+            className="relative z-20 w-full self-stretch px-4 pt-4 pb-2"
+          >
             <div className="flex flex-wrap items-start gap-2">
               {selectedDataSources.map((source) => (
                 <div

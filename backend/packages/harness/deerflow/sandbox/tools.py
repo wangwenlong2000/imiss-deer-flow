@@ -29,12 +29,15 @@ _SKILLS_VIRTUAL_PREFIX = "/mnt/skills"
 _READ_ONLY_LOCAL_DATASET_MAPPINGS = {
     "/mnt/datasets": str((_REPO_ROOT / "datasets").resolve()),
     "/mnt/datasets/network-traffic": str((_REPO_ROOT / "datasets" / "network-traffic").resolve()),
+    "/mnt/datasets/policies-regulations": str((_REPO_ROOT / "datasets" / "policies-regulations").resolve()),
 }
 _DATASET_PATH_ALIASES = {
     "datasets": "/mnt/datasets",
     "./datasets": "/mnt/datasets",
     "datasets/network-traffic": "/mnt/datasets/network-traffic",
     "./datasets/network-traffic": "/mnt/datasets/network-traffic",
+    "datasets/policies-regulations": "/mnt/datasets/policies-regulations",
+    "./datasets/policies-regulations": "/mnt/datasets/policies-regulations",
 }
 _UPLOADS_VIRTUAL_PREFIX = f"{VIRTUAL_PATH_PREFIX}/uploads/"
 _TEXT_DATA_FILE_EXTENSIONS = {".csv", ".json", ".jsonl"}

@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports
+.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports sandbox-build docker-build-all
 
 PYTHON ?= python
 
@@ -24,17 +24,19 @@ help:
 	@echo "  make clean           - Clean up processes and temporary files"
 	@echo ""
 	@echo "Docker Production Commands:"
-	@echo "  make up              - Build and start production Docker services (localhost:2026)"
+	@echo "  make up              - Build and start production Docker services (localhost:3328)"
 	@echo "  make down            - Stop and remove production Docker containers"
 	@echo ""
 	@echo "Docker Development Commands:"
 	@echo "  make docker-init     - Build the custom k3s image (with pre-cached sandbox image)"
-	@echo "  make docker-start    - Start Docker services (mode-aware from config.yaml, localhost:2026)"
+	@echo "  make docker-start    - Start Docker services (mode-aware from config.yaml, localhost:3328)"
 	@echo "  make update-docker-ports-cname - Update Docker/Nginx port config from config.yaml and use current username to rename container name(anker-deer-flow-nginx) and Compose project names (anker-deer-flow) to avoid conflicts when multiple developers on the same machine. This is useful when using Docker development environment with multiple branches or projects."
 	@echo "  make docker-stop     - Stop Docker development services"
 	@echo "  make docker-logs     - View Docker development logs"
 	@echo "  make docker-logs-frontend - View Docker frontend logs"
 	@echo "  make docker-logs-gateway - View Docker gateway logs"
+	@echo "  make sandbox-build    - Build the custom sandbox image (auto-prefixed by user)"
+	@echo "  make docker-build-all - Build all Docker images used by DeerFlow"
 
 config:
 	@$(PYTHON) ./scripts/configure.py
@@ -175,6 +177,11 @@ docker-logs-frontend:
 	@./scripts/docker.sh logs --frontend
 docker-logs-gateway:
 	@./scripts/docker.sh logs --gateway
+
+sandbox-build:
+	@./scripts/docker.sh sandbox-build
+docker-build-all:
+	@./scripts/docker.sh build-all
 
 # ==========================================
 # Production Docker Commands

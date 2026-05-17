@@ -54,14 +54,14 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         if effective_wte.get("extra_body", {}).get("thinking", {}).get("type"):
             # OpenAI-compatible gateway: thinking is nested under extra_body
             kwargs.update({"extra_body": {"thinking": {"type": "disabled"}}})
-            kwargs.update({"reasoning_effort": "minimum"})
+            kwargs.update({"reasoning_effort": "minimal"})
         elif effective_wte.get("thinking", {}).get("type"):
             # Native langchain_anthropic: thinking is a direct constructor parameter
             kwargs.update({"thinking": {"type": "disabled"}})
 
-    # Backward compatibility: older frontend/local cache may still send "minimal".
-    if kwargs.get("reasoning_effort") == "minimal":
-        kwargs["reasoning_effort"] = "minimum"
+    # Backward compatibility: older frontend/local cache may still send "minimum".
+    if kwargs.get("reasoning_effort") == "minimum":
+        kwargs["reasoning_effort"] = "minimal"
 
     if not model_config.supports_reasoning_effort and "reasoning_effort" in kwargs:
         del kwargs["reasoning_effort"]

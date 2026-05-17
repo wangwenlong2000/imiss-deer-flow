@@ -5,10 +5,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
+
 import {
+  attachDataSourcesToThread,
   deleteUploadedFile,
   listUploadedFiles,
   uploadFiles,
+  type AttachDataSourcesToThreadResponse,
   type UploadedFileInfo,
   type UploadResponse,
 } from "./api";
@@ -23,6 +26,23 @@ export function useUploadFiles(threadId: string) {
     mutationFn: (files: File[]) => uploadFiles(threadId, files),
     onSuccess: () => {
       // Invalidate the uploaded files list
+      void queryClient.invalidateQueries({
+        queryKey: ["uploads", "list", threadId],
+      });
+    },
+  });
+}
+
+/**
+ * Hook to attach selected data center sources to a thread
+ */
+export function useAttachDataSourcesToThread(threadId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<AttachDataSourcesToThreadResponse, Error, string[]>({
+    mutationFn: (sourceIds: string[]) =>
+      attachDataSourcesToThread(threadId, sourceIds),
+    onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["uploads", "list", threadId],
       });

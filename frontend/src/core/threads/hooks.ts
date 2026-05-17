@@ -31,6 +31,22 @@ export type ThreadStreamOptions = {
   onToolEnd?: (event: ToolEndEvent) => void;
 };
 
+function toFileSizeNumber(size: UploadedFileInfo["size"]) {
+  if (typeof size === "number") {
+    return size;
+  }
+
+  const parsed = Number(size);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function getAttachedDataCenterFiles(
+  extraContext?: Record<string, unknown>,
+): UploadedFileInfo[] {
+  const value = extraContext?.attached_data_center_files;
+  return Array.isArray(value) ? (value as UploadedFileInfo[]) : [];
+}
+
 export function useThreadStream({
   threadId,
   context,
@@ -212,7 +228,8 @@ export function useThreadStream({
 
       _handleOnStart(threadId);
 
-      let uploadedFileInfo: UploadedFileInfo[] = [];
+      let uploadedFileInfo: UploadedFileInfo[] =
+        getAttachedDataCenterFiles(extraContext);
 
       try {
         // Upload files first if any
@@ -259,7 +276,7 @@ export function useThreadStream({
 
             if (files.length > 0) {
               const uploadResponse = await uploadFiles(threadId, files);
-              uploadedFileInfo = uploadResponse.files;
+              uploadedFileInfo = [...uploadedFileInfo, ...uploadResponse.files];
 
               // Update optimistic human message with uploaded status + paths
               const uploadedFiles: FileInMessage[] = uploadedFileInfo.map(
@@ -297,14 +314,12 @@ export function useThreadStream({
         }
 
         // Build files metadata for submission (included in additional_kwargs)
-        const filesForSubmit: FileInMessage[] = uploadedFileInfo.map(
-          (info) => ({
-            filename: info.filename,
-            size: info.size,
-            path: info.virtual_path,
-            status: "uploaded" as const,
-          }),
-        );
+        const filesForSubmit: FileInMessage[] = uploadedFileInfo.map((info) => ({
+          filename: info.filename,
+          size: toFileSizeNumber(info.size),
+          path: info.virtual_path,
+          status: "uploaded" as const,
+        }));
 
         await thread.submit(
           {

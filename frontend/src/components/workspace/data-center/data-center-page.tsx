@@ -7,7 +7,19 @@ import {
   HardDriveDownloadIcon,
   RefreshCwIcon,
   SearchIcon,
+  Trash2Icon,
 } from "lucide-react";
+
+import {
+  deleteDataSource,
+  readSelectedDataSourceIds,
+  uploadDataSourceFiles,
+  useDataSourceDetail,
+  useDataSources,
+  type DataSourceRecord,
+  writeSelectedDataSourceIds,
+} from "@/core/data-center";
+
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
 
@@ -22,14 +34,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  readSelectedDataSourceIds,
-  uploadDataSourceFiles,
-  useDataSourceDetail,
-  useDataSources,
-  type DataSourceRecord,
-  writeSelectedDataSourceIds,
-} from "@/core/data-center";
 import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 import {
@@ -64,6 +68,63 @@ function iconOfSource(source: DataSourceRecord) {
   return FolderArchiveIcon;
 }
 
+function getDataSourceDownloadUrl(sourceId: string) {
+  return `/api/data-center/sources/${encodeURIComponent(sourceId)}/download`;
+}
+
+function getMetadataString(source: DataSourceRecord, key: string) {
+  const value = source.metadata?.[key];
+  return typeof value === "string" ? value : "";
+}
+
+function getMetadataNumber(source: DataSourceRecord, key: string) {
+  const value = source.metadata?.[key];
+  return typeof value === "number" ? value : null;
+}
+
+function getDisplayFilename(source: DataSourceRecord) {
+  return getMetadataString(source, "filename") || source.name;
+}
+
+function formatFileSize(value: number | null | undefined) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  let size = value;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${new Intl.NumberFormat("zh-CN", {
+    maximumFractionDigits: unitIndex === 0 ? 0 : 1,
+  }).format(size)} ${units[unitIndex]}`;
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "-";
+
+  const normalized = value.replace(/(\.\d{3})\d+/, "$1");
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export function DataCenterPage() {
   const { t } = useI18n();
   const { data, isLoading, error, refetch } = useDataSources();
@@ -73,6 +134,8 @@ export function DataCenterPage() {
   const [chatSelection, setChatSelection] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [databaseDialogOpen, setDatabaseDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -137,6 +200,34 @@ export function DataCenterPage() {
     }
   };
 
+  const handleDeleteSelectedSource = async () => {
+    if (!selectedSource) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const response = await deleteDataSource(selectedSource.id);
+
+      const nextSelection = chatSelection.filter((id) => id !== selectedSource.id);
+      setChatSelection(nextSelection);
+      writeSelectedDataSourceIds(nextSelection);
+
+      setSelectedId("");
+      await refetch();
+
+      setDeleteDialogOpen(false);
+      toast.success(response.message || "数据源已删除");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete data source",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleSelectFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) {
@@ -177,9 +268,9 @@ export function DataCenterPage() {
         />
         <div className="flex size-full gap-0 overflow-hidden rounded-none xl:p-4">
           <section className="bg-background flex h-full w-full min-w-0 flex-col overflow-hidden border xl:rounded-3xl">
-            <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)]">
-              <aside className="border-r">
-                <div className="flex h-20 items-center justify-between border-b px-6">
+            <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[430px_minmax(0,1fr)]">
+              <aside className="flex h-full min-h-0 flex-col overflow-hidden border-r">
+                <div className="flex h-20 shrink-0 items-center justify-between border-b px-6">
                   <div>
                     <h1 className="text-lg font-semibold">{t.dataCenter.title}</h1>
                     <p className="text-muted-foreground mt-1 text-sm">
@@ -207,7 +298,7 @@ export function DataCenterPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 border-b p-6">
+                <div className="shrink-0 space-y-4 border-b p-6">
                   <div className="relative">
                     <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
@@ -245,8 +336,8 @@ export function DataCenterPage() {
                   </div>
                 </div>
 
-                <ScrollArea className="h-[calc(100vh-19rem)] xl:h-[calc(100vh-15rem)]">
-                  <div className="space-y-2 p-4">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                  <div className="space-y-2 p-4 pb-20">
                     {error && (
                       <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
                         {error instanceof Error
@@ -279,33 +370,65 @@ export function DataCenterPage() {
                               <Icon className="size-4" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <div className="truncate font-medium">{source.name}</div>
-                                <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <div
+                                  className="min-w-0 flex-1 text-sm font-medium leading-5 line-clamp-2 break-all"
+                                  title={source.name}
+                                >
+                                  {source.name}
+                                </div>
+                                <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
                                   {labelOfType(source.type, t)}
                                 </span>
                               </div>
-                              <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
-                                {source.description}
+
+                              <p
+                                className="text-muted-foreground mt-1 line-clamp-2 text-xs break-words"
+                                title={source.description ?? ""}
+                              >
+                                {source.description || t.dataCenter.noDescription}
                               </p>
+
+                              <div className="text-muted-foreground mt-2 space-y-1 text-[11px]">
+                                {source.type === "uploaded_file" && (
+                                  <div className="inline-flex rounded-full bg-muted px-2 py-0.5">
+                                    {formatFileSize(getMetadataNumber(source, "size_bytes"))}
+                                  </div>
+                                )}
+
+                                <div
+                                  className="line-clamp-2 max-w-full rounded-lg bg-muted px-2 py-1 break-all"
+                                  title={getDisplayFilename(source)}
+                                >
+                                  {getDisplayFilename(source)}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </button>
                       );
                     })}
                   </div>
-                </ScrollArea>
+                </div>
               </aside>
 
-              <div className="grid min-h-0 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="grid h-full min-h-0 overflow-hidden grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="relative flex min-h-[32rem] flex-col items-center justify-center border-r px-8 py-10">
                   {selectedSource ? (
                     <div className="mx-auto flex w-full max-w-xl flex-col items-center text-center">
                       <div className="bg-primary/8 mb-6 rounded-[2rem] border border-dashed px-10 py-12">
                         <HardDriveDownloadIcon className="text-primary mx-auto size-12" />
                       </div>
-                      <h2 className="text-2xl font-semibold">{selectedSource.name}</h2>
-                      <p className="text-muted-foreground mt-3 max-w-md text-sm leading-6">
+                      <h2
+                        className="max-w-full break-words text-2xl font-semibold"
+                        title={selectedSource.name}
+                      >
+                        {selectedSource.name}
+                      </h2>
+                      <p
+                        className="text-muted-foreground mt-3 max-w-md break-words text-sm leading-6"
+                        title={selectedSource.description ?? ""}
+                      >
                         {selectedSource.description}
                       </p>
                       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
@@ -320,6 +443,24 @@ export function DataCenterPage() {
                         </span>
                       </div>
                       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                        {selectedSource.type === "uploaded_file" && (
+                          <Button asChild variant="outline">
+                            <a href={getDataSourceDownloadUrl(selectedSource.id)}>
+                              <HardDriveDownloadIcon className="mr-2 size-4" />
+                              下载原始文件
+                            </a>
+                          </Button>
+                        )}
+                        {selectedSource.type === "uploaded_file" && (
+                          <Button
+                            variant="destructive"
+                            onClick={() => setDeleteDialogOpen(true)}
+                            disabled={isDeleting}
+                          >
+                            <Trash2Icon className="mr-2 size-4" />
+                            删除数据源
+                          </Button>
+                        )}
                         <Button
                           variant={
                             chatSelection.includes(selectedSource.id)
@@ -332,6 +473,7 @@ export function DataCenterPage() {
                             ? t.dataCenter.selectedForChat
                             : t.dataCenter.selectForChat}
                         </Button>
+
                         <Button
                           variant="outline"
                           onClick={() => setDatabaseDialogOpen(true)}
@@ -363,58 +505,88 @@ export function DataCenterPage() {
                   )}
                 </div>
 
-                <aside className="bg-background/60 flex flex-col">
-                  <div className="border-b px-6 py-5">
+                <aside className="bg-background/60 flex h-full min-h-0 flex-col overflow-hidden">
+                  <div className="shrink-0 border-b px-6 py-5">
                     <div className="font-medium">{t.dataCenter.sourceDetail}</div>
                     <div className="text-muted-foreground mt-1 text-xs">
                       {t.dataCenter.mockHint}
                     </div>
                   </div>
-                  <div className="space-y-5 p-6">
-                    <div>
-                      <div className="text-muted-foreground text-xs uppercase">
-                        {t.dataCenter.selectedDataset}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {selectedChatSources.map((source) => (
-                          <span
-                            key={source.id}
-                            className="bg-primary/8 text-primary rounded-full px-3 py-1 text-xs"
-                          >
-                            {source.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
 
-                    {selectedSource && (
-                      <>
-                        <DetailItem
-                          label={t.dataCenter.sourceType}
-                          value={labelOfType(selectedSourceDetail?.type ?? selectedSource.type, t)}
-                        />
-                        <DetailItem
-                          label={t.dataCenter.sourceStatus}
-                          value={labelOfStatus(selectedSourceDetail?.status ?? selectedSource.status, t)}
-                        />
-                        <DetailItem
-                          label={t.dataCenter.sourceLocation}
-                          value={selectedSourceDetail?.path ?? selectedSource.path ?? "-"}
-                        />
-                        <DetailItem
-                          label={t.dataCenter.sourceUpdatedAt}
-                          value={selectedSourceDetail?.updated_at ?? selectedSource.updated_at ?? "-"}
-                        />
-                        <DetailItem
-                          label={t.dataCenter.sourceDescription}
-                          value={
-                            selectedSourceDetail?.description ||
-                            selectedSource.description ||
-                            t.dataCenter.noDescription
-                          }
-                        />
-                      </>
-                    )}
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                    <div className="space-y-5 p-6 pb-10">
+                      <div>
+                        <div className="text-muted-foreground text-xs uppercase">
+                          {t.dataCenter.selectedDataset}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedChatSources.map((source) => (
+                            <span
+                              key={source.id}
+                              className="bg-primary/8 text-primary rounded-full px-3 py-1 text-xs"
+                            >
+                              {source.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {selectedSource && (
+                        <>
+                          <DetailItem
+                            label={t.dataCenter.sourceType}
+                            value={labelOfType(selectedSourceDetail?.type ?? selectedSource.type, t)}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceStatus}
+                            value={labelOfStatus(selectedSourceDetail?.status ?? selectedSource.status, t)}
+                          />
+
+                          {selectedSource.type === "uploaded_file" && (
+                            <>
+                              <DetailItem
+                                label="文件名"
+                                value={getDisplayFilename(selectedSourceDetail ?? selectedSource)}
+                              />
+                              <DetailItem
+                                label="文件大小"
+                                value={formatFileSize(
+                                  getMetadataNumber(selectedSourceDetail ?? selectedSource, "size_bytes"),
+                                )}
+                              />
+                            </>
+                          )}
+
+                          <DetailItem
+                            label={t.dataCenter.sourceLocation}
+                            value={selectedSourceDetail?.path ?? selectedSource.path ?? "-"}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceUpdatedAt}
+                            value={formatDateTime(
+                              selectedSourceDetail?.updated_at ?? selectedSource.updated_at,
+                            )}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceDescription}
+                            value={
+                              selectedSourceDetail?.description ||
+                              selectedSource.description ||
+                              t.dataCenter.noDescription
+                            }
+                          />
+
+                          {selectedSource.type === "uploaded_file" && (
+                            <Button asChild className="w-full" variant="outline">
+                              <a href={getDataSourceDownloadUrl(selectedSource.id)}>
+                                <HardDriveDownloadIcon className="mr-2 size-4" />
+                                下载原始文件
+                              </a>
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </aside>
               </div>
@@ -436,17 +608,55 @@ export function DataCenterPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>删除数据源</DialogTitle>
+              <DialogDescription>
+                确定要删除
+                {selectedSource ? `「${selectedSource.name}」` : "这个数据源"}
+                吗？此操作会从数据中心移除记录，并删除后端保存的原始文件，无法撤销。
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={isDeleting}
+              >
+                取消
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => void handleDeleteSelectedSource()}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "删除中..." : "确认删除"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </WorkspaceBody>
     </WorkspaceContainer>
   );
 }
 
-function DetailItem({ label, value }: { label: string; value: string }) {
+function DetailItem({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | null;
+}) {
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <div className="text-muted-foreground text-xs uppercase">{label}</div>
-      <div className="rounded-2xl border bg-white/80 px-4 py-3 text-sm leading-6">
-        {value}
+      <div
+        className="min-w-0 max-w-full rounded-2xl border bg-white/80 px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-all"
+        title={value ?? ""}
+      >
+        {value || "-"}
       </div>
     </div>
   );
