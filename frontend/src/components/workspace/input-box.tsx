@@ -64,11 +64,12 @@ import {
   writeSelectedDataSourceIds,
 } from "@/core/data-center";
 import { useI18n } from "@/core/i18n/hooks";
+import { extractContentFromMessage } from "@/core/messages/utils";
 import { useModels } from "@/core/models/hooks";
 import { useSkills } from "@/core/skills/hooks";
-import type { ReasoningEffort } from "@/core/threads/reasoning";
 import type { AgentThreadContext } from "@/core/threads";
-import { displayMessagesOfThread, textOfMessage } from "@/core/threads/utils";
+import type { ReasoningEffort } from "@/core/threads/reasoning";
+import { displayMessagesOfThread } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
 
 import {
@@ -161,7 +162,23 @@ export function InputBox({
   const { textInput } = usePromptInputController();
   const promptRootRef = useRef<HTMLDivElement | null>(null);
   const selectionAreaRef = useRef<HTMLDivElement | null>(null);
-  const displayMessages = displayMessagesOfThread(thread);
+  const displayMessages = useMemo(
+    () => displayMessagesOfThread(thread),
+    [thread],
+  );
+  const lastAiId = useMemo(() => {
+    return [...displayMessages].reverse().find((m) => m.type === "ai")?.id ?? null;
+  }, [displayMessages]);
+  const recentSuggestionMessages = useMemo(() => {
+    return displayMessages
+      .filter((m) => m.type === "human" || m.type === "ai")
+      .map((m) => {
+        const role = m.type === "human" ? "user" : "assistant";
+        return { role, content: extractContentFromMessage(m) };
+      })
+      .filter((m) => m.content.trim().length > 0)
+      .slice(-6);
+  }, [displayMessages]);
 
   const [followups, setFollowups] = useState<string[]>([]);
   const [followupsHidden, setFollowupsHidden] = useState(false);
@@ -290,20 +307,6 @@ export function InputBox({
       selectedDataSourceIds.includes(source.id),
     );
   }, [dataSourcesResponse?.sources, selectedDataSourceIds]);
-
-  const enabledSkillNames = useMemo(() => {
-    return (
-      registrySkills
-        .filter((s) => s.enabled)
-        .map((s) => s.name)
-    );
-  }, [registrySkills]);
-
-  const skillDetails = useMemo(() => {
-    return registrySkills.filter(
-      (s) => s.enabled && enabledSkillIds.includes(s.name),
-    );
-  }, [registrySkills, enabledSkillIds]);
 
   useEffect(() => {
     if (!selectedDataSourceIds.length) {
@@ -443,24 +446,12 @@ export function InputBox({
       return;
     }
 
-    const lastAi = [...displayMessages].reverse().find((m) => m.type === "ai");
-    const lastAiId = lastAi?.id ?? null;
     if (!lastAiId || lastAiId === lastGeneratedForAiIdRef.current) {
       return;
     }
     lastGeneratedForAiIdRef.current = lastAiId;
 
-    const recent = displayMessages
-      .filter((m) => m.type === "human" || m.type === "ai")
-      .map((m) => {
-        const role = m.type === "human" ? "user" : "assistant";
-        const content = textOfMessage(m) ?? "";
-        return { role, content };
-      })
-      .filter((m) => m.content.trim().length > 0)
-      .slice(-6);
-
-    if (recent.length === 0) {
+    if (recentSuggestionMessages.length === 0) {
       return;
     }
 
@@ -473,7 +464,7 @@ export function InputBox({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        messages: recent,
+        messages: recentSuggestionMessages,
         n: 3,
         model_name: context.model_name ?? undefined,
       }),
@@ -500,7 +491,15 @@ export function InputBox({
       });
 
     return () => controller.abort();
-  }, [context.model_name, disabled, displayMessages, isMock, status, threadId]);
+  }, [
+    context.model_name,
+    disabled,
+    isMock,
+    lastAiId,
+    recentSuggestionMessages,
+    status,
+    threadId,
+  ]);
 
   return (
     <div ref={promptRootRef} className="relative">
@@ -1103,7 +1102,7 @@ export function InputBox({
                             {source.name}
                           </div>
                           <div className="text-muted-foreground mt-1 truncate text-xs">
-                            {source.description || source.path || "-"}
+                            {source.description ?? source.path ?? "-"}
                           </div>
                         </div>
                         <div className="text-muted-foreground text-sm">

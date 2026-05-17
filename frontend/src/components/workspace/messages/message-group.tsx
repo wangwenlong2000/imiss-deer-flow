@@ -25,8 +25,10 @@ import { CodeBlock } from "@/components/ai-elements/code-block";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/core/i18n/hooks";
 import {
+  extractTextFromMessage,
   extractReasoningContentFromMessage,
   findToolCallResult,
+  isHiddenStepMessage,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { extractTitleFromMarkdown } from "@/core/utils/markdown";
@@ -56,6 +58,10 @@ export function MessageGroup({
     env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true",
   );
   const steps = useMemo(() => convertToSteps(messages), [messages]);
+  const hiddenSteps = useMemo(
+    () => steps.filter((step) => step.type === "hiddenStep"),
+    [steps],
+  );
   const lastToolCallStep = useMemo(() => {
     const filteredSteps = steps.filter((step) => step.type === "toolCall");
     return filteredSteps[filteredSteps.length - 1];
@@ -63,7 +69,9 @@ export function MessageGroup({
   const aboveLastToolCallSteps = useMemo(() => {
     if (lastToolCallStep) {
       const index = steps.indexOf(lastToolCallStep);
-      return steps.slice(0, index);
+      return steps
+        .slice(0, index)
+        .filter((step) => step.type !== "hiddenStep");
     }
     return [];
   }, [lastToolCallStep, steps]);
@@ -82,6 +90,27 @@ export function MessageGroup({
       className={cn("w-full gap-2 rounded-lg border p-0.5", className)}
       open={true}
     >
+      {hiddenSteps.length > 0 && (
+        <ChainOfThoughtContent className="px-4 pb-2">
+          {hiddenSteps.map((step) => (
+            <ChainOfThoughtStep
+              key={step.id}
+              label={
+                <MarkdownContent
+                  content={
+                    step.title
+                      ? `### ${step.title}\n\n${step.content}`
+                      : step.content
+                  }
+                  isLoading={isLoading}
+                  rehypePlugins={rehypePlugins}
+                />
+              }
+              icon={LightbulbIcon}
+            />
+          ))}
+        </ChainOfThoughtContent>
+      )}
       {aboveLastToolCallSteps.length > 0 && (
         <Button
           key="above"
@@ -438,11 +467,29 @@ interface CoTToolCallStep extends GenericCoTStep<"toolCall"> {
   result?: string;
 }
 
-type CoTStep = CoTReasoningStep | CoTToolCallStep;
+interface CoTHiddenStep extends GenericCoTStep<"hiddenStep"> {
+  title?: string;
+  content: string;
+}
+
+type CoTStep = CoTReasoningStep | CoTToolCallStep | CoTHiddenStep;
 
 function convertToSteps(messages: Message[]): CoTStep[] {
   const steps: CoTStep[] = [];
   for (const message of messages) {
+    if (isHiddenStepMessage(message)) {
+      const hiddenSteps = formatHiddenSteps(extractTextFromMessage(message));
+      steps.push(
+        ...hiddenSteps.map((step, index) => ({
+          id: `${message.id ?? "hidden-step"}-${index}`,
+          messageId: message.id,
+          type: "hiddenStep" as const,
+          ...step,
+        })),
+      );
+      continue;
+    }
+
     if (message.type === "ai") {
       const reasoning = extractReasoningContentFromMessage(message);
       if (reasoning) {
@@ -482,4 +529,52 @@ function convertToSteps(messages: Message[]): CoTStep[] {
     }
   }
   return steps;
+}
+
+function formatHiddenSteps(
+  content: string,
+): Array<{ title?: string; content: string }> {
+  const stripped = content
+    .replace(/<\/?system_reminder>/g, "")
+    .replace(
+      /Use the following current-turn intent and routing guidance when deciding whether to create or update todos\.\s*Treat it as planning context, not as a user request\./g,
+      "",
+    )
+    .trim();
+
+  const matches = Array.from(
+    stripped.matchAll(/<hidden_step\b([^>]*)>([\s\S]*?)<\/hidden_step>/g),
+  );
+
+  if (matches.length === 0) {
+    return stripped ? [{ content: stripped }] : [];
+  }
+
+  return matches
+    .map((match) => {
+      const attrs = match[1] ?? "";
+      const body = (match[2] ?? "").trim();
+      return {
+        title: extractHiddenStepTitle(attrs) ?? undefined,
+        content: body,
+      };
+    })
+    .filter((step) => step.content.length > 0);
+}
+
+function extractHiddenStepTitle(attrs: string) {
+  const titleMatch = /\btitle=(["'])(.*?)\1/.exec(attrs);
+  if (titleMatch?.[2]) {
+    return titleMatch[2];
+  }
+
+  const sourceMatch = /\bsource=(["'])(.*?)\1/.exec(attrs);
+  const source = sourceMatch?.[2];
+  if (source === "intent_recognition") {
+    return "意图识别";
+  }
+  if (source === "skill_router") {
+    return "SkillRouter 路由";
+  }
+  return null;
 }

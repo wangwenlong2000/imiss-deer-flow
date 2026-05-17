@@ -348,7 +348,14 @@ export function useThreadStream({
         throw error;
       }
     },
-    [thread, _handleOnStart, t.uploads.uploadingFiles, context, queryClient],
+    [
+      thread,
+      _handleOnStart,
+      t.uploads.uploadingFiles,
+      context,
+      queryClient,
+      displayMessages.length,
+    ],
   );
 
   // Merge thread with optimistic messages for display
@@ -358,7 +365,10 @@ export function useThreadStream({
           ...thread,
           messages: [...displayMessages, ...optimisticMessages],
         } as typeof thread)
-      : thread;
+      : ({
+          ...thread,
+          messages: displayMessages,
+        } as typeof thread);
 
   return [mergedThread, sendMessage] as const;
 }

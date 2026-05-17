@@ -6,6 +6,7 @@ from langchain_core.runnables import RunnableConfig
 
 from deerflow.agents.lead_agent.prompt import apply_prompt_template
 from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from deerflow.agents.middlewares.intent_recognition_middleware import IntentRecognitionMiddleware
 from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
 from deerflow.agents.middlewares.raw_transcript_middleware import RawTranscriptMiddleware
@@ -229,6 +230,11 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     summarization_middleware = _create_summarization_middleware()
     if summarization_middleware is not None:
         middlewares.append(summarization_middleware)
+
+    # Intent recognition must run before SkillRouter so routing can use the
+    # rewritten query and configured scene hints.
+    if get_skill_router_config().enabled:
+        middlewares.append(IntentRecognitionMiddleware(model_name=model_name))
 
     # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
     if get_skill_router_config().enabled:

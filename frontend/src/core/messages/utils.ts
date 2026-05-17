@@ -52,7 +52,21 @@ export function groupMessages<T>(
   }
 
   for (const message of messages) {
-    if (message.name === "todo_reminder") {
+    if (isHiddenStepMessage(message)) {
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup?.type !== "assistant:processing") {
+        groups.push({
+          id: message.id,
+          type: "assistant:processing",
+          messages: [message],
+        });
+      } else {
+        lastGroup.messages.push(message);
+      }
+      continue;
+    }
+
+    if (isInternalMessage(message)) {
       continue;
     }
 
@@ -75,11 +89,6 @@ export function groupMessages<T>(
         const open = lastOpenGroup();
         if (open) {
           open.messages.push(message);
-        } else {
-          console.error(
-            "Unexpected tool message outside a processing group",
-            message,
-          );
         }
       }
       continue;
@@ -112,9 +121,9 @@ export function groupMessages<T>(
         }
       }
 
-      // Not an else-if: a message with reasoning + content (but no tool calls) goes
-      // into the processing group above AND gets its own assistant bubble here.
-      if (hasContent(message) && !hasToolCalls(message)) {
+      // Not an else-if: a message with reasoning/tool calls + content goes into
+      // the processing group above AND gets its own assistant bubble here.
+      if (hasContent(message)) {
         groups.push({ id: message.id, type: "assistant", messages: [message] });
       }
     }
@@ -123,6 +132,17 @@ export function groupMessages<T>(
   return groups
     .map(mapper)
     .filter((result) => result !== undefined && result !== null) as T[];
+}
+
+export function isInternalMessage(message: Message) {
+  return (
+    message.name === "todo_reminder" ||
+    message.additional_kwargs?.message_type === "routed_skill_prompt"
+  );
+}
+
+export function isHiddenStepMessage(message: Message) {
+  return message.name === "todo_routing_guidance";
 }
 
 export function extractTextFromMessage(message: Message) {
