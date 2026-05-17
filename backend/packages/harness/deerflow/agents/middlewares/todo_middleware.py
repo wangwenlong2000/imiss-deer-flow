@@ -53,11 +53,23 @@ def _format_todos(todos: list[Todo]) -> str:
 
 
 def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
+    def _compact_intent_routing_query(text: str) -> str:
+        value = str(text or "").strip()
+        if not value:
+            return value
+        marker = "用户原始问题："
+        if marker in value:
+            value = value.split(marker, 1)[0].strip().rstrip("。")
+        if value.startswith("场景："):
+            for split_token in ("。场景说明：", "。需要识别参数："):
+                if split_token in value:
+                    return value.split(split_token, 1)[0].strip()
+        return value
+
     lines: list[str] = []
-    if intent_ctx.get("routing_query"):
-        lines.append(f"改写后的任务：{intent_ctx.get('routing_query')}")
-    if intent_ctx.get("original_query"):
-        lines.append(f"用户原始问题：{intent_ctx.get('original_query')}")
+    routing_query = intent_ctx.get("routing_query")
+    if routing_query:
+        lines.append(f"改写后的任务：{_compact_intent_routing_query(str(routing_query))}")
     if intent_ctx.get("scene_name") or intent_ctx.get("scene"):
         scene = intent_ctx.get("scene_name") or intent_ctx.get("scene")
         scene_id = intent_ctx.get("scene")
@@ -73,14 +85,27 @@ def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
 
 
 def _format_routing_guidance(routing_ctx: dict[str, Any]) -> str:
+    def _compact_segment_text(text: str) -> str:
+        value = text.strip()
+        if not value:
+            return value
+        marker = "用户原始问题："
+        if marker in value:
+            value = value.split(marker, 1)[0].strip().rstrip("。")
+        if value.startswith("场景："):
+            for split_token in ("。场景说明：", "。需要识别参数："):
+                if split_token in value:
+                    return value.split(split_token, 1)[0].strip()
+        return value
+
     lines: list[str] = []
     if routing_ctx.get("route_reason"):
         lines.append(f"路由原因：{routing_ctx.get('route_reason')}")
     if routing_ctx.get("primary_goal"):
-        lines.append(f"主要目标：{routing_ctx.get('primary_goal')}")
+        lines.append(f"主要目标：{_compact_segment_text(str(routing_ctx.get('primary_goal')))}")
     scene_tasks = routing_ctx.get("scene_tasks") or []
     for st in scene_tasks:
-        seg = st.get("segment_text", "")
+        seg = _compact_segment_text(st.get("segment_text", ""))
         scene = st.get("scene")
         skills = st.get("selected_skills", [])
         skill_names = [s.get("id", "") for s in skills if s.get("id")]

@@ -201,7 +201,7 @@ def classify_routing_intent_with_llm(
         rewritten = _rewrite_question_with_llm(query, llm=llm, scene_config=scene_config, params=params)
         routing_query = _build_scene_routing_query(rewritten or query, scene_config)
         if rewritten and rewritten.strip() != query.strip():
-            routing_query += f"。用户原始问题：{query.strip()}"
+            routing_query = _append_original_query_once(routing_query, query)
 
         return RoutingIntentResult(
             intent=baseline.intent,
@@ -262,7 +262,7 @@ async def aclassify_routing_intent_with_llm(
         rewritten = await _arewrite_question_with_llm(query, llm=llm, scene_config=scene_config, params=params)
         routing_query = _build_scene_routing_query(rewritten or query, scene_config)
         if rewritten and rewritten.strip() != query.strip():
-            routing_query += f"。用户原始问题：{query.strip()}"
+            routing_query = _append_original_query_once(routing_query, query)
 
         return RoutingIntentResult(
             intent=baseline.intent,
@@ -287,7 +287,17 @@ def _normalize(text: str) -> str:
 
 
 def _invoke_text(llm: Any, system_prompt: str, user_prompt: str) -> str:
-    response = llm.invoke([
+    tagged_llm = llm.with_config(
+        {
+            "tags": ["intent_recognition_internal"],
+            "metadata": {
+                "intent_recognition_internal": True,
+                "internal_visibility": "hidden",
+            },
+            "run_name": "intent_recognition_internal",
+        }
+    )
+    response = tagged_llm.invoke([
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt),
     ])
@@ -295,7 +305,17 @@ def _invoke_text(llm: Any, system_prompt: str, user_prompt: str) -> str:
 
 
 async def _ainvoke_text(llm: Any, system_prompt: str, user_prompt: str) -> str:
-    response = await llm.ainvoke([
+    tagged_llm = llm.with_config(
+        {
+            "tags": ["intent_recognition_internal"],
+            "metadata": {
+                "intent_recognition_internal": True,
+                "internal_visibility": "hidden",
+            },
+            "run_name": "intent_recognition_internal",
+        }
+    )
+    response = await tagged_llm.ainvoke([
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt),
     ])
@@ -840,4 +860,24 @@ def _build_scene_routing_query(query: str, scene_config: dict[str, Any]) -> str:
     if param_text:
         parts.append(f"需要识别参数：{param_text}")
     parts.append(f"用户原始问题：{query.strip()}")
-    return "。".join(parts)
+    return _dedupe_original_query_markers("。".join(parts))
+
+
+def _append_original_query_once(routing_query: str, query: str) -> str:
+    candidate = f"{routing_query.rstrip('。')}。用户原始问题：{query.strip()}"
+    return _dedupe_original_query_markers(candidate)
+
+
+def _dedupe_original_query_markers(text: str) -> str:
+    marker = "用户原始问题："
+    if marker not in text:
+        return text
+
+    prefix, first_tail = text.split(marker, 1)
+    first_tail = first_tail.strip().strip("。")
+    if not first_tail:
+        return prefix.rstrip("。")
+
+    # Keep only one "用户原始问题" marker.
+    first_tail = first_tail.split(marker, 1)[0].strip().strip("。")
+    return f"{prefix.rstrip('。')}。{marker}{first_tail}"

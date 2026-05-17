@@ -121,9 +121,9 @@ export function groupMessages<T>(
         }
       }
 
-      // Not an else-if: a message with reasoning/tool calls + content goes into
-      // the processing group above AND gets its own assistant bubble here.
-      if (hasContent(message)) {
+      // Keep intermediate agent/tool orchestration in processing only.
+      // Show assistant bubble only for user-facing content.
+      if (shouldRenderAssistantBubble(message)) {
         groups.push({ id: message.id, type: "assistant", messages: [message] });
       }
     }
@@ -132,6 +132,33 @@ export function groupMessages<T>(
   return groups
     .map(mapper)
     .filter((result) => result !== undefined && result !== null) as T[];
+}
+
+function shouldRenderAssistantBubble(message: Message) {
+  if (!hasContent(message)) {
+    return false;
+  }
+  if (message.type !== "ai") {
+    return true;
+  }
+  if (message.additional_kwargs?.element === "task") {
+    return false;
+  }
+  if (hasPresentFiles(message) || hasSubagent(message)) {
+    return false;
+  }
+  if (hasReasoning(message)) {
+    return false;
+  }
+  if (hasToolCalls(message)) {
+    const toolCalls = message.tool_calls ?? [];
+    // Preserve final summaries that happen to update todos,
+    // while hiding orchestration/tool-planning chatter.
+    const onlyWriteTodos =
+      toolCalls.length > 0 && toolCalls.every((tc) => tc.name === "write_todos");
+    return onlyWriteTodos;
+  }
+  return true;
 }
 
 export function isInternalMessage(message: Message) {

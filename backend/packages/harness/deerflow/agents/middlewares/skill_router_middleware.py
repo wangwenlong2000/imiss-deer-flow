@@ -95,8 +95,16 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         # old skill prompts from previous turns from reaching the agent core.
         cleaned_messages = [
             msg for msg in messages
-            if not (isinstance(msg, SystemMessage)
-                    and msg.additional_kwargs.get("message_type") == "routed_skill_prompt")
+            if not (
+                (
+                    isinstance(msg, SystemMessage)
+                    and msg.additional_kwargs.get("message_type") == "routed_skill_prompt"
+                )
+                or (
+                    isinstance(msg, HumanMessage)
+                    and getattr(msg, "name", None) == "todo_routing_guidance"
+                )
+            )
         ]
 
         # Find the last user message in the cleaned list

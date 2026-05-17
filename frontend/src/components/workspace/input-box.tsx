@@ -64,7 +64,11 @@ import {
   writeSelectedDataSourceIds,
 } from "@/core/data-center";
 import { useI18n } from "@/core/i18n/hooks";
-import { extractContentFromMessage } from "@/core/messages/utils";
+import {
+  extractContentFromMessage,
+  isHiddenStepMessage,
+  isInternalMessage,
+} from "@/core/messages/utils";
 import { useModels } from "@/core/models/hooks";
 import { useSkills } from "@/core/skills/hooks";
 import type { AgentThreadContext } from "@/core/threads";
@@ -166,19 +170,34 @@ export function InputBox({
     () => displayMessagesOfThread(thread),
     [thread],
   );
-  const lastAiId = useMemo(() => {
-    return [...displayMessages].reverse().find((m) => m.type === "ai")?.id ?? null;
+  const suggestionBaseMessages = useMemo(() => {
+    return displayMessages.filter((m) => {
+      if (m.type !== "human" && m.type !== "ai") {
+        return false;
+      }
+      if (isHiddenStepMessage(m) || isInternalMessage(m)) {
+        return false;
+      }
+      if (m.type === "ai" && m.additional_kwargs?.element === "task") {
+        return false;
+      }
+      return extractContentFromMessage(m).trim().length > 0;
+    });
   }, [displayMessages]);
+  const lastAiId = useMemo(() => {
+    return (
+      [...suggestionBaseMessages].reverse().find((m) => m.type === "ai")?.id ??
+      null
+    );
+  }, [suggestionBaseMessages]);
   const recentSuggestionMessages = useMemo(() => {
-    return displayMessages
-      .filter((m) => m.type === "human" || m.type === "ai")
+    return suggestionBaseMessages
       .map((m) => {
         const role = m.type === "human" ? "user" : "assistant";
         return { role, content: extractContentFromMessage(m) };
       })
-      .filter((m) => m.content.trim().length > 0)
       .slice(-6);
-  }, [displayMessages]);
+  }, [suggestionBaseMessages]);
 
   const [followups, setFollowups] = useState<string[]>([]);
   const [followupsHidden, setFollowupsHidden] = useState(false);
@@ -452,6 +471,9 @@ export function InputBox({
     lastGeneratedForAiIdRef.current = lastAiId;
 
     if (recentSuggestionMessages.length === 0) {
+      return;
+    }
+    if (!recentSuggestionMessages.some((m) => m.role === "assistant")) {
       return;
     }
 
