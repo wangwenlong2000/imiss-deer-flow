@@ -31,6 +31,20 @@ _SKIP_PATTERNS = [
 ]
 
 
+def is_obvious_chitchat(query: str, uploaded_files: list[dict] | None = None) -> bool:
+    """Return True when a turn is clearly conversational and should not route."""
+    if uploaded_files:
+        return False
+    if not query or not query.strip():
+        return True
+
+    text = query.strip()
+    if text in _SKIP_KEYWORDS:
+        return True
+
+    return any(re.match(pat, text, re.IGNORECASE) for pat in _SKIP_PATTERNS)
+
+
 def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
     """Return True if *query* needs professional Skill routing.
 
@@ -45,14 +59,8 @@ def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
     text = query.strip()
     lower = text.lower()
 
-    # Exact skip keywords
-    if text in _SKIP_KEYWORDS:
+    if is_obvious_chitchat(text):
         return False
-
-    # Pattern-based skip
-    for pat in _SKIP_PATTERNS:
-        if re.match(pat, text, re.IGNORECASE):
-            return False
 
     # --- signals that force routing ---
 

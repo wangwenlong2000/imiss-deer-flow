@@ -124,7 +124,10 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
         # Note: We don't add an extra AIMessage here - the frontend will detect
         # and display ask_clarification tool messages directly
         return Command(
-            update={"messages": [tool_message]},
+            update={
+                "messages": [tool_message],
+                "raw_messages": [tool_message],
+            },
             goto=END,
         )
 

@@ -43,6 +43,7 @@ from deerflow.routing.query_segmenter import segment_query, should_route
 from deerflow.routing.reranker_client import SkillRouterRerankerClient
 from deerflow.routing.resolver import resolve
 from deerflow.routing.schema import RoutingContext, SceneTask, SelectedSkill
+from deerflow.skills.loader import load_skills
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +113,16 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         if not query or not query.strip():
             return None
 
+        intent_context = state.get("intent_context") or {}
+        if not isinstance(intent_context, dict):
+            intent_context = {}
+        routing_query = intent_context.get("routing_query")
+        if not isinstance(routing_query, str) or not routing_query.strip():
+            routing_query = query
+        intent_scene = intent_context.get("scene")
+        if not isinstance(intent_scene, str) or not intent_scene.strip():
+            intent_scene = None
+
         uploaded_files = state.get("uploaded_files") or []
 
         # When frontend explicitly disabled all skills, there's no valid routing scope
@@ -130,10 +141,10 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             }
 
         # L0: should_route check
-        if not should_route(query, uploaded_files):
+        if not should_route(routing_query, uploaded_files):
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
-            logger.debug("should_route=False query=%r", query[:80])
+            logger.debug("should_route=False query=%r routing_query=%r", query[:80], routing_query[:120])
             return {
                 "routing_context": {"trigger": False},
                 "frontend_enabled_skill_ids": frontend_ids,
@@ -143,7 +154,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             }
 
         # L1: task segmentation
-        segments = segment_query(query)
+        segments = segment_query(routing_query)
         if not segments:
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
@@ -165,7 +176,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
 
         for seg in segments:
             seg_text = seg["text"]
-            seg_scene = seg.get("scene")
+            seg_scene = seg.get("scene") or intent_scene
 
             # L2: embedding
             try:
@@ -290,8 +301,8 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         elapsed = (time.monotonic() - start) * 1000
         record_request(trigger=True, latency_ms=elapsed)
         logger.info(
-            "SkillRouter: query=%r trigger=%s mode=%s skills=%s latency_ms=%d",
-            query[:80], routing_ctx.trigger, routing_ctx.route_mode,
+            "SkillRouter: query=%r routing_query=%r intent_scene=%r trigger=%s mode=%s skills=%s latency_ms=%d",
+            query[:80], routing_query[:120], intent_scene, routing_ctx.trigger, routing_ctx.route_mode,
             routing_ctx.global_selected_skills, round(elapsed),
         )
         logger.info(
