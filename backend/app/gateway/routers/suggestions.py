@@ -60,6 +60,20 @@ def _parse_json_string_list(text: str) -> list[str] | None:
     return out
 
 
+def _parse_line_string_list(text: str) -> list[str]:
+    candidate = _strip_markdown_code_fence(text)
+    lines = [line.strip() for line in candidate.splitlines() if line.strip()]
+    out: list[str] = []
+    for line in lines:
+        normalized = line
+        while normalized and normalized[0] in "-*•0123456789.) \t":
+            normalized = normalized[1:]
+        normalized = normalized.strip().strip("\"'`")
+        if normalized:
+            out.append(normalized)
+    return out
+
+
 def _extract_response_text(content: object) -> str:
     if isinstance(content, str):
         return content
@@ -123,7 +137,9 @@ async def generate_suggestions(thread_id: str, request: SuggestionsRequest) -> S
         model = create_chat_model(name=request.model_name, thinking_enabled=False)
         response = model.invoke(prompt)
         raw = _extract_response_text(response.content)
-        suggestions = _parse_json_string_list(raw) or []
+        suggestions = _parse_json_string_list(raw)
+        if suggestions is None:
+            suggestions = _parse_line_string_list(raw)
         cleaned = [s.replace("\n", " ").strip() for s in suggestions if s.strip()]
         cleaned = cleaned[:n]
         return SuggestionsResponse(suggestions=cleaned)

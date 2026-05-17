@@ -56,7 +56,12 @@ const COMPACTION_SUMMARY_PREFIXES = [
   "Conversation summary:",
 ];
 
-const INTERNAL_STREAM_NODE_PREFIXES = ["IntentRecognitionMiddleware."];
+const INTERNAL_STREAM_HINTS = [
+  "IntentRecognitionMiddleware",
+  "intent_recognition_middleware",
+  "intent_recognition_internal",
+  "intent_recognition",
+];
 
 function isCompactionSummaryMessage(message: Message) {
   const text = textOfMessage(message)?.trimStart();
@@ -75,10 +80,37 @@ function isInternalStreamMessage(
   }
 
   const metadata = source?.getMessagesMetadata?.(message, index)?.streamMetadata;
-  const node = metadata?.langgraph_node;
-  return (
-    typeof node === "string" &&
-    INTERNAL_STREAM_NODE_PREFIXES.some((prefix) => node.startsWith(prefix))
+  if (!metadata || typeof metadata !== "object") {
+    return false;
+  }
+
+  const haystacks: string[] = [];
+  const node = metadata.langgraph_node;
+  const checkpointNs = metadata.checkpoint_ns;
+  const langgraphCheckpointNs = metadata.langgraph_checkpoint_ns;
+  const tags = metadata.tags;
+
+  if (typeof node === "string") {
+    haystacks.push(node);
+  }
+  if (typeof checkpointNs === "string") {
+    haystacks.push(checkpointNs);
+  }
+  if (typeof langgraphCheckpointNs === "string") {
+    haystacks.push(langgraphCheckpointNs);
+  }
+  if (Array.isArray(tags)) {
+    for (const tag of tags) {
+      if (typeof tag === "string") {
+        haystacks.push(tag);
+      }
+    }
+  }
+  haystacks.push(JSON.stringify(metadata));
+
+  const normalized = haystacks.join(" ").toLowerCase();
+  return INTERNAL_STREAM_HINTS.some((hint) =>
+    normalized.includes(hint.toLowerCase()),
   );
 }
 
