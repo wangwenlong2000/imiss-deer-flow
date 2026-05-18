@@ -111,3 +111,7 @@ skills/custom/phone-network-analysis/**/*.pyc
 skills/custom/phone-network-analysis/**/.pytest_cache/
 skills/custom/phone-network-analysis/_backup_*/
 skills/custom/phone-network-analysis/**/.DS_Store
+
+# Ignore generated test logs
+skills/custom/phone-network-analysis/**/logs/
+*.log
