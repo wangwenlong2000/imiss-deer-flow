@@ -79,3 +79,39 @@ datasets/network-traffic/outputs/**
 .github/agents/
 .github/hooks/
 .github/skills/
+
+# Custom skill: phone network analysis
+!skills/custom/phone-network-analysis/
+!skills/custom/phone-network-analysis/**
+
+# Local temporary files
+*.swp
+*.swo
+*.bak
+*.bak.*
+
+# Local audit / recovery artifacts
+env-audit/
+env-audit.tar.gz
+env-recovery/
+
+# Local runtime files
+outputs/
+uploads/
+
+# Local sandbox backup files
+docker/sandbox/
+Makefile.bak.*
+config.yaml.bak.*
+audit-docker-env.sh
+
+# Ignore generated files inside phone-network-analysis skill
+skills/custom/phone-network-analysis/**/__pycache__/
+skills/custom/phone-network-analysis/**/*.pyc
+skills/custom/phone-network-analysis/**/.pytest_cache/
+skills/custom/phone-network-analysis/_backup_*/
+skills/custom/phone-network-analysis/**/.DS_Store
+
+# Ignore generated test logs
+skills/custom/phone-network-analysis/**/logs/
+*.log

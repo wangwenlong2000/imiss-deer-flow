@@ -1,0 +1,8 @@
+# 注意：这个文件是一个最小模板。
+# 如果你的 DeerFlow 项目里已经有能工作的 custom skill，
+# 最稳的做法是复制那个 skill 的 openai.yaml，然后只改 skill 名和脚本路径。
+# 这个模板主要用于占位与整理目录结构。
+
+name: graph-operator
+version: 0.1.0
+entry: ../SKILL.md
