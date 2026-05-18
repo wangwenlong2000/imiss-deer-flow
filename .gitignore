@@ -79,3 +79,28 @@ datasets/network-traffic/outputs/**
 .github/agents/
 .github/hooks/
 .github/skills/
+
+# Custom skill: phone network analysis
+!skills/custom/phone-network-analysis/
+!skills/custom/phone-network-analysis/**
+
+# Local temporary files
+*.swp
+*.swo
+*.bak
+*.bak.*
+
+# Local audit / recovery artifacts
+env-audit/
+env-audit.tar.gz
+env-recovery/
+
+# Local runtime files
+outputs/
+uploads/
+
+# Local sandbox backup files
+docker/sandbox/
+Makefile.bak.*
+config.yaml.bak.*
+audit-docker-env.sh
