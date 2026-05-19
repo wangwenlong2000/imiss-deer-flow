@@ -21,8 +21,8 @@ Learn more and see **real demos** on our official website.
 DeerFlow has newly integrated the intelligent search and crawling toolset independently developed by BytePlus--[InfoQuest (supports free online experience)](https://docs.byteplus.com/en/docs/InfoQuest/What_is_Info_Quest)
 
 <a href="https://docs.byteplus.com/en/docs/InfoQuest/What_is_Info_Quest" target="_blank">
-  <img 
-    src="https://sf16-sg.tiktokcdn.com/obj/eden-sg/hubseh7bsbps/20251208-160108.png"   alt="InfoQuest_banner" 
+  <img
+    src="https://sf16-sg.tiktokcdn.com/obj/eden-sg/hubseh7bsbps/20251208-160108.png"   alt="InfoQuest_banner"
   />
 </a>
 
@@ -177,11 +177,12 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
    make install  # Install backend + frontend dependencies
    ```
 
-3. **(Optional) Pre-pull sandbox image**:
+3. **Build the sandbox image**:
    ```bash
-   # Recommended if using Docker/Container-based sandbox
-   make setup-sandbox
+  make sandbox-build
    ```
+
+  This builds the sandbox image used by AIO sandbox mode and includes tshark + zeek.
 
 4. **Start services**:
    ```bash
@@ -199,6 +200,8 @@ DeerFlow supports multiple sandbox execution modes:
 - **Docker Execution with Kubernetes** (runs sandbox code in Kubernetes pods via provisioner service)
 
 For Docker development, service startup follows `config.yaml` sandbox mode. In Local/Docker modes, `provisioner` is not started.
+
+If you want skills and bash tools to use tshark and zeek inside isolated containers, use AIO sandbox mode and build the custom image with `make sandbox-build`. The sandbox image is defined in `docker/sandbox/Dockerfile` and is referenced from `config.yaml`.
 
 See the [Sandbox Configuration Guide](backend/docs/CONFIGURATION.md#sandbox) to configure your preferred mode.
 

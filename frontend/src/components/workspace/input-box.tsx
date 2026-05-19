@@ -71,10 +71,16 @@ import {
 import { toast } from "sonner";
 
 import { useI18n } from "@/core/i18n/hooks";
+import {
+  extractContentFromMessage,
+  isHiddenStepMessage,
+  isInternalMessage,
+} from "@/core/messages/utils";
 import { useModels } from "@/core/models/hooks";
 import type { ReasoningEffort } from "@/core/threads/reasoning";
+import { useSkills } from "@/core/skills/hooks";
 import type { AgentThreadContext } from "@/core/threads";
-import { textOfMessage } from "@/core/threads/utils";
+import { displayMessagesOfThread } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
 
 import {
@@ -162,10 +168,43 @@ export function InputBox({
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const { models } = useModels();
   const { data: dataSourcesResponse } = useDataSources();
+  const { skills: registrySkills } = useSkills();
   const { thread, isMock } = useThread();
   const { textInput } = usePromptInputController();
   const promptRootRef = useRef<HTMLDivElement | null>(null);
   const selectionAreaRef = useRef<HTMLDivElement | null>(null);
+  const displayMessages = useMemo(
+    () => displayMessagesOfThread(thread),
+    [thread],
+  );
+  const suggestionBaseMessages = useMemo(() => {
+    return displayMessages.filter((m) => {
+      if (m.type !== "human" && m.type !== "ai") {
+        return false;
+      }
+      if (isHiddenStepMessage(m) || isInternalMessage(m)) {
+        return false;
+      }
+      if (m.type === "ai" && m.additional_kwargs?.element === "task") {
+        return false;
+      }
+      return extractContentFromMessage(m).trim().length > 0;
+    });
+  }, [displayMessages]);
+  const lastAiId = useMemo(() => {
+    return (
+      [...suggestionBaseMessages].reverse().find((m) => m.type === "ai")?.id ??
+      null
+    );
+  }, [suggestionBaseMessages]);
+  const recentSuggestionMessages = useMemo(() => {
+    return suggestionBaseMessages
+      .map((m) => {
+        const role = m.type === "human" ? "user" : "assistant";
+        return { role, content: extractContentFromMessage(m) };
+      })
+      .slice(-6);
+  }, [suggestionBaseMessages]);
 
   const [followups, setFollowups] = useState<string[]>([]);
   const [followupsHidden, setFollowupsHidden] = useState(false);
@@ -190,7 +229,15 @@ export function InputBox({
   const [dataDialogQuery, setDataDialogQuery] = useState("");
   const [selectionAreaHeight, setSelectionAreaHeight] = useState(0);
 
-  
+  // Skill enabled state: synced from Settings → backend on every submit
+  const enabledSkillIds = useMemo(() => {
+    return registrySkills.filter((s) => s.enabled).map((s) => s.name);
+  }, [registrySkills]);
+
+  useEffect(() => {
+    setSelectedDataSourceIds(readSelectedDataSourceIds());
+  }, []);
+
   useEffect(() => {
     writeSelectedDataSourceIds(selectedDataSourceIds);
   }, [selectedDataSourceIds]);
@@ -384,11 +431,13 @@ export function InputBox({
             path: source.path,
           })),
           attached_data_center_files: attachedDataCenterFiles,
+          frontend_enabled_skill_ids: enabledSkillIds,
         },
       });
     },
     [
       attachDataSourcesMutation,
+      enabledSkillIds,
       onSubmit,
       onStop,
       selectedDataSourceIds,
@@ -458,24 +507,15 @@ export function InputBox({
       return;
     }
 
-    const lastAi = [...thread.messages].reverse().find((m) => m.type === "ai");
-    const lastAiId = lastAi?.id ?? null;
     if (!lastAiId || lastAiId === lastGeneratedForAiIdRef.current) {
       return;
     }
     lastGeneratedForAiIdRef.current = lastAiId;
 
-    const recent = thread.messages
-      .filter((m) => m.type === "human" || m.type === "ai")
-      .map((m) => {
-        const role = m.type === "human" ? "user" : "assistant";
-        const content = textOfMessage(m) ?? "";
-        return { role, content };
-      })
-      .filter((m) => m.content.trim().length > 0)
-      .slice(-6);
-
-    if (recent.length === 0) {
+    if (recentSuggestionMessages.length === 0) {
+      return;
+    }
+    if (!recentSuggestionMessages.some((m) => m.role === "assistant")) {
       return;
     }
 
@@ -488,7 +528,7 @@ export function InputBox({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        messages: recent,
+        messages: recentSuggestionMessages,
         n: 3,
         model_name: context.model_name ?? undefined,
       }),
@@ -515,7 +555,15 @@ export function InputBox({
       });
 
     return () => controller.abort();
-  }, [context.model_name, disabled, isMock, status, thread.messages, threadId]);
+  }, [
+    context.model_name,
+    disabled,
+    isMock,
+    lastAiId,
+    recentSuggestionMessages,
+    status,
+    threadId,
+  ]);
 
   return (
     <div ref={promptRootRef} className="relative">

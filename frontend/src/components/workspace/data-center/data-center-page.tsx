@@ -33,7 +33,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 import {
@@ -473,7 +472,6 @@ export function DataCenterPage() {
                             ? t.dataCenter.selectedForChat
                             : t.dataCenter.selectForChat}
                         </Button>
-
                         <Button
                           variant="outline"
                           onClick={() => setDatabaseDialogOpen(true)}

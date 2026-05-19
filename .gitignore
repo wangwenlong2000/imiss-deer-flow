@@ -63,6 +63,8 @@ skills/custom/policies-regulations/**/.playwright-browsers/
 skills/custom/policies-regulations/**/.playwright-browsers/**
 
 # Logs
+skills/custom/network-traffic-analysis/scripts/**/__pycache__/
+skills/custom/network-traffic-analysis/scripts/**/*.pyc
 logs/
 log/
 backend/log/
@@ -98,3 +100,4 @@ datasets/network-traffic/outputs/**
 .github/hooks/
 .github/skills/
 **/.env
+intent_files_backup/

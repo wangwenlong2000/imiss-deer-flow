@@ -1,0 +1,356 @@
+canonical_fields:
+  timestamp:
+    - timestamp
+    - ts
+    - time
+    - event_time
+    - start_time
+    - flow_start
+    - first_seen
+  end_time:
+    - end_time
+    - end_timestamp
+    - flow_end
+    - last_seen
+  relative_time_s:
+    - relative_time_s
+    - time_relative_s
+    - frame.time_relative
+  start_relative_time_s:
+    - start_relative_time_s
+    - flow_start_relative_s
+    - relative_start_time_s
+  end_relative_time_s:
+    - end_relative_time_s
+    - flow_end_relative_s
+    - relative_end_time_s
+  time_is_relative:
+    - time_is_relative
+    - uses_relative_time
+    - relative_time_flag
+  src_ip:
+    - src_ip
+    - source_ip
+    - src
+    - sip
+    - src_addr
+    - source_address
+  dst_ip:
+    - dst_ip
+    - destination_ip
+    - dest_ip
+    - dst
+    - dip
+    - dst_addr
+    - destination_address
+  src_port:
+    - src_port
+    - source_port
+    - sport
+    - l4_src_port
+  dst_port:
+    - dst_port
+    - destination_port
+    - dest_port
+    - dport
+    - l4_dst_port
+  protocol:
+    - protocol
+    - proto
+    - l4_proto
+    - transport
+  app_protocol:
+    - app_protocol
+    - application_protocol
+    - app_proto
+    - l7_proto
+  service:
+    - service
+    - app_service
+    - destination_service
+  bytes:
+    - bytes
+    - byte_count
+    - bytes_total
+    - total_bytes
+    - octets
+    - in_bytes
+  packets:
+    - packets
+    - packet_count
+    - total_packets
+    - pkts
+  flow_duration:
+    - flow_duration
+    - duration
+    - session_duration
+    - elapsed_ms
+  duration_ms:
+    - duration_ms
+    - elapsed_ms
+    - duration_millis
+    - session_duration_ms
+  session_state:
+    - session_state
+    - state
+    - connection_state
+    - flow_state
+  rule_name:
+    - rule_name
+    - rule
+    - policy_rule
+    - detection_rule
+  tcp_flags:
+    - tcp_flags
+    - tcp_flags_seen
+    - flags
+  rtt_ms:
+    - rtt_ms
+    - rtt
+    - avg_rtt_ms
+    - mean_rtt_ms
+    - latency_ms
+    - round_trip_time_ms
+  jitter_ms:
+    - jitter_ms
+    - jitter
+    - avg_jitter_ms
+    - delay_jitter_ms
+    - pdv_ms
+  packet_loss_pct:
+    - packet_loss_pct
+    - loss_pct
+    - avg_loss_pct
+    - packet_loss_rate
+    - loss_rate_pct
+  retransmission_count:
+    - retransmission_count
+    - retransmissions
+    - retransmit_count
+    - tcp_retransmissions
+  retransmission_rate:
+    - retransmission_rate
+    - retransmit_rate
+    - tcp_retransmission_rate
+  dns_query:
+    - dns_query
+    - dns_qname
+    - query_name
+    - domain
+  tls_sni:
+    - tls_sni
+    - sni
+    - server_name
+    - tls_server_name
+  tls_handshake_type:
+    - tls_handshake_type
+    - tls.handshake.type
+  tls_version:
+    - tls_version
+    - tls.handshake.version
+    - ssl_version
+    - zeek_ssl_version
+  tls_ciphers:
+    - tls_ciphers
+    - tls.handshake.ciphersuite
+    - tls_cipher_suites
+  tls_extensions:
+    - tls_extensions
+    - tls.handshake.extension.type
+    - tls_extension_types
+  tls_supported_groups:
+    - tls_supported_groups
+    - tls.handshake.extensions_supported_group
+    - tls_groups
+  tls_point_formats:
+    - tls_point_formats
+    - tls.handshake.extensions_ec_point_format
+    - tls_ec_point_formats
+  tls_server_cipher:
+    - tls_server_cipher
+    - selected_cipher
+    - cipher
+  tls_server_extensions:
+    - tls_server_extensions
+    - server_extensions
+  ja3_string:
+    - ja3_string
+    - ja3.raw
+  ja3_hash:
+    - ja3_hash
+    - ja3
+  ja3s_string:
+    - ja3s_string
+    - ja3s.raw
+  ja3s_hash:
+    - ja3s_hash
+    - ja3s
+  tls_metadata_source:
+    - tls_metadata_source
+    - tls_evidence_source
+  http_host:
+    - http_host
+    - host
+    - http_hostname
+    - http.host
+    - http_request_host
+  http_user_agent:
+    - http_user_agent
+    - user_agent
+    - user-agent
+    - useragent
+    - http.user_agent
+    - http_request_user_agent
+  dhcp_fingerprint:
+    - dhcp_fingerprint
+    - dhcp.option.parameter_request_list
+    - dhcp.option.request_list_item
+    - dhcp_parameter_request_list
+    - dhcp_prl
+    - dhcp_options
+  dhcp_vendor:
+    - dhcp_vendor
+    - dhcp.vendor_class_id
+    - dhcp.option.vendor_class_id
+    - dhcp_vendor_class_id
+    - vendor_class_id
+  dhcp_hostname:
+    - dhcp_hostname
+    - dhcp_host_name
+    - dhcp.option.hostname
+    - hostname
+  ssh_hassh:
+    - ssh_hassh
+    - hassh
+    - ssh.hassh
+  p0f_os:
+    - p0f_os
+    - os_guess
+    - passive_os
+  tcp_syn_signature:
+    - tcp_syn_signature
+    - p0f_signature
+    - tcp_fingerprint
+  direction:
+    - direction
+    - traffic_direction
+    - flow_direction
+  action:
+    - action
+    - status
+    - outcome
+    - verdict
+    - decision
+  flow_start_reason:
+    - flow_start_reason
+    - session_start_reason
+    - start_reason
+  flow_end_reason:
+    - flow_end_reason
+    - session_end_reason
+    - end_reason
+  asset_id:
+    - asset_id
+    - host_id
+    - endpoint_id
+  user_id:
+    - user_id
+    - username
+    - account_id
+  device_id:
+    - device_id
+    - appliance_id
+    - sensor_device_id
+  sensor_id:
+    - sensor_id
+    - probe_id
+    - sensor
+  dataset_label:
+    - dataset_label
+    - dataset
+    - dataset_name
+  traffic_family:
+    - traffic_family
+    - traffic_type
+    - family
+default_metrics:
+  - count
+  - sum:bytes
+  - sum:packets
+  - avg:flow_duration
+profiles:
+  wireshark_packet:
+    canonical_fields:
+      timestamp:
+        - frame.time_epoch
+        - frame.time
+        - frame.time_relative
+      src_ip:
+        - ip.src
+        - ipv6.src
+      dst_ip:
+        - ip.dst
+        - ipv6.dst
+      src_port:
+        - tcp.srcport
+        - udp.srcport
+      dst_port:
+        - tcp.dstport
+        - udp.dstport
+      protocol:
+        - _ws.col.Protocol
+        - frame.protocols
+        - ip.proto
+      frame_len:
+        - frame.len
+      payload_bytes:
+        - tcp.len
+        - udp.length
+        - ip.len
+      tcp_flags:
+        - tcp.flags.str
+        - tcp.flags
+      ttl:
+        - ip.ttl
+        - ipv6.hlim
+      ip_version:
+        - ip.version
+      icmp_type:
+        - icmp.type
+      icmp_code:
+        - icmp.code
+      dns_query:
+        - dns.qry.name
+      tls_sni:
+        - tls.handshake.extensions_server_name
+      tls_handshake_type:
+        - tls.handshake.type
+      tls_version:
+        - tls.handshake.version
+      tls_ciphers:
+        - tls.handshake.ciphersuite
+      tls_extensions:
+        - tls.handshake.extension.type
+      tls_supported_groups:
+        - tls.handshake.extensions_supported_group
+      tls_point_formats:
+        - tls.handshake.extensions_ec_point_format
+      http_host:
+        - http.host
+      http_user_agent:
+        - http.user_agent
+        - http.request.full_uri
+      dhcp_fingerprint:
+        - dhcp.option.request_list_item
+      dhcp_vendor:
+        - dhcp.option.vendor_class_id
+      dhcp_hostname:
+        - dhcp.option.hostname
+      mac_src:
+        - eth.src
+      mac_dst:
+        - eth.dst
+notes:
+  - "Add aliases here when a new vendor or export format uses different column names."
+  - "Canonical fields are used to build the unified 'flows' view for network-traffic-analysis."
+  - "Profiles let the script auto-detect common export formats such as Wireshark/tshark without rewriting source columns."

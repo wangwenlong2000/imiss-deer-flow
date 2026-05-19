@@ -1,0 +1,101 @@
+name: SkillRouter Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'skills/**'
+      - 'scripts/extract_router_cards.py'
+      - 'scripts/update_skill_router_index.py'
+      - 'scripts/check_skill_router_conflicts.py'
+      - 'scripts/eval_skill_router.py'
+      - 'backend/packages/harness/deerflow/routing/**'
+      - 'backend/tests/test_skill_router_*.py'
+      - 'backend/tests/test_index_updater.py'
+      - 'backend/tests/test_routing_metrics.py'
+      - 'backend/tests/test_eval_skill_router.py'
+      - '.github/workflows/skill-router-validation.yml'
+
+concurrency:
+  group: skill-router-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  skill-router-validation:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --group dev
+
+      - name: Install jsonschema
+        run: uv pip install jsonschema
+
+      - name: Extract Router Cards (offline)
+        run: python scripts/extract_router_cards.py --skills-root skills
+
+      - name: Validate Router Cards against schema
+        run: |
+          python -c "
+          import json, sys
+          from pathlib import Path
+
+          schema_path = Path('skills/router_card.schema.json')
+          if not schema_path.exists():
+              print('WARNING: router_card.schema.json not found, skipping schema validation')
+              sys.exit(0)
+
+          try:
+              import jsonschema
+          except ImportError:
+              print('WARNING: jsonschema not installed, skipping schema validation')
+              sys.exit(0)
+
+          with open(schema_path) as f:
+              schema = json.load(f)
+
+          errors = []
+          for card_path in Path('skills').rglob('router_card.json'):
+              with open(card_path) as f:
+                  card = json.load(f)
+              try:
+                  jsonschema.validate(card, schema)
+              except jsonschema.ValidationError as e:
+                  errors.append(f'{card_path}: {e.message}')
+
+          if errors:
+              for e in errors:
+                  print(f'FAIL: {e}')
+              sys.exit(1)
+          print('All router cards valid against schema')
+          "
+
+      - name: Check routing conflicts
+        run: python scripts/check_skill_router_conflicts.py --all --skills-root skills --no-embedding --json
+
+      - name: Run SkillRouter unit tests
+        working-directory: backend
+        run: |
+          PYTHONPATH=scripts:packages/harness uv run pytest \
+            tests/test_skill_router_middleware.py \
+            tests/test_skill_router_conflicts.py \
+            tests/test_skill_creator_router_update.py \
+            tests/test_routing_metrics.py \
+            tests/test_index_updater.py \
+            tests/test_eval_skill_router.py \
+            tests/test_skill_router_gateway.py \
+            -v

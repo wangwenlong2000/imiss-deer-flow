@@ -13,6 +13,7 @@ from deerflow.config.memory_config import load_memory_config_from_dict
 from deerflow.config.model_config import ModelConfig
 from deerflow.config.sandbox_config import SandboxConfig
 from deerflow.config.skills_config import SkillsConfig
+from deerflow.config.skill_router_config import load_skill_router_config_from_dict
 from deerflow.config.subagents_config import load_subagents_config_from_dict
 from deerflow.config.summarization_config import load_summarization_config_from_dict
 from deerflow.config.title_config import load_title_config_from_dict
@@ -100,6 +101,9 @@ class AppConfig(BaseModel):
         # Load subagents config if present
         if "subagents" in config_data:
             load_subagents_config_from_dict(config_data["subagents"])
+
+        # Load skill router config if present
+        load_skill_router_config_from_dict(config_data.get("skill_router", {}))
 
         # Load checkpointer config if present
         if "checkpointer" in config_data:

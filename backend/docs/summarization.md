@@ -148,6 +148,8 @@ The default LangChain prompt instructs the model to:
    - Recent messages are preserved
 6. **AI/Tool Pair Protection**: The system ensures AI messages and their corresponding tool messages stay together
 
+If the application also persists a separate `raw_messages` field, that field can be used by the UI or audit tools to render the full transcript while the compressed `messages` field stays focused on model context.
+
 ### Token Counting
 
 - Uses approximate token counting based on character count

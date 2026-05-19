@@ -4,37 +4,23 @@ from dataclasses import dataclass
 import re
 from pathlib import Path
 
+from utils.path import repo_root, dataset_root, uploads_root, normalize_name, is_explicit_path_reference
+
 SUPPORTED_PATTERNS = ("*.csv", "*.parquet", "*.json", "*.jsonl", "*.xlsx", "*.xls")
 
 
-def normalize_name(value: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", value.lower())
-
-
-def is_explicit_path_reference(value: str) -> bool:
-    ref = value.strip()
-    normalized = ref.replace("\\", "/")
-    return (
-        normalized.startswith("/")
-        or normalized.startswith("./")
-        or normalized.startswith("../")
-        or bool(re.match(r"^[A-Za-z]:[/\\]", ref))
-        or "/" in normalized
-        or "\\" in ref
-    )
-
-
-def repo_root() -> Path:
-    script_path = Path(__file__).resolve()
-    for candidate in script_path.parents:
-        if (candidate / "config.yaml").exists():
-            return candidate
-    return script_path.parents[3]
-
-
 def get_default_search_roots() -> list[Path]:
-    base = repo_root() / "datasets" / "network-traffic"
-    return [base / "processed", base / "raw"]
+    up = uploads_root()
+    ds = dataset_root()
+    repo_base = repo_root() / "datasets" / "network-traffic"
+    roots: list[Path] = []
+    seen: set[str] = set()
+    for candidate in [up, ds / "processed", ds / "raw", repo_base / "processed", repo_base / "raw"]:
+        key = str(candidate.resolve()) if candidate.exists() else str(candidate)
+        if candidate.exists() and key not in seen:
+            roots.append(candidate)
+            seen.add(key)
+    return roots
 
 
 @dataclass(frozen=True)

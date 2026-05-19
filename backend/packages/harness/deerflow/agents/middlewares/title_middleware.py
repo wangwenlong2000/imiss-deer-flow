@@ -21,6 +21,45 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
 
     state_schema = TitleMiddlewareState
 
+    @staticmethod
+    def _is_internal_human_message(message) -> bool:
+        """Return True for middleware-injected human guidance messages."""
+        if getattr(message, "type", None) != "human":
+            return False
+
+        name = getattr(message, "name", None)
+        if isinstance(name, str) and (
+            name.endswith("_guidance")
+            or name.startswith("intent_")
+            or name.startswith("routing_")
+        ):
+            return True
+
+        additional_kwargs = getattr(message, "additional_kwargs", {}) or {}
+        if isinstance(additional_kwargs, dict) and additional_kwargs.get("internal") is True:
+            return True
+
+        return False
+
+    @staticmethod
+    def _message_text(message) -> str:
+        content = getattr(message, "content", "")
+        if isinstance(content, str):
+            return content.strip()
+        if isinstance(content, list):
+            parts: list[str] = []
+            for part in content:
+                if isinstance(part, dict) and part.get("type") == "text":
+                    text = part.get("text")
+                    if isinstance(text, str):
+                        parts.append(text)
+                else:
+                    text = getattr(part, "text", None)
+                    if isinstance(text, str):
+                        parts.append(text)
+            return "\n".join(parts).strip()
+        return str(content).strip()
+
     def _should_generate_title(self, state: TitleMiddlewareState) -> bool:
         """Check if we should generate a title for this thread."""
         config = get_title_config()
@@ -37,8 +76,8 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
             return False
 
         # Count user and assistant messages
-        user_messages = [m for m in messages if m.type == "human"]
-        assistant_messages = [m for m in messages if m.type == "ai"]
+        user_messages = [m for m in messages if m.type == "human" and not self._is_internal_human_message(m)]
+        assistant_messages = [m for m in messages if m.type == "ai" and self._message_text(m)]
 
         # Generate title after first complete exchange
         return len(user_messages) == 1 and len(assistant_messages) >= 1
@@ -49,12 +88,11 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
         messages = state.get("messages", [])
 
         # Get first user message and first assistant response
-        user_msg_content = next((m.content for m in messages if m.type == "human"), "")
-        assistant_msg_content = next((m.content for m in messages if m.type == "ai"), "")
+        user_message = next((m for m in messages if m.type == "human" and not self._is_internal_human_message(m)), None)
+        assistant_message = next((m for m in messages if m.type == "ai" and self._message_text(m)), None)
 
-        # Ensure content is string (LangChain messages can have list content)
-        user_msg = str(user_msg_content) if user_msg_content else ""
-        assistant_msg = str(assistant_msg_content) if assistant_msg_content else ""
+        user_msg = self._message_text(user_message) if user_message is not None else ""
+        assistant_msg = self._message_text(assistant_message) if assistant_message is not None else ""
 
         prompt = config.prompt_template.format(
             max_words=config.max_words,

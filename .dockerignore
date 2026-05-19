@@ -60,6 +60,7 @@ scripts/
 logs/
 docker/
 skills/
+datasets/
 frontend/.next
 frontend/node_modules
 backend/.venv
