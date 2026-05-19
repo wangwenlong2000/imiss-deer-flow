@@ -652,7 +652,30 @@ class DeerFlowClient:
 
             shutil.copytree(skill_dir, target)
 
-        return {"success": True, "skill_name": skill_name, "message": f"Skill '{skill_name}' installed successfully"}
+        # Update SkillRouter index (non-blocking — failure does not prevent install)
+        router_indexed = True
+        router_status = "ready"
+        router_error = None
+        try:
+            from deerflow.routing.index_updater import update_single_skill_index
+            result = update_single_skill_index(skill_id=skill_name, skill_dir=target, skills_root=skills_root)
+            router_indexed = result.router_indexed
+            router_status = result.router_status
+            router_error = result.router_error
+        except Exception as e:
+            logger.error("SkillRouter index update failed for %s: %s", skill_name, e)
+            router_indexed = False
+            router_status = "index_failed"
+            router_error = str(e)
+
+        return {
+            "success": True,
+            "skill_name": skill_name,
+            "message": f"Skill '{skill_name}' installed successfully",
+            "router_indexed": router_indexed,
+            "router_status": router_status,
+            "router_error": router_error,
+        }
 
     # ------------------------------------------------------------------
     # Public API — memory management

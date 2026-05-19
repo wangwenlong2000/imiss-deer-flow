@@ -10,11 +10,11 @@ from typing import Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from deerflow.config.paths import get_paths
 
-from fastapi.responses import FileResponse #修改
 from .uploads import save_thread_upload_from_bytes
 
 logger = logging.getLogger(__name__)
@@ -97,27 +97,6 @@ def _workspace_uploads_dir() -> Path:
     path = _registry_dir() / "uploads"
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-"""
-def _read_registry() -> list[DataSourceRecord]:
-    registry_file = _registry_file()
-    if not registry_file.exists():
-        return []
-
-    try:
-        raw = json.loads(registry_file.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        logger.warning("Invalid data-center registry, resetting: %s", exc)
-        return []
-
-    records = []
-    for item in raw if isinstance(raw, list) else []:
-        try:
-            records.append(DataSourceRecord.model_validate(item))
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Skipping malformed data-center record: %s", exc)
-    return records
-"""
 
 def _read_registry() -> list[DataSourceRecord]:
     try:
@@ -220,16 +199,11 @@ def _is_relative_to(path: Path, parent: Path) -> bool: #删除保护
     except ValueError:
         return False
 
-"""
-@router.get("/sources", response_model=DataSourceListResponse)
-async def list_data_sources() -> DataSourceListResponse:
-    sources = [*_enumerate_local_datasets(), *_read_registry()]
-    return DataSourceListResponse(sources=sources, count=len(sources))
-"""
 
 @router.get("/sources", response_model=DataSourceListResponse)
 async def list_data_sources() -> DataSourceListResponse:
     sources = _read_registry()
+    # sources = [*_enumerate_local_datasets(), *_read_registry()]  #显示本地dataset目录，待测试
     return DataSourceListResponse(
         sources=sources,
         count=len(sources),

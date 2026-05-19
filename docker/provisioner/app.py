@@ -39,7 +39,7 @@ from fastapi import FastAPI, HTTPException
 from kubernetes import client as k8s_client
 from kubernetes import config as k8s_config
 from kubernetes.client.rest import ApiException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Suppress only the InsecureRequestWarning from urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -184,9 +184,16 @@ app = FastAPI(title="DeerFlow Sandbox Provisioner", lifespan=lifespan)
 # ── Request / Response models ───────────────────────────────────────────
 
 
+class ExtraMount(BaseModel):
+    host_path: str
+    container_path: str
+    read_only: bool = False
+
+
 class CreateSandboxRequest(BaseModel):
     sandbox_id: str
     thread_id: str
+    extra_mounts: list[ExtraMount] = Field(default_factory=list)
 
 
 class SandboxResponse(BaseModel):
@@ -211,8 +218,59 @@ def _sandbox_url(node_port: int) -> str:
     return f"http://{NODE_HOST}:{node_port}"
 
 
-def _build_pod(sandbox_id: str, thread_id: str) -> k8s_client.V1Pod:
+def _build_pod(sandbox_id: str, thread_id: str, extra_mounts: list[ExtraMount] | None = None) -> k8s_client.V1Pod:
     """Construct a Pod manifest for a single sandbox."""
+    volume_mounts = [
+        k8s_client.V1VolumeMount(
+            name="skills",
+            mount_path="/mnt/skills",
+            read_only=True,
+        ),
+        k8s_client.V1VolumeMount(
+            name="user-data",
+            mount_path="/mnt/user-data",
+            read_only=False,
+        ),
+    ]
+    volumes = [
+        k8s_client.V1Volume(
+            name="skills",
+            host_path=k8s_client.V1HostPathVolumeSource(
+                path=SKILLS_HOST_PATH,
+                type="Directory",
+            ),
+        ),
+        k8s_client.V1Volume(
+            name="user-data",
+            host_path=k8s_client.V1HostPathVolumeSource(
+                path=f"{THREADS_HOST_PATH}/{thread_id}/user-data",
+                type="DirectoryOrCreate",
+            ),
+        ),
+    ]
+
+    # Append extra mounts from config (e.g., datasets/network-traffic)
+    if extra_mounts:
+        for idx, mount in enumerate(extra_mounts):
+            vol_name = f"extra-mount-{idx}"
+            volume_mounts.append(
+                k8s_client.V1VolumeMount(
+                    name=vol_name,
+                    mount_path=mount.container_path,
+                    read_only=mount.read_only,
+                ),
+            )
+            host_path_type = "DirectoryOrCreate" if not mount.read_only else "Directory"
+            volumes.append(
+                k8s_client.V1Volume(
+                    name=vol_name,
+                    host_path=k8s_client.V1HostPathVolumeSource(
+                        path=mount.host_path,
+                        type=host_path_type,
+                    ),
+                ),
+            )
+
     return k8s_client.V1Pod(
         metadata=k8s_client.V1ObjectMeta(
             name=_pod_name(sandbox_id),
@@ -269,40 +327,14 @@ def _build_pod(sandbox_id: str, thread_id: str) -> k8s_client.V1Pod:
                             "ephemeral-storage": "500Mi",
                         },
                     ),
-                    volume_mounts=[
-                        k8s_client.V1VolumeMount(
-                            name="skills",
-                            mount_path="/mnt/skills",
-                            read_only=True,
-                        ),
-                        k8s_client.V1VolumeMount(
-                            name="user-data",
-                            mount_path="/mnt/user-data",
-                            read_only=False,
-                        ),
-                    ],
+                    volume_mounts=volume_mounts,
                     security_context=k8s_client.V1SecurityContext(
                         privileged=False,
                         allow_privilege_escalation=True,
                     ),
                 )
             ],
-            volumes=[
-                k8s_client.V1Volume(
-                    name="skills",
-                    host_path=k8s_client.V1HostPathVolumeSource(
-                        path=SKILLS_HOST_PATH,
-                        type="Directory",
-                    ),
-                ),
-                k8s_client.V1Volume(
-                    name="user-data",
-                    host_path=k8s_client.V1HostPathVolumeSource(
-                        path=f"{THREADS_HOST_PATH}/{thread_id}/user-data",
-                        type="DirectoryOrCreate",
-                    ),
-                ),
-            ],
+            volumes=volumes,
             restart_policy="Always",
         ),
     )
@@ -394,7 +426,7 @@ async def create_sandbox(req: CreateSandboxRequest):
 
     # ── Create Pod ───────────────────────────────────────────────────
     try:
-        core_v1.create_namespaced_pod(K8S_NAMESPACE, _build_pod(sandbox_id, thread_id))
+        core_v1.create_namespaced_pod(K8S_NAMESPACE, _build_pod(sandbox_id, thread_id, req.extra_mounts))
         logger.info(f"Created Pod {_pod_name(sandbox_id)}")
     except ApiException as exc:
         if exc.status != 409:  # 409 = AlreadyExists

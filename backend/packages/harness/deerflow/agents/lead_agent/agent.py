@@ -6,9 +6,12 @@ from langchain_core.runnables import RunnableConfig
 
 from deerflow.agents.lead_agent.prompt import apply_prompt_template
 from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from deerflow.agents.middlewares.intent_recognition_middleware import IntentRecognitionMiddleware
 from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+from deerflow.agents.middlewares.raw_transcript_middleware import RawTranscriptMiddleware
 from deerflow.agents.middlewares.run_history_middleware import RunHistoryMiddleware
+from deerflow.agents.middlewares.skill_router_middleware import SkillRouterMiddleware
 from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 from deerflow.agents.middlewares.title_middleware import TitleMiddleware
 from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
@@ -17,6 +20,7 @@ from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddlewar
 from deerflow.agents.thread_state import ThreadState
 from deerflow.config.agents_config import load_agent_config
 from deerflow.config.app_config import get_app_config
+from deerflow.config.skill_router_config import get_skill_router_config
 from deerflow.config.summarization_config import get_summarization_config
 from deerflow.models import create_chat_model
 
@@ -218,10 +222,23 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     """
     middlewares = build_lead_runtime_middlewares(lazy_init=True)
 
+    # Capture the full transcript before summarization collapses
+    # the working message window.
+    middlewares.append(RawTranscriptMiddleware())
+
     # Add summarization middleware if enabled
     #summarization_middleware = _create_summarization_middleware()
     #if summarization_middleware is not None:
     #    middlewares.append(summarization_middleware)
+
+    # Intent recognition must run before SkillRouter so routing can use the
+    # rewritten query and configured scene hints.
+    if get_skill_router_config().enabled:
+        middlewares.append(IntentRecognitionMiddleware(model_name=model_name))
+
+    # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
+    if get_skill_router_config().enabled:
+        middlewares.append(SkillRouterMiddleware())
 
     # Add TodoList middleware if plan mode is enabled
     is_plan_mode = config.get("configurable", {}).get("is_plan_mode", False)
@@ -278,7 +295,7 @@ def make_lead_agent(config: RunnableConfig):
     agent_config = load_agent_config(agent_name) if not is_bootstrap else None
     selected_tool_groups = agent_config.tool_groups if agent_config else None
     # if selected_tool_groups is None:
-    #     selected_tool_groups = ["bash", "file:read", "file:write"] 
+    #     selected_tool_groups = ["bash", "file:read", "file:write"]
     # Custom agent model or fallback to global/default model resolution
     agent_model_name = agent_config.model if agent_config and agent_config.model else _resolve_model_name()
 
@@ -323,7 +340,7 @@ def make_lead_agent(config: RunnableConfig):
 
     if is_bootstrap:
         # Special bootstrap agent with minimal prompt for initial custom agent creation flow
-        system_prompt = apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, available_skills=set(["bootstrap"]))
+        system_prompt = apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, prompt_skills=set(["bootstrap"]))
 
         return create_agent(
             model=create_chat_model(name=model_name, thinking_enabled=thinking_enabled),
@@ -334,10 +351,16 @@ def make_lead_agent(config: RunnableConfig):
         )
 
     # Default lead agent (unchanged behavior)
+    # When SkillRouter is enabled, pass empty prompt_skills so the base system
+    # prompt contains no skills.  SkillRouterMiddleware injects routed skills
+    # dynamically per turn.
+    skill_router_enabled = get_skill_router_config().enabled
+    base_prompt_skills: set[str] | None = set() if skill_router_enabled else None
+
     return create_agent(
         model=create_chat_model(name=model_name, thinking_enabled=thinking_enabled, reasoning_effort=reasoning_effort),
         tools=get_available_tools(model_name=model_name, groups=selected_tool_groups, subagent_enabled=subagent_enabled),
         middleware=_build_middlewares(config, model_name=model_name, agent_name=agent_name),
-        system_prompt=apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, agent_name=agent_name),
+        system_prompt=apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, agent_name=agent_name, prompt_skills=base_prompt_skills),
         state_schema=ThreadState,
     )

@@ -52,7 +52,21 @@ export function groupMessages<T>(
   }
 
   for (const message of messages) {
-    if (message.name === "todo_reminder") {
+    if (isHiddenStepMessage(message)) {
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup?.type !== "assistant:processing") {
+        groups.push({
+          id: message.id,
+          type: "assistant:processing",
+          messages: [message],
+        });
+      } else {
+        lastGroup.messages.push(message);
+      }
+      continue;
+    }
+
+    if (isInternalMessage(message)) {
       continue;
     }
 
@@ -75,17 +89,13 @@ export function groupMessages<T>(
         const open = lastOpenGroup();
         if (open) {
           open.messages.push(message);
-        } else {
-          console.error(
-            "Unexpected tool message outside a processing group",
-            message,
-          );
         }
       }
       continue;
     }
 
     if (message.type === "ai") {
+      const onlyWriteTodos = isOnlyWriteTodosToolCallMessage(message);
       if (hasPresentFiles(message)) {
         groups.push({
           id: message.id,
@@ -98,7 +108,10 @@ export function groupMessages<T>(
           type: "assistant:subagent",
           messages: [message],
         });
-      } else if (hasReasoning(message) || hasToolCalls(message)) {
+      } else if (
+        (hasReasoning(message) || hasToolCalls(message)) &&
+        !onlyWriteTodos
+      ) {
         const lastGroup = groups[groups.length - 1];
         // Accumulate consecutive intermediate AI messages into one processing group.
         if (lastGroup?.type !== "assistant:processing") {
@@ -112,17 +125,139 @@ export function groupMessages<T>(
         }
       }
 
-      // Not an else-if: a message with reasoning + content (but no tool calls) goes
-      // into the processing group above AND gets its own assistant bubble here.
-      if (hasContent(message) && !hasToolCalls(message)) {
+      // Keep intermediate agent/tool orchestration in processing only.
+      // Show assistant bubble only for user-facing content.
+      if (shouldRenderAssistantBubble(message)) {
         groups.push({ id: message.id, type: "assistant", messages: [message] });
       }
+    }
+  }
+
+  const lastUserMessageIndex = findLastUserMessageIndex(messages);
+  if (
+    lastUserMessageIndex >= 0 &&
+    !hasVisibleAssistantAfterIndex(messages, lastUserMessageIndex)
+  ) {
+    const fallbackMessage = findLastAssistantFallbackCandidate(
+      messages,
+      lastUserMessageIndex,
+    );
+    if (fallbackMessage) {
+      groups.push({
+        id: fallbackMessage.id,
+        type: "assistant",
+        messages: [fallbackMessage],
+      });
     }
   }
 
   return groups
     .map(mapper)
     .filter((result) => result !== undefined && result !== null) as T[];
+}
+
+function isExplicitlyInternalAssistantMessage(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  if (message.additional_kwargs?.element === "task") {
+    return true;
+  }
+  if (hasPresentFiles(message)) {
+    return true;
+  }
+  if (hasSubagent(message)) {
+    return true;
+  }
+  return false;
+}
+
+function shouldRenderAssistantBubble(message: Message) {
+  if (!hasContent(message)) {
+    return false;
+  }
+  if (message.type !== "ai") {
+    return true;
+  }
+  if (isExplicitlyInternalAssistantMessage(message)) {
+    return false;
+  }
+
+  // Keep intermediate model/tool orchestration in hidden steps.
+  // A fallback assistant bubble (single message) is injected after grouping
+  // only when this turn has no visible assistant answer at all.
+  if (hasReasoning(message) || hasToolCalls(message)) {
+    if (isOnlyWriteTodosToolCallMessage(message)) {
+      return true;
+    }
+    return false;
+  }
+  return true;
+}
+
+function isOnlyWriteTodosToolCallMessage(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  const toolCalls = message.tool_calls ?? [];
+  return (
+    toolCalls.length > 0 &&
+    toolCalls.every((toolCall) => toolCall.name === "write_todos") &&
+    hasContent(message)
+  );
+}
+
+function findLastUserMessageIndex(messages: Message[]) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (
+      message &&
+      message.type === "human" &&
+      !isInternalMessage(message) &&
+      !isHiddenStepMessage(message)
+    ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function hasVisibleAssistantAfterIndex(messages: Message[], index: number) {
+  for (let i = index + 1; i < messages.length; i += 1) {
+    const message = messages[i];
+    if (message && message.type === "ai" && shouldRenderAssistantBubble(message)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: number) {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "ai") {
+      continue;
+    }
+    if (!hasContent(message)) {
+      continue;
+    }
+    if (isExplicitlyInternalAssistantMessage(message)) {
+      continue;
+    }
+    return message;
+  }
+  return null;
+}
+
+export function isInternalMessage(message: Message) {
+  return (
+    message.name === "todo_reminder" ||
+    message.additional_kwargs?.message_type === "routed_skill_prompt"
+  );
+}
+
+export function isHiddenStepMessage(message: Message) {
+  return message.name === "todo_routing_guidance";
 }
 
 export function extractTextFromMessage(message: Message) {

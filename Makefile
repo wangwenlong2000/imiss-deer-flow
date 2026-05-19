@@ -1,7 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports sandbox-build docker-build-all
-
+.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router
 PYTHON ?= python
 
 help:
@@ -11,6 +10,9 @@ help:
 	@echo "  make check           - Check if all required tools are installed"
 	@echo "  make install         - Install all dependencies (frontend + backend)"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
+	@echo "  make sandbox-build   - Build the custom sandbox image (auto-prefixed by user)"
+	@echo "  make docker-install PACKAGE=...        - Install Python packages in running Docker containers"
+	@echo "  make docker-install-system SYSTEM=...   - Install system packages in running Docker containers"
 	@echo "  make dev             - Start all services in development mode (with hot-reloading)"
 	@echo "  make dev-no-nginx    - Start local services without nginx (no sudo needed)"
 	@echo "  make stop-no-nginx   - Stop local no-nginx services"
@@ -18,6 +20,18 @@ help:
 	@echo "  make linux-server-start  - Start server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-stop   - Stop server mode on ports 3024/38001/33000"
 	@echo "  make linux-server-status - Show server mode status on ports 3024/38001/33000"
+	@echo "  make model-services-start  - Start BGE-M3 + SkillRouter embedding/reranker (uses NETWORK_TRAFFIC_*/SKILLROUTER_* envs)"
+	@echo "  make model-services-stop   - Stop BGE-M3 + SkillRouter embedding/reranker"
+	@echo "  make model-services-status - Show BGE-M3 + SkillRouter embedding/reranker status"
+	@echo "  make model-services-dogfood - Start and smoke-test all three model services"
+	@echo "  make extract-router-cards   - Extract Router Cards from all SKILL.md files"
+	@echo "  make build-skill-router-index - Build Router Card registry and ES index"
+	@echo "  make update-skill-router-index SKILL=... - Update one skill's Router Card and ES index"
+	@echo "  make check-skill-router-conflicts SKILL=... - Check routing conflicts for one skill"
+	@echo "  make eval-skill-router      - Run full SkillRouter evaluation"
+	@echo "  make sync-skill-router-index - Sync all skills into SkillRouter index"
+	@echo "  make check-skill-router-health - Check ES + embedding + reranker health"
+	@echo "  make test-skill-router      - Run SkillRouter test suite"
 	@echo "  make dev-daemon      - Start all services in background (daemon mode)"
 	@echo "  make start           - Start all services in production mode (optimized, no hot-reloading)"
 	@echo "  make stop            - Stop all running services"
@@ -29,6 +43,7 @@ help:
 	@echo ""
 	@echo "Docker Development Commands:"
 	@echo "  make docker-init     - Build the custom k3s image (with pre-cached sandbox image)"
+	@echo "  make docker-build-all - Build all Docker images used by DeerFlow"
 	@echo "  make docker-start    - Start Docker services (mode-aware from config.yaml, localhost:3328)"
 	@echo "  make update-docker-ports-cname - Update Docker/Nginx port config from config.yaml and use current username to rename container name(anker-deer-flow-nginx) and Compose project names (anker-deer-flow) to avoid conflicts when multiple developers on the same machine. This is useful when using Docker development environment with multiple branches or projects."
 	@echo "  make docker-stop     - Stop Docker development services"
@@ -93,6 +108,19 @@ setup-sandbox:
 		exit 1; \
 	fi
 
+# Build the custom sandbox image used by AioSandboxProvider
+sandbox-build:
+	@echo "=========================================="
+	@echo "  Building Custom Sandbox Image"
+	@echo "=========================================="
+	@echo ""
+	@SANDBOX_TAG="$${SANDBOX_TAG:-$${USER:-deerflow}}-deerflow-sandbox:network-tools"; \
+	docker build -f docker/sandbox/Dockerfile -t "$$SANDBOX_TAG" . && \
+	echo "" && \
+	echo "✓ Custom sandbox image built: $$SANDBOX_TAG" || \
+	(echo "" && echo "✗ Sandbox build failed" && exit 1)
+	@echo ""
+
 # Start all services in development mode (with hot-reloading)
 dev:
 	@./scripts/serve.sh --dev
@@ -115,6 +143,22 @@ linux-server-stop:
 
 linux-server-status:
 	@LANGGRAPH_PORT=3024 GATEWAY_PORT=38001 FRONTEND_PORT=33000 ./scripts/dev-no-nginx.sh status
+
+# Start the three local model services used for embedding and reranking
+model-services-start:
+	@./scripts/start-model-services.sh
+
+# Stop the three local model services used for embedding and reranking
+model-services-stop:
+	@./scripts/stop-model-services.sh
+
+# Show the status of the three local model services
+model-services-status:
+	@./scripts/model-services-status.sh
+
+# Start and smoke-test the three local model services
+model-services-dogfood:
+	@./scripts/dogfood_skillrouter_models.sh
 
 # Start all services in production mode (with optimizations)
 start:
@@ -156,9 +200,35 @@ clean: stop
 docker-init:
 	@./scripts/docker.sh init
 
+# Build all Docker images used by DeerFlow
+docker-build-all:
+	@./scripts/docker.sh build-all
+
 # Start Docker development environment
 docker-start:
 	@./scripts/docker.sh start
+
+# Install Python packages in running containers
+# Usage: make docker-install PACKAGE=duckdb
+#        make docker-install PACKAGE="duckdb openpyxl pyyaml"
+docker-install:
+ifndef PACKAGE
+	@echo "Usage: make docker-install PACKAGE=<package1> [package2] ..."
+	@echo "Example: make docker-install PACKAGE=\"duckdb openpyxl pyyaml\""
+else
+	@./scripts/docker.sh install $(PACKAGE)
+endif
+
+# Install system (apt) packages in running containers
+# Usage: make docker-install-system SYSTEM=vim
+#        make docker-install-system SYSTEM="curl wget htop"
+docker-install-system:
+ifndef SYSTEM
+	@echo "Usage: make docker-install-system SYSTEM=<pkg1> [pkg2] ..."
+	@echo "Example: make docker-install-system SYSTEM=\"vim curl htop\""
+else
+	@./scripts/docker.sh install-system $(SYSTEM)
+endif
 
 # Update Docker and Nginx ports from config.yaml
 docker-update-ports-cname:
@@ -194,3 +264,96 @@ up:
 # Stop and remove production containers
 down:
 	@./scripts/deploy.sh down
+
+# ==========================================
+# SkillRouter Commands
+# ==========================================
+
+# Load .env for SkillRouter targets (NETWORK_TRAFFIC_ES_INDEX, SKILL_ROUTER_ES_INDEX, ES_URL, ES_USERNAME, ES_PASSWORD, etc.)
+define load-env
+	@set -a; [ -f .env ] && . .env; set +a
+endef
+
+# Extract Router Cards from all SKILL.md files
+extract-router-cards:
+	@$(PYTHON) scripts/extract_router_cards.py
+
+# Build full SkillRouter Elasticsearch index (first-time / bulk rebuild)
+build-skill-router-index: extract-router-cards
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_registry.py
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_es_index.py
+
+# Update a single Skill's Router Card and ES index
+update-skill-router-index:
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/update_skill_router_index.py $(SKILL)
+
+# Check routing conflicts for a single Skill
+check-skill-router-conflicts:
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
+
+# Run full SkillRouter evaluation
+eval-skill-router:
+	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/eval_skill_router.py
+
+# Sync all skills into SkillRouter index (repair / manual sync)
+sync-skill-router-index:
+	@$(PYTHON) -c "\
+from deerflow.routing.index_updater import update_single_skill_index;\
+from pathlib import Path;\
+import json;\
+root = Path('skills');\
+results = [];\
+for cat in ('custom', 'public'):\
+    cd = root / cat;\
+    [results.append(update_single_skill_index(d.name, skill_dir=d, skills_root=root).__dict__) for d in sorted(cd.iterdir()) if d.is_dir() and (d / 'SKILL.md').exists()];\
+print(json.dumps(results, indent=2, ensure_ascii=False))\
+" PYTHONPATH=backend/packages/harness:scripts
+
+# Check SkillRouter service health (ES + embedding + reranker)
+check-skill-router-health:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) -c "\
+import os, sys;\
+try:\
+    from deerflow.routing.es_store import SkillRouterElasticStore;\
+    from deerflow.routing.embedding_client import SkillRouterEmbeddingClient;\
+    from deerflow.routing.reranker_client import SkillRouterRerankerClient;\
+    import httpx;\
+    es = SkillRouterElasticStore();\
+    try:\
+        auth = (es.username, es.password) if es.username else None;\
+        r = httpx.head(f'{es.es_url}/{es.index}', auth=auth, timeout=5);\
+        if r.status_code >= 400:\
+            print(f'ES index not found: {es.index} (status={r.status_code)}');\
+            sys.exit(1);\
+        r2 = httpx.get(f'{es.es_url}/{es.index}/_count', auth=auth, timeout=5);\
+        count = r2.json().get('count', 0) if r2.status_code < 400 else 0;\
+        print(f'ES connected: {es.index} has {count} documents');\
+        if count == 0:\
+            print('WARNING: No skills indexed. Run: make build-skill-router-index');\
+            sys.exit(1);\
+    except Exception as e:\
+        print(f'ES check FAILED: {e}');\
+        sys.exit(1);\
+    try:\
+        emb = SkillRouterEmbeddingClient();\
+        r = httpx.get(f'{emb.base_url}/models', timeout=5);\
+        print(f'Embedding service: OK ({emb.base_url})');\
+    except Exception as e:\
+        print(f'Embedding check FAILED: {e}');\
+        sys.exit(1);\
+    try:\
+        rer = SkillRouterRerankerClient();\
+        r = httpx.get(f'{rer.base_url}/models', timeout=5);\
+        print(f'Reranker service: OK ({rer.base_url})');\
+    except Exception as e:\
+        print(f'Reranker check FAILED: {e}');\
+        sys.exit(1);\
+    print('All SkillRouter services healthy.');\
+except ImportError as e:\
+    print(f'Missing module: {e}');\
+    sys.exit(1);\
+"
+
+# Run SkillCreator router update and conflict detection tests
+test-skill-router:
+	@PYTHONPATH=scripts:backend/packages/harness python3 -m pytest backend/tests/test_skill_creator_router_update.py backend/tests/test_skill_router_conflicts.py backend/tests/test_index_updater.py backend/tests/test_routing_metrics.py backend/tests/test_eval_skill_router.py backend/tests/test_skill_router_gateway.py -v
