@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "ppt-generation",
+    "name": "ppt-generation",
+    "description": "Use this skill when the user requests to generate, create, or make presentations (PPT/PPTX). Creates visually rich slides by generating images for each slide and composing them into a PowerPoint file."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：ppt-generation\n描述：Use this skill when the user requests to generate, create, or make presentations (PPT/PPTX). Creates visually rich slides by generating images for each slide and composing them into a PowerPoint file.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# PPT Generation Skill\n## Overview\nThis skill generates professional PowerPoint presentations by creating AI-generated images for each slide and composing them into a PPTX file. The workflow includes planning the presentation structure with a consistent visual style, generating slide images sequentially (using the previous slide as a reference for style consistency), and assembling them into a final presentation.\n## Core Capabilities\n- Plan and structure multi-slide presentations with unified visual style\n- Support multiple presentation styles: Business, Academic, Minimal, Apple Keynote, Creative\n- Generate unique AI images for each slide using image-generation skill\n- Maintain visual consistency by using previous slide as reference image\n- Compose images into a professional PPTX file\n## Presentation Styles\nChoose one of the following styles when creating the presentation plan:\n| Style | Description | Best For |\n|-------|-------------|----------|\n| **glassmorphism** | Frosted glass panels with blur effects, floating translucent cards, vibrant gradient backgrounds, depth through layering | Tech products, AI/SaaS demos, futuristic pitches |\n| **dark-premium** | Rich black backgrounds (#0a0a0a), luminous accent colors, subtle glow effects, luxury brand aesthetic | Premium products, executive presentations, high-end brands |\n| **gradient-modern** | Bold mesh gradients, fluid color transitions, contemporary typography, vibrant yet sophisticated | Startups, creative agencies, brand launches |\n| **neo-brutalist** | Raw bold typography, high contrast, intentional \"ugly\" aesthetic, anti-design as design, Memphis-inspired | Edgy brands, Gen-Z targeting, disruptive startups |\n| **3d-isometric** | Clean isometric illustrations, floating 3D elements, soft shadows, tech-forward aesthetic | Tech explainers, product features, SaaS presentations |\n| **editorial** | Magazine-quality layouts, sophisticated typography hierarchy, dramatic photography, Vogue/Bloomberg aesthetic | Annual reports, luxury brands, thought leadership |\n| **minimal-swiss** | Grid-based precision, Helvetica-inspired typography, bold use of negative space, timeless modernism | Architecture, design firms, premium consulting |\n| **keynote** | Apple-inspired aesthetic with bold typography, dramatic imagery, high contrast, cinematic feel | Keynotes, product reveals, inspirational talks |\n## Workflow\n### Step 1: Understand Requirements\nWhen a user requests presentation generation, identify:\n- Topic/subject: What is the presentation about\n- Number of slides: How many slides are needed (default: 5-10)\n- **Style**: business / academic / minimal / keynote / creative\n- Aspect ratio: Standard (16:9) or classic (4:3)\n- Content outline: Key points for each slide\n- You don't need to check the folder under `/mnt/user-data`\n### Step 2: Create Presentation Plan\nCreate a JSON file in `/mnt/user-data/workspace/` with the presentation structure. **Important**: Include the `style` field to define the overall visual consistency.\n```json\n{\n\"title\": \"Presentation Title\",\n\"style\": \"keynote\",\n\"style_guidelines\": {\n\"color_palette\": \"Deep black backgrounds, white text, single accent color (blue or orange)\",\n\"typography\": \"Bold sans-serif headlines, clean body text, dramatic size contrast\",\n\"imagery\": \"High-quality photography, full-bleed images, cinematic composition\",\n\"layout\": \"Generous whitespace, centered focus, minimal elements per slide\"\n},\n\"aspect_ratio\": \"16:9\",\n\"slides\": [\n{\n\"slide_number\": 1,\n\"type\": \"title\",\n\"title\": \"Main Title\",\n\"subtitle\": \"Subtitle or tagline\",\n\"visual_description\": \"Detailed description for image generation\"\n},\n{\n\"slide_number\": 2,\n\"type\": \"content\",\n\"title\": \"Slide Title\",\n\"key_points\": [\"Point 1\", \"Point 2\", \"Point 3\"],\n\"visual_description\": \"Detailed description for image generation\"\n}\n]\n}\n```\n### Step 3: Generate Slide Images Sequentially\n**IMPORTANT**: Generate slides **strictly one by one, in order**. Do NOT parallelize or batch image generation. Each slide depends on the previous slide's output as a reference image. Generating slides in parallel will break visual consistency and is not allowed.\n1. Read the image-generation skill: `/mnt/skills/public/image-generation/SKILL.md`\n2. **For the FIRST slide (slide 1)**, create a prompt that establishes the visual style:\n```json\n{\n\"prompt\": \"Professional presentation slide. [style_guidelines from plan]. Title: 'Your Title'. [visual_description]. This slide establishes the visual language for the entire presentation.\",\n\"style\": \"[Based on chosen style - e.g., Apple Keynote aesthetic, dramatic lighting, cinematic]\",\n\"composition\": \"Clean layout with clear text hierarchy, [style-specific composition]\",\n\"color_palette\": \"[From style_guidelines]\",\n\"typography\": \"[From style_guidelines]\"\n}\n```\n```bash\npython /mnt/skills/public/image-generation/scripts/generate.py \\\n--prompt-file /mnt/user-data/workspace/slide-01-prompt.json \\\n--output-file /mnt/user-data/outputs/slide-01.jpg \\\n--aspect-ratio 16:9\n```\n3. *..."
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/ppt-generation",
+    "skill_md_path": "skills/public/ppt-generation/SKILL.md",
+    "skill_md_hash": "sha256:b377fe7a640b83f26d8a1b197b1fc70306eb693a6fa32e9fb13dc64288255af7",
+    "generated_at": "2026-05-13T07:32:15Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:ed40888f4f9a40d34a743d1023a5d6259de48a6493ff1d92ee559c02461a1b3a",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "ppt-generation"
+  }
+}

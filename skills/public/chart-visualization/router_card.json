@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "chart-visualization",
+    "name": "chart-visualization",
+    "description": "This skill should be used when the user wants to visualize data. It intelligently selects the most suitable chart type from 26 available options, extracts parameters based on detailed specifications, and generates a chart image using a JavaScript script."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [
+      "chart_generation",
+      "data_visualization"
+    ],
+    "input_types": [
+      "json",
+      "csv",
+      "text"
+    ],
+    "output_types": [
+      "chart_image",
+      "png"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：chart-visualization\n描述：This skill should be used when the user wants to visualize data. It intelligently selects the most suitable chart type from 26 available options, extracts parameters based on detailed specifications, and generates a chart image using a JavaScript script.\n适用场景：public。\n适用任务：chart_generation, data_visualization。\n输入类型：json, csv, text。\n输出类型：chart_image, png。\n适合使用：画一个柱状图；可视化这些数据；生成折线图。\n不适合使用：分析数据；统计汇总；SQL 查询。",
+    "positive_triggers": [
+      "画一个柱状图",
+      "可视化这些数据",
+      "生成折线图"
+    ],
+    "negative_triggers": [
+      "分析数据",
+      "统计汇总",
+      "SQL 查询"
+    ],
+    "keywords": [
+      "图表",
+      "可视化",
+      "柱状图",
+      "折线图",
+      "饼图",
+      "散点图",
+      "heatmap"
+    ],
+    "anti_keywords": [
+      "SQL",
+      "DuckDB",
+      "数据透视"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Chart Visualization Skill\nThis skill provides a comprehensive workflow for transforming data into visual charts. It handles chart selection, parameter extraction, and image generation.\n## Workflow\nTo visualize data, follow these steps:\n### 1. Intelligent Chart Selection\nAnalyze the user's data features to determine the most appropriate chart type. Use the following guidelines (and consult `references/` for detailed specs):\n- **Time Series**: Use `generate_line_chart` (trends) or `generate_area_chart` (accumulated trends). Use `generate_dual_axes_chart` for two different scales.\n- **Comparisons**: Use `generate_bar_chart` (categorical) or `generate_column_chart`. Use `generate_histogram_chart` for frequency distributions.\n- **Part-to-Whole**: Use `generate_pie_chart` or `generate_treemap_chart` (hierarchical).\n- **Relationships & Flow**: Use `generate_scatter_chart` (correlation), `generate_sankey_chart` (flow), or `generate_venn_chart` (overlap).\n- **Maps**: Use `generate_district_map` (regions), `generate_pin_map` (points), or `generate_path_map` (routes).\n- **Hierarchies & Trees**: Use `generate_organization_chart` or `generate_mind_map`.\n- **Specialized**:\n- `generate_radar_chart`: Multi-dimensional comparison.\n- `generate_funnel_chart`: Process stages.\n- `generate_liquid_chart`: Percentage/Progress.\n- `generate_word_cloud_chart`: Text frequency.\n- `generate_boxplot_chart` or `generate_violin_chart`: Statistical distribution.\n- `generate_network_graph`: Complex node-edge relationships.\n- `generate_fishbone_diagram`: Cause-effect analysis.\n- `generate_flow_diagram`: Process flow.\n- `generate_spreadsheet`: Tabular data or pivot tables for structured data display and cross-tabulation.\n### 2. Parameter Extraction\nOnce a chart type is selected, read the corresponding file in the `references/` directory (e.g., `references/generate_line_chart.md`) to identify the required and optional fields.\nExtract the data from the user's input and map it to the expected `args` format.\n### 3. Chart Generation\nInvoke the `scripts/generate.js` script with a JSON payload.\n**Payload Format:**\n```json\n{\n\"tool\": \"generate_chart_type_name\",\n\"args\": {\n\"data\": [...],\n\"title\": \"...\",\n\"theme\": \"...\",\n\"style\": { ... }\n}\n}\n```\n**Execution Command:**\n```bash\nnode ./scripts/generate.js '<payload_json>'\n```\n### 4. Result Return\nThe script will output the URL of the generated chart image.\nReturn the following to the user:\n- The image URL.\n- The complete `args` (specification) used for generation.\n## Reference Material\nDetailed specifications for each chart type are located in the `references/` directory. Consult these files to ensure the `args` passed to the script match the expected schema.\n## License\nThis `SKILL.md` is provided by [antvis/chart-visualization-skills](https://github.com/antvis/chart-visualization-skills).\nLicensed under the [MIT License](https://github.com/antvis/chart-visualization-skills/blob/master/LICENSE)."
+  },
+  "execution": {
+    "required_tools": [
+      "bash",
+      "write_file"
+    ],
+    "optional_tools": [
+      "read_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.csv"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "data-analysis"
+    ]
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_visualization",
+    "prefer_when": [
+      "用户明确要求生成图表、可视化数据"
+    ],
+    "defer_when": [
+      "任务只是数据统计分析，应优先使用 data-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/chart-visualization",
+    "skill_md_path": "skills/public/chart-visualization/SKILL.md",
+    "skill_md_hash": "sha256:eaa4095433d69e53bb5d97e0dc659f56cb1d53f202f6a71f0577b815fce95901",
+    "generated_at": "2026-05-13T07:32:15Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:7fac295083fab67d466fd67fd39983a7ceb2283d70a03cdbdcf4e2f92bc9c639",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "chart-visualization"
+  }
+}

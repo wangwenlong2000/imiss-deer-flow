@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-generation",
+    "name": "video-generation",
+    "description": "Use this skill when the user requests to generate, create, or imagine videos. Supports structured prompts and reference image for guided generation."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：video-generation\n描述：Use this skill when the user requests to generate, create, or imagine videos. Supports structured prompts and reference image for guided generation.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Video Generation Skill\n## Overview\nThis skill generates high-quality videos using structured prompts and a Python script. The workflow includes creating JSON-formatted prompts and executing video generation with optional reference image.\n## Core Capabilities\n- Create structured JSON prompts for AIGC video generation\n- Support reference image as guidance or the first/last frame of the video\n- Generate videos through automated Python script execution\n## Workflow\n### Step 1: Understand Requirements\nWhen a user requests video generation, identify:\n- Subject/content: What should be in the image\n- Style preferences: Art style, mood, color palette\n- Technical specs: Aspect ratio, composition, lighting\n- Reference image: Any image to guide generation\n- You don't need to check the folder under `/mnt/user-data`\n### Step 2: Create Structured Prompt\nGenerate a structured JSON file in `/mnt/user-data/workspace/` with naming pattern: `{descriptive-name}.json`\n### Step 3: Create Reference Image (Optional when image-generation skill is available)\nGenerate reference image for the video generation.\n- If only 1 image is provided, use it as the guided frame of the video\n### Step 3: Execute Generation\nCall the Python script:\n```bash\npython /mnt/skills/public/video-generation/scripts/generate.py \\\n--prompt-file /mnt/user-data/workspace/prompt-file.json \\\n--reference-images /path/to/ref1.jpg \\\n--output-file /mnt/user-data/outputs/generated-video.mp4 \\\n--aspect-ratio 16:9\n```\nParameters:\n- `--prompt-file`: Absolute path to JSON prompt file (required)\n- `--reference-images`: Absolute paths to reference image (optional)\n- `--output-file`: Absolute path to output image file (required)\n- `--aspect-ratio`: Aspect ratio of the generated image (optional, default: 16:9)\n[!NOTE]\nDo NOT read the python file, instead just call it with the parameters.\n## Video Generation Example\nUser request: \"Generate a short video clip depicting the opening scene from \"The Chronicles of Narnia: The Lion, the Witch and the Wardrobe\"\nStep 1: Search for the opening scene of \"The Chronicles of Narnia: The Lion, the Witch and the Wardrobe\" online\nStep 2: Create a JSON prompt file with the following content:\n```json\n{\n\"title\": \"The Chronicles of Narnia - Train Station Farewell\",\n\"background\": {\n\"description\": \"World War II evacuation scene at a crowded London train station. Steam and smoke fill the air as children are being sent to the countryside to escape the Blitz.\",\n\"era\": \"1940s wartime Britain\",\n\"location\": \"London railway station platform\"\n},\n\"characters\": [\"Mrs. Pevensie\", \"Lucy Pevensie\"],\n\"camera\": {\n\"type\": \"Close-up two-shot\",\n\"movement\": \"Static with subtle handheld movement\",\n\"angle\": \"Profile view, intimate framing\",\n\"focus\": \"Both faces in focus, background soft bokeh\"\n},\n\"dialogue\": [\n{\n\"character\": \"Mrs. Pevensie\",\n\"text\": \"You must be brave for me, darling. I'll come for you... I promise.\"\n},\n{\n\"character\": \"Lucy Pevensie\",\n\"text\": \"I will be, mother. I promise.\"\n}\n],\n\"audio\": [\n{\n\"type\": \"Train whistle blows (signaling departure)\",\n\"volume\": 1\n},\n{\n\"type\": \"Strings swell emotionally, then fade\",\n\"volume\": 0.5\n},\n{\n\"type\": \"Ambient sound of the train station\",\n\"volume\": 0.5\n}\n]\n}\n```\nStep 3: Use the image-generation skill to generate the reference image\nLoad the image-generation skill and generate a single reference image `narnia-farewell-scene-01.jpg` according to the skill.\nStep 4: Use the generate.py script to generate the video\n```bash\npython /mnt/skills/public/video-generation/scripts/generate.py \\\n--prompt-file /mnt/user-data/workspace/narnia-farewell-scene.json \\\n--reference-images /mnt/user-data/outputs/narnia-farewell-scene-01.jpg \\\n--output-file /mnt/user-data/outputs/narnia-farewell-scene-01.mp4 \\\n--aspect-ratio 16:9\n```\n> Do NOT read the python file, just call it with the parameters.\n## Output Handling\nAfter generation:\n- Videos are typically saved in `/mnt/user-data/outputs/`\n- Share generated videos (come first) with user as well as generated image if applicable, using `present_files` tool\n- Provide brief description of the generation result\n- Offer to iterate if adjustments needed\n## Notes\n- Always use English for prompts regardless of user's language\n- JSON format ensures structured, parsable prompts\n- Reference image enhance generation quality significantly\n- Iterative refinement is normal for optimal results"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/video-generation",
+    "skill_md_path": "skills/public/video-generation/SKILL.md",
+    "skill_md_hash": "sha256:4bcd25ea8c229e5b38f23bb6211d02796ee87b81c7d30fddf312d3a434b4f3e1",
+    "generated_at": "2026-05-13T07:32:15Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:ee5b92bf908687c9f8d3c1adc5d269a57911125b803182e2bf641815ec40129f",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "video-generation"
+  }
+}

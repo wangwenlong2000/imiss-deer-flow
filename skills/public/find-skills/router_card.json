@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "find-skills",
+    "name": "find-skills",
+    "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：find-skills\n描述：Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Find Skills\nThis skill helps you discover and install skills from the open agent skills ecosystem.\n## When to Use This Skill\nUse this skill when the user:\n- Asks \"how do I do X\" where X might be a common task with an existing skill\n- Says \"find a skill for X\" or \"is there a skill for X\"\n- Asks \"can you do X\" where X is a specialized capability\n- Expresses interest in extending agent capabilities\n- Wants to search for tools, templates, or workflows\n- Mentions they wish they had help with a specific domain (design, testing, deployment, etc.)\n## What is the Skills CLI?\nThe Skills CLI (`npx skills`) is the package manager for the open agent skills ecosystem. Skills are modular packages that extend agent capabilities with specialized knowledge, workflows, and tools.\n**Key commands:**\n- `npx skills find [query]` - Search for skills interactively or by keyword\n- `npx skills check` - Check for skill updates\n- `npx skills update` - Update all installed skills\n**Browse skills at:** https://skills.sh/\n## How to Help Users Find Skills\n### Step 1: Understand What They Need\nWhen a user asks for help with something, identify:\n1. The domain (e.g., React, testing, design, deployment)\n2. The specific task (e.g., writing tests, creating animations, reviewing PRs)\n3. Whether this is a common enough task that a skill likely exists\n### Step 2: Search for Skills\nRun the find command with a relevant query:\n```bash\nnpx skills find [query]\n```\nFor example:\n- User asks \"how do I make my React app faster?\" → `npx skills find react performance`\n- User asks \"can you help me with PR reviews?\" → `npx skills find pr review`\n- User asks \"I need to create a changelog\" → `npx skills find changelog`\nThe command will return results like:\n```\nInstall with bash /path/to/skill/scripts/install-skill.sh vercel-labs/agent-skills@vercel-react-best-practices\nvercel-labs/agent-skills@vercel-react-best-practices\n└ https://skills.sh/vercel-labs/agent-skills/vercel-react-best-practices\n```\n### Step 3: Present Options to the User\nWhen you find relevant skills, present them to the user with:\n1. The skill name and what it does\n2. The install command they can run\n3. A link to learn more at skills.sh\nExample response:\n```\nI found a skill that might help! The \"vercel-react-best-practices\" skill provides\nReact and Next.js performance optimization guidelines from Vercel Engineering.\nTo install it:\nbash /path/to/skill/scripts/install-skill.sh vercel-labs/agent-skills@vercel-react-best-practices\nLearn more: https://skills.sh/vercel-labs/agent-skills/vercel-react-best-practices\n```\n### Step 4: Install the Skill\nIf the user wants to proceed, use the `install-skill.sh` script to install the skill and automatically link it to the project:\n```bash\nbash /path/to/skill/scripts/install-skill.sh <owner/repo@skill-name>\n```\nFor example, if the user wants to install `vercel-react-best-practices`:\n```bash\nbash /path/to/skill/scripts/install-skill.sh vercel-labs/agent-skills@vercel-react-best-practices\n```\nThe script will install the skill globally to `skills/custom/`\n## Common Skill Categories\nWhen searching, consider these common categories:\n| Category        | Example Queries                          |\n| --------------- | ---------------------------------------- |\n| Web Development | react, nextjs, typescript, css, tailwind |\n| Testing         | testing, jest, playwright, e2e           |\n| DevOps          | deploy, docker, kubernetes, ci-cd        |\n| Documentation   | docs, readme, changelog, api-docs        |\n| Code Quality    | review, lint, refactor, best-practices   |\n| Design          | ui, ux, design-system, accessibility     |\n| Productivity    | workflow, automation, git                |\n## Tips for Effective Searches\n1. **Use specific keywords**: \"react testing\" is better than just \"testing\"\n2. **Try alternative terms**: If \"deploy\" doesn't work, try \"deployment\" or \"ci-cd\"\n3. **Check popular sources**: Many skills come from `vercel-labs/agent-skills` or `ComposioHQ/awesome-claude-skills`\n## When No Skills Are Found\nIf no relevant skills exist:\n1. Acknowledge that no existing skill was found\n2. Offer to help with the task directly using your general capabilities\n3. Suggest the user could create their own skill with `npx skills init`\nExample:\n```\nI searched for skills related to \"xyz\" but didn't find any matches.\nI can still help you with this task directly! Would you like me to proceed?\nIf this is something you do often, you could create your own skill:\nnpx skills init my-xyz-skill\n```"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/find-skills",
+    "skill_md_path": "skills/public/find-skills/SKILL.md",
+    "skill_md_hash": "sha256:bdeaf9de2e46ae87b273c8ed6fd95b7095f0be46815b86fc0f9ef162c94f2c71",
+    "generated_at": "2026-05-13T07:32:15Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c777270134454b83f4de816a8708e615019a36bfe440c6b7608fc89711c9b1ea",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "find-skills"
+  }
+}

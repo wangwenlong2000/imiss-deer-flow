@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "surprise-me",
+    "name": "surprise-me",
+    "description": "Create a delightful, unexpected \"wow\" experience for the user by dynamically discovering and creatively combining other enabled skills. Triggers when the user says \"surprise me\" or any request expressing a desire for an unexpected creative showcase. Also triggers when the user is bored, wants inspiration, or asks for \"something interesting\"."
+  },
+  "scope": {
+    "scenes": [
+      "public"
+    ],
+    "is_public": true,
+    "task_types": [],
+    "input_types": [],
+    "output_types": []
+  },
+  "routing": {
+    "routing_text": "名称：surprise-me\n描述：Create a delightful, unexpected \"wow\" experience for the user by dynamically discovering and creatively combining other enabled skills. Triggers when the user says \"surprise me\" or any request expressing a desire for an unexpected creative showcase. Also triggers when the user is bored, wants inspiration, or asks for \"something interesting\".\n适用场景：public。",
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "keywords": [],
+    "anti_keywords": []
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# Surprise Me\nDeliver an unexpected, delightful experience by dynamically discovering available skills and combining them creatively.\n## Workflow\n### Step 1: Discover Available Skills\nRead all the skills listed in the <available_skills>.\n### Step 2: Plan the Surprise\nSelect **1 to 3** skills and design a creative mashup. The goal is a single cohesive deliverable, not separate demos.\n**Creative combination principles:**\n- Juxtapose skills in unexpected ways (e.g., a presentation about algorithmic art, a research report turned into a slide deck, a styled doc with canvas-designed illustrations)\n- Incorporate the user's known interests/context from memory if available\n- Prioritize visual impact and emotional delight over information density\n- The output should feel like a gift — polished, surprising, and fun\n**Theme ideas (pick or remix):**\n- Something tied to today's date, season, or trending news\n- A mini creative project the user never asked for but would love\n- A playful \"what if\" concept\n- An aesthetic artifact combining data + design\n- A fun interactive HTML/React experience\n### Step 3: Fallback — No Other Skills Available\nIf no other skills are discovered (only surprise-me exists), use one of these fallbacks:\n1. **News-based surprise**: Search today's news for a fascinating story, then create a beautifully designed HTML artifact presenting it in a visually striking way\n2. **Interactive HTML experience**: Build a creative single-page web experience — generative art, a mini-game, a visual poem, an animated infographic, or an interactive story\n3. **Personalized artifact**: Use known user context to create something personal and delightful\n### Step 4: Execute\n1. Read the full SKILL.md body of each selected skill\n2. Follow each skill's instructions for technical execution\n3. Combine outputs into one cohesive deliverable\n4. Present the result with minimal preamble — let the work speak for itself\n### Step 5: Reveal\nPresent the surprise with minimal spoilers. A short teaser line, then the artifact.\n- **Good reveal:** \"I made you something ✨\" + [the artifact]\n- **Bad reveal:** \"I decided to combine the pptx skill with the canvas-design skill to create a presentation about...\" (kills the surprise)"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "public_default",
+    "prefer_when": [],
+    "defer_when": []
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/surprise-me",
+    "skill_md_path": "skills/public/surprise-me/SKILL.md",
+    "skill_md_hash": "sha256:dad1a0f9a2dbfabc7a2050dbd1fbafd08967e1ae03c7bd7fc4069d49119e65bc",
+    "generated_at": "2026-05-13T07:32:15Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:0e3ed0764bcacb39f519779bb1fd1ab945d3f46cc20cd059f9eac0078d0c164d",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "surprise-me"
+  }
+}
