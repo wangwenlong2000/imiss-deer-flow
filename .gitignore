@@ -21,14 +21,14 @@ backend/.venv/
 frontend/.venv/
 
 # Environment variables
-.env
-backend/.env
-frontend/.env
+# .env
+# backend/.env
+# frontend/.env
 
 # Configuration files
-config.yaml
-mcp_config.json
-extensions_config.json
+# config.yaml
+# mcp_config.json
+# extensions_config.json
 
 # IDE
 .idea/

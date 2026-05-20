@@ -153,6 +153,7 @@ def _enumerate_local_datasets() -> list[DataSourceRecord]:
                 status="ready",
                 description=f"Built-in dataset folder with {file_count} file(s).",
                 path=str(child),
+                virtual_path=f"/mnt/datasets/{child.name}",
                 updated_at=datetime.fromtimestamp(child.stat().st_mtime, UTC).isoformat(),
                 owner_scope="global",
                 selectable_in_chat=True,

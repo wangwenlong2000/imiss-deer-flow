@@ -1,0 +1,71 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/path/to/allowed/files"
+      ],
+      "env": {},
+      "url": null,
+      "headers": {},
+      "oauth": null,
+      "description": "Provides filesystem access within allowed directories"
+    },
+    "github": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": ""
+      },
+      "url": null,
+      "headers": {},
+      "oauth": null,
+      "description": "GitHub MCP server for repository operations"
+    },
+    "postgres": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://localhost/mydb"
+      ],
+      "env": {},
+      "url": null,
+      "headers": {},
+      "oauth": null,
+      "description": "PostgreSQL database access"
+    },
+    "elasticsearch": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-elasticsearch"
+      ],
+      "env": {
+        "ELASTICSEARCH_URL": "http://219.245.186.45:9200"
+      },
+      "url": null,
+      "headers": {},
+      "oauth": null,
+      "description": "Elasticsearch search and query"
+    }
+  },
+  "skills": {
+    "network-traffic-analysis": {
+      "enabled": false
+    }
+  }
+}
