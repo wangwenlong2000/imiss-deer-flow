@@ -41,7 +41,7 @@ coverage/
 backend/.deer-flow/
 .deerflow-no-nginx/
 .claude/
-skills/custom/*
+
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**

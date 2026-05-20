@@ -1,0 +1,316 @@
+{
+  "version": "1.0.0",
+  "purpose": "城市超脑视频数据分析 skill 调用体系",
+  "exposure_policy": {
+    "primary_enabled": [
+      "urban-video-skill-orchestrator",
+      "video-source-operations",
+      "object-tracking-analysis",
+      "scenario-event-recognition",
+      "spatial-rule-engine",
+      "alert-deduplication",
+      "multi-source-correlation",
+      "evidence-package-builder",
+      "structured-video-query",
+      "model-ops-governance"
+    ],
+    "internal_only": [
+      "camsnap",
+      "ffmpeg-utils",
+      "imagemagick",
+      "skill-virtual-ptz",
+      "skill-plate-forensics",
+      "privacy-anonymization",
+      "urban-violation-detector",
+      "full-factor-traffic-stats",
+      "crowd-density-analysis",
+      "anomaly-behavior-detection",
+      "fire-smoke-detection",
+      "multi-camera-reid",
+      "digital-twin-mapping",
+      "semantic-video-search",
+      "analyze-video",
+      "skill-motion-detector",
+      "video-quality-diagnostics"
+    ],
+    "deprecated_disabled": [
+      "video-surveillance-analysis",
+      "gemini-count-in-video"
+    ],
+    "agent_rule": "Agent 面向用户任务时只主动选择 primary_enabled；internal_only 只能由 primary skill 在明确需要专项能力时调用；deprecated_disabled 不再作为新任务入口。"
+  },
+  "canonical_skills": [
+    {
+      "name": "urban-video-skill-orchestrator",
+      "layer": "L0-orchestration",
+      "role": "任务识别、链路规划、skill 调用约束",
+      "entrypoint": "scripts/plan_chain.py"
+    },
+    {
+      "name": "video-source-operations",
+      "layer": "L1-source",
+      "role": "视频源接入与巡检",
+      "entrypoint": "scripts/source_probe.py",
+      "required_before": ["object-tracking-analysis", "scenario-event-recognition"]
+    },
+    {
+      "name": "object-tracking-analysis",
+      "layer": "L2-structure",
+      "role": "目标检测、跨帧跟踪、轨迹、计数、基础事件",
+      "entrypoint": "scripts/detect_and_track.py",
+      "requires": ["video-source-operations"]
+    },
+    {
+      "name": "scenario-event-recognition",
+      "layer": "L3-event",
+      "role": "交通、城管、公共安全场景事件识别",
+      "entrypoint": "scripts/recognize_events.py",
+      "requires": ["object-tracking-analysis"]
+    },
+    {
+      "name": "spatial-rule-engine",
+      "layer": "L4-rules",
+      "role": "ROI、越线、电子围栏、方向、时间段规则判定",
+      "entrypoint": "scripts/apply_spatial_rules.py",
+      "requires": ["scenario-event-recognition"]
+    },
+    {
+      "name": "alert-deduplication",
+      "layer": "L5-alert",
+      "role": "告警合并、置信度过滤、重复告警压制、误报反馈入口",
+      "entrypoint": "scripts/deduplicate_alerts.py",
+      "requires": ["spatial-rule-engine"]
+    },
+    {
+      "name": "multi-source-correlation",
+      "layer": "L6-correlation",
+      "role": "关联地图、网格、道路、工单、IoT 和相邻摄像头",
+      "entrypoint": "scripts/correlate_sources.py",
+      "requires": ["alert-deduplication"]
+    },
+    {
+      "name": "evidence-package-builder",
+      "layer": "L7-evidence",
+      "role": "证据包、截图、短视频、时间线、轨迹、结构化描述",
+      "entrypoint": "scripts/build_evidence_package.py",
+      "requires": ["alert-deduplication"]
+    },
+    {
+      "name": "structured-video-query",
+      "layer": "L8-query",
+      "role": "基于结构化事件和告警的自然语言查询与摘要",
+      "entrypoint": "scripts/query_events.py",
+      "requires_structured_input": true
+    },
+    {
+      "name": "model-ops-governance",
+      "layer": "L9-governance",
+      "role": "模型版本、阈值调优、误报回流、性能监控",
+      "entrypoint": "scripts/govern_models.py",
+      "requires": ["alert-deduplication"]
+    }
+  ],
+  "legacy_skills": [
+    {
+      "name": "camsnap",
+      "mode": "compatibility",
+      "use_when": "用户明确要求抓拍、快照、查看现场单帧",
+      "canonical_parent": "video-source-operations"
+    },
+    {
+      "name": "ffmpeg-utils",
+      "mode": "utility",
+      "use_when": "需要实际视频切片、抽帧、转码",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "imagemagick",
+      "mode": "utility",
+      "use_when": "需要图像增强、锐化、降噪",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "skill-virtual-ptz",
+      "mode": "utility",
+      "use_when": "需要虚拟云台、ROI 放大",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "skill-plate-forensics",
+      "mode": "utility",
+      "use_when": "需要车牌专项增强",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "urban-violation-detector",
+      "mode": "backend-specialist",
+      "use_when": "城管违章专项模型",
+      "canonical_parent": "scenario-event-recognition"
+    },
+    {
+      "name": "full-factor-traffic-stats",
+      "mode": "backend-specialist",
+      "use_when": "交通流量、车型、车速专项统计",
+      "canonical_parent": "scenario-event-recognition"
+    },
+    {
+      "name": "crowd-density-analysis",
+      "mode": "backend-specialist",
+      "use_when": "人员聚集、人群密度专项分析",
+      "canonical_parent": "scenario-event-recognition"
+    },
+    {
+      "name": "anomaly-behavior-detection",
+      "mode": "backend-specialist",
+      "use_when": "摔倒、打斗、徘徊、攀爬专项分析",
+      "canonical_parent": "scenario-event-recognition"
+    },
+    {
+      "name": "fire-smoke-detection",
+      "mode": "backend-specialist",
+      "use_when": "烟火专项识别",
+      "canonical_parent": "scenario-event-recognition"
+    },
+    {
+      "name": "multi-camera-reid",
+      "mode": "backend-specialist",
+      "use_when": "跨摄像头目标重识别和轨迹追踪",
+      "canonical_parent": "multi-source-correlation"
+    },
+    {
+      "name": "digital-twin-mapping",
+      "mode": "backend-specialist",
+      "use_when": "像素坐标到 GIS 或数字孪生映射",
+      "canonical_parent": "multi-source-correlation"
+    },
+    {
+      "name": "semantic-video-search",
+      "mode": "fallback",
+      "use_when": "没有结构化索引且用户要求语义搜视频",
+      "canonical_parent": "structured-video-query"
+    },
+    {
+      "name": "privacy-anonymization",
+      "mode": "compliance-utility",
+      "use_when": "输出证据或共享视频前需要人脸、车牌、区域脱敏",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "video-surveillance-analysis",
+      "mode": "deprecated-main-entry",
+      "use_when": "仅兼容旧演示，不作为新任务首选入口",
+      "canonical_parent": "urban-video-skill-orchestrator"
+    },
+    {
+      "name": "analyze-video",
+      "mode": "utility",
+      "use_when": "长视频章节化、法医式抽帧和结构化报告",
+      "canonical_parent": "evidence-package-builder"
+    },
+    {
+      "name": "skill-motion-detector",
+      "mode": "backend-specialist",
+      "use_when": "静态监控运动片段过滤",
+      "canonical_parent": "object-tracking-analysis"
+    },
+    {
+      "name": "video-quality-diagnostics",
+      "mode": "backend-specialist",
+      "use_when": "视频质量专项诊断",
+      "canonical_parent": "video-source-operations"
+    }
+  ],
+  "task_chains": [
+    {
+      "task_type": "source_health_check",
+      "description": "摄像头在线、码流质量、黑屏、花屏、遮挡、冻结、延迟巡检",
+      "keywords": ["巡检", "在线", "码流", "黑屏", "花屏", "遮挡", "冻结", "延迟", "RTSP", "GB28181"],
+      "input_kinds": ["video", "stream", "unknown"],
+      "chain": ["video-source-operations"],
+      "final_output": "source_health_report"
+    },
+    {
+      "task_type": "realtime_event_discovery",
+      "description": "从视频源发现事件、生成告警并证据化",
+      "keywords": ["实时", "告警", "发现事件", "监控分析", "视频分析", "异常"],
+      "input_kinds": ["video", "stream", "unknown"],
+      "chain": ["video-source-operations", "object-tracking-analysis", "scenario-event-recognition", "spatial-rule-engine", "alert-deduplication", "multi-source-correlation", "evidence-package-builder"],
+      "final_output": "correlated_alerts_and_evidence"
+    },
+    {
+      "task_type": "traffic_operations",
+      "description": "交通拥堵、违停、逆行、车流、车型和道路运行分析",
+      "keywords": ["交通", "拥堵", "违停", "逆行", "车流", "车速", "车型", "路口", "道路"],
+      "input_kinds": ["video", "stream", "events", "alerts", "unknown"],
+      "chain": ["video-source-operations", "object-tracking-analysis", "scenario-event-recognition", "spatial-rule-engine", "alert-deduplication", "structured-video-query"],
+      "scenario": "traffic",
+      "final_output": "traffic_analysis_summary"
+    },
+    {
+      "task_type": "urban_governance",
+      "description": "占道经营、施工占道、垃圾堆放、乱停乱放等城管问题",
+      "keywords": ["城管", "占道", "摊贩", "施工", "垃圾", "乱停", "违章", "市容"],
+      "input_kinds": ["video", "stream", "events", "alerts", "unknown"],
+      "chain": ["video-source-operations", "object-tracking-analysis", "scenario-event-recognition", "spatial-rule-engine", "alert-deduplication", "multi-source-correlation", "evidence-package-builder"],
+      "scenario": "governance",
+      "final_output": "governance_cases_with_evidence"
+    },
+    {
+      "task_type": "public_safety",
+      "description": "人员聚集、摔倒、打斗、烟火、翻越、徘徊等公共安全事件",
+      "keywords": ["安全", "聚集", "摔倒", "打斗", "烟火", "火灾", "翻越", "徘徊", "人群"],
+      "input_kinds": ["video", "stream", "events", "alerts", "unknown"],
+      "chain": ["video-source-operations", "object-tracking-analysis", "scenario-event-recognition", "spatial-rule-engine", "alert-deduplication", "evidence-package-builder"],
+      "scenario": "safety",
+      "final_output": "safety_alerts_with_evidence"
+    },
+    {
+      "task_type": "spatial_rule_configuration",
+      "description": "配置或应用 ROI、越线、电子围栏、方向和时间段规则",
+      "keywords": ["ROI", "越线", "电子围栏", "方向", "时间段", "规则", "区域"],
+      "input_kinds": ["events", "video", "stream", "unknown"],
+      "chain": ["object-tracking-analysis", "scenario-event-recognition", "spatial-rule-engine"],
+      "final_output": "spatial_rule_matches"
+    },
+    {
+      "task_type": "alert_review",
+      "description": "告警合并、重复压制、置信度过滤、误报反馈",
+      "keywords": ["去重", "合并", "误报", "置信度", "重复告警", "告警研判"],
+      "input_kinds": ["alerts", "events", "unknown"],
+      "chain": ["alert-deduplication", "model-ops-governance"],
+      "final_output": "deduplicated_alerts_and_governance_feedback"
+    },
+    {
+      "task_type": "multi_source_correlation",
+      "description": "关联地图、网格、道路、工单、IoT、相邻摄像头",
+      "keywords": ["关联", "地图", "网格", "道路", "工单", "IoT", "传感器", "点位"],
+      "input_kinds": ["alerts", "events", "unknown"],
+      "chain": ["alert-deduplication", "multi-source-correlation"],
+      "final_output": "correlated_cases"
+    },
+    {
+      "task_type": "evidence_generation",
+      "description": "生成截图、短视频、时间线、轨迹、结构化描述",
+      "keywords": ["证据", "截图", "短视频", "时间线", "轨迹", "执法", "复核", "派单材料"],
+      "input_kinds": ["alerts", "events", "video", "stream", "unknown"],
+      "chain": ["alert-deduplication", "evidence-package-builder"],
+      "final_output": "evidence_package"
+    },
+    {
+      "task_type": "structured_query_summary",
+      "description": "基于结构化事件和告警回答自然语言查询、汇总、排序、日报",
+      "keywords": ["查询", "摘要", "今天", "过去", "最多", "高风险", "日报", "周报", "汇总", "排名"],
+      "input_kinds": ["alerts", "events", "unknown"],
+      "chain": ["structured-video-query"],
+      "final_output": "natural_language_answer_with_facts"
+    },
+    {
+      "task_type": "model_ops_governance",
+      "description": "模型版本、场景适配、误报样本回流、阈值调优、性能监控",
+      "keywords": ["模型", "版本", "阈值", "性能", "回流", "场景适配", "治理", "评估"],
+      "input_kinds": ["feedback", "alerts", "unknown"],
+      "chain": ["model-ops-governance"],
+      "final_output": "model_governance_report"
+    }
+  ]
+}
