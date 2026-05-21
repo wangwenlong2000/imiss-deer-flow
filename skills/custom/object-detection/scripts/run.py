@@ -145,17 +145,6 @@ def iter_detection_objects(detections: list[dict[str, Any]]):
 
 SKILL = "object-detection"
 
-def run_mock(frames, labels, thresholds, config):
-    mock = config.get("mock_detections", {})
-    detections = []
-    for index, frame in enumerate(frames):
-        objects = mock.get(frame.get("frame_id"))
-        if objects is None:
-            label = labels[0] if labels else "person"
-            objects = [{"object_id": f"det_{index + 1:04d}", "label": label, "confidence": max(float(thresholds.get(label, 0.5)), 0.8), "bbox": [120 + index, 300, 260 + index, 460]}]
-        detections.append({"frame_id": frame.get("frame_id"), "timestamp": frame.get("timestamp"), "objects": [o for o in objects if float(o.get("confidence", 0)) >= float(thresholds.get(o.get("label"), 0.0))]})
-    return success(SKILL, {"detections": detections})
-
 def run_ultralytics(frames, labels, thresholds, model_config):
     try:
         from ultralytics import YOLO
@@ -196,7 +185,7 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Detect objects in sampled frames.")
     p.add_argument("--frames-json", required=True)
     p.add_argument("--labels", default="person")
-    p.add_argument("--provider", choices=["mock", "ultralytics"])
+    p.add_argument("--provider", choices=["ultralytics"])
     p.add_argument("--model-path")
     p.add_argument("--config")
     p.add_argument("--output")
@@ -209,7 +198,10 @@ def main() -> int:
         model_config["provider"] = args.provider
     if args.model_path:
         model_config["model_path"] = args.model_path
-    result = run_ultralytics(frames, labels, model_config.get("thresholds", {}), model_config) if model_config.get("provider", "mock") == "ultralytics" else run_mock(frames, labels, model_config.get("thresholds", {}), config)
+    provider = model_config.get("provider", "ultralytics")
+    if provider != "ultralytics":
+        return emit(failed(SKILL, "UNSUPPORTED_PROVIDER", f"Unsupported object detection provider: {provider}"), args.output)
+    result = run_ultralytics(frames, labels, model_config.get("thresholds", {}), model_config)
     return emit(result, args.output)
 
 if __name__ == "__main__":

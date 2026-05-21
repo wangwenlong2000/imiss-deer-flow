@@ -1,6 +1,6 @@
 ---
 name: analyze-video
-description: 专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。
+description: 专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。
 version: 1.0.0
 author: jdrodriguez
 compatibility: ">=2.0.0"

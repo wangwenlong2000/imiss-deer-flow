@@ -1,6 +1,6 @@
 ---
 name: object-detection
-description: Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs real YOLO or mock detections with labels, confidences, and bounding boxes. This skill exposes ultralytics YOLO, OpenCV DNN ONNX YOLO, and deterministic mock backends; use it before tracking, ROI mapping, and event rules.
+description: Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.
 ---
 
 # Object Detection
@@ -27,7 +27,7 @@ Parameters: `--frames-json`, `--labels`, `--provider`, `--model-path`, `--config
 ## Workflow
 
 1. Read frames and target labels.
-2. Load the configured lightweight detector or accept deterministic mock detections.
+2. Load the configured ultralytics YOLO detector.
 3. Map model labels to internal labels.
 4. Apply per-label confidence thresholds.
 5. Return frame-level Detection records.
