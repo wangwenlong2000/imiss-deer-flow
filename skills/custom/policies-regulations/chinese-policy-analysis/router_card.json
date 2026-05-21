@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "chinese-policy-analysis",
+    "name": "chinese-policy-analysis",
+    "description": "中国政策分析与判断 Skill，用于系统分析中国政策文件、政策落地可能性、执行力度、执行路径、政策走向、实际影响和动态跟踪信号。"
+  },
+  "scope": {
+    "scenes": [
+      "policy_regulation",
+      "china_policy",
+      "policy_analysis"
+    ],
+    "is_public": false,
+    "task_types": [
+      "policy_analysis",
+      "policy_interpretation",
+      "policy_implementation_assessment",
+      "policy_execution_likelihood",
+      "policy_trend_prediction",
+      "policy_impact_assessment",
+      "policy_strength_assessment",
+      "policy_signal_analysis",
+      "government_policy_reasoning"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "policy_document",
+      "policy_excerpt",
+      "policy_question"
+    ],
+    "output_types": [
+      "policy_analysis_report",
+      "implementation_likelihood_assessment",
+      "execution_strength_assessment",
+      "policy_trend_judgment",
+      "impact_prediction",
+      "tracking_signal_list",
+      "structured_policy_assessment"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：chinese-policy-analysis\n描述：中国政策分析与判断 Skill。适用于用户要求分析中国政策、解读政策文件、评估政策落地可能性、判断政策执行力度、预判政策走向、分析政策实际影响、评估政策强弱、识别政策执行路径和动态跟踪信号的场景。本 Skill 强调中国政策文本存在结构性模糊，政策文本不是简单承诺书，而是行动边界的划定。适合从制定者真实目标、财政约束、政绩考核、既得利益、社会稳定、国际环境、主动设计或被动应对等角度逆向推理政策意图，并通过六个维度评估政策强度：回撤成本、条款刚性、会议路径、钱权责配套、牵头层级与部门权威、是否制造输家。本 Skill 可输出政策落实强度分析、制定者意图逆推、六维度评分、综合执行路径判断、政策矛盾与异常、动态跟踪要点和实际影响预判。典型问题包括：分析这项中国政策能否落地、判断这个政策执行力度、解读某政策文件、评估政策实际影响、预判政策未来走向、这个政策是强政策还是弱政策、地方会不会认真执行、哪些群体会受到影响、企业应该如何理解政策信号。不适用于单纯检索政策法规原文、查询具体法条依据、生成法律意见、合同审查或具体案件争议分析；这类任务应交给法律法规检索、法律问题分析或合同审查类 Skill。",
+    "positive_triggers": [
+      "用户要求分析中国政策文件或政策内容",
+      "用户要求评估政策落地可能性或执行力度",
+      "用户要求判断政策是强政策还是弱政策",
+      "用户要求预判政策走向、政策生命周期或政策实际影响",
+      "用户要求分析政策背后的制定者意图、约束条件和利益格局",
+      "用户要求判断地方政府、部门或企业会如何执行某项政策",
+      "用户要求从会议层级、财政配套、考核问责、牵头部门等角度分析政策强度",
+      "用户要求输出结构化政策分析报告、六维度评估或动态跟踪信号"
+    ],
+    "negative_triggers": [
+      "用户仅要求检索政策法规原文、法律条文原文或司法解释原文，应使用政策法规检索类 Skill",
+      "用户提供具体案件事实，要求请求权基础、争议焦点、诉讼仲裁策略分析，应使用 china-legal-issue-analysis",
+      "用户提供完整合同文本，要求逐条审查和修改建议，应使用 china-contract-review",
+      "用户只是当事人视角提出轻量法律咨询，应使用 china-legal-consultation",
+      "用户要求制作图表、统计分析或数据可视化，而不是政策判断，应使用数据分析或图表类 Skill",
+      "用户要求起草正式公文、通知、报告，而不是分析政策执行可能性"
+    ],
+    "keywords": [
+      "中国政策分析",
+      "政策解读",
+      "政策落地",
+      "执行力度",
+      "政策执行",
+      "政策走向",
+      "政策预判",
+      "政策影响",
+      "政策强度",
+      "强政策",
+      "弱政策",
+      "政策信号",
+      "政策模糊性",
+      "制定者意图",
+      "财政约束",
+      "政绩考核",
+      "既得利益",
+      "社会稳定",
+      "会议路径",
+      "钱权责",
+      "牵头部门",
+      "部门权威",
+      "地方执行",
+      "政策回撤",
+      "实施细则",
+      "专项资金",
+      "考核问责",
+      "试点推广",
+      "动态跟踪"
+    ],
+    "anti_keywords": [
+      "法条原文",
+      "司法解释原文",
+      "政策法规检索",
+      "合同审查",
+      "案件分析",
+      "请求权基础",
+      "争议焦点",
+      "法律咨询",
+      "数据可视化",
+      "图表生成",
+      "公文写作",
+      "通知起草"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "中国政策分析与判断 Skill 用于分析中国政策、评估政策落地可能性、判断政策执行力度、预判政策走向、解读政策文件，并为用户提供系统的政策实施可能性、执行路径和实际影响分析框架。该 Skill 的核心认知是：中国政策存在结构性模糊，这种模糊性源于信息不对称、动态调整需求和利益博弈缓冲。政策模糊性包括主动模糊和被动模糊，政策文本不是承诺书，而是行动边界的划定，真正的政策意图往往隐藏在配套机制、资源分配和问责体系中。分析政策前应先回答三个元问题：制定者真实目标是什么，制定者面临什么约束，制定者是主动设计还是被动应对。分析时使用六维度深度解析框架：第一，能否回撤，即政策承诺刚性和执行范围决定回撤成本；第二，拆解条款，忽略宏大叙事，重点查看工作要求、保障措施、监督考核、强制性动词、量化指标和责任主体；第三，会议路径的政治信号，即会议层级反映政治重视程度和执行强制力；第四，钱权责配套，包括财政资金、行政权力、考核问责是否齐全；第五，牵头层级与部门权威，即政策执行力取决于牵头部门资源调动能力和跨部门协调权威；第六，是否制造输家，即改革中的利益再分配和输家反抗能力决定推进难度。综合判断模型包括强政策特征和弱政策特征。强政策通常表现为中央高层会议反复强调、写入法律或中央文件、有明确时间表、有财政支持、执法权和问责机制、由权威部门牵头、能承受既得利益反抗并有试点成功经验。弱政策通常表现为仅部委发文、软性词汇密集、无财政预算、无执法权、无考核指标、多部门平级协调、触动核心利益但无补偿机制、目标与财政或就业等硬约束冲突。动态跟踪机制包括强化信号、弱化信号和转向信号。实战流程包括确定政策来源与层级、逆推制定者意图、六维度交叉验证、识别矛盾与异常、输出结构化判断。输出模板包括政策名称落实强度分析、制定者意图逆推、六维度评估、综合判断、矛盾与异常、动态跟踪要点和实际影响预判。输出前应进行反思性检查，避免看声量不看强度、用个人逻辑替代制定者逻辑、忽视关键约束、过度确定化和不检查历史反例。"
+  },
+  "execution": {
+    "required_tools": [
+      "policy_document_reading",
+      "structured_reasoning"
+    ],
+    "optional_tools": [
+      "web_search",
+      "policy_source_verification",
+      "news_search",
+      "local_references"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "law-regulations-rag",
+      "policy-regulation-es-search",
+      "china-legal-issue-analysis",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 70,
+    "conflict_group": "china_policy_analysis",
+    "prefer_when": [
+      "用户要求分析政策文件的真实意图、执行强度、落地可能性或实际影响",
+      "用户要求判断政策是强政策还是弱政策",
+      "用户要求预判政策走向、政策生命周期或地方执行方式",
+      "用户关注政策文本背后的钱权责配套、会议层级、牵头部门、考核问责和利益冲突",
+      "用户需要结构化政策分析报告，而不是单纯检索政策原文"
+    ],
+    "defer_when": [
+      "用户仅要求检索政策法规、法律条文或司法解释原文时，转给政策法规检索类 Skill",
+      "用户基于具体案件事实要求法律争议分析、请求权基础或诉讼仲裁策略时，转给 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求逐条审查时，转给 china-contract-review",
+      "用户只是提出轻量法律咨询问题时，转给 china-legal-consultation",
+      "用户主要要求数据统计、图表生成或可视化时，转给 data-analysis 或 chart-visualization"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/chinese-policy-analysis",
+    "skill_md_path": "skills/custom/policies-regulations/chinese-policy-analysis/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "chinese-policy-analysis"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请分析这份中国政策文件的落地可能性和执行力度",
+        "should_route": true,
+        "reason": "用户明确要求分析政策落地可能性和执行力度"
+      },
+      {
+        "query": "这个政策是强政策还是弱政策？地方政府会不会认真执行？",
+        "should_route": true,
+        "reason": "用户要求判断政策强度和地方执行可能性"
+      },
+      {
+        "query": "请从钱权责、会议层级和牵头部门角度分析这个政策的真实意图",
+        "should_route": true,
+        "reason": "用户要求使用政策执行强度框架分析政策意图"
+      },
+      {
+        "query": "这项政策未来一年可能怎么走？哪些群体会受到实际影响？",
+        "should_route": true,
+        "reason": "用户要求政策走向预判和实际影响分析"
+      },
+      {
+        "query": "帮我检索这份政策的原文和发布机关",
+        "should_route": false,
+        "prefer_skill": "policy-regulation-es-search",
+        "reason": "该请求主要是政策法规原文检索"
+      },
+      {
+        "query": "请基于这个案件事实分析我能否起诉对方",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于具体法律争议分析"
+      },
+      {
+        "query": "请逐条审查这份合同的违约责任和争议解决条款",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同条款级审查"
+      }
+    ],
+    "last_eval": {}
+  }
+}

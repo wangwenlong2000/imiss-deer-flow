@@ -1,0 +1,237 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "official-document-writer",
+    "name": "official-document-writer",
+    "description": "公文撰写助手 Skill，用于在用户明确要求起草、润色、修改或导出正式中文公文时，基于用户材料、权威政策依据或本地检索结果，生成请示、报告、汇报材料等正式机关公文文本。"
+  },
+  "scope": {
+    "scenes": [
+      "policy_regulation",
+      "official_document",
+      "government_writing",
+      "china_policy"
+    ],
+    "is_public": false,
+    "task_types": [
+      "official_document_drafting",
+      "official_document_polishing",
+      "official_document_revision",
+      "request_document_drafting",
+      "report_document_drafting",
+      "briefing_material_drafting",
+      "formal_chinese_document_writing",
+      "policy_grounded_document_writing",
+      "document_export"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "policy_materials",
+      "draft_text",
+      "background_materials",
+      "official_document_request"
+    ],
+    "output_types": [
+      "official_document_text",
+      "request_document",
+      "report_document",
+      "briefing_material",
+      "polished_official_document",
+      "policy_basis_list",
+      "structured_markdown",
+      "docx",
+      "pdf"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：official-document-writer\n描述：公文撰写助手 Skill。仅适用于用户明确要求起草、草拟、润色、修改、整理或导出正式中文公文的场景，例如请示、报告、汇报材料、正式上行文、机关公文草稿、领导交办材料、公文化改写等。本 Skill 的目标是在有依据、讲规范、可交付的前提下，输出适合进一步审签或人工修改的正式公文正文或文档文件。典型问题包括：帮我写一份请示；写一份关于某事项的报告；写汇报材料；把这段材料整理成正式公文；把草稿润色成机关公文风格；生成正式上行文。本 Skill 会先判断文种和任务边界，提取发文机关、主送机关、主题事由、背景事实、现状问题、已有工作、拟采取措施、政策依据、字数要求、语气偏好和导出需求；再优先使用用户提供材料、当前会话材料、本地政策法规检索结果或可用联网搜索结果组织依据；然后按公文写作规范、模板和正式行政文风生成正文。请示和报告严格区分：请示一文一事，用于请求批准、批复或指示；报告用于汇报情况、反映工作、说明进展，不夹带请示事项。不适用于一般政策问答、法律法规检索、合同审查、普通新闻稿、宣传稿、讲话稿、宽泛政策研究、资料调研或仅要求查政策而未要求起草公文的任务。",
+    "positive_triggers": [
+      "用户明确要求写一份请示、报告、汇报材料或正式公文",
+      "用户要求把现有草稿润色成机关公文风格",
+      "用户要求将材料整理成正式上行文或正式机关行文",
+      "用户要求根据政策依据和背景材料生成公文正文",
+      "用户要求对请示、报告、汇报材料进行结构调整、语言润色或规范化修改",
+      "用户要求输出可直接复制到 Word 的正式公文文本",
+      "用户明确要求导出公文为 docx 或 pdf，且当前环境具备文档导出能力",
+      "用户提供政策材料、工作背景、项目情况或单位材料，并要求形成正式公文"
+    ],
+    "negative_triggers": [
+      "用户只是进行一般政策问答，没有要求起草、润色或修改公文",
+      "用户只是查询法律法规、政策文件、法条原文或政策依据，应使用 law-local-retrieval",
+      "用户要求分析政策落地可能性、执行力度或政策走向，应使用 chinese-policy-analysis",
+      "用户要求合同审查、条款风险识别或合同修改，应使用 china-contract-review",
+      "用户要求普通新闻稿、宣传稿、讲话稿、公众号文章或研究文章，不应使用本 Skill",
+      "用户要求宽泛资料调研、政策研究或网络搜索，但未要求形成正式公文",
+      "用户要求法律服务方案、案件沟通报告、咨询报告等法律服务文档，应使用 legal-proposal-generator",
+      "当前环境没有文档导出能力时，不得声称已生成 Word 或 PDF 文件"
+    ],
+    "keywords": [
+      "公文",
+      "请示",
+      "报告",
+      "汇报材料",
+      "正式公文",
+      "公文草拟",
+      "公文润色",
+      "公文修改",
+      "机关公文",
+      "上行文",
+      "主送机关",
+      "发文机关",
+      "落款",
+      "妥否请批示",
+      "特此报告",
+      "工作报告",
+      "情况报告",
+      "请示事项",
+      "政策依据",
+      "正式行政文风",
+      "规范标题",
+      "文种",
+      "一文一事",
+      "审签",
+      "正式文本",
+      "docx 导出",
+      "pdf 导出"
+    ],
+    "anti_keywords": [
+      "政策问答",
+      "政策解读",
+      "法律法规检索",
+      "法条原文",
+      "政策依据是什么",
+      "合同审查",
+      "案件分析",
+      "法律咨询",
+      "新闻稿",
+      "宣传稿",
+      "讲话稿",
+      "公众号文章",
+      "研究报告",
+      "资料调研",
+      "法律服务方案",
+      "客户沟通报告"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "official-document-writer 是公文撰写助手，用于撰写正式中文公文，重点支持请示、报告、汇报材料和领导交办的正式公文草拟与润色。目标是在有依据、讲规范、可交付的前提下，输出适合进一步审签或人工修改的公文正文或文档文件。适用场景包括用户要求帮我写一份请示、写一份关于某事项的报告、写汇报材料、把材料整理成正式公文、把草稿润色成机关公文风格、生成正式上行文。不适用场景包括一般政策问答、法律法规检索、合同审查、普通新闻稿、宣传稿、讲话稿、宽泛政策研究、资料调研，以及仅要求查政策但未要求起草公文。执行时可按需读取 references/policy-sources.md、references/gbwriting-standards.md、references/doc-templates.md 和 references/writing-style-guide.md。DeerFlow 环境下的硬性规则包括：先判断是否属于公文写作任务，只有用户明确要求写请示、报告、汇报材料、公文草拟或正式机关行文时才使用；优先使用当前 DeerFlow 已可用的工具，若有 web_search、web_fetch 或同类联网工具，可先检索最新权威依据；若没有联网工具，不得伪造已搜索到最新政策，应优先使用用户材料或本地政策法规检索结果，依据不足时明确说明政策依据需后续人工补充核验；不得伪造文件生成结果，只有环境具备文档生成能力时才创建 docx 或 pdf；不得伪造政策引用，政策文件名、文号、发布时间、讲话出处必须来自用户材料、本地检索结果或联网抓取结果；请示与报告必须严格区分，请示一文一事，用于请求批准、批复或指示，报告用于汇报情况、反映工作和说明进展，不夹带请示事项。工作流程包括识别任务并补齐关键信息、收集依据材料、确定结构与标题、起草正文、润色与校对、输出结果。第一阶段判断文种和目标，提取文种、发文机关、主送机关、主题事由、背景事实、现状问题、已有工作或拟采取措施、政策依据、字数要求、语气偏好和是否导出。第二阶段按用户提供材料、当前会话材料、本地政策法规检索结果、联网搜索与网页抓取结果的优先级组织依据。第三阶段读取公文写作规范和模板，请示常用结构包括标题、主送机关、开头、基本情况、请示事项、有关说明或预期效果、结语、落款和日期；报告常用结构包括标题、主送机关、开头、主要工作及成效、存在问题或形势分析、下一步工作安排、结语、落款和日期；汇报材料常用结构包括标题、开头总述、总体进展、主要做法、存在问题和下一步打算。正文写作规则包括围绕主题服务，有依据再引用政策，无依据使用概括性行政表达，事实数字时间预算以用户提供或核实信息为准，不编造会议名称、政策文号和领导讲话原文。文风应正式、稳妥、行政化，避免网络用语、口语化和过度文学化修辞。层次序号一般使用一、（一）、1.、（1）。质量自检包括文种、标题、主送机关、逻辑结构、请示一文一事、报告不夹带请示事项、政策引用真实可核、数据事实一致、行文正式和不虚构文件或附件。默认输出包括最终正文、文档结构概览、政策依据清单、标题方案说明和依据不足提示。文件导出只有在当前环境存在文档生成工具时才执行，否则只输出可复制到 Word 的正式文本版本。最终原则是先判断任务边界，再决定是否启用本技能；先核实依据，再写涉及政策出处的句子；能联网就检索，不能联网就诚实降级；能导出再导出，不能导出只给正文；宁可少写未经核实的政策亮点，也不要伪造出处；宁可给规范草稿，也不要为了完整而编造事实。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "structured_writing"
+    ],
+    "optional_tools": [
+      "web_search",
+      "web_fetch",
+      "law-local-retrieval",
+      "document_generation",
+      "docx_export",
+      "pdf_export",
+      "references/policy-sources.md",
+      "references/gbwriting-standards.md",
+      "references/doc-templates.md",
+      "references/writing-style-guide.md"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "law-local-retrieval",
+      "chinese-policy-analysis",
+      "legal-briefing",
+      "data-analysis",
+      "chart-visualization",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 68,
+    "conflict_group": "official_document_writing",
+    "prefer_when": [
+      "用户明确要求起草请示、报告、汇报材料或正式机关公文",
+      "用户要求把草稿或素材润色成正式公文风格",
+      "用户要求生成正式上行文、机关行文或可审签的公文正文",
+      "用户提供背景材料和政策材料，目标是形成正式中文公文",
+      "用户明确要求导出公文文档，且当前环境具备文档生成工具"
+    ],
+    "defer_when": [
+      "用户只是查询政策法规、法条原文、政策依据或法律依据时，转给 law-local-retrieval",
+      "用户主要要求政策解读、政策执行力度、落地可能性或政策走向判断时，转给 chinese-policy-analysis",
+      "用户要求已有法律材料整理成法律备忘录、合规简报或风险清单时，转给 legal-briefing",
+      "用户要求合同审查、案件分析、法律咨询或法律文书模板时，转给对应法律类 Skill",
+      "用户要求普通新闻稿、宣传稿、讲话稿或公众号文章时，不优先使用本 Skill",
+      "当前环境没有文档导出工具时，只输出正文，不声称已生成 docx 或 pdf"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/official-document-writer",
+    "skill_md_path": "skills/custom/policies-regulations/official-document-writer/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "official-document-writer"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请帮我写一份关于申请专项资金支持的请示",
+        "should_route": true,
+        "reason": "用户明确要求起草请示"
+      },
+      {
+        "query": "把下面这段工作材料整理成正式汇报材料，语气要符合机关公文风格",
+        "should_route": true,
+        "reason": "用户要求将材料整理成正式汇报材料"
+      },
+      {
+        "query": "请根据这些背景和政策依据写一份关于消防安全整治工作的报告",
+        "should_route": true,
+        "reason": "用户要求基于材料和政策依据起草报告"
+      },
+      {
+        "query": "帮我把这份草稿润色成正式上行文",
+        "should_route": true,
+        "reason": "用户明确要求公文化润色"
+      },
+      {
+        "query": "请检索电动自行车消防安全相关法律依据",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是政策法规依据检索，不是公文起草"
+      },
+      {
+        "query": "请分析这项政策未来能否落地，地方政府会不会认真执行",
+        "should_route": false,
+        "prefer_skill": "chinese-policy-analysis",
+        "reason": "该请求是政策执行力度分析，不是公文写作"
+      },
+      {
+        "query": "请写一篇关于基层治理创新的公众号宣传稿",
+        "should_route": false,
+        "reason": "该请求是宣传稿或普通文章写作，不属于正式公文"
+      },
+      {
+        "query": "请逐条审查这份采购合同并提出修改意见",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同审查"
+      }
+    ],
+    "last_eval": {}
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "wechat-article-fetch",
+    "name": "wechat-article-fetch",
+    "description": "微信公众号文章抓取 Skill，用于通过 Playwright 抓取微信公众号文章内容，支持动态加载、标题与正文提取、图片下载、Markdown 保存，并可与法律文本格式化 Skill 协作处理法律类文章。"
+  },
+  "scope": {
+    "scenes": [
+      "content_fetching",
+      "wechat_article",
+      "legal_text_processing",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "wechat_article_fetch",
+      "wechat_content_extraction",
+      "article_markdown_save",
+      "article_image_download",
+      "wechat_legal_article_fetch",
+      "dynamic_page_fetch",
+      "content_archiving",
+      "markdown_article_generation"
+    ],
+    "input_types": [
+      "text",
+      "url",
+      "wechat_url",
+      "wechat_article_id",
+      "output_path"
+    ],
+    "output_types": [
+      "markdown_article",
+      "article_title",
+      "article_content",
+      "article_images",
+      "assets_folder",
+      "fetch_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：wechat-article-fetch\n描述：微信公众号文章抓取 Skill。适用于用户提供微信公众号文章链接或文章 ID，并要求抓取微信公众号文章正文、提取标题、保存为 Markdown 文件、下载文章图片、归档图文内容、作为后续法律文本格式化或内容分析输入的场景。本 Skill 使用 Playwright headless 模式后台抓取微信公众号文章，支持动态加载、懒加载图片处理、内容清洗、自动重试、错误页面检测、图片资源下载和 Markdown 文件保存。典型问题包括：帮我抓取这个微信公众号文章；把这篇公众号文章保存为 Markdown；下载这篇公众号文章和里面的图片；抓取微信公众号文章正文后交给法律文本格式化；把这个 mp.weixin.qq.com/s/xxxxx 链接内容保存下来。在 DeerFlow 中调用时，如果用户提供完整微信公众号链接，应先提取 /s/ 后面的文章 ID，不要直接把完整 URL 作为 bash 参数传入；必须在技能根目录执行命令，并显式设置 PLAYWRIGHT_BROWSERS_PATH；输出路径应写入 /mnt/user-data、/mnt/datasets 或 /mnt/skills 等允许目录。不适用于普通网页抓取、法律文本格式化本身、法律法规检索、案件分析、合同审查、文章改写或内容总结；抓取完成后如检测到法律案例、法规、判决、裁判文书等法律内容，可组合 legal-text-format 进行后续格式化。",
+    "positive_triggers": [
+      "用户提供微信公众号文章链接，希望抓取正文内容",
+      "用户提供 mp.weixin.qq.com/s/ 开头的链接，希望保存为 Markdown",
+      "用户提供微信公众号文章 ID，希望后台抓取文章",
+      "用户要求下载微信公众号文章中的图片并保留图片位置",
+      "用户要求将公众号文章作为后续法律文本格式化、案例整理或知识库处理的输入",
+      "用户要求自动提取微信公众号文章标题和正文",
+      "用户要求把微信公众号文章归档到本地输出目录",
+      "用户明确提到 wechat-article-fetch、微信公众号抓取、公众号文章下载"
+    ],
+    "negative_triggers": [
+      "用户已经提供了抓取后的正文，只要求格式化法律文本，应使用 legal-text-format",
+      "用户要求抓取普通网页、新闻网页或非微信公众号页面，不应优先使用本 Skill",
+      "用户要求检索法律法规、司法解释、政策文件或法条原文，应使用 law-local-retrieval",
+      "用户要求分析法律问题、请求权基础、争议焦点或诉讼策略，应使用 china-legal-issue-analysis",
+      "用户要求合同审查、条款修改或风险识别，应使用 china-contract-review",
+      "用户要求总结文章观点、改写文章、写报告或生成文案，而不是抓取原文",
+      "用户要求绕过访问限制、批量高频抓取或违反网站服务条款的用途"
+    ],
+    "keywords": [
+      "微信公众号",
+      "公众号文章",
+      "微信文章",
+      "mp.weixin.qq.com",
+      "文章抓取",
+      "抓取正文",
+      "保存 Markdown",
+      "下载图片",
+      "Playwright",
+      "headless",
+      "无头模式",
+      "动态加载",
+      "懒加载图片",
+      "文章 ID",
+      "fetch.js",
+      "PLAYWRIGHT_BROWSERS_PATH",
+      "图片资源文件夹",
+      "文章归档",
+      "法律文章抓取",
+      "公众号案例",
+      "公众号法规",
+      "Markdown 文件"
+    ],
+    "anti_keywords": [
+      "法律文本格式化",
+      "法条检索",
+      "政策法规检索",
+      "案件分析",
+      "合同审查",
+      "法律咨询",
+      "普通网页抓取",
+      "新闻搜索",
+      "文章总结",
+      "文章改写",
+      "公众号运营文案",
+      "批量高频抓取"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "wechat-article-fetch 是微信公众号文章抓取工具，使用 Playwright 抓取微信公众号文章，后台运行无弹窗，自动处理动态加载，提取干净文章内容，并支持自动保存为 Markdown 文件。在 DeerFlow 中调用时必须遵守三条强制规则：第一，优先传入文章 ID，不要直接在 bash 命令中传完整 URL；如果用户提供完整链接，应先提取 /s/ 后面的文章 ID，再传入脚本，由脚本内部拼接完整 URL。第二，必须在技能根目录执行命令，并显式设置 PLAYWRIGHT_BROWSERS_PATH=/mnt/skills/custom/policies-regulations/wechat-article-fetch/.playwright-browsers，避免找不到 scripts/fetch.js、package.json 或 node_modules/playwright。第三，DeerFlow 中输出路径应使用允许目录，如 /mnt/user-data、/mnt/datasets、/mnt/skills，不应写入未允许的绝对路径。功能特性包括无头模式运行、无头失败时回退有头模式、动态内容支持、自动保存 Markdown、内容清洗、自动重试三次、错误页面检测、跨平台支持、检测法律内容时可自动调用 legal-text-format、图片下载、智能图片筛选、图片位置保持和根据文章标题自动命名。与其他技能协作时，本 Skill 专注文章抓取，若 AI 检测到法律相关内容，如标题包含案例、裁判、判决、法规、条例、最高法、最高检，或内容包含案号、法院名称、法律条文引用、基本案情、裁判结果、典型意义等结构，可继续调用 legal-text-format 进行格式化；普通文章则保存原始内容。默认保存位置为项目根目录，指定相对路径则相对于项目根目录，指定绝对路径则使用完整路径。在 DeerFlow 中推荐调用方式为 cd /mnt/skills/custom/policies-regulations/wechat-article-fetch && PLAYWRIGHT_BROWSERS_PATH=/mnt/skills/custom/policies-regulations/wechat-article-fetch/.playwright-browsers /usr/bin/node scripts/fetch.js \"文章ID\" /mnt/user-data/outputs/article.md。Markdown 输出包括文章标题、原文链接、抓取时间、正文和图片引用；当文章包含图片时，会生成文章标题.md 和文章标题_assets 图片资源文件夹。图片筛选默认过滤小于 15KB 的装饰性图片。技术实现依赖 Playwright 和 Node.js >= 14.0.0，抓取流程包括检测并安装 Playwright、启动 headless 浏览器、设置反检测参数、导航到目标 URL、等待网络空闲、滚动触发懒加载、提取 #js_content 或 .rich_media_content 区域、清理 HTML、返回标题和纯文本、保存 Markdown、失败时回退重试。适用场景包括内容转换工具输入源、文章分析和处理、自动化内容抓取、批量文章下载、文章归档、本地保存、Markdown 转换、法律文档自动格式化、图文文章完整保存和图片资源管理。注意事项包括仅用于个人学习和研究、遵守网站服务条款、避免频繁抓取导致限流、抓取内容版权归原作者所有。"
+  },
+  "execution": {
+    "required_tools": [
+      "nodejs",
+      "playwright",
+      "filesystem",
+      "scripts/fetch.js"
+    ],
+    "optional_tools": [
+      "legal-text-format",
+      "image_downloader",
+      "markdown_writer",
+      "PLAYWRIGHT_BROWSERS_PATH",
+      ".playwright-browsers"
+    ],
+    "allowed_file_patterns": [
+      "*.md",
+      "*.txt",
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png",
+      "*.webp"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "legal-text-format",
+      "legal-briefing",
+      "legal-qa-extractor",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 66,
+    "conflict_group": "wechat_article_fetching",
+    "prefer_when": [
+      "用户提供微信公众号文章链接或文章 ID，并要求抓取正文内容",
+      "用户要求将微信公众号文章保存为 Markdown 文件",
+      "用户要求下载公众号文章图片并保留图文结构",
+      "用户需要将公众号文章作为后续法律文本格式化、知识库建设或内容整理的输入",
+      "用户明确提到 mp.weixin.qq.com/s/ 链接、微信公众号文章抓取或 wechat-article-fetch"
+    ],
+    "defer_when": [
+      "用户已经提供正文内容且只要求格式化法律文本时，转给 legal-text-format",
+      "用户要求检索法律法规、政策文件或司法解释原文时，转给 law-local-retrieval",
+      "用户要求对抓取后的法律材料整理成备忘录、简报或风险清单时，可组合 legal-briefing",
+      "用户要求从律师客户沟通记录中提取问答时，转给 legal-qa-extractor",
+      "用户要求普通网页抓取、新闻搜索或联网调研时，不优先使用本 Skill",
+      "用户要求违反网站服务条款、绕过访问控制或高频批量抓取时，应拒绝或提示合规限制"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/wechat-article-fetch",
+    "skill_md_path": "skills/custom/policies-regulations/wechat-article-fetch/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "wechat-article-fetch"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请帮我抓取这个微信公众号文章并保存为 Markdown：https://mp.weixin.qq.com/s/30Boat6-86FK7wNccnK7mg",
+        "should_route": true,
+        "reason": "用户提供微信公众号链接并要求抓取保存"
+      },
+      {
+        "query": "把这个公众号文章 ID 抓下来：30Boat6-86FK7wNccnK7mg",
+        "should_route": true,
+        "reason": "用户提供文章 ID 并要求抓取"
+      },
+      {
+        "query": "请下载这篇微信公众号文章，包括里面的图片，并保留 Markdown 中的位置",
+        "should_route": true,
+        "reason": "用户要求抓取图文文章并下载图片"
+      },
+      {
+        "query": "抓取这个最高法公众号案例文章，后续帮我整理成规范案例 Markdown",
+        "should_route": true,
+        "reason": "用户需要先抓取微信公众号法律内容，之后可组合 legal-text-format"
+      },
+      {
+        "query": "我已经把公众号正文粘贴好了，请删除推广内容并整理成法律案例 Markdown",
+        "should_route": false,
+        "prefer_skill": "legal-text-format",
+        "reason": "用户已经提供正文，目标是格式化而不是抓取"
+      },
+      {
+        "query": "查一下消防法关于疏散通道的规定",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是法律法规检索，不是公众号抓取"
+      },
+      {
+        "query": "请把这篇文章总结成一份法律备忘录",
+        "should_route": false,
+        "prefer_skill": "legal-briefing",
+        "reason": "该请求主要是材料整理和备忘录生成，不是抓取本身"
+      },
+      {
+        "query": "请从这段律师客户聊天记录里提取 FAQ 并脱敏",
+        "should_route": false,
+        "prefer_skill": "legal-qa-extractor",
+        "reason": "该请求是问答提取，不是公众号文章抓取"
+      }
+    ],
+    "last_eval": {}
+  }
+}

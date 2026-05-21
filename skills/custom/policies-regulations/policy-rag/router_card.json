@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "policy-rag",
+    "name": "policy-rag",
+    "description": "企业内部制度与审批流程 RAG Skill，用于处理企业内部制度文件、审批流程表、审批权责表和制度知识库，支持制度文档拆分、Excel 审批表转换、制度索引构建、制度条款检索、审批路径检索和基于检索结果的问答。"
+  },
+  "scope": {
+    "scenes": [
+      "policy_regulation",
+      "enterprise_policy",
+      "approval_flow",
+      "internal_rag"
+    ],
+    "is_public": false,
+    "task_types": [
+      "enterprise_policy_rag",
+      "internal_policy_document_split",
+      "approval_excel_conversion",
+      "policy_index_building",
+      "policy_index_rebuilding",
+      "policy_clause_retrieval",
+      "approval_flow_retrieval",
+      "approval_path_search",
+      "internal_policy_qa",
+      "script_driven_policy_processing"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "doc",
+      "docx",
+      "xlsx",
+      "xls",
+      "csv",
+      "enterprise_policy_document",
+      "approval_table",
+      "approval_matrix",
+      "approval_flow_table",
+      "query"
+    ],
+    "output_types": [
+      "split_policy_documents",
+      "structured_approval_flows",
+      "policy_index",
+      "policy_clause_search_results",
+      "approval_path_results",
+      "evidence_based_answer",
+      "script_execution_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：policy-rag\n描述：企业内部制度与审批流程 RAG Skill。适用于处理企业内部管理制度、采购制度、财务制度、供应商管理制度、费用报销制度、审批权限表、审批流程表、Excel 审批权责矩阵、已拆分或待拆分的制度文档，并围绕内部制度和审批流程完成文档拆分、Excel 审批表结构化转换、索引构建或重建、制度条款检索、审批路径检索和基于检索结果的证据化问答。典型问题包括：把这份制度拆分一下方便后续检索；把上传的制度文档处理成可索引格式；把 Excel 审批权责表转换成可检索格式；重建制度索引；刷新内部制度知识库；预付款比例限制在哪一章；白名单供应商的要求写在哪；超过 200 万的采购走什么审批路径；供应商解冻走哪个审批分支；这个申请由谁审批。本 Skill 是严格脚本驱动工作流，涉及文档拆分、Excel 转换、索引构建、制度检索和审批流检索时必须调用仓库脚本，不得口头模拟执行。回答制度条款或审批流程问题时，必须先执行检索命令，再根据脚本结果作答。本 Skill 只处理企业内部制度和审批流程数据，不处理国家法律法规、司法解释、裁判案例、法律咨询中的法条依据检索、联网搜索最新政策新闻或通用网页查询；这些任务应交给法律检索或网页搜索类 Skill。",
+    "positive_triggers": [
+      "用户上传企业内部制度文档，希望拆分成可检索格式",
+      "用户上传审批表、审批权责表或流程 Excel，希望转换成结构化审批流程数据",
+      "用户要求构建、重建或刷新企业内部制度索引",
+      "用户询问企业内部制度中的某个条款、比例、条件、限制、范围、例外或要求写在哪里",
+      "用户询问某事项怎么审批、走哪个分支、由谁审批或不同金额对应哪条审批路径",
+      "用户要求基于企业制度和审批流进行问答，并要求结果有检索依据",
+      "用户反馈 policy-rag 脚本、索引、embedding 或检索异常，需要进行环境检查",
+      "用户明确提供内部制度目录、索引目录或 flows 目录，需要执行脚本处理"
+    ],
+    "negative_triggers": [
+      "用户查询国家法律法规、司法解释、裁判案例、法条原文或法律依据，应使用 law-local-retrieval",
+      "用户需要法律咨询、案件分析、请求权基础、争议焦点或诉讼策略，应使用 china-legal-consultation 或 china-legal-issue-analysis",
+      "用户需要政策落地可能性、政策执行力度或政策走向分析，应使用 chinese-policy-analysis",
+      "用户要求联网搜索最新政策、新闻、监管动态或网页内容，不应使用本 Skill",
+      "用户要求合同逐条审查、法律文书模板、公文写作或法律备忘录生成，应使用对应法律文档类 Skill",
+      "用户要求通用 Excel 数据分析、统计图表或可视化，不应由本 Skill 直接处理",
+      "用户要求 ES 运维、通用向量库管理或生产级数据导入，而不是内部制度检索工作流"
+    ],
+    "keywords": [
+      "企业内部制度",
+      "内部制度",
+      "制度文档",
+      "采购制度",
+      "财务制度",
+      "供应商管理制度",
+      "费用报销制度",
+      "审批流程",
+      "审批表",
+      "审批权责表",
+      "审批权限表",
+      "审批矩阵",
+      "Excel 审批表",
+      "审批路径",
+      "由谁审批",
+      "怎么审批",
+      "走哪个分支",
+      "制度拆分",
+      "文档拆分",
+      "索引构建",
+      "重建索引",
+      "刷新知识库",
+      "制度条款检索",
+      "制度问答",
+      "流程数据",
+      "search-docs",
+      "search_flows",
+      "rag_system.py",
+      "policy-rag"
+    ],
+    "anti_keywords": [
+      "国家法律法规",
+      "司法解释",
+      "裁判案例",
+      "法条原文",
+      "法律依据",
+      "政策法规检索",
+      "法律咨询",
+      "案件分析",
+      "请求权基础",
+      "合同审查",
+      "政策解读",
+      "联网搜索",
+      "最新新闻",
+      "监管动态",
+      "图表生成",
+      "数据可视化",
+      "公文写作"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "policy-rag 是面向企业内部制度与审批流程的 RAG Skill，采用严格脚本驱动工作流。适用对象包括企业内部管理制度、采购制度、财务制度、供应商管理制度、费用报销制度、审批权限表、审批流程表、Excel 版审批权责矩阵、已拆分或待拆分的制度文档。目标不是通用网页搜索，也不是国家法律法规检索，而是围绕企业内部制度与审批流程完成文档拆分、Excel 审批表结构化转换、索引构建或重建、制度条款检索、审批路径检索和基于检索结果的证据化回答。适用场景包括制度文档处理、审批 Excel 转换、制度索引构建、制度条款检索和审批流程检索。不适用场景包括国家法律法规检索、司法解释检索、裁判案例检索、法律咨询中的法条依据检索、联网搜索最新政策新闻监管动态和通用网页信息查询。强制规则包括：优先使用当前对话中上传的制度文档、审批表或 Excel 文件；涉及文档拆分、Excel 审批表转换、索引构建、制度检索和审批流检索时必须调用仓库已有脚本，不得口头替代或临时自写逻辑替代；询问制度条款或审批流程时必须先执行检索命令，再根据检索结果作答；只处理企业内部制度与审批流程数据；脚本报错、路径不存在、索引缺失或流程数据缺失时必须如实报告，不得虚构结果。默认技能根目录为 /mnt/skills/custom/policies-regulations/policy-rag，脚本目录为 /mnt/skills/custom/policies-regulations/policy-rag/scripts。常见数据目录包括 /mnt/user-data/uploads、/mnt/user-data/workspace/policy-rag、/mnt/datasets/policy-rag/raw、/mnt/datasets/policy-rag/processed、/mnt/datasets/policy-rag/flows、/mnt/datasets/policy-rag/index、/mnt/datasets/policy-rag/.cache。环境检查命令为 cd /mnt/skills/custom/policies-regulations/policy-rag && python3 scripts/check_env.py。制度文档拆分优先使用 python3 scripts/rag_system.py split \"<input_file>\" \"<output_dir>\"，备用命令为 python3 scripts/split_doc.py \"<input_file>\" \"<output_dir>\"。审批 Excel 转换优先使用 python3 scripts/rag_system.py convert \"<excel_file>\" \"<output_dir>\"，备用命令为 python3 scripts/convert_excel.py \"<excel_file>\" \"<output_dir>\"。制度索引构建使用 python3 scripts/rag_system.py index \"<docs_dir>\" \"<index_dir>\"。制度条款检索使用 python3 scripts/rag_system.py search-docs \"<query>\" \"<index_dir>\"。审批流程检索优先使用 python3 scripts/search_flows.py \"<query>\" --flows-dir \"/mnt/datasets/policy-rag/flows\"，也可使用 python3 scripts/rag_system.py search \"<query>\"。默认操作模式包括：用户上传制度文件并要求做成可检索时，先拆分文档，再构建索引，若同时提问再执行制度检索；用户上传审批 Excel 并询问审批流程时，先转换 Excel，再检索审批流程；用户直接询问制度条款且索引已存在时，执行制度条款检索；用户直接询问审批路径且流程数据已存在时，执行审批流程检索。回答制度条款问题时，应先给直接结论，再给命中的制度章节、条款或文本片段，并说明最相关项与备选项；回答审批流程问题时，应先说明匹配到的审批路径，再说明触发条件，如存在多个分支应清晰列出适用条件，不得虚构审批人、金额门槛、审批层级或分支条件。输出拆分、转换、索引任务时至少包含输入路径、输出路径、实际执行命令、是否成功和下一步建议；输出检索任务时至少包含直接答案、支撑命中结果、章节名、流程分支名或关键条件，未命中时说明当前知识库未返回可靠结果。"
+  },
+  "execution": {
+    "required_tools": [
+      "python3",
+      "filesystem",
+      "local_scripts",
+      "scripts/rag_system.py"
+    ],
+    "optional_tools": [
+      "scripts/check_env.py",
+      "scripts/split_doc.py",
+      "scripts/convert_excel.py",
+      "scripts/search_flows.py",
+      "uploaded_files",
+      "local_index",
+      "local_flows",
+      "embedding_service"
+    ],
+    "allowed_file_patterns": [
+      "*.md",
+      "*.txt",
+      "*.doc",
+      "*.docx",
+      "*.xlsx",
+      "*.xls",
+      "*.csv",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "law-local-retrieval",
+      "chinese-policy-analysis",
+      "legal-briefing",
+      "data-analysis",
+      "chart-visualization",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 88,
+    "conflict_group": "enterprise_policy_rag",
+    "prefer_when": [
+      "用户明确处理企业内部制度、公司制度、审批流程表、审批权责表或制度知识库",
+      "用户要求制度文档拆分、审批 Excel 转换、制度索引构建或索引重建",
+      "用户询问内部制度条款在哪里、某项限制或要求在哪一章、某类事项依据内部制度如何处理",
+      "用户询问审批路径、审批分支、审批人、金额门槛、审批层级或流程适用条件",
+      "用户要求基于企业内部制度或审批流进行检索问答，并需要可回溯命中结果"
+    ],
+    "defer_when": [
+      "用户查询国家法律法规、司法解释、裁判案例、法条原文或法律依据时，转给 law-local-retrieval",
+      "用户要求政策执行力度、政策落地可能性或政策走向判断时，转给 chinese-policy-analysis",
+      "用户要求法律咨询、案件分析、合同审查、法律备忘录、公文写作或法律文书模板时，转给对应法律类 Skill",
+      "用户主要要求统计分析、图表可视化或通用表格处理时，转给 data-analysis 或 chart-visualization",
+      "用户要求联网搜索最新政策、新闻、监管动态或网页内容时，转给网络搜索类能力",
+      "脚本路径、索引目录或流程数据缺失且无法恢复时，应如实报告，不继续虚构结果"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/policy-rag",
+    "skill_md_path": "skills/custom/policies-regulations/policy-rag/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "policy-rag"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "把这份采购制度拆分一下，并建立可检索索引",
+        "should_route": true,
+        "reason": "用户要求处理企业内部制度文档并构建索引"
+      },
+      {
+        "query": "把这个审批权责 Excel 转成结构化流程数据，后面我要查审批路径",
+        "should_route": true,
+        "reason": "用户要求转换审批 Excel 为流程数据"
+      },
+      {
+        "query": "预付款比例限制在哪一章？请从内部制度里查一下",
+        "should_route": true,
+        "reason": "用户要求检索企业内部制度条款"
+      },
+      {
+        "query": "超过 200 万的采购走什么审批路径，由谁审批？",
+        "should_route": true,
+        "reason": "用户询问审批路径、金额门槛和审批人"
+      },
+      {
+        "query": "供应商解冻走哪个审批分支？",
+        "should_route": true,
+        "reason": "用户询问内部审批流程分支"
+      },
+      {
+        "query": "电动自行车违规停放涉及哪些法律法规依据？",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是国家法律法规依据检索，不是企业内部制度检索"
+      },
+      {
+        "query": "请分析这项政策未来能否落地，地方会不会认真执行",
+        "should_route": false,
+        "prefer_skill": "chinese-policy-analysis",
+        "reason": "该请求是政策执行力度分析，不是内部制度 RAG"
+      },
+      {
+        "query": "请把这个 Excel 台账统计成图表",
+        "should_route": false,
+        "prefer_skill": "data-analysis",
+        "reason": "该请求是通用表格统计分析，不是审批流程转换或检索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

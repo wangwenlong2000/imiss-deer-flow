@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "yuandian-law-search",
+    "name": "yuandian-law-search",
+    "description": "元典法条与案例检索 Skill，用于通过元典开放平台 API 检索中国法律法规条文、案例、法规详情和企业信息，并为法律分析、合同审查、合规判断提供可回溯的数据支撑。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "legal_retrieval",
+      "case_retrieval",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "law_article_search",
+      "law_article_detail",
+      "legal_basis_retrieval",
+      "case_keyword_search",
+      "case_semantic_search",
+      "case_detail_retrieval",
+      "authoritative_case_search",
+      "regulation_search",
+      "regulation_detail_retrieval",
+      "enterprise_search",
+      "enterprise_detail_retrieval",
+      "legal_retrieval_archive"
+    ],
+    "input_types": [
+      "text",
+      "query",
+      "law_name",
+      "article_no",
+      "case_keyword",
+      "case_description",
+      "case_number",
+      "regulation_name",
+      "enterprise_name",
+      "credit_code"
+    ],
+    "output_types": [
+      "law_article_results",
+      "law_article_detail",
+      "case_results",
+      "case_detail",
+      "regulation_results",
+      "regulation_detail",
+      "enterprise_results",
+      "enterprise_detail",
+      "archived_retrieval_results"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：yuandian-law-search\n描述：元典法条与案例检索 Skill。适用于需要通过元典开放平台 API 查询中国法律法规条文、检索相关案例、查看法规清单或法规详情、查询企业基本信息和企业详情，并为法律分析、合同审查、合规判断、案件分析提供检索依据的场景。本 Skill 可执行法条语义检索、法条关键词检索、法条详情查询、案例关键词检索、案例语义检索、权威案例检索、案例详情查询、法规检索、法规详情查询、企业检索和企业详情查询。典型问题包括：查询某个法律条文；检索某类法律问题相关法条；查看某部法规第几条；找类似案例怎么判；检索买卖合同纠纷相关案例；查询某个案号的完整裁判文书；检索数据安全相关法规；查看某部法规详情；查询企业基本信息。本 Skill 调用前必须检查 scripts/.env 中是否配置 YD_API_KEY；如果未配置，应提示用户先在元典开放平台创建 API Key 并写入 scripts/.env。检索结果归档到 /mnt/user-data/workspace/yuandian-law-search/archive。用户提到之前查过或历史记录时，应优先读取归档，不重复请求 API。不适用于本地 ES 政策法规索引检索、企业内部制度审批流检索、普通网页搜索、政策落地分析、公文写作、合同逐条审查或法律文书模板生成。",
+    "positive_triggers": [
+      "用户要求通过元典检索法律法规条文、法条详情或法律依据",
+      "用户提出自然语言法律问题，希望找相关法条",
+      "用户给出明确关键词，需要精确筛选法条",
+      "用户直接指定法规名称和条号，需要查询具体条文",
+      "用户要求检索相关案例、类似案例、权威案例或查看完整裁判文书",
+      "用户描述案情，希望找相似案例",
+      "用户要求检索法规列表或查看某部法规详情",
+      "用户明确要求查询企业基本信息或企业详情",
+      "用户需要为法律分析、合同审查、合规判断提供法条或案例支撑",
+      "用户提到之前查过、历史记录、归档结果，需要读取历史检索归档"
+    ],
+    "negative_triggers": [
+      "用户要求检索本地 Elasticsearch 政策法规索引，应优先使用 law-local-retrieval",
+      "用户要求处理企业内部制度、审批流程或审批权责表，应使用 policy-rag",
+      "用户只是需要轻量法律咨询而不是检索法条或案例，应使用 china-legal-consultation",
+      "用户提供具体案件事实要求请求权基础、争议焦点和证据策略，应使用 china-legal-issue-analysis",
+      "用户提供完整合同文本要求逐条审查，应使用 china-contract-review",
+      "用户要求政策落地可能性、执行力度或政策走向分析，应使用 chinese-policy-analysis",
+      "用户要求普通网页搜索、新闻搜索、微信公众号文章搜索或联网资料搜索，不应使用本 Skill",
+      "用户要求公文写作、法律服务方案、法律文书模板或法律备忘录整理，应使用对应文档类 Skill"
+    ],
+    "keywords": [
+      "元典",
+      "元典开放平台",
+      "法条检索",
+      "法律法规条文",
+      "法律依据",
+      "法条详情",
+      "法规详情",
+      "法规检索",
+      "案例检索",
+      "相似案例",
+      "权威案例",
+      "指导性案例",
+      "典型案例",
+      "裁判文书",
+      "案例详情",
+      "案号",
+      "企业信息",
+      "企业详情",
+      "统一社会信用代码",
+      "现行有效",
+      "效力级别",
+      "时效性",
+      "发布日期",
+      "实施日期",
+      "结案日期",
+      "法院层级",
+      "YD_API_KEY",
+      "yd_search.py",
+      "archive-list",
+      "law_vector_search"
+    ],
+    "anti_keywords": [
+      "本地 ES",
+      "政策法规 ES 索引",
+      "企业内部制度",
+      "审批流程",
+      "审批权责表",
+      "制度索引",
+      "网页搜索",
+      "新闻搜索",
+      "微信公众号文章",
+      "政策落地分析",
+      "公文写作",
+      "合同逐条审查",
+      "法律文书模板",
+      "法律备忘录整理"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "yuandian-law-search 是元典法条与案例检索 Skill，通过元典开放平台 API 检索中国法律法规条文、案例、法规与企业信息。检索结果归档到 /mnt/user-data/workspace/yuandian-law-search/archive。每次调用前需要先检查 scripts/.env 中是否配置 YD_API_KEY；如果没有配置，应提示用户先在元典开放平台创建 API Key 并写入 scripts/.env，格式为 YD_API_KEY=sk-你的密钥。适用场景包括查询具体法律条文、法规内容或法条详情，检索相关案例或查看案例详情，查询法规清单或法规详情，查询企业基本信息或企业详情，为法律分析、合同审查、合规判断提供检索依据。接口选择规则包括：法条方面，用户提出自然语言法律问题、想找相关法条时使用 search；用户给出明确关键词、需要精确筛选时使用 keyword；用户直接指定法规名加条号时使用 detail。案例方面，用户要找相关案例或给出关键词筛选条件时使用 case；用户描述案情想找相似案例时使用 case-semantic；用户要查看某个案例完整文书时使用 case-detail；仅在明确需要权威案例时使用 case --authority-only。法规方面，用户要检索法规列表时使用 regulation；用户要查看某部法规详情时使用 regulation-detail。企业方面，用户明确要求查询企业信息时使用 enterprise；用户明确要求查询企业详情时使用 enterprise-detail。调用原则包括优先选择能直接满足问题的最少调用路径；法条语义检索 search 返回结果通常已包含条文内容，不要默认再调用 detail；案例检索先返回列表，只有需要查看完整文书时才调用 case-detail；用户提到之前查过、历史记录时，优先读取归档，不要重复请求 API。常用命令包括 python3 scripts/yd_search.py search \"正当防卫的限度\" --sxx 现行有效；python3 scripts/yd_search.py keyword \"人工智能 监管\" --effect1 法律 --sxx 现行有效 --fbrq-start 2022-01-01 --fbrq-end 2026-03-01；python3 scripts/yd_search.py detail \"民法典\" --ft-name \"第十五条\"；python3 scripts/yd_search.py case \"买卖合同纠纷\" --province 广西；python3 scripts/yd_search.py case \"买卖合同纠纷\" --province 广西 --authority-only；python3 scripts/yd_search.py case-semantic \"正当防卫的限度\" --jarq-start 2020-01-01；python3 scripts/yd_search.py case-detail --type ptal --ah \"（2025）桂09民终192号\"；python3 scripts/yd_search.py regulation \"数据安全\" --effect1 法律 --sxx 现行有效；python3 scripts/yd_search.py regulation-detail --name \"中华人民共和国数据安全法\"；python3 scripts/yd_search.py enterprise \"华为\" --num 5；python3 scripts/yd_search.py enterprise-detail --credit-code \"9144030071526726XG\"。常用筛选参数包括法条相关的 --effect1、--sxx、--fbrq-start、--fbrq-end、--ssrq-start、--ssrq-end；案例相关的 --province、--xzqh-p、--jarq-start、--jarq-end、--cj、--wenshu-type、--authority-only。归档记录可通过 python3 scripts/yd_search.py archive-list 或 archive-list --keyword 查询。调试可使用 raw 子命令。更新可使用 check-update 和 do-update。Reference 文档包括法条语义检索、法条关键词检索、法条详情、案例语义检索、案例关键词检索、权威案例检索、案例详情、法规检索、法规详情、企业检索和企业详情接口说明，用于精确构造请求参数、理解响应字段或排查接口异常。"
+  },
+  "execution": {
+    "required_tools": [
+      "python3",
+      "yuanidian_api",
+      "scripts/yd_search.py",
+      "scripts/.env",
+      "YD_API_KEY"
+    ],
+    "optional_tools": [
+      "archive_reader",
+      "archive_writer",
+      "references/01-law-vector-search.md",
+      "references/02-law-keyword-search.md",
+      "references/03-law-detail.md",
+      "references/04-case-semantic-search.md",
+      "references/05-case-keyword-search.md",
+      "references/06-case-keyword-search-authority.md",
+      "references/07-case-detail.md",
+      "references/08-regulation-search.md",
+      "references/09-regulation-detail.md",
+      "references/10-enterprise-search.md",
+      "references/11-enterprise-detail.md"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.json",
+      ".env"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "china-legal-issue-analysis",
+      "china-contract-review",
+      "china-legal-consultation",
+      "legal-briefing",
+      "legal-proposal-generator",
+      "law-local-retrieval",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 86,
+    "conflict_group": "china_legal_retrieval",
+    "prefer_when": [
+      "用户明确要求通过元典平台检索法条、案例、法规或企业信息",
+      "用户需要检索相关案例、相似案例、权威案例或查看完整裁判文书",
+      "用户要求法规详情、法规列表、企业基本信息或企业详情，而本地 ES 检索无法覆盖",
+      "用户需要为法律分析、合同审查、合规判断补充法条或案例支撑",
+      "用户提到历史记录、之前查过或归档结果，需要优先读取元典检索归档"
+    ],
+    "defer_when": [
+      "用户要求检索本地政策法规 ES 索引中的条文时，转给 law-local-retrieval",
+      "用户要求处理企业内部制度文档、审批流程表、审批路径或制度知识库时，转给 policy-rag",
+      "用户请求本质是轻量法律咨询、深度案件分析或合同条款审查时，转给对应法律分析类 Skill",
+      "用户请求本质是政策执行强度、政策落地可能性或政策走向判断时，转给 chinese-policy-analysis",
+      "用户请求本质是公文写作、法律服务文档生成、法律文书模板或法律材料整理时，转给对应文档类 Skill",
+      "YD_API_KEY 未配置时，应提示配置 API Key，不应伪造检索结果"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/yuandian-law-search",
+    "skill_md_path": "skills/custom/policies-regulations/yuandian-law-search/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "yuandian-law-search"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "用元典帮我查一下正当防卫限度相关的现行有效法条",
+        "should_route": true,
+        "reason": "用户明确要求通过元典检索相关法条"
+      },
+      {
+        "query": "检索广西买卖合同纠纷相关案例，最好有权威案例",
+        "should_route": true,
+        "reason": "用户要求案例检索和权威案例筛选"
+      },
+      {
+        "query": "查询《民法典》第十五条的具体内容",
+        "should_route": true,
+        "reason": "用户指定法规名称和条号，需要法条详情查询"
+      },
+      {
+        "query": "帮我找几个类似正当防卫限度的案例，看看法院怎么判",
+        "should_route": true,
+        "reason": "用户描述法律问题并要求相似案例检索"
+      },
+      {
+        "query": "查询中华人民共和国数据安全法的法规详情",
+        "should_route": true,
+        "reason": "用户要求查看某部法规详情"
+      },
+      {
+        "query": "查一下华为的企业基本信息",
+        "should_route": true,
+        "reason": "用户明确要求企业信息查询"
+      },
+      {
+        "query": "电动自行车违规停放涉及哪些本地 ES 中的法规依据？",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "用户明确要求本地 ES 法规依据检索"
+      },
+      {
+        "query": "超过 200 万采购走什么内部审批流程？",
+        "should_route": false,
+        "prefer_skill": "policy-rag",
+        "reason": "该请求属于企业内部审批流程检索"
+      },
+      {
+        "query": "请逐条审查这份采购合同并给出修改建议",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同审查，不是法条或案例检索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "wechat-article-search",
+    "name": "wechat-article-search",
+    "description": "微信公众号文章搜索 Skill，用于通过搜狗微信搜索按关键词查找微信公众号文章、公众号推文或某公众号近期文章，并返回标题、摘要、发布时间、来源公众号和链接等结构化结果。"
+  },
+  "scope": {
+    "scenes": [
+      "content_search",
+      "wechat_article",
+      "wechat_public_account",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "wechat_article_search",
+      "wechat_post_search",
+      "public_account_article_search",
+      "keyword_based_wechat_search",
+      "wechat_article_collection",
+      "wechat_article_summary_list",
+      "structured_article_search"
+    ],
+    "input_types": [
+      "text",
+      "query",
+      "keyword",
+      "public_account_name",
+      "search_request"
+    ],
+    "output_types": [
+      "wechat_article_results",
+      "structured_article_list",
+      "article_title",
+      "article_summary",
+      "article_datetime",
+      "public_account_source",
+      "article_url",
+      "json_result"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：wechat-article-search\n描述：微信公众号文章搜索 Skill。适用于用户明确要求搜索微信公众号文章、公众号推文、某个公众号最近文章，或按关键词查找相关微信公众号文章的场景。本 Skill 通过搜狗微信搜索执行脚本化检索，返回结构化文章信息，包括文章标题、摘要、发布时间、原始时间描述、来源公众号和文章链接。典型问题包括：帮我搜几篇关于 AI Agent 的公众号文章；找一下最近关于低空经济的公众号推文；看看某个公众号最近发了什么；帮我整理几篇关于数据要素的微信公众号文章；搜索某主题的微信公众号文章资料。本 Skill 仅用于微信公众号文章搜索，不用于泛新闻搜索、普通网页搜索、政策文件检索、法律法规检索、官方网站检索、学术论文检索或本地知识库问答。默认工作流是从用户问题中提取搜索关键词，在技能根目录执行 node scripts/search_wechat.js \"关键词\" -n 10，解析脚本返回 JSON，并向用户整理标题、摘要、发布时间、来源公众号和链接。用户要求更多结果时可使用 -n 20；用户明确要求导出时可使用 -o 输出 JSON 文件；用户明确要求解析真实微信文章链接时才使用 -r，不默认启用真实链接解析，因为该模式更容易受反爬限制影响。",
+    "positive_triggers": [
+      "用户明确要求搜索微信公众号文章",
+      "用户明确要求搜索公众号推文",
+      "用户要求查找某个公众号最近文章",
+      "用户要求按关键词查找微信公众号文章",
+      "用户要求整理某个主题的公众号文章资料",
+      "用户要求汇总某主题相关微信公众号文章",
+      "用户希望返回微信公众号文章标题、摘要、发布时间、来源公众号和链接",
+      "用户明确提到搜狗微信搜索、公众号文章搜索、wechat-article-search"
+    ],
+    "negative_triggers": [
+      "用户要求泛新闻搜索、普通网页搜索或官方网站搜索，不应使用本 Skill",
+      "用户要求检索政策文件、法律法规、司法解释或法条原文，应使用 law-local-retrieval",
+      "用户要求学术论文检索，不应使用本 Skill",
+      "用户要求本地知识库问答、企业制度问答或审批流程检索，应使用对应 RAG Skill",
+      "用户已经提供微信公众号文章链接并要求抓取正文，应使用 wechat-article-fetch",
+      "用户已经提供文章正文并要求法律文本格式化，应使用 legal-text-format",
+      "用户要求对文章内容进行法律分析、备忘录整理或报告生成，而不是搜索文章列表"
+    ],
+    "keywords": [
+      "微信公众号文章",
+      "公众号文章",
+      "公众号推文",
+      "微信文章搜索",
+      "搜狗微信",
+      "搜狗微信搜索",
+      "公众号最近文章",
+      "按关键词查找公众号文章",
+      "整理公众号文章",
+      "汇总公众号文章",
+      "文章标题",
+      "文章摘要",
+      "发布时间",
+      "来源公众号",
+      "文章链接",
+      "search_wechat.js",
+      "wechat-article-search",
+      "AI Agent 公众号文章",
+      "低空经济公众号推文",
+      "数据要素公众号文章"
+    ],
+    "anti_keywords": [
+      "新闻搜索",
+      "网页搜索",
+      "官方网站",
+      "政策文件检索",
+      "法律法规检索",
+      "法条原文",
+      "司法解释",
+      "学术论文",
+      "本地知识库",
+      "企业制度检索",
+      "审批流程检索",
+      "抓取公众号正文",
+      "保存 Markdown",
+      "格式化法律文本",
+      "法律备忘录",
+      "案件分析"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "wechat-article-search 是微信公众号文章搜索技能，是一个基于脚本的严格工作流，用于通过搜狗微信搜索查找微信公众号文章，并返回结构化文章信息。仅在用户明确提出搜索微信公众号文章、搜索公众号推文、查看某个公众号最近文章、按关键词查找相关公众号文章、整理微信公众号文章资料或汇总某个主题的公众号文章时使用。典型请求包括帮我搜几篇关于 AI Agent 的公众号文章、找一下最近关于低空经济的公众号推文、看看某个公众号最近发了什么、帮我整理几篇关于数据要素的微信公众号文章。不适用场景包括泛新闻搜索、普通网页搜索、政策文件检索、法律法规检索、官方网站检索、学术论文检索和本地知识库问答。运行环境必须预装 Node.js 和 scripts/search_wechat.js 所需的 cheerio 依赖，依赖应在沙箱镜像构建阶段提前安装完成，调用时不要再执行安装命令，也不要修改运行环境。本 Skill 需要外网访问能力，因为脚本会向搜狗微信相关页面发起 HTTPS 请求。默认从技能根目录执行 node scripts/search_wechat.js \"关键词\"，如果运行环境不能保证当前目录是技能根目录，应先切换到技能目录。默认工作流程为：先判断用户是否明确要搜索微信公众号文章，从用户问题中提取搜索关键词，执行 node scripts/search_wechat.js \"关键词\" -n 10，解析脚本返回 JSON，向用户整理标题、摘要、发布时间、来源公众号和链接，如有必要说明反爬限制、结果为空或链接解析失败等限制。可选命令包括获取更多结果 node scripts/search_wechat.js \"关键词\" -n 20；导出结果到文件 node scripts/search_wechat.js \"关键词\" -n 20 -o /mnt/data/wechat_search_result.json；只有用户明确要求获取真实微信文章链接时才执行 node scripts/search_wechat.js \"关键词\" -n 5 -r，不默认启用 -r，因为该模式会为每条结果额外发起请求，稳定性更差，也更容易受到反爬限制影响。脚本参数包括 query、-n 或 --num、-o 或 --output、-r 或 --resolve-url。脚本返回 JSON 结构包括 query、total 和 articles，articles 中包含 title、url、summary、datetime、date_text、date_description 和 source。执行脚本后应优先输出整理后的结构化结果，不要直接原样倾倒整段 JSON；清楚区分标题、摘要、时间、来源和链接；如果用户要求筛几篇最相关的，应优先返回最相关结果；如果用户要求整理或汇总，应在列出文章信息后给出简要归纳。失败处理包括：结果为空时提示用户尝试更简单或更具体的关键词，减少特殊符号和标点，并说明结果可能受外部页面波动影响；真实链接解析失败时说明这是常见情况，通常与反爬限制有关，保留原始搜狗中间链接，不要声称已成功获取真实微信链接；网络请求失败时明确说明外部请求失败，提示稍后重试，不要编造文章结果。强制规则包括仅用于微信公众号文章搜索任务，不声称覆盖全部微信公众号文章，不承诺一定能稳定获取真实微信文章链接，调用时不要安装依赖，执行过程中不要修改运行环境，如果有更合适的专门检索技能，不要优先使用本技能。"
+  },
+  "execution": {
+    "required_tools": [
+      "nodejs",
+      "scripts/search_wechat.js",
+      "cheerio",
+      "network_access"
+    ],
+    "optional_tools": [
+      "json_writer",
+      "file_export",
+      "wechat-article-fetch",
+      "legal-text-format",
+      "legal-briefing"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.txt",
+      "*.md"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "wechat-article-fetch",
+      "legal-text-format",
+      "legal-briefing",
+      "legal-qa-extractor",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 65,
+    "conflict_group": "wechat_article_search",
+    "prefer_when": [
+      "用户明确要求搜索微信公众号文章、公众号推文或公众号最近文章",
+      "用户要求按关键词查找微信公众号文章并返回结构化文章列表",
+      "用户要求整理或汇总某主题相关公众号文章资料",
+      "用户希望获得标题、摘要、发布时间、来源公众号和链接，而不是抓取完整正文",
+      "用户明确提到搜狗微信搜索或微信公众号文章搜索"
+    ],
+    "defer_when": [
+      "用户提供具体微信公众号文章链接并要求抓取正文、保存 Markdown 或下载图片时，转给 wechat-article-fetch",
+      "用户已经提供文章正文并要求清理、格式化为 Markdown 时，转给 legal-text-format",
+      "用户请求本质是法律法规、政策文件、司法解释或法条原文检索时，转给 law-local-retrieval",
+      "用户请求本质是普通新闻、网页、官方网站或学术论文搜索时，不优先使用本 Skill",
+      "用户需要对搜索到的法律材料整理成备忘录、简报或风险清单时，可组合 legal-briefing"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/wechat-article-search",
+    "skill_md_path": "skills/custom/policies-regulations/wechat-article-search/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "wechat-article-search"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "帮我搜几篇关于 AI Agent 的公众号文章",
+        "should_route": true,
+        "reason": "用户明确要求搜索微信公众号文章"
+      },
+      {
+        "query": "找一下最近关于低空经济的公众号推文",
+        "should_route": true,
+        "reason": "用户要求查找某主题的公众号推文"
+      },
+      {
+        "query": "看看某个公众号最近发了什么文章",
+        "should_route": true,
+        "reason": "用户要求查看公众号最近文章"
+      },
+      {
+        "query": "帮我整理几篇关于数据要素的微信公众号文章，列出标题、摘要和链接",
+        "should_route": true,
+        "reason": "用户要求按关键词整理公众号文章资料"
+      },
+      {
+        "query": "请帮我抓取这个微信公众号文章正文并保存为 Markdown：https://mp.weixin.qq.com/s/xxxxx",
+        "should_route": false,
+        "prefer_skill": "wechat-article-fetch",
+        "reason": "用户提供具体文章链接并要求抓取正文"
+      },
+      {
+        "query": "我已经把公众号正文粘贴好了，请格式化成法律案例 Markdown",
+        "should_route": false,
+        "prefer_skill": "legal-text-format",
+        "reason": "用户已有正文，目标是格式化而不是搜索"
+      },
+      {
+        "query": "检索电动自行车消防安全相关法律法规依据",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是法律法规依据检索"
+      },
+      {
+        "query": "搜索最近关于低空经济的新闻报道",
+        "should_route": false,
+        "reason": "该请求是泛新闻搜索，不是微信公众号文章搜索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

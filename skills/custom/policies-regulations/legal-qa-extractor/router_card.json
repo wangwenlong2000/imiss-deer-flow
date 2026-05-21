@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "legal-qa-extractor",
+    "name": "legal-qa-extractor",
+    "description": "法律问答提取 Skill，用于从律师与客户沟通记录、咨询记录、聊天记录或录音转写中提取有复用价值的法律问答对，并在严格脱敏后生成结构化知识库内容、常见问题清单或内容营销素材。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "legal_knowledge_base",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "legal_qa_extraction",
+      "consultation_record_structuring",
+      "legal_knowledge_base_generation",
+      "client_conversation_anonymization",
+      "legal_faq_generation",
+      "legal_content_marketing_material",
+      "qa_classification",
+      "legal_dialogue_summarization"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "txt",
+      "docx",
+      "pdf",
+      "chat_record",
+      "consultation_record",
+      "communication_record",
+      "transcript",
+      "meeting_notes"
+    ],
+    "output_types": [
+      "legal_qa_pairs",
+      "anonymized_qa_report",
+      "legal_knowledge_base_entries",
+      "faq_list",
+      "content_marketing_material",
+      "qa_classification_report",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：legal-qa-extractor\n描述：法律问答提取 Skill。适用于用户提供律师与客户沟通记录、咨询记录、聊天记录、录音转写、会议纪要或对话文本，并希望从中提取有价值、可复用、可脱敏的法律问答对，用于法律知识库、常见问题清单、普法文章素材、内容营销素材或学习材料的场景。本 Skill 的核心任务是识别客户问题和律师解答，提取具有普遍性、典型性、教育性和复用性的问答内容，并将口语化、分散化的对话整理为标准化问答格式。每个问答对应包含标准化问题、律师核心解答、可选问题背景、价值标签和适用场景。本 Skill 强制进行客户信息脱敏，禁止包含客户真实姓名、企业机构名称、具体地址、联系方式和任何可识别个人或企业的信息。适合的问题包括：帮我从这份客户咨询记录中提取法律问答；把这段律师客户聊天整理成可复用 FAQ；从录音转写中提取普法文章素材；生成法律知识库问答条目；对问答按法律领域分类并分析哪些可以组合成文章。不适用于首次法律检索、案件深度分析、合同逐条审查、法律服务方案生成、法律文书模板填写或已有法条材料整理成备忘录；这些任务应交给 law-local-retrieval、china-legal-issue-analysis、china-contract-review、legal-proposal-generator、legal-document-assistant 或 legal-briefing。",
+    "positive_triggers": [
+      "用户提供律师与客户沟通记录，希望提取法律问答对",
+      "用户提供客户咨询记录，希望整理成可复用知识库内容",
+      "用户提供聊天记录、录音转写或会议纪要，希望提取 FAQ",
+      "用户要求对客户咨询内容进行严格脱敏处理",
+      "用户希望从对话中提取普法文章、案例文章或内容营销素材",
+      "用户希望将律师解答整理为标准化问答格式",
+      "用户要求按法律领域、业务场景或价值标签分类问答",
+      "用户要求分析哪些问答之间有关联，可组合成文章或专题"
+    ],
+    "negative_triggers": [
+      "用户要求首次检索法条、法规、司法解释、政策文件或法律依据，应使用 law-local-retrieval",
+      "用户要求基于案件事实进行请求权基础、争议焦点、抗辩路径或证据策略分析，应使用 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求逐条审查、红线修改或替换条款，应使用 china-contract-review",
+      "用户要求生成诉讼服务方案、咨询报告、客户沟通报告或案件分析摘要，应使用 legal-proposal-generator",
+      "用户只是需要劳动仲裁申请书、离婚协议、租房协议、催告函等法律文书模板，应使用 legal-document-assistant",
+      "用户已有法律材料并要求整理成法律备忘录、合规简报或风险清单，应使用 legal-briefing",
+      "用户要求保留客户真实姓名、企业名称、联系方式或其他可识别信息"
+    ],
+    "keywords": [
+      "法律问答提取",
+      "问答对",
+      "律师客户沟通记录",
+      "客户咨询记录",
+      "聊天记录",
+      "录音转写",
+      "会议纪要",
+      "法律知识库",
+      "FAQ",
+      "常见问题",
+      "普法文章",
+      "内容营销素材",
+      "可复用法律知识",
+      "客户信息脱敏",
+      "匿名化",
+      "问题背景",
+      "律师解答",
+      "价值标签",
+      "普遍性",
+      "典型性",
+      "教育性",
+      "复用性",
+      "领域分类",
+      "关联分析",
+      "问答分类",
+      "知识库条目"
+    ],
+    "anti_keywords": [
+      "查法条",
+      "法律依据是什么",
+      "司法解释原文",
+      "政策法规检索",
+      "请求权基础",
+      "争议焦点",
+      "证据策略",
+      "合同审查",
+      "逐条审查",
+      "法律服务方案",
+      "咨询报告",
+      "案件分析摘要",
+      "劳动仲裁申请书",
+      "离婚协议模板",
+      "租房合同模板",
+      "法律备忘录",
+      "合规简报",
+      "保留真实姓名",
+      "保留联系方式"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "legal-qa-extractor 是法律问答提取 Skill，用于从律师与客户的沟通记录中提取有价值的法律问答对，即客户问题加律师解答，并生成结构化知识库内容。适用于将客户咨询转化为可复用的法律知识，供后续整理成文章、案例、FAQ 或学习材料。核心价值是提取那些可以被其他客户复用的问答内容，而不是单一客户的具体案情。核心原则首先是客户信息保护，绝对禁止在问答内容中包含客户真实姓名、企业或机构名称、具体地址、联系方式和任何可识别个人或企业的信息。脱敏标准包括将客户姓名替换为当事人、客户、甲方、乙方等代称，将企业名称替换为某公司、某企业或该企业，将具体信息模糊化为某地、某时间、相关人员等，将客户原话脱敏后引用。问答对的价值判断包括普遍性、典型性、教育性和复用性。工作流程包括分析输入内容、识别有价值的问答对、生成结构化报告、进行问答分类与关联分析。问答识别维度包括直接问答、追问回应、风险提醒、操作指引和普遍关切。提取方法包括语义分析、逻辑归纳、价值评估和标准化表述。输出报告保存至原文档同一目录，文件命名为 原文档名_法律问答提取_YYYYMMDD.md，输出格式参考 references/output-template.md。每个问答对包含问题、律师解答、可选问题背景、价值标签和适用场景。问答分类与关联分析包括问答特征分析、领域分类和关联分析。质量标准包括每个问答对可以独立理解、不依赖完整对话背景，问答内容对其他客户有参考价值，问题和解答清晰完整且没有断章取义，严格脱敏，提取的问答可以直接用于文章、知识库或学习材料。输入可以是文档路径、粘贴的沟通记录内容或用户希望重点关注的问答类型。适用场景包括整理客户咨询记录为可复用知识、从对话中提取内容营销素材、建立法律问答知识库、准备普法文章素材和制作客户常见问题清单。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "text_processing",
+      "markdown_writer"
+    ],
+    "optional_tools": [
+      "references/output-template.md",
+      "document_reader",
+      "docx_reader",
+      "pdf_reader",
+      "transcript_reader",
+      "anonymization_checker"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "legal-briefing",
+      "legal-proposal-generator",
+      "china-legal-consultation",
+      "china-legal-issue-analysis",
+      "law-local-retrieval",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 64,
+    "conflict_group": "china_legal_knowledge_extraction",
+    "prefer_when": [
+      "用户提供律师客户沟通记录、咨询记录、聊天记录、录音转写或会议纪要",
+      "用户目标是提取可复用法律问答、FAQ、知识库条目或普法内容素材",
+      "用户明确要求客户信息脱敏、匿名化或隐去个人与企业识别信息",
+      "用户要求将分散口语化对话整理为标准化问答格式",
+      "用户需要对问答进行价值标签、领域分类、关联分析或内容复用建议"
+    ],
+    "defer_when": [
+      "用户请求本质是首次检索法律依据、法规条文、司法解释或政策文件原文时，转给 law-local-retrieval",
+      "用户请求本质是深度案件分析、请求权基础、争议焦点、抗辩路径或证据策略时，转给 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求合同条款级审查或修改时，转给 china-contract-review",
+      "用户需要根据案件材料或沟通记录生成诉讼服务方案、咨询报告、客户沟通报告或案件分析摘要时，转给 legal-proposal-generator",
+      "用户需要常见法律文书模板和填写指导时，转给 legal-document-assistant",
+      "用户已有法律材料并只要求整理成法律备忘录、风险清单或合规简报时，转给 legal-briefing"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/legal-qa-extractor",
+    "skill_md_path": "skills/custom/policies-regulations/legal-qa-extractor/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "legal-qa-extractor"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请从这份律师和客户的沟通记录中提取有价值的法律问答对，并做脱敏处理",
+        "should_route": true,
+        "reason": "用户明确要求从律师客户沟通记录中提取脱敏法律问答对"
+      },
+      {
+        "query": "把这段咨询聊天整理成可以放进知识库的 FAQ",
+        "should_route": true,
+        "reason": "用户要求将咨询聊天转化为知识库 FAQ"
+      },
+      {
+        "query": "请从录音转写里提取适合写普法文章的问答素材",
+        "should_route": true,
+        "reason": "用户要求从转写内容中提取内容营销或普法素材"
+      },
+      {
+        "query": "这些客户咨询记录里哪些问题最有复用价值？请分类并说明哪些能组合成文章",
+        "should_route": true,
+        "reason": "用户要求问答价值判断、分类和关联分析"
+      },
+      {
+        "query": "查一下劳动合同法第87条原文",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是首次法条原文检索"
+      },
+      {
+        "query": "请分析这个案件的请求权基础和证据策略",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于深度案件分析"
+      },
+      {
+        "query": "根据这些沟通记录生成一份客户沟通报告和行动计划",
+        "should_route": false,
+        "prefer_skill": "legal-proposal-generator",
+        "reason": "该请求目标是生成法律服务文档，而不是提取知识库问答"
+      },
+      {
+        "query": "请把上面检索到的法规依据整理成法律备忘录",
+        "should_route": false,
+        "prefer_skill": "legal-briefing",
+        "reason": "该请求是已有法律材料整理成备忘录"
+      }
+    ],
+    "last_eval": {}
+  }
+}
