@@ -1,0 +1,61 @@
+{
+  "skill_name": "code-business-dag-analysis-pipeline-cpp",
+  "evals": [
+    {
+      "id": 1,
+      "name": "cpp_video_pipeline_missing_decode_and_preprocess",
+      "prompt": "请使用 code-business-dag-analysis-pipeline-cpp 技能分析 evals/fixtures/video_pipeline_missing_decode.cpp。要求严格按照 code-to-ast-new、code-splitter-adapter（cpp）、cpp-dataflow-extractor、code-semantic-labeler、pipeline-graph-builder、pipeline-reasoner、analysis-report 的顺序执行。最终输出一个严格 JSON 对象，并在 report_path 字段中记录中文 Markdown 分析报告路径。",
+      "files": [
+        "evals/fixtures/video_pipeline_missing_decode.cpp"
+      ],
+      "expected_output": {
+        "status": "success",
+        "language": "cpp",
+        "required_top_level_fields": [
+          "status",
+          "language",
+          "steps",
+          "chunks",
+          "calls",
+          "dataflow",
+          "labeled_nodes",
+          "pipeline",
+          "diagnosis",
+          "report_path",
+          "report_format"
+        ],
+        "required_step_order": [
+          "code-to-ast-new",
+          "code-splitter-adapter",
+          "cpp-dataflow-extractor",
+          "code-semantic-labeler",
+          "pipeline-graph-builder",
+          "pipeline-reasoner",
+          "analysis-report"
+        ],
+        "expected_pipeline_nodes_include": [
+          "Camera",
+          "Detection",
+          "Tracking",
+          "Storage"
+        ],
+        "expected_pipeline_edges_include": [
+          ["Camera", "Detection"],
+          ["Detection", "Tracking"],
+          ["Tracking", "Storage"]
+        ],
+        "expected_diagnosis": {
+          "pipeline_type_should_not_be": "unknown",
+          "missing_should_include_any": [
+            "Decode",
+            "Preprocess"
+          ],
+          "anomalies_should_mention_any": [
+            "Decode",
+            "Preprocess"
+          ]
+        }
+      }
+    }
+  ]
+}

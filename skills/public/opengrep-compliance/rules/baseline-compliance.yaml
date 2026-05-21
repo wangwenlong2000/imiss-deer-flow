@@ -1,0 +1,52 @@
+rules:
+  - id: python-requests-verify-false
+    pattern: requests.$METHOD(..., verify=False, ...)
+    message: "TLS certificate verification is disabled. Do not use verify=False in production code."
+    languages:
+      - python
+    severity: ERROR
+
+  - id: python-subprocess-shell-true
+    pattern: subprocess.$FUNC(..., shell=True, ...)
+    message: "shell=True can introduce command injection risk. Prefer argument arrays without a shell."
+    languages:
+      - python
+    severity: WARNING
+
+  - id: python-hardcoded-secret-key
+    patterns:
+      - pattern-either:
+          - pattern: $NAME = "$VALUE"
+          - pattern: $NAME = '$VALUE'
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(secret|token|api_key|apikey|password|passwd|private_key).*
+    message: "Possible hardcoded secret. Move sensitive values to a secure configuration or secret manager."
+    languages:
+      - python
+    severity: WARNING
+
+  - id: js-eval-or-new-function
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+    message: "Dynamic code execution is prohibited by the baseline compliance policy."
+    languages:
+      - javascript
+      - typescript
+    severity: ERROR
+
+  - id: react-dangerously-set-inner-html
+    pattern: dangerouslySetInnerHTML={...}
+    message: "dangerouslySetInnerHTML requires explicit sanitization and review."
+    languages:
+      - javascript
+      - typescript
+    severity: WARNING
+
+  - id: docker-privileged-container
+    pattern: "privileged: true"
+    message: "Privileged containers should not be enabled without an approved exception."
+    languages:
+      - yaml
+    severity: WARNING

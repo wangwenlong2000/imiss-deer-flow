@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pipeline Graph Builder"
+  short_description: "使用 DeerFlow PipelineGraphBuilder 构建业务 DAG"
+  default_prompt: "使用 pipeline-graph-builder skill，基于 calls、dataflow 和 labeled_nodes 生成业务级 DAG，并说明如何接入 DeerFlowOrchestrator。"

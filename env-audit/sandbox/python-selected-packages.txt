@@ -1,0 +1,75 @@
+WARNING: Package(s) not found: dashscope, duckdb, openpyxl, xlrd
+Name: numpy
+Version: 2.4.4
+Summary: Fundamental package for array computing in Python
+Home-page: https://numpy.org
+Author: Travis E. Oliphant et al.
+Author-email: 
+License-Expression: BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
+Location: /nfsdat1/home/yflinslm/.conda/envs/deerflow3/lib/python3.12/site-packages
+Requires: 
+Required-by: Bottleneck, datasets, llama-index-core, numexpr, pandas, scikit-learn, scipy, transformers
+---
+Name: pandas
+Version: 2.3.3
+Summary: Powerful data structures for data analysis, time series, and statistics
+Home-page: https://pandas.pydata.org
+Author: 
+Author-email: The Pandas Development Team <pandas-dev@python.org>
+License: BSD 3-Clause License
+
+ Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+ All rights reserved.
+
+ Copyright (c) 2011-2023, Open source contributors.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Location: /nfsdat1/home/yflinslm/.conda/envs/deerflow3/lib/python3.12/site-packages
+Requires: numpy, python-dateutil, pytz, tzdata
+Required-by: datasets, llama-index-readers-file
+---
+Name: PyYAML
+Version: 6.0.3
+Summary: YAML parser and emitter for Python
+Home-page: https://pyyaml.org/
+Author: Kirill Simonov
+Author-email: xi@resolvent.net
+License: MIT
+Location: /nfsdat1/home/yflinslm/.conda/envs/deerflow3/lib/python3.12/site-packages
+Requires: 
+Required-by: code-rag-elasticsearch, datasets, huggingface_hub, langchain-core, llama-index-core, transformers
+---
+Name: requests
+Version: 2.33.1
+Summary: Python HTTP for Humans.
+Home-page: 
+Author: 
+Author-email: Kenneth Reitz <me@kennethreitz.org>
+License: Apache-2.0
+Location: /nfsdat1/home/yflinslm/.conda/envs/deerflow3/lib/python3.12/site-packages
+Requires: certifi, charset_normalizer, idna, urllib3
+Required-by: datasets, huggingface_hub, langsmith, llama-index-core, requests-toolbelt, tiktoken, transformers

@@ -1,0 +1,6 @@
+pyproject.toml
+code_rag_elasticsearch.egg-info/PKG-INFO
+code_rag_elasticsearch.egg-info/SOURCES.txt
+code_rag_elasticsearch.egg-info/dependency_links.txt
+code_rag_elasticsearch.egg-info/requires.txt
+code_rag_elasticsearch.egg-info/top_level.txt

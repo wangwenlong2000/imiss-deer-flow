@@ -1,0 +1,11 @@
+frontend/node_modules/
+frontend/.next/
+backend/.venv/
+.venv/
+.tmp/
+logs/
+log/
+reports/
+video_frames/
+video_frames_ffmpeg/
+*-dependencies.txt

@@ -1,0 +1,16 @@
+rules:
+  - id: php-dynamic-execution-system
+    patterns:
+      - pattern-either:
+          - pattern: shell_exec($RUN)
+          - pattern: passthru($RUN)
+          - pattern: system($RUN)
+          - pattern: exec($RUN)
+          - pattern: proc_open($RUN, ...)
+      - metavariable-pattern:
+          metavariable: $RUN
+          pattern-regex: (['"])php -r .*\1
+    message: Dynamic execution by system commands.
+    severity: ERROR
+    languages:
+      - php

@@ -1,0 +1,91 @@
+{
+  "skill_name": "code-business-dag-analysis-pipeline",
+  "evals": [
+    {
+      "id": 1,
+      "name": "video_pipeline_missing_decode_and_preprocess",
+      "prompt": "请使用 code-business-dag-analysis-pipeline 技能分析 evals/fixtures/video_pipeline_missing_decode.py。要求严格按照 code-to-ast-new、code-splitter-adapter（只使用 Python）、dataflow-extractor、code-semantic-labeler、pipeline-graph-builder、pipeline-reasoner、分析报告的顺序执行。最终输出一个严格 JSON 对象，并在 report 字段中包含中文 Markdown 分析报告。",
+      "files": [
+        "evals/fixtures/video_pipeline_missing_decode.py"
+      ],
+      "expected_output": {
+        "status": "success",
+        "language": "python",
+        "required_top_level_fields": [
+          "status",
+          "language",
+          "steps",
+          "chunks",
+          "calls",
+          "dataflow",
+          "labeled_nodes",
+          "pipeline",
+          "diagnosis",
+          "report"
+        ],
+        "required_step_order": [
+          "code-to-ast-new",
+          "code-splitter-adapter",
+          "dataflow-extractor",
+          "code-semantic-labeler",
+          "pipeline-graph-builder",
+          "pipeline-reasoner",
+          "analysis-report"
+        ],
+        "expected_pipeline_nodes_include": [
+          "Camera",
+          "Detection",
+          "Tracking",
+          "Storage"
+        ],
+        "expected_pipeline_edges_include": [
+          ["Camera", "Detection"],
+          ["Detection", "Tracking"],
+          ["Tracking", "Storage"]
+        ],
+        "expected_diagnosis": {
+          "pipeline_type_should_not_be": "unknown",
+          "missing_should_include_any": [
+            "Decode",
+            "Preprocess"
+          ],
+          "anomalies_should_mention_any": [
+            "Decode",
+            "解码",
+            "Preprocess",
+            "预处理"
+          ]
+        },
+        "report_should_include_sections": [
+          "摘要",
+          "流水线类型",
+          "业务 DAG",
+          "缺失模块",
+          "逻辑异常",
+          "中间产物概览",
+          "建议"
+        ]
+      },
+      "assertions": [
+        {
+          "text": "输出必须是可解析的 JSON 对象，不能包裹 Markdown 代码块。"
+        },
+        {
+          "text": "steps 必须严格按指定七个步骤排序，并且每个步骤包含 name 和 status。"
+        },
+        {
+          "text": "diagnosis 必须只使用 pipeline_type、missing、anomalies 作为核心诊断字段，且 missing 和 anomalies 是字符串数组。"
+        },
+        {
+          "text": "pipeline.nodes 至少包含 Camera、Detection、Tracking、Storage 四类业务节点。"
+        },
+        {
+          "text": "pipeline.edges 至少体现 Camera -> Detection -> Tracking -> Storage 的业务依赖方向。"
+        },
+        {
+          "text": "诊断结果应指出 Decode 或 Preprocess 等关键前置模块缺失，且 report 用中文 Markdown 解释该结论。"
+        }
+      ]
+    }
+  ]
+}

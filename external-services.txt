@@ -1,0 +1,42 @@
+# TAVILY API Key
+TAVILY_API_KEY=your-tavily-api-key
+
+# Jina API Key
+JINA_API_KEY=your-jina-api-key
+
+# InfoQuest API Key
+INFOQUEST_API_KEY=your-infoquest-api-key
+# CORS Origins (comma-separated) - e.g., http://localhost:23975,http://localhost:23976
+# CORS_ORIGINS=http://localhost:23975
+
+# Optional:
+# FIRECRAWL_API_KEY=your-firecrawl-api-key
+# VOLCENGINE_API_KEY=your-volcengine-api-key
+# OPENAI_API_KEY=your-openai-api-key
+# GEMINI_API_KEY=your-gemini-api-key
+# DEEPSEEK_API_KEY=your-deepseek-api-key
+# NOVITA_API_KEY=your-novita-api-key  # OpenAI-compatible, see https://novita.ai
+# MINIMAX_API_KEY=your-minimax-api-key  # OpenAI-compatible, see https://platform.minimax.io
+# FEISHU_APP_ID=your-feishu-app-id
+# FEISHU_APP_SECRET=your-feishu-app-secret
+
+# SLACK_BOT_TOKEN=your-slack-bot-token
+# SLACK_APP_TOKEN=your-slack-app-token
+# TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+# Since the ".env" file is gitignored, you can use the ".env.example" file to
+# build a new ".env" file when you clone the repo. Keep this file up-to-date
+# when you add new variables to `.env`.
+
+# This file will be committed to version control, so make sure not to have any
+# secrets in it. If you are cloning this repo, create a copy of this file named
+# ".env" and populate it with your secrets.
+
+# When adding additional environment variables, the schema in "/src/env.js"
+# should be updated accordingly.
+
+# Backend API URLs (optional)
+# Leave these commented out to use the default nginx proxy (recommended for `make dev`)
+# Only set these if you need to connect to backend services directly
+# NEXT_PUBLIC_BACKEND_BASE_URL="http://localhost:8001"
+# NEXT_PUBLIC_LANGGRAPH_BASE_URL="http://localhost:2024"
+

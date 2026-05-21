@@ -1,0 +1,4 @@
+v22.22.2
+10.9.7
+Python 3.12.13
+pip 26.0.1 from /nfsdat1/home/yflinslm/.conda/envs/deerflow3/lib/python3.12/site-packages/pip (python 3.12)

@@ -1,0 +1,4 @@
+code-rag direct dependencies: 3
+elasticsearch>=8,<9
+pyyaml>=6
+sentence-transformers>=3

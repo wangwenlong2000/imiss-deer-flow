@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""
+将输入的代码转化为 AST（抽象语法树）结构。
+"""
+
+import argparse
+import json
+import os
+import ast
+
+try:
+    import esprima
+    has_esprima = True
+except ImportError:
+    has_esprima = False
+
+def ast_to_dict(node):
+    """将 AST 节点转换为字典"""
+    if isinstance(node, ast.AST):
+        result = {}
+        result['type'] = node.__class__.__name__
+        for field, value in ast.iter_fields(node):
+            if isinstance(value, list):
+                result[field] = [ast_to_dict(item) for item in value]
+            elif isinstance(value, ast.AST):
+                result[field] = ast_to_dict(value)
+            else:
+                result[field] = value
+        return result
+    else:
+        return node
+
+def parse_python(code):
+    """解析 Python 代码并生成 AST"""
+    try:
+        tree = ast.parse(code)
+        return ast_to_dict(tree)
+    except SyntaxError as e:
+        return {"error": f"语法错误: {str(e)}"}
+
+def parse_javascript(code):
+    """解析 JavaScript 代码并生成 AST"""
+    if not has_esprima:
+        return {"error": "需要安装 esprima 库: pip install esprima"}
+    try:
+        tree = esprima.parseScript(code)
+        return tree.toDict()
+    except Exception as e:
+        return {"error": f"解析错误: {str(e)}"}
+
+def parse_java(code):
+    """解析 Java 代码并生成 AST"""
+    # 占位实现，实际需要使用 javaparser
+    return {"error": "Java 解析功能尚未实现，需要 javaparser"}
+
+def parse_cpp(code):
+    """解析 C++ 代码并生成 AST"""
+    # 占位实现，实际需要使用 clang
+    return {"error": "C++ 解析功能尚未实现，需要 clang"}
+
+def main():
+    """主函数"""
+    parser = argparse.ArgumentParser(description="代码转 AST 工具")
+    parser.add_argument("--language", required=True, choices=["python", "javascript", "java", "cpp"],
+                        help="编程语言")
+    parser.add_argument("--code", help="直接代码输入")
+    parser.add_argument("--file", help="代码文件路径")
+    parser.add_argument("--output", help="保存 AST 输出的路径")
+    parser.add_argument("--indent", type=int, default=2, help="JSON 输出的缩进空格数")
+    
+    args = parser.parse_args()
+    
+    # 读取代码
+    if args.code:
+        code = args.code
+    elif args.file:
+        if not os.path.exists(args.file):
+            print(json.dumps({"error": f"文件不存在: {args.file}"}, indent=args.indent))
+            return
+        with open(args.file, "r", encoding="utf-8") as f:
+            code = f.read()
+    else:
+        print(json.dumps({"error": "必须提供 --code 或 --file 参数"}, indent=args.indent))
+        return
+    
+    # 解析代码并生成 AST
+    if args.language == "python":
+        ast_tree = parse_python(code)
+    elif args.language == "javascript":
+        ast_tree = parse_javascript(code)
+    elif args.language == "java":
+        ast_tree = parse_java(code)
+    elif args.language == "cpp":
+        ast_tree = parse_cpp(code)
+    else:
+        ast_tree = {"error": f"不支持的语言: {args.language}"}
+    
+    # 输出结果
+    if args.output:
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(ast_tree, f, indent=args.indent, ensure_ascii=False)
+        print(f"AST 已保存到 {args.output}")
+    else:
+        print(json.dumps(ast_tree, indent=args.indent, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,8 @@
+FROM python:3.12-slim
+LABEL maintainer="city-platform-team"
+ARG APP_ENV=prod
+ARG SERVICE_TOKEN="b7n5m3k1j9h7g5f3d1s8a6p4o2i0u9y7t5r3"
+ENV TZ=Asia/Shanghai
+WORKDIR /srv/app
+COPY pyproject.toml ./
+RUN python --version

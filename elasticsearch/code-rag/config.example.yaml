@@ -1,0 +1,36 @@
+# Elasticsearch-backed code RAG configuration example.
+
+elasticsearch:
+  # You can also provide these values through ES_URL, ES_USERNAME, ES_PASSWORD, or ES_API_KEY.
+  url: "http://localhost:9200"
+  username: null
+  password: null
+  api_key: null
+
+source:
+  # Repository root to index.
+  root_path: "D:/PythonProject/deerflow"
+  repo: "deerflow"
+  max_files_scanned: 20000
+
+index:
+  name: "code_chunks"
+  recreate_index: false
+  force: false
+  batch_size: 32
+
+embedding:
+  # Recommended quality model. For quick smoke tests, use sentence-transformers/all-MiniLM-L6-v2.
+  model: "BAAI/bge-m3"
+  device: null
+  model_cache_dir: null
+
+retrieval:
+  k: 8
+  window_size: 50
+  language: null
+  kind: null
+  tags: []
+  path_glob: null
+  rank_constant: 60
+

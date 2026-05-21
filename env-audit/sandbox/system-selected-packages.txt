@@ -1,0 +1,119 @@
+ii  dbus-x11                                   1.14.10-4ubuntu4.1                               amd64        simple interprocess messaging system (X11 deps)
+ii  dns-root-data                              2024071801~ubuntu0.24.04.1                       all          DNS root hints and DNSSEC trust anchor
+ii  fontconfig                                 2.15.0-1.1ubuntu2                                amd64        generic font configuration library - support binaries
+ii  fontconfig-config                          2.15.0-1.1ubuntu2                                amd64        generic font configuration library - configuration
+ii  fonts-noto-cjk                             1:20230817+repack1-3                             all          "No Tofu" font families with large Unicode coverage (CJK regular and bold)
+ii  gir1.2-atk-1.0:amd64                       2.52.0-1build1                                   amd64        ATK accessibility toolkit (GObject introspection)
+ii  gir1.2-gtk-3.0:amd64                       3.24.41-4ubuntu1.3                               amd64        GTK graphical user interface library -- gir bindings
+ii  gir1.2-pango-1.0:amd64                     1.52.1+ds-1build1                                amd64        Layout and rendering of internationalized text - gir bindings
+ii  gstreamer1.0-x:amd64                       1.24.2-1ubuntu0.4                                amd64        GStreamer plugins for X11 and Pango
+ii  gtk-update-icon-cache                      3.24.41-4ubuntu1.3                               amd64        icon theme caching utility
+ii  ibus-gtk:amd64                             1.5.29-2                                         amd64        Intelligent Input Bus - GTK2 support
+ii  ibus-gtk3:amd64                            1.5.29-2                                         amd64        Intelligent Input Bus - GTK3 support
+ii  libadwaita-1-0:amd64                       1.5.0-1ubuntu2                                   amd64        Library with GTK widgets for mobile phones
+ii  libasound2-data                            1.2.11-1ubuntu0.2                                all          Configuration files and profiles for ALSA drivers
+ii  libasound2-plugins:amd64                   1.2.7.1-1ubuntu5                                 amd64        ALSA library additional plugins
+ii  libasound2t64:amd64                        1.2.11-1ubuntu0.2                                amd64        shared library for ALSA applications
+ii  libatk-adaptor:amd64                       2.52.0-1build1                                   amd64        AT-SPI 2 toolkit bridge
+ii  libatk-bridge2.0-0t64:amd64                2.52.0-1build1                                   amd64        AT-SPI 2 toolkit bridge - shared library
+ii  libatk1.0-0t64:amd64                       2.52.0-1build1                                   amd64        ATK accessibility toolkit
+ii  libcairo-gobject2:amd64                    1.18.0-3build1                                   amd64        Cairo 2D vector graphics library (GObject library)
+ii  libcairo-script-interpreter2:amd64         1.18.0-3build1                                   amd64        Cairo 2D vector graphics library (script interpreter)
+ii  libcairo2:amd64                            1.18.0-3build1                                   amd64        Cairo 2D vector graphics library
+ii  libcups2t64:amd64                          2.4.7-1.2ubuntu7.9                               amd64        Common UNIX Printing System(tm) - Core library
+ii  libcupsfilters2-common                     2.0.0-0ubuntu7.2                                 all          OpenPrinting libcupsfilters - Auxiliary files
+ii  libcupsfilters2t64:amd64                   2.0.0-0ubuntu7.2                                 amd64        OpenPrinting libcupsfilters - Shared library
+ii  libcurl4-openssl-dev:amd64                 8.5.0-2ubuntu10.9                                amd64        development files and documentation for libcurl (OpenSSL flavour)
+ii  libcurl4t64:amd64                          8.5.0-2ubuntu10.9                                amd64        easy-to-use client-side URL transfer library (OpenSSL flavour)
+ii  libdrm-amdgpu1:amd64                       2.4.125-1ubuntu0.1~24.04.1                       amd64        Userspace interface to amdgpu-specific kernel DRM services -- runtime
+ii  libdrm-common                              2.4.125-1ubuntu0.1~24.04.1                       all          Userspace interface to kernel DRM services -- common files
+ii  libdrm-intel1:amd64                        2.4.125-1ubuntu0.1~24.04.1                       amd64        Userspace interface to intel-specific kernel DRM services -- runtime
+ii  libdrm-nouveau2:amd64                      2.4.125-1ubuntu0.1~24.04.1                       amd64        Userspace interface to nouveau-specific kernel DRM services -- runtime
+ii  libdrm-radeon1:amd64                       2.4.125-1ubuntu0.1~24.04.1                       amd64        Userspace interface to radeon-specific kernel DRM services -- runtime
+ii  libdrm2:amd64                              2.4.125-1ubuntu0.1~24.04.1                       amd64        Userspace interface to kernel DRM services -- runtime
+ii  libevent-openssl-2.1-7t64:amd64            2.1.12-stable-9ubuntu2                           amd64        Asynchronous event notification library (openssl)
+ii  libfontconfig1:amd64                       2.15.0-1.1ubuntu2                                amd64        generic font configuration library - runtime
+ii  libfontenc1:amd64                          1:1.1.8-1build1                                  amd64        X11 font encoding library
+ii  libgbm1:amd64                              25.2.8-0ubuntu0.24.04.1                          amd64        generic buffer management API -- runtime
+ii  libgtk-3-0t64:amd64                        3.24.41-4ubuntu1.3                               amd64        GTK graphical user interface library
+ii  libgtk-3-bin                               3.24.41-4ubuntu1.3                               amd64        programs for the GTK graphical user interface library
+ii  libgtk-3-common                            3.24.41-4ubuntu1.3                               all          common files for the GTK graphical user interface library
+ii  libgtk-4-1:amd64                           4.14.5+ds-0ubuntu0.10                            amd64        GTK graphical user interface library
+ii  libgtk-4-bin                               4.14.5+ds-0ubuntu0.10                            amd64        programs for the GTK graphical user interface library
+ii  libgtk-4-common                            4.14.5+ds-0ubuntu0.10                            all          common files for the GTK graphical user interface library
+ii  libgtk-4-media-gstreamer                   4.14.5+ds-0ubuntu0.10                            amd64        GStreamer media backend for the GTK graphical user interface library
+ii  libgtk2.0-0t64:amd64                       2.24.33-4ubuntu1.1                               amd64        GTK graphical user interface library - old version
+ii  libgtk2.0-bin                              2.24.33-4ubuntu1.1                               amd64        programs for the GTK graphical user interface library
+ii  libgtk2.0-common                           2.24.33-4ubuntu1.1                               all          common files for the GTK graphical user interface library
+ii  libice6:amd64                              2:1.0.10-1build3                                 amd64        X11 Inter-Client Exchange library
+ii  libjansson4:amd64                          2.14-2build2                                     amd64        C library for encoding, decoding and manipulating JSON data
+ii  libnma-gtk4-0:amd64                        1.10.6-3build2                                   amd64        NetworkManager GUI GTK4 library
+ii  libnss-ldap:amd64                          265-5ubuntu3                                     amd64        NSS module for using LDAP as a naming service
+rc  libnss-ldapd:amd64                         0.9.12-4build1                                   amd64        NSS module for using LDAP as a naming service
+ii  libnss-mdns:amd64                          0.15.1-4build1                                   amd64        NSS module for Multicast DNS name resolution
+ii  libnss-sss:amd64                           2.9.4-1.1ubuntu6.4                               amd64        Nss library for the System Security Services Daemon
+ii  libnss-systemd:amd64                       255.4-1ubuntu8.15                                amd64        nss module providing dynamic user and group name resolution
+ii  libnss3:amd64                              2:3.98-1ubuntu0.1                                amd64        Network Security Service libraries
+ii  libnss3-tools                              2:3.98-1ubuntu0.1                                amd64        Network Security Service tools
+ii  libpango-1.0-0:amd64                       1.52.1+ds-1build1                                amd64        Layout and rendering of internationalized text
+ii  libpangocairo-1.0-0:amd64                  1.52.1+ds-1build1                                amd64        Layout and rendering of internationalized text
+ii  libpangoft2-1.0-0:amd64                    1.52.1+ds-1build1                                amd64        Layout and rendering of internationalized text
+ii  libpangoxft-1.0-0:amd64                    1.52.1+ds-1build1                                amd64        Layout and rendering of internationalized text
+ii  libpaps0t64                                0.6.8-7.2build1                                  amd64        UTF-8 to PostScript converter library using Pango
+ii  libpixman-1-0:amd64                        0.42.2-1build1                                   amd64        pixel-manipulation library for X and cairo
+ii  libsm6:amd64                               2:1.2.3-1build3                                  amd64        X11 Session Management library
+ii  libssh-4:amd64                             0.10.6-2ubuntu0.4                                amd64        tiny C SSH library (OpenSSL flavor)
+ii  libsss-nss-idmap0                          2.9.4-1.1ubuntu6.4                               amd64        SID based lookups library for SSSD
+ii  libva-drm2:amd64                           2.20.0-2ubuntu0.1                                amd64        Video Acceleration (VA) API for Linux -- DRM runtime
+ii  libva-x11-2:amd64                          2.20.0-2ubuntu0.1                                amd64        Video Acceleration (VA) API for Linux -- X11 runtime
+ii  libwmf-0.2-7-gtk:amd64                     0.2.13-1.1build3                                 amd64        Windows metafile conversion GTK pixbuf plugin
+ii  libwmf0.2-7-gtk:amd64                      0.2.13-1.1build3                                 amd64        Windows metafile conversion GTK pixbuf plugin - transitional package
+ii  libx11-6:amd64                             2:1.8.7-1build1                                  amd64        X11 client-side library
+ii  libx11-data                                2:1.8.7-1build1                                  all          X11 client-side library
+ii  libx11-protocol-perl                       0.56-9                                           all          Perl module for the X Window System Protocol, version 11
+ii  libx11-xcb1:amd64                          2:1.8.7-1build1                                  amd64        Xlib/XCB interface library
+ii  libxau6:amd64                              1:1.0.9-1build6                                  amd64        X11 authorisation library
+ii  libxaw7:amd64                              2:1.0.14-1build2                                 amd64        X11 Athena Widget library
+ii  libxcomposite1:amd64                       1:0.4.5-1build3                                  amd64        X11 Composite extension library
+ii  libxdamage1:amd64                          1:1.1.6-1build1                                  amd64        X11 damaged region extension library
+ii  libxdmcp6:amd64                            1:1.1.3-0ubuntu6                                 amd64        X11 Display Manager Control Protocol library
+ii  libxext6:amd64                             2:1.3.4-1build2                                  amd64        X11 miscellaneous extension library
+ii  libxfixes3:amd64                           1:6.0.0-2build1                                  amd64        X11 miscellaneous 'fixes' extension library
+ii  libxfont2:amd64                            1:2.0.6-1build1                                  amd64        X11 font rasterisation library
+ii  libxi6:amd64                               2:1.8.1-1build1                                  amd64        X11 Input extension library
+ii  libxinerama1:amd64                         2:1.1.4-3build1                                  amd64        X11 Xinerama extension library
+ii  libxkbfile1:amd64                          1:1.1.0-1build4                                  amd64        X11 keyboard file manipulation library
+ii  libxmlsec1t64-openssl:amd64                1.2.39-5build2                                   amd64        Openssl engine for the XML security library
+ii  libxmu6:amd64                              2:1.1.3-3build2                                  amd64        X11 miscellaneous utility library
+ii  libxmuu1:amd64                             2:1.1.3-3build2                                  amd64        X11 miscellaneous micro-utility library
+ii  libxpm4:amd64                              1:3.5.17-1build2                                 amd64        X11 pixmap library
+ii  libxrandr2:amd64                           2:1.5.2-2build1                                  amd64        X11 RandR extension library
+ii  libxres1:amd64                             2:1.2.1-1build1                                  amd64        X11 Resource extension library
+ii  libxss1:amd64                              1:1.2.3-1build3                                  amd64        X11 Screen Saver extension library
+ii  libxt6t64:amd64                            1:1.2.1-1.2build1                                amd64        X11 toolkit intrinsics library
+ii  libxtst6:amd64                             2:1.2.3-1.1build1                                amd64        X11 Testing -- Record extension library
+ii  libxv1:amd64                               2:1.0.11-1.1build1                               amd64        X11 Video extension library
+ii  libxvmc1:amd64                             2:1.0.12-2build3                                 amd64        X11 Video extension library
+ii  libxxf86dga1:amd64                         2:1.1.5-1build1                                  amd64        X11 Direct Graphics Access extension library
+ii  libxxf86vm1:amd64                          1:1.1.4-1build4                                  amd64        X11 XFree86 video mode extension library
+ii  nodejs                                     24.0.1-1nodesource1                              amd64        Node.js event-based server-side javascript engine
+rc  nslcd                                      0.9.12-4build1                                   amd64        daemon for NSS and PAM lookups using LDAP
+ii  openssh-client                             1:9.6p1-3ubuntu13.16                             amd64        secure shell (SSH) client, for secure access to remote machines
+ii  openssh-server                             1:9.6p1-3ubuntu13.16                             amd64        secure shell (SSH) server, for secure access from remote machines
+ii  openssh-sftp-server                        1:9.6p1-3ubuntu13.16                             amd64        secure shell (SSH) sftp server module, for SFTP access from remote machines
+ii  openssl                                    3.0.13-0ubuntu3.9                                amd64        Secure Sockets Layer toolkit - cryptographic utility
+ii  paps                                       0.6.8-7.2build1                                  amd64        UTF-8 to PostScript converter using Pango
+ii  perl-openssl-defaults:amd64                7build3                                          amd64        version compatibility baseline for Perl OpenSSL packages
+ii  python3-cairo                              1.25.1-2build2                                   amd64        Python3 bindings for the Cairo vector graphics library
+ii  python3-openssl                            23.2.0-1ubuntu0.1                                all          Python 3 wrapper around the OpenSSL library
+ii  python3-pip                                24.0+dfsg-1ubuntu1.3                             all          Python package installer
+ii  python3-pip-whl                            24.0+dfsg-1ubuntu1.3                             all          Python package installer (pip wheel)
+ii  python3-service-identity                   24.1.0-1                                         all          Service identity verification for pyOpenSSL (Python 3 module)
+ii  ssl-cert                                   1.1.2ubuntu1                                     all          simple debconf wrapper for OpenSSL
+ii  x11-apps                                   7.7+11build3                                     amd64        X applications
+ii  x11-common                                 1:7.7+23ubuntu3                                  all          X Window System (X.Org) infrastructure
+ii  x11-session-utils                          7.7+6build2                                      amd64        X session utilities
+ii  x11-utils                                  7.7+6build2                                      amd64        X11 utilities
+ii  x11-xkb-utils                              7.7+8build2                                      amd64        X11 XKB utilities
+ii  x11-xserver-utils                          7.7+10build2                                     amd64        X server utilities
+ii  xdg-user-dirs-gtk                          0.11-1build2                                     amd64        tool to manage well known user directories (Gtk extension)

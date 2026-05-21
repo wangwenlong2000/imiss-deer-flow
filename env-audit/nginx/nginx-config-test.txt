@@ -1,0 +1,2 @@
+nginx: the configuration file /nfsdat1/home/yflinslm/.conda/envs/deerflow3/etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /nfsdat1/home/yflinslm/.conda/envs/deerflow3/etc/nginx/nginx.conf test is successful

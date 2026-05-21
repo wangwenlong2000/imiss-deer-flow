@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Video subtitle viewer</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+  }
+  .wrap {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+  }
+  .bar {
+    padding: 10px 14px;
+    background: #202020;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+</style>
+<div class="wrap">
+  <div class="bar">
+    <label>time <input id="time" type="number" step="0.1" value="0"></label>
+    <button id="seek">Seek</button>
+    <span id="meta"></span>
+  </div>
+  <video id="video" controls preload="auto" muted src="file:///D:/%E5%BD%95%E5%B1%8F/%E5%AE%8C%E6%88%90.mp4"></video>
+</div>
+<script>
+const video = document.getElementById('video');
+const time = document.getElementById('time');
+const meta = document.getElementById('meta');
+function updateMeta() {
+  meta.textContent = `current ${video.currentTime.toFixed(2)} / ${Number.isFinite(video.duration) ? video.duration.toFixed(2) : '?'}`;
+}
+video.addEventListener('loadedmetadata', () => {
+  const t = Number(new URL(location.href).searchParams.get('t') || 0);
+  time.value = t;
+  video.currentTime = t;
+  updateMeta();
+});
+video.addEventListener('seeked', updateMeta);
+video.addEventListener('timeupdate', updateMeta);
+document.getElementById('seek').addEventListener('click', () => {
+  video.currentTime = Number(time.value || 0);
+});
+</script>

@@ -1,0 +1,13 @@
+./.env.example
+./frontend/.env.example
+./frontend/package.json
+./frontend/.next/dev/package.json
+./frontend/pnpm-lock.yaml
+./frontend/Dockerfile
+./docker/provisioner/Dockerfile
+./elasticsearch/location-matcher/pyproject.toml
+./elasticsearch/code-rag/pyproject.toml
+./backend/uv.lock
+./backend/Dockerfile
+./backend/packages/harness/pyproject.toml
+./backend/pyproject.toml
