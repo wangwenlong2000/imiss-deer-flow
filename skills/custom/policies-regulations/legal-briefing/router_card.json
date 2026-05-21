@@ -1,0 +1,239 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "legal-briefing",
+    "name": "legal-briefing",
+    "description": "中国法律材料整理、备忘录撰写与报告生成 Skill，用于在法律材料已经检索、分析或由用户明确提供后，将法条、司法解释、案例、政策材料和分析结果整理成结构化法律备忘录、简报、摘要、风险提示和合规说明。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "policy_regulation",
+      "legal_briefing",
+      "legal_report"
+    ],
+    "is_public": false,
+    "task_types": [
+      "legal_briefing",
+      "legal_memo_generation",
+      "legal_material_organization",
+      "legal_summary",
+      "legal_report_generation",
+      "risk_note_generation",
+      "compliance_briefing",
+      "rule_comparison",
+      "legal_analysis_rewriting",
+      "role_based_legal_output"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "retrieved_legal_materials",
+      "statute_excerpt",
+      "case_summary",
+      "policy_excerpt",
+      "analysis_result",
+      "legal_basis_list"
+    ],
+    "output_types": [
+      "legal_memo",
+      "legal_briefing",
+      "legal_summary",
+      "risk_note",
+      "compliance_briefing",
+      "rule_comparison_report",
+      "legal_material_digest",
+      "client_readable_summary",
+      "internal_legal_note"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：legal-briefing\n描述：中国法律材料整理、备忘录撰写与报告生成 Skill。适用于法律材料已经由用户提供、上游检索 Skill 返回或案件分析 Skill 已经完成前置分析之后，将已有法条、司法解释、案例摘要、裁判规则、政策文件片段、合规依据清单、分析提纲、风险判断和检索结果整理成结构化、可交付、可复用的法律备忘录、法律检索结果整理报告、争议焦点摘要、规范适用比较说明、风险提示清单、合规简报、普通人可读版本、律师或法务内部简报。本 Skill 的核心价值是把已经找到的法和已经做出的分析转化为可直接使用的文本成果，而不是首次检索法条或进行深度案件分析。典型问题包括：把这些法条整理成法律备忘录；根据上面检索结果生成合规风险提示；将已有法律依据整理成市领导可读简报；比较这几条规定的适用关系；把这份分析改写成企业法务内部报告；根据已有案例摘要提炼裁判规则；把检索结果整理成客户可读版本。不适用于首次查法条、查第几条怎么规定、查司法解释或规范性文件、询问法律依据是什么、根据什么法律、具体案件请求权基础分析、合同逐条审查或证据策略设计；这些任务应优先交给法律检索、法律问题分析或合同审查类 Skill。",
+    "positive_triggers": [
+      "用户已经提供法条原文、法规名称、案例摘要、裁判规则摘录或政策文本片段，并要求整理成报告",
+      "上游检索 Skill 已返回法律法规、司法解释、案例或政策材料，需要整理成备忘录或简报",
+      "用户已经拿到分析结果，希望继续整理成法律备忘录、摘要、报告、风险清单或客户可读版本",
+      "用户要求对已有材料进行归纳、去重、合并、比较或解释适用关系",
+      "用户要求将已有法律依据整理成合规提示、风险提示、管理层简报或法务内部简报",
+      "用户要求根据不同读者身份调整法律材料表达风格，例如普通用户、律师、法务、企业负责人、法学生",
+      "用户明确要求把已有法条和分析结果转化成可直接粘贴到文档中的结构化 Markdown 文本"
+    ],
+    "negative_triggers": [
+      "用户要求首次检索法条原文、司法解释、法规、规范性文件或政策依据，应使用 law-local-retrieval",
+      "用户询问法律依据是什么、根据什么法律、哪一条怎么规定，应先使用法律检索类 Skill",
+      "用户提供具体案件事实并要求请求权基础、争议焦点、抗辩路径或诉讼策略，应使用 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求逐条审查、标注风险或给出修改建议，应使用 china-contract-review",
+      "用户只是当事人视角提出轻量法律咨询，希望知道怎么办，应使用 china-legal-consultation",
+      "用户没有提供任何法律材料或前置分析结果，却要求直接输出具体法律依据结论",
+      "用户要求生成图表、统计分析或数据可视化，应使用 data-analysis 或 chart-visualization"
+    ],
+    "keywords": [
+      "法律备忘录",
+      "法律简报",
+      "法律材料整理",
+      "检索结果整理",
+      "法律报告",
+      "风险提示",
+      "风险清单",
+      "合规简报",
+      "合规提示",
+      "争议焦点摘要",
+      "规范适用比较",
+      "规则比较",
+      "裁判规则",
+      "案例摘要",
+      "法条整理",
+      "已有材料",
+      "上游检索结果",
+      "客户可读版本",
+      "法务内部简报",
+      "管理层简报",
+      "普通人可读",
+      "总结",
+      "归纳",
+      "去重",
+      "改写",
+      "结构化 Markdown"
+    ],
+    "anti_keywords": [
+      "查法条",
+      "查第几条",
+      "法律依据是什么",
+      "根据什么法律",
+      "司法解释原文",
+      "法规原文",
+      "现行有效规定",
+      "案件分析",
+      "请求权基础",
+      "抗辩路径",
+      "证据策略",
+      "合同审查",
+      "逐条审查",
+      "红线修改",
+      "起诉状",
+      "仲裁申请书",
+      "图表生成",
+      "数据分析"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "legal-briefing 是中国法律材料整理、备忘录撰写与报告生成助手，不是主检索技能，也不是深度案件分析引擎。它负责将已经检索到或已经分析过的法律材料整理成结构化、可交付、可复用的输出结果。核心价值是把找到的法和做出的分析变成可直接使用的文本成果。负责事项包括对用户已经提供或上游 Skill 已经返回的法律材料和分析结果进行结构化整理，将已有内容转化为法律检索结果整理报告、法律备忘录、争议焦点摘要、规范适用比较说明、风险提示清单、合规提示简报和面向不同对象的改写版本，并对多份已有材料做归纳、去重、合并和分层表达。不负责首次法条检索，不负责在没有任何已有材料的情况下自行开展全量法律检索，不接管查某法第几条、法律依据是什么等原始检索请求，不负责深度案件策略设计、举证博弈推演或合同逐条审查。只有在用户已经提供法条原文、法规名称、案例摘要、裁判规则摘录、政策文本片段、上游检索结果或已有分析提纲时，才直接进入整理阶段。若用户尚未提供法律材料且请求本质是检索请求，应先由主检索 Skill 完成法规、司法解释、案例或规范性文件查找；若用户提供事实但任务重点是案件类型识别、争议焦点拆解、请求权基础分析、抗辩路径分析、合同条款风险识别或证据清单设计，应先由案件分析或合同审查 Skill 处理，待分析框架形成后再由本 Skill 负责成稿和整理。通用原则包括先整理、后表达、再补充建议，不虚构法条、法规名称、司法解释、案例或结论，材料不足时明确整理边界和待补充点，不擅自扩展成大范围检索或深度分析任务，仅在必要时追问最少信息，默认输出结构化、可复用、可直接粘贴到文档中的 Markdown 文本。默认工作顺序为明确用户要的是备忘录、摘要、汇总、比较说明、风险提示、合规简报、客户版说明或管理层简报，整理已有材料并按类型归类，去重并提炼关键规则、结论和不确定性，按任务目标重组表达顺序，输出面向目标读者的最终文本。默认输出类型包括法律备忘录、法律检索结果整理报告、争议焦点摘要、规范适用比较说明、风险提示清单、合规简报、普通人可读版本和律师或法务内部简报。references 目录可按任务需要参考 10-labor-dispute.md、11-contract-dispute.md、12-tort-dispute.md、13-family-and-inheritance.md、14-enterprise-compliance.md，用于补充具体业务场景下的整理重点和常见输出板块，但不改变本 Skill 的总体边界。默认输出模板包括问题概述、已有材料整理、关键规则或结论提炼、规范之间的关系或分析结果摘要、对当前问题的整理性说明、风险与不确定性、下一步建议。用户分层表达规则包括普通用户优先给结论概览并用通俗语言说明能主张什么和接下来做什么；法学生可保留检索思路和规则层级；律师更强调争议焦点、规则归纳、风险点和可引用性；法官检察官更强调规范关系、适用边界和裁判逻辑摘要；企业法务和企业负责人更强调风险等级、行动清单、优先级和制度建议。禁止行为包括把自己当作主法律检索 Skill、接管纯查法条查依据入口请求、在无材料支撑时输出具体法律依据结论、把深度案件分析和合同逐条审查伪装成整理输出、把可能存在的法律依据表述成已确认存在的法律依据，以及输出与已有材料无关的大段泛化法律常识。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "structured_writing"
+    ],
+    "optional_tools": [
+      "document_generation",
+      "docx_export",
+      "markdown_formatter",
+      "references/10-labor-dispute.md",
+      "references/11-contract-dispute.md",
+      "references/12-tort-dispute.md",
+      "references/13-family-and-inheritance.md",
+      "references/14-enterprise-compliance.md"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "law-local-retrieval",
+      "china-legal-issue-analysis",
+      "china-contract-review",
+      "china-legal-consultation",
+      "chinese-policy-analysis",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 50,
+    "conflict_group": "china_legal_briefing",
+    "prefer_when": [
+      "用户已经提供法律材料、检索结果、案例摘要、裁判规则、政策文本片段或已有分析结果",
+      "上游法律检索或案件分析已经完成，需要把结果整理成备忘录、简报、摘要、报告或风险清单",
+      "用户明确要求对已有材料进行总结、归纳、去重、比较、改写或面向不同对象表达",
+      "用户目标是形成可交付文本成果，而不是首次检索法律依据或深度分析案件",
+      "用户要求输出结构化 Markdown 法律材料整理结果"
+    ],
+    "defer_when": [
+      "用户请求本质是首次查法条、查依据、查司法解释、查法规原文或查询现行有效规定时，转给 law-local-retrieval",
+      "用户提供具体案件事实并要求请求权基础、争议焦点、抗辩路径、举证策略或诉讼仲裁行动方案时，转给 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求条款级风险识别、红线修改或替换条款时，转给 china-contract-review",
+      "用户只是需要当事人视角的轻量初步法律咨询时，转给 china-legal-consultation",
+      "用户需要政策落地可能性、执行力度或政策走向判断时，转给 chinese-policy-analysis",
+      "用户明确要求 Word 或 docx 导出且存在独立文档导出能力时，可组合 document-generation"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/legal-briefing",
+    "skill_md_path": "skills/custom/policies-regulations/legal-briefing/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "legal-briefing"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请把上面检索到的法条整理成一份法律备忘录",
+        "should_route": true,
+        "reason": "用户已经有检索结果，要求整理成法律备忘录"
+      },
+      {
+        "query": "根据这些法规依据，帮我生成一份企业合规风险提示清单",
+        "should_route": true,
+        "reason": "用户要求基于已有法规材料生成风险提示清单"
+      },
+      {
+        "query": "把这些案例摘要和裁判规则整理成律师内部简报",
+        "should_route": true,
+        "reason": "用户提供已有案例材料，要求整理成内部简报"
+      },
+      {
+        "query": "请比较上面三条规定的适用关系，并输出客户可读版本",
+        "should_route": true,
+        "reason": "用户要求对已有规则进行比较和面向客户改写"
+      },
+      {
+        "query": "查一下劳动合同法第87条原文",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是首次法条原文检索，不应由本 Skill 接管"
+      },
+      {
+        "query": "根据什么法律可以主张工伤赔偿？",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求本质是查找法律依据，应先检索"
+      },
+      {
+        "query": "请分析这个案件的请求权基础、争议焦点和证据策略",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于深度案件分析，不是已有材料整理"
+      },
+      {
+        "query": "请逐条审查这份合同并给出修改意见",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同逐条审查"
+      }
+    ],
+    "last_eval": {}
+  }
+}

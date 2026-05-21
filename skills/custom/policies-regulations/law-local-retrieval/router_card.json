@@ -1,0 +1,233 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "law-local-retrieval",
+    "name": "law-local-retrieval",
+    "description": "基于 Elasticsearch 的本地政策法规条文检索 Skill，用于从已建立的政策法规 ES 索引中检索中国法律法规、政策文件、具体条文、法律依据、执法依据、效力状态、发布机关、发布日期和实施日期等可回溯信息。"
+  },
+  "scope": {
+    "scenes": [
+      "policy_regulation",
+      "china_law",
+      "legal_retrieval",
+      "local_es_retrieval"
+    ],
+    "is_public": false,
+    "task_types": [
+      "law_retrieval",
+      "policy_retrieval",
+      "legal_basis_retrieval",
+      "article_retrieval",
+      "regulation_article_search",
+      "enforcement_basis_search",
+      "compliance_reference_search",
+      "validity_status_search",
+      "metadata_filtered_search",
+      "policy_report_legal_basis_support"
+    ],
+    "input_types": [
+      "text",
+      "query",
+      "law_name",
+      "article_no",
+      "metadata_filter"
+    ],
+    "output_types": [
+      "law_article_results",
+      "policy_article_results",
+      "legal_basis_list",
+      "enforcement_basis_list",
+      "compliance_reference",
+      "retrieval_json",
+      "traceable_legal_sources"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：law-local-retrieval\n描述：基于 Elasticsearch 的本地政策法规条文检索 Skill。适用于从已建立的政策法规 ES 索引中检索中国法律法规、法规条文、政策文件、政策依据、法律依据、执法依据、处罚依据、监管依据、合规依据、效力状态、发布机关、发布日期、实施日期、法规类别和条号等信息。本 Skill 可根据用户问题进行关键词检索，也可按 law_name、article_no、article_number、category、validity_status、office、office_level、publish_date、effective_date 等元数据过滤。典型问题包括：电动自行车违规停放和飞线充电涉及哪些法律法规依据；检索消防安全整治相关现行有效法规条文；中华人民共和国消防法中关于占用疏散通道的规定是哪一条；行政执法未履行告知程序可能违反哪些规定；为市领导报告补充可引用的政策法规依据；根据台账或通知中的治理问题匹配法律法规依据。本 Skill 只检索当前 Elasticsearch 政策法规索引中已经存在的数据，不替代联网搜索、文件解析、图表生成、正式报告写作或 ES 数据入库运维。检索结果应返回法规名称、条号、条文正文、发布机关、发布日期、实施日期、效力状态、来源路径等可回溯信息，不应输出向量字段或无关调试字段。",
+    "positive_triggers": [
+      "用户要求查询法律依据、法规依据、政策依据、执法依据或处罚依据",
+      "用户要求检索某部法律、法规、规章、规范性文件或政策文件的具体条文",
+      "用户询问某个问题依据哪一条规定、哪部法规或是否有现行有效依据",
+      "用户要求按法规名称、条号、发布机关、发布日期、实施日期、效力状态进行检索",
+      "用户需要为政策分析报告、合规审查报告、执法风险分析报告补充法规依据",
+      "用户需要将业务问题、治理问题、台账问题或通知要求匹配到法律法规条文",
+      "用户要求返回可回溯的法规名称、条号、正文、发布机关、日期和来源路径",
+      "用户问题涉及消防安全、安全生产、城市治理、行政执法、审批、监管、处罚、管理责任等依据检索"
+    ],
+    "negative_triggers": [
+      "用户只是闲聊或解释概念，且不需要检索政策法规依据",
+      "用户要求联网搜索最新新闻、网页公告或外部网站内容，且这些内容不在本地 ES 索引中",
+      "用户要求解析 Excel、PDF、Word、图片、音视频等文件本身，应先使用文件解析或数据处理 Skill",
+      "用户要求生成图表、统计分析或可视化，应使用数据分析或图表类 Skill",
+      "用户要求写正式公文、报告、通知、讲话稿，本 Skill 只能提供法规依据，不负责完整文书生成",
+      "用户要求创建 ES 索引、导入数据、维护集群或生产级 ES 运维，本 Skill 主要用于检索",
+      "用户查询国外法律、案例裁判文书、公司信息、新闻资讯，除非这些数据已导入当前政策法规 ES 索引"
+    ],
+    "keywords": [
+      "法律依据",
+      "法规依据",
+      "政策依据",
+      "执法依据",
+      "处罚依据",
+      "监管依据",
+      "合规依据",
+      "现行有效",
+      "条文",
+      "第几条",
+      "规定",
+      "法律法规",
+      "政策文件",
+      "发布机关",
+      "发布日期",
+      "实施日期",
+      "效力状态",
+      "法规类别",
+      "消防安全",
+      "安全生产",
+      "城市治理",
+      "行政执法",
+      "审批",
+      "处罚",
+      "管理责任",
+      "合规风险",
+      "执法风险",
+      "可回溯来源",
+      "Elasticsearch",
+      "ES 索引",
+      "本地法规库"
+    ],
+    "anti_keywords": [
+      "联网搜索",
+      "新闻搜索",
+      "网页搜索",
+      "图表生成",
+      "数据可视化",
+      "Excel 分析",
+      "PDF 解析",
+      "Word 解析",
+      "图片识别",
+      "公文写作",
+      "讲话稿",
+      "ES 运维",
+      "索引创建",
+      "数据导入",
+      "国外法律",
+      "裁判文书检索",
+      "公司信息查询"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "law-local-retrieval 是基于 Elasticsearch 的政策法规条文检索 Skill，用于访问已经建立好的政策法规条文级索引，完成中国法律法规、政策文件、具体条文、政策依据、执法依据和合规依据的检索。核心能力包括根据用户问题检索相关政策法规条文，根据法规名称、条号、法规类别、效力状态、发布日期、实施日期、发布机关等元数据过滤，并返回条文正文、法规名称、条号、发布机关、发布日期、实施日期、效力状态、来源路径等可回溯信息。本 Skill 适用于查询某部法律法规或政策文件的具体条文，查询治理、执法、监管、审批、处罚问题对应的法律法规依据，查询现行有效依据、发布机关、发布日期和实施日期，并为政策分析报告、合规审查报告、执法风险分析报告提供法规检索支撑。不适用于闲聊、普通概念解释、联网搜索、文件解析、图表生成、正式文书写作、ES 运维和数据入库。Elasticsearch 索引中每条文档通常对应一条法律法规条文，常用字段包括 id、title、content、page_content、law_name、article_no、article_number、category、validity_status、publish_date、effective_date、office、office_level、office_category、effective_period、source_path、metadata 和 vector-text-embedding-v4。默认返回 rank、score、id、title、law_name、article_no、article_number、category、validity_status、publish_date、effective_date、office、office_level、content、source_path、part_title、chapter_title、section_title，不应返回向量字段、大段重复字段、调试 highlight 字段或不必要的完整 metadata。核心脚本为 scripts/es_policy_search.py，支持普通关键词检索、按法规名称过滤、按条号过滤、按法规类别过滤、按效力状态过滤、按发布机关过滤、按发布日期范围过滤、按实施日期范围过滤、分页、返回条数控制和 JSON 格式化输出。基础调用为 cd /mnt/skills/custom/policies-regulations/law-local-retrieval && python3 scripts/es_policy_search.py --query \"<用户问题或关键词>\" --top-k 5 --pretty。健康检查脚本 scripts/es_health_check.py 用于检查 ES 服务是否可访问，通常只在用户要求检查 ES、检索连接错误、脚本超时或出现 HTTP 错误时调用。Mapping 查看脚本 scripts/es_get_mapping.py 用于查看索引字段结构，通常只在初次配置、检索结果为空、字段过滤不生效、字段类型不确定、新增查询参数或用户明确要求查看索引结构时调用。LLM 参数选择规则为：用户给出具体法规名称时使用 --law-name；给出具体条号时使用 --article-no 或 --article-number；要求现行有效时使用 --validity-status \"有效\"；要求某类法规时使用 --category；要求某发布机关时使用 --office；要求某时间段时使用日期范围参数；只描述业务问题时提取核心关键词使用 --query；要求报告或分析时先检索法规依据，再基于条文做分析。重要约束包括：本 Skill 只检索当前 ES 索引中已有数据，不保证覆盖所有最新法规；返回检索结果不等同最终法律意见；检索不到结果时不得编造条文；正式法律意见、重大执法决策和处罚决定应由专业人员复核；默认优先返回现行有效、相关度高、可回溯的法规依据。"
+  },
+  "execution": {
+    "required_tools": [
+      "python3",
+      "elasticsearch",
+      "scripts/es_policy_search.py"
+    ],
+    "optional_tools": [
+      "scripts/es_health_check.py",
+      "scripts/es_get_mapping.py",
+      "POLICY_ES_INDEX",
+      "POLICY_ES_URL",
+      "POLICY_ES_USERNAME",
+      "POLICY_ES_PASSWORD"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "chinese-policy-analysis",
+      "china-legal-issue-analysis",
+      "china-legal-consultation",
+      "china-contract-review",
+      "data-analysis",
+      "chart-visualization",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "policy_regulation_retrieval",
+    "prefer_when": [
+      "用户明确要求查询法律依据、法规依据、政策依据、执法依据、处罚依据或合规依据",
+      "用户明确要求查询某部法律法规或政策文件的具体条文、条号、发布机关、发布日期、实施日期或效力状态",
+      "用户要求返回可回溯的法规条文来源，用于报告、合规审查或执法风险分析",
+      "用户问题需要先检索现行有效法规条文，再进行政策分析、法律分析或合规判断",
+      "用户提到消防安全、安全生产、城市治理、行政执法、审批监管、处罚程序等并要求依据支撑"
+    ],
+    "defer_when": [
+      "用户只要求政策执行力度、落地可能性或政策走向判断而不需要检索条文时，转给 chinese-policy-analysis",
+      "用户提供具体案件事实并要求请求权基础、争议焦点或诉讼仲裁策略时，转给 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求逐条审查时，转给 china-contract-review",
+      "用户只是当事人视角提出轻量法律咨询时，转给 china-legal-consultation",
+      "用户主要要求解析文件、分析表格或生成图表时，先转给文件解析、data-analysis 或 chart-visualization",
+      "用户要求联网搜索最新外部网页或新闻，而不是检索本地 ES 法规索引时，转给网络搜索类能力"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/law-local-retrieval",
+    "skill_md_path": "skills/custom/policies-regulations/law-local-retrieval/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "law-local-retrieval"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "电动自行车违规停放和飞线充电涉及哪些法律法规依据？",
+        "should_route": true,
+        "reason": "用户要求检索治理问题对应的法律法规依据"
+      },
+      {
+        "query": "《中华人民共和国消防法》中关于占用疏散通道的规定是哪一条？",
+        "should_route": true,
+        "reason": "用户指定法规名称并询问具体条文"
+      },
+      {
+        "query": "请检索现行有效的安全生产事故隐患排查治理相关法律依据",
+        "should_route": true,
+        "reason": "用户要求检索现行有效法规依据"
+      },
+      {
+        "query": "行政执法过程中如果未履行告知程序，可能违反哪些法律规定？",
+        "should_route": true,
+        "reason": "用户要求检索行政执法程序相关法律依据"
+      },
+      {
+        "query": "请根据电动自行车整治台账补充法规依据，并分析执法合规风险",
+        "should_route": true,
+        "reason": "用户要求为业务问题匹配法规依据并支撑合规风险分析"
+      },
+      {
+        "query": "请分析这项政策未来一年能否真正落地，地方政府会不会认真执行",
+        "should_route": false,
+        "prefer_skill": "chinese-policy-analysis",
+        "reason": "该请求主要是政策执行强度和政策走向分析，不是法规条文检索"
+      },
+      {
+        "query": "请逐条审查这份采购合同的付款和违约责任条款",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同审查，不是政策法规检索"
+      },
+      {
+        "query": "请把这个 Excel 台账做成图表，统计各区问题数量",
+        "should_route": false,
+        "prefer_skill": "data-analysis",
+        "reason": "该请求主要是表格统计和可视化，不是法规依据检索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

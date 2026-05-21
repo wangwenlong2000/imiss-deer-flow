@@ -1,0 +1,248 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "litigation-analysis",
+    "name": "litigation-analysis",
+    "description": "诉讼分析 Skill，用于对起诉状、判决书、庭审笔录及辅助诉讼材料进行结构化深度分析，生成判决书内部版分析报告、研究课题清单、客户版案件概览、庭审复盘报告和上诉再审决策支持。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "litigation",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "litigation_analysis",
+      "judgment_analysis",
+      "first_instance_judgment_analysis",
+      "second_instance_judgment_analysis",
+      "appeal_retrial_decision_support",
+      "complaint_evidence_analysis",
+      "hearing_transcript_analysis",
+      "litigation_strategy_assessment",
+      "case_fact_extraction",
+      "court_reasoning_analysis",
+      "client_case_overview_generation"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "judgment",
+      "complaint",
+      "appeal_petition",
+      "defense_statement",
+      "hearing_transcript",
+      "evidence_materials",
+      "litigation_document"
+    ],
+    "output_types": [
+      "internal_litigation_analysis_report",
+      "research_topic_list",
+      "client_case_overview",
+      "hearing_review_report",
+      "appeal_retrial_assessment",
+      "litigation_strategy_note",
+      "case_fact_chain",
+      "court_reasoning_summary"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：litigation-analysis\n描述：诉讼分析 Skill。适用于用户提供中国诉讼案件材料，尤其是一审判决书、二审判决书、起诉状、证据材料、上诉状、答辩状、庭审笔录等文件，并希望进行结构化诉讼分析、判决书深度解读、庭审复盘、上诉或再审决策支持、客户版案件说明、研究课题提炼的场景。本 Skill 的核心处理对象是判决书，能够抽取事实认定链条、法院说理逻辑、争议焦点、证据采信、法律适用、判决主文、诉讼费用、上诉权利，并评估上诉或再审可行性。也支持起诉状与证据分析，用于诉讼起点的诉讼请求分析、事实主张梳理、证据评估和风险识别；支持庭审笔录分析，用于归纳争议焦点、证据质证情况、法官提问倾向、时限事项和下一步策略建议。输出体系包括判决书内部版深度分析报告、研究版法律问题清单、客户版案件概览，以及庭审复盘分析报告。不适用于普通法律咨询、首次法条检索、合同逐条审查、法律服务方案营销文档生成、法律问答提取或法律文本格式化；这些任务应分别交给 china-legal-consultation、law-local-retrieval、china-contract-review、legal-proposal-generator、legal-qa-extractor 或 legal-text-format。",
+    "positive_triggers": [
+      "用户提供一审判决书或二审判决书，希望分析判决结果、法院说理和后续上诉再审可能性",
+      "用户要求对判决书进行深度分析，生成内部版、研究版和客户版输出",
+      "用户提供起诉状和证据材料，希望快速评估案件基础、诉讼请求、事实主张、证据缺口和风险",
+      "用户提供庭审笔录、录音转写或庭审记录，希望生成庭审复盘分析报告",
+      "用户要求分析争议焦点、法院认定、事实认定链条、证据采信和法律适用逻辑",
+      "用户需要判断是否上诉、是否申请再审、上诉再审理由是否成立",
+      "用户要求从判决书中提炼裁判要点、实务启示或研究课题",
+      "用户同时提供判决书、起诉状、上诉状、答辩状等辅助材料，希望综合理解案件"
+    ],
+    "negative_triggers": [
+      "用户只是提出轻量法律咨询问题，希望知道怎么办，应使用 china-legal-consultation",
+      "用户需要基于案件事实进行一般请求权基础、争议焦点、证据策略分析，但未提供判决书、庭审笔录等诉讼文档时，优先使用 china-legal-issue-analysis",
+      "用户提供完整合同文本并要求逐条审查、红线修改或替换条款，应使用 china-contract-review",
+      "用户要求首次检索法律法规、司法解释、政策文件或法律依据，应使用 law-local-retrieval",
+      "用户要求根据案件材料生成诉讼服务方案、客户沟通报告或法律服务建议书，应使用 legal-proposal-generator",
+      "用户要求从律师客户沟通记录中提取可复用问答，应使用 legal-qa-extractor",
+      "用户只要求格式化判决书或案例文本为 Markdown，应使用 legal-text-format"
+    ],
+    "keywords": [
+      "诉讼分析",
+      "判决书分析",
+      "一审判决",
+      "二审判决",
+      "上诉",
+      "再审",
+      "上诉再审决策",
+      "判决结果",
+      "法院认定",
+      "法院说理",
+      "事实认定",
+      "证据采信",
+      "法律适用",
+      "争议焦点",
+      "判决主文",
+      "诉讼费用",
+      "上诉权利",
+      "起诉状",
+      "证据材料",
+      "上诉状",
+      "答辩状",
+      "庭审笔录",
+      "庭审复盘",
+      "质证意见",
+      "法官提问",
+      "时限事项",
+      "裁判要点",
+      "实务启示",
+      "研究课题清单",
+      "客户版案件概览",
+      "内部版分析报告"
+    ],
+    "anti_keywords": [
+      "法律咨询",
+      "怎么办",
+      "查法条",
+      "法律依据是什么",
+      "合同审查",
+      "逐条审查",
+      "红线修改",
+      "法律服务方案",
+      "咨询报告",
+      "客户沟通报告",
+      "问答提取",
+      "FAQ",
+      "文本格式化",
+      "Markdown 格式化",
+      "劳动仲裁申请书模板",
+      "离婚协议模板"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "litigation-analysis 是诉讼分析工具，支持起诉状、判决书和庭审笔录全流程分析。它包含三种诉讼文档分析场景。场景一是起诉状与证据分析，针对案件初期的起诉状和证据材料进行快速评估和策略制定，内部版侧重诉讼请求分析、事实主张梳理、证据评估和风险识别，客户版侧重案件情况说明、预期风险和补充证据建议。场景二是判决书分析，这是核心功能，针对一审或二审判决书进行智能分析，生成内部版、研究版和客户版三层递进输出。内部版面向主办律师，全面深入、专业论证，帮助快速掌握核心要点；研究版面向律师或研究人员，基于内部版识别法律问题并生成研究课题；客户版面向非法律专业人士，基于内部版简化呈现。核心目标是理解判决发生了什么，决定是否上诉或再审，并帮助赢得客户或案件。场景三是庭审笔录分析，针对庭审结束后的笔录文字稿、录音转写、人工记录或法院系统导出内容，生成结构化庭审复盘分析报告，包含争议焦点归纳、证据质证情况、法官提问分析、时限事项整理和下一步策略建议。主要处理对象是判决书，包括一审判决和二审判决，需要完整抽取事实认定链条、法律逻辑和判决结果。辅助参考文件包括起诉状、上诉状、答辩状和庭审笔录，其中起诉状、上诉状、答辩状不是主要处理对象，仅用于帮助理解判决书内容；庭审笔录可以独立处理生成庭审复盘分析报告。核心特性包括判决书分析、庭审笔录分析、辅助参考整合、结构化深度抽取、递进输出体系和决策支持导向。通用处理框架适用于所有诉讼案件，核心能力包括判决书结构化深度抽取、辅助文件常规分析、争议焦点识别与法院认定分析、上诉再审策略建议和胜诉可能性评估。现有专用领域扩展包括知识产权与不正当竞争，可参考 references/domains/01-ip-case-dimensions.md。参考文档包括 references/complaint-evidence-extraction.md、references/judgment-first-instance-extraction.md、references/judgment-second-instance-extraction.md、references/hearing-transcript-extraction.md，以及 templates/template-client.md、templates/template-research.md、templates/template-internal.md。判决书输出生成顺序为内部版、研究版、客户版。内部版核心包括核心要点速览、事实与证据、争议焦点与法院认定、判决结果详解、法律分析与策略建议、裁判要点与实务启示。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "local_templates",
+      "structured_writing"
+    ],
+    "optional_tools": [
+      "references/complaint-evidence-extraction.md",
+      "references/judgment-first-instance-extraction.md",
+      "references/judgment-second-instance-extraction.md",
+      "references/hearing-transcript-extraction.md",
+      "references/domains/01-ip-case-dimensions.md",
+      "templates/template-internal.md",
+      "templates/template-research.md",
+      "templates/template-client.md",
+      "document_reader",
+      "docx_reader",
+      "pdf_reader",
+      "markdown_writer"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "china-legal-issue-analysis",
+      "legal-proposal-generator",
+      "legal-briefing",
+      "law-local-retrieval",
+      "legal-text-format",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 78,
+    "conflict_group": "china_litigation_analysis",
+    "prefer_when": [
+      "用户提供判决书、一审判决、二审判决，并要求深度分析、上诉或再审判断",
+      "用户目标是从判决书中提取事实认定、法院说理、争议焦点、证据采信、法律适用和判决结果",
+      "用户要求生成内部版深度分析报告、研究课题清单或客户版案件概览",
+      "用户提供庭审笔录、庭审记录或录音转写，并要求庭审复盘、质证分析、法官提问分析或时限事项整理",
+      "用户提供起诉状和证据材料，并要求诉讼起点的案件基础评估、风险识别和证据缺口判断"
+    ],
+    "defer_when": [
+      "用户未提供判决书、庭审笔录或诉讼文档，只是要求一般法律问题分析时，转给 china-legal-issue-analysis",
+      "用户只是需要当事人视角的轻量法律咨询时，转给 china-legal-consultation",
+      "用户提供完整合同文本并要求合同条款审查时，转给 china-contract-review",
+      "用户请求本质是检索法律依据、法规条文、司法解释或政策文件原文时，转给 law-local-retrieval",
+      "用户要求根据案件材料生成服务方案、咨询报告、客户沟通报告等法律服务文档时，转给 legal-proposal-generator",
+      "用户只是要求清理或格式化判决书文本时，转给 legal-text-format"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/litigation-analysis",
+    "skill_md_path": "skills/custom/policies-regulations/litigation-analysis/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "litigation-analysis"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请分析这份一审判决书，判断是否有上诉空间，并生成内部版和客户版报告",
+        "should_route": true,
+        "reason": "用户提供判决书并要求上诉空间判断和递进输出"
+      },
+      {
+        "query": "这是一份二审判决书，请帮我提炼法院说理、争议焦点和再审可能性",
+        "should_route": true,
+        "reason": "用户要求二审判决书深度分析和再审决策支持"
+      },
+      {
+        "query": "请根据这份庭审笔录生成庭审复盘报告，重点分析法官提问和质证情况",
+        "should_route": true,
+        "reason": "用户提供庭审笔录并要求庭审复盘分析"
+      },
+      {
+        "query": "请根据起诉状和证据材料评估案件基础、证据缺口和初步诉讼风险",
+        "should_route": true,
+        "reason": "用户要求起诉状与证据材料的诉讼起点分析"
+      },
+      {
+        "query": "请分析这个案件的请求权基础和证据策略",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "未明确提供判决书或庭审笔录，更像一般法律问题深度分析"
+      },
+      {
+        "query": "查一下民事诉讼法关于再审期限的规定",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是法律条文检索"
+      },
+      {
+        "query": "请把这份判决书格式化成规范 Markdown",
+        "should_route": false,
+        "prefer_skill": "legal-text-format",
+        "reason": "该请求是文本格式化，不是诉讼分析"
+      },
+      {
+        "query": "请根据这些案件材料生成一份诉讼服务方案",
+        "should_route": false,
+        "prefer_skill": "legal-proposal-generator",
+        "reason": "该请求目标是法律服务文档生成"
+      }
+    ],
+    "last_eval": {}
+  }
+}

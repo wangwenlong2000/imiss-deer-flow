@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "legal-text-format",
+    "name": "legal-text-format",
+    "description": "法律文本格式化 Skill，用于将已经获取的法律条文、法律案例、裁判文书或粘贴文本清理并转换为规范 Markdown 格式，保留实质法律内容，删除推广冗余信息。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "legal_text_processing",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "legal_text_formatting",
+      "legal_article_markdown_formatting",
+      "legal_case_markdown_formatting",
+      "legal_text_cleanup",
+      "legal_document_normalization",
+      "case_text_cleanup",
+      "statute_text_cleanup",
+      "markdown_conversion",
+      "legal_text_archive"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "txt",
+      "legal_article_text",
+      "legal_case_text",
+      "judgment_text",
+      "retrieved_text",
+      "pasted_text",
+      "local_file"
+    ],
+    "output_types": [
+      "formatted_markdown",
+      "cleaned_legal_text",
+      "archived_raw_markdown",
+      "archived_formatted_markdown",
+      "metadata_json",
+      "content_validation_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：legal-text-format\n描述：法律文本格式化工具 Skill。适用于用户已经提供或其他抓取类 Skill 已经获取法律条文、法律案例、裁判文书、典型案例、司法案例、法规文本、法条汇编或粘贴的法律文本，并希望将其转换为规范 Markdown 格式、清理推广冗余信息、统一标点符号、规范标题层级、整理空行、保留法律实质内容和建立归档文件的场景。本 Skill 可自动判断文本类型是法律条文还是法律案例。法律条文格式化包括为章添加二级标题、为第X条加粗、规范条文之间空行、保留全部条款内容。法律案例格式化包括将案例序号或名称设为二级标题、将基本案情、裁判结果、典型意义等章节设为三级标题、统一中文标点、数字半角化、删除文章介绍、作者信息、引言、目录、二维码、公众号介绍和推广内容，但必须完整保留案例标题、案号、法院、案情、裁判、裁判要旨、典型意义等法律内容。本 Skill 只负责格式化和内容清理，不负责从网页、微信公众号或外部链接抓取内容；如果用户提供链接，应先由 wechat-article-fetch 或其他抓取类能力获取文本，再交给本 Skill 格式化。",
+    "positive_triggers": [
+      "用户直接粘贴法律条文，希望整理成 Markdown",
+      "用户提供已经抓取的法律案例文本，希望清理推广内容并规范格式",
+      "用户要求把民法典、刑法、行政法规、司法解释等法条文本格式化",
+      "用户要求整理最高法典型案例、裁判文书、案例汇编或法律案例集",
+      "用户要求删除公众号推广、二维码、作者介绍、相关文章推荐等冗余内容",
+      "用户要求统一法律文本标题层级、标点符号、数字格式和空行",
+      "用户要求保存 raw.md、formatted.md，并进行内容完整性验证",
+      "用户希望建立法律文本知识库前先清洗和规范化文本"
+    ],
+    "negative_triggers": [
+      "用户只提供网页链接、微信公众号链接或普通 URL，尚未抓取正文内容，应先使用抓取类 Skill",
+      "用户要求检索法律法规原文、查询第几条或查找法律依据，应使用 law-local-retrieval",
+      "用户要求分析法律问题、请求权基础、争议焦点或诉讼策略，应使用 china-legal-issue-analysis",
+      "用户要求合同逐条审查、风险识别或修改建议，应使用 china-contract-review",
+      "用户要求将已有法律材料整理成备忘录、报告或风险清单，应使用 legal-briefing",
+      "用户要求从律师客户沟通记录中提取问答对，应使用 legal-qa-extractor",
+      "用户要求写法律服务方案、咨询报告或案件分析摘要，应使用 legal-proposal-generator"
+    ],
+    "keywords": [
+      "法律文本格式化",
+      "法条格式化",
+      "案例格式化",
+      "Markdown 格式",
+      "清理文本",
+      "删除推广",
+      "公众号推广",
+      "二维码",
+      "法律条文",
+      "法律案例",
+      "典型案例",
+      "裁判文书",
+      "最高法案例",
+      "民法典",
+      "刑法",
+      "司法解释",
+      "章",
+      "节",
+      "第X条",
+      "案号",
+      "基本案情",
+      "裁判结果",
+      "典型意义",
+      "裁判要旨",
+      "中文标点",
+      "半角数字",
+      "空行规范",
+      "raw.md",
+      "formatted.md",
+      "内容完整性验证",
+      "法律文本知识库"
+    ],
+    "anti_keywords": [
+      "网页抓取",
+      "微信公众号抓取",
+      "URL 抓取",
+      "查法条",
+      "法律依据是什么",
+      "政策法规检索",
+      "案件分析",
+      "请求权基础",
+      "争议焦点",
+      "合同审查",
+      "法律备忘录",
+      "合规简报",
+      "问答提取",
+      "法律服务方案",
+      "咨询报告"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "legal-text-format 是法律文本格式化工具，用于将法律条文或法律案例转换为规范 Markdown 格式，删除推广冗余信息，自动识别文本类型并应用相应格式化规则。核心职责是格式化和内容清理，不包含内容抓取能力。典型协作流程是用户请求格式化网页上的法律文本时，先由 wechat-article-fetch 或其他抓取工具获取原始文本内容，再由 legal-text-format 对已获取文本进行格式化和清理。核心原则是内容完整性保证，除格式调整和去除推广内容外，所有法律案例和法条的实质内容必须完整保留，不得遗漏。工作流程包括分析文本类型、保存原始内容、格式化文本、保存并验证。分析文本类型时应判断是法律条文还是法律案例，识别章节、条款、案号、案例标题、案情、裁判结果、典型意义等结构，并提取主题用于文件命名。保存原始内容时将输入原文保存到 archive/{YYYYMMDD_HHMMSS}_{主题}/ 目录下，文件名为 {YYYYMMDD}_{主题}_raw.md，用于溯源和比对验证。格式化时应一次性处理完整文本，不进行分段。法律条文格式化规则包括章前添加二级 Markdown 标题、不同条文之间添加空行、每一条内部换行不应有多余空行、第X条加粗、如果一段文字最后没有句号或分号则删除后方回车，并保持所有条文完整。法律案例格式化规则包括英文标点替换为中文标点，案例序号或名称前添加二级标题，每个案例章节前添加三级标题，章节内部连续换行数不超过两个，清理多余空行，数字格式调整为半角，仅保留从第一个案例到最后一个案例的内容，删除前面的文章介绍、作者信息、引言、目录，删除底部宣传推广、二维码、公众号介绍和相关文章推荐，只保留案例标题、案号、基本案情、裁判结果、典型意义等案例本身内容，并保持实质内容完整。保存格式化文档时与 raw.md 放在同一归档目录下，文件名为 {YYYYMMDD}_{主题}_formatted.md。内容完整性验证包括对比原始文档和格式化文档字数，允许因删除推广内容产生约正负 10% 差异，确认所有法律条文或案例标题存在，确认案号、法院、裁判要旨等关键内容完整保留，并在输出文档元信息中注明验证结果。参考文档为 references/examples.md，包含多个法律案例格式化示例。输出文档结构包括文档标题、元信息、内容验证和格式化正文。质量标准包括标点符号统一、数字格式统一、层级结构清晰、空行规范和内容完整性。适用场景包括整理法律条文汇编、规范化法律案例集、准备法律学习材料、建立法律文本知识库、清理从网页抓取的法律文本。本 Skill 接受已抓取文本内容、用户粘贴文本和本地 Markdown 或文本文件，不接受网页链接；链接应由专门抓取类 Skill 处理。"
+  },
+  "execution": {
+    "required_tools": [
+      "text_processing",
+      "markdown_writer",
+      "archive_writer",
+      "local_references"
+    ],
+    "optional_tools": [
+      "references/examples.md",
+      "document_reader",
+      "content_validation",
+      "wechat-article-fetch",
+      "webpage_fetcher"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "wechat-article-fetch",
+      "law-local-retrieval",
+      "legal-briefing",
+      "legal-qa-extractor",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 56,
+    "conflict_group": "china_legal_text_processing",
+    "prefer_when": [
+      "用户已经提供法律条文、法律案例、裁判文书或已抓取的法律文本内容",
+      "用户目标是格式化为 Markdown、清理推广信息、规范标题层级和空行",
+      "用户要求保留法律实质内容并删除二维码、公众号介绍、作者信息、相关文章推荐等冗余内容",
+      "用户要求保存原始 raw 文件和格式化 formatted 文件，并进行完整性验证",
+      "用户准备建立法律文本知识库、案例集或学习材料，需要先进行格式清洗"
+    ],
+    "defer_when": [
+      "用户只提供网页链接、微信公众号链接或 URL，尚未提供正文内容时，先转给抓取类 Skill",
+      "用户请求本质是首次检索法律法规、政策文件或司法解释原文时，转给 law-local-retrieval",
+      "用户请求本质是法律问题分析、案件争议分析或请求权基础分析时，转给 china-legal-issue-analysis",
+      "用户请求本质是合同审查和修改时，转给 china-contract-review",
+      "用户请求本质是把已有法律材料整理成备忘录、简报或风险清单时，转给 legal-briefing",
+      "用户请求本质是从律师客户沟通记录中提取问答对时，转给 legal-qa-extractor"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/legal-text-format",
+    "skill_md_path": "skills/custom/policies-regulations/legal-text-format/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "legal-text-format"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请把我粘贴的这段民法典条文整理成规范 Markdown 格式",
+        "should_route": true,
+        "reason": "用户提供法律条文并要求 Markdown 格式化"
+      },
+      {
+        "query": "这是一组最高法典型案例，请删除公众号推广内容并整理成案例集格式",
+        "should_route": true,
+        "reason": "用户要求对法律案例文本进行清理和格式化"
+      },
+      {
+        "query": "帮我把这些裁判文书内容统一标题层级、标点和空行，保留案号和裁判要旨",
+        "should_route": true,
+        "reason": "用户要求规范化法律案例或裁判文本"
+      },
+      {
+        "query": "我已经抓取好了微信公众号文章正文，请只保留案例内容并格式化为 Markdown",
+        "should_route": true,
+        "reason": "用户已提供抓取后的正文，目标是法律文本格式化"
+      },
+      {
+        "query": "请抓取这个微信公众号链接并格式化",
+        "should_route": false,
+        "prefer_skill": "wechat-article-fetch",
+        "reason": "用户提供的是链接，应先由抓取类 Skill 获取正文"
+      },
+      {
+        "query": "查一下消防法关于疏散通道的条文原文",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求是法律条文检索，不是格式化已有文本"
+      },
+      {
+        "query": "请把上面检索到的法规依据整理成法律备忘录",
+        "should_route": false,
+        "prefer_skill": "legal-briefing",
+        "reason": "该请求是法律材料整理成备忘录，不是单纯格式化"
+      },
+      {
+        "query": "请从这段律师客户聊天中提取 FAQ 并脱敏",
+        "should_route": false,
+        "prefer_skill": "legal-qa-extractor",
+        "reason": "该请求是问答提取与脱敏，不是法律文本格式化"
+      }
+    ],
+    "last_eval": {}
+  }
+}

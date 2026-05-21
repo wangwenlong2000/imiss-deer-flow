@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "code2patent",
+    "name": "code2patent",
+    "description": "代码仓库转专利交付 Skill，用于从已开发代码项目中提取技术实现证据，围绕候选专利方案生成技术交底书、权利要求布局卡、权利要求-代码证据矩阵和中国发明专利初稿。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "patent",
+      "software_patent",
+      "china_law",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "code_to_patent",
+      "patent_disclosure_generation",
+      "software_patent_drafting",
+      "technical_disclosure_drafting",
+      "claim_layout_generation",
+      "claim_evidence_mapping",
+      "patentable_solution_mining",
+      "code_evidence_extraction",
+      "invention_patent_draft_generation",
+      "patent_draft_self_check"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "txt",
+      "docx",
+      "pdf",
+      "code",
+      "source_code",
+      "project_directory",
+      "repository",
+      "prd",
+      "technical_document",
+      "patent_idea_list"
+    ],
+    "output_types": [
+      "technical_disclosure",
+      "patent_disclosure",
+      "claim_layout_card",
+      "claim_evidence_matrix",
+      "patentable_solution_list",
+      "invention_patent_draft",
+      "patent_draft_self_checklist",
+      "research_and_development_question_list",
+      "archive_files"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：code2patent\n描述：代码仓库转专利交付 Skill。适用于用户已经开发完成代码项目，希望从代码仓库、核心模块、技术文档、PRD、候选专利方案或创新点说明中提取技术实现证据，并生成面向研发人员和专利代理师协作的中国发明专利材料。本 Skill 可读取代码仓库并识别项目结构、入口文件、核心模块、数据流、调用链、配置项、自研代码与第三方依赖边界；可将人工总结的候选专利方案映射到具体代码实现；可提取 A/B/C 三级代码证据；可生成项目边界与依赖画像、项目代码技术盘点、方案-代码证据映射表、技术交底书、权利要求布局卡、权利要求-代码证据矩阵、中国发明专利初稿、发明专利初稿自检表和研发补充问题清单。典型问题包括：读取这个代码仓库帮我写技术交底书、把这个专利方案映射到代码实现、从代码中挖掘可申请专利的技术方案、为专利代理师准备权利要求布局、根据代码生成中国发明专利初稿、判断哪些技术特征有代码证据、生成权利要求和代码证据矩阵。本 Skill 默认法域为中国发明专利，默认采用两步写作链路：先生成权利要求布局卡和权利要求-代码证据矩阵，再生成发明专利初稿。若用户没有人工确认的候选专利方案清单，应先进入候选方案挖掘模式，只输出候选可专利方案清单、优先级建议和待人工筛选记录，不应直接生成技术交底书或专利初稿。不适用于单纯法律咨询、合同审查、案件争议分析、政策法规检索、普通代码调试或代码重构任务。",
+    "positive_triggers": [
+      "用户提供代码仓库或核心代码模块，希望生成技术交底书",
+      "用户提供候选专利方案，希望映射到具体代码实现",
+      "用户希望从代码中挖掘可申请专利的技术方案",
+      "用户要求生成专利代理师可用的权利要求布局卡",
+      "用户要求生成权利要求-代码证据矩阵",
+      "用户希望根据软件、算法、Agent 系统或工程实现生成中国发明专利初稿",
+      "用户希望区分哪些技术特征有直接代码证据、间接证据或仍需研发确认",
+      "用户要求把工程实现转换为专利语言、方法步骤、系统模块、装置单元或存储介质表述",
+      "用户要求输出专利初稿自检表、研发补充问题清单或归档交付文件"
+    ],
+    "negative_triggers": [
+      "用户只是要求修 bug、解释代码、重构代码或优化性能，不涉及专利交付",
+      "用户只需要一般法律咨询、法律关系判断、维权路径或证据建议，应使用 china-legal-consultation",
+      "用户需要具体案件事实分析、请求权基础、争议焦点或诉讼仲裁策略，应使用 china-legal-issue-analysis",
+      "用户提供合同文本要求逐条审查或修改，应使用 china-contract-review",
+      "用户仅要求检索法律法规、政策文件或司法解释原文，应使用政策法规检索类 Skill",
+      "用户要求撰写商业计划书、技术白皮书或产品介绍，而不是专利交底书或发明专利初稿",
+      "用户没有代码、技术说明、创新点或候选方案，且不允许先进行候选方案挖掘"
+    ],
+    "keywords": [
+      "代码转专利",
+      "代码仓库",
+      "技术交底书",
+      "专利交底书",
+      "发明专利",
+      "中国发明专利",
+      "软件专利",
+      "算法专利",
+      "Agent 系统专利",
+      "代码证据",
+      "技术实现证据",
+      "候选专利方案",
+      "可专利方案挖掘",
+      "创新点",
+      "权利要求布局",
+      "权利要求布局卡",
+      "权利要求-代码证据矩阵",
+      "专利初稿",
+      "发明专利初稿",
+      "说明书",
+      "权利要求书",
+      "说明书摘要",
+      "摘要附图",
+      "研发确认",
+      "代理师",
+      "A/B/C 证据分级",
+      "自研代码",
+      "第三方依赖",
+      "项目边界",
+      "调用链",
+      "数据流",
+      "archive 归档"
+    ],
+    "anti_keywords": [
+      "代码调试",
+      "bug 修复",
+      "代码重构",
+      "单元测试",
+      "性能优化",
+      "合同审查",
+      "法律咨询",
+      "案件分析",
+      "请求权基础",
+      "争议焦点",
+      "政策解读",
+      "法规检索",
+      "法条原文",
+      "商业计划书",
+      "产品宣传文案"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "code2patent 是代码仓库转专利交付 Skill，面向代码已经开发完成但需要把技术实现高效转交给专利代理师的场景。核心目标不是简单改写代码说明，而是把代码仓库中的真实实现方式整理成适合专利申请协作的结构化产物，并在证据充足时继续形成接近可申报版的中国发明专利初稿。推荐主模式为：代码仓库加人工总结的候选专利方案，创建 archive 归档目录，进行项目结构盘点与方案模块映射，提取代码证据与抽象技术特征，生成技术交底书，再生成 L2.5 权利要求布局卡和权利要求-代码证据矩阵，最后生成中国发明专利初稿和初稿自检表。默认法域为中国发明专利，初稿结构和摘要要求以专利审查指南中说明书、权利要求书和摘要撰写要求为基线。适用场景包括读取代码仓库后撰写技术交底书、将人工总结的专利方案映射到具体实现、从代码中挖掘可专利技术方案、为专利代理师准备权利要求布局和发明专利初稿。输入可以是代码文件、项目目录、技术描述、创新点说明、候选专利方案、PRD、产品方案、需求说明、架构文档、接口文档、测试文档和客户模板。若用户已有候选专利申请清单，进入定向检索模式，逐项建立代码映射、提取证据、生成技术交底书，并按需继续生成权利要求布局和专利初稿。若用户没有候选专利申请清单，进入候选方案挖掘模式，先读取代码仓库做项目边界与依赖画像，生成候选可专利方案清单、优先级建议和不确定点，提示用户人工筛选确认后，再进入定向检索模式。执行时应优先读取用户提供的候选方案清单、PRD、需求说明、沟通纪要、客户模板和初稿模板，再读取代码仓库中的 README、架构文档和目录说明，建立高层理解后再做项目边界与依赖画像、代码仓库盘点、候选方案映射、代码证据提取和专利语言抽象。标准工作流程包括输入材料预读、任务边界确认、创建 archive 输出目录、项目边界与依赖画像、代码仓库盘点、候选方案映射、代码证据提取、专利语言抽象、技术交底书生成、权利要求布局卡生成、权利要求-代码证据矩阵生成、发明专利初稿生成和发明专利初稿自检。模板包括 invention-patent-disclosure-template.md、invention-patent-claim-layout-template.md、invention-patent-claim-evidence-matrix-template.md、invention-patent-draft-template.md 和 invention-patent-draft-self-check-template.md。执行规范包括 project-analysis-spec.md、code-extraction-spec.md、patent-drafting-quick-reference.md 和 patent-drafting-spec.md。代码证据遵循 A/B/C 三级证据分级，一个候选方案对应一份独立证据映射，每条技术特征都要回到具体模块、调用链、数据流或配置项；无直接证据的内容不得写成既有实现；无法明确归属的第三方能力不得直接写成申请人的核心创新；A 级证据可进入独立权利要求骨架，B 级证据默认进入从属权利要求或说明书优选实施例，C 级证据只能进入待确认事项或替代实施例。输出层级包括 L1 代码证据映射、L2 技术交底书、L2.5 权利要求布局、L3 发明专利初稿和 L4 可专利方案挖掘。所有中间产物和最终产物默认保存到 skill 内部 archive/YYYY-MM-DD-主题/ 目录，便于按项目和日期回溯。注意事项包括证据优先、一个发明点一份交底书、专利申请前保密、必要时做专利检索、充分公开、两步写作默认开启、正式文本仍需专利代理师审核、效果克制、软件专利默认按发明专利组织材料、先分清自研与外部依赖、优先贴合客户模板、摘要控制在 300 字内、请求书仅做字段清单，并默认并行准备方法、系统或装置、计算机可读存储介质、计算机程序产品等保护主题草稿。"
+  },
+  "execution": {
+    "required_tools": [
+      "filesystem",
+      "local_code_repository_access",
+      "local_references",
+      "templates"
+    ],
+    "optional_tools": [
+      "git",
+      "ripgrep",
+      "python3",
+      "nodejs",
+      "archive_writer",
+      "document_reader",
+      "docx_reader",
+      "pdf_reader",
+      "patent_source_verification",
+      "web_search"
+    ],
+    "allowed_file_patterns": [
+      "*.py",
+      "*.js",
+      "*.ts",
+      "*.tsx",
+      "*.jsx",
+      "*.java",
+      "*.go",
+      "*.rs",
+      "*.cpp",
+      "*.c",
+      "*.h",
+      "*.hpp",
+      "*.cs",
+      "*.php",
+      "*.rb",
+      "*.swift",
+      "*.kt",
+      "*.scala",
+      "*.sql",
+      "*.yaml",
+      "*.yml",
+      "*.json",
+      "*.toml",
+      "*.ini",
+      "*.env.example",
+      "*.md",
+      "*.txt",
+      "*.docx",
+      "*.pdf",
+      "README*",
+      "package.json",
+      "pyproject.toml",
+      "requirements.txt",
+      "pom.xml",
+      "go.mod",
+      "Cargo.toml",
+      "Dockerfile",
+      "docker-compose*.yml"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "code-analysis",
+      "document-generation",
+      "china-legal-issue-analysis",
+      "law-regulations-rag",
+      "policy-regulation-es-search"
+    ]
+  },
+  "routing_policy": {
+    "priority": 72,
+    "conflict_group": "patent_drafting",
+    "prefer_when": [
+      "用户明确要求从代码仓库、代码文件或技术实现中生成专利技术交底书",
+      "用户要求把候选专利方案映射到代码模块、类、函数、调用链或数据流",
+      "用户要求从代码中挖掘可申请专利的技术方案",
+      "用户要求生成权利要求布局卡、权利要求-代码证据矩阵或中国发明专利初稿",
+      "用户关注软件、算法、Agent 系统、调度、记忆、鉴权、编排、缓存、回退等技术实现的专利化表达",
+      "用户要求为专利代理师准备接近可申报版的发明专利起草材料"
+    ],
+    "defer_when": [
+      "用户只要求普通代码解释、代码调试、bug 修复、重构或性能优化时，转给代码分析或开发类 Skill",
+      "用户只是提出一般法律咨询问题时，转给 china-legal-consultation",
+      "用户基于具体案件事实要求法律争议分析时，转给 china-legal-issue-analysis",
+      "用户提供合同文本要求逐条审查时，转给 china-contract-review",
+      "用户仅要求检索法律法规、政策文件、司法解释或专利审查指南原文时，转给检索类 Skill",
+      "用户要求生成正式可提交专利文件且未经过代理师审核时，应保留待代理师修订提示"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/code2patent",
+    "skill_md_path": "skills/custom/policies-regulations/code2patent/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "code2patent"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请读取这个代码仓库，围绕我们总结的三个候选专利方案生成技术交底书",
+        "should_route": true,
+        "reason": "用户明确要求从代码仓库和候选专利方案生成技术交底书"
+      },
+      {
+        "query": "帮我把这个 Agent 调度方案映射到代码实现，并整理权利要求布局卡",
+        "should_route": true,
+        "reason": "用户要求将技术方案映射到代码并生成权利要求布局"
+      },
+      {
+        "query": "这个项目里有哪些可以申请软件发明专利的点？先给我候选方案清单",
+        "should_route": true,
+        "reason": "用户要求从代码项目中挖掘可专利技术方案"
+      },
+      {
+        "query": "请根据代码证据生成权利要求-代码证据矩阵和发明专利初稿",
+        "should_route": true,
+        "reason": "用户要求生成专利起草中间产物和发明专利初稿"
+      },
+      {
+        "query": "帮我修复这个 Python 报错并优化代码结构",
+        "should_route": false,
+        "prefer_skill": "code-analysis",
+        "reason": "该请求是代码调试和优化，不涉及专利交付"
+      },
+      {
+        "query": "请审查这份采购合同的违约责任条款",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同审查，不是代码转专利"
+      },
+      {
+        "query": "对方欠我钱不还，我应该怎么起诉？",
+        "should_route": false,
+        "prefer_skill": "china-legal-consultation",
+        "reason": "该请求属于一般法律咨询或维权路径建议"
+      }
+    ],
+    "last_eval": {}
+  }
+}

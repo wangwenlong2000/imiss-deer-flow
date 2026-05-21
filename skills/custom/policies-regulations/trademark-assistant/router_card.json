@@ -1,0 +1,251 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "trademark-assistant",
+    "name": "trademark-assistant",
+    "description": "商标助手 Skill，用于面向中国商标申请提供商标类别规划、可注册性初筛、风险分级、申请材料准备、商品清单生成和商标说明撰写。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "intellectual_property",
+      "trademark",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "trademark_consultation",
+      "trademark_class_planning",
+      "registrability_prescreen",
+      "trademark_risk_assessment",
+      "trademark_application_material_preparation",
+      "goods_list_generation",
+      "trademark_description_drafting",
+      "nice_classification_lookup",
+      "trademark_application_strategy"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "image",
+      "trademark_name",
+      "trademark_design",
+      "business_description",
+      "goods_services_description",
+      "target_class"
+    ],
+    "output_types": [
+      "trademark_consultation_report",
+      "class_planning_report",
+      "registrability_prescreen_report",
+      "risk_level_assessment",
+      "application_materials",
+      "goods_list_xlsx",
+      "trademark_description_text",
+      "archive_files"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：trademark-assistant\n描述：商标助手 Skill。适用于用户围绕中国商标申请提出类别规划、可注册性初筛、商标风险分级、商标申请方案、商品服务项目选择、尼斯分类查询、商标说明撰写、商品清单生成和申请材料准备等需求的场景。本 Skill 基于尼斯分类进行商标类别规划，并结合中国《商标法》《商标法实施条例》《商标审查审理指南》等规则进行中国商标可注册性初步判断。典型问题包括：这个品牌应该注册哪些商标类别；这个商标名大概能不能注册；帮我做一个商标初筛报告；根据我的业务规划商标类别；这个商标风险高不高；客户已确定设计方案，请帮我写商标说明；帮我准备商标申请商品清单；第 35 类、第 9 类、第 42 类应该怎么选；图形商标或组合商标说明怎么写。本 Skill 可输出结构化商标咨询结论、类别规划建议、高中低风险分级、下一步行动建议、商品清单 Excel、商标说明文本，并在完成申请方案后归档到 archive 目录。不适用于替代正式法律意见、承诺注册成功率、处理复杂商标争议案件、抢注纠纷、驰名商标争议、跨类大规模冲突、商标侵权诉讼、专利分析、代码转专利、普通法律咨询或法律法规检索。",
+    "positive_triggers": [
+      "用户咨询商标应该注册哪些类别",
+      "用户询问某个商标名大概能不能注册或能不能通过初审",
+      "用户要求输出商标可注册性初筛报告",
+      "用户要求根据主营业务、产品或服务做商标类别规划",
+      "用户要求对商标申请风险进行高风险、中风险、低风险分级",
+      "用户需要准备商标申请材料、商品清单或商标说明",
+      "用户已经确认商标设计方案，需要撰写 200 字以内商标说明",
+      "用户提供图形商标或组合商标图片，需要分析构成要素并撰写商标说明",
+      "用户要求根据尼斯分类选择规范商品名称并生成可导入商标系统的 Excel 文件",
+      "用户需要将商标申请方案归档到 archive 目录"
+    ],
+    "negative_triggers": [
+      "用户要求处理复杂商标争议、抢注纠纷、驰名商标、跨类大规模冲突或商标侵权诉讼，应转人工深度审查或使用案件分析类 Skill",
+      "用户要求承诺商标注册成功率，不应由本 Skill 作出保证",
+      "用户要求正式法律意见、代理申请或官方审查结论，不应由本 Skill 替代律师或代理机构",
+      "用户要求专利文件分析、专利侵权比对或 FTO 分析，应使用 patent-analysis",
+      "用户要求从代码生成专利技术交底书或发明专利初稿，应使用 code2patent",
+      "用户要求普通法律咨询、合同审查、诉讼分析或法律法规检索，应使用对应法律类 Skill",
+      "用户只要求图像美化、Logo 设计或品牌视觉创作，而不是商标申请分析"
+    ],
+    "keywords": [
+      "商标",
+      "商标申请",
+      "商标注册",
+      "商标类别",
+      "类别规划",
+      "尼斯分类",
+      "Nice Classification",
+      "商品服务项目",
+      "规范商品名称",
+      "类似群",
+      "可注册性",
+      "商标初筛",
+      "商标风险",
+      "高风险",
+      "中风险",
+      "低风险",
+      "商标说明",
+      "图形商标",
+      "组合商标",
+      "文字商标",
+      "商标设计",
+      "申请材料",
+      "商品清单",
+      "导入商品信息.xlsx",
+      "商标法",
+      "商标审查审理指南",
+      "商标代理",
+      "商标咨询",
+      "申请方案"
+    ],
+    "anti_keywords": [
+      "商标侵权诉讼",
+      "抢注纠纷",
+      "驰名商标争议",
+      "商标无效宣告",
+      "商标异议答辩",
+      "承诺注册成功",
+      "专利分析",
+      "专利侵权",
+      "FTO",
+      "代码转专利",
+      "技术交底书",
+      "合同审查",
+      "法律咨询",
+      "案件分析",
+      "法条检索",
+      "Logo 设计",
+      "图片美化"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "trademark-assistant 是面向中国商标申请的商标助手 Skill，用于提供商标类别规划和可注册性初筛的标准化服务流程，并直接产出可交付给客户或内部团队的结构化结论。主要适用场景为中国商标申请，引用的法律法规包括《中华人民共和国商标法》《商标法实施条例》《商标审查审理指南》等中国国内法律法规。尼斯分类是国际通用商标分类标准，因此类别规划部分可用于国际商标申请参考，但可注册性初筛和审查标准分析仅适用于中国商标申请。触发场景包括咨询应该注册哪些类别、这个商标名大概能不能过、需要输出可复用商标初筛报告、需要对咨询进行风险分级并给出下一步行动、客户已确定设计方案需要撰写商标说明、需要准备商标申请材料如商品清单和商标说明。服务边界包括输出为初步研判，不替代律师或代理机构正式法律意见，不承诺注册成功率，对复杂争议如抢注、驰名商标、跨类大规模冲突直接升级为人工深度审查。输入收集应优先参考 references/service-intake-checklist.md，缺失关键信息时先提问，不直接下结论。最少输入包括申请主体与主营业务、拟申请商标文字图形组合、当前已知目标类别或使用场景。执行流程分为咨询与规划、申请材料准备两个阶段。咨询与规划阶段先识别请求类型为类别规划、可注册性初筛或组合服务，再使用 references/classification-planning-guide.md 完成类别规划，使用 references/registrability-prescreen-guide.md 完成可注册性初筛，按 references/output-contract.md 输出标准化结果，并强制附加免责声明与升级建议。申请材料准备阶段在客户确认设计方案后进行，包括根据确定目标类别生成规范商品清单 Excel 文件，分析商标设计图片并撰写符合官方要求的商标说明文本，将材料归档到 archive 目录。输出要求为先结论、再依据、再风险、再行动，明确区分高风险、中风险、低风险，信息不足时标注待补充，引用依据时注明来源文件，缺失信息标注未提及或待补充，统一输出 Markdown 结构化结论，每次输出必须包含免责声明与升级建议，遇高风险、复杂争议或关键信息缺失时建议咨询专业律师。关键参考资料包括 service-intake-checklist.md、classification-planning-guide.md、registrability-prescreen-guide.md、output-contract.md、trademark-description-guide.md、legal-basis-index.md、trademark-examination-and-adjudication-guidelines-index.md、nice-classification-v13-2026-index.md、nice-classification-v12-2025-index.md 和 templates/导入商品信息.xlsx。商品清单输出应使用导入商品信息.xlsx 模板，列包括序号、商品类别、类似群、商品名称，商品名称必须是尼斯分类规范名称，优先选择保护范围大的核心商品，同一类似群商品归为一组，文件命名为 {商标名}-第{X}类-商品清单.xlsx。商标说明是商标注册申请必要材料，所有商标申请均需撰写商标说明，要求明确商标类型、说明文字内容、解释文字含义或声明无特殊含义，字数限制 200 字以内。对于图形商标或组合商标，必须先使用图像理解工具分析商标图片，提取商标类型、文字内容、图形元素、字体设计、颜色使用、整体设计风格和元素统一性，再撰写说明。归档目录结构为 archive/{YYYYMMDD}_{商标名}/，包含申请方案.md、商品清单.xlsx、商标说明.txt 和 notes.md。依赖上本 Skill 主要是文本推理与结构化输出流程，无额外系统依赖；生成 Excel 商品清单需要 openpyxl。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "structured_analysis"
+    ],
+    "optional_tools": [
+      "image_understanding",
+      "openpyxl",
+      "excel_writer",
+      "archive_writer",
+      "references/service-intake-checklist.md",
+      "references/classification-planning-guide.md",
+      "references/registrability-prescreen-guide.md",
+      "references/output-contract.md",
+      "references/trademark-description-guide.md",
+      "references/legal-basis-index.md",
+      "references/trademark-examination-and-adjudication-guidelines/trademark-examination-and-adjudication-guidelines-index.md",
+      "references/nice-classification-v13-2026/nice-classification-v13-2026-index.md",
+      "references/nice-classification-v12-2025/nice-classification-v12-2025-index.md",
+      "templates/导入商品信息.xlsx"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.jpg",
+      "*.jpeg",
+      "*.png",
+      "*.webp",
+      "*.xlsx"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "law-local-retrieval",
+      "legal-briefing",
+      "legal-document-assistant",
+      "china-legal-consultation",
+      "china-legal-issue-analysis",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 74,
+    "conflict_group": "trademark_application",
+    "prefer_when": [
+      "用户明确咨询中国商标申请、商标类别规划、商标注册可行性或商标初筛",
+      "用户需要基于尼斯分类选择商标类别、类似群和规范商品服务名称",
+      "用户要求对拟申请商标进行高风险、中风险、低风险分级并给出下一步行动",
+      "用户需要准备商标申请商品清单、商标说明或申请方案",
+      "用户提供商标图片或设计方案，并要求撰写商标说明",
+      "用户目标是形成可交付给客户或内部团队的商标申请咨询结论"
+    ],
+    "defer_when": [
+      "用户问题属于复杂商标争议、商标侵权诉讼、抢注、驰名商标或跨类大规模冲突时，应建议人工深度审查或转给案件分析类 Skill",
+      "用户要求专利分析、专利侵权比对、FTO 或专利价值评估时，转给 patent-analysis",
+      "用户要求从代码生成专利交底书、权利要求布局或发明专利初稿时，转给 code2patent",
+      "用户请求本质是普通法律咨询、合同审查、诉讼分析、法律法规检索或法律文书生成时，转给对应法律类 Skill",
+      "用户只要求 Logo 设计、图片生成或视觉美化，不涉及商标申请材料或审查风险时，不优先使用本 Skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/trademark-assistant",
+    "skill_md_path": "skills/custom/policies-regulations/trademark-assistant/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "trademark-assistant"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "我准备注册一个餐饮品牌商标，应该注册哪些类别？",
+        "should_route": true,
+        "reason": "用户明确要求商标类别规划"
+      },
+      {
+        "query": "这个商标名大概能不能注册？请做一个可注册性初筛和风险分级",
+        "should_route": true,
+        "reason": "用户要求商标可注册性初筛和风险分级"
+      },
+      {
+        "query": "客户已经确认了组合商标设计图，请帮我写一段商标说明",
+        "should_route": true,
+        "reason": "用户要求基于商标设计方案撰写商标说明"
+      },
+      {
+        "query": "请根据第 9 类和第 42 类生成可导入商标系统的商品清单 Excel",
+        "should_route": true,
+        "reason": "用户要求生成商标申请商品清单"
+      },
+      {
+        "query": "这个商标被别人抢注了，我想提异议和无效宣告，应该怎么打？",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于复杂商标争议和案件策略，不是申请初筛"
+      },
+      {
+        "query": "请分析这件专利的权利要求保护范围",
+        "should_route": false,
+        "prefer_skill": "patent-analysis",
+        "reason": "该请求是专利分析，不是商标申请"
+      },
+      {
+        "query": "请帮我审查这份商标许可合同",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同审查"
+      },
+      {
+        "query": "帮我设计一个品牌 Logo 图片",
+        "should_route": false,
+        "reason": "该请求是视觉设计或图片生成，不是商标申请法律服务"
+      }
+    ],
+    "last_eval": {}
+  }
+}

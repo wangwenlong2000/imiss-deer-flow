@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "china-legal-consultation",
+    "name": "china-legal-consultation",
+    "description": "中国法律咨询 Skill，用于面向当事人提供初步、方向性、可执行的法律咨询意见，帮助用户判断法律关系、识别风险、规划维权或应对路径，并给出证据材料准备建议和注意事项。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "legal_consultation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "legal_consultation",
+      "legal_relationship_explanation",
+      "risk_reminder",
+      "rights_protection_guidance",
+      "evidence_suggestion",
+      "practical_legal_advice",
+      "case_type_identification",
+      "initial_legal_assessment"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "case_description",
+      "legal_problem_description"
+    ],
+    "output_types": [
+      "initial_legal_opinion",
+      "legal_relationship_judgment",
+      "risk_reminders",
+      "action_path_guidance",
+      "evidence_checklist",
+      "practical_notes"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：china-legal-consultation\n描述：中国法律咨询 Skill。适用于用户以当事人视角描述中国法律问题，并希望获得初步、方向性、可执行的法律咨询意见。本 Skill 重点帮助用户快速判断当前属于什么法律关系、主要法律风险在哪里、下一步应该如何处理、应优先准备哪些证据材料、有哪些容易忽视的注意事项。典型问题包括：对方欠我钱不还怎么办、公司突然辞退我能主张什么、楼上漏水把我家泡了谁承担责任、别人用了我的商标或作品怎么办、股东之间闹翻了我应该先做什么、工程款拖欠怎么处理、是否应该协商投诉仲裁起诉或申请保全。本 Skill 可进行轻量化法律关系判断、风险提示、维权路径建议、证据建议和咨询式注意事项说明。必要时可调用 scripts/identify_case.py 对自然语言案情进行案件类型粗识别，再进入合同、侵权、劳动、公司、投融资、建设工程、知识产权、诉讼仲裁等领域模块。不适用于完整案件分析、请求权基础拆解、原被告视角对照、完整证据策略或六段式案件清单；这类任务应使用 china-legal-issue-analysis。不适用于完整合同文本或大量条款的逐条审查、红线修改和替换文本；这类任务应使用 china-contract-review。不适用于仅查询法条原文、司法解释条文、现行有效规定或案例检索；这类任务应优先使用法律检索类 Skill。",
+    "positive_triggers": [
+      "用户以当事人视角描述法律问题，希望知道该怎么办",
+      "用户希望获得初步法律关系判断",
+      "用户询问当前主要法律风险和注意事项",
+      "用户希望获得维权路径、应对路径或处理步骤建议",
+      "用户询问应该协商、投诉、报警、仲裁、起诉还是申请保全",
+      "用户希望知道应准备哪些证据和材料",
+      "用户描述欠款、辞退、漏水、人身损害、商标侵权、股东纠纷、工程款拖欠等常见法律问题",
+      "用户问题较轻量，不需要完整案件分析或合同逐条审查"
+    ],
+    "negative_triggers": [
+      "用户需要系统拆解争议焦点、请求权基础、抗辩思路、完整证据策略或六段式案件分析，应使用 china-legal-issue-analysis",
+      "用户提供完整合同文本、大量合同条款，要求逐条审查、红线修改或替换条款，应使用 china-contract-review",
+      "用户主要要求查询法条原文、司法解释原文、案例或现行有效规范，应使用法律检索类 Skill",
+      "用户要求起草完整诉状、仲裁申请书、律师函、证据目录或代理方案时，不应仅使用本 Skill",
+      "用户问题已经明确要求深度案件推演，而不是初步咨询意见"
+    ],
+    "keywords": [
+      "法律咨询",
+      "怎么办",
+      "能不能维权",
+      "有什么风险",
+      "怎么处理",
+      "下一步",
+      "证据",
+      "材料准备",
+      "协商",
+      "投诉",
+      "报警",
+      "仲裁",
+      "起诉",
+      "保全",
+      "欠钱不还",
+      "辞退",
+      "工资",
+      "工伤",
+      "漏水",
+      "摔伤",
+      "交通事故",
+      "商标侵权",
+      "著作权侵权",
+      "股东纠纷",
+      "股权转让",
+      "工程款",
+      "合同违约",
+      "法律关系",
+      "风险提示",
+      "注意事项"
+    ],
+    "anti_keywords": [
+      "合同审查",
+      "逐条修改",
+      "红线审查",
+      "替换条款",
+      "请求权基础",
+      "争议焦点",
+      "完整案件分析",
+      "六段式案件清单",
+      "证据策略",
+      "诉讼方案",
+      "法条原文",
+      "司法解释原文",
+      "案例检索",
+      "政策法规检索"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "中国法律咨询 Skill 用于面向当事人提供初步、方向性、可执行的法律咨询意见。它的重点不是完整案件拆解，也不是逐条合同审查，而是帮助用户快速判断当前属于什么法律关系、主要风险在哪里、下一步应如何处理、应优先准备哪些材料，以及有哪些容易忽视的注意事项。适用任务包括初步法律关系判断、基础风险提示、维权或应对路径建议、证据与材料准备建议、咨询式注意事项说明。典型问题包括对方欠钱不还、公司辞退、楼上漏水、作品或商标被侵权、股东纠纷等。不适用任务包括完整案件分析、请求权基础分析、原被告视角对照、完整证据策略、六段式案件清单；这类任务应切换到 china-legal-issue-analysis。不适用完整合同审查、逐条修改、红线提示和替换文本；这类任务应切换到 china-contract-review。不适用纯法律检索；法条原文、司法解释条文、现行有效规定和案例检索应优先由法律检索类 Skill 处理。默认咨询工作流为：先识别法律关系与问题领域，再提炼咨询目标，然后形成轻量化法律分析，必要时补充最少关键事实，最后输出法律关系判断、当前主要风险、建议处理路径、证据材料建议和注意事项。问题领域包括合同债务、侵权人身损害、劳动争议、公司股权、投融资、建设工程、知识产权、诉讼仲裁程序。文件使用上，应根据咨询问题直接定位到最相关的 references 文件。总体方法优先参考 references/core/philosophy.md、references/core/frameworks-core.md、references/core/process.md、references/core/priority-rules.md。需要做案件类型粗识别时，优先调用 scripts/identify_case.py，该脚本调用 references/tools/case_identifier.py、references/tools/db_accessor.py 和 references/data/case_types.db。若数据库缺失或脚本执行失败，则退回参考 references/data/case_types_list.json 做人工粗分流。合同、欠款、违约、解除、定金、继续履行问题优先看 references/domains/contract-law.md；侵权、人身损害、安全保障义务、产品责任、医疗损害优先看 references/domains/tort-law.md；劳动合同、辞退、工资、工伤、经济补偿、赔偿金优先看 references/domains/labor-law.md；公司、股东、股权转让、董事责任、公司治理优先看 references/domains/corporate-law.md；投资、融资、对赌、担保、并购、尽调优先看 references/domains/investment-law.md；建设工程、施工合同、工程款、工期、质量优先看 references/domains/construction-law.md 和 references/domains/contract-law.md；商标、专利、著作权、商业秘密、不正当竞争优先看 references/domains/ip-law.md；起诉、答辩、仲裁、管辖、保全、执行优先看 references/domains/litigation-arbitration.md。需要补充法律研究时按需看 references/shared/methods/legal-research.md。输出应简洁、清楚、可执行，默认包括法律关系判断、风险提示、处理路径、证据建议和注意事项。表达原则是先给方向再讲依据，优先使用当事人能听懂的话，不在事实不足时给过于绝对的结论，对高风险事项明确提醒尽快固定证据、咨询律师或采取程序措施。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references"
+    ],
+    "optional_tools": [
+      "python3",
+      "scripts/identify_case.py",
+      "references/tools/case_identifier.py",
+      "references/tools/db_accessor.py",
+      "references/data/case_types.db",
+      "references/data/case_types_list.json",
+      "legal_research_verification"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "china-legal-issue-analysis",
+      "china-contract-review",
+      "law-regulations-rag",
+      "policy-regulation-es-search"
+    ]
+  },
+  "routing_policy": {
+    "priority": 60,
+    "conflict_group": "china_legal_general",
+    "prefer_when": [
+      "用户以当事人视角提出法律困惑，主要需要初步咨询意见",
+      "用户希望快速判断法律关系、风险、处理路径和证据准备方向",
+      "用户问题较轻量，不需要完整案件分析、合同逐条审查或法条原文检索",
+      "用户描述常见生活、劳动、合同、侵权、公司、知识产权或程序问题，并询问下一步该怎么办"
+    ],
+    "defer_when": [
+      "用户需要完整案件分析、请求权基础、争议焦点、抗辩思路或完整证据策略时，转给 china-legal-issue-analysis",
+      "用户提供完整合同文本或大量合同条款，并要求条款级审查、红线修改或替换文本时，转给 china-contract-review",
+      "用户仅要求查询法律法规、司法解释、案例或政策文件原文时，转给法律检索类 Skill",
+      "用户要求输出正式诉讼文书、仲裁文书或律师函时，应转给对应文书或案件分析 Skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations//china-legal-consultation",
+    "skill_md_path": "skills/custom/policies-regulations/china-legal-consultation/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "china-legal-consultation"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "对方欠我钱一直不还，我现在应该怎么办？",
+        "should_route": true,
+        "reason": "用户以当事人视角提出轻量法律咨询，需要维权路径和证据建议"
+      },
+      {
+        "query": "公司突然辞退我，没有赔偿，我能主张什么？",
+        "should_route": true,
+        "reason": "用户需要初步劳动法律咨询和处理路径建议"
+      },
+      {
+        "query": "楼上漏水把我家泡了，我要怎么维权，需要留哪些证据？",
+        "should_route": true,
+        "reason": "用户需要侵权类初步法律关系判断、证据建议和维权路径"
+      },
+      {
+        "query": "请系统分析这个案件的请求权基础、争议焦点和证据策略",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于完整案件分析，不是初步法律咨询"
+      },
+      {
+        "query": "请逐条审查这份服务合同，帮我改成对乙方更有利",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同条款级审查和修改"
+      },
+      {
+        "query": "帮我查一下民法典关于诉讼时效的原文",
+        "should_route": false,
+        "prefer_skill": "law-regulations-rag",
+        "reason": "该请求主要是法律条文原文检索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

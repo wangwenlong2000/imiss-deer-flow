@@ -271,7 +271,7 @@ down:
 
 # Load .env for SkillRouter targets (NETWORK_TRAFFIC_ES_INDEX, SKILL_ROUTER_ES_INDEX, ES_URL, ES_USERNAME, ES_PASSWORD, etc.)
 define load-env
-	@set -a; [ -f .env ] && . .env; set +a
+	@set -a; [ -f .env ] && . ./.env; set +a
 endef
 
 # Extract Router Cards from all SKILL.md files
@@ -280,20 +280,20 @@ extract-router-cards:
 
 # Build full SkillRouter Elasticsearch index (first-time / bulk rebuild)
 build-skill-router-index: extract-router-cards
-	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_registry.py
-	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/build_skill_router_es_index.py
+	@set -a; [ -f .env ] && . ./.env; set +a; $(PYTHON) scripts/build_skill_router_registry.py
+	@set -a; [ -f .env ] && . ./.env; set +a; $(PYTHON) scripts/build_skill_router_es_index.py
 
 # Update a single Skill's Router Card and ES index
 update-skill-router-index:
-	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/update_skill_router_index.py $(SKILL)
+	@set -a; [ -f .env ] && . ./.env; set +a; $(PYTHON) scripts/update_skill_router_index.py $(SKILL)
 
 # Check routing conflicts for a single Skill
 check-skill-router-conflicts:
-	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
+	@set -a; [ -f .env ] && . ./.env; set +a; $(PYTHON) scripts/check_skill_router_conflicts.py $(SKILL)
 
 # Run full SkillRouter evaluation
 eval-skill-router:
-	@set -a; [ -f .env ] && . .env; set +a; $(PYTHON) scripts/eval_skill_router.py
+	@set -a; [ -f .env ] && . ./.env; set +a; $(PYTHON) scripts/eval_skill_router.py
 
 # Sync all skills into SkillRouter index (repair / manual sync)
 sync-skill-router-index:
@@ -310,49 +310,9 @@ print(json.dumps(results, indent=2, ensure_ascii=False))\
 " PYTHONPATH=backend/packages/harness:scripts
 
 # Check SkillRouter service health (ES + embedding + reranker)
+# Check SkillRouter service health (ES + embedding + reranker)
 check-skill-router-health:
-	@PYTHONPATH=backend/packages/harness $(PYTHON) -c "\
-import os, sys;\
-try:\
-    from deerflow.routing.es_store import SkillRouterElasticStore;\
-    from deerflow.routing.embedding_client import SkillRouterEmbeddingClient;\
-    from deerflow.routing.reranker_client import SkillRouterRerankerClient;\
-    import httpx;\
-    es = SkillRouterElasticStore();\
-    try:\
-        auth = (es.username, es.password) if es.username else None;\
-        r = httpx.head(f'{es.es_url}/{es.index}', auth=auth, timeout=5);\
-        if r.status_code >= 400:\
-            print(f'ES index not found: {es.index} (status={r.status_code)}');\
-            sys.exit(1);\
-        r2 = httpx.get(f'{es.es_url}/{es.index}/_count', auth=auth, timeout=5);\
-        count = r2.json().get('count', 0) if r2.status_code < 400 else 0;\
-        print(f'ES connected: {es.index} has {count} documents');\
-        if count == 0:\
-            print('WARNING: No skills indexed. Run: make build-skill-router-index');\
-            sys.exit(1);\
-    except Exception as e:\
-        print(f'ES check FAILED: {e}');\
-        sys.exit(1);\
-    try:\
-        emb = SkillRouterEmbeddingClient();\
-        r = httpx.get(f'{emb.base_url}/models', timeout=5);\
-        print(f'Embedding service: OK ({emb.base_url})');\
-    except Exception as e:\
-        print(f'Embedding check FAILED: {e}');\
-        sys.exit(1);\
-    try:\
-        rer = SkillRouterRerankerClient();\
-        r = httpx.get(f'{rer.base_url}/models', timeout=5);\
-        print(f'Reranker service: OK ({rer.base_url})');\
-    except Exception as e:\
-        print(f'Reranker check FAILED: {e}');\
-        sys.exit(1);\
-    print('All SkillRouter services healthy.');\
-except ImportError as e:\
-    print(f'Missing module: {e}');\
-    sys.exit(1);\
-"
+	@set -a; [ -f .env ] && . ./.env; set +a; PYTHONPATH=backend/packages/harness $(PYTHON) scripts/check_skill_router_health.py
 
 # Run SkillCreator router update and conflict detection tests
 test-skill-router:

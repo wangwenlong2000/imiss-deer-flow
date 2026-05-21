@@ -1,0 +1,192 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "china-contract-review",
+    "name": "china-contract-review",
+    "description": "中国合同审查 Skill，用于对完整合同文本、协议草案或具体合同条款进行结构化审查，识别合同效力、主体权限、权利义务、违约责任、担保、争议解决等风险，并给出修改建议、替代表述和谈判提示。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "contract_review",
+      "china_law"
+    ],
+    "is_public": false,
+    "task_types": [
+      "contract_review",
+      "clause_review",
+      "contract_risk_identification",
+      "contract_validity_review",
+      "rights_obligations_review",
+      "breach_clause_review",
+      "dispute_resolution_clause_review",
+      "guarantee_security_clause_review",
+      "contract_revision_suggestion",
+      "clause_rewrite"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "pdf",
+      "contract_text",
+      "clause_text"
+    ],
+    "output_types": [
+      "contract_review_report",
+      "clause_level_review",
+      "risk_findings",
+      "revision_suggestions",
+      "replacement_clauses",
+      "negotiation_tips"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：china-contract-review\n描述：中国合同审查 Skill。适用于用户提供完整合同文本、协议草案、合同模板或具体合同条款，并希望从甲方、乙方或法务视角进行条款级审查的场景。本 Skill 可识别合同效力风险、主体与签署权限风险、权利义务不清或失衡风险、违约责任与解除终止条款风险、担保和增信条款风险、争议解决与管辖仲裁条款风险，并输出总体评价、逐条审查意见、风险等级、修改建议、可替换条款表述和谈判提示。典型问题包括：帮我审查这份合同、这份协议有哪些风险、从乙方法务角度看合同怎么改、违约责任是否合理、仲裁条款是否有效、保证条款是否有风险、付款和验收条款是否清晰、合同效力是否有问题。不适用于以案件事实为主的争议分析、诉讼请求设计、证据策略和请求权基础分析；这类任务应使用 china-legal-issue-analysis。不适用于仅需要轻量法律咨询的场景；这类任务应使用 china-legal-consultation。不适用于仅检索法条原文或司法解释原文的任务；这类任务应优先交给法律检索 Skill。",
+    "positive_triggers": [
+      "用户提供完整合同文本，希望审查合同风险",
+      "用户提供协议草案，希望从甲方、乙方或法务视角修改",
+      "用户要求逐条审查合同条款",
+      "用户询问合同效力、主体权限、签署权限或印章效力风险",
+      "用户询问付款、验收、交付、履行标准是否清晰",
+      "用户询问违约责任、解除终止、定金、赔偿、可得利益损失等条款是否合理",
+      "用户询问担保、保证、抵押、公司对外担保、所有权保留等条款风险",
+      "用户询问管辖法院、仲裁委员会、争议解决条款是否有效",
+      "用户要求给出合同修改建议、替代表述、补充条款或谈判提示"
+    ],
+    "negative_triggers": [
+      "用户主要提供案件事实，希望分析争议焦点、请求权基础、抗辩思路或举证策略，应使用 china-legal-issue-analysis",
+      "用户只是想得到轻量、口语化、面向当事人的初步法律建议，而不是条款级合同审查，应使用 china-legal-consultation",
+      "用户仅要求检索法律法规、司法解释、政策文件或现行有效规范原文，应使用法律检索 Skill",
+      "用户没有提供合同文本或具体条款，且问题并非合同审查任务",
+      "用户要求起草完整诉状、仲裁申请书、证据目录或案件代理方案"
+    ],
+    "keywords": [
+      "合同审查",
+      "协议审查",
+      "条款审查",
+      "合同风险",
+      "合同修改",
+      "合同效力",
+      "主体资格",
+      "签署权限",
+      "印章效力",
+      "权利义务",
+      "违约责任",
+      "解除条款",
+      "终止条款",
+      "付款条款",
+      "验收条款",
+      "交付条款",
+      "担保条款",
+      "保证责任",
+      "抵押",
+      "公司对外担保",
+      "争议解决",
+      "管辖法院",
+      "仲裁条款",
+      "或裁或审",
+      "替代表述",
+      "补充条款",
+      "谈判提示"
+    ],
+    "anti_keywords": [
+      "诉讼请求",
+      "请求权基础",
+      "举证策略",
+      "证据目录",
+      "争议焦点",
+      "案件事实分析",
+      "法律咨询",
+      "法条检索",
+      "司法解释原文",
+      "政策法规检索"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "中国合同审查 Skill 专门用于审查完整合同文本、协议草案和关键条款，输出条款级风险提示、修改建议和必要的争议解决提示。核心任务包括合同效力风险、主体与签署权限风险、权利义务是否清晰对等可执行、违约责任是否合理可落地、解除终止和争议解决条款是否存在缺陷，以及如何修改、补充、重写。适用任务包括完整合同文本、协议草案、核心条款、合同模板，以及从甲方、乙方或法务视角审查合同风险。不适用任务包括以案件事实为主的争议分析、请求权基础、举证策略、诉讼请求设计；轻量初步法律咨询；仅查找法条、司法解释或现行有效规范原文。默认工作流为：先识别合同审查目标，再识别合同类型和审查重点，然后按问题类型直达 references 文件，最后输出总体评价、主要风险概览、条款级问题清单、修改建议、谈判提示，并在必要时补充争议解决与执行风险。一般合同审查优先参考 references/domains/contract-law.md；争议解决、管辖、仲裁、保全与程序风险优先参考 references/domains/litigation-arbitration.md；合同编通则司法解释相关问题优先参考 references/interpretations/contract-general-2023/README.md、index.md、metadata.json；担保、保证、公司对外担保、抵押、价款优先权相关问题优先参考 references/interpretations/security-law-2020/README.md、index.md、metadata.json；涉及版本、时效、适用法判断时参考 references/shared/methods/legal-research.md、references/shared/verification/automated-checklist.md、references/interpretations/metadata.json 和 references/tools/automated_verification.py。输出结构优先包括总体评价、条款级审查意见、风险点提示、修改建议，并可按需提供甲方版修改建议、乙方版修改建议、谈判底线提示和简版客户可读摘要。禁止把合同审查扩大为完整案件代理分析，禁止将轻量咨询和条款级深度审查混为一谈，禁止无必要通读全部 references，禁止忽略司法解释和担保制度解释中的特殊规则，禁止涉及版本变动时只凭记忆给出结论。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references"
+    ],
+    "optional_tools": [
+      "references/tools/automated_verification.py",
+      "legal_research_verification"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "china-legal-issue-analysis",
+      "china-legal-consultation",
+      "law-regulations-rag",
+      "law-local-retrieval"
+    ]
+  },
+  "routing_policy": {
+    "priority": 80,
+    "conflict_group": "china_legal_contract",
+    "prefer_when": [
+      "用户提供合同全文、协议草案、合同模板或具体合同条款",
+      "用户明确要求合同审查、协议审查、条款级风险识别或合同修改建议",
+      "用户要求从甲方、乙方或法务视角审查合同",
+      "用户关注合同效力、违约责任、担保条款、争议解决条款、付款验收条款等合同文本本身的问题"
+    ],
+    "defer_when": [
+      "用户主要要求基于案件事实分析争议焦点、请求权基础、抗辩理由、证据策略或诉讼方案时，转给 china-legal-issue-analysis",
+      "用户只需要轻量、口语化、面向当事人的初步法律建议时，转给 china-legal-consultation",
+      "用户仅要求检索法律法规、司法解释或政策文件原文时，转给法律检索类 Skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/china-contract-review",
+    "skill_md_path": "skills/custom/policies-regulations/china-contract-review/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "china-contract-review"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请从乙方法务角度审查这份设备采购合同，指出风险并给出修改建议",
+        "should_route": true,
+        "reason": "用户要求从法务视角审查合同并给出修改建议"
+      },
+      {
+        "query": "这份服务协议的违约责任和解除条款有没有问题？",
+        "should_route": true,
+        "reason": "用户要求审查具体合同条款风险"
+      },
+      {
+        "query": "合同里的仲裁条款写成既可以仲裁也可以起诉，这样有效吗？",
+        "should_route": true,
+        "reason": "用户询问争议解决条款风险"
+      },
+      {
+        "query": "这个案件我能不能起诉对方？诉讼请求和证据怎么组织？",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于案件争议分析和诉讼策略，不是合同文本审查"
+      },
+      {
+        "query": "帮我查一下合同编通则司法解释关于违约金调整的原文",
+        "should_route": false,
+        "prefer_skill": "law-regulations-rag",
+        "reason": "该请求主要是法条或司法解释原文检索"
+      }
+    ],
+    "last_eval": {}
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "legal-document-assistant",
+    "name": "legal-document-assistant",
+    "description": "法律文书助手 Skill，用于提供常见法律文书模板与撰写指导，涵盖劳动争议、离婚协议、交通事故赔偿、房屋租赁、催告函等场景，并根据用户情况给出个性化填写建议、条款解释和风险提示。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "china_law",
+      "legal_document",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "legal_document_template",
+      "legal_document_drafting_guidance",
+      "document_clause_explanation",
+      "personalized_template_adaptation",
+      "dispute_document_guidance",
+      "labor_arbitration_document",
+      "divorce_agreement_guidance",
+      "traffic_accident_claim_document",
+      "rental_agreement_guidance",
+      "demand_letter_guidance"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "docx",
+      "legal_problem_description",
+      "document_request",
+      "template_request"
+    ],
+    "output_types": [
+      "legal_document_template",
+      "drafting_guidance",
+      "personalized_revision_suggestions",
+      "clause_explanation",
+      "risk_reminders",
+      "dispute_resolution_guidance"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：legal-document-assistant\n描述：法律文书助手 Skill。适用于用户需要常见法律文书模板、文书撰写指导、个性化填写建议、关键条款解释、纠纷解决路径指引和基础风险提示的场景。支持劳动争议、劳动合同、劳动仲裁申请书、解除劳动关系协议、离婚协议、婚前协议、抚养权协议、交通事故赔偿协议、事故责任认定异议书、房屋租赁合同、房屋交接清单、押金退还协议、催告函等常见文书。典型问题包括：公司拖欠工资我想写劳动仲裁申请书；房东不退押金我想写催告函；我想写一份离婚协议；交通事故赔偿协议怎么写；租房合同模板给我一份；帮我看看这个文书需要填哪些内容。本 Skill 主要使用 assets 目录中的模板和 references 目录中的法律文书撰写指南、纠纷解决途径指南，不依赖外部脚本。它可以提供模板结构、说明个性化填写项、解释关键条款、提示法律风险和建议专业律师帮助。不适用于完整合同逐条审查、复杂案件请求权基础分析、深度诉讼策略设计、首次法规条文检索、正式法律意见出具或代理诉讼仲裁；这些任务应分别交给合同审查、法律问题分析、法律检索或其他专业 Skill。",
+    "positive_triggers": [
+      "用户明确需要法律文书模板",
+      "用户要求写劳动仲裁申请书、劳动合同、解除劳动关系协议等劳动类文书",
+      "用户要求写离婚协议、婚前协议、抚养权协议等婚姻家庭文书",
+      "用户要求写交通事故赔偿协议、事故责任认定异议书等交通事故文书",
+      "用户要求写房屋租赁合同、房屋交接清单、押金退还协议、催告函等租赁类文书",
+      "用户希望根据自身情况修改法律文书模板",
+      "用户希望了解法律文书中哪些内容需要填写、哪些条款需要注意",
+      "用户要求解释常见法律文书条款含义或提示文书风险"
+    ],
+    "negative_triggers": [
+      "用户提供完整合同文本并要求逐条审查、红线修改或替换条款，应使用 china-contract-review",
+      "用户提供具体案件事实并要求请求权基础、争议焦点、证据策略或诉讼仲裁方案，应使用 china-legal-issue-analysis",
+      "用户只是需要轻量法律咨询和维权路径建议，而不是文书模板或撰写指导，应使用 china-legal-consultation",
+      "用户要求查询法律法规原文、司法解释原文或具体法律依据，应使用 law-local-retrieval",
+      "用户已有法律材料并要求整理成备忘录、简报或报告，应使用 legal-briefing",
+      "用户要求生成正式可直接提交的复杂诉讼文书，且案件关系复杂、金额较大或涉及重大人身权益时，应提示寻求专业律师帮助",
+      "用户要求代理诉讼、代理仲裁或承诺案件结果"
+    ],
+    "keywords": [
+      "法律文书",
+      "文书模板",
+      "文书撰写",
+      "模板参考",
+      "填写指导",
+      "个性化修改",
+      "条款解释",
+      "劳动仲裁申请书",
+      "劳动合同",
+      "解除劳动关系协议",
+      "离婚协议",
+      "婚前协议",
+      "抚养权协议",
+      "交通事故赔偿协议",
+      "事故责任认定异议书",
+      "房屋租赁合同",
+      "房屋交接清单",
+      "押金退还协议",
+      "催告函",
+      "起诉",
+      "仲裁",
+      "纠纷解决",
+      "协议怎么写",
+      "合同模板"
+    ],
+    "anti_keywords": [
+      "合同逐条审查",
+      "红线修改",
+      "替换条款",
+      "请求权基础",
+      "争议焦点",
+      "证据策略",
+      "诉讼策略",
+      "案件分析",
+      "法律依据是什么",
+      "查法条",
+      "司法解释原文",
+      "政策法规检索",
+      "法律备忘录",
+      "合规简报",
+      "报告整理",
+      "代理诉讼",
+      "代理仲裁"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "legal-document-assistant 是法律文书助手 Skill，用于提供常见法律文书模板参考与撰写指导。能力包括文书模板提供、个性化修改建议、法律条款解释和纠纷解决途径指引。触发条件包括用户提及合同、协议、纠纷、仲裁、起诉等关键词，或明确需要法律文书帮助。本 Skill 不依赖外部脚本或系统命令，仅使用 assets 目录中的模板资产和 references 目录中的参考文档。标准流程包括场景识别、提供模板参考、个性化修改指导和专业帮助引导。场景识别包括劳务纠纷、婚姻家庭、交通事故、房屋租赁和其他法律文书。劳务纠纷可使用 assets/labor-dispute-complaint.md 或 assets/employment-contract.md；离婚协议可使用 assets/divorce-agreement.md；交通事故可使用 assets/traffic-accident-claim.md；租房协议可使用 assets/rental-agreement.md。提供模板时应展示模板核心结构，说明需要个性化填写的部分，并解释关键条款的法律含义。个性化修改指导应围绕当事人信息、时间、地点、金额等必填项，可选条款增减，风险提示和规范性检查展开。专业指导可参考 references/legal-document-guide.md 和 references/dispute-resolution-guide.md。遇到案情复杂、涉及金额较大、法律关系不明确、存在争议、涉及重大人身权益、需要诉讼仲裁程序或用户对文书内容有疑虑时，应主动引导用户寻求专业律师帮助。资源包括劳动仲裁申请书模板、劳动合同模板、离婚协议书模板、交通事故赔偿协议模板、房屋租赁合同模板、法律文书撰写通用指南和纠纷解决途径指南。模板仅供参考，具体内容需要根据实际情况调整；法律法规可能更新，应确认条款是否符合现行法律规定；重要合同和涉及重大权益的文书建议由专业律师审核。智能体可以提供模板参考、解释法律条款、指导文书撰写和提示风险点，但不能替代律师提供法律意见、代理诉讼或仲裁、对案件结果作出承诺。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_assets",
+      "local_references"
+    ],
+    "optional_tools": [
+      "assets/labor-dispute-complaint.md",
+      "assets/employment-contract.md",
+      "assets/divorce-agreement.md",
+      "assets/traffic-accident-claim.md",
+      "assets/rental-agreement.md",
+      "references/legal-document-guide.md",
+      "references/dispute-resolution-guide.md",
+      "document_generation",
+      "docx_export"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "china-legal-consultation",
+      "china-legal-issue-analysis",
+      "china-contract-review",
+      "law-local-retrieval",
+      "legal-briefing",
+      "document-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 58,
+    "conflict_group": "china_legal_document",
+    "prefer_when": [
+      "用户明确要求法律文书模板、文书撰写指导或模板填写建议",
+      "用户需要劳动仲裁申请书、离婚协议、交通事故赔偿协议、房屋租赁合同、押金退还协议、催告函等常见文书",
+      "用户已经知道大致纠纷类型，主要目标是形成文书草稿或了解文书结构",
+      "用户希望根据自身情况调整模板、补充条款或理解文书关键条款"
+    ],
+    "defer_when": [
+      "用户提供完整合同文本并要求条款级审查、红线修改或替换条款时，转给 china-contract-review",
+      "用户需要完整案件分析、请求权基础、争议焦点、证据策略或诉讼仲裁行动方案时，转给 china-legal-issue-analysis",
+      "用户只是需要初步法律咨询、风险提醒和维权路径建议而非文书模板时，转给 china-legal-consultation",
+      "用户要求检索具体法律依据、法规条文、司法解释或政策文件原文时，转给 law-local-retrieval",
+      "用户已经有法律材料并要求整理成备忘录、简报、报告或风险清单时，转给 legal-briefing",
+      "用户案件复杂、金额较大、法律关系不明确或涉及重大人身权益时，应提示寻求专业律师帮助"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/legal-document-assistant",
+    "skill_md_path": "skills/custom/policies-regulations/legal-document-assistant/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "legal-document-assistant"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "公司拖欠我三个月工资，我想写一份劳动仲裁申请书",
+        "should_route": true,
+        "reason": "用户明确需要劳动仲裁申请书模板和填写指导"
+      },
+      {
+        "query": "房东不退押金，我想写个催告函，应该怎么写？",
+        "should_route": true,
+        "reason": "用户需要租房纠纷相关法律文书撰写指导"
+      },
+      {
+        "query": "我想写一份离婚协议，我们有孩子和共同财产",
+        "should_route": true,
+        "reason": "用户明确需要离婚协议模板和条款填写指导"
+      },
+      {
+        "query": "交通事故赔偿协议有没有模板？哪些金额要写清楚？",
+        "should_route": true,
+        "reason": "用户需要交通事故赔偿协议模板和关键条款提示"
+      },
+      {
+        "query": "请逐条审查这份采购合同，帮我修改违约责任条款",
+        "should_route": false,
+        "prefer_skill": "china-contract-review",
+        "reason": "该请求属于合同条款级审查和修改，不是常见模板指导"
+      },
+      {
+        "query": "请分析这个案件的请求权基础和证据策略",
+        "should_route": false,
+        "prefer_skill": "china-legal-issue-analysis",
+        "reason": "该请求属于完整案件分析"
+      },
+      {
+        "query": "根据什么法律可以要求公司支付赔偿金？",
+        "should_route": false,
+        "prefer_skill": "law-local-retrieval",
+        "reason": "该请求本质是法律依据检索"
+      },
+      {
+        "query": "请把上面检索到的法律依据整理成一份法律备忘录",
+        "should_route": false,
+        "prefer_skill": "legal-briefing",
+        "reason": "该请求是已有材料整理成备忘录"
+      }
+    ],
+    "last_eval": {}
+  }
+}

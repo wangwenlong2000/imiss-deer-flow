@@ -1,0 +1,251 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "patent-analysis",
+    "name": "patent-analysis",
+    "description": "专利分析 Skill，用于分析专利文件、提取权利要求技术特征、判断保护范围、进行侵权比对、FTO 分析、稳定性分析、规避设计分析、专利价值评估和多专利保护范围比较。"
+  },
+  "scope": {
+    "scenes": [
+      "legal",
+      "patent",
+      "intellectual_property",
+      "china_law",
+      "policy_regulation"
+    ],
+    "is_public": false,
+    "task_types": [
+      "patent_analysis",
+      "claim_analysis",
+      "technical_feature_extraction",
+      "patent_scope_analysis",
+      "patent_infringement_comparison",
+      "fto_analysis",
+      "validity_analysis",
+      "invalidity_risk_assessment",
+      "design_around_analysis",
+      "patent_valuation",
+      "multi_patent_comparison",
+      "patent_portfolio_analysis"
+    ],
+    "input_types": [
+      "text",
+      "md",
+      "pdf",
+      "docx",
+      "patent_document",
+      "claim_text",
+      "specification_text",
+      "product_description",
+      "prior_art",
+      "patent_list"
+    ],
+    "output_types": [
+      "patent_analysis_report",
+      "claim_feature_chart",
+      "technical_feature_summary",
+      "infringement_comparison_report",
+      "fto_report",
+      "validity_analysis_report",
+      "design_around_report",
+      "patent_valuation_report",
+      "multi_patent_comparison_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：patent-analysis\n描述：专利分析 Skill。适用于用户需要分析专利文件、权利要求书、说明书、专利保护范围、技术特征、产品侵权风险、FTO 自由实施风险、专利稳定性、无效风险、规避设计、专利价值或多个专利之间保护范围差异的场景。本 Skill 的核心是围绕权利要求书进行分析，尤其重视独立权利要求与从属权利要求的区别。独立权利要求定义最大保护范围，是侵权判断的基准；从属权利要求在独立权利要求基础上增加技术特征，用于增强侵权稳定性和作为后备保护层。本 Skill 支持七类核心任务：单专利技术要点提取、多专利比对分析、产品-专利侵权比对、专利稳定性或无效分析、FTO 分析、规避设计分析、专利价值评估。典型问题包括：帮我分析这件专利的保护范围；提取权利要求1的技术特征；比较这几件专利的差异；判断这个产品是否落入专利权利要求；做一个 FTO 风险分析；分析这个专利是否稳定；帮我设计绕开这个专利的方案；评估这个专利的商业价值。不适用于从代码生成专利交底书或发明专利初稿，这类任务应使用 code2patent；不适用于普通法律咨询、合同审查、案件诉讼分析、法律法规检索、法律文书模板或公文写作。",
+    "positive_triggers": [
+      "用户提供专利文件、权利要求书或说明书，希望分析保护范围",
+      "用户要求提取专利技术特征、技术要点或核心创新点",
+      "用户要求分析独立权利要求和从属权利要求",
+      "用户要求进行产品与专利权利要求的侵权比对",
+      "用户要求判断某产品是否落入某专利保护范围",
+      "用户要求进行 FTO 分析或上市前专利风险评估",
+      "用户要求进行专利稳定性、无效风险或现有技术对比分析",
+      "用户要求进行规避设计、绕开专利障碍或替代方案分析",
+      "用户要求比较多个专利的保护范围差异或分析专利组合",
+      "用户要求进行专利价值评估、许可分析或尽职调查支持"
+    ],
+    "negative_triggers": [
+      "用户要求从代码仓库生成技术交底书、权利要求布局卡或发明专利初稿，应使用 code2patent",
+      "用户只是需要普通法律咨询、维权路径或证据建议，应使用 china-legal-consultation",
+      "用户提供具体案件事实要求请求权基础、争议焦点或诉讼策略，应使用 china-legal-issue-analysis",
+      "用户提供判决书或庭审笔录要求上诉再审分析，应使用 litigation-analysis",
+      "用户提供完整合同文本要求逐条审查和修改，应使用 china-contract-review",
+      "用户要求检索法律法规、司法解释或政策文件原文，应使用 law-local-retrieval",
+      "用户要求生成法律服务方案、咨询报告或客户沟通报告，应使用 legal-proposal-generator",
+      "用户要求格式化专利文本或法律文本为 Markdown，但不进行实质分析，应使用 legal-text-format"
+    ],
+    "keywords": [
+      "专利分析",
+      "专利文件",
+      "权利要求",
+      "权利要求书",
+      "独立权利要求",
+      "从属权利要求",
+      "保护范围",
+      "技术特征",
+      "特征分解",
+      "技术要点",
+      "专利比对",
+      "侵权比对",
+      "侵权判断",
+      "等同侵权",
+      "FTO",
+      "自由实施",
+      "稳定性分析",
+      "无效分析",
+      "现有技术",
+      "规避设计",
+      "绕开专利",
+      "专利价值评估",
+      "专利组合",
+      "许可分析",
+      "尽职调查",
+      "说明书",
+      "摘要",
+      "专利权人",
+      "IPC 分类号",
+      "禁止反悔",
+      "现有技术抗辩"
+    ],
+    "anti_keywords": [
+      "代码转专利",
+      "技术交底书",
+      "发明专利初稿",
+      "权利要求布局卡",
+      "代码证据矩阵",
+      "法律咨询",
+      "合同审查",
+      "案件分析",
+      "判决书分析",
+      "庭审笔录",
+      "法律依据检索",
+      "法条原文",
+      "法律服务方案",
+      "文书模板",
+      "公文写作",
+      "Markdown 格式化"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "patent-analysis 是专利分析工具，用于系统化分析专利文件，支持七种核心场景：单专利技术要点提取、多专利比对分析、产品-专利侵权比对、专利稳定性或无效分析、FTO 分析、规避设计分析和专利价值评估。专利文件结构包括扉页、权利要求书、说明书和摘要。扉页包含专利号、申请日、专利权人和 IPC 分类号等基本信息。权利要求书是专利保护范围的法律界定，是分析的核心；独立权利要求定义专利最大保护范围，是侵权判断的基准；从属权利要求在独立权利要求基础上增加技术特征，保护范围更窄。说明书用于解释权利要求，背景技术帮助理解专利要解决的问题，发明内容帮助理解核心创新点，具体实施方式帮助理解权利要求含义。摘要仅供技术概要参考，不作为保护范围依据。分析场景包括己方专利分析、侵权风险分析、争议解决支持和交易支持。核心方法论包括权利要求解读方法和侵权判断流程。权利要求解读应先确定权利要求类型，区分产品权利要求和方法权利要求；再识别前序部分和特征部分，尤其关注“其特征在于”之后的内容；再结合说明书定义或本领域通常理解解释术语；最后确定字面含义和说明书可能限缩后的保护范围。侵权判断流程为确定独立权利要求1，分解技术特征，逐一比对产品是否覆盖全部特征；若全部覆盖，则基础侵权成立；若未全部覆盖，再检查等同侵权。独立权利要求和从属权利要求的区别是侵权判断的关键。侵权判断首先看独立权利要求1，因为它定义最大保护范围；从属权利要求用于增强侵权稳定性，产品落入的从属权利要求越多，侵权稳定性越大。如果权利要求1被无效，从属权利要求可以作为后备阵地，将其中技术特征并入权利要求1以维持专利有效。常见错误包括只看摘要不看权利要求、混淆独立和从属权利要求、忽略技术特征限定词、用实施例代替权利要求、直接给出侵权结论、忽略说明书解释作用、把从属权利要求特征当作侵权判断条件。与其他技能配合时，可先用 mineru-ocr 将专利 PDF 转换为 Markdown，分析后可配合法律文书或法律服务建议书生成能力。注意事项包括本技能提供初步技术分析，不构成正式法律意见；实际侵权判定还需考虑等同原则、禁止反悔原则、现有技术抗辩和专利有效性；重要决策前应咨询专业专利律师；专利状态需要核实；不同法域专利法可能存在差异；产出法律文书前必须核实每个专利的专利权人名称。"
+  },
+  "execution": {
+    "required_tools": [
+      "local_references",
+      "structured_analysis"
+    ],
+    "optional_tools": [
+      "mineru-ocr",
+      "document_reader",
+      "pdf_reader",
+      "docx_reader",
+      "references/01-single-patent-summary.md",
+      "references/02-multi-patent-comparison.md",
+      "references/03-infringement-comparison.md",
+      "references/04-validity-analysis.md",
+      "references/05-fto-analysis.md",
+      "references/06-design-around.md",
+      "references/07-patent-valuation.md",
+      "legal-proposal-generator",
+      "legal-document-assistant"
+    ],
+    "allowed_file_patterns": [
+      "*.txt",
+      "*.md",
+      "*.docx",
+      "*.pdf",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "code2patent",
+      "legal-proposal-generator",
+      "legal-document-assistant",
+      "legal-briefing",
+      "legal-text-format",
+      "law-local-retrieval"
+    ]
+  },
+  "routing_policy": {
+    "priority": 76,
+    "conflict_group": "patent_analysis",
+    "prefer_when": [
+      "用户提供专利文件、权利要求书、说明书或专利文本，并要求分析保护范围或技术特征",
+      "用户目标是进行专利侵权比对、FTO 分析、稳定性分析、无效分析、规避设计或专利价值评估",
+      "用户要求比较多个专利的权利要求、技术特征和保护范围差异",
+      "用户要求判断产品是否落入某专利独立权利要求或从属权利要求",
+      "用户关注专利权利要求解释、技术特征拆解、等同侵权、现有技术抗辩或禁止反悔原则"
+    ],
+    "defer_when": [
+      "用户要求从代码仓库提取技术实现证据并生成专利交底书、权利要求布局或发明专利初稿时，转给 code2patent",
+      "用户请求本质是普通法律咨询、合同审查、案件分析或诉讼文档分析时，转给对应法律类 Skill",
+      "用户请求本质是检索法律法规、政策文件或司法解释原文时，转给 law-local-retrieval",
+      "用户只是要求格式化专利 PDF 转换后的文本或清理 Markdown 时，转给 legal-text-format",
+      "用户需要根据专利分析结果生成法律服务建议书时，可组合 legal-proposal-generator"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/policies-regulations/patent-analysis",
+    "skill_md_path": "skills/custom/policies-regulations/patent-analysis/SKILL.md",
+    "skill_md_hash": "",
+    "generated_at": "2026-05-20T00:00:00Z",
+    "generator_version": "manual-extraction-v1"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "patent-analysis"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "请分析这件专利的权利要求1，提取技术特征并说明保护范围",
+        "should_route": true,
+        "reason": "用户要求进行权利要求技术特征提取和保护范围分析"
+      },
+      {
+        "query": "请把这个产品和这件专利做侵权比对，判断是否落入权利要求",
+        "should_route": true,
+        "reason": "用户要求进行产品-专利侵权比对"
+      },
+      {
+        "query": "请比较这三件专利的保护范围差异和各自的核心技术特征",
+        "should_route": true,
+        "reason": "用户要求多专利比对分析"
+      },
+      {
+        "query": "这个产品上市前需要做 FTO 分析，请评估相关专利风险",
+        "should_route": true,
+        "reason": "用户明确要求 FTO 风险分析"
+      },
+      {
+        "query": "请分析这件专利的稳定性，看看是否有无效风险",
+        "should_route": true,
+        "reason": "用户要求专利稳定性或无效风险分析"
+      },
+      {
+        "query": "请读取这个代码仓库，生成专利技术交底书和权利要求布局卡",
+        "should_route": false,
+        "prefer_skill": "code2patent",
+        "reason": "该请求是从代码生成专利交底与权利要求布局，不是分析已有专利文件"
+      },
+      {
+        "query": "请把这份专利 PDF 转成 Markdown 并清理格式",
+        "should_route": false,
+        "prefer_skill": "legal-text-format",
+        "reason": "该请求是文本格式化，不是专利实质分析"
+      },
+      {
+        "query": "请根据这些专利分析材料生成法律服务建议书",
+        "should_route": false,
+        "prefer_skill": "legal-proposal-generator",
+        "reason": "该请求目标是法律服务文档生成"
+      }
+    ],
+    "last_eval": {}
+  }
+}
