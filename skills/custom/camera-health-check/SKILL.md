@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If `frames` are missing but the user provided a video source, do not ask the user to provide frames and do not write custom camera diagnostics. First call `frame-sampling/scripts/run.py` to generate frames, then call this skill.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python camera-health-check/scripts/run.py --frames-json <frames.json> --camera-id <camera_id> --config <config.json> --output <health.json>
+```
+
+Parameters: `--frames-json`, `--camera-id`, `--health-status`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read camera id and sampled frames.
@@ -22,28 +33,7 @@ If `frames` are missing but the user provided a video source, do not ask the use
 
 ## Available Implementation
 
-- Registry name: `camera-health-check`
-- Python class: `src.skills.video_data.camera_health_check.CameraHealthCheckSkill`
-- Pipeline caller: `src.orchestrator.pipeline.run_camera_pipeline`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python camera-health-check/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `camera-health-check`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("camera-health-check").run({"camera_id": camera_id, "frames": frames}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

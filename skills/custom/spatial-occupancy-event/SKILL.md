@@ -1,53 +1,47 @@
 ---
 name: spatial-occupancy-event
-description: Determine whether objects, tracks, or masks occupy configured video monitoring ROI regions. Use when Codex has roi_matches, tracks, and method_config with target_labels, roi_types, excluded_roi_types, min_overlap_ratio, or min_confidence and needs method-level spatial matches for event templates.
+description: Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation.
 ---
 
 # Spatial Occupancy Event
 
 ## Execution Priority
 
-Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
+Prioritize extracted-frame visual analysis. Call `scripts/run.py` only when reliable `roi_matches` and `tracks` already exist or the user explicitly asks for geometric rule execution.
 
 ## Input Resolution
 
-If `roi_matches`, `tracks`, or objects are missing but the user provided a video, do not ask the user to provide them and do not write custom spatial logic. Call upstream skills in order: `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, `object-tracking/scripts/run.py`, and `roi-mapping/scripts/run.py`, then call this skill.
+If `roi_matches`, `tracks`, or objects are missing but the user provided a video, do not ask the user to provide them. Extract timestamped frames first with `analyze-video/scripts/extract_frames.py` or `frame-sampling/scripts/run.py`, inspect the frames visually, and decide whether the subject is inside or overlapping the configured ROI. Use object detection/tracking/ROI scripts only as optional measurements to support the visual conclusion.
+
+## LLM Visual Workflow
+
+1. Identify the ROI from user text, camera config, visible lane/sidewalk/door/entrance boundaries, or provided polygons.
+2. Inspect coarse frames to find possible occupancy moments.
+3. Inspect adjacent or dense frames around each moment to confirm the subject remains in the ROI.
+4. Record the subject, ROI, visible boundary cue, timestamps, evidence frame ids, and confidence.
+5. Mark ambiguous cases for review when perspective, occlusion, or missing ROI definitions make the boundary unclear.
+
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python spatial-occupancy-event/scripts/run.py --roi-matches-json <roi_matches.json> --tracks-json <tracks.json> --target-labels person --roi-types public_area --output <method_result.json>
+```
+
+Parameters: `--roi-matches-json`, `--tracks-json`, `--target-labels`, `--roi-types`, `--excluded-roi-types`, `--min-overlap-ratio`, `--min-confidence`, `--method-config`, `--output`.
 
 ## Workflow
 
 1. Read target labels, ROI types, excluded ROI types, position strategy, and thresholds.
-2. Filter tracks or objects by label and ROI match.
-3. Apply overlap and confidence thresholds.
-4. Return method-level matches with subject ids, ROI ids, overlap ratio, confidence, and evidence frame ids.
+2. Review extracted frames to locate visually relevant subjects and ROI boundaries.
+3. Optionally use tracks or ROI matches as supporting geometry.
+4. Return method-level matches with subject ids or visual subject descriptions, ROI ids, confidence, and evidence frame ids.
 
 ## Available Implementation
 
-- Registry name: `spatial-occupancy-event`
-- Python class: `src.skills.event_detection.spatial_occupancy_event.SpatialOccupancyEventSkill`
-- Usually called by: `event-rule-engine`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python spatial-occupancy-event/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `spatial-occupancy-event`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("spatial-occupancy-event").run({
-    "method_config": method_config,
-    "tracks": tracks,
-    "roi_matches": roi_matches,
-}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 
@@ -69,4 +63,4 @@ Returns `matched=false` when no subject passes label, ROI, overlap, and confiden
 
 ## Constraints
 
-Do not run detection, generate evidence, route work orders, or emit final business event types directly.
+Do not generate evidence, route work orders, or emit final business event types directly. Do not treat detector boxes as sufficient when visual boundary evidence is available.

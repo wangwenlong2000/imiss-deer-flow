@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If tracks or detections are missing but the user provided a video, do not ask the user to provide geometric inputs and do not write ROI matching code. Call `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, and `object-tracking/scripts/run.py` as needed before this skill. If ROI polygons are missing, first use camera ROI definitions from the config; only ask the user when neither config nor task context provides usable ROIs.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python roi-mapping/scripts/run.py --tracks-json <tracks.json> --camera-id <camera_id> --config <config.json> --output <roi_matches.json>
+```
+
+Parameters: `--tracks-json`, `--objects-json`, `--rois-json`, `--camera-id`, `--roi-types`, `--position-strategy`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read camera ROI configuration and subjects.
@@ -22,29 +33,7 @@ If tracks or detections are missing but the user provided a video, do not ask th
 
 ## Available Implementation
 
-- Registry name: `roi-mapping`
-- Python class: `src.skills.vision_processing.roi_mapping.ROIMappingSkill`
-- Geometry helpers: `src.skills.utils.point_in_polygon`, `bbox_iou_like_overlap`, `polygon_bounds`
-- Camera ROI source: `context.config["cameras"][camera_id]["rois"]`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python roi-mapping/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `roi-mapping`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("roi-mapping").run({"camera_id": camera_id, "tracks": tracks}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

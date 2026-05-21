@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If `event` or `frames` are missing but the user provided a video or event analysis request, do not ask the user to provide evidence frames and do not write custom snapshot code. First call upstream skills to produce frames and events: `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, `object-tracking/scripts/run.py`, `roi-mapping/scripts/run.py`, and `event-rule-engine/scripts/run.py` as needed. Then call this skill using the event's `evidence_frame_ids` and available frames.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python evidence-snapshot/scripts/run.py --event-json <event.json> --frames-json <frames.json> --config <config.json> --output <evidence.json>
+```
+
+Parameters: `--event-json`, `--frames-json`, `--output-dir`, `--sensitive-regions-json`, `--config`, `--output`.
+
 ## Workflow
 
 1. Select the most relevant evidence frame from the event or input frames.
@@ -23,39 +34,7 @@ If `event` or `frames` are missing but the user provided a video or event analys
 
 ## Available Implementation
 
-- Registry name: `evidence-snapshot`
-- Python class: `src.skills.evidence_processing.evidence_snapshot.EvidenceSnapshotSkill`
-- Calls: `privacy-masking` through `context.registry` when available
-- Output directory: `context.config["output_dir"]/evidence` for real local files
-- Pipeline caller: `src.orchestrator.pipeline.run_camera_pipeline`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python evidence-snapshot/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `evidence-snapshot`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("evidence-snapshot").run({"event": event, "frames": frames}, context)
-```
-
-CLI command:
-
-```bash
-python evidence-snapshot/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

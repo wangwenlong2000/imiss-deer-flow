@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If event confidence or event fields are missing but the user provided a video analysis request, do not write custom review-routing logic. First call `event-rule-engine/scripts/run.py` and any required upstream skills to produce candidate events, then call this skill for review routing.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python human-review-routing/scripts/run.py --event-json <event.json> --camera-health-json <health.json> --config <config.json> --output <review.json>
+```
+
+Parameters: `--event-json`, `--camera-health-json`, `--review-threshold`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read event confidence, event type, camera health, and review threshold.
@@ -21,28 +32,7 @@ If event confidence or event fields are missing but the user provided a video an
 
 ## Available Implementation
 
-- Registry name: `human-review-routing`
-- Python class: `src.skills.quality_review_metrics.human_review_routing.HumanReviewRoutingSkill`
-- Pipeline caller: `src.orchestrator.pipeline.run_camera_pipeline`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python human-review-routing/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `human-review-routing`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("human-review-routing").run({"event": event, "camera_health": health}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "event-template-mapping",
+    "name": "event-template-mapping",
+    "description": "Map LLM visual observations or method-level event results into final video monitoring Event Candidate semantics. Use when Codex has frame observations, visual timeline, template_name, template config, method_results, camera_id, score_policy, or review_threshold and needs event_type, confidence, severity, reason, evidence frames, and review flags."
+  },
+  "scope": {
+    "scenes": [
+      "video_event_mapping"
+    ],
+    "is_public": false,
+    "task_types": [
+      "event_template_mapping",
+      "event_candidate_scoring"
+    ],
+    "input_types": [
+      "method_results_json",
+      "template_config",
+      "camera_id"
+    ],
+    "output_types": [
+      "event_candidate_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：event-template-mapping\n描述：Map LLM visual observations or method-level event results into final video monitoring Event Candidate semantics. Use when Codex has frame observations, visual timeline, template_name, template config, method_results, camera_id, score_policy, or review_threshold and needs event_type, confidence, severity, reason, evidence frames, and review flags.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：把视觉观察映射为事件候选；根据抽帧时间线确定事件类型；计算事件置信度和复核标记；生成 Event Candidate。\n不适合使用：抽帧；目标检测；事件去重；人工复核分流。",
+    "positive_triggers": [
+      "把视觉观察映射为事件候选",
+      "根据抽帧时间线确定事件类型",
+      "计算事件置信度和复核标记",
+      "生成 Event Candidate"
+    ],
+    "negative_triggers": [
+      "抽帧",
+      "目标检测",
+      "事件去重",
+      "人工复核分流"
+    ],
+    "keywords": [
+      "event-template-mapping",
+      "visual observations",
+      "event candidate",
+      "事件映射",
+      "视觉证据"
+    ],
+    "anti_keywords": [
+      "frame extraction",
+      "YOLO",
+      "review queue"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: event-template-mapping\ndescription: Map LLM visual observations or method-level event results into final video monitoring Event Candidate semantics. Use when Codex has frame observations, visual timeline, template_name, template config, method_results, camera_id, score_policy, or review_threshold and needs event_type, confidence, severity, reason, evidence frames, and review flags.\n---\n\n# Event Template Mapping\n\n## Execution Priority\n\nPrioritize mapping visual observations into event candidates. Call `scripts/run.py` only when structured `method_results` already exist or the user explicitly asks for template-rule execution.\n\n## Input Resolution\n\nIf `method_results` are missing but frame observations are available, map the visual observations directly into event candidates. If both visual observations and structured method results are missing, first extract and review frames through `analyze-video` or `frame-sampling`, then call the relevant method-level event skill instructions. Do not invent final event semantics from the user request alone.\n\n## LLM Visual Mapping Rules\n\n1. Use the visual timeline as the primary evidence source.\n2. Select the event template whose preconditions are visibly satisfied.\n3. Generate `reason` from concrete observations: subjects, action/state, location, timestamps, and frame ids.\n4. Set confidence from evidence quality, temporal consistency, and template fit.\n5. Set `requires_review=true` when the event is serious but visually ambiguous, when frames are sparse, or when only aftermath is visible.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython event-template-mapping/scripts/run.py --method-results-json <method_results.json> --template-name <template_name> --camera-id <camera_id> --config <config.json> --output <event.json>\n```\n\nParameters: `--method-results-json`, `--template-json`, `--template-name`, `--camera-id`, `--config`, `--output`.\n\n## Workflow\n\n1. Read template name, join policy, score policy, visual observations, and method results.\n2. Check whether the visible evidence satisfies required event semantics.\n3. Compute event confidence and review status.\n4. Return a standard Event Candidate schema with evidence frame ids and visual reason.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `template_name`\n- `template`\n- `method_results`\n- `camera_id`\n\n## Outputs\n\nReturns `matched=true` plus Event Candidate fields, or `matched=false`.\n\n## Failure Modes\n\nReturns `matched=false` when join policy fails or score is below `score_policy.min_score`.\n\n## Constraints\n\nDo not generate evidence files. Do not map an event type when the frame evidence does not visibly support it.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 78,
+    "conflict_group": "event-template-mapping",
+    "prefer_when": [
+      "把视觉观察映射为事件候选",
+      "根据抽帧时间线确定事件类型",
+      "计算事件置信度和复核标记",
+      "生成 Event Candidate"
+    ],
+    "defer_when": [
+      "抽帧",
+      "目标检测",
+      "事件去重",
+      "人工复核分流"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/event-template-mapping",
+    "skill_md_path": "skills/custom/event-template-mapping/SKILL.md",
+    "skill_md_hash": "sha256:fe79661612c477349553811a19edeb429ea3a0577436bc6b47799b6b22b466d8",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:cff9cd4df8bc6a7c539cc2238060c1ef66bb2374e473f780cf41551ea692e0f1",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "event-template-mapping"
+  }
+}

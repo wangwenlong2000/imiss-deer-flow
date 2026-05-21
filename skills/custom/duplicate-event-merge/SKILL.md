@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If event candidates are missing but the user provided a video or upstream analysis request, do not write custom duplicate merging or event generation code. First call `event-rule-engine/scripts/run.py` to produce candidate events, then call this skill to merge duplicates. Only ask for input when no event candidates can be produced or inferred.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python duplicate-event-merge/scripts/run.py --events-json <events.json> --output <merged_events.json>
+```
+
+Parameters: `--events-json`, `--output`.
+
 ## Workflow
 
 1. Read event candidates.
@@ -22,28 +33,7 @@ If event candidates are missing but the user provided a video or upstream analys
 
 ## Available Implementation
 
-- Registry name: `duplicate-event-merge`
-- Python class: `src.skills.quality_review_metrics.duplicate_event_merge.DuplicateEventMergeSkill`
-- Pipeline caller: `src.orchestrator.pipeline.run_camera_pipeline`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python duplicate-event-merge/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `duplicate-event-merge`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("duplicate-event-merge").run({"events": events}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

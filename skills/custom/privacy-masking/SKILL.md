@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If an evidence image URI is missing but the user provided an event or video analysis request, do not write custom masking code. First call `evidence-snapshot/scripts/run.py` to create snapshot evidence, then call this skill on the resulting evidence URI when masking is required.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python privacy-masking/scripts/run.py --image-uri <image.jpg> --sensitive-regions-json <regions.json> --config <config.json> --output <masked.json>
+```
+
+Parameters: `--image-uri`, `--sensitive-regions-json`, `--method`, `--disabled`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read evidence URI and configured mask types.
@@ -22,37 +33,7 @@ If an evidence image URI is missing but the user provided an event or video anal
 
 ## Available Implementation
 
-- Registry name: `privacy-masking`
-- Python class: `src.skills.evidence_processing.privacy_masking.PrivacyMaskingSkill`
-- Real image backend: OpenCV `cv2.imread`, `cv2.GaussianBlur`, `cv2.imwrite`
-- Called by: `evidence-snapshot`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python privacy-masking/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `privacy-masking`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("privacy-masking").run({"uri": evidence_uri, "sensitive_regions": regions}, context)
-```
-
-Configuration:
-
-```yaml
-privacy_masking:
-  enabled: true
-  method: gaussian_blur
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

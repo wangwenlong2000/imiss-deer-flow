@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "ffmpeg-utils",
+    "name": "ffmpeg-utils",
+    "description": "视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。"
+  },
+  "scope": {
+    "scenes": [
+      "video_utility"
+    ],
+    "is_public": false,
+    "task_types": [
+      "video_clip",
+      "keyframe_extract",
+      "ffmpeg_processing"
+    ],
+    "input_types": [
+      "video_path",
+      "time_range"
+    ],
+    "output_types": [
+      "video_clip",
+      "keyframes"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：ffmpeg-utils\n描述：视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\n适用场景：video_utility。\n适用任务：video_clip, keyframe_extract, ffmpeg_processing。\n输入类型：video_path, time_range。\n输出类型：video_clip, keyframes。\n适合使用：剪辑视频；截取片段；提取关键帧；调用ffmpeg处理视频。\n不适合使用：分析异常行为；事件规则生成；目标检测；人工复核。",
+    "positive_triggers": [
+      "剪辑视频",
+      "截取片段",
+      "提取关键帧",
+      "调用ffmpeg处理视频"
+    ],
+    "negative_triggers": [
+      "分析异常行为",
+      "事件规则生成",
+      "目标检测",
+      "人工复核"
+    ],
+    "keywords": [
+      "ffmpeg",
+      "剪辑",
+      "截取片段",
+      "关键帧",
+      "video clip"
+    ],
+    "anti_keywords": [
+      "异常分析",
+      "event rule",
+      "YOLO",
+      "review"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: ffmpeg-utils\ndescription: 视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\nversion: 1.0.0\nauthor: Gemini\ncompatibility: \">=2.0.0\"\nallowed-tools:\n  - bash\n---\n\n# 视频处理工具技能 (FFmpeg Utils)\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## 技能说明\n提供基于 FFmpeg 的底层视频操作能力。\n\n## 触发关键词\n- \"剪辑视频\", \"截取片段\", \"提取关键帧\", \"ffmpeg\"\n\n## 操作规范\n1. **截取片段**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py segment <input> <start> <duration> <output>`\n2. **提取关键帧**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py keyframe <input> <timestamp> <output>`\n\n## 注意事项\n- 所有输出文件路径必须位于 `/mnt/user-data/outputs/`。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "ffmpeg"
+    ],
+    "optional_tools": [
+      "write_file",
+      "ffprobe"
+    ],
+    "allowed_file_patterns": [
+      "*.mp4",
+      "*.mov",
+      "*.avi",
+      "*.mkv",
+      "*.flv",
+      "*.webm"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 74,
+    "conflict_group": "ffmpeg-utils",
+    "prefer_when": [
+      "剪辑视频",
+      "截取片段",
+      "提取关键帧",
+      "调用ffmpeg处理视频"
+    ],
+    "defer_when": [
+      "分析异常行为",
+      "事件规则生成",
+      "目标检测",
+      "人工复核"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/ffmpeg-utils",
+    "skill_md_path": "skills/custom/ffmpeg-utils/SKILL.md",
+    "skill_md_hash": "sha256:baae3f0d23b59ca724c0659d854c6764230de19ee26cc999656e8b30cf2687dc",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:017ae463685f76b0ffc4a08bb3940ceeb60c5c1bcf4e0657239f568dec2861df",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "ffmpeg-utils"
+  }
+}

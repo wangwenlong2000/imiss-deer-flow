@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If `frames` are missing but the user provided a video path or upload, do not ask the user to provide frames and do not write detection or frame extraction code. First call `video-stream-ingestion/scripts/run.py` if needed, then `frame-sampling/scripts/run.py` to generate `frames`, then call this skill. If `labels` are missing, infer common labels from the task when safe, such as `person` for crowd, fight, behavior, or pedestrian analysis; otherwise ask only for target labels.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python object-detection/scripts/run.py --frames-json <frames.json> --labels person,car --provider ultralytics --config <config.json> --output <detections.json>
+```
+
+Parameters: `--frames-json`, `--labels`, `--provider`, `--model-path`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read frames and target labels.
@@ -23,63 +34,7 @@ If `frames` are missing but the user provided a video path or upload, do not ask
 
 ## Available Implementation
 
-- Registry name: `object-detection`
-- Python class: `src.skills.vision_processing.object_detection.ObjectDetectionSkill`
-- Production backend 1: `ultralytics.YOLO`
-- Production backend 2: OpenCV DNN with YOLOv8 ONNX
-- Mock backend: configured `context.config["mock_detections"]`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python object-detection/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `object-detection`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-Registry call:
-
-```python
-registry.get("object-detection").run({"frames": frames, "labels": labels}, context)
-```
-
-Production command:
-
-```bash
-python object-detection/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-Configuration:
-
-```yaml
-models:
-  object_detection:
-    provider: ultralytics
-    name: yolov8n.pt
-    default_threshold: 0.25
-    thresholds:
-      person: 0.35
-      car: 0.35
-```
-
-For ONNX:
-
-```yaml
-models:
-  object_detection:
-    provider: opencv_dnn
-    model_path: /path/to/yolov8n.onnx
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

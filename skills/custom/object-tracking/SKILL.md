@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If `detections` are missing but the user provided frames or a video, do not ask the user to provide detections and do not write tracking code. Call upstream skills in order: `frame-sampling/scripts/run.py` when frames are missing, then `object-detection/scripts/run.py`, then this skill. Use the detection labels implied by the task, such as `person` for people, fight, crowd, or behavior analysis.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python object-tracking/scripts/run.py --detections-json <detections.json> --camera-id <camera_id> --config <config.json> --output <tracks.json>
+```
+
+Parameters: `--detections-json`, `--camera-id`, `--association-distance-pixels`, `--stationary-distance-pixels`, `--config`, `--output`.
+
 ## Workflow
 
 1. Sort detections by timestamp.
@@ -22,29 +33,7 @@ If `detections` are missing but the user provided frames or a video, do not ask 
 
 ## Available Implementation
 
-- Registry name: `object-tracking`
-- Python class: `src.skills.vision_processing.object_tracking.ObjectTrackingSkill`
-- Current backend: lightweight same-label nearest-center association
-- Configuration keys: `tracking.association_distance_pixels`, `tracking.stationary_distance_pixels`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python object-tracking/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `object-tracking`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("object-tracking").run({"camera_id": camera_id, "detections": detections}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

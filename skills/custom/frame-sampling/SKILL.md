@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If the user provides a video file instead of `frames`, do not ask the user to provide frames and do not write custom OpenCV extraction code. First call `video-stream-ingestion/scripts/run.py` when the source needs normalization, then call this skill with `camera_id`, `source_type=local_file`, `raw_segment_uri`, `capture_seconds`, and `sampling_strategy`. Use `sampling_strategy.mode=interval` and `interval_seconds=1` as the default unless the user requests a different cadence.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python frame-sampling/scripts/run.py --video <video.mp4> --camera-id <camera_id> --capture-seconds 10 --interval-seconds 1 --output-dir <run_dir> --config <config.json> --output <frames.json>
+```
+
+Parameters: `--video`, `--frames-json`, `--camera-id`, `--capture-seconds`, `--interval-seconds`, `--fps`, `--output-dir`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read camera id, raw segment URI, and sampling strategy.
@@ -22,41 +33,7 @@ If the user provides a video file instead of `frames`, do not ask the user to pr
 
 ## Available Implementation
 
-- Registry name: `frame-sampling`
-- Python class: `src.skills.video_data.frame_sampling.FrameSamplingSkill`
-- Real video backend: OpenCV `cv2.VideoCapture`
-- Output directory: `context.config["output_dir"]/frames/<camera_id>` for local videos
-- CLI entrypoint: `python frame-sampling/scripts/run.py --input <input.json> --config <config.json> --output <result.json>`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python frame-sampling/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `frame-sampling`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-Call through the registry:
-
-```python
-registry.get("frame-sampling").run(input_data, context)
-```
-
-For a local video run, create an input JSON with `raw_segment_uri`, `source_type=local_file`, `camera_id`, `capture_seconds`, and `sampling_strategy`, then call:
-
-```bash
-python frame-sampling/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

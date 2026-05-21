@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "frame-sampling",
+    "name": "frame-sampling",
+    "description": "Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests."
+  },
+  "scope": {
+    "scenes": [
+      "video_frame_processing"
+    ],
+    "is_public": false,
+    "task_types": [
+      "frame_sampling",
+      "frame_schema_generation"
+    ],
+    "input_types": [
+      "raw_segment_uri",
+      "video_path",
+      "frame_records"
+    ],
+    "output_types": [
+      "frames_json",
+      "frame_images",
+      "frame_metadata"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：frame-sampling\n描述：Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests.\n适用场景：video_frame_processing。\n适用任务：frame_sampling, frame_schema_generation。\n输入类型：raw_segment_uri, video_path, frame_records。\n输出类型：frames_json, frame_images, frame_metadata。\n适合使用：从视频抽帧；按间隔采样帧；生成 Frame schema；提取监控视频帧。\n不适合使用：分析帧中目标；跟踪目标；生成事件；剪辑视频。",
+    "positive_triggers": [
+      "从视频抽帧",
+      "按间隔采样帧",
+      "生成 Frame schema",
+      "提取监控视频帧"
+    ],
+    "negative_triggers": [
+      "分析帧中目标",
+      "跟踪目标",
+      "生成事件",
+      "剪辑视频"
+    ],
+    "keywords": [
+      "抽帧",
+      "frame",
+      "sampling",
+      "interval_seconds",
+      "fps",
+      "image_uri"
+    ],
+    "anti_keywords": [
+      "YOLO",
+      "tracking",
+      "ROI",
+      "event"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: frame-sampling\ndescription: Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests.\n---\n\n# Frame Sampling\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf the user provides a video file instead of `frames`, do not ask the user to provide frames and do not write custom OpenCV extraction code. First call `video-stream-ingestion/scripts/run.py` when the source needs normalization, then call this skill with `camera_id`, `source_type=local_file`, `raw_segment_uri`, `capture_seconds`, and `sampling_strategy`. Use `sampling_strategy.mode=interval` and `interval_seconds=1` as the default unless the user requests a different cadence.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython frame-sampling/scripts/run.py --video <video.mp4> --camera-id <camera_id> --capture-seconds 10 --interval-seconds 1 --output-dir <run_dir> --config <config.json> --output <frames.json>\n```\n\nParameters: `--video`, `--frames-json`, `--camera-id`, `--capture-seconds`, `--interval-seconds`, `--fps`, `--output-dir`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera id, raw segment URI, and sampling strategy.\n2. Support interval, fps, keyframe, and adaptive strategies when available.\n3. Generate stable frame ids from camera id, timestamp, and sequence.\n4. Store sampled images and return Frame schema records.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\nRequired:\n- `camera_id`\n\nCommon fields:\n- `raw_segment_uri`\n- `source_type`\n- `started_at`\n- `capture_seconds`\n- `sampling_strategy.mode`: `interval` or `fps`\n- `sampling_strategy.interval_seconds`\n- `sampling_strategy.fps`\n\n## Outputs\n\nReturns `frames`, each with `frame_id`, `camera_id`, `timestamp`, `image_uri`, `width`, `height`, `sequence`, and for real video `source_elapsed_seconds`.\n\n## Failure Modes\n\n- `MISSING_CAMERA_ID`\n- `VIDEO_OPEN_FAILED`\n\n## Constraints\n\nDo not run detection, tracking, event recognition, or evidence annotation.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "opencv"
+    ],
+    "allowed_file_patterns": [
+      "*.mp4",
+      "*.mov",
+      "*.avi",
+      "*.mkv",
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 83,
+    "conflict_group": "frame-sampling",
+    "prefer_when": [
+      "从视频抽帧",
+      "按间隔采样帧",
+      "生成 Frame schema",
+      "提取监控视频帧"
+    ],
+    "defer_when": [
+      "分析帧中目标",
+      "跟踪目标",
+      "生成事件",
+      "剪辑视频"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/frame-sampling",
+    "skill_md_path": "skills/custom/frame-sampling/SKILL.md",
+    "skill_md_hash": "sha256:e775e242691ecb22773de5717fe3f4fb9094eceffce4b060951ee06e9d9734b7",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c046c8a8f07f6547786247903a0826e7bbb204143a9b3a9adaca8cb7b2bcda2c",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "frame-sampling"
+  }
+}

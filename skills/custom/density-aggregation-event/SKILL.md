@@ -1,55 +1,47 @@
 ---
 name: density-aggregation-event
-description: Detect excessive counts, density, or clustering for target labels in configured ROIs. Use when Codex has tracks, roi_matches, camera_id, ROI polygons, and method_config with target_labels, roi_types, min_count, min_density, or min_duration_seconds and needs method-level aggregation clusters.
+description: Detect excessive counts, density, or clustering through extracted-frame LLM visual review. Use when Codex needs visual evidence for crowding, congestion, gathering, queues, blocked areas, or dense person/vehicle/object aggregation in monitoring video.
 ---
 
 # Density Aggregation Event
 
 ## Execution Priority
 
-Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
+Prioritize extracted-frame visual analysis. Call `scripts/run.py` only when reliable tracks and ROI matches already exist or the user explicitly asks for numeric rule execution.
 
 ## Input Resolution
 
-If `tracks` or `roi_matches` are missing but the user provided a video, do not ask the user to provide them and do not write custom density code. Call upstream skills in order: `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, `object-tracking/scripts/run.py`, and `roi-mapping/scripts/run.py`, then call this skill. Use task-implied labels such as `person` for crowd, density, fight, or people aggregation analysis.
+If `tracks` or `roi_matches` are missing but the user provided a video, do not ask the user to provide them. Extract timestamped frames first with `analyze-video/scripts/extract_frames.py` or `frame-sampling/scripts/run.py`, inspect the frames visually, and estimate aggregation level from visible subjects, spacing, blockage, and persistence. Use tracking/ROI scripts only as optional count support. Use task-implied labels such as `person` for crowd, density, fight, or people aggregation analysis.
+
+## LLM Visual Workflow
+
+1. Review coarse frames to locate high-density moments.
+2. Estimate visible count by category and describe whether subjects are clustered, queued, blocked, or freely moving.
+3. Compare adjacent frames to determine whether the density is momentary or sustained.
+4. Record count range rather than a false precise count when subjects overlap or are partially occluded.
+5. Return matched=false or requires_review when the frame quality is insufficient for a reliable density judgment.
+
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python density-aggregation-event/scripts/run.py --tracks-json <tracks.json> --roi-matches-json <roi_matches.json> --target-labels person --min-count 3 --config <config.json> --output <method_result.json>
+```
+
+Parameters: `--tracks-json`, `--roi-matches-json`, `--rois-json`, `--target-labels`, `--roi-types`, `--min-count`, `--min-density`, `--min-duration-seconds`, `--method-config`, `--config`, `--output`.
 
 ## Workflow
 
-1. Filter tracks by target label, ROI type, and duration.
-2. Count subjects per ROI.
-3. Estimate density from ROI or cluster area.
-4. Return clusters that exceed count and density thresholds.
+1. Review extracted frames for visible aggregation patterns.
+2. Estimate subject count, cluster area, spacing, and persistence.
+3. Optionally use tracks and ROI matches for supporting counts.
+4. Return clusters that exceed count or density thresholds with evidence frame ids and visual reasoning.
 
 ## Available Implementation
 
-- Registry name: `density-aggregation-event`
-- Python class: `src.skills.event_detection.density_aggregation_event.DensityAggregationEventSkill`
-- ROI area helper: `src.skills.utils.polygon_area`
-- Usually called by: `event-rule-engine`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python density-aggregation-event/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `density-aggregation-event`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-```python
-registry.get("density-aggregation-event").run({
-    "camera_id": camera_id,
-    "method_config": method_config,
-    "tracks": tracks,
-    "roi_matches": roi_matches,
-}, context)
-```
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 
@@ -72,4 +64,4 @@ Returns `matched=false` when no ROI exceeds configured count and density thresho
 
 ## Constraints
 
-Do not create evidence or final business events directly.
+Do not create evidence or final business events directly. Do not report exact counts when the frame only supports a range.

@@ -13,6 +13,17 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 If event timing is missing but the user provided a video analysis request, do not write custom clipping code. First call upstream event skills, especially `event-rule-engine/scripts/run.py`, to produce an event with `event_time` or `event_elapsed_seconds`; then call this skill with `raw_segment_uri`, `event_id`, and the pre/post window.
 
+
+## Atomic CLI
+
+Run this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.
+
+```bash
+python video-segment-extraction/scripts/run.py --event-id <event_id> --raw-segment-uri <video.mp4> --event-time <iso_time> --event-elapsed-seconds <seconds> --config <config.json> --output <clip.json>
+```
+
+Parameters: `--event-id`, `--raw-segment-uri`, `--event-time`, `--start-time`, `--event-elapsed-seconds`, `--pre-seconds`, `--post-seconds`, `--output-dir`, `--config`, `--output`.
+
 ## Workflow
 
 1. Read event id, source segment, event time, and pre/post window.
@@ -22,43 +33,7 @@ If event timing is missing but the user provided a video analysis request, do no
 
 ## Available Implementation
 
-- Registry name: `video-segment-extraction`
-- Python class: `src.skills.video_data.video_segment_extraction.VideoSegmentExtractionSkill`
-- Real video backend: `ffmpeg`
-- Pipeline caller: `src.orchestrator.pipeline.run_camera_pipeline`
-- Output directory: `context.config["output_dir"]/evidence`
-
-## Standalone CLI
-
-This Skill can be executed independently through the shared runner:
-
-```bash
-python video-segment-extraction/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-This directory owns registry skill `video-segment-extraction`, so the agent should call this script directly for this skill.
-
-## Tool Invocation
-
-Direct registry call:
-
-```python
-registry.get("video-segment-extraction").run(input_data, context)
-```
-
-CLI command:
-
-```bash
-python video-segment-extraction/scripts/run.py \
-  --input <input.json> \
-  --config <config.json> \
-  --output <result.json>
-```
-
-The pipeline passes `event_elapsed_seconds` so FFmpeg clips the right offset in the source video.
+This skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.
 
 ## Inputs
 

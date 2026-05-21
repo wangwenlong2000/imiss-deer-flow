@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "spatial-occupancy-event",
+    "name": "spatial-occupancy-event",
+    "description": "Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation."
+  },
+  "scope": {
+    "scenes": [
+      "video_event_method"
+    ],
+    "is_public": false,
+    "task_types": [
+      "spatial_occupancy_detection"
+    ],
+    "input_types": [
+      "roi_matches_json",
+      "tracks_json",
+      "method_config"
+    ],
+    "output_types": [
+      "method_results_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：spatial-occupancy-event\n描述：Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断区域占用；视觉分析ROI内是否有目标；检测占道或禁停区域；入侵区域判断。\n不适合使用：摄像头接入；只抽帧；最终事件编排；证据截图。",
+    "positive_triggers": [
+      "通过抽帧判断区域占用",
+      "视觉分析ROI内是否有目标",
+      "检测占道或禁停区域",
+      "入侵区域判断"
+    ],
+    "negative_triggers": [
+      "摄像头接入",
+      "只抽帧",
+      "最终事件编排",
+      "证据截图"
+    ],
+    "keywords": [
+      "spatial-occupancy-event",
+      "ROI视觉判断",
+      "区域占用",
+      "抽帧分析",
+      "illegal parking",
+      "intrusion"
+    ],
+    "anti_keywords": [
+      "raw video",
+      "snapshot",
+      "duplicate"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: spatial-occupancy-event\ndescription: Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation.\n---\n\n# Spatial Occupancy Event\n\n## Execution Priority\n\nPrioritize extracted-frame visual analysis. Call `scripts/run.py` only when reliable `roi_matches` and `tracks` already exist or the user explicitly asks for geometric rule execution.\n\n## Input Resolution\n\nIf `roi_matches`, `tracks`, or objects are missing but the user provided a video, do not ask the user to provide them. Extract timestamped frames first with `analyze-video/scripts/extract_frames.py` or `frame-sampling/scripts/run.py`, inspect the frames visually, and decide whether the subject is inside or overlapping the configured ROI. Use object detection/tracking/ROI scripts only as optional measurements to support the visual conclusion.\n\n## LLM Visual Workflow\n\n1. Identify the ROI from user text, camera config, visible lane/sidewalk/door/entrance boundaries, or provided polygons.\n2. Inspect coarse frames to find possible occupancy moments.\n3. Inspect adjacent or dense frames around each moment to confirm the subject remains in the ROI.\n4. Record the subject, ROI, visible boundary cue, timestamps, evidence frame ids, and confidence.\n5. Mark ambiguous cases for review when perspective, occlusion, or missing ROI definitions make the boundary unclear.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython spatial-occupancy-event/scripts/run.py --roi-matches-json <roi_matches.json> --tracks-json <tracks.json> --target-labels person --roi-types public_area --output <method_result.json>\n```\n\nParameters: `--roi-matches-json`, `--tracks-json`, `--target-labels`, `--roi-types`, `--excluded-roi-types`, `--min-overlap-ratio`, `--min-confidence`, `--method-config`, `--output`.\n\n## Workflow\n\n1. Read target labels, ROI types, excluded ROI types, position strategy, and thresholds.\n2. Review extracted frames to locate visually relevant subjects and ROI boundaries.\n3. Optionally use tracks or ROI matches as supporting geometry.\n4. Return method-level matches with subject ids or visual subject descriptions, ROI ids, confidence, and evidence frame ids.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `method_config.target_labels`\n- `method_config.roi_types`\n- `method_config.excluded_roi_types`\n- `method_config.min_overlap_ratio`\n- `method_config.min_confidence`\n- `tracks`\n- `roi_matches`\n\n## Outputs\n\nReturns `method=\"spatial_occupancy\"`, `matched`, and `matches`.\n\n## Failure Modes\n\nReturns `matched=false` when no subject passes label, ROI, overlap, and confidence filters.\n\n## Constraints\n\nDo not generate evidence, route work orders, or emit final business event types directly. Do not treat detector boxes as sufficient when visual boundary evidence is available.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 79,
+    "conflict_group": "spatial-occupancy-event",
+    "prefer_when": [
+      "通过抽帧判断区域占用",
+      "视觉分析ROI内是否有目标",
+      "检测占道或禁停区域",
+      "入侵区域判断"
+    ],
+    "defer_when": [
+      "摄像头接入",
+      "只抽帧",
+      "最终事件编排",
+      "证据截图"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/spatial-occupancy-event",
+    "skill_md_path": "skills/custom/spatial-occupancy-event/SKILL.md",
+    "skill_md_hash": "sha256:8d7085312171eab24a82750eef6e2e9a211b85cac11cbc54a93eb62a02419096",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:74d945b89f971be055f7930c667498bf11c46c0d82489113eb9c3a16cc181d86",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "spatial-occupancy-event"
+  }
+}

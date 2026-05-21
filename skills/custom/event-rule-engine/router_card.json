@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "event-rule-engine",
+    "name": "event-rule-engine",
+    "description": "Detect video monitoring events through frame extraction plus LLM visual review, then map visual evidence into Event Candidate schema. Use when Codex has a video, frame images, camera_id, event_templates, or a request such as fight, traffic accident, crowding, illegal parking, smoke/fire, fall, intrusion, occupancy, or other monitoring incident detection."
+  },
+  "scope": {
+    "scenes": [
+      "video_event_orchestration"
+    ],
+    "is_public": false,
+    "task_types": [
+      "event_rule_engine",
+      "event_candidate_generation"
+    ],
+    "input_types": [
+      "frames_json",
+      "detections_json",
+      "tracks_json",
+      "roi_matches_json",
+      "event_templates"
+    ],
+    "output_types": [
+      "events_json",
+      "method_outputs_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：event-rule-engine\n描述：Detect video monitoring events through frame extraction plus LLM visual review, then map visual evidence into Event Candidate schema. Use when Codex has a video, frame images, camera_id, event_templates, or a request such as fight, traffic accident, crowding, illegal parking, smoke/fire, fall, intrusion, occupancy, or other monitoring incident detection.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧检测视频事件；LLM逐帧视觉分析事件；根据视觉证据生成候选事件；监控异常事件识别。\n不适合使用：只抽帧不分析；只做目标检测；只做视频剪辑；人工复核路由。",
+    "positive_triggers": [
+      "通过抽帧检测视频事件",
+      "LLM逐帧视觉分析事件",
+      "根据视觉证据生成候选事件",
+      "监控异常事件识别"
+    ],
+    "negative_triggers": [
+      "只抽帧不分析",
+      "只做目标检测",
+      "只做视频剪辑",
+      "人工复核路由"
+    ],
+    "keywords": [
+      "event-rule-engine",
+      "视觉事件检测",
+      "frame observations",
+      "candidate events",
+      "事件检测",
+      "抽帧分析"
+    ],
+    "anti_keywords": [
+      "clip only",
+      "snapshot only",
+      "review only"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: event-rule-engine\ndescription: Detect video monitoring events through frame extraction plus LLM visual review, then map visual evidence into Event Candidate schema. Use when Codex has a video, frame images, camera_id, event_templates, or a request such as fight, traffic accident, crowding, illegal parking, smoke/fire, fall, intrusion, occupancy, or other monitoring incident detection.\n---\n\n# Event Rule Engine\n\n## Execution Priority\n\nPrioritize LLM visual analysis over detector-only event rules. For event detection from real video, first extract frames, inspect the images directly, and build a visual timeline. Only call this skill's `scripts/run.py` when the user already provides reliable `detections`, `tracks`, `roi_matches`, or explicitly asks for rule-engine execution.\n\n## Input Resolution\n\nIf the user provides a video, do not ask for `detections`, `tracks`, or `roi_matches` first. Build visual evidence by calling `analyze-video/scripts/extract_frames.py` for forensic scene/keyframe extraction, or `frame-sampling/scripts/run.py` for regular interval sampling. Use 1 FPS as the default coarse pass and add denser sampling around suspected moments when motion, contact, crowding, lane change, fall, smoke, flame, or other state changes are visible.\n\nAfter frame extraction, inspect representative frames with the available image-viewing capability. Treat object detection, tracking, and ROI scripts as optional helpers, not the source of truth, because event semantics such as fighting, accident, fall, congestion, dumping, smoke/fire, or intrusion usually require visual reasoning across frames.\n\n## LLM Visual Event Workflow\n\n1. Extract frames with timestamps and metadata.\n2. Review frames in chronological order, first coarse frames, then dense frames around candidate moments.\n3. For each candidate event, write frame-level observations: visible subjects, actions, spatial relationships, scene context, and uncertainty.\n4. Compare observations across adjacent timestamps to determine temporal change, persistence, contact, escalation, disappearance, or recovery.\n5. Map the observed pattern to the closest event template only when the visual evidence supports it.\n6. Return event candidates with evidence frame ids, time range, reason, confidence, and any uncertainty requiring human review.\n\n## Visual Evidence Rules\n\n- Prefer \"unknown\" or `requires_review=true` over overconfident classification when frames are blurry, occluded, too sparse, or ambiguous.\n- Do not infer off-camera causes. Only state what is visible in sampled frames.\n- Use at least two timestamps for temporal events unless the event is evident in a single frame, such as visible fire, smoke, crash aftermath, or a person lying on the ground.\n- Increase confidence when multiple adjacent frames show the same event pattern and lower confidence when the event depends on a single low-quality frame.\n- Include negative evidence when relevant, for example \"no visible collision before 00:12\" or \"crowd disperses by 00:26\".\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython event-rule-engine/scripts/run.py --frames-json <frames.json> --detections-json <detections.json> --tracks-json <tracks.json> --roi-matches-json <roi_matches.json> --camera-id <camera_id> --config <config.json> --output <events.json>\n```\n\nParameters: `--frames-json`, `--detections-json`, `--tracks-json`, `--roi-matches-json`, `--rois-json`, `--camera-health-json`, `--camera-id`, `--templates`, `--config`, `--output`.\n\n## Workflow\n\n1. Read enabled event templates from input or config.\n2. Extract or load timestamped frame images.\n3. Perform LLM visual review over coarse and dense frame sets.\n4. Convert visual observations into method-level evidence such as spatial occupancy, temporal persistence, object composition, or density aggregation.\n5. Apply template mapping and confidence scoring.\n6. Return event candidates with visual reasons, evidence frame ids, and review flags.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `camera_id`\n- `frames`\n- `detections`\n- `tracks`\n- `roi_matches`\n- `segments`\n- `camera_health`\n- `templates`\n\nConfig required:\n- `context.config[\"event_templates\"]`\n- Optional `context.config[\"enabled_event_templates\"]`\n\n## Outputs\n\nReturns `events` and `method_outputs`. Each event includes `event_id`, `event_type`, `camera_id`, `confidence`, `reason`, `method_hits`, `rule_hits`, `related_tracks`, and `evidence_frame_ids`.\n\n## Failure Modes\n\n- `MISSING_REGISTRY`\n- Propagates failures from called method skills.\n\n## Constraints\n\nDo not hard-code local policies or create evidence files. Do not rely on detector labels alone for final event semantics when frame images are available.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 84,
+    "conflict_group": "event-rule-engine",
+    "prefer_when": [
+      "通过抽帧检测视频事件",
+      "LLM逐帧视觉分析事件",
+      "根据视觉证据生成候选事件",
+      "监控异常事件识别"
+    ],
+    "defer_when": [
+      "只抽帧不分析",
+      "只做目标检测",
+      "只做视频剪辑",
+      "人工复核路由"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/event-rule-engine",
+    "skill_md_path": "skills/custom/event-rule-engine/SKILL.md",
+    "skill_md_hash": "sha256:25a77c0578d06d4d3d4d2ae0b8e31859c116d07801950faf263919ebbbf7f039",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:6043ec9ece32472179f9376ba583e53f6093f9f7a1027a8240672ac4a42338cd",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "event-rule-engine"
+  }
+}
