@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_method"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -24,7 +24,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：object-composition-event\n描述：Detect configured multi-object compositions through extracted-frame LLM visual review. Use when Codex needs visual evidence for person-vehicle interaction, fight/contact, accident aftermath, crowd grouping, dumping, obstruction, intrusion with tool/object, or other multi-subject event patterns.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧分析多对象关系；视觉判断打架接触；分析人车物组合事件；检测碰撞或事故后状态。\n不适合使用：单目标检测；视频取证总分析；事件去重；摄像头健康检查。",
+    "routing_text": "名称：object-composition-event\n描述：Detect configured multi-object compositions through extracted-frame LLM visual review. Use when Codex needs visual evidence for person-vehicle interaction, fight/contact, accident aftermath, crowd grouping, dumping, obstruction, intrusion with tool/object, or other multi-subject event patterns.\n适用场景：video_surveillance。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧分析多对象关系；视觉判断打架接触；分析人车物组合事件；检测碰撞或事故后状态。\n不适合使用：单目标检测；视频取证总分析；事件去重；摄像头健康检查。",
     "positive_triggers": [
       "通过抽帧分析多对象关系",
       "视觉判断打架接触",

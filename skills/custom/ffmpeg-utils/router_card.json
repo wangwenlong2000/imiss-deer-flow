@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_utility"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -25,7 +25,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：ffmpeg-utils\n描述：视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\n适用场景：video_utility。\n适用任务：video_clip, keyframe_extract, ffmpeg_processing。\n输入类型：video_path, time_range。\n输出类型：video_clip, keyframes。\n适合使用：剪辑视频；截取片段；提取关键帧；调用ffmpeg处理视频。\n不适合使用：分析异常行为；事件规则生成；目标检测；人工复核。",
+    "routing_text": "名称：ffmpeg-utils\n描述：视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\n适用场景：video_surveillance。\n适用任务：video_clip, keyframe_extract, ffmpeg_processing。\n输入类型：video_path, time_range。\n输出类型：video_clip, keyframes。\n适合使用：剪辑视频；截取片段；提取关键帧；调用ffmpeg处理视频。\n不适合使用：分析异常行为；事件规则生成；目标检测；人工复核。",
     "positive_triggers": [
       "剪辑视频",
       "截取片段",

@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_object_detection"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -24,7 +24,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：object-detection\n描述：Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.\n适用场景：video_object_detection。\n适用任务：object_detection, bbox_detection。\n输入类型：frames_json, image_frames, labels。\n输出类型：detections_json。\n适合使用：检测视频帧中的人车物；YOLO目标检测；输出检测框和置信度；识别帧内对象。\n不适合使用：跨帧跟踪；ROI匹配；生成事件；视频接入。",
+    "routing_text": "名称：object-detection\n描述：Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.\n适用场景：video_surveillance。\n适用任务：object_detection, bbox_detection。\n输入类型：frames_json, image_frames, labels。\n输出类型：detections_json。\n适合使用：检测视频帧中的人车物；YOLO目标检测；输出检测框和置信度；识别帧内对象。\n不适合使用：跨帧跟踪；ROI匹配；生成事件；视频接入。",
     "positive_triggers": [
       "检测视频帧中的人车物",
       "YOLO目标检测",

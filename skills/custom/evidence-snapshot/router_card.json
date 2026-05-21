@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_evidence"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -26,7 +26,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：evidence-snapshot\n描述：Generate snapshot evidence for video monitoring event candidates. Use when Codex has an event, event_id, evidence_frame_ids, image_uri, or frame list and needs a snapshot URI, SHA-256 integrity hash, created_at timestamp, privacy masking status, and Evidence schema output.\n适用场景：video_evidence。\n适用任务：evidence_snapshot, snapshot_export。\n输入类型：event_json, frames_json, image_uri。\n输出类型：evidence_json, snapshot_uri, sha256_hash。\n适合使用：生成事件证据截图；导出关键帧快照；计算证据图片哈希；生成 Evidence schema。\n不适合使用：视频剪辑；隐私打码；目标检测；事件规则。",
+    "routing_text": "名称：evidence-snapshot\n描述：Generate snapshot evidence for video monitoring event candidates. Use when Codex has an event, event_id, evidence_frame_ids, image_uri, or frame list and needs a snapshot URI, SHA-256 integrity hash, created_at timestamp, privacy masking status, and Evidence schema output.\n适用场景：video_surveillance。\n适用任务：evidence_snapshot, snapshot_export。\n输入类型：event_json, frames_json, image_uri。\n输出类型：evidence_json, snapshot_uri, sha256_hash。\n适合使用：生成事件证据截图；导出关键帧快照；计算证据图片哈希；生成 Evidence schema。\n不适合使用：视频剪辑；隐私打码；目标检测；事件规则。",
     "positive_triggers": [
       "生成事件证据截图",
       "导出关键帧快照",

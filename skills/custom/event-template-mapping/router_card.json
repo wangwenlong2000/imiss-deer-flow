@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_mapping"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -24,7 +24,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：event-template-mapping\n描述：Map LLM visual observations or method-level event results into final video monitoring Event Candidate semantics. Use when Codex has frame observations, visual timeline, template_name, template config, method_results, camera_id, score_policy, or review_threshold and needs event_type, confidence, severity, reason, evidence frames, and review flags.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：把视觉观察映射为事件候选；根据抽帧时间线确定事件类型；计算事件置信度和复核标记；生成 Event Candidate。\n不适合使用：抽帧；目标检测；事件去重；人工复核分流。",
+    "routing_text": "名称：event-template-mapping\n描述：Map LLM visual observations or method-level event results into final video monitoring Event Candidate semantics. Use when Codex has frame observations, visual timeline, template_name, template config, method_results, camera_id, score_policy, or review_threshold and needs event_type, confidence, severity, reason, evidence frames, and review flags.\n适用场景：video_surveillance。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：把视觉观察映射为事件候选；根据抽帧时间线确定事件类型；计算事件置信度和复核标记；生成 Event Candidate。\n不适合使用：抽帧；目标检测；事件去重；人工复核分流。",
     "positive_triggers": [
       "把视觉观察映射为事件候选",
       "根据抽帧时间线确定事件类型",

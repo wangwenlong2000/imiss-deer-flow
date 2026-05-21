@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_evidence"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -27,7 +27,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：video-segment-extraction\n描述：Extract playable short video evidence clips around event times. Use when Codex has event_id, camera_id, raw_segment_uri, event_time, event_elapsed_seconds, pre_seconds, or post_seconds and needs an MP4 clip URI plus clip time range. This skill exposes FFmpeg-backed clipping for real local videos and memory-backed synthetic clips for tests.\n适用场景：video_evidence。\n适用任务：video_clip_extraction, evidence_clip。\n输入类型：raw_segment_uri, event_time, event_elapsed_seconds, event_id。\n输出类型：clip_json, mp4_clip_uri, clip_time_range。\n适合使用：按事件时间截取视频片段；生成证据短视频；提取事件前后几秒的视频；输出clip URI。\n不适合使用：分析视频内容；目标检测；抽帧采样；隐私打码。",
+    "routing_text": "名称：video-segment-extraction\n描述：Extract playable short video evidence clips around event times. Use when Codex has event_id, camera_id, raw_segment_uri, event_time, event_elapsed_seconds, pre_seconds, or post_seconds and needs an MP4 clip URI plus clip time range. This skill exposes FFmpeg-backed clipping for real local videos and memory-backed synthetic clips for tests.\n适用场景：video_surveillance。\n适用任务：video_clip_extraction, evidence_clip。\n输入类型：raw_segment_uri, event_time, event_elapsed_seconds, event_id。\n输出类型：clip_json, mp4_clip_uri, clip_time_range。\n适合使用：按事件时间截取视频片段；生成证据短视频；提取事件前后几秒的视频；输出clip URI。\n不适合使用：分析视频内容；目标检测；抽帧采样；隐私打码。",
     "positive_triggers": [
       "按事件时间截取视频片段",
       "生成证据短视频",

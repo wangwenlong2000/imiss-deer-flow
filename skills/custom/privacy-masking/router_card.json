@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_privacy"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -25,7 +25,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：privacy-masking\n描述：Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files.\n适用场景：video_privacy。\n适用任务：privacy_masking, sensitive_region_blur。\n输入类型：evidence_image_uri, sensitive_regions, privacy_config。\n输出类型：masked_uri, privacy_masking_status。\n适合使用：给人脸车牌打码；模糊敏感区域；证据图片隐私保护；遮盖手机号门牌号。\n不适合使用：生成证据截图；检测目标；视频剪辑；事件去重。",
+    "routing_text": "名称：privacy-masking\n描述：Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files.\n适用场景：video_surveillance。\n适用任务：privacy_masking, sensitive_region_blur。\n输入类型：evidence_image_uri, sensitive_regions, privacy_config。\n输出类型：masked_uri, privacy_masking_status。\n适合使用：给人脸车牌打码；模糊敏感区域；证据图片隐私保护；遮盖手机号门牌号。\n不适合使用：生成证据截图；检测目标；视频剪辑；事件去重。",
     "positive_triggers": [
       "给人脸车牌打码",
       "模糊敏感区域",

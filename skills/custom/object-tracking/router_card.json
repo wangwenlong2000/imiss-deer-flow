@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_object_tracking"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -24,7 +24,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：object-tracking\n描述：Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules.\n适用场景：video_object_tracking。\n适用任务：object_tracking, trajectory_analysis。\n输入类型：detections_json, frames_json, camera_id。\n输出类型：tracks_json。\n适合使用：跨帧跟踪目标；生成轨迹；计算目标持续时间；跟踪检测到的人车物。\n不适合使用：单帧目标检测；ROI区域匹配；事件合并；证据截图。",
+    "routing_text": "名称：object-tracking\n描述：Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules.\n适用场景：video_surveillance。\n适用任务：object_tracking, trajectory_analysis。\n输入类型：detections_json, frames_json, camera_id。\n输出类型：tracks_json。\n适合使用：跨帧跟踪目标；生成轨迹；计算目标持续时间；跟踪检测到的人车物。\n不适合使用：单帧目标检测；ROI区域匹配；事件合并；证据截图。",
     "positive_triggers": [
       "跨帧跟踪目标",
       "生成轨迹",

@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_method"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -23,7 +23,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：spatial-occupancy-event\n描述：Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断区域占用；视觉分析ROI内是否有目标；检测占道或禁停区域；入侵区域判断。\n不适合使用：摄像头接入；只抽帧；最终事件编排；证据截图。",
+    "routing_text": "名称：spatial-occupancy-event\n描述：Determine whether visually observed subjects occupy configured video monitoring ROI regions through extracted-frame LLM review. Use when Codex has video frames, camera_id, ROI hints, method_config, or needs visual evidence for illegal parking, lane occupancy, sidewalk occupancy, intrusion, or public-area occupation.\n适用场景：video_surveillance。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断区域占用；视觉分析ROI内是否有目标；检测占道或禁停区域；入侵区域判断。\n不适合使用：摄像头接入；只抽帧；最终事件编排；证据截图。",
     "positive_triggers": [
       "通过抽帧判断区域占用",
       "视觉分析ROI内是否有目标",

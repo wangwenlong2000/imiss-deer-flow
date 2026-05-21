@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_monitoring_ingestion"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -28,7 +28,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：video-stream-ingestion\n描述：Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic.\n适用场景：video_monitoring_ingestion。\n适用任务：stream_ingestion, video_source_normalization, camera_session_metadata。\n输入类型：rtsp_url, gb28181, platform_api, local_video, mock_source。\n输出类型：raw_segment_uri, video_session_metadata。\n适合使用：接入监控视频流；规范化本地视频输入；读取摄像头视频源；生成 raw_segment_uri。\n不适合使用：分析视频内容；检测目标；生成事件；剪辑证据片段。",
+    "routing_text": "名称：video-stream-ingestion\n描述：Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic.\n适用场景：video_surveillance。\n适用任务：stream_ingestion, video_source_normalization, camera_session_metadata。\n输入类型：rtsp_url, gb28181, platform_api, local_video, mock_source。\n输出类型：raw_segment_uri, video_session_metadata。\n适合使用：接入监控视频流；规范化本地视频输入；读取摄像头视频源；生成 raw_segment_uri。\n不适合使用：分析视频内容；检测目标；生成事件；剪辑证据片段。",
     "positive_triggers": [
       "接入监控视频流",
       "规范化本地视频输入",

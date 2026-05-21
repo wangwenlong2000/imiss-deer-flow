@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_method"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -22,7 +22,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：temporal-persistence-event\n描述：Determine whether a visually observed object, action, or scene state persists long enough to count as sustained occupancy or anomaly through extracted-frame LLM review. Use for lingering, illegal parking, fallen person, congestion, crowding, smoke/fire, blockage, or other temporal video event evidence.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断持续异常；视觉分析停留时长；判断状态是否持续；持续占用或拥堵检测。\n不适合使用：单帧检测；ROI映射；事件去重；视频接入。",
+    "routing_text": "名称：temporal-persistence-event\n描述：Determine whether a visually observed object, action, or scene state persists long enough to count as sustained occupancy or anomaly through extracted-frame LLM review. Use for lingering, illegal parking, fallen person, congestion, crowding, smoke/fire, blockage, or other temporal video event evidence.\n适用场景：video_surveillance。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断持续异常；视觉分析停留时长；判断状态是否持续；持续占用或拥堵检测。\n不适合使用：单帧检测；ROI映射；事件去重；视频接入。",
     "positive_triggers": [
       "通过抽帧判断持续异常",
       "视觉分析停留时长",

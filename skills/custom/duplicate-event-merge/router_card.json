@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_postprocessing"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -23,7 +23,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：duplicate-event-merge\n描述：Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.\n适用场景：video_event_postprocessing。\n适用任务：duplicate_event_merge, event_deduplication。\n输入类型：events_json。\n输出类型：canonical_events_json, duplicate_mappings_json。\n适合使用：合并重复事件；去重同一摄像头同类事件；合并时间窗口重叠的事件候选。\n不适合使用：生成事件规则；抽帧；目标检测；证据截图。",
+    "routing_text": "名称：duplicate-event-merge\n描述：Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.\n适用场景：video_surveillance。\n适用任务：duplicate_event_merge, event_deduplication。\n输入类型：events_json。\n输出类型：canonical_events_json, duplicate_mappings_json。\n适合使用：合并重复事件；去重同一摄像头同类事件；合并时间窗口重叠的事件候选。\n不适合使用：生成事件规则；抽帧；目标检测；证据截图。",
     "positive_triggers": [
       "合并重复事件",
       "去重同一摄像头同类事件",

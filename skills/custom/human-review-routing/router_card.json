@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_review"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -24,7 +24,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：human-review-routing\n描述：Decide whether video monitoring event candidates require manual review. Use after event generation and evidence creation when Codex has event confidence, event_type, review_threshold, camera_health, high_risk_event_types, newly added camera signals, or enforcement-impact flags and needs review queue routing.\n适用场景：video_event_review。\n适用任务：human_review_routing, review_queue_decision。\n输入类型：event_json, camera_health_json, review_config。\n输出类型：review_routing_json。\n适合使用：判断事件是否需要人工复核；低置信度事件进入复核队列；高风险事件人工审核分流。\n不适合使用：生成事件；证据截图；视频分析；隐私打码。",
+    "routing_text": "名称：human-review-routing\n描述：Decide whether video monitoring event candidates require manual review. Use after event generation and evidence creation when Codex has event confidence, event_type, review_threshold, camera_health, high_risk_event_types, newly added camera signals, or enforcement-impact flags and needs review queue routing.\n适用场景：video_surveillance。\n适用任务：human_review_routing, review_queue_decision。\n输入类型：event_json, camera_health_json, review_config。\n输出类型：review_routing_json。\n适合使用：判断事件是否需要人工复核；低置信度事件进入复核队列；高风险事件人工审核分流。\n不适合使用：生成事件；证据截图；视频分析；隐私打码。",
     "positive_triggers": [
       "判断事件是否需要人工复核",
       "低置信度事件进入复核队列",

@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_roi_mapping"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -25,7 +25,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：roi-mapping\n描述：Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection.\n适用场景：video_roi_mapping。\n适用任务：roi_mapping, spatial_match。\n输入类型：tracks_json, detections_json, roi_config, camera_id。\n输出类型：roi_matches_json。\n适合使用：判断目标是否进入ROI区域；匹配摄像头区域多边形；检测占道或禁停区域位置；生成 roi_matches。\n不适合使用：抽帧；目标检测；事件模板编排；视频剪辑。",
+    "routing_text": "名称：roi-mapping\n描述：Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection.\n适用场景：video_surveillance。\n适用任务：roi_mapping, spatial_match。\n输入类型：tracks_json, detections_json, roi_config, camera_id。\n输出类型：roi_matches_json。\n适合使用：判断目标是否进入ROI区域；匹配摄像头区域多边形；检测占道或禁停区域位置；生成 roi_matches。\n不适合使用：抽帧；目标检测；事件模板编排；视频剪辑。",
     "positive_triggers": [
       "判断目标是否进入ROI区域",
       "匹配摄像头区域多边形",

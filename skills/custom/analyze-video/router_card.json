@@ -7,8 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_forensics",
-      "surveillance_review"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -32,7 +31,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：analyze-video\n描述：专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。\n适用场景：video_forensics, surveillance_review, video_event_visual_analysis。\n适用任务：video_analysis, scene_detection, frame_review, incident_timeline, forensic_report, frame_based_event_detection。\n输入类型：mp4, mov, avi, mkv, video_path。\n输出类型：frame_metadata, scene_segments, visual_timeline, event_candidates, timeline_report。\n适合使用：分析视频事件；通过抽帧视觉分析异常行为；监控事件检测；逐帧审图生成事件时间线；视频取证。\n不适合使用：生成AI视频；只剪辑视频片段；只做目标检测；只做摄像头健康检查。",
+    "routing_text": "名称：analyze-video\n描述：专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。\n适用场景：video_surveillance。\n适用任务：video_analysis, scene_detection, frame_review, incident_timeline, forensic_report, frame_based_event_detection。\n输入类型：mp4, mov, avi, mkv, video_path。\n输出类型：frame_metadata, scene_segments, visual_timeline, event_candidates, timeline_report。\n适合使用：分析视频事件；通过抽帧视觉分析异常行为；监控事件检测；逐帧审图生成事件时间线；视频取证。\n不适合使用：生成AI视频；只剪辑视频片段；只做目标检测；只做摄像头健康检查。",
     "positive_triggers": [
       "分析视频事件",
       "通过抽帧视觉分析异常行为",

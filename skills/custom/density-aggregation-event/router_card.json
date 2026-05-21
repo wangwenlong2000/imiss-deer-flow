@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_event_method"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -26,7 +26,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：density-aggregation-event\n描述：Detect excessive counts, density, or clustering through extracted-frame LLM visual review. Use when Codex needs visual evidence for crowding, congestion, gathering, queues, blocked areas, or dense person/vehicle/object aggregation in monitoring video.\n适用场景：video_event_visual_analysis。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断人员聚集；视觉分析拥堵密度；发现目标聚集或排队；监控聚集事件检测。\n不适合使用：视频接入；证据打码；事件去重；普通图表统计。",
+    "routing_text": "名称：density-aggregation-event\n描述：Detect excessive counts, density, or clustering through extracted-frame LLM visual review. Use when Codex needs visual evidence for crowding, congestion, gathering, queues, blocked areas, or dense person/vehicle/object aggregation in monitoring video.\n适用场景：video_surveillance。\n适用任务：frame_based_event_detection, visual_timeline_analysis, event_candidate_generation。\n输入类型：video_path, frame_images, frame_metadata, visual_observations, event_templates。\n输出类型：visual_observations, event_candidate_json, evidence_frame_ids。\n适合使用：通过抽帧判断人员聚集；视觉分析拥堵密度；发现目标聚集或排队；监控聚集事件检测。\n不适合使用：视频接入；证据打码；事件去重；普通图表统计。",
     "positive_triggers": [
       "通过抽帧判断人员聚集",
       "视觉分析拥堵密度",

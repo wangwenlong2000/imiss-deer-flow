@@ -7,7 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "video_frame_processing"
+      "video_surveillance"
     ],
     "is_public": false,
     "task_types": [
@@ -26,7 +26,7 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：frame-sampling\n描述：Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests.\n适用场景：video_frame_processing。\n适用任务：frame_sampling, frame_schema_generation。\n输入类型：raw_segment_uri, video_path, frame_records。\n输出类型：frames_json, frame_images, frame_metadata。\n适合使用：从视频抽帧；按间隔采样帧；生成 Frame schema；提取监控视频帧。\n不适合使用：分析帧中目标；跟踪目标；生成事件；剪辑视频。",
+    "routing_text": "名称：frame-sampling\n描述：Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests.\n适用场景：video_surveillance。\n适用任务：frame_sampling, frame_schema_generation。\n输入类型：raw_segment_uri, video_path, frame_records。\n输出类型：frames_json, frame_images, frame_metadata。\n适合使用：从视频抽帧；按间隔采样帧；生成 Frame schema；提取监控视频帧。\n不适合使用：分析帧中目标；跟踪目标；生成事件；剪辑视频。",
     "positive_triggers": [
       "从视频抽帧",
       "按间隔采样帧",
