@@ -10,6 +10,10 @@ allowed-tools:
 
 # 视频处理工具技能 (FFmpeg Utils)
 
+## Execution Priority
+
+Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
+
 ## 技能说明
 提供基于 FFmpeg 的底层视频操作能力。
 

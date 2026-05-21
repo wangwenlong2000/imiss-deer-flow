@@ -1,0 +1,62 @@
+{
+  "now": "2026-05-20T10:00:00+08:00",
+  "output_dir": "/mnt/data/video-monitoring-runs/default",
+  "default_capture_seconds": 10,
+  "cameras": {
+    "CAM_DEERFLOW_001": {
+      "name": "deerflow-video-monitoring",
+      "source_type": "local_file",
+      "stream_url": "/mnt/data/videos/Trafic.mp4",
+      "rois": [
+        {
+          "id": "ROI_FULL_FRAME",
+          "type": "public_area",
+          "polygon": [[0, 0], [10000, 0], [10000, 10000], [0, 10000]]
+        }
+      ]
+    }
+  },
+  "models": {
+    "object_detection": {
+      "provider": "ultralytics",
+      "model_path": "/mnt/skills/custom/models/yolov8n.pt",
+      "device": null,
+      "default_threshold": 0.25,
+      "thresholds": {
+        "person": 0.35,
+        "car": 0.35,
+        "bus": 0.35,
+        "truck": 0.35,
+        "motorcycle": 0.35,
+        "bicycle": 0.35
+      }
+    }
+  },
+  "tracking": {
+    "association_distance_pixels": 120,
+    "stationary_distance_pixels": 80
+  },
+  "enabled_event_templates": ["real_video_object_occupancy"],
+  "event_templates": {
+    "real_video_object_occupancy": {
+      "event_type": "real_video_object_occupancy",
+      "join_policy": "all_required",
+      "methods": [
+        {
+          "skill": "spatial-occupancy-event",
+          "target_labels": ["person", "car", "bus", "truck", "motorcycle", "bicycle"],
+          "roi_types": ["public_area"],
+          "position_strategy": "bottom_center",
+          "min_overlap_ratio": 0.1
+        }
+      ],
+      "score_policy": {"min_score": 0.35},
+      "review_threshold": 0.7
+    }
+  },
+  "privacy_masking": {
+    "enabled": true,
+    "method": "gaussian_blur"
+  }
+}
+

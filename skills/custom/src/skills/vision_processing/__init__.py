@@ -1,0 +1,2 @@
+"""Vision processing skills."""
+

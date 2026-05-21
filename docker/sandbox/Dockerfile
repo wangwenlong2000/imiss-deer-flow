@@ -18,7 +18,7 @@ RUN apt-get update \
      > /etc/apt/sources.list.d/zeek.list \
   && apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends zeek \
-  && python3 -m pip install --no-cache-dir opencv-python-headless \
+  && python3 -m pip install --no-cache-dir opencv-python-headless ultralytics \
    && ln -sf /opt/zeek/bin/zeek /usr/local/bin/zeek \
    && ln -sf /opt/zeek/bin/zeekctl /usr/local/bin/zeekctl \
    && rm -rf /var/lib/apt/lists/*

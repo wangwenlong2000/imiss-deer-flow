@@ -12,6 +12,10 @@ allowed-tools:
 
 # 专业视频取证分析技能 (Analyze Video)
 
+## Execution Priority
+
+Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
+
 ## 技能说明
 `analyze-video` 是一个高精度的视频帧分析工具，专为“城市超脑”中的法医级取证设计。它通过 `ffmpeg` 在本地执行场景变更检测，并自动将长视频划分为多个“章节”，以便 Agent 进行并行化的视觉审核。
 

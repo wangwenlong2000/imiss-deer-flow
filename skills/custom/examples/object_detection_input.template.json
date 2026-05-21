@@ -1,0 +1,15 @@
+{
+  "frames": [
+    {
+      "frame_id": "replace_with_frame_id",
+      "camera_id": "CAM_DEERFLOW_001",
+      "timestamp": "2026-05-20T10:00:00+08:00",
+      "image_uri": "/mnt/data/video-monitoring-runs/run_001/frames/CAM_DEERFLOW_001/frame.jpg",
+      "width": 1280,
+      "height": 674,
+      "sequence": 1
+    }
+  ],
+  "labels": ["person", "car", "bus", "truck", "motorcycle", "bicycle"]
+}
+

@@ -5,6 +5,9 @@
     },
     {
       "path": "../custom"
+    },
+    {
+      "path": "../deerflow_video_monitoring_bundle"
     }
   ],
   "settings": {
