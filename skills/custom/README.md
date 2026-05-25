@@ -10,7 +10,7 @@
 
 ## 总体作用
 
-这组 skills 用于从视频源接入开始，完成抽帧、LLM 视觉分析、可选的目标检测/跟踪/ROI 辅助、事件候选生成、去重、证据生成、隐私打码和人工复核分流。
+这组 skills 用于从已存在的视频文件开始，完成抽帧、LLM 视觉分析、可选的目标检测/跟踪/ROI 辅助、事件候选生成、去重、证据生成、隐私打码和人工复核分流。
 
 事件检测的默认链路应优先走抽帧视觉分析，而不是直接依赖目标检测框或规则脚本：
 
@@ -30,8 +30,7 @@ analyze-video 或 frame-sampling
 已有可靠结构化检测结果时，仍可以使用规则/几何辅助链路：
 
 ```text
-video-stream-ingestion
-  -> frame-sampling
+frame-sampling
   -> camera-health-check
   -> object-detection
   -> object-tracking
@@ -53,7 +52,7 @@ video-stream-ingestion
 | Skill | 作用 |
 | --- | --- |
 | `analyze-video` | 对本地视频做场景检测、关键帧提取、章节切分、逐帧视觉审核、事件时间线和取证回溯。 |
-| `video-stream-ingestion` | 接入或规范化视频源，输出 `raw_segment_uri` 和视频会话元数据。 |
+| `video-stream-ingestion` | 仅规范化本地视频文件，输出 `raw_segment_uri` 和视频会话元数据；不处理实时视频流。 |
 | `frame-sampling` | 从视频片段或已有帧记录中生成标准 Frame schema。 |
 | `camera-health-check` | 检查摄像头画面质量，例如黑屏、模糊、遮挡、冻结、不可用。 |
 | `object-detection` | 对抽样帧做人车物等目标检测，输出 Detection schema。 |
@@ -145,7 +144,7 @@ python_packages:
 
 ### 视频处理依赖
 
-运行 `analyze-video`、`video-stream-ingestion`、`video-segment-extraction`、`ffmpeg-utils` 时建议配置：
+运行 `analyze-video`、`video-segment-extraction`、`ffmpeg-utils`，以及需要探测本地视频元数据的规范化入口时建议配置：
 
 ```yaml
 system_packages:
@@ -233,12 +232,30 @@ python_packages:
 
 ## 运行示例
 
+所有 `scripts/run.py` 都支持统一的 JSON 入口：
+
+```bash
+python skills/custom/<skill-name>/scripts/run.py \
+  --input /mnt/user-data/inputs/<skill-input>.json \
+  --config skills/custom/configs/deerflow_config.json \
+  --output /mnt/user-data/outputs/<skill-result>.json
+```
+
+命令行上的细粒度参数会覆盖 `--input` JSON 中的同名字段。这样 Agent 可以稳定地按路由卡调用已有脚本，而不需要在 skill 失败后临时拼装新脚本。
+
 抽帧并做 LLM 视觉事件分析的推荐起点：
 
 ```bash
 python skills/custom/analyze-video/scripts/extract_frames.py \
   /mnt/user-data/uploads/input.mp4 \
   --output-dir /mnt/user-data/outputs/video_review
+```
+
+也可以用 JSON 调用：
+
+```bash
+python skills/custom/analyze-video/scripts/extract_frames.py \
+  --input /mnt/user-data/inputs/analyze_video_input.json
 ```
 
 执行后读取 `/mnt/user-data/outputs/video_review/metadata.json`，再按时间顺序查看输出帧图片。事件检测报告应基于可见帧证据给出 `event_type`、`time_range`、`evidence_frame_ids`、`reason`、`confidence` 和 `requires_review`。

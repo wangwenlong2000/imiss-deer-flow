@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,42 +168,54 @@ SKILL = "video-segment-extraction"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Extract an MP4 clip around an event time.")
-    p.add_argument("--event-id", required=True)
-    p.add_argument("--raw-segment-uri", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--event-id")
+    p.add_argument("--raw-segment-uri")
     p.add_argument("--event-time")
     p.add_argument("--start-time")
-    p.add_argument("--event-elapsed-seconds", type=float, default=0.0)
-    p.add_argument("--pre-seconds", type=int, default=10)
-    p.add_argument("--post-seconds", type=int, default=10)
+    p.add_argument("--event-elapsed-seconds", type=float)
+    p.add_argument("--pre-seconds", type=int)
+    p.add_argument("--post-seconds", type=int)
     p.add_argument("--output-dir")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    event_time = args.event_time or args.start_time
+    event = input_dict(input_data, "event")
+    event_id = args.event_id or input_value(input_data, "event_id") or event.get("event_id")
+    raw_segment_uri = args.raw_segment_uri or input_value(input_data, "raw_segment_uri") or event.get("raw_segment_uri")
+    event_time = args.event_time or args.start_time or input_value(input_data, "event_time", "start_time") or event.get("event_time") or event.get("start_time")
     if not event_time:
         return emit(failed(SKILL, "MISSING_EVENT", "--event-time or --start-time is required"), args.output)
-    source = Path(args.raw_segment_uri.removeprefix("file://"))
-    out_dir = Path(args.output_dir or config.get("output_dir", "outputs")) / "evidence"
+    if not event_id:
+        return emit(failed(SKILL, "MISSING_EVENT_ID", "--event-id or input.event_id is required"), args.output)
+    if not raw_segment_uri:
+        return emit(failed(SKILL, "MISSING_RAW_SEGMENT", "--raw-segment-uri or input.raw_segment_uri is required"), args.output)
+    event_elapsed = args.event_elapsed_seconds if args.event_elapsed_seconds is not None else float(input_value(input_data, "event_elapsed_seconds", default=event.get("event_elapsed_seconds", 0.0)))
+    pre_seconds = args.pre_seconds if args.pre_seconds is not None else int(input_value(input_data, "pre_seconds", default=10))
+    post_seconds = args.post_seconds if args.post_seconds is not None else int(input_value(input_data, "post_seconds", default=10))
+    source = Path(str(raw_segment_uri).removeprefix("file://"))
+    out_dir = Path(args.output_dir or input_value(input_data, "output_dir") or config.get("output_dir", "outputs")) / "evidence"
     
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         return emit(failed(SKILL, "OUTPUT_DIR_UNAVAILABLE", f"Could not create output directory: {out_dir}: {exc}", True), args.output)
-    out = out_dir / f"{args.event_id}_clip.mp4"
-    actual_pre = args.pre_seconds
+    out = out_dir / f"{event_id}_clip.mp4"
+    actual_pre = pre_seconds
     if source.exists():
-        start_offset = max(0.0, args.event_elapsed_seconds - args.pre_seconds)
-        actual_pre = args.event_elapsed_seconds - start_offset
-        cmd = ["ffmpeg", "-y", "-ss", str(start_offset), "-i", str(source), "-t", str(args.pre_seconds + args.post_seconds), "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart", str(out)]
+        start_offset = max(0.0, event_elapsed - pre_seconds)
+        actual_pre = event_elapsed - start_offset
+        cmd = ["ffmpeg", "-y", "-ss", str(start_offset), "-i", str(source), "-t", str(pre_seconds + post_seconds), "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart", str(out)]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             return emit(failed(SKILL, "FFMPEG_CLIP_FAILED", "FFmpeg failed to extract evidence clip", True, {"stderr": result.stderr[-2000:]}), args.output)
         uri = str(out)
     else:
-        out.write_text(f"clip:{args.event_id}:{args.raw_segment_uri}\n", encoding="utf-8")
+        out.write_text(f"clip:{event_id}:{raw_segment_uri}\n", encoding="utf-8")
         uri = str(out)
-    data = {"event_id": args.event_id, "clip_uri": uri, "start_time": iso_add_seconds(event_time, -actual_pre), "end_time": iso_add_seconds(event_time, args.post_seconds)}
+    data = {"event_id": event_id, "clip_uri": uri, "start_time": iso_add_seconds(event_time, -actual_pre), "end_time": iso_add_seconds(event_time, post_seconds)}
     return emit(success(SKILL, data), args.output)
 
 if __name__ == "__main__":

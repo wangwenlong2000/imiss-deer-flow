@@ -1,6 +1,6 @@
 ---
 name: object-detection
-description: Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.
+description: Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend plus a mock backend for dependency-free chain tests; use it before tracking, ROI mapping, and event rules.
 ---
 
 # Object Detection
@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If `frames` are missing but the user provided a video path or upload, do not ask the user to provide frames and do not write detection or frame extraction code. First call `video-stream-ingestion/scripts/run.py` if needed, then `frame-sampling/scripts/run.py` to generate `frames`, then call this skill. If `labels` are missing, infer common labels from the task when safe, such as `person` for crowd, fight, behavior, or pedestrian analysis; otherwise ask only for target labels.
+If `frames` are missing but the user provided a video path or upload, do not ask the user to provide frames and do not write detection or frame extraction code. First call `frame-sampling/scripts/run.py` to generate `frames`, then call this skill. If `labels` are missing, infer common labels from the task when safe, such as `person` for crowd, fight, behavior, or pedestrian analysis; otherwise ask only for target labels.
 
 
 ## Atomic CLI
@@ -22,12 +22,18 @@ Run this skill directly with its own script. The script does not call other skil
 python object-detection/scripts/run.py --frames-json <frames.json> --labels person,car --provider ultralytics --config <config.json> --output <detections.json>
 ```
 
-Parameters: `--frames-json`, `--labels`, `--provider`, `--model-path`, `--config`, `--output`.
+For chain smoke tests without `ultralytics`, use:
+
+```bash
+python object-detection/scripts/run.py --input <input.json> --provider mock --output <detections.json>
+```
+
+Parameters: `--input`, `--frames-json`, `--labels`, `--provider`, `--model-path`, `--config`, `--output`.
 
 ## Workflow
 
 1. Read frames and target labels.
-2. Load the configured ultralytics YOLO detector.
+2. Load the configured ultralytics YOLO detector, or return empty frame-level detections when `--provider mock` is explicitly selected.
 3. Map model labels to internal labels.
 4. Apply per-label confidence thresholds.
 5. Return frame-level Detection records.

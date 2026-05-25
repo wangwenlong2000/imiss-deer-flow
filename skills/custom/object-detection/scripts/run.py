@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -181,24 +202,38 @@ def run_ultralytics(frames, labels, thresholds, model_config):
     vals = [o["confidence"] for d in detections for o in d["objects"]]
     return success(SKILL, {"detections": detections, "model": str(model_path)}, sum(vals) / len(vals) if vals else 0)
 
+def run_mock(frames, labels):
+    detections = [{"frame_id": frame.get("frame_id"), "timestamp": frame.get("timestamp"), "objects": []} for frame in frames]
+    return success(SKILL, {"detections": detections, "model": "mock", "labels": labels}, 0)
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect objects in sampled frames.")
-    p.add_argument("--frames-json", required=True)
-    p.add_argument("--labels", default="person")
-    p.add_argument("--provider", choices=["ultralytics"])
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--frames-json")
+    p.add_argument("--labels")
+    p.add_argument("--provider", choices=["ultralytics", "mock"])
     p.add_argument("--model-path")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    frames = load_list(args.frames_json, "frames")
-    labels = [x.strip() for x in args.labels.split(",") if x.strip()]
+    frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
+    precomputed = input_list(input_data, "detections")
+    if precomputed and not frames:
+        return emit(success(SKILL, {"detections": precomputed, "model": "precomputed"}), args.output)
+    label_value = args.labels if args.labels is not None else input_value(input_data, "labels", default=["person"])
+    labels = [x.strip() for x in label_value.split(",") if x.strip()] if isinstance(label_value, str) else list(label_value or [])
     model_config = dict(config.get("models", {}).get("object_detection", {}))
-    if args.provider:
-        model_config["provider"] = args.provider
-    if args.model_path:
-        model_config["model_path"] = args.model_path
+    provider_value = args.provider or input_value(input_data, "provider")
+    model_path = args.model_path or input_value(input_data, "model_path")
+    if provider_value:
+        model_config["provider"] = provider_value
+    if model_path:
+        model_config["model_path"] = model_path
     provider = model_config.get("provider", "ultralytics")
+    if provider == "mock":
+        return emit(run_mock(frames, labels), args.output)
     if provider != "ultralytics":
         return emit(failed(SKILL, "UNSUPPORTED_PROVIDER", f"Unsupported object detection provider: {provider}"), args.output)
     result = run_ultralytics(frames, labels, model_config.get("thresholds", {}), model_config)

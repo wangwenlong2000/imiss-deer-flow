@@ -6,9 +6,8 @@ This folder is designed to be used as the DeerFlow custom skills root.
 
 It contains:
 
-- 17 independent Skill directories, each with its own `SKILL.md` and `scripts/run.py`
-- Shared implementation code in `src/`
-- Shared runner helpers in `tools/`
+- Independent Skill directories, each with its own `SKILL.md` and standalone script entrypoint
+- No shared `src/`, `tools/`, or registry module is required for the atomic scripts
 - YOLO model weights in `models/yolov8n.pt`
 - DeerFlow-oriented config in `configs/deerflow_config.json`
 - Python dependency list in `requirements.txt`
@@ -32,8 +31,6 @@ The directory should look like:
     SKILL.md
     scripts/run.py
   ...
-  src/
-  tools/
   models/yolov8n.pt
   configs/deerflow_config.json
 ```
@@ -92,14 +89,10 @@ python /mnt/skills/custom/<skill-name>/scripts/run.py \
   --output <result.json>
 ```
 
-Examples:
+`analyze-video` uses `scripts/extract_frames.py` as its entrypoint and supports
+the same `--input` JSON pattern.
 
-```bash
-python /mnt/skills/custom/video-stream-ingestion/scripts/run.py \
-  --input /mnt/data/video-monitoring-runs/run_001/video_ingestion_input.json \
-  --config /mnt/skills/custom/configs/deerflow_config.json \
-  --output /mnt/data/video-monitoring-runs/run_001/video_ingestion_result.json
-```
+Examples:
 
 ```bash
 python /mnt/skills/custom/object-detection/scripts/run.py \
@@ -113,8 +106,7 @@ python /mnt/skills/custom/object-detection/scripts/run.py \
 Agent can compose Skills in this order:
 
 ```text
-video-stream-ingestion
-  -> frame-sampling
+frame-sampling
   -> camera-health-check
   -> object-detection
   -> object-tracking
@@ -127,4 +119,3 @@ video-stream-ingestion
 ```
 
 The output JSON of one Skill should be transformed into the input JSON of the next Skill by the agent or by a future workflow adapter.
-

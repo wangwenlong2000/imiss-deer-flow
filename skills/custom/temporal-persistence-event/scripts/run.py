@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,19 +168,24 @@ SKILL = "temporal-persistence-event"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect tracks that persist for a configured duration.")
-    p.add_argument("--tracks-json", required=True)
-    p.add_argument("--target-labels", default="")
-    p.add_argument("--movement-states", default="")
-    p.add_argument("--min-duration-seconds", type=int, default=0)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--tracks-json")
+    p.add_argument("--target-labels")
+    p.add_argument("--movement-states")
+    p.add_argument("--min-duration-seconds", type=int)
     p.add_argument("--method-config")
     p.add_argument("--output")
     args = p.parse_args()
-    cfg = load_dict(args.method_config)
-    labels = set(cfg.get("target_labels") or [x.strip() for x in args.target_labels.split(",") if x.strip()])
-    states = set(cfg.get("movement_states") or [x.strip() for x in args.movement_states.split(",") if x.strip()])
-    min_duration = int(cfg.get("min_duration_seconds", args.min_duration_seconds))
+    input_data = load_input(args.input)
+    cfg = load_dict(args.method_config) if args.method_config else input_dict(input_data, "method_config")
+    labels_value = args.target_labels if args.target_labels is not None else cfg.get("target_labels") or input_value(input_data, "target_labels", default="")
+    states_value = args.movement_states if args.movement_states is not None else cfg.get("movement_states") or input_value(input_data, "movement_states", default="")
+    labels = set([x.strip() for x in labels_value.split(",") if x.strip()] if isinstance(labels_value, str) else labels_value or [])
+    states = set([x.strip() for x in states_value.split(",") if x.strip()] if isinstance(states_value, str) else states_value or [])
+    min_duration = int(args.min_duration_seconds if args.min_duration_seconds is not None else cfg.get("min_duration_seconds", input_value(input_data, "min_duration_seconds", default=0)))
     matches = []
-    for track in load_list(args.tracks_json, "tracks"):
+    tracks = load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(input_data, "tracks")
+    for track in tracks:
         if labels and track.get("label") not in labels:
             continue
         if states and track.get("movement_state") not in states:

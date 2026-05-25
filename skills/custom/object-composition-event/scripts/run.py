@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,23 +168,29 @@ SKILL = "object-composition-event"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect configured multi-object compositions.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--detections-json")
     p.add_argument("--tracks-json")
     p.add_argument("--roi-matches-json")
     p.add_argument("--required-json", help='JSON list like [{"labels":["person"],"min_count":2}]')
-    p.add_argument("--group-by", choices=["frame", "roi", "all"], default="frame")
-    p.add_argument("--spatial-relation", choices=["near", "any"], default="any")
-    p.add_argument("--max-distance-pixels", type=float, default=150)
+    p.add_argument("--group-by", choices=["frame", "roi", "all"])
+    p.add_argument("--spatial-relation", choices=["near", "any"])
+    p.add_argument("--max-distance-pixels", type=float)
     p.add_argument("--method-config")
     p.add_argument("--output")
     args = p.parse_args()
-    cfg = load_dict(args.method_config)
-    required = cfg.get("required") or parse_json_arg(args.required_json, [])
-    group_by = cfg.get("group_by", args.group_by)
-    max_distance = float(cfg.get("max_distance_pixels", args.max_distance_pixels))
-    spatial = cfg.get("spatial_relation", args.spatial_relation)
-    objects = list(iter_detection_objects(load_list(args.detections_json, "detections"))) + load_list(args.tracks_json, "tracks")
-    roi_by_object = {m.get("object_id"): m.get("roi_id") for m in load_list(args.roi_matches_json, "matches") if m.get("matched")}
+    input_data = load_input(args.input)
+    cfg = load_dict(args.method_config) if args.method_config else input_dict(input_data, "method_config")
+    required_value = parse_json_arg(args.required_json, None) if args.required_json else cfg.get("required") or input_value(input_data, "required")
+    required = required_value if required_value is not None else []
+    group_by = args.group_by or cfg.get("group_by", input_value(input_data, "group_by", default="frame"))
+    max_distance = float(args.max_distance_pixels if args.max_distance_pixels is not None else cfg.get("max_distance_pixels", input_value(input_data, "max_distance_pixels", default=150)))
+    spatial = args.spatial_relation or cfg.get("spatial_relation", input_value(input_data, "spatial_relation", default="any"))
+    detections = load_list(args.detections_json, "detections") if args.detections_json else input_list(input_data, "detections")
+    tracks = load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(input_data, "tracks")
+    objects = list(iter_detection_objects(detections)) + tracks
+    roi_matches = load_list(args.roi_matches_json, "matches") if args.roi_matches_json else input_list(input_data, "matches") or input_list(input_data, "roi_matches")
+    roi_by_object = {m.get("object_id"): m.get("roi_id") for m in roi_matches if m.get("matched")}
     grouped = defaultdict(list)
     for obj in objects:
         key = roi_by_object.get(subject_id(obj), "all") if group_by == "roi" else obj.get("frame_id", "all") if group_by == "frame" else "all"

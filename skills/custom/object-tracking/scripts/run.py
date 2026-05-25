@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,18 +168,25 @@ SKILL = "object-tracking"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Associate detections into tracks.")
-    p.add_argument("--detections-json", required=True)
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--detections-json")
+    p.add_argument("--camera-id")
     p.add_argument("--association-distance-pixels", type=float)
     p.add_argument("--stationary-distance-pixels", type=float)
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
     tracking = config.get("tracking", {})
-    max_dist = args.association_distance_pixels or tracking.get("association_distance_pixels", 80)
-    stationary = args.stationary_distance_pixels or tracking.get("stationary_distance_pixels", 20)
-    detections = sorted(load_list(args.detections_json, "detections"), key=lambda d: d.get("timestamp") or "")
+    max_dist = args.association_distance_pixels or input_value(input_data, "association_distance_pixels") or tracking.get("association_distance_pixels", 80)
+    stationary = args.stationary_distance_pixels or input_value(input_data, "stationary_distance_pixels") or tracking.get("stationary_distance_pixels", 20)
+    detections_source = load_list(args.detections_json, "detections") if args.detections_json else input_list(input_data, "detections")
+    precomputed_tracks = input_list(input_data, "tracks")
+    if precomputed_tracks and not detections_source:
+        return emit(success(SKILL, {"tracks": precomputed_tracks}), args.output)
+    detections = sorted(detections_source, key=lambda d: d.get("timestamp") or "")
     active = []
     for det in detections:
         for obj in det.get("objects", []):
@@ -167,7 +195,7 @@ def main() -> int:
             if candidates:
                 track = min(candidates, key=lambda t: distance(t["trajectory"][-1], center))
             else:
-                track = {"track_id": f"track_{len(active)+1:04d}", "camera_id": args.camera_id, "label": obj.get("label"), "start_time": det.get("timestamp"), "trajectory": [], "confidences": [], "evidence_frame_ids": []}
+                track = {"track_id": f"track_{len(active)+1:04d}", "camera_id": camera_id, "label": obj.get("label"), "start_time": det.get("timestamp"), "trajectory": [], "confidences": [], "evidence_frame_ids": []}
                 active.append(track)
             track["end_time"] = det.get("timestamp")
             track["last_bbox"] = obj.get("bbox")

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,36 +168,43 @@ SKILL = "density-aggregation-event"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect dense aggregation clusters in ROIs.")
-    p.add_argument("--tracks-json", required=True)
-    p.add_argument("--roi-matches-json", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--tracks-json")
+    p.add_argument("--roi-matches-json")
     p.add_argument("--rois-json")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
-    p.add_argument("--target-labels", default="")
-    p.add_argument("--roi-types", default="")
-    p.add_argument("--min-count", type=int, default=1)
-    p.add_argument("--min-density", type=float, default=0.0)
-    p.add_argument("--min-duration-seconds", type=int, default=0)
+    p.add_argument("--camera-id")
+    p.add_argument("--target-labels")
+    p.add_argument("--roi-types")
+    p.add_argument("--min-count", type=int)
+    p.add_argument("--min-density", type=float)
+    p.add_argument("--min-duration-seconds", type=int)
     p.add_argument("--method-config")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
-    cfg = load_dict(args.method_config)
+    input_data = load_input(args.input)
+    cfg = load_dict(args.method_config) if args.method_config else input_dict(input_data, "method_config")
     app = load_config(args.config)
-    labels = set(cfg.get("target_labels") or [x.strip() for x in args.target_labels.split(",") if x.strip()])
-    roi_types = set(cfg.get("roi_types") or [x.strip() for x in args.roi_types.split(",") if x.strip()])
-    min_count = int(cfg.get("min_count", args.min_count))
-    min_density = float(cfg.get("min_density", args.min_density))
-    min_duration = int(cfg.get("min_duration_seconds", args.min_duration_seconds))
-    tracks = {t.get("track_id"): t for t in load_list(args.tracks_json, "tracks")}
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    labels_value = args.target_labels if args.target_labels is not None else cfg.get("target_labels") or input_value(input_data, "target_labels", default="")
+    roi_types_value = args.roi_types if args.roi_types is not None else cfg.get("roi_types") or input_value(input_data, "roi_types", default="")
+    labels = set([x.strip() for x in labels_value.split(",") if x.strip()] if isinstance(labels_value, str) else labels_value or [])
+    roi_types = set([x.strip() for x in roi_types_value.split(",") if x.strip()] if isinstance(roi_types_value, str) else roi_types_value or [])
+    min_count = int(args.min_count if args.min_count is not None else cfg.get("min_count", input_value(input_data, "min_count", default=1)))
+    min_density = float(args.min_density if args.min_density is not None else cfg.get("min_density", input_value(input_data, "min_density", default=0.0)))
+    min_duration = int(args.min_duration_seconds if args.min_duration_seconds is not None else cfg.get("min_duration_seconds", input_value(input_data, "min_duration_seconds", default=0)))
+    tracks_source = load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(input_data, "tracks")
+    tracks = {t.get("track_id"): t for t in tracks_source}
     by_roi = defaultdict(list)
-    for match in load_list(args.roi_matches_json, "matches"):
+    roi_matches = load_list(args.roi_matches_json, "matches") if args.roi_matches_json else input_list(input_data, "matches") or input_list(input_data, "roi_matches")
+    for match in roi_matches:
         if not match.get("matched") or (roi_types and match.get("roi_type") not in roi_types):
             continue
         track = tracks.get(match.get("object_id"))
         if not track or (labels and track.get("label") not in labels) or int(track.get("duration_seconds", 0)) < min_duration:
             continue
         by_roi[match.get("roi_id")].append(track)
-    rois = load_list(args.rois_json, "rois") if args.rois_json else app.get("cameras", {}).get(args.camera_id, {}).get("rois", [])
+    rois = load_list(args.rois_json, "rois") if args.rois_json else input_list(input_data, "rois") or app.get("cameras", {}).get(camera_id, {}).get("rois", [])
     areas = {r.get("id"): polygon_area(r.get("polygon", [])) for r in rois}
     clusters = []
     for roi_id, items in by_roi.items():

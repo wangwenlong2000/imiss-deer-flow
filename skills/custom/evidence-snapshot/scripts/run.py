@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -176,24 +197,27 @@ def apply_mask_if_needed(uri: str, config: dict[str, Any], regions: list[dict[st
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Create snapshot evidence for an event.")
-    p.add_argument("--event-json", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--event-json")
     p.add_argument("--frames-json")
     p.add_argument("--output-dir")
     p.add_argument("--sensitive-regions-json")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    event = load_dict(args.event_json, "event")
+    event = load_dict(args.event_json, "event") if args.event_json else input_dict(input_data, "event") or input_data
     event_id = event.get("event_id")
     if not event_id:
         return emit(failed(SKILL, "MISSING_EVENT_ID", "event_id is required"), args.output)
-    frames = load_list(args.frames_json, "frames") if args.frames_json else []
+    frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
     evidence_ids = set(event.get("evidence_frame_ids", []))
     frame = next((f for f in frames if f.get("frame_id") in evidence_ids), frames[0] if frames else {})
     source_uri = frame.get("image_uri") or event.get("image_uri") or f"event://{event_id}"
     source = Path(source_uri.removeprefix("file://"))
-    out_dir = Path(args.output_dir or config.get("output_dir", "outputs")) / "evidence"
+    output_dir = args.output_dir or input_value(input_data, "output_dir") or config.get("output_dir", "outputs")
+    out_dir = Path(output_dir) / "evidence"
     
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -206,7 +230,7 @@ def main() -> int:
     else:
         evidence_uri = str(out_dir / f"{event_id}_snapshot.txt")
         Path(evidence_uri).write_bytes(source_uri.encode("utf-8"))
-    regions = load_list(args.sensitive_regions_json, "sensitive_regions") if args.sensitive_regions_json else []
+    regions = load_list(args.sensitive_regions_json, "sensitive_regions") if args.sensitive_regions_json else input_list(input_data, "sensitive_regions")
     evidence_uri, masked = apply_mask_if_needed(evidence_uri, config, regions)
     digest = sha256(read_bytes(evidence_uri)).hexdigest()
     data = {"evidence_id": f"EVD_{uuid4().hex[:8]}", "event_id": event_id, "type": "snapshot", "uri": evidence_uri, "hash": f"sha256:{digest}", "created_at": utc_now_iso(), "privacy_masked": masked}

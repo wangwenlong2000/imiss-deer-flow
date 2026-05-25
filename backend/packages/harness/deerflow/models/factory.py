@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 from langchain.chat_models import BaseChatModel
 
@@ -6,6 +7,41 @@ from deerflow.config import get_app_config, get_tracing_config, is_tracing_enabl
 from deerflow.reflection import resolve_class
 
 logger = logging.getLogger(__name__)
+
+
+def _normalise_openai_compatible_thinking_budget(settings: dict) -> None:
+    """Keep OpenAI-compatible thinking budgets below the response token limit.
+
+    Some OpenAI-compatible providers, including DashScope, default the thinking
+    budget to a large value when `thinking.type=enabled` is present. If that
+    budget is greater than or equal to max_tokens, the provider rejects the
+    request before the model runs.
+    """
+    extra_body = settings.get("extra_body")
+    if not isinstance(extra_body, dict):
+        return
+
+    thinking = extra_body.get("thinking")
+    if not isinstance(thinking, dict) or thinking.get("type") != "enabled":
+        return
+
+    max_tokens = settings.get("max_tokens") or settings.get("max_completion_tokens")
+    try:
+        max_tokens_int = int(max_tokens)
+    except (TypeError, ValueError):
+        return
+    if max_tokens_int <= 1:
+        return
+
+    default_budget = max(1, min(4096, max_tokens_int - 1))
+    raw_budget = thinking.get("thinking_budget")
+    try:
+        budget = int(raw_budget) if raw_budget is not None else None
+    except (TypeError, ValueError):
+        budget = None
+
+    if budget is None or budget >= max_tokens_int:
+        thinking["thinking_budget"] = default_budget
 
 
 def create_chat_model(name: str | None = None, thinking_enabled: bool = False, **kwargs) -> BaseChatModel:
@@ -41,7 +77,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     # Compute effective when_thinking_enabled by merging in the `thinking` shortcut field.
     # The `thinking` shortcut is equivalent to setting when_thinking_enabled["thinking"].
     has_thinking_settings = (model_config.when_thinking_enabled is not None) or (model_config.thinking is not None)
-    effective_wte: dict = dict(model_config.when_thinking_enabled) if model_config.when_thinking_enabled else {}
+    effective_wte: dict = deepcopy(model_config.when_thinking_enabled) if model_config.when_thinking_enabled else {}
     if model_config.thinking is not None:
         merged_thinking = {**(effective_wte.get("thinking") or {}), **model_config.thinking}
         effective_wte = {**effective_wte, "thinking": merged_thinking}
@@ -50,6 +86,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
             raise ValueError(f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking.") from None
         if effective_wte:
             model_settings_from_config.update(effective_wte)
+            _normalise_openai_compatible_thinking_budget(model_settings_from_config)
     if not thinking_enabled and has_thinking_settings:
         if effective_wte.get("extra_body", {}).get("thinking", {}).get("type"):
             # OpenAI-compatible gateway: thinking is nested under extra_body

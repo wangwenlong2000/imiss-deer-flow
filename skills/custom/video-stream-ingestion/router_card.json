@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "identity": {
     "id": "video-stream-ingestion",
-    "name": "video-stream-ingestion",
-    "description": "Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic."
+    "name": "video-file-normalization",
+    "description": "Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams."
   },
   "scope": {
     "scenes": [
@@ -11,16 +11,13 @@
     ],
     "is_public": false,
     "task_types": [
-      "stream_ingestion",
-      "video_source_normalization",
+      "video_file_normalization",
       "camera_session_metadata"
     ],
     "input_types": [
-      "rtsp_url",
-      "gb28181",
-      "platform_api",
       "local_video",
-      "mock_source"
+      "video_path",
+      "file_path"
     ],
     "output_types": [
       "raw_segment_uri",
@@ -28,29 +25,32 @@
     ]
   },
   "routing": {
-    "routing_text": "名称：video-stream-ingestion\n描述：Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic.\n适用场景：video_surveillance。\n适用任务：stream_ingestion, video_source_normalization, camera_session_metadata。\n输入类型：rtsp_url, gb28181, platform_api, local_video, mock_source。\n输出类型：raw_segment_uri, video_session_metadata。\n适合使用：接入监控视频流；规范化本地视频输入；读取摄像头视频源；生成 raw_segment_uri。\n不适合使用：分析视频内容；检测目标；生成事件；剪辑证据片段。",
+    "routing_text": "名称：video-file-normalization\n描述：Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams.\n适用场景：video_surveillance。\n适用任务：video_file_normalization, camera_session_metadata。\n输入类型：local_video, video_path, file_path。\n输出类型：raw_segment_uri, video_session_metadata。\n适合使用：规范化本地视频输入；读取本地视频元数据；生成 raw_segment_uri。\n不适合使用：接入实时视频流；分析视频内容；检测目标；生成事件；剪辑证据片段。",
     "positive_triggers": [
-      "接入监控视频流",
       "规范化本地视频输入",
-      "读取摄像头视频源",
+      "读取本地视频元数据",
       "生成 raw_segment_uri"
     ],
     "negative_triggers": [
+      "接入实时视频流",
       "分析视频内容",
       "检测目标",
       "生成事件",
       "剪辑证据片段"
     ],
     "keywords": [
-      "RTSP",
-      "GB28181",
-      "stream_url",
+      "file_path",
+      "video_path",
       "camera_id",
       "raw_segment_uri",
       "capture_seconds",
-      "视频接入"
+      "本地视频"
     ],
     "anti_keywords": [
+      "RTSP",
+      "GB28181",
+      "stream_url",
+      "实时视频流",
       "目标检测",
       "事件规则",
       "证据截图",
@@ -59,7 +59,7 @@
   },
   "body": {
     "source": "SKILL.md",
-    "content": "---\nname: video-stream-ingestion\ndescription: Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic.\n---\n\n# Video Stream Ingestion\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf the user provides a video path, local file, stream URL, or uploaded video, build the input JSON for this skill instead of writing ingestion code. Use a stable default `camera_id` when the user does not provide one, infer `source_type=local_file` for file paths, and pass the path as `file_path`, `stream_url`, or `raw_segment_uri` as appropriate. Only ask the user for clarification when no usable video source can be inferred.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython video-stream-ingestion/scripts/run.py --video <video.mp4> --camera-id <camera_id> --source-type local_file --capture-seconds 10 --config <config.json> --output <result.json>\n```\n\nParameters: `--video`, `--stream-url`, `--camera-id`, `--source-type`, `--capture-seconds`, `--started-at`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera id, source type, stream URL or local file, and capture duration.\n2. Select the source adapter for RTSP, GB28181, API, local file, or mock input.\n3. Capture a short segment with timeout and retry-aware failure handling.\n4. Store the raw segment and return session metadata.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\nRequired:\n- `camera_id`\n- `source_type`: `local_file`, `mock`, `rtsp`, `gb28181`, or `api`\n\nCommon fields:\n- `stream_url` or `file_path`\n- `capture_seconds`\n- `started_at`\n- `raw_segment_uri`\n\n## Outputs\n\nReturns `raw_segment_uri`, `video_session_id`, `started_at`, `ended_at`, `duration_seconds`, and optional video width/height.\n\n## Failure Modes\n\n- `MISSING_CAMERA_ID`\n- `UNSUPPORTED_SOURCE`\n- `SOURCE_NOT_FOUND`\n\n## Constraints\n\nDo not detect objects, sample frames, create events, or generate evidence.\n"
+    "content": "---\nname: video-stream-ingestion\ndescription: Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to RTSP, GB28181, platform APIs, or live streams.\n---\n\n# Video File Normalization\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf the user provides a local video path or uploaded video file, build the input JSON for this skill instead of writing normalization code. Use a stable default `camera_id` when the user does not provide one, infer `source_type=local_file`, and pass the path as `file_path`, `video_path`, or `raw_segment_uri`. Only ask the user for clarification when no usable video file can be inferred.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython video-stream-ingestion/scripts/run.py --video <video.mp4> --camera-id <camera_id> --source-type local_file --capture-seconds 10 --config <config.json> --output <result.json>\n```\n\nParameters: `--video`, `--raw-segment-uri`, `--camera-id`, `--source-type`, `--capture-seconds`, `--started-at`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera id, local video file path, and optional capture duration.\n2. Validate that the file exists and probe width, height, and duration with ffprobe.\n3. Return normalized `raw_segment_uri` and session metadata for downstream frame sampling.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\nRequired:\n- `camera_id`\n- `source_type`: `local_file`\n\nCommon fields:\n- `file_path`, `video_path`, or `raw_segment_uri`\n- `capture_seconds`\n- `started_at`\n\n## Outputs\n\nReturns `raw_segment_uri`, `video_session_id`, `started_at`, `ended_at`, `duration_seconds`, video width/height when available, and `file_status`.\n\n## Failure Modes\n\n- `MISSING_CAMERA_ID`\n- `UNSUPPORTED_SOURCE`\n- `SOURCE_NOT_FOUND`\n\n## Constraints\n\nDo not detect objects, sample frames, create events, or generate evidence.\n"
   },
   "execution": {
     "required_tools": [
@@ -80,15 +80,15 @@
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 84,
-    "conflict_group": "video-stream-ingestion",
+    "priority": 76,
+    "conflict_group": "video-file-normalization",
     "prefer_when": [
-      "接入监控视频流",
       "规范化本地视频输入",
-      "读取摄像头视频源",
+      "读取本地视频元数据",
       "生成 raw_segment_uri"
     ],
     "defer_when": [
+      "接入实时视频流",
       "分析视频内容",
       "检测目标",
       "生成事件",
@@ -98,13 +98,13 @@
   "source": {
     "skill_dir": "skills/custom/video-stream-ingestion",
     "skill_md_path": "skills/custom/video-stream-ingestion/SKILL.md",
-    "skill_md_hash": "sha256:3ee4ea6fff6d06ffe473ca5dc314035475293576de774275a0555b6bc23e72e5",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "skill_md_hash": "sha256:manual-local-video-only",
+    "generated_at": "2026-05-25T00:00:00Z",
+    "generator_version": "manual-local-video-only-0.1.0"
   },
   "embedding": {
     "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:bd5dcdbfc3fdfa665761252ec95b723112edf2c551cb57935e5c2c2031c8615c",
+    "text_hash": "sha256:manual-local-video-only",
     "es_index": "citybrain-skill-router-cards",
     "es_doc_id": "video-stream-ingestion"
   }

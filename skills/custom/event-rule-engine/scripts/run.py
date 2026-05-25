@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -271,17 +292,29 @@ def run_method(input_data, method):
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Run configured event templates over prepared video analytics JSON.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--frames-json"); p.add_argument("--detections-json"); p.add_argument("--tracks-json"); p.add_argument("--roi-matches-json"); p.add_argument("--rois-json"); p.add_argument("--camera-health-json")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001"); p.add_argument("--templates", help="Comma-separated template names"); p.add_argument("--config", required=True); p.add_argument("--output")
-    args = p.parse_args(); config = load_config(args.config); templates = config.get("event_templates", {}); names = [x.strip() for x in args.templates.split(",")] if args.templates else config.get("enabled_event_templates") or list(templates)
-    input_data = {"camera_id": args.camera_id, "frames": load_list(args.frames_json, "frames"), "detections": load_list(args.detections_json, "detections"), "tracks": load_list(args.tracks_json, "tracks"), "roi_matches": load_list(args.roi_matches_json, "matches"), "rois": load_list(args.rois_json, "rois"), "camera_health": load_dict(args.camera_health_json)}
+    p.add_argument("--camera-id"); p.add_argument("--templates", help="Comma-separated template names"); p.add_argument("--config"); p.add_argument("--output")
+    args = p.parse_args(); payload = load_input(args.input); file_config = load_config(args.config); config = file_config or input_dict(payload, "config") or (payload if isinstance(payload.get("event_templates"), dict) else {}); templates = config.get("event_templates", {})
+    template_value = args.templates or input_value(payload, "templates")
+    names = [x.strip() for x in template_value.split(",")] if isinstance(template_value, str) else template_value or config.get("enabled_event_templates") or list(templates)
+    camera_id = args.camera_id or input_value(payload, "camera_id", default="CAM_DEERFLOW_001")
+    input_data = {
+        "camera_id": camera_id,
+        "frames": load_list(args.frames_json, "frames") if args.frames_json else input_list(payload, "frames"),
+        "detections": load_list(args.detections_json, "detections") if args.detections_json else input_list(payload, "detections"),
+        "tracks": load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(payload, "tracks"),
+        "roi_matches": load_list(args.roi_matches_json, "matches") if args.roi_matches_json else input_list(payload, "matches") or input_list(payload, "roi_matches"),
+        "rois": load_list(args.rois_json, "rois") if args.rois_json else input_list(payload, "rois"),
+        "camera_health": load_dict(args.camera_health_json) if args.camera_health_json else input_dict(payload, "camera_health"),
+    }
     events = []; method_outputs = {}
     for template_name in names:
         template = templates.get(template_name)
         if not template: continue
         results = [run_method(input_data, method) for method in template.get("methods", [])]
         method_outputs[template_name] = results
-        event = build_event(template_name, template, results, args.camera_id)
+        event = build_event(template_name, template, results, camera_id)
         if event:
             if input_data.get("camera_health", {}).get("health_status") == "degraded":
                 event["confidence"] = round(event["confidence"] * 0.85, 4); event["reason"] += "; camera health degraded"

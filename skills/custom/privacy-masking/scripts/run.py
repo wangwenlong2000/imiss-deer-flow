@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -166,22 +187,28 @@ def mask_image(uri: str, regions: list[dict[str, Any] | list[float]], method: st
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Mask sensitive regions in an evidence image.")
-    p.add_argument("--image-uri", "--uri", dest="uri", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--image-uri", "--uri", dest="uri")
     p.add_argument("--sensitive-regions-json")
-    p.add_argument("--method", default="gaussian_blur")
+    p.add_argument("--method")
     p.add_argument("--disabled", action="store_true")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    enabled = not args.disabled and config.get("privacy_masking", {}).get("enabled", True)
-    regions = load_list(args.sensitive_regions_json, "sensitive_regions") if args.sensitive_regions_json else []
+    uri = args.uri or input_value(input_data, "image_uri", "uri")
+    if not uri:
+        return emit(failed(SKILL, "MISSING_URI", "--image-uri or input.uri is required"), args.output)
+    enabled = not args.disabled and not bool(input_value(input_data, "disabled", default=False)) and config.get("privacy_masking", {}).get("enabled", True)
+    regions = load_list(args.sensitive_regions_json, "sensitive_regions") if args.sensitive_regions_json else input_list(input_data, "sensitive_regions")
+    method = args.method or input_value(input_data, "method", default="gaussian_blur")
     if not enabled:
-        return emit(success(SKILL, {"uri": args.uri, "privacy_masked": False, "masked_regions": []}), args.output)
-    path = Path(args.uri.removeprefix("file://"))
+        return emit(success(SKILL, {"uri": uri, "privacy_masked": False, "masked_regions": []}), args.output)
+    path = Path(str(uri).removeprefix("file://"))
     if not path.exists():
-        return emit(success(SKILL, {"uri": args.uri, "privacy_masked": True, "masked_regions": regions, "method": args.method}), args.output)
-    return emit(mask_image(args.uri, regions, config.get("privacy_masking", {}).get("method", args.method)), args.output)
+        return emit(success(SKILL, {"uri": uri, "privacy_masked": True, "masked_regions": regions, "method": method}), args.output)
+    return emit(mask_image(uri, regions, config.get("privacy_masking", {}).get("method", method)), args.output)
 
 if __name__ == "__main__":
     raise SystemExit(main())

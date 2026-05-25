@@ -1,0 +1,20 @@
+{
+  "source_type": "local_file",
+  "video_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/datasets/Vedio-demo/Trafic.mp4",
+  "analysis_task": "分析这个视频中是否存在异常事件，并输出可见证据、时间段、置信度和是否需要人工复核。",
+  "target_events": [
+    "traffic_congestion",
+    "fight",
+    "fall_down",
+    "pedestrian_intrusion",
+    "smoke_or_fire",
+    "crowd_gathering",
+    "other_abnormal_event"
+  ],
+  "output_requirements": {
+    "include_timeline": true,
+    "include_key_frames": true,
+    "include_event_candidates": true,
+    "include_uncertainty": true
+  }
+}

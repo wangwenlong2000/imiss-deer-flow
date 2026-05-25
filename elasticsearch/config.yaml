@@ -1,0 +1,7 @@
+sandbox:
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  image: 这里改为自己的镜像名 anker-deerflow-aio-sandbox-conda:latest  
+  environment:
+    ES_URL: $ES_URL
+    ES_USERNAME: $ES_USERNAME
+    ES_PASSWORD: $ES_PASSWORD

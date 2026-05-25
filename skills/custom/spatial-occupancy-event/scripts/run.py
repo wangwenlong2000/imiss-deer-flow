@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,25 +168,32 @@ SKILL = "spatial-occupancy-event"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect spatial occupancy from ROI matches and tracks.")
-    p.add_argument("--roi-matches-json", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--roi-matches-json")
     p.add_argument("--tracks-json")
-    p.add_argument("--target-labels", default="")
-    p.add_argument("--roi-types", default="")
-    p.add_argument("--excluded-roi-types", default="")
-    p.add_argument("--min-overlap-ratio", type=float, default=0.0)
-    p.add_argument("--min-confidence", type=float, default=0.0)
+    p.add_argument("--target-labels")
+    p.add_argument("--roi-types")
+    p.add_argument("--excluded-roi-types")
+    p.add_argument("--min-overlap-ratio", type=float)
+    p.add_argument("--min-confidence", type=float)
     p.add_argument("--method-config")
     p.add_argument("--output")
     args = p.parse_args()
-    cfg = load_dict(args.method_config)
-    labels = set(cfg.get("target_labels") or [x.strip() for x in args.target_labels.split(",") if x.strip()])
-    roi_types = set(cfg.get("roi_types") or [x.strip() for x in args.roi_types.split(",") if x.strip()])
-    excluded = set(cfg.get("excluded_roi_types") or [x.strip() for x in args.excluded_roi_types.split(",") if x.strip()])
-    min_overlap = float(cfg.get("min_overlap_ratio", args.min_overlap_ratio))
-    min_confidence = float(cfg.get("min_confidence", args.min_confidence))
-    tracks = {t.get("track_id"): t for t in load_list(args.tracks_json, "tracks")}
+    input_data = load_input(args.input)
+    cfg = load_dict(args.method_config) if args.method_config else input_dict(input_data, "method_config")
+    labels_value = args.target_labels if args.target_labels is not None else cfg.get("target_labels") or input_value(input_data, "target_labels", default="")
+    roi_types_value = args.roi_types if args.roi_types is not None else cfg.get("roi_types") or input_value(input_data, "roi_types", default="")
+    excluded_value = args.excluded_roi_types if args.excluded_roi_types is not None else cfg.get("excluded_roi_types") or input_value(input_data, "excluded_roi_types", default="")
+    labels = set([x.strip() for x in labels_value.split(",") if x.strip()] if isinstance(labels_value, str) else labels_value or [])
+    roi_types = set([x.strip() for x in roi_types_value.split(",") if x.strip()] if isinstance(roi_types_value, str) else roi_types_value or [])
+    excluded = set([x.strip() for x in excluded_value.split(",") if x.strip()] if isinstance(excluded_value, str) else excluded_value or [])
+    min_overlap = float(args.min_overlap_ratio if args.min_overlap_ratio is not None else cfg.get("min_overlap_ratio", input_value(input_data, "min_overlap_ratio", default=0.0)))
+    min_confidence = float(args.min_confidence if args.min_confidence is not None else cfg.get("min_confidence", input_value(input_data, "min_confidence", default=0.0)))
+    tracks_source = load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(input_data, "tracks")
+    tracks = {t.get("track_id"): t for t in tracks_source}
     matches = []
-    for match in load_list(args.roi_matches_json, "matches"):
+    roi_matches = load_list(args.roi_matches_json, "matches") if args.roi_matches_json else input_list(input_data, "matches") or input_list(input_data, "roi_matches")
+    for match in roi_matches:
         if not match.get("matched"):
             continue
         track = tracks.get(match.get("object_id"), {})

@@ -1,0 +1,296 @@
+{
+  "schema_name": "video_monitoring_analysis_data_requirements",
+  "schema_version": "1.0.0",
+  "purpose": "说明真正实现视频文件分析时，除视频文件本身之外，还需要准备、采集或在流水线中生成的数据形式。",
+  "language": "zh-CN",
+  "minimum_input_package": {
+    "camera": {
+      "camera_id": "CAM_DEERFLOW_001",
+      "camera_name": "示例路口北向枪机",
+      "source_type": "local_file",
+      "file_path": "/mnt/data/videos/Trafic.mp4",
+      "location": {
+        "name": "城市主干道路口",
+        "address": "示例市示例区示例路口",
+        "longitude": 120.000001,
+        "latitude": 30.000001,
+        "coordinate_system": "GCJ-02 | WGS84 | BD-09"
+      },
+      "mounting": {
+        "height_meters": 6.5,
+        "direction_degrees": 90,
+        "view_description": "面向东向西车道，覆盖人行横道、机动车道和路口中心区域"
+      },
+      "video_properties": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 25,
+        "timezone": "Asia/Shanghai",
+        "clock_sync": "ntp_synced | manually_set | unknown"
+      }
+    },
+    "analysis_request": {
+      "request_id": "REQ_20260525_0001",
+      "analysis_mode": "batch | forensic_review",
+      "started_at": "2026-05-25T10:00:00+08:00",
+      "ended_at": "2026-05-25T10:05:00+08:00",
+      "target_event_types": [
+        "traffic_congestion",
+        "illegal_parking",
+        "pedestrian_intrusion",
+        "fight",
+        "fall_down",
+        "smoke_or_fire",
+        "crowd_gathering"
+      ],
+      "sampling_strategy": {
+        "mode": "interval | fps | scene_change | adaptive",
+        "interval_seconds": 1,
+        "dense_sampling_on_candidate_event": true
+      }
+    }
+  },
+  "required_context_data": {
+    "roi_definitions": [
+      {
+        "id": "ROI_CROSSWALK_001",
+        "name": "北侧人行横道",
+        "type": "crosswalk",
+        "coordinate_type": "pixel",
+        "polygon": [
+          [320, 620],
+          [980, 610],
+          [1100, 760],
+          [260, 780]
+        ],
+        "description": "用于判断行人过街、车辆占用斑马线等事件"
+      },
+      {
+        "id": "ROI_DRIVE_LANE_001",
+        "name": "东向机动车道",
+        "type": "vehicle_lane",
+        "coordinate_type": "pixel",
+        "polygon": [
+          [100, 430],
+          [1800, 420],
+          [1900, 620],
+          [80, 650]
+        ],
+        "description": "用于判断车辆排队、拥堵、逆行、占道等事件"
+      },
+      {
+        "id": "ROI_RESTRICTED_001",
+        "name": "禁止进入区域",
+        "type": "restricted_area",
+        "coordinate_type": "pixel",
+        "polygon": [
+          [1280, 300],
+          [1700, 310],
+          [1760, 520],
+          [1240, 510]
+        ],
+        "description": "用于判断人员或车辆闯入"
+      }
+    ],
+    "event_rules": {
+      "traffic_congestion": {
+        "event_type": "traffic_congestion",
+        "severity": "medium",
+        "join_policy": "all_required",
+        "methods": [
+          {
+            "skill": "density-aggregation-event",
+            "target_labels": ["car", "bus", "truck", "motorcycle"],
+            "roi_types": ["vehicle_lane"],
+            "min_count": 8,
+            "min_duration_seconds": 20
+          },
+          {
+            "skill": "temporal-persistence-event",
+            "target_labels": ["car", "bus", "truck"],
+            "movement_states": ["stationary"],
+            "min_duration_seconds": 20
+          }
+        ],
+        "score_policy": {
+          "min_score": 0.6
+        }
+      },
+      "pedestrian_intrusion": {
+        "event_type": "pedestrian_intrusion",
+        "severity": "high",
+        "join_policy": "any_required",
+        "methods": [
+          {
+            "skill": "spatial-occupancy-event",
+            "target_labels": ["person"],
+            "roi_types": ["restricted_area"],
+            "min_confidence": 0.5
+          }
+        ],
+        "score_policy": {
+          "min_score": 0.5
+        }
+      }
+    },
+    "object_label_taxonomy": {
+      "person": "行人或人员",
+      "car": "小汽车",
+      "bus": "公交车或大巴",
+      "truck": "货车",
+      "motorcycle": "摩托车",
+      "bicycle": "自行车",
+      "smoke": "烟雾",
+      "fire": "明火",
+      "bag": "包裹或遗留物"
+    },
+    "privacy_policy": {
+      "mask_faces": true,
+      "mask_license_plates": true,
+      "retain_raw_video_days": 7,
+      "retain_event_evidence_days": 90
+    }
+  },
+  "pipeline_generated_data": {
+    "raw_segment_metadata": {
+      "video_session_id": "VS_abcdef12",
+      "camera_id": "CAM_DEERFLOW_001",
+      "raw_segment_uri": "/mnt/data/video-monitoring-runs/run_001/raw/CAM_DEERFLOW_001.mp4",
+      "started_at": "2026-05-25T10:00:00+08:00",
+      "ended_at": "2026-05-25T10:05:00+08:00",
+      "duration_seconds": 300,
+      "width": 1920,
+      "height": 1080,
+      "file_status": "ok"
+    },
+    "frames": [
+      {
+        "frame_id": "CAM_DEERFLOW_001_20260525T100000_0001",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-25T10:00:00+08:00",
+        "image_uri": "/mnt/data/video-monitoring-runs/run_001/frames/CAM_DEERFLOW_001/frame_0001.jpg",
+        "width": 1920,
+        "height": 1080,
+        "sequence": 1,
+        "source_elapsed_seconds": 0
+      }
+    ],
+    "detections": [
+      {
+        "frame_id": "CAM_DEERFLOW_001_20260525T100000_0001",
+        "timestamp": "2026-05-25T10:00:00+08:00",
+        "objects": [
+          {
+            "object_id": "det_0001_001",
+            "label": "person",
+            "confidence": 0.91,
+            "bbox": [512.4, 380.2, 590.8, 690.5],
+            "model_label": "person"
+          }
+        ]
+      }
+    ],
+    "tracks": [
+      {
+        "track_id": "track_0001",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "person",
+        "start_time": "2026-05-25T10:00:00+08:00",
+        "end_time": "2026-05-25T10:00:08+08:00",
+        "duration_seconds": 8,
+        "last_bbox": [520.0, 382.0, 602.0, 692.0],
+        "trajectory": [
+          [551.6, 535.4],
+          [561.0, 545.0],
+          [570.0, 552.0]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.88,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_20260525T100000_0001"
+        ]
+      }
+    ],
+    "roi_matches": [
+      {
+        "object_id": "track_0001",
+        "roi_id": "ROI_RESTRICTED_001",
+        "roi_type": "restricted_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.88
+      }
+    ],
+    "camera_health": {
+      "camera_id": "CAM_DEERFLOW_001",
+      "health_status": "ok | degraded | offline",
+      "last_frame_at": "2026-05-25T10:05:00+08:00",
+      "issues": [],
+      "quality_metrics": {
+        "blur_score": 0.12,
+        "brightness": 0.61,
+        "occlusion_ratio": 0.03,
+        "frame_drop_ratio": 0.01
+      }
+    }
+  },
+  "analysis_outputs": {
+    "event_candidates": [
+      {
+        "event_id": "EVT_pedestrian_intrusion_001",
+        "event_type": "pedestrian_intrusion",
+        "camera_id": "CAM_DEERFLOW_001",
+        "roi_id": "ROI_RESTRICTED_001",
+        "start_time": "2026-05-25T10:00:00+08:00",
+        "end_time": "2026-05-25T10:00:08+08:00",
+        "confidence": 0.88,
+        "severity": "high",
+        "related_tracks": ["track_0001"],
+        "reason": "人员轨迹进入禁止区域",
+        "method_hits": ["spatial_occupancy"],
+        "rule_hits": ["label:person", "roi:restricted_area"],
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_20260525T100000_0001"
+        ],
+        "evidence_snapshot_uris": [
+          "/mnt/data/video-monitoring-runs/run_001/evidence/EVT_pedestrian_intrusion_001.jpg"
+        ],
+        "status": "candidate | confirmed | rejected",
+        "requires_human_review": true,
+        "created_at": "2026-05-25T10:05:03+08:00"
+      }
+    ],
+    "human_review_record": {
+      "review_id": "REV_20260525_0001",
+      "event_id": "EVT_pedestrian_intrusion_001",
+      "reviewer": "operator_001",
+      "decision": "confirmed | rejected | uncertain",
+      "comment": "画面可见人员进入禁止区域，建议确认告警。",
+      "reviewed_at": "2026-05-25T10:06:00+08:00"
+    },
+    "report": {
+      "report_id": "RPT_20260525_0001",
+      "format": "json | markdown | pdf",
+      "uri": "/mnt/data/video-monitoring-runs/run_001/reports/RPT_20260525_0001.md",
+      "summary": "本次分析发现 1 个高优先级候选事件。"
+    }
+  },
+  "recommended_storage_layout": {
+    "raw_video": "/mnt/data/video-monitoring-runs/{run_id}/raw/{camera_id}.mp4",
+    "sampled_frames": "/mnt/data/video-monitoring-runs/{run_id}/frames/{camera_id}/*.jpg",
+    "metadata": "/mnt/data/video-monitoring-runs/{run_id}/metadata.json",
+    "detections": "/mnt/data/video-monitoring-runs/{run_id}/detections.json",
+    "tracks": "/mnt/data/video-monitoring-runs/{run_id}/tracks.json",
+    "events": "/mnt/data/video-monitoring-runs/{run_id}/events.json",
+    "evidence": "/mnt/data/video-monitoring-runs/{run_id}/evidence/*",
+    "reports": "/mnt/data/video-monitoring-runs/{run_id}/reports/*"
+  },
+  "data_readiness_checklist": [
+    "每个视频文件必须有关联 camera_id、位置、时区和本地文件路径。",
+    "每个分析场景必须配置 ROI polygon，否则很难把检测框转换成业务事件。",
+    "必须定义目标事件类型、触发规则、置信度阈值和人工复核策略。",
+    "必须保留抽帧、检测框、轨迹、ROI 命中和证据截图，便于回溯和解释。",
+    "必须记录摄像头质量状态；模糊、遮挡、掉帧会直接影响事件置信度。",
+    "涉及人脸、车牌、人员身份时必须配置脱敏和留存周期。"
+  ]
+}

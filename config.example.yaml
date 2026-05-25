@@ -376,7 +376,10 @@ title:
 # This helps maintain context in long conversations without exceeding model limits
 
 summarization:
-  enabled: true
+  # Disabled by default for long-running tool/skill tasks.
+  # When enabled, LangChain's SummarizationMiddleware can compact the thread
+  # during an in-progress multi-step task once the trigger threshold is reached.
+  enabled: false
 
   # Model to use for summarization (null = use default model)
   # Recommended: Use a lightweight, cost-effective model like "gpt-4o-mini" or similar

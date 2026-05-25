@@ -6,7 +6,7 @@
     "CAM_DEERFLOW_001": {
       "name": "deerflow-video-monitoring",
       "source_type": "local_file",
-      "stream_url": "/mnt/data/videos/Trafic.mp4",
+      "file_path": "/mnt/data/videos/Trafic.mp4",
       "rois": [
         {
           "id": "ROI_FULL_FRAME",
@@ -59,4 +59,3 @@
     "method": "gaussian_blur"
   }
 }
-
