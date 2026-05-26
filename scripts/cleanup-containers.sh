@@ -8,7 +8,7 @@
 
 set -e
 
-PREFIX="${1:-deer-flow-sandbox}"
+PREFIX="${1:-st-deer-flow-sandbox}"
 
 # Colors for output
 RED='\033[0;31m'

@@ -13,7 +13,9 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DOCKER_DIR="$PROJECT_ROOT/docker"
 
 # Docker Compose command with project name
-COMPOSE_CMD="docker compose -p deer-flow-dev -f docker-compose-dev.yaml"
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+COMPOSE_CMD="docker compose -p st-deer-flow-dev -f docker-compose-dev.yaml"
 
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"
@@ -165,9 +167,9 @@ start() {
     echo "  DeerFlow Docker is starting!"
     echo "=========================================="
     echo ""
-    echo "  🌐 Application: http://localhost:2026"
-    echo "  📡 API Gateway: http://localhost:2026/api/*"
-    echo "  🤖 LangGraph:   http://localhost:2026/api/langgraph/*"
+    echo "  🌐 Application: http://localhost:35260"
+    echo "  📡 API Gateway: http://localhost:35260/api/*"
+    echo "  🤖 LangGraph:   http://localhost:35260/api/langgraph/*"
     echo ""
     echo "  📋 View logs: make docker-logs"
     echo "  🛑 Stop:      make docker-stop"
@@ -233,7 +235,7 @@ restart() {
     echo ""
     echo -e "${GREEN}✓ Docker services restarted${NC}"
     echo ""
-    echo "  🌐 Application: http://localhost:2026"
+    echo "  🌐 Application: http://localhost:35260"
     echo "  📋 View logs: make docker-dev-logs"
     echo ""
 }

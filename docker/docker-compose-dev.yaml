@@ -2,16 +2,16 @@
 # Usage: docker-compose -f docker-compose-dev.yaml up --build
 #
 # Services:
-#   - nginx: Reverse proxy (port 2026)
-#   - frontend: Frontend Next.js dev server (port 3000)
-#   - gateway: Backend Gateway API (port 8001)
-#   - langgraph: LangGraph server (port 2024)
+#   - nginx: Reverse proxy (port 35260)
+#   - frontend: Frontend Next.js dev server (port 35263)
+#   - gateway: Backend Gateway API (port 35262)
+#   - langgraph: LangGraph server (port 35261)
 #   - provisioner (optional): Sandbox provisioner (creates Pods in host Kubernetes)
 #
 # Prerequisites:
 #   - Kubernetes cluster + kubeconfig are only required when using provisioner mode.
 #
-# Access: http://localhost:2026
+# Access: http://localhost:35260
 
 services:
   # ── Sandbox Provisioner ────────────────────────────────────────────────
@@ -24,7 +24,7 @@ services:
     build:
       context: ./provisioner
       dockerfile: Dockerfile
-    container_name: deer-flow-provisioner
+    container_name: st-deer-flow-provisioner
     volumes:
       - ~/.kube/config:/root/.kube/config:ro
     environment:
@@ -62,9 +62,9 @@ services:
   # - nginx.conf: includes provisioner route (provisioner mode)
   nginx:
     image: nginx:alpine
-    container_name: deer-flow-nginx
+    container_name: st-deer-flow-nginx
     ports:
-      - "2026:2026"
+      - "35260:35260"
     volumes:
       - ./nginx/${NGINX_CONF:-nginx.conf}:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -83,8 +83,8 @@ services:
       target: dev
       args:
         PNPM_STORE_PATH: ${PNPM_STORE_PATH:-/root/.local/share/pnpm/store}
-    container_name: deer-flow-frontend
-    command: sh -c "cd frontend && pnpm run dev > /app/logs/frontend.log 2>&1"
+    container_name: st-deer-flow-frontend
+    command: sh -c "cd frontend && PORT=35263 pnpm run dev > /app/logs/frontend.log 2>&1"
     volumes:
       - ../frontend/src:/app/frontend/src
       - ../frontend/public:/app/frontend/public
@@ -109,8 +109,8 @@ services:
       context: ../
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-gateway
-    container_name: deer-flow-gateway
-    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 8001 --reload --reload-include='*.yaml .env' > /app/logs/gateway.log 2>&1"
+    container_name: st-deer-flow-gateway
+    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 35262 --reload --reload-include='*.yaml .env' > /app/logs/gateway.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/
@@ -145,8 +145,8 @@ services:
       context: ../
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-langgraph
-    container_name: deer-flow-langgraph
-    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port 2024 > /app/logs/langgraph.log 2>&1"
+    container_name: st-deer-flow-langgraph
+    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port 35261 > /app/logs/langgraph.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/
@@ -186,4 +186,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.200.0/24
+        - subnet: 192.168.253.0/24

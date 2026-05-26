@@ -20,12 +20,12 @@ config_version: 1
 # Used by scripts/update-docker-ports.sh to update docker/nginx related files.
 # Priority when running the script: environment variables > docker_ports > built-in defaults.
 docker_ports:
-  nginx: 2026
-  langgraph: 2024
-  gateway: 8001
-  frontend: 3000
+  nginx: 35260
+  langgraph: 35261
+  gateway: 35262
+  frontend: 35263
 subnet:
-  dev: 192.168.200.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
+  dev: 192.168.253.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
   
 # ============================================================================
 # Models Configuration
