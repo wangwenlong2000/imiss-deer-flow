@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "object-statistics",
+    "name": "object-statistics",
+    "description": "Compute object counts and distributions from indexed video-library records or local detections/tracks JSON."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["object_statistics", "video_object_analytics"],
+    "input_types": ["elasticsearch_records", "detections_json", "tracks_json"],
+    "output_types": ["statistics_json"]
+  },
+  "routing": {
+    "routing_text": "名称：object-statistics\n描述：基于视频库记录或检测/跟踪 JSON 统计人车物目标数量、类别分布、摄像头分布、时间分布和运动状态。\n适合使用：目标统计；人车数量统计；按类别汇总；按摄像头统计。\n不适合使用：视频入库；视频检索；事件判断；证据包生成。",
+    "positive_triggers": ["目标统计", "数量统计", "类别分布", "人车统计"],
+    "negative_triggers": ["批量入库", "检索视频", "生成证据"],
+    "keywords": ["statistics", "counts", "by_label", "by_camera", "tracks"],
+    "anti_keywords": ["ingest", "search", "evidence"]
+  },
+  "execution": {
+    "required_tools": ["bash"],
+    "optional_tools": ["read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 76,
+    "conflict_group": "video-object-statistics",
+    "prefer_when": ["目标统计", "人车物数量统计"],
+    "defer_when": ["批量视频入库", "证据包生成"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/object-statistics",
+    "skill_md_path": "skills/custom/object-statistics/SKILL.md",
+    "generator_version": "manual-video-library-1.0.0"
+  },
+  "embedding": {"es_doc_id": "object-statistics"}
+}

@@ -1,6 +1,6 @@
 ---
 name: duplicate-event-merge
-description: Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.
+description: Merge duplicate video event candidates from the same camera, event type, ROI, evidence frames, or overlapping time window. Use after single-video-event-analysis or batch video analysis when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.
 ---
 
 # Duplicate Event Merge
@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If event candidates are missing but the user provided a video or upstream analysis request, do not write custom duplicate merging or event generation code. First call `event-rule-engine/scripts/run.py` to produce candidate events, then call this skill to merge duplicates. Only ask for input when no event candidates can be produced or inferred.
+If event candidates are missing but the user provided a video or upstream analysis request, first call `single-video-event-analysis` to produce candidate events, then call this skill to merge duplicates. Only ask for input when no event candidates can be produced or inferred.
 
 
 ## Atomic CLI

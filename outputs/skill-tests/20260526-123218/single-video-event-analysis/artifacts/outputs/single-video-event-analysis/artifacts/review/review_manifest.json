@@ -1,0 +1,133 @@
+{
+  "schema": "single_video_event_review_manifest",
+  "version": "1.0.0",
+  "created_at": "2026-05-26T04:36:25.061645+00:00",
+  "camera_id": "CAM_DEERFLOW_001",
+  "video": {
+    "path": "/mnt/datasets/Vedio-demo/fight.mp4",
+    "filename": "fight.mp4",
+    "duration_seconds": 254.82,
+    "fps": 30.0,
+    "resolution": "1728x1080",
+    "codec": "h264",
+    "file_size_mb": 84.0
+  },
+  "target_events": [
+    "fight",
+    "fall_down",
+    "other_abnormal_event"
+  ],
+  "metadata_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/metadata.json",
+  "output_dir": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review",
+  "frames": [
+    {
+      "frame_id": "frame_000000000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000000000ms.jpg",
+      "timestamp_seconds": 0.0,
+      "timestamp_display": "0:00:00.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000005000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000005000ms.jpg",
+      "timestamp_seconds": 5.0,
+      "timestamp_display": "0:00:05.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000010000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000010000ms.jpg",
+      "timestamp_seconds": 10.0,
+      "timestamp_display": "0:00:10.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000015000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000015000ms.jpg",
+      "timestamp_seconds": 15.0,
+      "timestamp_display": "0:00:15.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000020000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000020000ms.jpg",
+      "timestamp_seconds": 20.0,
+      "timestamp_display": "0:00:20.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000025000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000025000ms.jpg",
+      "timestamp_seconds": 25.0,
+      "timestamp_display": "0:00:25.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000030000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000030000ms.jpg",
+      "timestamp_seconds": 30.0,
+      "timestamp_display": "0:00:30.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000035000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000035000ms.jpg",
+      "timestamp_seconds": 35.0,
+      "timestamp_display": "0:00:35.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000040000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000040000ms.jpg",
+      "timestamp_seconds": 40.0,
+      "timestamp_display": "0:00:40.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000045000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000045000ms.jpg",
+      "timestamp_seconds": 45.0,
+      "timestamp_display": "0:00:45.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000050000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000050000ms.jpg",
+      "timestamp_seconds": 50.0,
+      "timestamp_display": "0:00:50.000",
+      "pass": "coarse",
+      "chapter": 1
+    },
+    {
+      "frame_id": "frame_000055000ms",
+      "image_uri": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review/chapters/chapter_001/frames/frame_000055000ms.jpg",
+      "timestamp_seconds": 55.0,
+      "timestamp_display": "0:00:55.000",
+      "pass": "coarse",
+      "chapter": 1
+    }
+  ],
+  "review_instructions": [
+    "Inspect frames in chronological order.",
+    "Use coarse frames to find candidate moments.",
+    "Use dense frames around candidate moments before deciding event type.",
+    "Base every event on visible evidence only.",
+    "Mark requires_review=true for serious or ambiguous events."
+  ],
+  "output_schema": {
+    "visual_timeline": "list of timestamped observations",
+    "events": "list of event candidates with event_type, time range, confidence, reason, evidence_frame_ids, requires_review",
+    "summary": "short summary",
+    "warnings": "quality or uncertainty notes"
+  }
+}

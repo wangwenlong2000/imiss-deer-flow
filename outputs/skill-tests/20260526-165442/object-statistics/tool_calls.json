@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_6df9e32471aa40fcaf482cad",
+    "name": "read_file",
+    "args": {
+      "description": "读取 object-statistics skill 文档以了解其工作流程",
+      "path": "/mnt/skills/custom/object-statistics/SKILL.md"
+    }
+  },
+  {
+    "id": "call_afa39b8400224be3a90dff51",
+    "name": "bash",
+    "args": {
+      "description": "执行 object-statistics skill 的入口脚本进行真链路测试",
+      "command": "mkdir -p /mnt/user-data/outputs/object-statistics\npython /mnt/skills/custom/object-statistics/scripts/run.py --camera-id CAM_DEERFLOW_001 --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-statistics/result.json"
+    }
+  },
+  {
+    "id": "call_0295a46f23e448e4b217e356",
+    "name": "bash",
+    "args": {
+      "description": "执行 object-statistics skill 的入口脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/object-statistics && python /mnt/skills/custom/object-statistics/scripts/run.py --camera-id CAM_DEERFLOW_001 --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-statistics/result.json"
+    }
+  },
+  {
+    "id": "call_7d899284ef904fd3be7dae0f",
+    "name": "read_file",
+    "args": {
+      "description": "读取 object-statistics 执行结果文件",
+      "path": "/mnt/user-data/outputs/object-statistics/result.json"
+    }
+  }
+]

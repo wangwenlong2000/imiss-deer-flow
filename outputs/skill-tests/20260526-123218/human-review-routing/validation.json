@@ -1,0 +1,14 @@
+{
+  "result_path": "outputs/skill-tests/20260526-123218/human-review-routing/artifacts/outputs/human-review-routing/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "human-review-routing",
+  "thread_id": "05ed696a-0ce3-4529-a56f-a6f7e12eb12a",
+  "run_id": "019e6294-8ed9-7e91-84c2-a3cabfc7a3cc",
+  "stream_error": null,
+  "sse_errors": []
+}

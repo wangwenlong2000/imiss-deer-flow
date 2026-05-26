@@ -1,0 +1,62 @@
+{
+  "started_at": "2026-05-26T16:54:42+0800",
+  "finished_at": "2026-05-26T16:56:56+0800",
+  "results": [
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260526-165442/batch-video-ingestion/artifacts/outputs/batch-video-ingestion/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": false,
+      "passed": false,
+      "result_status": "failed",
+      "result_error": "ES_CONNECTION_FAILED",
+      "skill": "batch-video-ingestion",
+      "thread_id": "b6b6b51d-341e-4339-8838-f9bf908c3d51",
+      "run_id": "019e637e-4dbb-7743-b37b-4e4439965e36",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260526-165442/video-search/artifacts/outputs/video-search/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": false,
+      "passed": false,
+      "result_status": "failed",
+      "result_error": "ES_CONNECTION_FAILED",
+      "skill": "video-search",
+      "thread_id": "579d9d64-79d9-4e6f-9655-3f621e3b3170",
+      "run_id": "019e637e-b9ab-74a2-bc84-cfb7895ce5b2",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260526-165442/object-statistics/artifacts/outputs/object-statistics/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": false,
+      "passed": false,
+      "result_status": "failed",
+      "result_error": "ES_CONNECTION_FAILED",
+      "skill": "object-statistics",
+      "thread_id": "ddb44396-830c-44d1-94fa-fa4682cd13ed",
+      "run_id": "019e637f-4666-7810-9e92-8c6dedfca73c",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260526-165442/evidence-package-generation/artifacts/outputs/evidence-package-generation/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "evidence-package-generation",
+      "thread_id": "cb3e3f60-f358-4242-b125-3d8a6a3951bb",
+      "run_id": "019e637f-acb2-74b1-ba21-b263df4be9cc",
+      "stream_error": null,
+      "sse_errors": []
+    }
+  ]
+}

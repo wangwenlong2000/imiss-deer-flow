@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_558f498387b64bc49820952c",
+    "name": "read_file",
+    "args": {
+      "description": "读取 duplicate-event-merge skill 文档",
+      "path": "/mnt/skills/custom/duplicate-event-merge/SKILL.md"
+    }
+  },
+  {
+    "id": "call_a5b20930b4d840b080be0f2b",
+    "name": "bash",
+    "args": {
+      "description": "执行 duplicate-event-merge skill 真链路测试",
+      "command": "mkdir -p /mnt/user-data/outputs/duplicate-event-merge /mnt/user-data/workspace/duplicate-event-merge\npython - <<'PY'\nimport json, pathlib\nevents = {\"events\":[\n  {\"event_id\":\"EVT_DUP_001\",\"event_type\":\"traffic_congestion\",\"camera_id\":\"CAM_DEERFLOW_001\",\"start_time\":\"2026-05-20T10:00:01+08:00\",\"end_time\":\"2026-05-20T10:00:06+08:00\",\"confidence\":0.75,\"roi_id\":\"ROI_FULL_FRAME\",\"evidence_frame_ids\":[\"frame_001\"]},\n  {\"event_id\":\"EVT_DUP_002\",\"event_type\":\"traffic_congestion\",\"camera_id\":\"CAM_DEERFLOW_001\",\"start_time\":\"2026-05-20T10:00:03+08:00\",\"end_time\":\"2026-05-20T10:00:08+08:00\",\"confidence\":0.8,\"roi_id\":\"ROI_FULL_FRAME\",\"evidence_frame_ids\":[\"frame_002\"]}\n]}\np = pathlib.Path('/mnt/user-data/workspace/duplicate-event-merge/events.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(events, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/duplicate-event-merge/scripts/run.py --events-json /mnt/user-data/workspace/duplicate-event-merge/events.json --output /mnt/user-data/outputs/duplicate-event-merge/result.json"
+    }
+  },
+  {
+    "id": "call_678734bafc0d4f96ac63cb49",
+    "name": "read_file",
+    "args": {
+      "description": "读取生成的 result.json 验证输出",
+      "path": "/mnt/user-data/outputs/duplicate-event-merge/result.json"
+    }
+  }
+]

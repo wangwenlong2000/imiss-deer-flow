@@ -1,0 +1,7 @@
+{
+  "event_id": "EVT_REVIEW_001",
+  "event_type": "fight",
+  "confidence": 0.62,
+  "severity": "high",
+  "enforcement_impact": true
+}

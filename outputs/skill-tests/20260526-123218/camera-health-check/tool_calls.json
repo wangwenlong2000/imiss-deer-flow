@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_140baca4a83448f0b7b75e8c",
+    "name": "read_file",
+    "args": {
+      "description": "读取 camera-health-check skill 文档",
+      "path": "/mnt/skills/custom/camera-health-check/SKILL.md"
+    }
+  },
+  {
+    "id": "call_c162ebfc862f4b0da9e94ebd",
+    "name": "bash",
+    "args": {
+      "description": "执行 camera-health-check 真链路测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/camera-health-check /mnt/user-data/workspace/camera-health-check && python /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 5 --interval-seconds 1 --output-dir /mnt/user-data/workspace/camera-health-check/frames --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/workspace/camera-health-check/frames.json && python /mnt/skills/custom/camera-health-check/scripts/run.py --frames-json /mnt/user-data/workspace/camera-health-check/frames.json --camera-id CAM_DEERFLOW_001 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/camera-health-check/result.json"
+    }
+  },
+  {
+    "id": "call_f25d19fd2f1947208d0f0063",
+    "name": "read_file",
+    "args": {
+      "description": "读取 camera-health-check 生成的结果文件",
+      "path": "/mnt/user-data/outputs/camera-health-check/result.json"
+    }
+  }
+]

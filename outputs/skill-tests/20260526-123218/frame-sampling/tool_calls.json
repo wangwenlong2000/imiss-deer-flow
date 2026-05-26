@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_39f677a3cf32429faa8a5fd5",
+    "name": "read_file",
+    "args": {
+      "description": "读取 frame-sampling skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/frame-sampling/SKILL.md"
+    }
+  },
+  {
+    "id": "call_2ca0e0b47e9f4dc1b4ab7ee2",
+    "name": "bash",
+    "args": {
+      "description": "执行 frame-sampling skill 的入口脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/frame-sampling\npython /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 10 --interval-seconds 1 --output-dir /mnt/user-data/outputs/frame-sampling/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/frame-sampling/result.json"
+    }
+  },
+  {
+    "id": "call_3cc72523545b4692b568fb3b",
+    "name": "bash",
+    "args": {
+      "description": "执行 frame-sampling skill 的入口脚本",
+      "command": "python /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 10 --interval-seconds 1 --output-dir /mnt/user-data/outputs/frame-sampling/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/frame-sampling/result.json"
+    }
+  },
+  {
+    "id": "call_70d03d32cfff4c999ff47e09",
+    "name": "read_file",
+    "args": {
+      "description": "读取 frame-sampling 生成的 result.json 文件",
+      "path": "/mnt/user-data/outputs/frame-sampling/result.json"
+    }
+  }
+]

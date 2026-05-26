@@ -1,0 +1,21 @@
+请测试 `evidence-snapshot` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/evidence-snapshot/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/evidence-snapshot/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/evidence-snapshot /mnt/user-data/workspace/evidence-snapshot
+python /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 2 --interval-seconds 1 --output-dir /mnt/user-data/workspace/evidence-snapshot/frames --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/workspace/evidence-snapshot/frames.json
+python - <<'PY'
+import json, pathlib
+event = {"event_id":"EVT_TEST_001","event_type":"traffic_congestion","camera_id":"CAM_DEERFLOW_001","confidence":0.8,"evidence_frame_ids":["CAM_DEERFLOW_001_000001"]}
+p = pathlib.Path('/mnt/user-data/workspace/evidence-snapshot/event.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(event, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/evidence-snapshot/scripts/run.py --event-json /mnt/user-data/workspace/evidence-snapshot/event.json --frames-json /mnt/user-data/workspace/evidence-snapshot/frames.json --output-dir /mnt/user-data/outputs/evidence-snapshot/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/evidence-snapshot/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/evidence-snapshot/result.json`。

@@ -1,0 +1,19 @@
+请测试 `object-detection` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/object-detection/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/object-detection/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/object-detection /mnt/user-data/workspace/object-detection
+python - <<'PY'
+import json, pathlib
+p = pathlib.Path('/mnt/user-data/workspace/object-detection/frames.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump({"frames":[{"frame_id":"frame_001","camera_id":"CAM_DEERFLOW_001","timestamp":"2026-05-20T10:00:00+08:00","image_uri":"/mnt/datasets/Vedio-demo/Trafic.mp4","width":1280,"height":674,"sequence":1}]}, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/object-detection/scripts/run.py --frames-json /mnt/user-data/workspace/object-detection/frames.json --labels person,car,bus,truck,motorcycle,bicycle --provider mock --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-detection/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/object-detection/result.json`。

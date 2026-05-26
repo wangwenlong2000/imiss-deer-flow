@@ -1,0 +1,14 @@
+{
+  "result_path": "outputs/skill-tests/20260526-123218/evidence-snapshot/artifacts/outputs/evidence-snapshot/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "evidence-snapshot",
+  "thread_id": "66d1ff14-03a6-4672-b4bd-2e74a562d608",
+  "run_id": "019e6292-e5ad-7810-91cf-d526b902098f",
+  "stream_error": null,
+  "sse_errors": []
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_765980ac95354ed6a578006b",
+    "name": "read_file",
+    "args": {
+      "description": "读取 object-tracking skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/object-tracking/SKILL.md"
+    }
+  },
+  {
+    "id": "call_afe4cd52e4b94e27b66bd701",
+    "name": "bash",
+    "args": {
+      "description": "执行 object-tracking skill 的测试命令，创建目录、生成 detections.json 并运行 tracking 脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/object-tracking /mnt/user-data/workspace/object-tracking\npython - <<'PY'\nimport json, pathlib\ndetections = {\"detections\":[\n  {\"frame_id\":\"frame_001\",\"timestamp\":\"2026-05-20T10:00:00+08:00\",\"objects\":[{\"object_id\":\"det_001\",\"label\":\"person\",\"confidence\":0.91,\"bbox\":[100,100,180,260]}]},\n  {\"frame_id\":\"frame_002\",\"timestamp\":\"2026-05-20T10:00:02+08:00\",\"objects\":[{\"object_id\":\"det_002\",\"label\":\"person\",\"confidence\":0.89,\"bbox\":[120,105,200,265]}]}\n]}\np = pathlib.Path('/mnt/user-data/workspace/object-tracking/detections.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(detections, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/object-tracking/scripts/run.py --detections-json /mnt/user-data/workspace/object-tracking/detections.json --camera-id CAM_DEERFLOW_001 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-tracking/result.json"
+    }
+  },
+  {
+    "id": "call_90c17045e3184af9829518f8",
+    "name": "read_file",
+    "args": {
+      "description": "读取 object-tracking 生成的 result.json 结果文件",
+      "path": "/mnt/user-data/outputs/object-tracking/result.json"
+    }
+  }
+]

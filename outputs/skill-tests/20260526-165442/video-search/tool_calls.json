@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_90875be28a484ff597ed1c2d",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-search skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/video-search/SKILL.md"
+    }
+  },
+  {
+    "id": "call_ce70579e06724660a17da31e",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-search skill 的 run.py 脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/video-search\npython /mnt/skills/custom/video-search/scripts/run.py --query Trafic --camera-id CAM_DEERFLOW_001 --labels person,car,bus,truck,motorcycle,bicycle --top-k 5 --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-search/result.json"
+    }
+  },
+  {
+    "id": "call_7af28c07a1984e278395658c",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-search skill 的 run.py 脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/video-search && python /mnt/skills/custom/video-search/scripts/run.py --query Trafic --camera-id CAM_DEERFLOW_001 --labels person,car,bus,truck,motorcycle,bicycle --top-k 5 --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-search/result.json"
+    }
+  },
+  {
+    "id": "call_55a8cd710326414c9dffb499",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-search 执行结果 JSON 文件",
+      "path": "/mnt/user-data/outputs/video-search/result.json"
+    }
+  }
+]

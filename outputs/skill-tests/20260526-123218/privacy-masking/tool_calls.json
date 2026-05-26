@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_31c6aab3a91240d6803f2552",
+    "name": "read_file",
+    "args": {
+      "description": "读取 privacy-masking skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/privacy-masking/SKILL.md"
+    }
+  },
+  {
+    "id": "call_9c73dfaea2f74c03b490f7a1",
+    "name": "bash",
+    "args": {
+      "description": "执行 privacy-masking 真链路测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/privacy-masking /mnt/user-data/workspace/privacy-masking\npython /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/workspace/privacy-masking/source.jpg --output /mnt/user-data/workspace/privacy-masking/keyframe_result.json\npython - <<'PY'\nimport json, pathlib\nregions = {\"sensitive_regions\":[{\"type\":\"face\",\"bbox\":[20,20,180,160]}]}\np = pathlib.Path('/mnt/user-data/workspace/privacy-masking/regions.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(regions, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/privacy-masking/scripts/run.py --image-uri /mnt/user-data/workspace/privacy-masking/source.jpg --sensitive-regions-json /mnt/user-data/workspace/privacy-masking/regions.json --method gaussian_blur --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/privacy-masking/result.json"
+    }
+  },
+  {
+    "id": "call_67052fc008a14495b48dc91c",
+    "name": "bash",
+    "args": {
+      "description": "重新执行完整的 privacy-masking 测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/privacy-masking /mnt/user-data/workspace/privacy-masking && \\\npython /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/workspace/privacy-masking/source.jpg --output /mnt/user-data/workspace/privacy-masking/keyframe_result.json && \\\npython3 -c 'import json, pathlib; regions = {\"sensitive_regions\":[{\"type\":\"face\",\"bbox\":[20,20,180,160]}]}; p = pathlib.Path(\"/mnt/user-data/workspace/privacy-masking/regions.json\"); p.parent.mkdir(parents=True, exist_ok=True); json.dump(regions, p.open(\"w\"), ensure_ascii=False, indent=2)' && \\\npython /mnt/skills/custom/privacy-masking/scripts/run.py --image-uri /mnt/user-data/workspace/privacy-masking/source.jpg --sensitive-regions-json /mnt/user-data/workspace/privacy-masking/regions.json --method gaussian_blur --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/privacy-masking/result.json"
+    }
+  },
+  {
+    "id": "call_967497c02a484608916e4ad5",
+    "name": "read_file",
+    "args": {
+      "description": "读取 privacy-masking 测试结果",
+      "path": "/mnt/user-data/outputs/privacy-masking/result.json"
+    }
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_61e6523d4124476f9b406fc5",
+    "name": "read_file",
+    "args": {
+      "description": "读取 evidence-snapshot skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/evidence-snapshot/SKILL.md"
+    }
+  },
+  {
+    "id": "call_497673a4fbf94deca728fb14",
+    "name": "bash",
+    "args": {
+      "description": "执行 evidence-snapshot skill 完整测试链路",
+      "command": "mkdir -p /mnt/user-data/outputs/evidence-snapshot /mnt/user-data/workspace/evidence-snapshot && python /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 2 --interval-seconds 1 --output-dir /mnt/user-data/workspace/evidence-snapshot/frames --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/workspace/evidence-snapshot/frames.json && python - <<'PY'\nimport json, pathlib\nevent = {\"event_id\":\"EVT_TEST_001\",\"event_type\":\"traffic_congestion\",\"camera_id\":\"CAM_DEERFLOW_001\",\"confidence\":0.8,\"evidence_frame_ids\":[\"CAM_DEERFLOW_001_000001\"]}\np = pathlib.Path('/mnt/user-data/workspace/evidence-snapshot/event.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(event, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/evidence-snapshot/scripts/run.py --event-json /mnt/user-data/workspace/evidence-snapshot/event.json --frames-json /mnt/user-data/workspace/evidence-snapshot/frames.json --output-dir /mnt/user-data/outputs/evidence-snapshot/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/evidence-snapshot/result.json"
+    }
+  },
+  {
+    "id": "call_eba2cfc2f5c642fbb82bb864",
+    "name": "read_file",
+    "args": {
+      "description": "读取 evidence-snapshot 生成的 result.json 文件",
+      "path": "/mnt/user-data/outputs/evidence-snapshot/result.json"
+    }
+  }
+]

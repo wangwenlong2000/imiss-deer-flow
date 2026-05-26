@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_e4f8387ad78742d78ff0b464",
+    "name": "read_file",
+    "args": {
+      "description": "读取 analyze-video skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/analyze-video/SKILL.md"
+    }
+  },
+  {
+    "id": "call_9b26c28ce79c4746baf1b256",
+    "name": "bash",
+    "args": {
+      "description": "执行 analyze-video skill 的 extract_frames.py 脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/analyze-video/artifacts && python /mnt/skills/custom/analyze-video/scripts/extract_frames.py /mnt/datasets/Vedio-demo/Trafic.mp4 --output-dir /mnt/user-data/outputs/analyze-video/artifacts/video_review --coarse-fps 0.2 --dense-fps 1 --scene-threshold 0.3 --dense-window 1 --max-frames 12 > /mnt/user-data/outputs/analyze-video/result.json"
+    }
+  },
+  {
+    "id": "call_ee28b1647b4a470ba02c6a72",
+    "name": "read_file",
+    "args": {
+      "description": "读取 analyze-video skill 生成的 result.json 结果文件",
+      "path": "/mnt/user-data/outputs/analyze-video/result.json"
+    }
+  }
+]

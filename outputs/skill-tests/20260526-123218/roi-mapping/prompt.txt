@@ -1,0 +1,20 @@
+请测试 `roi-mapping` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/roi-mapping/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/roi-mapping/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/roi-mapping /mnt/user-data/workspace/roi-mapping
+python - <<'PY'
+import json, pathlib
+tracks = {"tracks":[{"track_id":"track_0001","camera_id":"CAM_DEERFLOW_001","label":"person","last_bbox":[100,100,180,260],"confidence":0.9,"evidence_frame_ids":["frame_001"]}]}
+p = pathlib.Path('/mnt/user-data/workspace/roi-mapping/tracks.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(tracks, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/roi-mapping/scripts/run.py --tracks-json /mnt/user-data/workspace/roi-mapping/tracks.json --camera-id CAM_DEERFLOW_001 --position-strategy bbox_overlap --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/roi-mapping/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/roi-mapping/result.json`。

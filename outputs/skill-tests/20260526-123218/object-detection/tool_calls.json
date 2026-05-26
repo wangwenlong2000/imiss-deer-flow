@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_e2f884a04d6443ee92a08bd3",
+    "name": "read_file",
+    "args": {
+      "description": "Read object-detection skill definition",
+      "path": "/mnt/skills/custom/object-detection/SKILL.md"
+    }
+  },
+  {
+    "id": "call_7c476e97e3574fdf9d992c9a",
+    "name": "bash",
+    "args": {
+      "description": "Execute object-detection skill test chain",
+      "command": "mkdir -p /mnt/user-data/outputs/object-detection /mnt/user-data/workspace/object-detection\npython - <<'PY'\nimport json, pathlib\np = pathlib.Path('/mnt/user-data/workspace/object-detection/frames.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump({\"frames\":[{\"frame_id\":\"frame_001\",\"camera_id\":\"CAM_DEERFLOW_001\",\"timestamp\":\"2026-05-20T10:00:00+08:00\",\"image_uri\":\"/mnt/datasets/Vedio-demo/Trafic.mp4\",\"width\":1280,\"height\":674,\"sequence\":1}]}, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/object-detection/scripts/run.py --frames-json /mnt/user-data/workspace/object-detection/frames.json --labels person,car,bus,truck,motorcycle,bicycle --provider mock --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-detection/result.json"
+    }
+  },
+  {
+    "id": "call_fb797c005e814940bd450b38",
+    "name": "read_file",
+    "args": {
+      "description": "Read object-detection result",
+      "path": "/mnt/user-data/outputs/object-detection/result.json"
+    }
+  }
+]

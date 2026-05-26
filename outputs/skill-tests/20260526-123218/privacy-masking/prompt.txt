@@ -1,0 +1,21 @@
+请测试 `privacy-masking` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/privacy-masking/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/privacy-masking/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/privacy-masking /mnt/user-data/workspace/privacy-masking
+python /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/workspace/privacy-masking/source.jpg --output /mnt/user-data/workspace/privacy-masking/keyframe_result.json
+python - <<'PY'
+import json, pathlib
+regions = {"sensitive_regions":[{"type":"face","bbox":[20,20,180,160]}]}
+p = pathlib.Path('/mnt/user-data/workspace/privacy-masking/regions.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(regions, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/privacy-masking/scripts/run.py --image-uri /mnt/user-data/workspace/privacy-masking/source.jpg --sensitive-regions-json /mnt/user-data/workspace/privacy-masking/regions.json --method gaussian_blur --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/privacy-masking/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/privacy-masking/result.json`。

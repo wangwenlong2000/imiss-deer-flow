@@ -167,6 +167,8 @@ def iter_detection_objects(detections: list[dict[str, Any]]):
 SKILL = "video-stream-ingestion"
 
 def probe_video(path: Path) -> dict[str, Any]:
+    if not shutil.which("ffprobe"):
+        raise FileNotFoundError("ffprobe")
     cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:format=duration", "-of", "default=noprint_wrappers=1:nokey=0", str(path)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     metadata: dict[str, Any] = {}
@@ -208,7 +210,10 @@ def main() -> int:
     if not path.exists():
         return emit(failed(SKILL, "SOURCE_NOT_FOUND", f"Local video not found: {path}"), args.output)
     raw_uri = str(path)
-    meta = probe_video(path)
+    try:
+        meta = probe_video(path)
+    except FileNotFoundError:
+        return emit(failed(SKILL, "FFPROBE_MISSING", "ffprobe is required but was not found in PATH", False), args.output)
     if meta.get("duration"):
         duration = min(duration, int(float(meta["duration"])))
     width, height = meta.get("width"), meta.get("height")

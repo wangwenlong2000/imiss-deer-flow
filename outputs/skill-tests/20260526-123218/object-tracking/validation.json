@@ -1,0 +1,14 @@
+{
+  "result_path": "outputs/skill-tests/20260526-123218/object-tracking/artifacts/outputs/object-tracking/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "object-tracking",
+  "thread_id": "898496a3-3eb6-4350-82fb-a8153f234942",
+  "run_id": "019e628f-c07c-7501-9fe6-06d430c0fbc1",
+  "stream_error": null,
+  "sse_errors": []
+}

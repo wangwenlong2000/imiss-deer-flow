@@ -1,0 +1,38 @@
+{
+  "detections": [
+    {
+      "frame_id": "frame_001",
+      "timestamp": "2026-05-20T10:00:00+08:00",
+      "objects": [
+        {
+          "object_id": "det_001",
+          "label": "person",
+          "confidence": 0.91,
+          "bbox": [
+            100,
+            100,
+            180,
+            260
+          ]
+        }
+      ]
+    },
+    {
+      "frame_id": "frame_002",
+      "timestamp": "2026-05-20T10:00:02+08:00",
+      "objects": [
+        {
+          "object_id": "det_002",
+          "label": "person",
+          "confidence": 0.89,
+          "bbox": [
+            120,
+            105,
+            200,
+            265
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "result_path": "outputs/skill-tests/20260526-123218/roi-mapping/artifacts/outputs/roi-mapping/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "roi-mapping",
+  "thread_id": "75adb0d4-da1a-4c71-9d66-7942ef8180db",
+  "run_id": "019e6290-2f58-7581-9970-f5100854a45b",
+  "stream_error": null,
+  "sse_errors": []
+}

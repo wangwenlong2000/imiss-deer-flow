@@ -179,8 +179,9 @@ def main() -> int:
     config = load_config(args.config)
     event = load_dict(args.event_json, "event") if args.event_json else input_dict(input_data, "event") or input_data
     camera_health = load_dict(args.camera_health_json) if args.camera_health_json else input_dict(input_data, "camera_health")
-    template = config.get("event_templates", {}).get(event.get("event_type"), {})
-    threshold = args.review_threshold if args.review_threshold is not None else float(input_value(input_data, "review_threshold", default=template.get("review_threshold", config.get("default_review_threshold", 0.85))))
+    event_type = event.get("event_type")
+    review_thresholds = config.get("review_thresholds", {})
+    threshold = args.review_threshold if args.review_threshold is not None else float(input_value(input_data, "review_threshold", default=review_thresholds.get(event_type, config.get("default_review_threshold", 0.85))))
     high_risk = set(config.get("high_risk_event_types", []))
     reasons = []
     if float(event.get("confidence", 0)) < threshold:

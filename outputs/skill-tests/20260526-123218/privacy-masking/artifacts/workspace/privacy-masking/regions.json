@@ -1,0 +1,13 @@
+{
+  "sensitive_regions": [
+    {
+      "type": "face",
+      "bbox": [
+        20,
+        20,
+        180,
+        160
+      ]
+    }
+  ]
+}

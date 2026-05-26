@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-embedding-index",
+    "name": "video-embedding-index",
+    "description": "Generate semantic embeddings for video-library documents and write vectors into a protected personal Elasticsearch index."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["video_embedding", "vector_indexing", "semantic_video_search_preparation"],
+    "input_types": ["elasticsearch_video_documents", "query_text"],
+    "output_types": ["vector_index_documents", "query_vector_json"]
+  },
+  "routing": {
+    "routing_text": "名称：video-embedding-index\n描述：为视频库文档生成 embedding 向量，并写入个人专属 Elasticsearch 向量索引，默认只写 huangxiao-video-library-vector-v1。\n适合使用：建立视频向量索引；语义检索准备；生成 query vector；把已有视频库文档复制到个人向量索引。\n不适合使用：视频入库原始检测；删除/重建共享索引；事件判断。",
+    "positive_triggers": ["向量索引", "语义检索", "embedding", "生成向量", "query vector"],
+    "negative_triggers": ["删除索引", "重建共享索引", "目标检测", "事件判断"],
+    "keywords": ["embedding", "vector", "dense_vector", "semantic search", "huangxiao-video-library-vector-v1"],
+    "anti_keywords": ["delete index", "shared index"]
+  },
+  "execution": {
+    "required_tools": ["bash"],
+    "optional_tools": ["sentence-transformers", "read_file"],
+    "allowed_file_patterns": ["*.json", "*.yaml", "*.yml"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 75,
+    "conflict_group": "video-vector-indexing",
+    "prefer_when": ["需要视频语义检索", "需要生成视频文档向量"],
+    "defer_when": ["只做普通关键词检索", "只做视频入库"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video-embedding-index",
+    "skill_md_path": "skills/custom/video-embedding-index/SKILL.md",
+    "generator_version": "manual-video-vector-1.0.0"
+  },
+  "embedding": {"es_doc_id": "video-embedding-index"}
+}

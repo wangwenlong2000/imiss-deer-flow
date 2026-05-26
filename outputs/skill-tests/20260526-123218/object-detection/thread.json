@@ -1,0 +1,13 @@
+{
+  "thread_id": "72180333-05ee-48e8-92d2-bf03ce6f7fc6",
+  "created_at": "2026-05-26T04:33:39.727444+00:00",
+  "updated_at": "2026-05-26T04:33:39.727444+00:00",
+  "state_updated_at": "2026-05-26T04:33:39.727444+00:00",
+  "metadata": {
+    "purpose": "object-detection-agent-skill-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

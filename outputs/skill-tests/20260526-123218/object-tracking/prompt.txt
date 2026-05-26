@@ -1,0 +1,23 @@
+请测试 `object-tracking` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/object-tracking/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/object-tracking/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/object-tracking /mnt/user-data/workspace/object-tracking
+python - <<'PY'
+import json, pathlib
+detections = {"detections":[
+  {"frame_id":"frame_001","timestamp":"2026-05-20T10:00:00+08:00","objects":[{"object_id":"det_001","label":"person","confidence":0.91,"bbox":[100,100,180,260]}]},
+  {"frame_id":"frame_002","timestamp":"2026-05-20T10:00:02+08:00","objects":[{"object_id":"det_002","label":"person","confidence":0.89,"bbox":[120,105,200,265]}]}
+]}
+p = pathlib.Path('/mnt/user-data/workspace/object-tracking/detections.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(detections, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/object-tracking/scripts/run.py --detections-json /mnt/user-data/workspace/object-tracking/detections.json --camera-id CAM_DEERFLOW_001 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-tracking/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/object-tracking/result.json`。

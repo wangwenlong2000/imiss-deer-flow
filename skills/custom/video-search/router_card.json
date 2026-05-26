@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-search",
+    "name": "video-search",
+    "description": "Search indexed monitoring videos in Elasticsearch by keyword, structured filters, and optional precomputed vectors."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["video_search", "video_library_retrieval"],
+    "input_types": ["query", "filters", "query_vector"],
+    "output_types": ["search_hits"]
+  },
+  "routing": {
+    "routing_text": "名称：video-search\n描述：从 Elasticsearch 视频库中按关键词、摄像头、时间、目标类别、位置和可选向量检索视频。\n适合使用：视频检索；查找含某类目标的视频；按摄像头和时间查询；语义检索已入库视频。\n不适合使用：视频入库；重新检测目标；生成证据包。",
+    "positive_triggers": ["视频检索", "查找视频", "搜索视频库", "按目标类别检索"],
+    "negative_triggers": ["批量入库", "目标统计", "证据包"],
+    "keywords": ["search", "query", "camera_id", "labels", "vector"],
+    "anti_keywords": ["ingest", "package"]
+  },
+  "execution": {
+    "required_tools": ["bash"],
+    "optional_tools": ["read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 77,
+    "conflict_group": "video-library-search",
+    "prefer_when": ["视频检索", "搜索视频库"],
+    "defer_when": ["批量入库", "证据包生成"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video-search",
+    "skill_md_path": "skills/custom/video-search/SKILL.md",
+    "generator_version": "manual-video-library-1.0.0"
+  },
+  "embedding": {"es_doc_id": "video-search"}
+}

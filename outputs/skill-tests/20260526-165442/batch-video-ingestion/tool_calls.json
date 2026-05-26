@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_9ec5bc89eaa44a8088091311",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/batch-video-ingestion/SKILL.md"
+    }
+  },
+  {
+    "id": "call_29d9a309956d48379da049b0",
+    "name": "bash",
+    "args": {
+      "description": "执行 batch-video-ingestion skill 的测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/batch-video-ingestion /mnt/user-data/workspace/batch-video-ingestion\npython - <<'PY'\nimport json, pathlib\nvideos = {\"videos\":[{\"video_id\":\"video-traffic-agent-test\",\"camera_id\":\"CAM_DEERFLOW_001\",\"file_path\":\"/mnt/datasets/Vedio-demo/Trafic.mp4\",\"source_type\":\"local_file\",\"capture_seconds\":2,\"metadata\":{\"filename\":\"Trafic.mp4\",\"location\":{\"city\":\"宁波市\",\"district\":\"奉化区\"}}}]}\np = pathlib.Path('/mnt/user-data/workspace/batch-video-ingestion/videos.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(videos, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion/videos.json --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_2de0f17b18884d4388a2b662",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 执行结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  }
+]

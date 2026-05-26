@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_e2451333c80e4688ac678bff",
+    "name": "read_file",
+    "args": {
+      "description": "读取 human-review-routing skill 的定义文件",
+      "path": "/mnt/skills/custom/human-review-routing/SKILL.md"
+    }
+  },
+  {
+    "id": "call_507ca81ead2b489a9e1229ef",
+    "name": "bash",
+    "args": {
+      "description": "执行 human-review-routing skill 的测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/human-review-routing /mnt/user-data/workspace/human-review-routing\npython - <<'PY'\nimport json, pathlib\nevent = {\"event_id\":\"EVT_REVIEW_001\",\"event_type\":\"fight\",\"confidence\":0.62,\"severity\":\"high\",\"enforcement_impact\":True}\nhealth = {\"health_status\":\"degraded\",\"health_score\":0.55,\"issues\":[\"blurred\"]}\npathlib.Path('/mnt/user-data/workspace/human-review-routing').mkdir(parents=True, exist_ok=True)\njson.dump(event, open('/mnt/user-data/workspace/human-review-routing/event.json','w'), ensure_ascii=False, indent=2)\njson.dump(health, open('/mnt/user-data/workspace/human-review-routing/health.json','w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/human-review-routing/scripts/run.py --event-json /mnt/user-data/workspace/human-review-routing/event.json --camera-health-json /mnt/user-data/workspace/human-review-routing/health.json --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/human-review-routing/result.json"
+    }
+  },
+  {
+    "id": "call_525ced7a0b57445db16b86cf",
+    "name": "read_file",
+    "args": {
+      "description": "读取 human-review-routing skill 的输出结果",
+      "path": "/mnt/user-data/outputs/human-review-routing/result.json"
+    }
+  }
+]

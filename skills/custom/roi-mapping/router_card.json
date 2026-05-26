@@ -3,99 +3,37 @@
   "identity": {
     "id": "roi-mapping",
     "name": "roi-mapping",
-    "description": "Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection."
+    "description": "Match objects or tracks to configured ROI polygons for geometric analytics only."
   },
   "scope": {
-    "scenes": [
-      "video_surveillance"
-    ],
+    "scenes": ["video_surveillance"],
     "is_public": false,
-    "task_types": [
-      "roi_mapping",
-      "spatial_match"
-    ],
-    "input_types": [
-      "tracks_json",
-      "detections_json",
-      "roi_config",
-      "camera_id"
-    ],
-    "output_types": [
-      "roi_matches_json"
-    ]
+    "task_types": ["roi_mapping", "geometry_matching"],
+    "input_types": ["tracks_json", "objects_json", "rois_json"],
+    "output_types": ["roi_matches_json"]
   },
   "routing": {
-    "routing_text": "名称：roi-mapping\n描述：Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection.\n适用场景：video_surveillance。\n适用任务：roi_mapping, spatial_match。\n输入类型：tracks_json, detections_json, roi_config, camera_id。\n输出类型：roi_matches_json。\n适合使用：判断目标是否进入ROI区域；匹配摄像头区域多边形；检测占道或禁停区域位置；生成 roi_matches。\n不适合使用：抽帧；目标检测；事件模板编排；视频剪辑。",
-    "positive_triggers": [
-      "判断目标是否进入ROI区域",
-      "匹配摄像头区域多边形",
-      "检测占道或禁停区域位置",
-      "生成 roi_matches"
-    ],
-    "negative_triggers": [
-      "抽帧",
-      "目标检测",
-      "事件模板编排",
-      "视频剪辑"
-    ],
-    "keywords": [
-      "ROI",
-      "roi_matches",
-      "polygon",
-      "bbox overlap",
-      "camera_id",
-      "区域匹配"
-    ],
-    "anti_keywords": [
-      "frame sampling",
-      "YOLO",
-      "clip extraction"
-    ]
-  },
-  "body": {
-    "source": "SKILL.md",
-    "content": "---\nname: roi-mapping\ndescription: Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection.\n---\n\n# ROI Mapping\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf tracks or detections are missing but the user provided a video, do not ask the user to provide geometric inputs and do not write ROI matching code. Call `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, and `object-tracking/scripts/run.py` as needed before this skill. If ROI polygons are missing, first use camera ROI definitions from the config; only ask the user when neither config nor task context provides usable ROIs.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython roi-mapping/scripts/run.py --tracks-json <tracks.json> --camera-id <camera_id> --config <config.json> --output <roi_matches.json>\n```\n\nParameters: `--tracks-json`, `--objects-json`, `--rois-json`, `--camera-id`, `--roi-types`, `--position-strategy`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera ROI configuration and subjects.\n2. Choose center point, bottom center, bbox overlap, or mask overlap strategy.\n3. Compute containment or overlap for each subject and ROI.\n4. Return matched ROI ids, types, overlap ratios, and confidence.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `camera_id`\n- `tracks` or `objects`\n- Optional `rois`\n- Optional `roi_types`\n- Optional `position_strategy`: `bottom_center`, `center_point`, or `bbox_overlap`\n\n## Outputs\n\nReturns `matches`, each with `object_id`, `roi_id`, `roi_type`, `overlap_ratio`, `matched`, and `confidence`.\n\n## Failure Modes\n\nThe current implementation returns empty matches when ROI configuration or bboxes are missing.\n\n## Constraints\n\nDo not create final event types. Keep geometric matching explainable.\n"
+    "routing_text": "名称：roi-mapping\n描述：将目标或轨迹与摄像头 ROI 多边形做几何匹配，输出 matched、roi_id、overlap_ratio。不能直接生成事件类型。\n适合使用：ROI命中；区域几何匹配；目标是否在某个多边形内。\n不适合使用：事件检测；违停/入侵等语义判断。",
+    "positive_triggers": ["ROI匹配", "区域匹配", "多边形命中", "roi"],
+    "negative_triggers": ["事件检测", "违停判断", "入侵事件"],
+    "keywords": ["roi", "polygon", "overlap", "geometry"],
+    "anti_keywords": ["event"]
   },
   "execution": {
-    "required_tools": [
-      "read_file",
-      "bash"
-    ],
-    "optional_tools": [
-      "write_file"
-    ],
-    "allowed_file_patterns": [
-      "*.json"
-    ],
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 82,
+    "priority": 70,
     "conflict_group": "roi-mapping",
-    "prefer_when": [
-      "判断目标是否进入ROI区域",
-      "匹配摄像头区域多边形",
-      "检测占道或禁停区域位置",
-      "生成 roi_matches"
-    ],
-    "defer_when": [
-      "抽帧",
-      "目标检测",
-      "事件模板编排",
-      "视频剪辑"
-    ]
+    "prefer_when": ["需要ROI几何匹配"],
+    "defer_when": ["需要事件分析"]
   },
   "source": {
     "skill_dir": "skills/custom/roi-mapping",
     "skill_md_path": "skills/custom/roi-mapping/SKILL.md",
-    "skill_md_hash": "sha256:c7782039ba5a27bb110553b1e5952edb2363647ccfc25b7ccbfa871f72098631",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "generator_version": "manual-object-only-1.0.0"
   },
-  "embedding": {
-    "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:d13532ba1611de34e8530877fcef50674c7d3f14d275351cff0b119656fb52dd",
-    "es_index": "citybrain-skill-router-cards",
-    "es_doc_id": "roi-mapping"
-  }
+  "embedding": {"es_doc_id": "roi-mapping"}
 }

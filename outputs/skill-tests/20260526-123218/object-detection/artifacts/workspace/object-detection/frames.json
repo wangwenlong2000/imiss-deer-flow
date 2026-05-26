@@ -1,0 +1,13 @@
+{
+  "frames": [
+    {
+      "frame_id": "frame_001",
+      "camera_id": "CAM_DEERFLOW_001",
+      "timestamp": "2026-05-20T10:00:00+08:00",
+      "image_uri": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+      "width": 1280,
+      "height": 674,
+      "sequence": 1
+    }
+  ]
+}

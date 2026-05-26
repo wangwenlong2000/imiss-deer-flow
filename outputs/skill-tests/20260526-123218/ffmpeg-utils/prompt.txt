@@ -1,0 +1,20 @@
+请测试 `ffmpeg-utils` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/ffmpeg-utils/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/ffmpeg-utils/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/ffmpeg-utils/artifacts
+python /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation segment --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --start-time 1 --duration 2 --output-path /mnt/user-data/outputs/ffmpeg-utils/artifacts/segment.mp4 --output /mnt/user-data/outputs/ffmpeg-utils/segment_result.json
+python /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg --output /mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json
+python - <<'PY'
+import json
+segment = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/segment_result.json'))
+keyframe = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json'))
+json.dump({"skill":"ffmpeg-utils","version":"1.0.0","status":"success" if segment.get("status") == "success" and keyframe.get("status") == "success" else "failed","data":{"segment":segment,"keyframe":keyframe}}, open('/mnt/user-data/outputs/ffmpeg-utils/result.json','w'), ensure_ascii=False, indent=2)
+PY
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/ffmpeg-utils/result.json`。

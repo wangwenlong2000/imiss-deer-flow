@@ -1,0 +1,53 @@
+[
+  {
+    "id": "call_9e9ca8927a134c5fa591fca7",
+    "name": "read_file",
+    "args": {
+      "description": "读取 ffmpeg-utils skill 定义文件",
+      "path": "/mnt/skills/custom/ffmpeg-utils/SKILL.md"
+    }
+  },
+  {
+    "id": "call_5bbc6b3079854c08b8d6497b",
+    "name": "bash",
+    "args": {
+      "description": "执行 ffmpeg-utils skill 测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/ffmpeg-utils/artifacts\npython /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation segment --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --start-time 1 --duration 2 --output-path /mnt/user-data/outputs/ffmpeg-utils/artifacts/segment.mp4 --output /mnt/user-data/outputs/ffmpeg-utils/segment_result.json\npython /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg --output /mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json\npython - <<'PY'\nimport json\nsegment = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/segment_result.json'))\nkeyframe = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json'))\njson.dump({\"skill\":\"ffmpeg-utils\",\"version\":\"1.0.0\",\"status\":\"success\" if segment.get(\"status\") == \"success\" and keyframe.get(\"status\") == \"success\" else \"failed\",\"data\":{\"segment\":segment,\"keyframe\":keyframe}}, open('/mnt/user-data/outputs/ffmpeg-utils/result.json','w'), ensure_ascii=False, indent=2)\nPY"
+    }
+  },
+  {
+    "id": "call_feaba89503634955b573862f",
+    "name": "bash",
+    "args": {
+      "description": "重新执行 keyframe 提取命令",
+      "command": "python /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path /mnt/datasets/Vedio-demo/Trafic.mp4 --timestamp 1 --output-path /mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg --output /mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json"
+    }
+  },
+  {
+    "id": "call_af2af8cc04f2457ba80afd14",
+    "name": "bash",
+    "args": {
+      "description": "合并结果生成 result.json",
+      "command": "python - <<'PY'\nimport json\nsegment = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/segment_result.json'))\nkeyframe = json.load(open('/mnt/user-data/outputs/ffmpeg-utils/keyframe_result.json'))\njson.dump({\"skill\":\"ffmpeg-utils\",\"version\":\"1.0.0\",\"status\":\"success\" if segment.get(\"status\") == \"success\" and keyframe.get(\"status\") == \"success\" else \"failed\",\"data\":{\"segment\":segment,\"keyframe\":keyframe}}, open('/mnt/user-data/outputs/ffmpeg-utils/result.json','w'), ensure_ascii=False, indent=2)\nPY"
+    }
+  },
+  {
+    "id": "call_e1c5f16e8eb54c6e8723d4ad",
+    "name": "read_file",
+    "args": {
+      "description": "读取最终生成的 result.json",
+      "path": "/mnt/user-data/outputs/ffmpeg-utils/result.json"
+    }
+  },
+  {
+    "id": "call_0bc449b4c8e2402aa78cea62",
+    "name": "present_files",
+    "args": {
+      "filepaths": [
+        "/mnt/user-data/outputs/ffmpeg-utils/result.json",
+        "/mnt/user-data/outputs/ffmpeg-utils/artifacts/segment.mp4",
+        "/mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg"
+      ]
+    }
+  }
+]

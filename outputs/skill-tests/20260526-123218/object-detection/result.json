@@ -1,0 +1,24 @@
+{
+  "skill": "object-detection",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 0.0,
+  "data": {
+    "detections": [
+      {
+        "frame_id": "frame_001",
+        "timestamp": "2026-05-20T10:00:00+08:00",
+        "objects": []
+      }
+    ],
+    "model": "mock",
+    "labels": [
+      "person",
+      "car",
+      "bus",
+      "truck",
+      "motorcycle",
+      "bicycle"
+    ]
+  }
+}

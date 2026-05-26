@@ -1,0 +1,131 @@
+{
+  "video": {
+    "path": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+    "filename": "Trafic.mp4",
+    "duration_seconds": 900.92,
+    "fps": 12.0,
+    "resolution": "1280x674",
+    "codec": "h264",
+    "file_size_mb": 72.4
+  },
+  "scene_changes": [],
+  "chapters": [
+    {
+      "index": 1,
+      "start_seconds": 0,
+      "end_seconds": 300,
+      "frame_count": 12,
+      "scene_changes": 0,
+      "frames": [
+        {
+          "path": "chapters/chapter_001/frames/frame_000000000ms.jpg",
+          "timestamp_seconds": 0.0,
+          "timestamp_display": "0:00:00.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000005000ms.jpg",
+          "timestamp_seconds": 5.0,
+          "timestamp_display": "0:00:05.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000010000ms.jpg",
+          "timestamp_seconds": 10.0,
+          "timestamp_display": "0:00:10.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000015000ms.jpg",
+          "timestamp_seconds": 15.0,
+          "timestamp_display": "0:00:15.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000020000ms.jpg",
+          "timestamp_seconds": 20.0,
+          "timestamp_display": "0:00:20.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000025000ms.jpg",
+          "timestamp_seconds": 25.0,
+          "timestamp_display": "0:00:25.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000030000ms.jpg",
+          "timestamp_seconds": 30.0,
+          "timestamp_display": "0:00:30.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000035000ms.jpg",
+          "timestamp_seconds": 35.0,
+          "timestamp_display": "0:00:35.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000040000ms.jpg",
+          "timestamp_seconds": 40.0,
+          "timestamp_display": "0:00:40.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000045000ms.jpg",
+          "timestamp_seconds": 45.0,
+          "timestamp_display": "0:00:45.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000050000ms.jpg",
+          "timestamp_seconds": 50.0,
+          "timestamp_display": "0:00:50.000",
+          "pass": "coarse"
+        },
+        {
+          "path": "chapters/chapter_001/frames/frame_000055000ms.jpg",
+          "timestamp_seconds": 55.0,
+          "timestamp_display": "0:00:55.000",
+          "pass": "coarse"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start_seconds": 300,
+      "end_seconds": 600,
+      "frame_count": 0,
+      "scene_changes": 0,
+      "frames": []
+    },
+    {
+      "index": 3,
+      "start_seconds": 600,
+      "end_seconds": 900,
+      "frame_count": 0,
+      "scene_changes": 0,
+      "frames": []
+    },
+    {
+      "index": 4,
+      "start_seconds": 900,
+      "end_seconds": 900.92,
+      "frame_count": 0,
+      "scene_changes": 0,
+      "frames": []
+    }
+  ],
+  "summary": {
+    "total_frames": 12,
+    "total_scene_changes": 0,
+    "passes_run": [
+      "scene_detect",
+      "coarse",
+      "dense"
+    ],
+    "coarse_fps": 0.2,
+    "dense_fps": 1.0,
+    "scene_threshold": 0.3
+  }
+}

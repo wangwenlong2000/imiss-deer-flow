@@ -1,0 +1,14 @@
+请测试 `camera-health-check` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/camera-health-check/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/camera-health-check/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/camera-health-check /mnt/user-data/workspace/camera-health-check
+python /mnt/skills/custom/frame-sampling/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --capture-seconds 5 --interval-seconds 1 --output-dir /mnt/user-data/workspace/camera-health-check/frames --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/workspace/camera-health-check/frames.json
+python /mnt/skills/custom/camera-health-check/scripts/run.py --frames-json /mnt/user-data/workspace/camera-health-check/frames.json --camera-id CAM_DEERFLOW_001 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/camera-health-check/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/camera-health-check/result.json`。

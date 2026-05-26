@@ -3,94 +3,37 @@
   "identity": {
     "id": "duplicate-event-merge",
     "name": "duplicate-event-merge",
-    "description": "Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings."
+    "description": "Merge duplicate event candidates from single-video or batch video analysis."
   },
   "scope": {
-    "scenes": [
-      "video_surveillance"
-    ],
+    "scenes": ["video_surveillance"],
     "is_public": false,
-    "task_types": [
-      "duplicate_event_merge",
-      "event_deduplication"
-    ],
-    "input_types": [
-      "events_json"
-    ],
-    "output_types": [
-      "canonical_events_json",
-      "duplicate_mappings_json"
-    ]
+    "task_types": ["event_deduplication"],
+    "input_types": ["events_json"],
+    "output_types": ["canonical_events_json", "duplicate_mappings_json"]
   },
   "routing": {
-    "routing_text": "名称：duplicate-event-merge\n描述：Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.\n适用场景：video_surveillance。\n适用任务：duplicate_event_merge, event_deduplication。\n输入类型：events_json。\n输出类型：canonical_events_json, duplicate_mappings_json。\n适合使用：合并重复事件；去重同一摄像头同类事件；合并时间窗口重叠的事件候选。\n不适合使用：生成事件规则；抽帧；目标检测；证据截图。",
-    "positive_triggers": [
-      "合并重复事件",
-      "去重同一摄像头同类事件",
-      "合并时间窗口重叠的事件候选"
-    ],
-    "negative_triggers": [
-      "生成事件规则",
-      "抽帧",
-      "目标检测",
-      "证据截图"
-    ],
-    "keywords": [
-      "duplicate merge",
-      "deduplication",
-      "canonical events",
-      "overlapping time window",
-      "事件去重"
-    ],
-    "anti_keywords": [
-      "raw video",
-      "frame sampling",
-      "snapshot"
-    ]
-  },
-  "body": {
-    "source": "SKILL.md",
-    "content": "---\nname: duplicate-event-merge\ndescription: Merge duplicate video event candidates from the same camera, event type, ROI, related tracks, or overlapping time window. Use after event-rule-engine and before evidence generation or external output when Codex has a list of Event Candidate records and needs canonical events plus duplicate mappings.\n---\n\n# Duplicate Event Merge\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf event candidates are missing but the user provided a video or upstream analysis request, do not write custom duplicate merging or event generation code. First call `event-rule-engine/scripts/run.py` to produce candidate events, then call this skill to merge duplicates. Only ask for input when no event candidates can be produced or inferred.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython duplicate-event-merge/scripts/run.py --events-json <events.json> --output <merged_events.json>\n```\n\nParameters: `--events-json`, `--output`.\n\n## Workflow\n\n1. Read event candidates.\n2. Build duplicate keys from camera, event type, ROI, and related tracks.\n3. Merge confidence and time range.\n4. Return canonical events and duplicate mapping.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `events`: list of Event Candidate dictionaries\n\n## Outputs\n\nReturns:\n- `events`: canonical merged events\n- `duplicates`: mappings of `main_event_id` to `merged_event_id`\n\n## Failure Modes\n\nThe current implementation tolerates empty input and returns empty outputs.\n\n## Constraints\n\nDo not drop evidence metadata from the canonical event.\n"
+    "routing_text": "名称：duplicate-event-merge\n描述：合并 single-video-event-analysis 或批量视频分析产生的重复事件候选，按摄像头、事件类型、ROI、证据帧或时间窗口去重。\n适合使用：合并重复事件；批量结果去重。\n不适合使用：生成事件；目标检测；证据截图。",
+    "positive_triggers": ["事件去重", "合并重复事件", "duplicate event"],
+    "negative_triggers": ["事件检测", "目标检测"],
+    "keywords": ["dedupe", "duplicate", "merge", "events"],
+    "anti_keywords": ["detect"]
   },
   "execution": {
-    "required_tools": [
-      "read_file",
-      "bash"
-    ],
-    "optional_tools": [
-      "write_file"
-    ],
-    "allowed_file_patterns": [
-      "*.json"
-    ],
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 77,
+    "priority": 70,
     "conflict_group": "duplicate-event-merge",
-    "prefer_when": [
-      "合并重复事件",
-      "去重同一摄像头同类事件",
-      "合并时间窗口重叠的事件候选"
-    ],
-    "defer_when": [
-      "生成事件规则",
-      "抽帧",
-      "目标检测",
-      "证据截图"
-    ]
+    "prefer_when": ["需要事件去重"],
+    "defer_when": ["需要事件分析"]
   },
   "source": {
     "skill_dir": "skills/custom/duplicate-event-merge",
     "skill_md_path": "skills/custom/duplicate-event-merge/SKILL.md",
-    "skill_md_hash": "sha256:ca7f705945bbce6acd50f6172350c79206a1a07472d0950afd62add317c27223",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "generator_version": "manual-llm-event-review-1.0.0"
   },
-  "embedding": {
-    "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:fca9756f018ddaf00eeb2d70fff82b9d09989c78ad66f7370c244429a63c18b6",
-    "es_index": "citybrain-skill-router-cards",
-    "es_doc_id": "duplicate-event-merge"
-  }
+  "embedding": {"es_doc_id": "duplicate-event-merge"}
 }

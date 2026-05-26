@@ -1,0 +1,11 @@
+{
+  "skill": "video-search",
+  "version": "1.0.0",
+  "status": "failed",
+  "error_code": "ES_CONNECTION_FAILED",
+  "message": "Could not connect to Elasticsearch at http://host.docker.internal:3128: [Errno -2] Name or service not known",
+  "retryable": true,
+  "detail": {
+    "url": "http://host.docker.internal:3128"
+  }
+}

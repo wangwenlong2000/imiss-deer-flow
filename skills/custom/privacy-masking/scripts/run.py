@@ -185,6 +185,21 @@ def mask_image(uri: str, regions: list[dict[str, Any] | list[float]], method: st
     cv2.imwrite(str(out), image)
     return success(SKILL, {"uri": str(out), "privacy_masked": True, "masked_regions": regions, "method": method})
 
+def valid_regions(regions: list[dict[str, Any] | list[float]]) -> tuple[bool, str]:
+    if not regions:
+        return False, "sensitive_regions with explicit bbox coordinates is required when privacy masking is enabled"
+    for index, region in enumerate(regions):
+        bbox = region.get("bbox", region) if isinstance(region, dict) else region
+        if not isinstance(bbox, list) or len(bbox) != 4:
+            return False, f"sensitive_regions[{index}] must provide bbox as [x1, y1, x2, y2]"
+        try:
+            x1, y1, x2, y2 = [float(v) for v in bbox]
+        except (TypeError, ValueError):
+            return False, f"sensitive_regions[{index}].bbox values must be numeric"
+        if x2 <= x1 or y2 <= y1:
+            return False, f"sensitive_regions[{index}].bbox must satisfy x2 > x1 and y2 > y1"
+    return True, ""
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Mask sensitive regions in an evidence image.")
     p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
@@ -205,6 +220,9 @@ def main() -> int:
     method = args.method or input_value(input_data, "method", default="gaussian_blur")
     if not enabled:
         return emit(success(SKILL, {"uri": uri, "privacy_masked": False, "masked_regions": []}), args.output)
+    ok, message = valid_regions(regions)
+    if not ok:
+        return emit(failed(SKILL, "MISSING_SENSITIVE_REGIONS", message), args.output)
     path = Path(str(uri).removeprefix("file://"))
     if not path.exists():
         return emit(success(SKILL, {"uri": uri, "privacy_masked": True, "masked_regions": regions, "method": method}), args.output)

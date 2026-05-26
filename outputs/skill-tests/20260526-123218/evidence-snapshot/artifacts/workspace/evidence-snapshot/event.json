@@ -1,0 +1,9 @@
+{
+  "event_id": "EVT_TEST_001",
+  "event_type": "traffic_congestion",
+  "camera_id": "CAM_DEERFLOW_001",
+  "confidence": 0.8,
+  "evidence_frame_ids": [
+    "CAM_DEERFLOW_001_000001"
+  ]
+}

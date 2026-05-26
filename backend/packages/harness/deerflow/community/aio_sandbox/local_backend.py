@@ -228,6 +228,7 @@ class LocalContainerBackend(SandboxBackend):
         # Docker-specific security options
         if self._runtime == "docker":
             cmd.extend(["--security-opt", "seccomp=unconfined"])
+            cmd.extend(["--add-host", "host.docker.internal:host-gateway"])
 
         cmd.extend(
             [

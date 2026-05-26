@@ -202,16 +202,12 @@ def run_ultralytics(frames, labels, thresholds, model_config):
     vals = [o["confidence"] for d in detections for o in d["objects"]]
     return success(SKILL, {"detections": detections, "model": str(model_path)}, sum(vals) / len(vals) if vals else 0)
 
-def run_mock(frames, labels):
-    detections = [{"frame_id": frame.get("frame_id"), "timestamp": frame.get("timestamp"), "objects": []} for frame in frames]
-    return success(SKILL, {"detections": detections, "model": "mock", "labels": labels}, 0)
-
 def main() -> int:
     p = argparse.ArgumentParser(description="Detect objects in sampled frames.")
     p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--frames-json")
     p.add_argument("--labels")
-    p.add_argument("--provider", choices=["ultralytics", "mock"])
+    p.add_argument("--provider")
     p.add_argument("--model-path")
     p.add_argument("--config")
     p.add_argument("--output")
@@ -233,7 +229,7 @@ def main() -> int:
         model_config["model_path"] = model_path
     provider = model_config.get("provider", "ultralytics")
     if provider == "mock":
-        return emit(run_mock(frames, labels), args.output)
+        return emit(failed(SKILL, "MOCK_PROVIDER_DISABLED", "mock provider is disabled; use provider=ultralytics for real YOLO inference"), args.output)
     if provider != "ultralytics":
         return emit(failed(SKILL, "UNSUPPORTED_PROVIDER", f"Unsupported object detection provider: {provider}"), args.output)
     result = run_ultralytics(frames, labels, model_config.get("thresholds", {}), model_config)

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_3e16a40a2e814a02a553b055",
+    "name": "read_file",
+    "args": {
+      "description": "读取 roi-mapping skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/roi-mapping/SKILL.md"
+    }
+  },
+  {
+    "id": "call_d7ff6e258a274c72a711dd00",
+    "name": "bash",
+    "args": {
+      "description": "创建目录并执行 roi-mapping skill 的测试脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/roi-mapping /mnt/user-data/workspace/roi-mapping\npython - <<'PY'\nimport json, pathlib\ntracks = {\"tracks\":[{\"track_id\":\"track_0001\",\"camera_id\":\"CAM_DEERFLOW_001\",\"label\":\"person\",\"last_bbox\":[100,100,180,260],\"confidence\":0.9,\"evidence_frame_ids\":[\"frame_001\"]}]}\np = pathlib.Path('/mnt/user-data/workspace/roi-mapping/tracks.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(tracks, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/roi-mapping/scripts/run.py --tracks-json /mnt/user-data/workspace/roi-mapping/tracks.json --camera-id CAM_DEERFLOW_001 --position-strategy bbox_overlap --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/roi-mapping/result.json"
+    }
+  },
+  {
+    "id": "call_c5d82d40009d4c2b9969fdc2",
+    "name": "read_file",
+    "args": {
+      "description": "读取 roi-mapping 执行结果",
+      "path": "/mnt/user-data/outputs/roi-mapping/result.json"
+    }
+  }
+]

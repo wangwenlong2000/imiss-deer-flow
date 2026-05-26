@@ -1,0 +1,55 @@
+{
+  "skill": "ffmpeg-utils",
+  "version": "1.0.0",
+  "status": "success",
+  "data": {
+    "segment": {
+      "skill": "ffmpeg-utils",
+      "version": "1.0.0",
+      "status": "success",
+      "confidence": 1.0,
+      "data": {
+        "command": [
+          "ffmpeg",
+          "-y",
+          "-ss",
+          "1",
+          "-i",
+          "/mnt/datasets/Vedio-demo/Trafic.mp4",
+          "-t",
+          "2",
+          "-c",
+          "copy",
+          "/mnt/user-data/outputs/ffmpeg-utils/artifacts/segment.mp4"
+        ],
+        "stdout": "",
+        "operation": "segment",
+        "output_path": "/mnt/user-data/outputs/ffmpeg-utils/artifacts/segment.mp4"
+      }
+    },
+    "keyframe": {
+      "skill": "ffmpeg-utils",
+      "version": "1.0.0",
+      "status": "success",
+      "confidence": 1.0,
+      "data": {
+        "command": [
+          "ffmpeg",
+          "-y",
+          "-ss",
+          "1",
+          "-i",
+          "/mnt/datasets/Vedio-demo/Trafic.mp4",
+          "-frames:v",
+          "1",
+          "-q:v",
+          "2",
+          "/mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg"
+        ],
+        "stdout": "",
+        "operation": "keyframe",
+        "output_path": "/mnt/user-data/outputs/ffmpeg-utils/artifacts/keyframe.jpg"
+      }
+    }
+  }
+}

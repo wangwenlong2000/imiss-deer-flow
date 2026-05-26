@@ -1,0 +1,9 @@
+{
+  "frames": [
+    {
+      "frame_id": "frame_001",
+      "image_uri": "/mnt/user-data/workspace/evidence-package-generation/source.jpg",
+      "timestamp": "2026-05-20T10:00:01+08:00"
+    }
+  ]
+}

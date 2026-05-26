@@ -1,0 +1,7 @@
+{
+  "health_status": "degraded",
+  "health_score": 0.55,
+  "issues": [
+    "blurred"
+  ]
+}

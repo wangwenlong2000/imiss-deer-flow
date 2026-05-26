@@ -1,0 +1,28 @@
+{
+  "events": [
+    {
+      "event_id": "EVT_DUP_001",
+      "event_type": "traffic_congestion",
+      "camera_id": "CAM_DEERFLOW_001",
+      "start_time": "2026-05-20T10:00:01+08:00",
+      "end_time": "2026-05-20T10:00:06+08:00",
+      "confidence": 0.75,
+      "roi_id": "ROI_FULL_FRAME",
+      "evidence_frame_ids": [
+        "frame_001"
+      ]
+    },
+    {
+      "event_id": "EVT_DUP_002",
+      "event_type": "traffic_congestion",
+      "camera_id": "CAM_DEERFLOW_001",
+      "start_time": "2026-05-20T10:00:03+08:00",
+      "end_time": "2026-05-20T10:00:08+08:00",
+      "confidence": 0.8,
+      "roi_id": "ROI_FULL_FRAME",
+      "evidence_frame_ids": [
+        "frame_002"
+      ]
+    }
+  ]
+}

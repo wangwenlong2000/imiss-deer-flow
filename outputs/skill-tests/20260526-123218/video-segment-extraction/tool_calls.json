@@ -1,0 +1,42 @@
+[
+  {
+    "id": "call_bbb70f4dd718495cbb32f04c",
+    "name": "read_file",
+    "args": {
+      "description": "Read video-segment-extraction SKILL.md to understand the skill workflow",
+      "path": "/mnt/skills/custom/video-segment-extraction/SKILL.md"
+    }
+  },
+  {
+    "id": "call_9dd7db7c2c8c41ac91192517",
+    "name": "bash",
+    "args": {
+      "description": "Execute video-segment-extraction skill run.py script with specified parameters",
+      "command": "mkdir -p /mnt/user-data/outputs/video-segment-extraction\npython /mnt/skills/custom/video-segment-extraction/scripts/run.py --event-id EVT_TEST_SEGMENT_001 --raw-segment-uri /mnt/datasets/Vedio-demo/Trafic.mp4 --event-time 2026-05-20T10:00:05+08:00 --event-elapsed-seconds 5 --pre-seconds 2 --post-seconds 3 --output-dir /mnt/user-data/outputs/video-segment-extraction/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-segment-extraction/result.json"
+    }
+  },
+  {
+    "id": "call_bcab3f87eca646f68599d866",
+    "name": "bash",
+    "args": {
+      "description": "Execute video-segment-extraction script to see error details",
+      "command": "cd /mnt/skills/custom/video-segment-extraction && python scripts/run.py --event-id EVT_TEST_SEGMENT_001 --raw-segment-uri /mnt/datasets/Vedio-demo/Trafic.mp4 --event-time 2026-05-20T10:00:05+08:00 --event-elapsed-seconds 5 --pre-seconds 2 --post-seconds 3 --output-dir /mnt/user-data/outputs/video-segment-extraction/artifacts --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-segment-extraction/result.json 2>&1"
+    }
+  },
+  {
+    "id": "call_0dd06df769374b9e9efe4a73",
+    "name": "read_file",
+    "args": {
+      "description": "Read the generated result.json to verify the skill execution output",
+      "path": "/mnt/user-data/outputs/video-segment-extraction/result.json"
+    }
+  },
+  {
+    "id": "call_608ab15ecda84a9ba2a25474",
+    "name": "bash",
+    "args": {
+      "description": "Verify the generated video clip and artifacts exist",
+      "command": "ls -la /mnt/user-data/outputs/video-segment-extraction/artifacts/evidence/"
+    }
+  }
+]

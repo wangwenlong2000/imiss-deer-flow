@@ -1,0 +1,123 @@
+{
+  "skill": "frame-sampling",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "camera_id": "CAM_DEERFLOW_001",
+    "frames": [
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000000800_0001",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:00+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000000800_0001.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 1,
+        "source_elapsed_seconds": 0.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000010800_0002",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:01+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000010800_0002.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 2,
+        "source_elapsed_seconds": 1.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000020800_0003",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:02+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000020800_0003.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 3,
+        "source_elapsed_seconds": 2.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000030800_0004",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:03+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000030800_0004.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 4,
+        "source_elapsed_seconds": 3.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000040800_0005",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:04+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000040800_0005.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 5,
+        "source_elapsed_seconds": 4.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000050800_0006",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:05+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000050800_0006.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 6,
+        "source_elapsed_seconds": 5.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000060800_0007",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:06+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000060800_0007.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 7,
+        "source_elapsed_seconds": 6.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000070800_0008",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:07+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000070800_0008.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 8,
+        "source_elapsed_seconds": 7.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000080800_0009",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:08+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000080800_0009.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 9,
+        "source_elapsed_seconds": 8.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000090800_0010",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:09+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000090800_0010.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 10,
+        "source_elapsed_seconds": 9.0
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000100800_0011",
+        "camera_id": "CAM_DEERFLOW_001",
+        "timestamp": "2026-05-20T10:00:10+08:00",
+        "image_uri": "/mnt/user-data/outputs/frame-sampling/artifacts/frames/CAM_DEERFLOW_001/CAM_DEERFLOW_001_202605201000100800_0011.jpg",
+        "width": 1280,
+        "height": 674,
+        "sequence": 11,
+        "source_elapsed_seconds": 10.0
+      }
+    ],
+    "source_video_uri": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+    "fps": 12.000008879851174
+  }
+}

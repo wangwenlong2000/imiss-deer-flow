@@ -1,0 +1,13 @@
+{
+  "event_id": "EVT_PACKAGE_001",
+  "video_id": "video-traffic-agent-test",
+  "camera_id": "CAM_DEERFLOW_001",
+  "event_type": "manual_evidence",
+  "event_time": "2026-05-20T10:00:01+08:00",
+  "event_elapsed_seconds": 1,
+  "image_uri": "/mnt/user-data/workspace/evidence-package-generation/source.jpg",
+  "raw_segment_uri": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+  "evidence_frame_ids": [
+    "frame_001"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "skill": "privacy-masking",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "uri": "/mnt/user-data/workspace/privacy-masking/source_masked.jpg",
+    "privacy_masked": true,
+    "masked_regions": [
+      {
+        "type": "face",
+        "bbox": [
+          20,
+          20,
+          180,
+          160
+        ]
+      }
+    ],
+    "method": "gaussian_blur"
+  }
+}

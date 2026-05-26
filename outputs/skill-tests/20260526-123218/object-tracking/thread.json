@@ -1,0 +1,13 @@
+{
+  "thread_id": "898496a3-3eb6-4350-82fb-a8153f234942",
+  "created_at": "2026-05-26T04:34:08.632093+00:00",
+  "updated_at": "2026-05-26T04:34:08.632093+00:00",
+  "state_updated_at": "2026-05-26T04:34:08.632093+00:00",
+  "metadata": {
+    "purpose": "object-tracking-agent-skill-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

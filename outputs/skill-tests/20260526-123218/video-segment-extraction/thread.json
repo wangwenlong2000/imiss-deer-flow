@@ -1,0 +1,13 @@
+{
+  "thread_id": "8d1db24a-4441-4cb0-b3d2-033977b8cf5d",
+  "created_at": "2026-05-26T04:38:07.627220+00:00",
+  "updated_at": "2026-05-26T04:38:07.627220+00:00",
+  "state_updated_at": "2026-05-26T04:38:07.627220+00:00",
+  "metadata": {
+    "purpose": "video-segment-extraction-agent-skill-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

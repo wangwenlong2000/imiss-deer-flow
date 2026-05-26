@@ -1,0 +1,23 @@
+请测试 `duplicate-event-merge` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/duplicate-event-merge/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/duplicate-event-merge/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/duplicate-event-merge /mnt/user-data/workspace/duplicate-event-merge
+python - <<'PY'
+import json, pathlib
+events = {"events":[
+  {"event_id":"EVT_DUP_001","event_type":"traffic_congestion","camera_id":"CAM_DEERFLOW_001","start_time":"2026-05-20T10:00:01+08:00","end_time":"2026-05-20T10:00:06+08:00","confidence":0.75,"roi_id":"ROI_FULL_FRAME","evidence_frame_ids":["frame_001"]},
+  {"event_id":"EVT_DUP_002","event_type":"traffic_congestion","camera_id":"CAM_DEERFLOW_001","start_time":"2026-05-20T10:00:03+08:00","end_time":"2026-05-20T10:00:08+08:00","confidence":0.8,"roi_id":"ROI_FULL_FRAME","evidence_frame_ids":["frame_002"]}
+]}
+p = pathlib.Path('/mnt/user-data/workspace/duplicate-event-merge/events.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(events, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/duplicate-event-merge/scripts/run.py --events-json /mnt/user-data/workspace/duplicate-event-merge/events.json --output /mnt/user-data/outputs/duplicate-event-merge/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/duplicate-event-merge/result.json`。

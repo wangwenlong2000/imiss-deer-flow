@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "output_dir": "/mnt/user-data/outputs/analyze-video/artifacts/video_review",
+  "metadata": "/mnt/user-data/outputs/analyze-video/artifacts/video_review/metadata.json",
+  "total_frames": 12,
+  "total_scene_changes": 0,
+  "chapters": 4,
+  "video_duration": 900.92,
+  "passes": [
+    "scene_detect",
+    "coarse",
+    "dense"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "tracks": [
+    {
+      "track_id": "track_0001",
+      "camera_id": "CAM_DEERFLOW_001",
+      "label": "person",
+      "last_bbox": [
+        100,
+        100,
+        180,
+        260
+      ],
+      "confidence": 0.9,
+      "evidence_frame_ids": [
+        "frame_001"
+      ]
+    }
+  ]
+}

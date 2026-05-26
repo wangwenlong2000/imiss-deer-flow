@@ -205,6 +205,8 @@ def main() -> int:
     out = out_dir / f"{event_id}_clip.mp4"
     actual_pre = pre_seconds
     if source.exists():
+        if not shutil.which("ffmpeg"):
+            return emit(failed(SKILL, "FFMPEG_MISSING", "ffmpeg is required but was not found in PATH", False), args.output)
         start_offset = max(0.0, event_elapsed - pre_seconds)
         actual_pre = event_elapsed - start_offset
         cmd = ["ffmpeg", "-y", "-ss", str(start_offset), "-i", str(source), "-t", str(pre_seconds + post_seconds), "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart", str(out)]

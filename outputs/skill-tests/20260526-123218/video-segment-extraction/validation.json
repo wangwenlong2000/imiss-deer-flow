@@ -1,0 +1,14 @@
+{
+  "result_path": "outputs/skill-tests/20260526-123218/video-segment-extraction/artifacts/outputs/video-segment-extraction/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "video-segment-extraction",
+  "thread_id": "8d1db24a-4441-4cb0-b3d2-033977b8cf5d",
+  "run_id": "019e6293-660f-7a81-8109-7282e4f79c28",
+  "stream_error": null,
+  "sse_errors": []
+}
