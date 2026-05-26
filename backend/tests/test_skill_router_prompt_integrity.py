@@ -4,7 +4,7 @@ Covers:
 1. SkillRouter on + prompt_skills=set() still has <skill_system>, <available_skills>, and all base sections
 2. SkillRouter on + prompt_skills=set() does NOT contain specific skill names
 3. SkillRouter off + prompt_skills=None has full skills injected
-4. Routed skill prompt message only contains available_skills override, not base sections
+4. Routed skill prompt message only contains custom/domain available_skills override, not base sections
 5. Old routed_skill_prompt messages are filtered but other system messages are preserved
 
 Run with:
@@ -23,20 +23,34 @@ from unittest.mock import MagicMock
 # ---------------------------------------------------------------------------
 
 # Mock the config module
+_MOCKED_MODULE_NAMES = [
+    "deerflow.config",
+    "deerflow.config.app_config",
+    "deerflow.config.agents_config",
+    "deerflow.skills",
+    "deerflow.skills.loader",
+    "deerflow.skills.parser",
+    "deerflow.skills.types",
+    "deerflow.agents",
+    "deerflow.agents.lead_agent",
+    "deerflow.agents.lead_agent.prompt",
+]
+_ORIGINAL_MODULES = {name: sys.modules.get(name) for name in _MOCKED_MODULE_NAMES}
+
 _app_config_mock = MagicMock()
 _app_config_mock.skills.container_path = "/mnt/skills"
 _config_mock = MagicMock()
 _config_mock.get_app_config.return_value = _app_config_mock
 
-sys.modules.setdefault("deerflow.config", _config_mock)
-sys.modules.setdefault("deerflow.config.app_config", _config_mock)
-sys.modules.setdefault("deerflow.config.agents_config", MagicMock())
+sys.modules["deerflow.config"] = _config_mock
+sys.modules["deerflow.config.app_config"] = _config_mock
+sys.modules["deerflow.config.agents_config"] = MagicMock()
 
 # Mock skills sub-modules
-sys.modules.setdefault("deerflow.skills", MagicMock())
-sys.modules.setdefault("deerflow.skills.loader", MagicMock())
-sys.modules.setdefault("deerflow.skills.parser", MagicMock())
-sys.modules.setdefault("deerflow.skills.types", MagicMock())
+sys.modules["deerflow.skills"] = MagicMock()
+sys.modules["deerflow.skills.loader"] = MagicMock()
+sys.modules["deerflow.skills.parser"] = MagicMock()
+sys.modules["deerflow.skills.types"] = MagicMock()
 
 # Load prompt.py directly via importlib
 import importlib.util
@@ -52,11 +66,17 @@ sys.modules["deerflow.skills"].load_skills = _load_skills_mock
 sys.modules["deerflow.skills.loader"].load_skills = _load_skills_mock
 prompt_module.load_skills = _load_skills_mock
 
-sys.modules.setdefault("deerflow.agents", MagicMock())
-sys.modules.setdefault("deerflow.agents.lead_agent", MagicMock())
-sys.modules.setdefault("deerflow.agents.lead_agent.prompt", prompt_module)
+sys.modules["deerflow.agents"] = MagicMock()
+sys.modules["deerflow.agents.lead_agent"] = MagicMock()
+sys.modules["deerflow.agents.lead_agent.prompt"] = prompt_module
 
 spec.loader.exec_module(prompt_module)
+
+for _module_name, _original_module in _ORIGINAL_MODULES.items():
+    if _original_module is None:
+        sys.modules.pop(_module_name, None)
+    else:
+        sys.modules[_module_name] = _original_module
 
 BASE_SECTIONS = [
     "<role>",
@@ -78,9 +98,10 @@ BASE_SECTIONS = [
 class FakeSkill:
     """Lightweight fake Skill for prompt tests."""
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, category="public"):
         self.name = name
         self.description = description
+        self.category = category
         self.enabled = True
         self.skill_path = name
 
@@ -90,7 +111,13 @@ class FakeSkill:
 
 def _set_mock_skills(skills_list):
     """Configure the mock load_skills to return the given list."""
-    _load_skills_mock.return_value = skills_list
+    def _load_skills_side_effect(*args, **kwargs):
+        categories = kwargs.get("categories")
+        if categories is None:
+            return skills_list
+        return [skill for skill in skills_list if skill.category in categories]
+
+    _load_skills_mock.side_effect = _load_skills_side_effect
     prompt_module.load_skills = _load_skills_mock
 
 
@@ -126,13 +153,17 @@ def test_skillrouter_on_no_concrete_skills():
 
 def test_skillrouter_off_full_skills():
     """When SkillRouter is disabled (prompt_skills=None), all enabled skills must appear."""
-    fake_skills = [FakeSkill("network-traffic-analysis", "Analyze network traffic")]
+    fake_skills = [
+        FakeSkill("data-analysis", "Analyze data", "public"),
+        FakeSkill("network-traffic-analysis", "Analyze network traffic", "custom"),
+    ]
     _set_mock_skills(fake_skills)
 
     prompt = prompt_module.apply_prompt_template(prompt_skills=None)
 
     assert "<skill_system>" in prompt
     assert "<available_skills>" in prompt
+    assert "data-analysis" in prompt
     assert "network-traffic-analysis" in prompt
 
 
@@ -152,7 +183,7 @@ def test_get_skills_prompt_section_empty_set_not_empty_string():
 
 
 # ---------------------------------------------------------------------------
-# Test 5: _render_skill_system_section — routed prompt only overrides skills
+# Test 5: _render_skill_system_section — routed prompt recommends custom/domain skills
 # ---------------------------------------------------------------------------
 
 def test_routed_prompt_only_overrides_available_skills():
@@ -175,7 +206,9 @@ def test_routed_prompt_only_overrides_available_skills():
 
     # Must contain routed-mode markers
     assert 'source="skill_router"' in routed
-    assert "This routed <skill_system> only defines the authoritative available_skills" in routed
+    assert "This routed <skill_system> lists recommended custom/domain skills" in routed
+    assert "Public skills listed in the base system prompt remain available for supporting operations" in routed
+    assert "use the public data-analysis skill first" in routed
     assert "Continue following language_policy" in routed
 
     # Must NOT contain base system prompt sections
@@ -199,7 +232,34 @@ def test_routed_prompt_empty_skills():
 
     assert "<skill_system" in routed
     assert "<available_skills>" in routed
-    assert "Do not load any skill file" in routed
+    assert "No routed custom/domain skill matched this turn" in routed
+    assert "Public skills listed in the base system prompt remain available" in routed
+
+
+def test_prompt_can_request_public_skill_category_only():
+    """Prompt rendering can restrict base injection to public skills."""
+    _set_mock_skills([
+        FakeSkill("data-analysis", "Analyze data", "public"),
+        FakeSkill("network-traffic-analysis", "Analyze traffic", "custom"),
+    ])
+
+    prompt_module.get_skills_prompt_section(skill_categories={"public"})
+
+    assert _load_skills_mock.call_args.kwargs["categories"] == {"public"}
+
+
+def test_skillrouter_base_prompt_public_only_category_contract():
+    """SkillRouter base prompts request public skills only; custom remains router-owned."""
+    _set_mock_skills([
+        FakeSkill("data-analysis", "Analyze data", "public"),
+        FakeSkill("network-traffic-analysis", "Analyze traffic", "custom"),
+    ])
+
+    prompt = prompt_module.apply_prompt_template(skill_categories={"public"})
+
+    assert "data-analysis" in prompt
+    assert "network-traffic-analysis" not in prompt
+    assert _load_skills_mock.call_args.kwargs["categories"] == {"public"}
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,52 @@
+# Skill: disaster-risk-assessment
+# English metadata + Chinese report mode.
+
+skill:
+  name: disaster-risk-assessment
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+hazards:
+  # Which hazards to evaluate: flood | landslide | fire
+  enabled:
+    - flood
+    - landslide
+    - fire
+
+flood:
+  # Low-elevation risk threshold (meters above local minimum)
+  low_elevation_m: 5.0
+  # Slope < this (degrees) considered flat
+  flat_slope_deg: 3.0
+
+landslide:
+  # Slope bins (degrees) and associated hazard weights
+  steep_slope_deg: 25.0
+  very_steep_slope_deg: 35.0
+
+fire:
+  # NDVI above this is considered burnable vegetation
+  ndvi_burnable: 0.3
+  # Land-use class ids considered vegetation (override via config if needed)
+  vegetation_class_ids: [3, 4]
+
+weights:
+  # Risk = hazard * exposure * vulnerability
+  hazard: 0.5
+  exposure: 0.3
+  vulnerability: 0.2
+
+levels:
+  # Final composite risk breakpoints in [0,1]
+  low: 0.25
+  medium: 0.5
+  high: 0.75
+
+io:
+  outputs_dir: ./outputs
+  subdir: disaster-risk-assessment
+
+logging:
+  level: INFO

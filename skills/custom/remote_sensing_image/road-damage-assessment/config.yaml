@@ -1,0 +1,14 @@
+# Skill: road-damage-assessment
+skill:
+  name: road-damage-assessment
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+io:
+  outputs_dir: ./outputs
+  subdir: road-damage-assessment
+
+logging:
+  level: INFO

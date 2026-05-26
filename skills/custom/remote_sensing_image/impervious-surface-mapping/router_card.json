@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "impervious-surface-mapping",
+    "name": "impervious-surface-mapping",
+    "description": "Extracts impervious surfaces (buildings, roads, parking lots) from optical remote sensing imagery using NDBI or threshold methods. Computes impervious surface ratio and generates coverage maps to support sponge city planning and urban waterlogging risk assessment. Invoke when the user mentions \"不透水面\", \"硬化地面\", \"海绵城市\", \"impervious\", \"NDBI\", \"建筑覆盖\", \"城市内涝\" or similar triggers."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "impervious_surface_extraction",
+      "ndbi_calculation",
+      "coverage_ratio_statistics",
+      "waterlogging_support",
+      "geojson_export"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "impervious_map_tif",
+      "impervious_zones_geojson",
+      "impervious_stats_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：impervious-surface-mapping\n描述：Extracts impervious surfaces (buildings, roads, parking lots) from optical remote sensing imagery using NDBI or threshold methods. Computes impervious surface ratio and generates coverage maps to support sponge city planning and urban waterlogging risk assessment. Invoke when the user mentions \"不透水面\", \"硬化地面\", \"海绵城市\", \"impervious\", \"NDBI\", \"建筑覆盖\", \"城市内涝\" or similar triggers.\n适用场景：remote_sensing, urban_governance, sponge_city。\n适用任务：impervious_surface_extraction, ndbi_calculation, coverage_ratio_statistics, waterlogging_support, geojson_export。\n输入类型：geotiff, geojson, shapefile。\n输出类型：impervious_map_tif, impervious_zones_geojson, impervious_stats_csv, report_md。\n适合使用：提取不透水面或硬化地表；计算城市不透水率、斑块面积和覆盖率；支持海绵城市规划或城市内涝风险分析。\n不适合使用：生成完整洪涝风险图；反演城市热岛 LST；检测道路破损；反演水质参数。",
+    "positive_triggers": [
+      "提取不透水面或硬化地表",
+      "计算城市不透水率、斑块面积和覆盖率",
+      "支持海绵城市规划或城市内涝风险分析"
+    ],
+    "negative_triggers": [
+      "生成完整洪涝风险图",
+      "反演城市热岛 LST",
+      "检测道路破损",
+      "反演水质参数"
+    ],
+    "keywords": [
+      "不透水面",
+      "硬化地面",
+      "海绵城市",
+      "impervious",
+      "NDBI",
+      "建筑覆盖",
+      "城市内涝"
+    ],
+    "anti_keywords": [
+      "洪涝风险图",
+      "LST",
+      "道路破损",
+      "水质",
+      "方案"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: impervious-surface-mapping\ndescription: >\n  Extracts impervious surfaces (buildings, roads, parking lots) from optical remote sensing imagery using NDBI or threshold methods. Computes impervious surface ratio and generates coverage maps to support sponge city planning and urban waterlogging risk assessment. Invoke when the user mentions \"不透水面\", \"硬化地面\", \"海绵城市\", \"impervious\", \"NDBI\", \"建筑覆盖\", \"城市内涝\" or similar triggers.\nlicense: MIT\n---\n\n# 不透水面提取技能（impervious-surface-mapping）\n\n## 1. 技能概述\n\n本技能基于光学遥感影像，利用归一化建筑指数（NDBI）或亮度阈值法提取城市不透水面（建筑、道路、停车场等硬化地表），计算不透水率，辅助海绵城市规划与城市内涝风险评估。无真实 GeoTIFF 时自动降级为随机数据模拟模式。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_optical` | file (GeoTIFF) | 是 | 高分辨率光学影像（多波段，已完成大气校正），建议 Sentinel-2 或 GF-2 |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界，不提供则使用影像全范围 |\n| `method` | string | 否 | `ndbi`（归一化建筑指数）/ `threshold`，默认 `ndbi` |\n| `threshold` | float | 否 | 不透水面判定阈值（0-1），默认 0.2 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **NDBI 计算**：基于 SWIR 和 NIR 波段计算归一化建筑指数\n3. **阈值分割**：提取不透水面二值掩膜\n4. **斑块统计**：计算面积、覆盖率等统计指标\n5. **成果输出**：impervious_map.tif、impervious_zones.geojson、impervious_stats.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/impervious-surface-mapping/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_optical\":\"/path/to/sentinel2.tif\",\"method\":\"ndbi\"}' \\\n  --output-dir /tmp/outputs/ism\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `impervious_map.tif` | 不透水面二值掩膜（0=透水，1=不透水） |\n| `impervious_zones.geojson` | 不透水面斑块矢量，属性含 area_m2 |\n| `impervious_stats.csv` | 统计指标（覆盖率、斑块数、总面积） |\n| `report.md` | 不透水面分析与海绵城市治理建议 |\n\n## 6. 治理场景\n\n- **海绵城市规划**：识别高不透水率区域，优先推进透水铺装改造\n- **内涝风险评估**：不透水率与洪涝风险正相关，辅助排水规划\n- **城市扩张监测**：追踪不透水面年际变化，评估城市化进程\n- **生态红线管控**：监测生态保护区内不透水面侵占情况\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户要求从光学影像提取不透水面、硬化地面或 NDBI",
+      "用户关注海绵城市、不透水率或内涝风险支撑指标"
+    ],
+    "defer_when": [
+      "用户要求完整洪涝风险制图，应优先使用 flood-risk-mapping",
+      "用户要求建筑轮廓多边形，应优先使用 building-footprint-extraction"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/impervious-surface-mapping",
+    "skill_md_path": "5-21remote-sensing/impervious-surface-mapping/SKILL.md",
+    "skill_md_hash": "sha256:666dc342f3c38ad6ec35662a1d7beef2c93ef71bc5905fb36f902d89b6eb338f",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:600c1deeb85f6ebf38403ade594d5afeb9a8dfc6e20e869b1aa6390720e1680a",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "impervious-surface-mapping"
+  }
+}

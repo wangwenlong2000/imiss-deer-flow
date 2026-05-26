@@ -127,6 +127,8 @@ class ThreadState(AgentState):
     viewed_images: Annotated[dict[str, ViewedImageData], merge_viewed_images]  # image_path -> {base64, mime_type}
     intent_context: NotRequired[dict | None]
     routing_context: NotRequired[dict | None]
+    dialogue_context: NotRequired[dict | None]
+    pending_action: NotRequired[dict | None]
 
     # SkillRouter scope tracking — per-turn
     frontend_enabled_skill_ids: NotRequired[list[str] | None]

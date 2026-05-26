@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "disaster-risk-assessment",
+    "name": "disaster-risk-assessment",
+    "description": "Fuses multi-source remote-sensing data to assess flood, landslide and fire risk levels and vulnerability. Invoke when the user mentions \"disaster risk\", \"flood risk\", \"landslide susceptibility\", \"fire risk\", \"exposure\", \"vulnerability\", \"resilient city\", \"洪涝风险\", \"滑坡易发\", \"火灾风险\", \"应急避难\", \"韧性城市\", \"灾后损失\", \"DEM\" or similar. The skill implements the Hazard × Exposure × Vulnerability framework, outputs risk-level maps, a high-risk area list, shelter-planning advice and mitigation measures."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "flood_risk_assessment",
+      "landslide_susceptibility",
+      "wildfire_risk_assessment",
+      "exposure_vulnerability_analysis",
+      "shelter_planning"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile",
+      "csv",
+      "netcdf"
+    ],
+    "output_types": [
+      "risk_level_map",
+      "high_risk_area_list",
+      "shelter_planning_advice",
+      "mitigation_report"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：disaster-risk-assessment\n描述：Fuses multi-source remote-sensing data to assess flood, landslide and fire risk levels and vulnerability. Invoke when the user mentions \"disaster risk\", \"flood risk\", \"landslide susceptibility\", \"fire risk\", \"exposure\", \"vulnerability\", \"resilient city\", \"洪涝风险\", \"滑坡易发\", \"火灾风险\", \"应急避难\", \"韧性城市\", \"灾后损失\", \"DEM\" or similar. The skill implements the Hazard × Exposure × Vulnerability framework, outputs risk-level maps, a high-risk area list, shelter-planning advice and mitigation measures.\n适用场景：remote_sensing, emergency_management, disaster_risk。\n适用任务：flood_risk_assessment, landslide_susceptibility, wildfire_risk_assessment, exposure_vulnerability_analysis, shelter_planning。\n输入类型：geotiff, geojson, shapefile, csv, netcdf。\n输出类型：risk_level_map, high_risk_area_list, shelter_planning_advice, mitigation_report。\n适合使用：评估洪涝、滑坡或火灾等自然灾害风险；融合 DEM、土地利用、人口和历史灾害数据做脆弱性分析；输出高风险区域清单、避难建议和减灾措施。\n不适合使用：仅提取建筑轮廓或不透水面；仅生成城市洪涝三等级风险图；撰写项目技术方案；分析网络流量。",
+    "positive_triggers": [
+      "评估洪涝、滑坡或火灾等自然灾害风险",
+      "融合 DEM、土地利用、人口和历史灾害数据做脆弱性分析",
+      "输出高风险区域清单、避难建议和减灾措施"
+    ],
+    "negative_triggers": [
+      "仅提取建筑轮廓或不透水面",
+      "仅生成城市洪涝三等级风险图",
+      "撰写项目技术方案",
+      "分析网络流量"
+    ],
+    "keywords": [
+      "disaster risk",
+      "flood risk",
+      "landslide susceptibility",
+      "fire risk",
+      "exposure",
+      "vulnerability",
+      "DEM",
+      "洪涝风险",
+      "滑坡易发",
+      "火灾风险",
+      "韧性城市",
+      "应急避难"
+    ],
+    "anti_keywords": [
+      "建筑轮廓",
+      "pcap",
+      "技术方案",
+      "CRS检查"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: disaster-risk-assessment\ndescription: >\n  Fuses multi-source remote-sensing data to assess flood, landslide and fire\n  risk levels and vulnerability. Invoke when the user mentions \"disaster risk\",\n  \"flood risk\", \"landslide susceptibility\", \"fire risk\", \"exposure\",\n  \"vulnerability\", \"resilient city\", \"洪涝风险\", \"滑坡易发\", \"火灾风险\",\n  \"应急避难\", \"韧性城市\", \"灾后损失\", \"DEM\" or similar. The skill implements the\n  Hazard × Exposure × Vulnerability framework, outputs risk-level maps, a\n  high-risk area list, shelter-planning advice and mitigation measures.\nversion: 0.1.0\ncategory: emergency-management\ndomain: remote-sensing\nlanguage:\n  metadata: en\n  report: zh-CN\nentrypoint: scripts/main.py\nlicense: MIT\ntags: [disaster, flood, landslide, fire, resilience, DEM]\n---\n\n# 自然灾害风险遥感评估技能（disaster-risk-assessment）\n\n## 1. 技能概述\n\n融合多源遥感/空间数据评估指定区域对特定灾害（洪涝 / 滑坡 / 野火）的风险等级与脆弱性，\n输出风险等级分布图、高风险区域清单与减灾建议，支持韧性城市规划与应急预案优化。\n\n## 2. 支持的灾种\n\n- `flood` 洪涝（基于 DEM、坡度、距河流距离、不透水面率）\n- `landslide` 滑坡（基于坡度、坡向、地表湿度、土地利用）\n- `wildfire` 野火（基于植被燃烧指数代理、坡度、历史火点）\n\n## 3. 输入要求\n\n| 变量名 | 类型 | 必需 | 说明 |\n|--------|------|:--:|------|\n| `hazard_type` | string | 是 | `flood` / `landslide` / `wildfire` |\n| `dem` | file (GeoTIFF) | 是 | 数字高程模型 |\n| `lulc` | file (GeoTIFF) | 是 | 土地利用分类图 |\n| `history_events` | file (GeoJSON/CSV) | 否 | 历史灾害点位或影响范围 |\n| `population` | file (GeoTIFF) | 否 | 人口栅格（评估暴露度） |\n| `buildings` | file (GeoJSON/GeoTIFF) | 否 | 建筑轮廓或栅格化建筑密度 |\n| `weather` | file (CSV/NetCDF) | 否 | 气象数据（降雨量、气温、风速） |\n| `rivers` | file (GeoJSON) | 否 | 河流水系（`flood` 推荐提供） |\n| `shelters` | file (GeoJSON) | 否 | 已有避难场所点位 |\n\n## 4. 用户输入引导\n\n> 为评估 <hazard_type> 风险，请至少提供：\n> 1. **灾种**（`hazard_type`）：flood / landslide / wildfire。\n> 2. **数字高程模型**（`dem`）：GeoTIFF，推荐 10-30 m 分辨率。\n> 3. **土地利用分类图**（`lulc`）：GeoTIFF（像元值=类别编码）。\n> 4. （推荐）**历史灾害记录**：GeoJSON 或 CSV（列：lon,lat,event_type,year）。\n> 5. （推荐）**人口栅格**、**建筑数据**：用于暴露度和脆弱性计算。\n\n## 5. 处理流程\n\n1. `check-inputs`\n2. 计算灾种相关**危险性因子**：\n   - 洪涝：低洼度、距水系距离、不透水面率、汇流累积\n   - 滑坡：坡度、坡向、水汽指数、土地覆盖\n   - 野火：燃料密度、坡度、历史火点密度\n3. 归一化并加权（`config.yaml` 中可调）得到**危险性图 H**\n4. **暴露度 E** = 人口 + 建筑密度标准化\n5. **脆弱性 V** = 基于 LULC 的脆弱性查表（建成区 > 耕地 > 林地）\n6. **综合风险 R = H × E × V**，分级：1-5\n7. 识别 Level 4/5 高风险斑块 → 清单；最近避难场所距离 → 建议新增点位\n8. 成果输出\n\n## 6. 参数说明（`config.yaml`）\n\n```yaml\nhazard_weights:\n  flood:\n    slope: 0.2\n    distance_to_water: 0.4\n    impervious: 0.2\n    elevation_percentile: 0.2\n  landslide:\n    slope: 0.5\n    aspect: 0.1\n    wetness: 0.2\n    lulc: 0.2\n  wildfire:\n    fuel: 0.5\n    slope: 0.2\n    history: 0.3\nlulc_vulnerability:\n  1: 0.9   # 建成区\n  2: 0.5   # 耕地\n  3: 0.3   # 林地\n  4: 0.3\n  5: 0.1\nrisk_levels: 5\nshelter_coverage_m: 1000\n```\n\n## 7. 调用示例\n\n```bash\npython /mnt/skills/custom/remote-sensing/disaster-risk-assessment/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"hazard_type\":\"flood\",\"dem\":\"/mnt/user-data/uploads/dem.tif\",\"lulc\":\"/mnt/user-data/uploads/lulc.tif\",\"rivers\":\"/mnt/user-data/uploads/rivers.geojson\",\"population\":\"/mnt/user-data/uploads/pop.tif\"}' \\\n  --output-dir /mnt/user-data/outputs/risk_20260417\n```\n\n## 8. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `hazard.tif` | 危险性栅格 |\n| `exposure.tif` | 暴露度栅格 |\n| `vulnerability.tif` | 脆弱性栅格 |\n| `risk_level.tif` | 风险等级图 1-5 |\n| `high_risk_patches.geojson` | 高风险区矢量 |\n| `shelter_gap.geojson` | 应急避难场所缺口区域 |\n| `report.md` | 评估与减灾建议 |\n\n## 9. 治理场景\n\n- 城市防灾减灾规划\n- 应急预案与避难场所布局优化\n- 灾后快速损失评估\n- 韧性城市指标体系输入\n\n## 10. 注意事项\n\n- 模型权重是**经验值**，建议根据本地历史灾害数据率定\n- 未提供人口/建筑时，暴露度使用 LULC 代理，精度下降\n- 灾后损失评估需配合灾前/灾后影像（可复用 `urban-change-detection` 技能）\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户要求按 Hazard × Exposure × Vulnerability 评估灾害风险",
+      "用户同时提到灾害风险、脆弱性、暴露度、避难场所或 DEM"
+    ],
+    "defer_when": [
+      "任务只是城市内涝/洪水风险制图，应优先使用 flood-risk-mapping",
+      "任务只是地理文件元数据检查，应优先使用 inspect-geo"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/disaster-risk-assessment",
+    "skill_md_path": "5-21remote-sensing/disaster-risk-assessment/SKILL.md",
+    "skill_md_hash": "sha256:d751a34223a6049629f6d2a2ae25caf7e32d7e56d407b3c6f2ab7eae3407b6b2",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:07a26c8aecf34c66b49510d802fb0941db6a5961bd78953c68304dbdd6b09b87",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "disaster-risk-assessment"
+  }
+}

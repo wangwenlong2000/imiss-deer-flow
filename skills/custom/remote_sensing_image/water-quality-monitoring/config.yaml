@@ -1,0 +1,36 @@
+# Skill: water-quality-monitoring
+# English metadata + Chinese report mode.
+
+skill:
+  name: water-quality-monitoring
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+algorithm:
+  # Water extraction index: ndwi | mndwi
+  water_index: ndwi
+  water_threshold: 0.0
+  # Chlorophyll-a inversion (empirical 2-band NIR/Red model)
+  chla_a: 30.0
+  chla_b: -10.0
+  # Suspended sediment (mg/L) empirical coefficient
+  tss_coef: 1200.0
+  # Turbidity fallback multiplier
+  turbidity_coef: 500.0
+
+thresholds:
+  # Chlorophyll-a (μg/L) classes: normal / watch / polluted
+  chla_watch: 10.0
+  chla_polluted: 30.0
+  # TSS (mg/L) classes
+  tss_watch: 25.0
+  tss_polluted: 80.0
+
+io:
+  outputs_dir: ./outputs
+  subdir: water-quality-monitoring
+
+logging:
+  level: INFO

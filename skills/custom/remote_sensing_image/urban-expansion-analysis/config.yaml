@@ -1,0 +1,37 @@
+# Skill: urban-expansion-analysis
+# English metadata + Chinese report mode.
+
+skill:
+  name: urban-expansion-analysis
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+algorithm:
+  # Which class id represents "built-up / urban" in land-use rasters
+  urban_class_id: 1
+  # Pixel area in m^2 (e.g. 30m Landsat => 900)
+  pixel_area_m2: 900
+  # Expansion intensity index (EII) thresholds per year
+  eii_slow: 0.5
+  eii_fast: 1.5
+
+patterns:
+  # Morphological patterns: infill | edge | leapfrog (heuristic)
+  enabled:
+    - infill
+    - edge
+    - leapfrog
+  leapfrog_min_distance_m: 1000
+
+forecast:
+  # Simple linear projection horizon (years)
+  horizon_years: 5
+
+io:
+  outputs_dir: ./outputs
+  subdir: urban-expansion-analysis
+
+logging:
+  level: INFO

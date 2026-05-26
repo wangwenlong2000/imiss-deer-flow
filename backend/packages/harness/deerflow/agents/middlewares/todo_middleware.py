@@ -8,8 +8,14 @@ reminder message so the model still knows about the outstanding todo list.
 
 from __future__ import annotations
 
-from typing import Any, override
+from typing import Any
 
+try:
+    from typing import override
+except ImportError:
+    from typing_extensions import override
+
+from langchain.agents.middleware import AgentMiddleware
 from langchain.agents.middleware import TodoListMiddleware
 from langchain.agents.middleware.todo import PlanningState, Todo
 from langchain_core.messages import AIMessage, HumanMessage
@@ -35,11 +41,52 @@ def _reminder_in_messages(messages: list[Any]) -> bool:
 
 
 def _routing_guidance_in_messages(messages: list[Any]) -> bool:
-    """Return True if current model context already has the routing guidance."""
-    for msg in messages:
+    """Return True if the current turn already has routing guidance.
+
+    Older turns may still contain a ``todo_routing_guidance`` message because
+    LangGraph's message reducer appends/merges by id instead of deleting omitted
+    messages. Only guidance after the latest real user message should block
+    injecting a new current-turn hidden step.
+    """
+    latest_user_index = -1
+    for index, msg in enumerate(messages):
+        if (
+            isinstance(msg, HumanMessage)
+            and not _is_internal_human_message(msg)
+        ):
+            latest_user_index = index
+
+    for msg in messages[latest_user_index + 1:]:
         if isinstance(msg, HumanMessage) and getattr(msg, "name", None) == "todo_routing_guidance":
             return True
     return False
+
+
+def _is_internal_human_message(message: HumanMessage) -> bool:
+    additional_kwargs = getattr(message, "additional_kwargs", {}) or {}
+    if isinstance(additional_kwargs, dict):
+        if additional_kwargs.get("internal") is True:
+            return True
+        if additional_kwargs.get("message_type") in {"view_image_context", "routed_skill_prompt"}:
+            return True
+    name = getattr(message, "name", None)
+    return isinstance(name, str) and (
+        name.endswith("_guidance")
+        or name in {"todo_reminder", "routing_skill_guidance", "todo_routing_guidance"}
+    )
+
+
+def _should_suppress_routing_hidden_steps(state: PlanningState) -> bool:
+    intent_ctx = state.get("intent_context")
+    if isinstance(intent_ctx, dict) and intent_ctx.get("_suppress_hidden_steps") is True:
+        return True
+
+    routing_ctx = state.get("routing_context")
+    if isinstance(routing_ctx, dict) and routing_ctx.get("_suppress_hidden_steps") is True:
+        return True
+
+    dialogue_ctx = state.get("dialogue_context")
+    return isinstance(dialogue_ctx, dict) and dialogue_ctx.get("act") in {"clarification_answer", "parameter_update", "task_followup"}
 
 
 def _format_todos(todos: list[Todo]) -> str:
@@ -70,10 +117,43 @@ def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
     routing_query = intent_ctx.get("routing_query")
     if routing_query:
         lines.append(f"改写后的任务：{_compact_intent_routing_query(str(routing_query))}")
-    if intent_ctx.get("scene_name") or intent_ctx.get("scene"):
-        scene = intent_ctx.get("scene_name") or intent_ctx.get("scene")
-        scene_id = intent_ctx.get("scene")
-        lines.append(f"识别场景：{scene}" + (f" ({scene_id})" if scene_id else ""))
+    scene_ids = [
+        str(scene).strip()
+        for scene in (intent_ctx.get("scenes") or [])
+        if isinstance(scene, str) and scene.strip()
+    ]
+    scene_mode = intent_ctx.get("scene_mode")
+    primary_scene_name = intent_ctx.get("scene_name") or intent_ctx.get("scene")
+    primary_scene_id = intent_ctx.get("scene")
+    if primary_scene_name or primary_scene_id:
+        scene_line = f"识别场景：{primary_scene_name}" + (f" ({primary_scene_id})" if primary_scene_id else "")
+        if scene_mode:
+            scene_line += f"；场景模式：{scene_mode}"
+        if scene_ids:
+            scene_line += f"；候选场景：{', '.join(scene_ids)}"
+        lines.append(scene_line)
+    task_spans = intent_ctx.get("task_spans") or []
+    if isinstance(task_spans, list) and task_spans:
+        lines.append("任务切分：")
+        for span in task_spans:
+            if not isinstance(span, dict):
+                continue
+            text = span.get("text") or span.get("task_text") or ""
+            if isinstance(text, str) and text.strip():
+                lines.append(f"- {text.strip()}")
+    scene_tasks = intent_ctx.get("scene_tasks") or []
+    if isinstance(scene_tasks, list) and scene_tasks:
+        lines.append("场景任务：")
+        for st in scene_tasks:
+            if not isinstance(st, dict):
+                continue
+            scene = st.get("scene")
+            text = st.get("text") or st.get("task_text") or ""
+            params = st.get("params")
+            line = f"- {scene}: {text}".strip()
+            if params:
+                line += f"；参数：{params}"
+            lines.append(line)
     params = intent_ctx.get("params")
     if params:
         lines.append(f"已提取参数：{params}")
@@ -108,12 +188,16 @@ def _format_routing_guidance(routing_ctx: dict[str, Any]) -> str:
         seg = _compact_segment_text(st.get("segment_text", ""))
         scene = st.get("scene")
         skills = st.get("selected_skills", [])
-        skill_names = [s.get("id", "") for s in skills if s.get("id")]
+        recommended = []
+        for s in skills:
+            skill_id = s.get("id", "")
+            if skill_id and skill_id not in recommended:
+                recommended.append(skill_id)
         line = f"- {seg}"
         if scene:
             line += f"；场景：{scene}"
-        if skill_names:
-            line += f"；使用 skill：{', '.join(skill_names)}"
+        if recommended:
+            line += f"；推荐 skill：{', '.join(recommended)}"
         lines.append(line)
     selected = routing_ctx.get("global_selected_skills") or []
     if selected:
@@ -130,7 +214,7 @@ def _build_routing_guidance_message(state: PlanningState) -> HumanMessage | None
         routing_ctx = {}
 
     intent_text = _format_intent_guidance(intent_ctx)
-    routing_text = _format_routing_guidance(routing_ctx)
+    routing_text = "" if routing_ctx.get("route_mode") == "scene_filter" else _format_routing_guidance(routing_ctx)
     if not intent_text and not routing_text:
         return None
 
@@ -154,6 +238,35 @@ def _build_routing_guidance_message(state: PlanningState) -> HumanMessage | None
     return HumanMessage(name="todo_routing_guidance", content="\n".join(blocks))
 
 
+class RoutingHiddenStepMiddleware(AgentMiddleware[PlanningState]):
+    """Inject current-turn intent/routing hidden steps without enabling todos."""
+
+    state_schema = PlanningState
+
+    @override
+    def before_model(
+        self,
+        state: PlanningState,
+        runtime: Runtime,  # noqa: ARG002
+    ) -> dict[str, Any] | None:
+        messages = state.get("messages") or []
+        if _should_suppress_routing_hidden_steps(state) or _routing_guidance_in_messages(messages):
+            return None
+
+        routing_guidance = _build_routing_guidance_message(state)
+        if routing_guidance is None:
+            return None
+        return {"messages": [routing_guidance]}
+
+    @override
+    async def abefore_model(
+        self,
+        state: PlanningState,
+        runtime: Runtime,
+    ) -> dict[str, Any] | None:
+        return self.before_model(state, runtime)
+
+
 class TodoMiddleware(TodoListMiddleware):
     """Extends TodoListMiddleware with `write_todos` context-loss detection.
 
@@ -173,7 +286,7 @@ class TodoMiddleware(TodoListMiddleware):
         messages = state.get("messages") or []
         updates: list[HumanMessage] = []
 
-        if not _routing_guidance_in_messages(messages):
+        if not _should_suppress_routing_hidden_steps(state) and not _routing_guidance_in_messages(messages):
             routing_guidance = _build_routing_guidance_message(state)
             if routing_guidance is not None:
                 updates.append(routing_guidance)

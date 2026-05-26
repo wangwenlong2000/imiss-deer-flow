@@ -28,6 +28,7 @@ class RoutingContext(BaseModel):
     primary_goal: str | None = None
     scene_tasks: list[SceneTask] = []
     global_selected_skills: list[str] = []
+    default_public_skill_ids: list[str] = []
     global_allowed_tools: list[str] = []
     confidence: float = 0.0
     route_reason: str | None = None

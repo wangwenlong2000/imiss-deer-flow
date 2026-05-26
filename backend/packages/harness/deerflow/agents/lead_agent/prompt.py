@@ -370,25 +370,25 @@ def _render_skill_system_section(
             empty_notice = """
 **Current Available Skills:**
 - The current <available_skills> list is empty.
-- Do not load any skill file from this base section.
-- If SkillRouter injects a later current-turn routed_skill_prompt, use that routed list as the authoritative available skills for this turn.
-- If no routed_skill_prompt is injected, treat this turn as having no available skills.
+- No routed custom/domain skill matched this turn.
+- Public skills listed in the base system prompt remain available.
 """
         else:
             empty_notice = """
 **Current Available Skills:**
 - The current <available_skills> list is empty.
 - Do not load any skill file from this section.
-- If a later current-turn routed_skill_prompt is injected by SkillRouterMiddleware, its <available_skills> list is authoritative for this turn.
-- If no routed_skill_prompt is injected, treat this turn as having no available skills.
+- If SkillRouter is enabled, it may inject a later current-turn routed_skill_prompt with selected custom/domain skills.
 """
 
     routed_override_notice = ""
     if routed_mode:
         routed_override_notice = """
 **Override Scope:**
-- This routed <skill_system> only defines the authoritative available_skills for the current turn.
+- This routed <skill_system> lists recommended custom/domain skills for the current turn.
 - It does NOT replace the base system prompt.
+- Public skills listed in the base system prompt remain available for supporting operations.
+- When uploaded structured files (Excel, CSV, JSON, Parquet, or similar tabular evidence) are central to the user's request, use the public data-analysis skill first to inspect and extract facts before domain synthesis.
 - Continue following language_policy, clarification_system, working_directory, response_style, and critical_reminders from the base system prompt.
 """
 
@@ -397,10 +397,11 @@ def _render_skill_system_section(
 You have access to skills that provide optimized workflows for specific tasks. Each skill contains best practices, frameworks, and references to additional resources.
 
 **Skill Availability Rules:**
-- Only skills listed in the current-turn <available_skills> section are available.
-- Ignore skills mentioned in previous turns if they are not listed in the current turn.
+- Public skills listed in the base system prompt are available across turns.
+- Custom/domain skills are available only when listed in a current-turn routed <available_skills> section.
+- Ignore custom/domain skills mentioned in previous turns if they are not listed in the current turn.
 - Do not call tools associated with unavailable skills.
-- If a later current-turn routed_skill_prompt is injected by SkillRouter, its <available_skills> list is authoritative for this turn.
+- If a later current-turn routed_skill_prompt is injected by SkillRouter, its <available_skills> list recommends the custom/domain skills for this turn; public skills from the base prompt remain available as supporting workflows.
 {empty_notice}{routed_override_notice}
 **Progressive Loading Pattern:**
 1. When a user query matches an available skill's use case, immediately call `read_file` on the skill's main file using the path attribute provided below.
@@ -424,7 +425,11 @@ You have access to skills that provide optimized workflows for specific tasks. E
 </skill_system>"""
 
 
-def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
+def get_skills_prompt_section(
+    available_skills: set[str] | None = None,
+    *,
+    skill_categories: set[str] | None = None,
+) -> str:
     """Generate the skills prompt section with available skills list.
 
     Returns the <skill_system>...</skill_system> block listing all enabled skills,
@@ -435,6 +440,8 @@ def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
     - empty set: render skill system rules with an empty <available_skills>.
       Do not load all skills, but keep the base rules.
     - non-empty set: render only selected skills.
+    - skill_categories: when provided, restrict rendered skills to the given
+      top-level category set while preserving the available_skills semantics.
     """
     try:
         from deerflow.config import get_app_config
@@ -445,7 +452,7 @@ def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
         container_base_path = "/mnt/skills"
 
     # None => all enabled skills (legacy mode)
-    skills = load_skills(enabled_only=True)
+    skills = load_skills(enabled_only=True, categories=skill_categories)
 
     if available_skills is not None:
         skills = [skill for skill in skills if skill.name in available_skills]
@@ -472,7 +479,15 @@ def get_agent_soul(agent_name: str | None) -> str:
     return ""
 
 
-def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagents: int = 3, *, agent_name: str | None = None, available_skills: set[str] | None = None, prompt_skills: set[str] | None = None) -> str:
+def apply_prompt_template(
+    subagent_enabled: bool = False,
+    max_concurrent_subagents: int = 3,
+    *,
+    agent_name: str | None = None,
+    available_skills: set[str] | None = None,
+    prompt_skills: set[str] | None = None,
+    skill_categories: set[str] | None = None,
+) -> str:
     # Get memory context
     memory_context = _get_memory_context(agent_name)
 
@@ -504,7 +519,7 @@ def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagen
     effective_skills = prompt_skills if prompt_skills is not None else available_skills
 
     # Get skills section
-    skills_section = get_skills_prompt_section(effective_skills)
+    skills_section = get_skills_prompt_section(effective_skills, skill_categories=skill_categories)
 
     # Format the prompt with dynamic skills and memory
     prompt = SYSTEM_PROMPT_TEMPLATE.format(

@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -127,7 +128,304 @@ CUSTOM_SKILL_PROFILES = {
             ],
         },
     },
+    "location-matcher": {
+        "scenes": ["street_view_image"],
+        "is_public": False,
+        "task_types": [
+            "street_view_location_matching",
+            "image_to_location",
+            "place_description_search",
+            "geocoding",
+            "reverse_geocoding",
+        ],
+        "input_types": ["image", "jpg", "jpeg", "png", "text", "address", "coordinates"],
+        "output_types": ["matched_location", "address", "latitude_longitude", "street_view_evidence"],
+        "routing": {
+            "positive_triggers": [
+                "根据街景照片判断拍摄地点",
+                "通过建筑物、道路、商铺招牌或地标描述查找位置",
+                "验证某个地址或经纬度是否存在街景图像",
+                "根据图片中的建筑、路口或街道特征匹配真实地址",
+            ],
+            "negative_triggers": [
+                "分析 pcap 网络流量文件",
+                "预测道路交通流量",
+                "检索政策法规条款",
+                "处理程序代码片段",
+            ],
+            "keywords": [
+                "街景", "街景图像", "街景照片", "照片在哪里拍的", "拍摄位置",
+                "地址", "经纬度", "地标", "建筑物", "道路", "路口", "商铺招牌",
+                "location", "street view", "geocoding", "reverse geocoding",
+            ],
+            "anti_keywords": ["pcap", "网络流量", "政策法规", "程序片段", "代码片段", "交通流量预测"],
+        },
+        "execution": {
+            "required_tools": ["bash", "view_image"],
+            "optional_tools": ["read_file", "write_file"],
+            "allowed_file_patterns": ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.txt", "*.json"],
+            "can_run_standalone": True,
+            "can_compose_with": ["data-analysis", "chart-visualization"],
+        },
+        "routing_policy": {
+            "priority": 88,
+            "conflict_group": "street_view_location_matching",
+            "prefer_when": [
+                "用户上传或引用街景、道路、建筑、门店、路口相关图片并询问地点",
+                "用户根据文字描述、地标、招牌、道路信息或坐标查找街景位置",
+            ],
+            "defer_when": [
+                "用户只是做通用图像生成时优先使用 image-generation",
+                "用户要求识别占道、违停等城市治理问题但不需要定位地点时可使用其他街景图像分析 skill",
+            ],
+        },
+    },
+    "road-traffic-analysis": {
+        "scenes": ["road_traffic"],
+        "is_public": False,
+        "task_types": [
+            "realtime_traffic_query",
+            "route_planning",
+            "road_weather_query",
+            "geocoding",
+            "around_traffic_query",
+            "csv_traffic_analysis",
+            "traffic_forecasting",
+            "traffic_anomaly_detection",
+            "traffic_report_rag",
+        ],
+        "input_types": ["text", "address", "coordinates", "csv", "xlsx", "json"],
+        "output_types": [
+            "traffic_status",
+            "route_plan",
+            "forecast_result",
+            "anomaly_findings",
+            "traffic_report_evidence",
+        ],
+        "routing": {
+            "positive_triggers": [
+                "查询道路实时拥堵、路况、路线规划或周边交通",
+                "分析道路交通流量 CSV 数据、历史趋势、峰谷规律或拥堵情况",
+                "预测未来交通流量或检测异常交通流量",
+                "检索西安交通年报中的拥堵、运行趋势或治理背景资料",
+            ],
+            "negative_triggers": [
+                "分析 pcap 网络通信流量",
+                "通过街景照片定位地点",
+                "检索政策法规条款",
+                "处理程序代码片段",
+            ],
+            "keywords": [
+                "道路交通", "交通流量", "路况", "拥堵", "堵车", "实时交通",
+                "路线规划", "周边交通", "交通预测", "异常流量", "车流量",
+                "西安交通", "交通年报", "road traffic", "traffic flow",
+            ],
+            "anti_keywords": ["pcap", "DNS", "HTTP", "街景", "照片定位", "政策法规", "程序片段"],
+        },
+        "execution": {
+            "required_tools": ["bash", "read_file"],
+            "optional_tools": ["write_file", "chart_generator"],
+            "allowed_file_patterns": ["*.csv", "*.xlsx", "*.json", "*.txt", "*.md"],
+            "can_run_standalone": True,
+            "can_compose_with": ["data-analysis", "chart-visualization"],
+        },
+        "routing_policy": {
+            "priority": 90,
+            "conflict_group": "road_traffic_analysis",
+            "prefer_when": [
+                "用户询问道路路况、拥堵、路线、周边交通、交通流量分析、预测或异常检测",
+                "用户要求使用本地或上传的交通 CSV 数据做统计、趋势、预测或异常分析",
+            ],
+            "defer_when": [
+                "用户说的网络流量是 pcap、DNS、HTTP、TLS 等通信流量时优先使用 network-traffic-analysis",
+                "用户通过街景图像、建筑、招牌或道路照片找地点时优先使用 location-matcher",
+            ],
+        },
+    },
 }
+
+
+def _program_snippet_profile(
+    *,
+    task_types: list[str],
+    output_types: list[str],
+    positive_triggers: list[str],
+    keywords: list[str],
+    priority: int = 82,
+    can_compose_with: list[str] | None = None,
+) -> dict:
+    return {
+        "scenes": ["program_snippet"],
+        "is_public": False,
+        "task_types": task_types,
+        "input_types": ["code_snippet", "source_code", "python", "java", "cpp", "text"],
+        "output_types": output_types,
+        "routing": {
+            "positive_triggers": positive_triggers,
+            "negative_triggers": [
+                "分析网络流量 pcap 文件",
+                "查询道路交通流量",
+                "检索政策法规条款",
+                "处理时空轨迹数据",
+            ],
+            "keywords": keywords,
+            "anti_keywords": ["pcap", "交通流量", "政策法规", "时空轨迹"],
+        },
+        "execution": {
+            "required_tools": ["read_file", "bash"],
+            "optional_tools": ["write_file"],
+            "allowed_file_patterns": ["*.py", "*.java", "*.cpp", "*.cc", "*.cxx", "*.h", "*.hpp", "*.js", "*.ts", "*.txt", "*.md"],
+            "can_run_standalone": True,
+            "can_compose_with": can_compose_with or [],
+        },
+        "routing_policy": {
+            "priority": priority,
+            "conflict_group": "program_snippet_processing",
+            "prefer_when": [
+                "用户提供代码片段、函数、类或源码文件并要求静态分析或加工",
+                "任务目标是 AST、格式校验、标准化、语义标签、IO、调用图、数据流、文档、示例或组件封装",
+            ],
+            "defer_when": [
+                "用户要求代码安全合规扫描时优先使用 opengrep-compliance",
+                "用户只是在本仓库检索源码上下文时优先使用 code-rag",
+            ],
+        },
+    }
+
+
+CUSTOM_SKILL_PROFILES.update({
+    "code-processing-pipeline": _program_snippet_profile(
+        task_types=["code_pipeline", "code_normalization", "semantic_tagging", "io_extraction", "component_packaging"],
+        output_types=["component_json", "component_code", "metadata", "interface"],
+        positive_triggers=[
+            "端到端处理代码片段并生成组件",
+            "把程序片段加工成带 metadata、接口描述、文档和示例的组件",
+            "串联格式校验、标准化、语义路由、IO 提取、文档生成和组件封装",
+        ],
+        keywords=["程序片段", "代码片段", "CodeProcessingPipeline", "组件封装", "metadata", "接口描述", "process_snippet"],
+        priority=92,
+        can_compose_with=[
+            "code-format-validation",
+            "code-normalization",
+            "code-intent-routing",
+            "code-io-extraction",
+            "component-docstring-generation",
+            "component-example-generation",
+        ],
+    ),
+    "code-format-validation": _program_snippet_profile(
+        task_types=["code_format_validation", "syntax_check"],
+        output_types=["validation_result", "syntax_error"],
+        positive_triggers=["校验代码片段格式", "检查 Python 代码语法是否合法", "判断代码是否包含顶层函数或类"],
+        keywords=["格式校验", "语法检查", "valid", "syntax", "code-format-validation"],
+    ),
+    "code-normalization": _program_snippet_profile(
+        task_types=["code_normalization", "wrap_snippet_as_function"],
+        output_types=["normalized_code"],
+        positive_triggers=["将裸代码片段标准化为函数", "把程序片段包装成函数定义", "normalize_code"],
+        keywords=["代码标准化", "裸代码", "函数定义", "normalize_code", "generated_function"],
+    ),
+    "code-intent-routing": _program_snippet_profile(
+        task_types=["code_intent_routing", "semantic_intent_classification"],
+        output_types=["code_intent", "semantic_tags"],
+        positive_triggers=["识别代码片段的语义意图", "判断代码是 HTTP、数据处理、图像处理还是硬件 IO", "为程序片段生成 intent 和 tags"],
+        keywords=["语义意图", "CodeSemanticRouter", "intent", "tags", "HTTP", "硬件 IO"],
+    ),
+    "code-metadata-tagging": _program_snippet_profile(
+        task_types=["code_metadata_tagging", "semantic_labeling"],
+        output_types=["metadata_tags"],
+        positive_triggers=["为代码片段生成 metadata 标签", "给程序片段打语义标签", "生成可检索可过滤的代码标签"],
+        keywords=["metadata", "标签", "语义标签", "code-metadata-tagging"],
+    ),
+    "code-io-extraction": _program_snippet_profile(
+        task_types=["code_io_extraction", "interface_inference"],
+        output_types=["input_variables", "output_variables", "interface"],
+        positive_triggers=["从代码片段提取输入输出变量", "分析函数接口", "生成组件接口描述"],
+        keywords=["输入输出", "IO 提取", "extract_io", "interface", "input variables", "output variables"],
+    ),
+    "component-docstring-generation": _program_snippet_profile(
+        task_types=["docstring_generation", "component_documentation"],
+        output_types=["docstring"],
+        positive_triggers=["为代码组件生成 docstring", "根据接口和代码生成组件文档", "生成 Args 和 Returns 说明"],
+        keywords=["docstring", "组件文档", "Args", "Returns", "documentation"],
+    ),
+    "component-example-generation": _program_snippet_profile(
+        task_types=["usage_example_generation", "component_example"],
+        output_types=["usage_example"],
+        positive_triggers=["为代码组件生成调用示例", "生成 usage example", "根据组件接口生成示例代码"],
+        keywords=["示例生成", "usage example", "调用示例", "example"],
+    ),
+    "code-to-ast-new": _program_snippet_profile(
+        task_types=["ast_parse", "code_structure_extraction"],
+        output_types=["ast_json", "code_structure"],
+        positive_triggers=["把代码片段转换为 AST", "解析程序片段结构", "提取函数类和语法树"],
+        keywords=["AST", "语法树", "代码结构", "code-to-ast"],
+    ),
+    "cpp-to-ast": _program_snippet_profile(
+        task_types=["cpp_ast_parse", "cpp_structure_extraction"],
+        output_types=["ast_json", "cpp_structure"],
+        positive_triggers=["解析 C++ 代码片段 AST", "提取 C++ 函数类结构", "分析 cpp 语法树"],
+        keywords=["C++", "cpp", "AST", "语法树"],
+    ),
+    "call-graph-extractor": _program_snippet_profile(
+        task_types=["call_graph_extraction", "static_call_analysis"],
+        output_types=["call_graph", "call_edges"],
+        positive_triggers=["提取代码片段调用关系", "生成函数调用图", "分析调用者和被调用者"],
+        keywords=["调用图", "调用关系", "call graph", "caller", "callee"],
+    ),
+    "dataflow-extractor": _program_snippet_profile(
+        task_types=["dataflow_extraction", "static_dataflow_analysis"],
+        output_types=["dataflow_edges", "variable_flow"],
+        positive_triggers=["提取代码片段数据流", "分析变量流转关系", "生成 dataflow edges"],
+        keywords=["数据流", "变量流转", "dataflow", "赋值", "return"],
+    ),
+    "business-flow-renderer": _program_snippet_profile(
+        task_types=["business_flow_rendering", "mermaid_flowchart"],
+        output_types=["mermaid", "business_flowchart"],
+        positive_triggers=["将业务代码片段转换为流程图", "把 if else 业务逻辑渲染为 Mermaid", "生成非技术人员可读的业务流程图"],
+        keywords=["业务流程图", "Mermaid", "if-else", "工单流转", "流程图"],
+    ),
+    "code-splitter-adapter": _program_snippet_profile(
+        task_types=["code_splitting", "chunking"],
+        output_types=["code_chunks", "chunk_metadata"],
+        positive_triggers=["切分源码为代码片段", "对长代码做 chunk", "生成代码片段 metadata"],
+        keywords=["代码切分", "chunk", "代码片段", "splitter"],
+    ),
+    "code-semantic-labeler": _program_snippet_profile(
+        task_types=["semantic_labeling", "business_semantic_labeling"],
+        output_types=["semantic_labels", "labeled_nodes"],
+        positive_triggers=["给代码节点生成业务语义标签", "为代码片段做语义标注", "标注业务节点"],
+        keywords=["语义标注", "业务语义", "semantic label", "labeled nodes"],
+    ),
+    "code-business-dag-analysis-pipeline": _program_snippet_profile(
+        task_types=["business_dag_analysis", "python_code_dag"],
+        output_types=["business_dag", "analysis_report"],
+        positive_triggers=["分析 Python 代码业务 DAG", "识别业务节点和依赖边", "生成代码业务分析报告"],
+        keywords=["业务 DAG", "业务依赖", "Python", "代码业务分析"],
+        priority=88,
+    ),
+    "code-business-dag-analysis-pipeline-java": _program_snippet_profile(
+        task_types=["business_dag_analysis", "java_code_dag"],
+        output_types=["business_dag", "analysis_report"],
+        positive_triggers=["分析 Java 代码业务 DAG", "识别 Java 业务节点和依赖边", "生成 Java 代码业务分析报告"],
+        keywords=["业务 DAG", "Java", "业务依赖", "代码业务分析"],
+        priority=88,
+    ),
+    "code-business-dag-analysis-pipeline-cpp": _program_snippet_profile(
+        task_types=["business_dag_analysis", "cpp_code_dag"],
+        output_types=["business_dag", "analysis_report"],
+        positive_triggers=["分析 C++ 代码业务 DAG", "识别 C++ 业务节点和依赖边", "生成 C++ 代码业务分析报告"],
+        keywords=["业务 DAG", "C++", "cpp", "业务依赖", "代码业务分析"],
+        priority=88,
+    ),
+    "code-rag": _program_snippet_profile(
+        task_types=["code_retrieval", "source_snippet_search"],
+        output_types=["code_search_results", "line_numbered_snippets"],
+        positive_triggers=["检索本地代码片段", "搜索源码符号和实现位置", "返回带行号的代码上下文"],
+        keywords=["code_search", "代码检索", "源码检索", "snippet", "行号"],
+        priority=78,
+    ),
+})
 
 PUBLIC_SKILL_DEFAULTS = {
     "data-analysis": {
@@ -252,13 +550,40 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
     body = parts[2].strip()
 
     frontmatter = {}
-    for line in frontmatter_text.splitlines():
-        if ":" in line:
-            key, _, value = line.partition(":")
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-            frontmatter[key] = value
+    lines = frontmatter_text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if ":" not in line:
+            i += 1
+            continue
+        key, _, value = line.partition(":")
+        key = key.strip()
+        value = value.strip()
+        if value in {">", ">-", "|", "|-"}:
+            block_lines: list[str] = []
+            i += 1
+            while i < len(lines) and (lines[i].startswith(" ") or lines[i].startswith("\t") or not lines[i].strip()):
+                block_lines.append(lines[i].strip())
+                i += 1
+            frontmatter[key] = " ".join(part for part in block_lines if part).strip()
+            continue
+        frontmatter[key] = value.strip('"').strip("'")
+        i += 1
     return frontmatter, body
+
+
+def infer_description_from_body(body: str) -> str:
+    """Infer a concise description from Markdown body when frontmatter lacks one."""
+    for line in body.splitlines():
+        match = re.match(r"\s*-\s*\*\*描述\*\*\s*[:：]\s*(.+?)\s*$", line)
+        if match:
+            return match.group(1).strip()
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#") and not stripped.startswith("```"):
+            return stripped[:240]
+    return ""
 
 
 def make_routing_text(
@@ -313,12 +638,69 @@ def build_router_card(
     skill_md_path: str,
     profile: dict,
     es_index: str = "",
+    existing_card: dict | None = None,
 ) -> dict:
-    """Assemble a full Router Card dict."""
+    """Assemble a full Router Card dict.
+
+    If existing_card is provided, preserve its detailed configurations
+    (routing triggers, keywords, task_types, evaluation, etc.) and only
+    update incrementally computed fields (source, embedding, body).
+    """
     skill_md_hash = f"sha256:{sha256_hex(body_content)}"
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # routing_text
+    # If existing card has detailed config, preserve it
+    if existing_card and isinstance(existing_card, dict):
+        preserved_fields = {
+            "identity": existing_card.get("identity", {}),
+            "scope": existing_card.get("scope", {}),
+            "routing": existing_card.get("routing", {}),
+            "execution": existing_card.get("execution", {}),
+            "routing_policy": existing_card.get("routing_policy", {}),
+            "evaluation": existing_card.get("evaluation", {}),
+        }
+        # Only update name/description if they were empty or generic
+        if not preserved_fields["identity"].get("name") or preserved_fields["identity"].get("name") == skill_id:
+            preserved_fields["identity"]["name"] = skill_name
+        if not preserved_fields["identity"].get("description"):
+            preserved_fields["identity"]["description"] = skill_description
+        # Always update id to match skill_id
+        preserved_fields["identity"]["id"] = skill_id
+        # Update body content (always fresh)
+        preserved_fields["body"] = {
+            "source": "SKILL.md",
+            "content": clean_body_content(body_content),
+        }
+        # Update source metadata
+        preserved_fields["source"] = {
+            "skill_dir": str(skill_dir.relative_to(skill_dir.anchor) if skill_dir.anchor else skill_dir),
+            "skill_md_path": skill_md_path,
+            "skill_md_hash": skill_md_hash,
+            "generated_at": generated_at,
+            "generator_version": GENERATOR_VERSION,
+        }
+        # Update embedding metadata
+        r = preserved_fields.get("routing", {})
+        routing_text = r.get("routing_text") or make_routing_text(
+            name=skill_name,
+            description=skill_description,
+            scenes=preserved_fields.get("scope", {}).get("scenes", []),
+            task_types=preserved_fields.get("scope", {}).get("task_types", []),
+            input_types=preserved_fields.get("scope", {}).get("input_types", []),
+            output_types=preserved_fields.get("scope", {}).get("output_types", []),
+            positive_triggers=r.get("positive_triggers", []),
+            negative_triggers=r.get("negative_triggers", []),
+        )
+        preserved_fields["embedding"] = {
+            "model": EMBEDDING_MODEL,
+            "text_hash": f"sha256:{sha256_hex(routing_text)}",
+            "es_index": es_index,
+            "es_doc_id": skill_id,
+        }
+        preserved_fields["schema_version"] = existing_card.get("schema_version", SCHEMA_VERSION)
+        return preserved_fields
+
+    # Fallback: build new card from profile
     r = profile.get("routing", {})
     routing_text = make_routing_text(
         name=skill_name,
@@ -392,15 +774,30 @@ def build_router_card(
 
 
 def find_skill_dirs(skills_root: Path) -> list[tuple[str, Path]]:
-    """Return list of (skill_id, skill_dir) sorted by category then name."""
+    """Return list of (skill_id, skill_dir) sorted by category then name.
+
+    Recursively scans custom/ and public/ directories to find nested skills.
+    A skill directory is identified by presence of SKILL.md file.
+    skill_id is always the directory name (not the full relative path).
+    """
     results = []
+    seen_ids: set[str] = set()  # Track skill_ids to detect conflicts
     for category in ("custom", "public"):
         cat_dir = skills_root / category
         if not cat_dir.is_dir():
             continue
-        for d in sorted(cat_dir.iterdir()):
-            if d.is_dir() and (d / "SKILL.md").exists():
-                results.append((d.name, d))
+        # Recursively find all directories containing SKILL.md
+        for skill_md in cat_dir.rglob("SKILL.md"):
+            skill_dir = skill_md.parent
+            # Use directory name as skill_id (consistent with ES index)
+            skill_id = skill_dir.name
+            if skill_id in seen_ids:
+                print(f"WARN: duplicate skill_id '{skill_id}' at {skill_dir}, skipping", file=sys.stderr)
+                continue
+            seen_ids.add(skill_id)
+            results.append((skill_id, skill_dir))
+    # Sort by skill_id
+    results.sort(key=lambda x: x[0])
     return results
 
 
@@ -442,7 +839,7 @@ def main():
         frontmatter, body = parse_frontmatter(raw_content)
 
         name = frontmatter.get("name", skill_id)
-        description = frontmatter.get("description", "")
+        description = frontmatter.get("description", "") or infer_description_from_body(body)
 
         # Pick profile
         if is_custom:

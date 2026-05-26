@@ -1,0 +1,12 @@
+{
+  "camera_id": "CAM_DEERFLOW_001",
+  "source_type": "local_file",
+  "raw_segment_uri": "/mnt/data/videos/Trafic.mp4",
+  "started_at": "2026-05-20T10:00:00+08:00",
+  "capture_seconds": 10,
+  "sampling_strategy": {
+    "mode": "interval",
+    "interval_seconds": 5
+  }
+}
+

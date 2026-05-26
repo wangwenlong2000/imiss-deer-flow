@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "camera-health-check",
+    "name": "camera-health-check",
+    "description": "Check video monitoring camera quality from sampled frames and return health status before downstream event generation. Use when Codex has camera_id and frames and needs to gate or downgrade event confidence for offline, unavailable, degraded, black-screen, blurred, occluded, frozen, corrupted, or shifted camera feeds."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "camera_health_check",
+      "quality_gate"
+    ],
+    "input_types": [
+      "frames_json",
+      "camera_id"
+    ],
+    "output_types": [
+      "camera_health_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：camera-health-check\n描述：Check video monitoring camera quality from sampled frames and return health status before downstream event generation. Use when Codex has camera_id and frames and needs to gate or downgrade event confidence for offline, unavailable, degraded, black-screen, blurred, occluded, frozen, corrupted, or shifted camera feeds.\n适用场景：video_surveillance。\n适用任务：camera_health_check, quality_gate。\n输入类型：frames_json, camera_id。\n输出类型：camera_health_json。\n适合使用：检查摄像头是否黑屏；检测画面模糊遮挡冻结；判断摄像头健康状态；视频质量诊断。\n不适合使用：检测人车物；生成事件；抽帧；视频剪辑。",
+    "positive_triggers": [
+      "检查摄像头是否黑屏",
+      "检测画面模糊遮挡冻结",
+      "判断摄像头健康状态",
+      "视频质量诊断"
+    ],
+    "negative_triggers": [
+      "检测人车物",
+      "生成事件",
+      "抽帧",
+      "视频剪辑"
+    ],
+    "keywords": [
+      "黑屏",
+      "模糊",
+      "遮挡",
+      "冻结",
+      "camera_health",
+      "degraded",
+      "offline"
+    ],
+    "anti_keywords": [
+      "目标检测",
+      "事件规则",
+      "证据片段"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: camera-health-check\ndescription: Check video monitoring camera quality from sampled frames and return health status before downstream event generation. Use when Codex has camera_id and frames and needs to gate or downgrade event confidence for offline, unavailable, degraded, black-screen, blurred, occluded, frozen, corrupted, or shifted camera feeds.\n---\n\n# Camera Health Check\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf `frames` are missing but the user provided a video source, do not ask the user to provide frames and do not write custom camera diagnostics. First call `frame-sampling/scripts/run.py` to generate frames, then call this skill.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython camera-health-check/scripts/run.py --frames-json <frames.json> --camera-id <camera_id> --config <config.json> --output <health.json>\n```\n\nParameters: `--frames-json`, `--camera-id`, `--health-status`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera id and sampled frames.\n2. Check frame availability and configured/manual health overrides.\n3. Compute or accept quality signals for black screen, blur, occlusion, freeze, corruption, and view shift.\n4. Return health status, health score, and issue reasons.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `camera_id`\n- `frames`\n- Optional `health_status` override\n- Optional `context.config[\"camera_health\"][camera_id]` override\n\n## Outputs\n\nReturns `health_status`, `health_score`, and `issues`.\n\n## Failure Modes\n\nThe current implementation returns success with `health_status=\"unavailable\"` when no frames are available.\n\n## Constraints\n\nDo not create events or evidence. Low quality should reduce downstream confidence or trigger review.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "camera-health-check",
+    "prefer_when": [
+      "检查摄像头是否黑屏",
+      "检测画面模糊遮挡冻结",
+      "判断摄像头健康状态",
+      "视频质量诊断"
+    ],
+    "defer_when": [
+      "检测人车物",
+      "生成事件",
+      "抽帧",
+      "视频剪辑"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/camera-health-check",
+    "skill_md_path": "skills/custom/camera-health-check/SKILL.md",
+    "skill_md_hash": "sha256:b51c7b3bbb47d731d25ee480dd9eef3d060a1bca66e53c7404fcd04484e56bd3",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:a658e18c0acb9da940efce60c7c8fa0882a7a2152c3ed4a42e8fb3af06aefc81",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "camera-health-check"
+  }
+}

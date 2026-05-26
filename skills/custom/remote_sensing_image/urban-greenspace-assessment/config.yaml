@@ -1,0 +1,32 @@
+# Skill: urban-greenspace-assessment
+# English metadata + Chinese report mode.
+
+skill:
+  name: urban-greenspace-assessment
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+algorithm:
+  # NDVI threshold for classifying green pixels
+  ndvi_threshold: 0.30
+  # Minimum patch size to keep (pixels)
+  min_patch_pixels: 20
+
+landscape:
+  # A patch larger than this is considered a "large park" (m^2)
+  large_patch_area_m2: 10000
+
+equity:
+  # Per-capita green target (m^2/person) - national/WHO-style benchmark
+  target_per_capita_m2: 15
+  # Service area radius (meters) - 500m walking catchment
+  service_distance_m: 500
+
+io:
+  outputs_dir: ./outputs
+  subdir: urban-greenspace-assessment
+
+logging:
+  level: INFO

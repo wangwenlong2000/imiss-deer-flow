@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "skill": "condition-based-screening",
+  "query_type": "relationship_filter",
+  "script_version": "condition-based-screening-release-v3",
+  "group_name": "night_case",
+  "dataset": "unified",
+  "mode": "night_abnormal",
+  "match_mode": "all",
+  "top_k": 10,
+  "candidate_count": 5,
+  "screened_count": 2,
+  "missing_scope_count": 0,
+  "missing_scope_preview": [],
+  "active_conditions": [
+    "night_ratio",
+    "night_count"
+  ],
+  "condition_descriptions": {
+    "night_ratio": "夜间通话占比 >= 0.50",
+    "night_count": "夜间通话次数 >= 4"
+  },
+  "auto_thresholds": {},
+  "filter_chain": [
+    {
+      "step": "initial_scope",
+      "count": 5
+    },
+    {
+      "step": "after_night_ratio",
+      "count": 2
+    },
+    {
+      "step": "after_night_count",
+      "count": 2
+    }
+  ],
+  "screening_conclusion": "筛选后命中 2 个对象。",
+  "filter_impact_explanation": "当前筛选条件共缩小 3 个对象，收缩比例 60.00%，筛选对样本范围产生了真实约束；匹配模式为 all。",
+  "shrink_ratio": 0.6,
+  "shrink_ratio_pct": "60.00%",
+  "condition_hit_stats": [
+    {
+      "condition": "night_ratio",
+      "hit_count": 2
+    },
+    {
+      "condition": "night_count",
+      "hit_count": 2
+    }
+  ],
+  "province_distribution": [
+    {
+      "value": "sichuan",
+      "count": 2
+    }
+  ],
+  "sub_label_distribution": [
+    {
+      "value": "purefraud",
+      "count": 1
+    },
+    {
+      "value": "normal",
+      "count": 1
+    }
+  ],
+  "top_signal_summary": [
+    "Top1 对象 p1：风险分 40.25，命中 2 条条件。",
+    "最显著共享设备 imei_a：群体内命中成员 2 个，共挂载 3 个号码。",
+    "最显著共同对端 c1：被 2 个命中对象共同联系，累计通话 2 次。"
+  ],
+  "evidence_completeness": {
+    "targets_available": true,
+    "device_evidence_available": true,
+    "counterparty_evidence_available": true,
+    "filter_chain_available": true
+  },
+  "data_sources": {
+    "dataset_root": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/datasets/phone-network",
+    "call_edges": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/datasets/phone-network/processed/unified/call_edges.csv",
+    "user_nodes": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/datasets/phone-network/processed/unified/user_nodes.csv",
+    "device_edges": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/datasets/phone-network/processed/graph_views/unified/edges_phone_imei.csv"
+  },
+  "next_step_suggestions": [
+    "优先对 Top1 `p1` 调用 single-number-analysis 做单号深挖。",
+    "命中对象存在共享设备证据，建议继续调用 shared-device-analysis。",
+    "命中对象存在共同对端重叠，建议结合 overlap-analysis 或 association-path-analysis 做关系复核。",
+    "可对 Top1 和 Top2 做 association-path-analysis / overlap-analysis 复核路径与同圈关系。"
+  ],
+  "base_operator_alignment": {
+    "entity_scope_filter": "node_lookup + aggregation_query",
+    "night_behavior_filter": "time-window relationship_filter + aggregation_query",
+    "broad_contact_filter": "neighbor_query + aggregation_query",
+    "shared_device_filter": "query_shared_device + aggregation_query",
+    "label_province_filter": "node_lookup + relationship_filter",
+    "mixed_condition_ranking": "aggregation_query + scoring_layer"
+  },
+  "artifacts": [
+    {
+      "type": "markdown_report",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_night_case_unified.md",
+      "title": "condition_screening_report_night_case_unified.md"
+    },
+    {
+      "type": "csv",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_targets_night_case_unified_2targets.csv",
+      "title": "condition_screening_targets_night_case_unified_2targets.csv"
+    },
+    {
+      "type": "csv",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_devices_night_case_unified_2rows.csv",
+      "title": "condition_screening_devices_night_case_unified_2rows.csv"
+    },
+    {
+      "type": "csv",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_counterparts_night_case_unified_4rows.csv",
+      "title": "condition_screening_counterparts_night_case_unified_4rows.csv"
+    },
+    {
+      "type": "xlsx",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_evidence_night_case_unified.xlsx",
+      "title": "condition_screening_evidence_night_case_unified.xlsx"
+    },
+    {
+      "type": "json",
+      "path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_summary_night_case_unified.json",
+      "title": "condition_screening_summary_night_case_unified.json"
+    }
+  ],
+  "report_path": "/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_night_case_unified.md"
+}

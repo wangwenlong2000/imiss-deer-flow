@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "subgraph-extraction-analysis",
+    "name": "subgraph-extraction-analysis",
+    "description": "围绕单个中心电话号码抽取 1 跳或 2 跳局部关系子图，输出局部节点、边、邻居结构、局部核心节点和桥接点。仅适用于“抽局部图、看邻居结构、看局部关系圈”的问题；完整单号码综合分析应使用 single-number-analysis。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "subgraph_extraction",
+      "local_network",
+      "ego_graph",
+      "bridge_node",
+      "key_node"
+    ],
+    "input_types": [
+      "user_id",
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "subgraph_nodes",
+      "subgraph_edges",
+      "key_nodes",
+      "bridge_nodes",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：subgraph-extraction-analysis\n描述：围绕单个中心电话号码抽取 1 跳或 2 跳局部关系子图，输出局部节点、边、邻居结构、局部核心节点和桥接点。仅适用于“抽局部图、看邻居结构、看局部关系圈”的问题；完整单号码综合分析应使用 single-number-analysis。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：subgraph_extraction, local_network, ego_graph, bridge_node, key_node。\n输入类型：user_id, dataset_root, user_nodes.csv, call_edges.csv, edges_phone_imei.parquet。\n输出类型：subgraph_nodes, subgraph_edges, key_nodes, bridge_nodes, markdown_report。\n适合使用：抽取这个号码周围的关系网络；围绕这个号码生成一跳或两跳局部子图；查看单个号码的局部邻居结构；找局部图核心节点和桥接点。\n不适合使用：完整分析单个号码；生成风险证据包；分析一组号码群体风险；比较四川陕西整体差异；上传原始CSV建图。\n关键词：子图，局部网络，一跳，两跳，ego graph，桥接点，核心节点，局部关系。\n反关键词：完整画像，证据包，群体，地域对比，建图。",
+    "positive_triggers": [
+      "抽取这个号码周围的关系网络",
+      "围绕这个号码生成一跳或两跳局部子图",
+      "查看单个号码的局部邻居结构",
+      "找局部图核心节点和桥接点"
+    ],
+    "negative_triggers": [
+      "完整分析单个号码",
+      "生成风险证据包",
+      "分析一组号码群体风险",
+      "比较四川陕西整体差异",
+      "上传原始CSV建图"
+    ],
+    "keywords": [
+      "子图",
+      "局部网络",
+      "一跳",
+      "两跳",
+      "ego graph",
+      "桥接点",
+      "核心节点",
+      "局部关系"
+    ],
+    "anti_keywords": [
+      "完整画像",
+      "证据包",
+      "群体",
+      "地域对比",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: subgraph-extraction-analysis\ndescription: 围绕单个中心电话号码抽取 1 跳或 2 跳局部关系子图，输出局部节点、边、邻居结构、局部核心节点和桥接点。仅适用于“抽局部图、看邻居结构、看局部关系圈”的问题；完整单号码综合分析应使用 single-number-analysis。\n---\n\n# subgraph-extraction-analysis\n\n## 这个 skill 的定位\n\n这个 skill 只负责：\n\n- 围绕单个中心号码抽 1 跳 / 2 跳局部关系圈\n- 看局部结构\n- 看邻居、局部 Hub、局部桥接点\n\n它 **不是完整的单号码综合分析 skill**。\n\n---\n\n## 什么时候应该用它\n\n只在下面这些场景使用：\n\n- “帮我抽一下这个号码的一跳子图”\n- “围绕这个号码看两跳局部图”\n- “这个号码周围的局部结构是什么样”\n- “先给我看这个号码附近的局部关系圈”\n\n---\n\n## 什么时候不要用它\n\n如果用户要求下面这些完整分析内容，就 **不要优先用本 skill**，而要改用 `single-number-analysis`：\n\n- 输出号码画像\n- 输出 Top 可疑节点排序\n- 输出共享设备主线索\n- 输出推荐二次下钻节点\n- 输出完整单号码分析报告\n- 同时要求通话关系 + 设备关系的综合判断\n\n典型问法：\n\n- “请完整分析这个号码”\n- “这个号码值不值得重点查”\n- “输出这个号码的画像、可疑节点和共享设备”\n- “帮我生成完整 markdown 报告”\n\n这些都应该优先使用：\n\n```text\nphone-network-analysis/single-number-analysis\n```\n\n---\n\n## 输入要求\n\n至少提供：\n\n- `phone_id`：目标号码哈希 ID\n\n可选参数：\n\n- `hops`：1 或 2，默认 1\n- `max_nodes`：默认 100\n- `top_k`：默认 10\n- `directed`：是否按有向通话图抽取，默认不加\n\n---\n\n## 执行步骤\n\n### 1. 进入脚本目录\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/subgraph-extraction-analysis/scripts\n```\n\n### 2. 运行分析脚本\n\n```bash\npython3 subgraph_extraction_wrapper.py \\\n  --phone-id \"<PHONE_ID>\"\n```\n\n两跳子图示例：\n\n```bash\npython3 subgraph_extraction_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --hops 2 \\\n  --max-nodes 100 \\\n  --top-k 10\n```\n\n如需按有向通话图分析：\n\n```bash\npython3 subgraph_extraction_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --hops 1 \\\n  --directed\n```\n\n---\n\n## 报告处理要求\n\n如果脚本返回 `report_path` / `artifacts`：\n\n1. 先检查文件存在\n2. 再读取完整 Markdown\n3. 最终把 Markdown 作为附件展示/下载\n4. 不要只把路径字符串展示给用户\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "phone_network_subgraph_analysis",
+    "prefer_when": [
+      "用户需要围绕一个或多个号码抽取局部关系图",
+      "用户关注局部核心节点和桥接节点"
+    ],
+    "defer_when": [
+      "用户要团伙簇识别时优先 gang-cluster-analysis",
+      "用户要单号风险画像时优先 single-number-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/subgraph-extraction-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/subgraph-extraction-analysis/SKILL.md",
+    "skill_md_hash": "sha256:de7c252b78e87caffc1dc5729de3a74a20908766aca2f9e23e5cfb77c5376187",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:9b57c7aada4a6de4427e89011dbb083d85dfcb3b52e7d1097ca14840652419d3",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "subgraph-extraction-analysis"
+  }
+}

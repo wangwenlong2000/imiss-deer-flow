@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 8,
   "schema_version": "1.0.0",
   "router_index": {
     "type": "elasticsearch",
@@ -15,32 +15,6 @@
     "id_field": "skill_id"
   },
   "skills": [
-    {
-      "id": "law-regulations-rag",
-      "name": "law-regulations-rag",
-      "scenes": [
-        "policy_regulation"
-      ],
-      "is_public": false,
-      "task_types": [
-        "law_retrieval",
-        "policy_retrieval",
-        "legal_basis_mapping",
-        "compliance_reference"
-      ],
-      "input_types": [
-        "text",
-        "docx",
-        "pdf",
-        "xlsx"
-      ],
-      "router_card_path": "skills/custom/law-regulations-rag/router_card.json",
-      "skill_md_path": "skills/custom/law-regulations-rag/SKILL.md",
-      "enabled": true,
-      "routing_text_hash": "sha256:cd47a2168c27527f5ea5a3f66de9f148142b76c63d0c1b62859284b7174f13c8",
-      "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "law-regulations-rag"
-    },
     {
       "id": "network-traffic-analysis",
       "name": "network-traffic-analysis",
@@ -66,7 +40,2335 @@
       "enabled": true,
       "routing_text_hash": "sha256:48b32d856aeae8889423de2ce83148cc249e94ff2d21846f20c1d2150ddf373d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "network-traffic-analysis"
+      "es_doc_id": "network-traffic-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "association-path-analysis",
+      "name": "association-path-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "association_path",
+        "multi_hop_path",
+        "relation_chain",
+        "graph_explanation"
+      ],
+      "input_types": [
+        "phone_a",
+        "phone_b",
+        "dataset_root",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/association-path-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/association-path-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:3e782a8997d9642d30032865cfc0b120f76f4754d02e157fcc1c97840e8e805c",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "association-path-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "condition-based-screening",
+      "name": "condition-based-screening",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "condition_screening",
+        "rule_filter",
+        "target_selection",
+        "risk_filter"
+      ],
+      "input_types": [
+        "dataset_root",
+        "filter_conditions",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/condition-based-screening/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/condition-based-screening/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:014380c2695d2974aa297f78fa1680cebe39f0eb7cdd615f97d7a7940b64b658",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "condition-based-screening",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "dataset-onboarding-graph-preprocess",
+      "name": "dataset-onboarding-graph-preprocess",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "dataset_onboarding",
+        "graph_preprocess",
+        "schema_mapping",
+        "data_quality_check"
+      ],
+      "input_types": [
+        "csv",
+        "xlsx",
+        "xls",
+        "json",
+        "jsonl",
+        "parquet",
+        "raw_phone_network_data"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:c18f848ba3c95baebb688379ebaa566b8a9a0705807e69f26348476e5f6d0bc3",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "dataset-onboarding-graph-preprocess",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "dataset-overview-analysis",
+      "name": "dataset-overview-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "dataset_overview",
+        "scale_statistics",
+        "risk_distribution",
+        "province_distribution"
+      ],
+      "input_types": [
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/dataset-overview-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/dataset-overview-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:1beadc5945d528df6d8202714eaae523209ffc64a0f718e4e4327a9098ab9ebc",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "dataset-overview-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "dataset-quality-and-linkability-diagnostic",
+      "name": "dataset-quality-and-linkability-diagnostic",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "data_quality",
+        "linkability_diagnostic",
+        "capability_matrix",
+        "dataset_health_check"
+      ],
+      "input_types": [
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:cd4dc89482e00638297110067c2053379e8c1c0fd6b9c461d841c88842de81c8",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "dataset-quality-and-linkability-diagnostic",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "gang-cluster-analysis",
+      "name": "gang-cluster-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "gang_cluster",
+        "cluster_expansion",
+        "core_bridge_node",
+        "case_group_discovery"
+      ],
+      "input_types": [
+        "seed_user_ids",
+        "dataset_root",
+        "phone_network_graph",
+        "csv",
+        "parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/gang-cluster-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/gang-cluster-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:9ba7d360de5f0c6d14eefa42cec019329caf7145dc035f98c546944ab69b3dc3",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "gang-cluster-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "graph-operator",
+      "name": "graph-operator",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "graph_operator",
+        "node_query",
+        "edge_filter",
+        "aggregation",
+        "common_neighbor",
+        "shared_device",
+        "path_analysis",
+        "subgraph_extraction",
+        "ranking_scoring"
+      ],
+      "input_types": [
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet",
+        "csv",
+        "parquet",
+        "json"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/graph-operator/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/graph-operator/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:45d78af8381ed06439450db32d060142c11f2d93ed3d105a81761668fb35ffc4",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "graph-operator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "group-risk-analysis",
+      "name": "group-risk-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "group_risk",
+        "number_group_analysis",
+        "group_pattern",
+        "core_member_ranking"
+      ],
+      "input_types": [
+        "user_id_list",
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/group-risk-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/group-risk-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:8e441ab5cf12ad7a9bc23195b2afb1858df48c957a1e6b586b7c74ea3861e883",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "group-risk-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "overlap-analysis",
+      "name": "overlap-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "overlap_analysis",
+        "common_counterparty",
+        "shared_device",
+        "relation_overlap"
+      ],
+      "input_types": [
+        "user_id",
+        "user_id_list",
+        "phone_network_graph",
+        "csv",
+        "parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/overlap-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/overlap-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:b5b9357e48d5c031406ad9072593c2e2606c296d06df83648643cbd6b3eb7188",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "overlap-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "risk-evidence-pack",
+      "name": "risk-evidence-pack",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "risk_evidence_pack",
+        "evidence_export",
+        "case_report",
+        "single_number_evidence"
+      ],
+      "input_types": [
+        "user_id",
+        "dataset_root",
+        "analysis_result",
+        "csv",
+        "parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/risk-evidence-pack/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/risk-evidence-pack/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:c44d82116879bf9da0cc396f5d91d30657872cd3d28522364ee3f63bba76d9e3",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "risk-evidence-pack",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "shared-device-analysis",
+      "name": "shared-device-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "shared_device",
+        "imei_pool",
+        "device_risk",
+        "phone_imei_relation"
+      ],
+      "input_types": [
+        "user_id",
+        "imei",
+        "dataset_root",
+        "edges_phone_imei.parquet",
+        "phone_imei_edges"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/shared-device-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/shared-device-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:fa2691c100c7973e4197a8576e56e1aaa4a63bf97e4e752499df5948a45f94d5",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "shared-device-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "sichuan-shaanxi-comparison",
+      "name": "sichuan-shaanxi-comparison",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "province_comparison",
+        "regional_contrast",
+        "sichuan_shaanxi",
+        "comparison_report"
+      ],
+      "input_types": [
+        "unified_dataset",
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:ecc3041c3f0d9fdf7830c384cd67485cbe9d43c77e1d890baf04ed5cd3568b82",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "sichuan-shaanxi-comparison",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "single-number-analysis",
+      "name": "single-number-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "single_number_profile",
+        "number_risk_analysis",
+        "local_relation_analysis",
+        "behavior_profile"
+      ],
+      "input_types": [
+        "user_id",
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/single-number-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/single-number-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:0d65622b914c51b5a288dd29e8a6911130e4f40b708eead4fcaf2e6cb84952da",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "single-number-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "subgraph-extraction-analysis",
+      "name": "subgraph-extraction-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "subgraph_extraction",
+        "local_network",
+        "ego_graph",
+        "bridge_node",
+        "key_node"
+      ],
+      "input_types": [
+        "user_id",
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/subgraph-extraction-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/subgraph-extraction-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:9b57c7aada4a6de4427e89011dbb083d85dfcb3b52e7d1097ca14840652419d3",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "subgraph-extraction-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "time-series-anomaly-analysis",
+      "name": "time-series-anomaly-analysis",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "time_series_anomaly",
+        "temporal_trend",
+        "night_behavior_change",
+        "activity_spike"
+      ],
+      "input_types": [
+        "user_id",
+        "user_id_list",
+        "dataset_root",
+        "call_edges.csv"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/time-series-anomaly-analysis/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/time-series-anomaly-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:0abeaa5c6ae9e401b391988119e72517e4a09653dc0e0db5c23e8ecb58f3de72",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "time-series-anomaly-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "topn-high-risk-discovery",
+      "name": "topn-high-risk-discovery",
+      "scenes": [
+        "phone_network"
+      ],
+      "is_public": false,
+      "task_types": [
+        "topn_risk_discovery",
+        "risk_scoring",
+        "suspicious_number_ranking",
+        "key_object_discovery"
+      ],
+      "input_types": [
+        "dataset_root",
+        "user_nodes.csv",
+        "call_edges.csv",
+        "edges_phone_imei.parquet"
+      ],
+      "router_card_path": "skills/custom/phone-network-analysis/topn-high-risk-discovery/router_card.json",
+      "skill_md_path": "skills/custom/phone-network-analysis/topn-high-risk-discovery/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:4320427fdc9e803052b5c6897368d31a4cb7cd24fda614b12ad50284c78b7a5a",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "topn-high-risk-discovery",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-contract-review",
+      "name": "china-contract-review",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "contract_review",
+        "clause_review",
+        "contract_risk_identification",
+        "contract_validity_review",
+        "rights_obligations_review",
+        "breach_clause_review",
+        "dispute_resolution_clause_review",
+        "guarantee_security_clause_review",
+        "contract_revision_suggestion",
+        "clause_rewrite"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "contract_text",
+        "clause_text"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-contract-review/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-contract-review/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-contract-review",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-legal-consultation",
+      "name": "china-legal-consultation",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_consultation",
+        "legal_relationship_explanation",
+        "risk_reminder",
+        "rights_protection_guidance",
+        "evidence_suggestion",
+        "practical_legal_advice",
+        "case_type_identification",
+        "initial_legal_assessment"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_description",
+        "legal_problem_description"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-legal-consultation/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-legal-consultation/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-legal-consultation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-legal-issue-analysis",
+      "name": "china-legal-issue-analysis",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_issue_analysis",
+        "dispute_analysis",
+        "case_type_identification",
+        "legal_relationship_analysis",
+        "claim_basis_analysis",
+        "defense_analysis",
+        "issue_spotting",
+        "risk_assessment",
+        "litigation_arbitration_positioning",
+        "action_planning",
+        "checklist_generation",
+        "legal_citation_verification"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_description",
+        "legal_opinion"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-legal-issue-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-legal-issue-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-legal-issue-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "chinese-policy-analysis",
+      "name": "chinese-policy-analysis",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "policy_analysis",
+        "policy_interpretation",
+        "policy_implementation_assessment",
+        "policy_execution_likelihood",
+        "policy_trend_prediction",
+        "policy_impact_assessment",
+        "policy_strength_assessment",
+        "policy_signal_analysis",
+        "government_policy_reasoning"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "policy_document",
+        "policy_excerpt",
+        "policy_question"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/chinese-policy-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/chinese-policy-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "chinese-policy-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "code2patent",
+      "name": "code2patent",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "code_to_patent",
+        "patent_disclosure_generation",
+        "software_patent_drafting",
+        "technical_disclosure_drafting",
+        "claim_layout_generation",
+        "claim_evidence_mapping",
+        "patentable_solution_mining",
+        "code_evidence_extraction",
+        "invention_patent_draft_generation",
+        "patent_draft_self_check"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "docx",
+        "pdf",
+        "code",
+        "source_code",
+        "project_directory",
+        "repository",
+        "prd",
+        "technical_document",
+        "patent_idea_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/code2patent/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/code2patent/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "code2patent",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "law-local-retrieval",
+      "name": "law-local-retrieval",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "law_retrieval",
+        "policy_retrieval",
+        "legal_basis_retrieval",
+        "article_retrieval",
+        "regulation_article_search",
+        "enforcement_basis_search",
+        "compliance_reference_search",
+        "validity_status_search",
+        "metadata_filtered_search",
+        "policy_report_legal_basis_support"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "law_name",
+        "article_no",
+        "metadata_filter"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/law-local-retrieval/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/law-local-retrieval/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "law-local-retrieval",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-briefing",
+      "name": "legal-briefing",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_briefing",
+        "legal_memo_generation",
+        "legal_material_organization",
+        "legal_summary",
+        "legal_report_generation",
+        "risk_note_generation",
+        "compliance_briefing",
+        "rule_comparison",
+        "legal_analysis_rewriting",
+        "role_based_legal_output"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "retrieved_legal_materials",
+        "statute_excerpt",
+        "case_summary",
+        "policy_excerpt",
+        "analysis_result",
+        "legal_basis_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-briefing/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-briefing/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-briefing",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-document-assistant",
+      "name": "legal-document-assistant",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_document_template",
+        "legal_document_drafting_guidance",
+        "document_clause_explanation",
+        "personalized_template_adaptation",
+        "dispute_document_guidance",
+        "labor_arbitration_document",
+        "divorce_agreement_guidance",
+        "traffic_accident_claim_document",
+        "rental_agreement_guidance",
+        "demand_letter_guidance"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "legal_problem_description",
+        "document_request",
+        "template_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-document-assistant/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-document-assistant/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-document-assistant",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-proposal-generator",
+      "name": "legal-proposal-generator",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_service_document_generation",
+        "litigation_proposal_generation",
+        "consultation_report_generation",
+        "non_litigation_proposal_generation",
+        "legal_service_proposal_generation",
+        "client_communication_report_generation",
+        "internal_communication_report_generation",
+        "case_analysis_summary_generation",
+        "case_material_structuring",
+        "communication_record_summarization"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_materials",
+        "communication_record",
+        "consultation_record",
+        "evidence_materials",
+        "project_background",
+        "meeting_notes"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-proposal-generator/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-proposal-generator/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-proposal-generator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-qa-extractor",
+      "name": "legal-qa-extractor",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_qa_extraction",
+        "consultation_record_structuring",
+        "legal_knowledge_base_generation",
+        "client_conversation_anonymization",
+        "legal_faq_generation",
+        "legal_content_marketing_material",
+        "qa_classification",
+        "legal_dialogue_summarization"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "docx",
+        "pdf",
+        "chat_record",
+        "consultation_record",
+        "communication_record",
+        "transcript",
+        "meeting_notes"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-qa-extractor/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-qa-extractor/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-qa-extractor",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-text-format",
+      "name": "legal-text-format",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_text_formatting",
+        "legal_article_markdown_formatting",
+        "legal_case_markdown_formatting",
+        "legal_text_cleanup",
+        "legal_document_normalization",
+        "case_text_cleanup",
+        "statute_text_cleanup",
+        "markdown_conversion",
+        "legal_text_archive"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "legal_article_text",
+        "legal_case_text",
+        "judgment_text",
+        "retrieved_text",
+        "pasted_text",
+        "local_file"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-text-format/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-text-format/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-text-format",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "litigation-analysis",
+      "name": "litigation-analysis",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "litigation_analysis",
+        "judgment_analysis",
+        "first_instance_judgment_analysis",
+        "second_instance_judgment_analysis",
+        "appeal_retrial_decision_support",
+        "complaint_evidence_analysis",
+        "hearing_transcript_analysis",
+        "litigation_strategy_assessment",
+        "case_fact_extraction",
+        "court_reasoning_analysis",
+        "client_case_overview_generation"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "judgment",
+        "complaint",
+        "appeal_petition",
+        "defense_statement",
+        "hearing_transcript",
+        "evidence_materials",
+        "litigation_document"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/litigation-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/litigation-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "litigation-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "official-document-writer",
+      "name": "official-document-writer",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "official_document_drafting",
+        "official_document_polishing",
+        "official_document_revision",
+        "request_document_drafting",
+        "report_document_drafting",
+        "briefing_material_drafting",
+        "formal_chinese_document_writing",
+        "policy_grounded_document_writing",
+        "document_export"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "policy_materials",
+        "draft_text",
+        "background_materials",
+        "official_document_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/official-document-writer/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/official-document-writer/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "official-document-writer",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "patent-analysis",
+      "name": "patent-analysis",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "patent_analysis",
+        "claim_analysis",
+        "technical_feature_extraction",
+        "patent_scope_analysis",
+        "patent_infringement_comparison",
+        "fto_analysis",
+        "validity_analysis",
+        "invalidity_risk_assessment",
+        "design_around_analysis",
+        "patent_valuation",
+        "multi_patent_comparison",
+        "patent_portfolio_analysis"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "pdf",
+        "docx",
+        "patent_document",
+        "claim_text",
+        "specification_text",
+        "product_description",
+        "prior_art",
+        "patent_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/patent-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/patent-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "patent-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "policy-rag",
+      "name": "policy-rag",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "enterprise_policy_rag",
+        "internal_policy_document_split",
+        "approval_excel_conversion",
+        "policy_index_building",
+        "policy_index_rebuilding",
+        "policy_clause_retrieval",
+        "approval_flow_retrieval",
+        "approval_path_search",
+        "internal_policy_qa",
+        "script_driven_policy_processing"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "doc",
+        "docx",
+        "xlsx",
+        "xls",
+        "csv",
+        "enterprise_policy_document",
+        "approval_table",
+        "approval_matrix",
+        "approval_flow_table",
+        "query"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/policy-rag/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/policy-rag/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "policy-rag",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "trademark-assistant",
+      "name": "trademark-assistant",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "trademark_consultation",
+        "trademark_class_planning",
+        "registrability_prescreen",
+        "trademark_risk_assessment",
+        "trademark_application_material_preparation",
+        "goods_list_generation",
+        "trademark_description_drafting",
+        "nice_classification_lookup",
+        "trademark_application_strategy"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "image",
+        "trademark_name",
+        "trademark_design",
+        "business_description",
+        "goods_services_description",
+        "target_class"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/trademark-assistant/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/trademark-assistant/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "trademark-assistant",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "wechat-article-fetch",
+      "name": "wechat-article-fetch",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "wechat_article_fetch",
+        "wechat_content_extraction",
+        "article_markdown_save",
+        "article_image_download",
+        "wechat_legal_article_fetch",
+        "dynamic_page_fetch",
+        "content_archiving",
+        "markdown_article_generation"
+      ],
+      "input_types": [
+        "text",
+        "url",
+        "wechat_url",
+        "wechat_article_id",
+        "output_path"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/wechat-article-fetch/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/wechat-article-fetch/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "wechat-article-fetch",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "wechat-article-search",
+      "name": "wechat-article-search",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "wechat_article_search",
+        "wechat_post_search",
+        "public_account_article_search",
+        "keyword_based_wechat_search",
+        "wechat_article_collection",
+        "wechat_article_summary_list",
+        "structured_article_search"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "keyword",
+        "public_account_name",
+        "search_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/wechat-article-search/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/wechat-article-search/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "wechat-article-search",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "yuandian-law-search",
+      "name": "yuandian-law-search",
+      "scenes": [
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "law_article_search",
+        "law_article_detail",
+        "legal_basis_retrieval",
+        "case_keyword_search",
+        "case_semantic_search",
+        "case_detail_retrieval",
+        "authoritative_case_search",
+        "regulation_search",
+        "regulation_detail_retrieval",
+        "enterprise_search",
+        "enterprise_detail_retrieval",
+        "legal_retrieval_archive"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "law_name",
+        "article_no",
+        "case_keyword",
+        "case_description",
+        "case_number",
+        "regulation_name",
+        "enterprise_name",
+        "credit_code"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/yuandian-law-search/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/yuandian-law-search/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "yuandian-law-search",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "building-footprint-extraction",
+      "name": "building-footprint-extraction",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "building_footprint_extraction",
+        "building_area_statistics",
+        "illegal_construction_screening",
+        "geojson_export"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/building-footprint-extraction/router_card.json",
+      "skill_md_path": "5-21remote-sensing/building-footprint-extraction/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7701d734dd66a330d5afcad66f2c473812828aabae0f9748c219eeec6523c1e8",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "building-footprint-extraction",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "disaster-risk-assessment",
+      "name": "disaster-risk-assessment",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "flood_risk_assessment",
+        "landslide_susceptibility",
+        "wildfire_risk_assessment",
+        "exposure_vulnerability_analysis",
+        "shelter_planning"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile",
+        "csv",
+        "netcdf"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/disaster-risk-assessment/router_card.json",
+      "skill_md_path": "5-21remote-sensing/disaster-risk-assessment/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:07a26c8aecf34c66b49510d802fb0941db6a5961bd78953c68304dbdd6b09b87",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "disaster-risk-assessment",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "flood-risk-mapping",
+      "name": "flood-risk-mapping",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "flood_risk_mapping",
+        "ndwi_water_extraction",
+        "dem_elevation_analysis",
+        "risk_zone_classification",
+        "governance_report"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/flood-risk-mapping/router_card.json",
+      "skill_md_path": "5-21remote-sensing/flood-risk-mapping/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:67983bb080d3059b838bceb8c9ad03e7d31a64e8d719ac6e95c0758b39aff1b5",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "flood-risk-mapping",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "green-space-monitoring",
+      "name": "green-space-monitoring",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "green_space_change_monitoring",
+        "ndvi_evi_calculation",
+        "vegetation_loss_detection",
+        "green_area_statistics",
+        "governance_report"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/green-space-monitoring/router_card.json",
+      "skill_md_path": "5-21remote-sensing/green-space-monitoring/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:15b3014a01217649832b6aa68e475cbeb1c8c9346cae1dc11a5079c064add15d",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "green-space-monitoring",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "illegal-dumping-detection",
+      "name": "illegal-dumping-detection",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "illegal_dumping_detection",
+        "bare_soil_index",
+        "suspect_site_extraction",
+        "priority_ranking",
+        "enforcement_report"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/illegal-dumping-detection/router_card.json",
+      "skill_md_path": "5-21remote-sensing/illegal-dumping-detection/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:b99a3aef97ebe41d420dd9bd683fe0c5093d5b4eacea8125e5d397ab19d4bbdc",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "illegal-dumping-detection",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "impervious-surface-mapping",
+      "name": "impervious-surface-mapping",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "impervious_surface_extraction",
+        "ndbi_calculation",
+        "coverage_ratio_statistics",
+        "waterlogging_support",
+        "geojson_export"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/impervious-surface-mapping/router_card.json",
+      "skill_md_path": "5-21remote-sensing/impervious-surface-mapping/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:600c1deeb85f6ebf38403ade594d5afeb9a8dfc6e20e869b1aa6390720e1680a",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "impervious-surface-mapping",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "inspect-geo",
+      "name": "inspect-geo",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "file_inspection",
+        "raster_metadata",
+        "vector_metadata",
+        "crs_bounds_resolution",
+        "band_statistics",
+        "attribute_summary"
+      ],
+      "input_types": [
+        "geotiff",
+        "tiff",
+        "img",
+        "jp2",
+        "vrt",
+        "netcdf",
+        "hdf",
+        "geojson",
+        "json",
+        "shapefile",
+        "gpkg",
+        "geoparquet",
+        "fgb",
+        "kml"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/inspect-geo/router_card.json",
+      "skill_md_path": "5-21remote-sensing/inspect-geo/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:b2d61a7ca2b84e52d2aea52b35d42df9ca6eace46e69922737255c143a73fc96",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "inspect-geo",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "road-damage-assessment",
+      "name": "road-damage-assessment",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "road_damage_detection",
+        "texture_anomaly_analysis",
+        "severity_rating",
+        "road_health_scoring",
+        "maintenance_report"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/road-damage-assessment/router_card.json",
+      "skill_md_path": "5-21remote-sensing/road-damage-assessment/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:0be649efb97a2ab8cc3532d5398f940054282dddac8abb4ac2a1fcdb6e653eaa",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "road-damage-assessment",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "space-data-processing",
+      "name": "space-data-processing",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "satellite_image_processing",
+        "hyperspectral_processing",
+        "sar_insar_processing",
+        "radiometric_calibration",
+        "atmospheric_correction",
+        "machine_learning_remote_sensing"
+      ],
+      "input_types": [
+        "satellite_imagery",
+        "geotiff",
+        "hyperspectral_data",
+        "sar",
+        "insar",
+        "optical_imagery",
+        "natural_language"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/space-data-processing/router_card.json",
+      "skill_md_path": "5-21remote-sensing/space-data-processing/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:f67ac3beea683a8fa33db3c99bcf3b81f18522a96290dd08f93f05a89ab2b648",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "space-data-processing",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "urban-change-detection",
+      "name": "urban-change-detection",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "multi_temporal_change_detection",
+        "illegal_construction_screening",
+        "dumping_change_detection",
+        "land_use_conversion_detection",
+        "priority_reporting"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/urban-change-detection/router_card.json",
+      "skill_md_path": "5-21remote-sensing/urban-change-detection/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:26f5e5072903b58a804d9b237883449bf02190e988b5da1a5f652220fa0c53ab",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "urban-change-detection",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "urban-expansion-analysis",
+      "name": "urban-expansion-analysis",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "urban_expansion_analysis",
+        "lulc_transition_matrix",
+        "expansion_intensity_index",
+        "growth_pattern_classification",
+        "scenario_projection"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "csv",
+        "json"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/urban-expansion-analysis/router_card.json",
+      "skill_md_path": "5-21remote-sensing/urban-expansion-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:99bb1be9d37d60c3be894ce200f4f3dc617610f2cf46bec90b1cf0cccd65fcba",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "urban-expansion-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "urban-greenspace-assessment",
+      "name": "urban-greenspace-assessment",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "greenspace_coverage_assessment",
+        "landscape_metrics",
+        "ecological_corridor_detection",
+        "service_accessibility",
+        "per_capita_green_analysis"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile",
+        "csv"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/urban-greenspace-assessment/router_card.json",
+      "skill_md_path": "5-21remote-sensing/urban-greenspace-assessment/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:341a110d285cb599a1ed6ecddc4d51d46f4dc54ac3a6358c314e78f7e5803921",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "urban-greenspace-assessment",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "urban-heat-assessment",
+      "name": "urban-heat-assessment",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "lst_retrieval",
+        "urban_heat_island_assessment",
+        "heat_risk_zoning",
+        "cooling_potential_identification",
+        "trend_analysis"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile",
+        "csv"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/urban-heat-assessment/router_card.json",
+      "skill_md_path": "5-21remote-sensing/urban-heat-assessment/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:f11dda0bf14d63ce8dcbad4b14fef85fd250eba8a62e99bbd67c7337a3dd213b",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "urban-heat-assessment",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "water-quality-monitoring",
+      "name": "water-quality-monitoring",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "water_parameter_retrieval",
+        "chl_a_tss_turbidity_inversion",
+        "pollution_anomaly_detection",
+        "hotspot_outfall_identification",
+        "temporal_trend_report"
+      ],
+      "input_types": [
+        "geotiff",
+        "geojson",
+        "shapefile",
+        "json"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/water-quality-monitoring/router_card.json",
+      "skill_md_path": "5-21remote-sensing/water-quality-monitoring/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:5399f723046cf2e5e84fab7a5f0ebbaae9b398730e7626e91b4754fe48d3ad1e",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "water-quality-monitoring",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "write-proposal",
+      "name": "write-proposal",
+      "scenes": [
+        "remote_sensing_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "technical_proposal_writing",
+        "remote_sensing_solution_generation",
+        "space_air_ground_monitoring_plan",
+        "platform_architecture_design",
+        "docx_generation"
+      ],
+      "input_types": [
+        "natural_language",
+        "markdown",
+        "template"
+      ],
+      "router_card_path": "skills/custom/remote_sensing_image/write-proposal/router_card.json",
+      "skill_md_path": "5-21remote-sensing/write-proposal/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:f9fb2b092d4957dca9a57c3db2a384ab6b01884fc7909e3d01835effa35591ec",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "write-proposal",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "road-traffic-analysis",
+      "name": "road-traffic-analysis",
+      "scenes": [
+        "road_traffic"
+      ],
+      "is_public": false,
+      "task_types": [
+        "realtime_traffic_query",
+        "route_planning",
+        "road_weather_query",
+        "geocoding",
+        "around_traffic_query",
+        "csv_traffic_analysis",
+        "traffic_forecasting",
+        "traffic_anomaly_detection",
+        "traffic_report_rag"
+      ],
+      "input_types": [
+        "text",
+        "address",
+        "coordinates",
+        "csv",
+        "xlsx",
+        "json"
+      ],
+      "router_card_path": "skills/custom/road-traffic-analysis/router_card.json",
+      "skill_md_path": "skills/custom/road-traffic-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:0458aad0c4f8624504243735d3b8d242d3cc8059463f1debaea0c11ddb975662",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "road-traffic-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "location-matcher",
+      "name": "location-matcher",
+      "scenes": [
+        "street_view_image"
+      ],
+      "is_public": false,
+      "task_types": [
+        "street_view_location_matching",
+        "image_to_location",
+        "place_description_search",
+        "geocoding",
+        "reverse_geocoding"
+      ],
+      "input_types": [
+        "image",
+        "jpg",
+        "jpeg",
+        "png",
+        "text",
+        "address",
+        "coordinates"
+      ],
+      "router_card_path": "skills/custom/street_view_image/location-matcher/router_card.json",
+      "skill_md_path": "skills/custom/location-matcher/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:4a5610af35874c531f1daf8453320747ff981d8e728c27f609964406c51e4c62",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "location-matcher",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "analyze-video",
+      "name": "analyze-video",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "video_analysis",
+        "scene_detection",
+        "frame_review",
+        "incident_timeline",
+        "forensic_report"
+      ],
+      "input_types": [
+        "mp4",
+        "mov",
+        "avi",
+        "mkv",
+        "video_path"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/analyze-video/router_card.json",
+      "skill_md_path": "skills/custom/analyze-video/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:31d905c7a10ff7487f4417cea95144f1496daa842c4c4ca7ab39f0369ec2a39a",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "analyze-video",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "camera-health-check",
+      "name": "camera-health-check",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "camera_health_check",
+        "quality_gate"
+      ],
+      "input_types": [
+        "frames_json",
+        "camera_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/camera-health-check/router_card.json",
+      "skill_md_path": "skills/custom/camera-health-check/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:a658e18c0acb9da940efce60c7c8fa0882a7a2152c3ed4a42e8fb3af06aefc81",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "camera-health-check",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "density-aggregation-event",
+      "name": "density-aggregation-event",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "density_detection",
+        "aggregation_detection",
+        "crowd_counting"
+      ],
+      "input_types": [
+        "tracks_json",
+        "roi_matches_json",
+        "method_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/density-aggregation-event/router_card.json",
+      "skill_md_path": "skills/custom/density-aggregation-event/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7c4b66d1c2ba6de01dc4614cec690d0f2eb73ad084e9825ee859df6f6388f207",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "density-aggregation-event",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "duplicate-event-merge",
+      "name": "duplicate-event-merge",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "duplicate_event_merge",
+        "event_deduplication"
+      ],
+      "input_types": [
+        "events_json"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/duplicate-event-merge/router_card.json",
+      "skill_md_path": "skills/custom/duplicate-event-merge/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:fca9756f018ddaf00eeb2d70fff82b9d09989c78ad66f7370c244429a63c18b6",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "duplicate-event-merge",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "event-rule-engine",
+      "name": "event-rule-engine",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "event_rule_engine",
+        "event_candidate_generation"
+      ],
+      "input_types": [
+        "frames_json",
+        "detections_json",
+        "tracks_json",
+        "roi_matches_json",
+        "event_templates"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/event-rule-engine/router_card.json",
+      "skill_md_path": "skills/custom/event-rule-engine/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:6043ec9ece32472179f9376ba583e53f6093f9f7a1027a8240672ac4a42338cd",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "event-rule-engine",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "event-template-mapping",
+      "name": "event-template-mapping",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "event_template_mapping",
+        "event_candidate_scoring"
+      ],
+      "input_types": [
+        "method_results_json",
+        "template_config",
+        "camera_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/event-template-mapping/router_card.json",
+      "skill_md_path": "skills/custom/event-template-mapping/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:cff9cd4df8bc6a7c539cc2238060c1ef66bb2374e473f780cf41551ea692e0f1",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "event-template-mapping",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "evidence-snapshot",
+      "name": "evidence-snapshot",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "evidence_snapshot",
+        "snapshot_export"
+      ],
+      "input_types": [
+        "event_json",
+        "frames_json",
+        "image_uri"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/evidence-snapshot/router_card.json",
+      "skill_md_path": "skills/custom/evidence-snapshot/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:c953b1c931d08218d545684dd2127204053afd1e5a1b3f9e3d6089202199aa9d",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "evidence-snapshot",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "ffmpeg-utils",
+      "name": "ffmpeg-utils",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "video_clip",
+        "keyframe_extract",
+        "ffmpeg_processing"
+      ],
+      "input_types": [
+        "video_path",
+        "time_range"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/ffmpeg-utils/router_card.json",
+      "skill_md_path": "skills/custom/ffmpeg-utils/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:017ae463685f76b0ffc4a08bb3940ceeb60c5c1bcf4e0657239f568dec2861df",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "ffmpeg-utils",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "frame-sampling",
+      "name": "frame-sampling",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "frame_sampling",
+        "frame_schema_generation"
+      ],
+      "input_types": [
+        "raw_segment_uri",
+        "video_path",
+        "frame_records"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/frame-sampling/router_card.json",
+      "skill_md_path": "skills/custom/frame-sampling/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:c046c8a8f07f6547786247903a0826e7bbb204143a9b3a9adaca8cb7b2bcda2c",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "frame-sampling",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "human-review-routing",
+      "name": "human-review-routing",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "human_review_routing",
+        "review_queue_decision"
+      ],
+      "input_types": [
+        "event_json",
+        "camera_health_json",
+        "review_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/human-review-routing/router_card.json",
+      "skill_md_path": "skills/custom/human-review-routing/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:dbecd9091f8cf3fe7893ea7447c3ed2f74bd1bd3556c7ced195d38e8dbf4c9b4",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "human-review-routing",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "object-composition-event",
+      "name": "object-composition-event",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "multi_object_composition_detection"
+      ],
+      "input_types": [
+        "detections_json",
+        "tracks_json",
+        "roi_matches_json",
+        "method_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/object-composition-event/router_card.json",
+      "skill_md_path": "skills/custom/object-composition-event/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:3d9dc5251b58f469c0003f5877dd5b03721732ac4551ae28cccefc57ef63ad00",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "object-composition-event",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "object-detection",
+      "name": "object-detection",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "object_detection",
+        "bbox_detection"
+      ],
+      "input_types": [
+        "frames_json",
+        "image_frames",
+        "labels"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/object-detection/router_card.json",
+      "skill_md_path": "skills/custom/object-detection/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:3429e458c635df5af57692177fd6d54511b1254b2aff8386d757254a5a9b5873",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "object-detection",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "object-tracking",
+      "name": "object-tracking",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "object_tracking",
+        "trajectory_analysis"
+      ],
+      "input_types": [
+        "detections_json",
+        "frames_json",
+        "camera_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/object-tracking/router_card.json",
+      "skill_md_path": "skills/custom/object-tracking/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7889ecf9f4e16b4388160f528c1695d9190093393bd2ed808aa1fb949c02a64f",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "object-tracking",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "privacy-masking",
+      "name": "privacy-masking",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "privacy_masking",
+        "sensitive_region_blur"
+      ],
+      "input_types": [
+        "evidence_image_uri",
+        "sensitive_regions",
+        "privacy_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/privacy-masking/router_card.json",
+      "skill_md_path": "skills/custom/privacy-masking/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7773d334a8413da9f7cdcc60b0141cbd781fe42c083e314b41a8556eed2ef756",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "privacy-masking",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "roi-mapping",
+      "name": "roi-mapping",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "roi_mapping",
+        "spatial_match"
+      ],
+      "input_types": [
+        "tracks_json",
+        "detections_json",
+        "roi_config",
+        "camera_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/roi-mapping/router_card.json",
+      "skill_md_path": "skills/custom/roi-mapping/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:d13532ba1611de34e8530877fcef50674c7d3f14d275351cff0b119656fb52dd",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "roi-mapping",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "spatial-occupancy-event",
+      "name": "spatial-occupancy-event",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "spatial_occupancy_detection"
+      ],
+      "input_types": [
+        "roi_matches_json",
+        "tracks_json",
+        "method_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/spatial-occupancy-event/router_card.json",
+      "skill_md_path": "skills/custom/spatial-occupancy-event/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:74d945b89f971be055f7930c667498bf11c46c0d82489113eb9c3a16cc181d86",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "spatial-occupancy-event",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "temporal-persistence-event",
+      "name": "temporal-persistence-event",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "temporal_persistence_detection"
+      ],
+      "input_types": [
+        "tracks_json",
+        "method_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/temporal-persistence-event/router_card.json",
+      "skill_md_path": "skills/custom/temporal-persistence-event/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:114724124c9eee98e657382c19dcf3448213b5ce5c471f9439ebe2fa522c47f7",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "temporal-persistence-event",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "video-segment-extraction",
+      "name": "video-segment-extraction",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "video_clip_extraction",
+        "evidence_clip"
+      ],
+      "input_types": [
+        "raw_segment_uri",
+        "event_time",
+        "event_elapsed_seconds",
+        "event_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/video-segment-extraction/router_card.json",
+      "skill_md_path": "skills/custom/video-segment-extraction/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:0f3c96bba0569417ba7d1e9e12f954ed5f199cbb8590f01173bd9eb16cedc093",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "video-segment-extraction",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "video-stream-ingestion",
+      "name": "video-stream-ingestion",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "stream_ingestion",
+        "video_source_normalization",
+        "camera_session_metadata"
+      ],
+      "input_types": [
+        "rtsp_url",
+        "gb28181",
+        "platform_api",
+        "local_video",
+        "mock_source"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/video-stream-ingestion/router_card.json",
+      "skill_md_path": "skills/custom/video-stream-ingestion/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:bd5dcdbfc3fdfa665761252ec95b723112edf2c551cb57935e5c2c2031c8615c",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "video-stream-ingestion",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "bootstrap",
@@ -82,7 +2384,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:58050df8e06152bc472500bcd282c5da75dabc6e2e464b9efe1ac2fea7e78365",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "bootstrap"
+      "es_doc_id": "bootstrap",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "chart-visualization",
@@ -103,9 +2409,13 @@
       "router_card_path": "skills/public/chart-visualization/router_card.json",
       "skill_md_path": "skills/public/chart-visualization/SKILL.md",
       "enabled": true,
-      "routing_text_hash": "sha256:7fac295083fab67d466fd67fd39983a7ceb2283d70a03cdbdcf4e2f92bc9c639",
+      "routing_text_hash": "sha256:50ff76cafb74506e075c46082c7ba20fecd5a39272546678f28a10376468b9f6",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "chart-visualization"
+      "es_doc_id": "chart-visualization",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "claude-to-deerflow",
@@ -121,7 +2431,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:88492981a5cfd22106301857a9cea3570e8363c4916dad68b4fd32d110ac0517",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "claude-to-deerflow"
+      "es_doc_id": "claude-to-deerflow",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "consulting-analysis",
@@ -137,7 +2451,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:6bfebb369b03ac4fb507c193bfa1fe6cd6b93be64d8a527ad675a9cb34767038",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "consulting-analysis"
+      "es_doc_id": "consulting-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "data-analysis",
@@ -162,7 +2480,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:cb65d1e992116ba7ea5028b2364713fcc811595b19b998cdf6a262de5e9eac99",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "data-analysis"
+      "es_doc_id": "data-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "deep-research",
@@ -178,7 +2500,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:137ea4876ff08baae200597bca2832ba8be134474674b32bd479ed44de56ffd4",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "deep-research"
+      "es_doc_id": "deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "find-skills",
@@ -194,7 +2520,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:c777270134454b83f4de816a8708e615019a36bfe440c6b7608fc89711c9b1ea",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "find-skills"
+      "es_doc_id": "find-skills",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "frontend-design",
@@ -210,7 +2540,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:1aeb0dccd8ba9d59e70f0a0c093c9477fd6f13105b978f3b1602723d45d3fc75",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "frontend-design"
+      "es_doc_id": "frontend-design",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "github-deep-research",
@@ -226,7 +2560,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:7350bdc60b576076e883415af7d14cd6e14ba943dfe86a7e7adc044eb105484e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "github-deep-research"
+      "es_doc_id": "github-deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "image-generation",
@@ -242,7 +2580,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ec4705e895c1e8c1539d3dea7c7024b017739bd753288e3333c9dc9981449673",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "image-generation"
+      "es_doc_id": "image-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "podcast-generation",
@@ -258,7 +2600,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:985b0ce64112878c14a2566e4474b451eaedfa5ef631c685cebee1156c5cf534",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "podcast-generation"
+      "es_doc_id": "podcast-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "ppt-generation",
@@ -274,7 +2620,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ed40888f4f9a40d34a743d1023a5d6259de48a6493ff1d92ee559c02461a1b3a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "ppt-generation"
+      "es_doc_id": "ppt-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "skill-creator",
@@ -290,7 +2640,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:a4d3f6179bb69d3b1ba8f7b58effe328d53f1f0b3d971c599c7ab8028b47af2a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "skill-creator"
+      "es_doc_id": "skill-creator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "surprise-me",
@@ -306,7 +2660,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:0e3ed0764bcacb39f519779bb1fd1ab945d3f46cc20cd059f9eac0078d0c164d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "surprise-me"
+      "es_doc_id": "surprise-me",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "vercel-deploy-claimable",
@@ -322,7 +2680,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:97de0cfee98a52ad4f49ea7154a78d399971b4e437766b670741d138f0cf267e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "vercel-deploy-claimable"
+      "es_doc_id": "vercel-deploy-claimable",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "video-generation",
@@ -338,7 +2700,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ee5b92bf908687c9f8d3c1adc5d269a57911125b803182e2bf641815ec40129f",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "video-generation"
+      "es_doc_id": "video-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     },
     {
       "id": "web-design-guidelines",
@@ -354,7 +2720,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ae08d2e251ddf5b9994ab5ad300356c034af39742135dc50378f06fb75194599",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "web-design-guidelines"
+      "es_doc_id": "web-design-guidelines",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-24T14:00:57.873100+00:00",
+      "last_router_error": null
     }
   ]
 }

@@ -9,6 +9,7 @@ without losing the stable base system prompt.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 try:
@@ -22,13 +23,16 @@ from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
 from deerflow.models import create_chat_model
+from deerflow.routing.dialogue_act import classify_dialogue_act
 from deerflow.routing.intent import (
+    RoutingIntentResult,
     aclassify_routing_intent_with_llm,
     classify_routing_intent_with_llm,
     load_scene_templates,
 )
 
 logger = logging.getLogger(__name__)
+_UPLOAD_BLOCK_RE = re.compile(r"<uploaded_files>[\s\S]*?</uploaded_files>\s*", re.IGNORECASE)
 
 
 class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
@@ -45,9 +49,43 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         prepared = self._prepare_input(state, runtime)
         if prepared is None:
             return None
-        query, frontend_ids, uploaded_files, previous_intent = prepared
+        query, frontend_ids, uploaded_files, previous_intent, pending_action, source_message_key = prepared
+
+        if self._same_source(previous_intent, source_message_key):
+            logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
+            return None
 
         llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        previous_routing = state.get("routing_context")
+        if not isinstance(previous_routing, dict):
+            previous_routing = None
+        dialogue = classify_dialogue_act(
+            query,
+            pending_action=pending_action,
+            previous_intent_context=previous_intent,
+            previous_routing_context=previous_routing,
+            llm=llm,
+        )
+        if dialogue.act in {"clarification_answer", "parameter_update", "task_followup"}:
+            intent = self._resume_intent_from_dialogue(query, dialogue.resume_intent_context)
+            self._log_intent(intent, query)
+            return {
+                "dialogue_context": dialogue.__dict__,
+                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True),
+                "pending_action": None,
+            }
+        if dialogue.act == "chitchat":
+            intent = RoutingIntentResult(
+                intent="chitchat",
+                original_query=query,
+                normalized_query=query.strip(),
+                routing_query=query.strip(),
+                confidence=dialogue.confidence,
+                reason=dialogue.reason,
+            )
+            self._log_intent(intent, query)
+            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+
         intent = classify_routing_intent_with_llm(
             query,
             llm=llm,
@@ -57,16 +95,50 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             previous_intent=previous_intent,
         )
         self._log_intent(intent, query)
-        return {"intent_context": intent.model_dump()}
+        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
 
     @override
     async def abefore_agent(self, state: ThreadState, runtime: Runtime) -> dict[str, Any] | None:
         prepared = self._prepare_input(state, runtime)
         if prepared is None:
             return None
-        query, frontend_ids, uploaded_files, previous_intent = prepared
+        query, frontend_ids, uploaded_files, previous_intent, pending_action, source_message_key = prepared
+
+        if self._same_source(previous_intent, source_message_key):
+            logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
+            return None
 
         llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        previous_routing = state.get("routing_context")
+        if not isinstance(previous_routing, dict):
+            previous_routing = None
+        dialogue = classify_dialogue_act(
+            query,
+            pending_action=pending_action,
+            previous_intent_context=previous_intent,
+            previous_routing_context=previous_routing,
+            llm=llm,
+        )
+        if dialogue.act in {"clarification_answer", "parameter_update", "task_followup"}:
+            intent = self._resume_intent_from_dialogue(query, dialogue.resume_intent_context)
+            self._log_intent(intent, query)
+            return {
+                "dialogue_context": dialogue.__dict__,
+                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True),
+                "pending_action": None,
+            }
+        if dialogue.act == "chitchat":
+            intent = RoutingIntentResult(
+                intent="chitchat",
+                original_query=query,
+                normalized_query=query.strip(),
+                routing_query=query.strip(),
+                confidence=dialogue.confidence,
+                reason=dialogue.reason,
+            )
+            self._log_intent(intent, query)
+            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+
         intent = await aclassify_routing_intent_with_llm(
             query,
             llm=llm,
@@ -76,17 +148,17 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             previous_intent=previous_intent,
         )
         self._log_intent(intent, query)
-        return {"intent_context": intent.model_dump()}
+        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
 
     def _prepare_input(
         self,
         state: ThreadState,
         runtime: Runtime,
-    ) -> tuple[str, list[str] | None, list[dict], dict[str, Any] | None] | None:
+    ) -> tuple[str, list[str] | None, list[dict], dict[str, Any] | None, dict[str, Any] | None, str] | None:
         messages = state.get("messages") or []
         last_user_msg = None
         for msg in reversed(messages):
-            if isinstance(msg, HumanMessage):
+            if isinstance(msg, HumanMessage) and not self._is_internal_human_message(msg):
                 last_user_msg = msg
                 break
 
@@ -107,14 +179,19 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         previous_intent = state.get("intent_context")
         if not isinstance(previous_intent, dict):
             previous_intent = None
-        return query, frontend_ids if isinstance(frontend_ids, list) else None, uploaded_files, previous_intent
+        pending_action = state.get("pending_action")
+        if not isinstance(pending_action, dict):
+            pending_action = None
+        return query, frontend_ids if isinstance(frontend_ids, list) else None, uploaded_files, previous_intent, pending_action, self._source_message_key(last_user_msg, query)
 
     @staticmethod
     def _log_intent(intent: Any, query: str) -> None:
         logger.info(
-            "IntentRecognition: intent=%s scene=%s confidence=%.2f query=%r routing_query=%r",
+            "IntentRecognition: intent=%s scene=%s mode=%s tasks=%d confidence=%.2f query=%r routing_query=%r",
             intent.intent,
             intent.scene,
+            getattr(intent, "scene_mode", None),
+            len(getattr(intent, "scene_tasks", []) or []),
             intent.confidence,
             query[:80],
             intent.routing_query[:120],
@@ -124,7 +201,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
     def _extract_text(message: HumanMessage) -> str:
         content = message.content
         if isinstance(content, str):
-            return content
+            return _UPLOAD_BLOCK_RE.sub("", content).strip()
         if isinstance(content, list):
             parts: list[str] = []
             for block in content:
@@ -134,5 +211,64 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
                     text = getattr(block, "text", None)
                     if isinstance(text, str):
                         parts.append(text)
-            return "\n".join(parts)
-        return str(content) if content else ""
+            return _UPLOAD_BLOCK_RE.sub("", "\n".join(parts)).strip()
+        return _UPLOAD_BLOCK_RE.sub("", str(content)).strip() if content else ""
+
+    @staticmethod
+    def _is_internal_human_message(message: HumanMessage) -> bool:
+        additional_kwargs = getattr(message, "additional_kwargs", {}) or {}
+        if isinstance(additional_kwargs, dict):
+            if additional_kwargs.get("internal") is True:
+                return True
+            if additional_kwargs.get("message_type") in {"view_image_context", "routed_skill_prompt"}:
+                return True
+        name = getattr(message, "name", None)
+        return isinstance(name, str) and (
+            name.endswith("_guidance")
+            or name in {"todo_reminder", "routing_skill_guidance", "todo_routing_guidance"}
+        )
+
+    @staticmethod
+    def _source_message_key(message: HumanMessage, query: str) -> str:
+        message_id = getattr(message, "id", None)
+        if message_id:
+            return f"id:{message_id}"
+        return f"text:{query.strip()}"
+
+    @staticmethod
+    def _same_source(previous_context: dict[str, Any] | None, source_message_key: str) -> bool:
+        return isinstance(previous_context, dict) and previous_context.get("_source_message_key") == source_message_key
+
+    @staticmethod
+    def _dump_intent_context(
+        intent: RoutingIntentResult,
+        source_message_key: str,
+        *,
+        suppress_hidden_steps: bool = False,
+    ) -> dict[str, Any]:
+        data = intent.model_dump()
+        data["_source_message_key"] = source_message_key
+        if suppress_hidden_steps:
+            data["_suppress_hidden_steps"] = True
+        return data
+
+    @staticmethod
+    def _resume_intent_from_dialogue(query: str, previous_intent: dict[str, Any] | None) -> RoutingIntentResult:
+        if isinstance(previous_intent, dict):
+            try:
+                intent = RoutingIntentResult.model_validate(previous_intent)
+                intent.original_query = query
+                intent.normalized_query = query.strip()
+                intent.reason = "dialogue_act_clarification_answer"
+                intent.confidence = max(intent.confidence, 0.8)
+                return intent
+            except Exception:
+                pass
+        return RoutingIntentResult(
+            intent="chitchat",
+            original_query=query,
+            normalized_query=query.strip(),
+            routing_query=query.strip(),
+            confidence=1.0,
+            reason="dialogue_act_clarification_answer_without_resume_context",
+        )

@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "privacy-masking",
+    "name": "privacy-masking",
+    "description": "Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "privacy_masking",
+      "sensitive_region_blur"
+    ],
+    "input_types": [
+      "evidence_image_uri",
+      "sensitive_regions",
+      "privacy_config"
+    ],
+    "output_types": [
+      "masked_uri",
+      "privacy_masking_status"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：privacy-masking\n描述：Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files. 用户要求人脸打码、人脸脱敏、打码脱敏、隐私保护、生成打码后的证据图或脱敏后的证据图时应选择本 skill，通常与 analyze-video 和 evidence-snapshot 组合使用。\n适用场景：video_surveillance。\n适用任务：privacy_masking, sensitive_region_blur。\n输入类型：evidence_image_uri, sensitive_regions, privacy_config。\n输出类型：masked_uri, privacy_masking_status。\n适合使用：给人脸车牌打码；人脸打码脱敏；生成打码脱敏后的证据图；模糊敏感区域；证据图片隐私保护；遮盖手机号门牌号。\n不适合使用：生成原始证据截图；检测目标；视频剪辑；事件去重。",
+    "positive_triggers": [
+      "给人脸车牌打码",
+      "人脸打码脱敏",
+      "生成打码脱敏后的证据图",
+      "模糊敏感区域",
+      "证据图片隐私保护",
+      "遮盖手机号门牌号",
+      "对人脸打码脱敏",
+      "生成打码后的证据截图",
+      "生成打码后的证据图"
+    ],
+    "negative_triggers": [
+      "生成证据截图",
+      "检测目标",
+      "视频剪辑",
+      "事件去重",
+      "判断视频是否发生事件"
+    ],
+    "keywords": [
+      "privacy masking",
+      "face blur",
+      "license plate",
+      "sensitive_regions",
+      "打码",
+      "脱敏",
+      "人脸打码",
+      "人脸脱敏",
+      "打码脱敏",
+      "隐私保护",
+      "脱敏后的证据图",
+      "打码脱敏后的证据图",
+      "对人脸打码脱敏",
+      "打码后的证据截图",
+      "打码后的证据图"
+    ],
+    "anti_keywords": [
+      "snapshot generation",
+      "object detection",
+      "clip extraction"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: privacy-masking\ndescription: Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files.\n---\n\n# Privacy Masking\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf an evidence image URI is missing but the user provided an event or video analysis request, do not write custom masking code. First call `evidence-snapshot/scripts/run.py` to create snapshot evidence, then call this skill on the resulting evidence URI when masking is required.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython privacy-masking/scripts/run.py --image-uri <image.jpg> --sensitive-regions-json <regions.json> --config <config.json> --output <masked.json>\n```\n\nParameters: `--image-uri`, `--sensitive-regions-json`, `--method`, `--disabled`, `--config`, `--output`.\n\n## Workflow\n\n1. Read evidence URI and configured mask types.\n2. Locate or accept sensitive regions.\n3. Apply configured blur, mosaic, or solid mask.\n4. Return masked URI, mask status, regions, and method.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `uri` or `image_uri`\n- Optional `sensitive_regions`: list of bboxes or region dicts\n- Optional `output_key` for memory storage mode\n\n## Outputs\n\nReturns `uri`, `privacy_masked`, `masked_regions`, and `method`.\n\n## Failure Modes\n\n- `MISSING_URI`\n- `IMAGE_READ_FAILED`\n\n## Constraints\n\nDo not delete original evidence needed for traceability.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "opencv"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 79,
+    "conflict_group": "privacy-masking",
+    "prefer_when": [
+      "给人脸车牌打码",
+      "人脸打码脱敏",
+      "生成打码脱敏后的证据图",
+      "模糊敏感区域",
+      "证据图片隐私保护",
+      "遮盖手机号门牌号",
+      "对人脸打码脱敏",
+      "用户要求输出打码后的证据截图或脱敏证据图时，本 skill 负责隐私处理"
+    ],
+    "defer_when": [
+      "生成证据截图",
+      "检测目标",
+      "视频剪辑",
+      "事件去重"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/privacy-masking",
+    "skill_md_path": "skills/custom/privacy-masking/SKILL.md",
+    "skill_md_hash": "sha256:e9aac234e39cf5017205d515579bf76d0f244b9e9ef29f0527136ebb6c5b3af6",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:7773d334a8413da9f7cdcc60b0141cbd781fe42c083e314b41a8556eed2ef756",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "privacy-masking"
+  }
+}

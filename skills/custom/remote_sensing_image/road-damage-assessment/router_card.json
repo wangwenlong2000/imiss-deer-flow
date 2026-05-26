@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "road-damage-assessment",
+    "name": "road-damage-assessment",
+    "description": "Detects road surface damage (potholes, cracks, pavement defects) from high-resolution optical imagery using texture anomaly analysis. Generates damage segment maps with severity ratings and health scores. Invoke when the user mentions \"道路破损\", \"路面坑洼\", \"路面裂缝\", \"road damage\", \"pavement', '\"路面健康\", \"道路维修\" or similar triggers."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "road_damage_detection",
+      "texture_anomaly_analysis",
+      "severity_rating",
+      "road_health_scoring",
+      "maintenance_report"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "damage_map_tif",
+      "damage_segments_geojson",
+      "damage_segments_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：road-damage-assessment\n描述：Detects road surface damage (potholes, cracks, pavement defects) from high-resolution optical imagery using texture anomaly analysis. Generates damage segment maps with severity ratings and health scores. Invoke when the user mentions \"道路破损\", \"路面坑洼\", \"路面裂缝\", \"road damage\", \"pavement', '\"路面健康\", \"道路维修\" or similar triggers.\n适用场景：remote_sensing, urban_governance, transportation_maintenance。\n适用任务：road_damage_detection, texture_anomaly_analysis, severity_rating, road_health_scoring, maintenance_report。\n输入类型：geotiff, geojson, shapefile。\n输出类型：damage_map_tif, damage_segments_geojson, damage_segments_csv, report_md。\n适合使用：识别道路破损、坑洼或路面裂缝；输出破损路段分布和严重程度评级；生成道路健康评分和维修建议。\n不适合使用：识别非法倾倒点；提取建筑轮廓；监测洪涝风险；监测水质。",
+    "positive_triggers": [
+      "识别道路破损、坑洼或路面裂缝",
+      "输出破损路段分布和严重程度评级",
+      "生成道路健康评分和维修建议"
+    ],
+    "negative_triggers": [
+      "识别非法倾倒点",
+      "提取建筑轮廓",
+      "监测洪涝风险",
+      "监测水质"
+    ],
+    "keywords": [
+      "道路破损",
+      "路面坑洼",
+      "路面裂缝",
+      "road damage",
+      "pavement",
+      "路面健康",
+      "道路维修"
+    ],
+    "anti_keywords": [
+      "非法倾倒",
+      "建筑轮廓",
+      "水质",
+      "洪涝",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: road-damage-assessment\ndescription: >\n  ('Detects road surface damage (potholes, cracks, pavement defects) from high-resolution optical imagery using texture anomaly analysis. Generates damage segment maps with severity ratings and health scores. Invoke when the user mentions \"道路破损\", \"路面坑洼\", \"路面裂缝\", \"road damage\", \"pavement', '\"路面健康\", \"道路维修\" or similar triggers.')\nlicense: MIT\n---\n\n# 道路破损评估技能（road-damage-assessment）\n\n## 1. 技能概述\n\n本技能基于高分辨率光学遥感影像，利用局部纹理异常分析检测道路破损区域（坑洼、裂缝、路面缺陷），输出破损路段分布图、严重程度评级与路面健康评分，辅助道路养护决策。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_optical` | file (GeoTIFF) | 是 | 高分辨率光学影像（建议分辨率 ≤ 0.5m，已完成正射校正） |\n| `road_network` | file (GeoJSON / Shapefile) | 否 | 道路网络矢量，用于限定分析范围 |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界 |\n| `damage_threshold` | float | 否 | 破损判定亮度差异阈值，默认 0.15 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **局部纹理分析**：计算局部均值与标准差，识别亮度异常区域\n3. **破损提取**：基于阈值生成破损掩膜\n4. **严重程度评级**：按面积分为 severe/moderate/minor 三级\n5. **健康评分**：计算路段整体健康评分（0-100）\n6. **成果输出**：damage_map.tif、damage_segments.geojson、damage_segments.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/road-damage-assessment/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_optical\":\"/path/to/hr_image.tif\",\"damage_threshold\":0.15}' \\\n  --output-dir /tmp/outputs/rda\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `damage_map.tif` | 破损区域二值掩膜 |\n| `damage_segments.geojson` | 破损路段矢量，属性含 severity、health_score |\n| `damage_segments.csv` | 破损路段清单 |\n| `report.md` | 道路破损统计与维修建议 |\n\n## 6. 治理场景\n\n- **道路养护计划**：自动识别需要维修的路段，优化养护资源分配\n- **城市道路普查**：大范围快速评估道路状况\n- **灾后道路评估**：暴雨、地震后快速评估道路受损情况\n- **道路质量考核**：辅助道路工程质量验收与监管\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户提供高分辨率光学影像并要求检测道路病害",
+      "用户关注路面健康评分、道路维修或破损路段清单"
+    ],
+    "defer_when": [
+      "任务是渣土/垃圾偷倒，应优先使用 illegal-dumping-detection",
+      "任务只是查看道路矢量属性，应优先使用 inspect-geo"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/road-damage-assessment",
+    "skill_md_path": "5-21remote-sensing/road-damage-assessment/SKILL.md",
+    "skill_md_hash": "sha256:533b6d074baceea1d02d2d8d64cb94e47cb23b817de4db73d39417970729e612",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:0be649efb97a2ab8cc3532d5398f940054282dddac8abb4ac2a1fcdb6e653eaa",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "road-damage-assessment"
+  }
+}

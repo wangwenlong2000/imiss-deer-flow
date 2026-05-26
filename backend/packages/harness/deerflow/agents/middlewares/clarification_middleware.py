@@ -1,7 +1,12 @@
 """Middleware for intercepting clarification requests and presenting them to the user."""
 
 from collections.abc import Callable
-from typing import override
+from uuid import uuid4
+
+try:
+    from typing import override
+except ImportError:
+    from typing_extensions import override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -117,6 +122,7 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
             tool_call_id=tool_call_id,
             name="ask_clarification",
         )
+        pending_action = self._build_pending_action(args, request.state)
 
         # Return a Command that:
         # 1. Adds the formatted tool message
@@ -127,9 +133,54 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
             update={
                 "messages": [tool_message],
                 "raw_messages": [tool_message],
+                "pending_action": pending_action,
             },
             goto=END,
         )
+
+    @staticmethod
+    def _build_pending_action(args: dict, state: dict | None) -> dict:
+        options = args.get("options") or []
+        clarification_type = args.get("clarification_type", "missing_info")
+        expected_answer_type = "single_choice" if options else (
+            "confirmation" if clarification_type in {"risk_confirmation", "suggestion"} else "free_text"
+        )
+        normalized_options = []
+        for index, option in enumerate(options, 1):
+            label = str(option).strip()
+            if not label:
+                continue
+            normalized_options.append({
+                "id": str(index),
+                "label": label,
+                "value": label,
+                "index": index,
+            })
+
+        state = state if isinstance(state, dict) else {}
+        return {
+            "id": f"clarify_{uuid4().hex[:8]}",
+            "type": "clarification",
+            "question": args.get("question", ""),
+            "clarification_type": clarification_type,
+            "expected_answer_type": expected_answer_type,
+            "options": normalized_options,
+            "parameter_schema": args.get("parameter_schema") if isinstance(args.get("parameter_schema"), dict) else ClarificationMiddleware._default_parameter_schema(),
+            "resume_intent_context": state.get("intent_context"),
+            "resume_routing_context": state.get("routing_context"),
+        }
+
+    @staticmethod
+    def _default_parameter_schema() -> dict:
+        return {
+            "threshold_mode": {"type": "enum", "values": ["auto", "manual", "inspect_distribution"]},
+            "min_night_ratio": {"type": "float", "min": 0.0, "max": 1.0},
+            "min_night_count": {"type": "int", "min": 0},
+            "min_counterparties": {"type": "int", "min": 0},
+            "min_shared_device_count": {"type": "int", "min": 0},
+            "min_shared_peer_total": {"type": "int", "min": 0},
+            "top_k": {"type": "int", "min": 1, "max": 500},
+        }
 
     @override
     def wrap_tool_call(

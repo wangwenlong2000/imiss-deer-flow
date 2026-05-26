@@ -7,10 +7,6 @@
   },
   "scope": {
     "scenes": [
-      "legal",
-      "china_law",
-      "intellectual_property",
-      "trademark",
       "policy_regulation"
     ],
     "is_public": false,

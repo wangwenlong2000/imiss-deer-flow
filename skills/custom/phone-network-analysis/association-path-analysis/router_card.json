@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "association-path-analysis",
+    "name": "association-path-analysis",
+    "description": "分析两个电话号码之间是否存在直接通话路径、间接多跳路径、共享设备路径、共同对端路径或复合桥接链路。适用于用户询问两个号码如何关联、是否存在中间节点或关系链路的场景；不用于按夜间通话异常、联系人广度高、共享设备数量多等条件筛选重点号码。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "association_path",
+      "multi_hop_path",
+      "relation_chain",
+      "graph_explanation"
+    ],
+    "input_types": [
+      "phone_a",
+      "phone_b",
+      "dataset_root",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "path_list",
+      "path_type",
+      "intermediate_nodes",
+      "association_explanation",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：association-path-analysis\n描述：分析两个电话号码之间是否存在直接通话路径、间接多跳路径、共享设备路径、共同对端路径或复合桥接链路。适用于用户询问两个号码如何关联、是否存在中间节点或关系链路的场景；不用于按夜间通话异常、联系人广度高、共享设备数量多等条件筛选重点号码。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：association_path, multi_hop_path, relation_chain, graph_explanation。\n输入类型：phone_a, phone_b, dataset_root, call_edges.csv, edges_phone_imei.parquet。\n输出类型：path_list, path_type, intermediate_nodes, association_explanation, markdown_report。\n适合使用：这两个号码之间有没有间接关系；两个号码是不是通过共同设备或共同对端连起来；分析两个号码的多跳路径；找两个号码之间的关联路径证据链。\n不适合使用：筛选重点号码；按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码；从全量数据找重点对象；只做数据集概览；只找TopN高风险对象；只比较四川陕西总体差异；跨省同实体联动判断；只分析一个号码。\n关键词：两个号码，路径，关联路径，多跳，二跳，间接关系，证据链，中间节点。\n反关键词：筛选，筛出，找出，重点号码，条件筛选，夜间通话异常，联系人广度高，共享设备数量多，概览，TopN，单号，地域对比，政策法规，跨省同实体。",
+    "positive_triggers": [
+      "这两个号码之间有没有间接关系",
+      "两个号码是不是通过共同设备或共同对端连起来",
+      "分析两个号码的多跳路径",
+      "找两个号码之间的关联路径证据链"
+    ],
+    "negative_triggers": [
+      "只做数据集概览",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "只找TopN高风险对象",
+      "只比较四川陕西总体差异",
+      "跨省同实体联动判断",
+      "只分析一个号码"
+    ],
+    "keywords": [
+      "两个号码",
+      "路径",
+      "关联路径",
+      "多跳",
+      "二跳",
+      "间接关系",
+      "证据链",
+      "中间节点"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "找出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "共享设备数量多",
+      "概览",
+      "TopN",
+      "单号",
+      "地域对比",
+      "政策法规",
+      "跨省同实体"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: association-path-analysis\ndescription: 分析两个电话号码之间是否存在直接通话路径、间接多跳路径、共享设备路径、共同对端路径或复合桥接链路。适用于用户询问两个号码如何关联、是否存在中间节点或关系链路的场景；不用于数据概览、TopN 风险发现、单号码画像、群体团伙识别或跨省同实体联动判断。\n---\n\n# association-path-analysis\n\n## 这个 skill 是做什么的\n\n这个 skill 用于分析**两个号码之间的关联路径**，支持两层分析：\n\n1. **direct_call_analysis**  \n   基于电话网络原始通话边图，按**有向图**分析号码 A 是否能沿着通话方向到达号码 B。\n\n2. **composite_analysis**  \n   把三类关系联合起来做复合路径分析：\n   - `call`（通话关系）\n   - `shared_device`（共享设备关系）\n   - `common_counterparty`（共同对端关系）\n\n它不只是看“有没有通话路径”，而是分析两个号码在当前标准图数据内是否存在**多关系混合连接**。它不负责判断跨省同一真实实体，也不应替代 `dataset-quality-and-linkability-diagnostic` 的跨省可联动性诊断。\n\n---\n\n## 实际调用脚本\n\n脚本位置：\n\n`/mnt/skills/custom/phone-network-analysis/association-path-analysis/scripts/association_path_wrapper.py`\n\n---\n\n## 适合回答什么问题\n\n当用户的问题属于下面这些类型时，优先使用本 skill：\n\n- 帮我看这两个号码有没有关系\n- 这两个号码之间怎么连起来的\n- 这两个号码有没有间接联系\n- 中间桥接号码是谁\n- 除了通话关系以外，它们有没有设备共用或者共同对端\n- 请做复合路径分析\n- 两个号码是否通过共同设备或共同对端连起来\n- 给我 Top-K 候选路径\n- 给我桥接点排序和下一步调查建议\n\n---\n\n## 默认数据源\n\n### 通话边图\n- `/mnt/datasets/phone-network/processed/unified/call_edges.csv`\n\n字段：\n- `src_user_id`\n- `dst_counterparty_id`\n\n### 号码-设备图\n- `/mnt/datasets/phone-network/processed/graph_views/unified/edges_phone_imei.parquet`\n\n字段：\n- `user_id`\n- `imei`\n\n---\n\n## 默认行为\n\n### 通话路径\n默认按**有向图**分析，也就是优先保留真实通话方向：\n- `src_user_id -> dst_counterparty_id`\n\n### 复合路径\n默认联合启用三类关系：\n- `call`\n- `shared_device`\n- `common_counterparty`\n\n---\n\n## 参数说明\n\n- `--phone-a`：号码 A\n- `--phone-b`：号码 B\n- `--analysis-mode`：\n  - `direct_call`：只做有向通话路径分析\n  - `composite`：只做复合关系路径分析\n  - `both`：同时做直接配对信号 + 有向通话路径 + 复合路径分析\n- `--max-hops`：复合路径搜索最大跳数\n- `--top-k`：返回候选路径数量\n- `--per-relation-limit`：每类关系最大扩展数\n- `--max-expand-nodes`：复合搜索最大扩展节点数\n- `--min-common-counterparty`：建立共同对端关系边的最低共同对端数\n- `--directed-call`：是否按有向通话图分析（默认开启）\n\n---\n\n## 前端首测推荐参数\n\n首次测试建议优先使用：\n\n- `analysis_mode=both`\n- `max_hops=3`\n- `top_k=1`\n- `per_relation_limit=20`\n- `max_expand_nodes=500`\n- `min_common_counterparty=2`\n\n如果第一轮稳定返回，再逐步放宽到：\n\n- `top_k=3`\n- `per_relation_limit=30`\n- `max_expand_nodes=800`\n\n不建议首次直接请求 Top-3 候选路径、桥接点全量排序和超大范围复合搜索。\n\n---\n\n## 推荐输出内容\n\n前端分析建议固定输出以下结构：\n\n1. 直接配对信号\n   - A 是否直接打给 B\n   - B 是否直接打给 A\n   - 共享设备数\n   - 共同对端数\n2. 有向通话路径分析\n3. 最优复合路径分析\n4. Top-K 候选路径\n5. 桥接点 / 关键证据节点排序\n6. 下一步调查建议\n7. `report_path`\n\n---\n\n## 文件交付要求（必须遵守）\n\n当脚本返回 `report_path` 后：\n\n1. 必须检查该文件是否存在\n2. 必须把该 Markdown 文件作为最终报告产物交付\n3. 不要只输出路径字符串\n4. 若前端支持文件展示卡片，应优先展示报告文件\n5. 若脚本返回 `artifacts`，应把其中的 markdown 报告作为最终附件展示\n\n推荐检查方式：\n\n```bash\nREPORT_PATH=\"/mnt/user-data/outputs/association_path_report_xxxxxxxx_yyyyyyyy_both.md\"\ntest -f \"$REPORT_PATH\" && echo \"REPORT_EXISTS\"\n```\n\n若文件存在，再组织最终回答。\n\n---\n\n## 执行方式\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/association-path-analysis/scripts && python3 association_path_wrapper.py \\\n  --phone-a \"<PHONE_A>\" \\\n  --phone-b \"<PHONE_B>\" \\\n  --analysis-mode both \\\n  --max-hops 3 \\\n  --top-k 1 \\\n  --per-relation-limit 20 \\\n  --max-expand-nodes 500 \\\n  --min-common-counterparty 2\n```\n\n---\n\n## 与 YiGraph 的关系\n\n这个 skill 不是直接把 YiGraph 整套系统部署到 DeerFlow 中，而是：\n\n- 复用了 YiGraph 的查询能力分类思路\n- 复用了 YiGraph 风格的路径分析与解释逻辑\n- 结合 DeerFlow 当前电话网络数据结构，做了适配后的高级分析实现\n\n所以它属于：\n\n**YiGraph 风格 + DeerFlow 可运行版的高级分析 skill**\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "phone_network_path_analysis",
+    "prefer_when": [
+      "用户关注两个号码或对象之间是否有关联路径",
+      "用户要求输出中间节点和路径解释"
+    ],
+    "defer_when": [
+      "用户要单号完整画像时优先 single-number-analysis",
+      "用户要正式证据包时优先 risk-evidence-pack"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/association-path-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/association-path-analysis/SKILL.md",
+    "skill_md_hash": "sha256:dbfdae1f3cbe01bd47c300007b6c7ac3b9b19f906e6d9e1348ce04b114c8ff65",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:3e782a8997d9642d30032865cfc0b120f76f4754d02e157fcc1c97840e8e805c",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "association-path-analysis"
+  }
+}

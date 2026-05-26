@@ -16,6 +16,7 @@ TodoMiddleware.  On each turn it:
 from __future__ import annotations
 
 import logging
+import re
 import time
 from typing import Any
 
@@ -26,7 +27,7 @@ except ImportError:
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langgraph.runtime import Runtime
 
 from deerflow.config.skill_router_config import get_skill_router_config
@@ -46,6 +47,7 @@ from deerflow.routing.schema import RoutingContext, SceneTask, SelectedSkill
 from deerflow.skills.loader import load_skills
 
 logger = logging.getLogger(__name__)
+_UPLOAD_BLOCK_RE = re.compile(r"<uploaded_files>[\s\S]*?</uploaded_files>\s*", re.IGNORECASE)
 
 
 class SkillRouterMiddleware(AgentMiddleware[AgentState]):
@@ -71,8 +73,6 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             index=config.vector_store.get_es_index(),
         )
         self.top_k = config.vector_store.top_k
-        self.es_min_score = config.vector_store.min_score
-        self.reranker_min_score = config.reranker.get("reranker", {}).get("min_score", 0.65) if isinstance(config.reranker, dict) else 0.65
         self.max_public_skills = 2
 
     @override
@@ -89,28 +89,15 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         frontend_ids = state.get("frontend_enabled_skill_ids")
         base_scope_ids, scope_mode = SkillScopeResolver.resolve_base_scope(frontend_enabled_skill_ids=frontend_ids)
 
-        # Filter old routed_skill_prompt SystemMessages from the message list.
-        # The filtered list is returned as the full messages state, which instructs
-        # LangGraph's reducer to replace accumulated messages.  This prevents
-        # old skill prompts from previous turns from reaching the agent core.
-        cleaned_messages = [
-            msg for msg in messages
-            if not (
-                (
-                    isinstance(msg, SystemMessage)
-                    and msg.additional_kwargs.get("message_type") == "routed_skill_prompt"
-                )
-                or (
-                    isinstance(msg, HumanMessage)
-                    and getattr(msg, "name", None) == "todo_routing_guidance"
-                )
-            )
-        ]
+        # Remove previous-turn routed prompts/guidance explicitly. LangGraph's
+        # message reducer appends/merges by id; omitting an old message from a
+        # returned list is not enough to delete it from state.
+        cleaned_messages, removal_messages = self._clean_previous_router_messages(messages)
 
         # Find the last user message in the cleaned list
         last_user_msg = None
         for msg in reversed(cleaned_messages):
-            if isinstance(msg, HumanMessage):
+            if isinstance(msg, HumanMessage) and not self._is_internal_human_message(msg):
                 last_user_msg = msg
                 break
 
@@ -119,6 +106,11 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
 
         query = self._extract_text(last_user_msg)
         if not query or not query.strip():
+            return None
+        source_message_key = self._source_message_key(last_user_msg, query)
+        previous_routing_context = state.get("routing_context")
+        if self._same_source(previous_routing_context, source_message_key):
+            logger.debug("SkillRouter: reuse existing routing_context for source=%s", source_message_key)
             return None
 
         intent_context = state.get("intent_context") or {}
@@ -130,8 +122,57 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         intent_scene = intent_context.get("scene")
         if not isinstance(intent_scene, str) or not intent_scene.strip():
             intent_scene = None
+        intent_scenes = intent_context.get("scenes") or []
+        if isinstance(intent_scenes, list):
+            intent_scenes = [scene for scene in intent_scenes if isinstance(scene, str) and scene.strip()]
+        else:
+            intent_scenes = []
+        if not intent_scene and intent_scenes:
+            intent_scene = intent_scenes[0]
+        intent_scene_tasks = intent_context.get("scene_tasks") or []
+        if not isinstance(intent_scene_tasks, list):
+            intent_scene_tasks = []
 
         uploaded_files = state.get("uploaded_files") or []
+        base_scope_set = set(base_scope_ids)
+        default_public_skill_ids = self._default_public_skill_ids(base_scope_set)
+
+        dialogue_context = state.get("dialogue_context") or {}
+        if isinstance(dialogue_context, dict) and dialogue_context.get("act") in {"clarification_answer", "parameter_update", "task_followup"}:
+            resumed_routing = dialogue_context.get("resume_routing_context")
+            if isinstance(resumed_routing, dict):
+                try:
+                    routing_ctx = RoutingContext.model_validate(resumed_routing)
+                    final_skill_ids = SkillScopeResolver.resolve_final_scope(
+                        skill_router_enabled=True,
+                        base_scope_ids=base_scope_ids,
+                        routed_skill_ids=routing_ctx.global_selected_skills,
+                    )
+                    routing_ctx.global_selected_skills = self._dedupe_skill_ids(final_skill_ids)
+                    if not routing_ctx.default_public_skill_ids:
+                        routing_ctx.default_public_skill_ids = default_public_skill_ids
+                    routing_ctx.route_reason = "Reused previous route for follow-up turn"
+                    skills_override_msg = self._build_skills_override(routing_ctx)
+                    dialogue_msg = self._build_dialogue_action_prompt(dialogue_context)
+                    routing_data = routing_ctx.model_dump()
+                    routing_data["_source_message_key"] = source_message_key
+                    routing_data["_suppress_hidden_steps"] = True
+                    elapsed = (time.monotonic() - start) * 1000
+                    record_request(trigger=True, latency_ms=elapsed)
+                    return {
+                        "routing_context": routing_data,
+                        "frontend_enabled_skill_ids": frontend_ids,
+                        "frontend_scope_mode": scope_mode,
+                        "base_scope_skill_ids": base_scope_ids,
+                        "final_scope_skill_ids": routing_ctx.global_selected_skills,
+                        "allowed_tool_names": routing_ctx.global_allowed_tools,
+                        "messages": removal_messages + cleaned_messages + [
+                            SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"}),
+                            dialogue_msg,
+                        ],
+                    }
+                except Exception:
+                    logger.exception("Failed to reuse routing context for clarification answer")
 
         # When frontend explicitly disabled all skills, there's no valid routing scope
         if frontend_ids is not None and len(base_scope_ids) == 0:
@@ -139,13 +180,13 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             record_request(trigger=False, latency_ms=elapsed)
             logger.debug("SkillRouter: empty base_scope (all skills disabled)")
             return {
-                "routing_context": {"trigger": False},
+                "routing_context": {"trigger": False, "_source_message_key": source_message_key},
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": [],
                 "final_scope_skill_ids": [],
                 "allowed_tool_names": [],
-                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="All skills explicitly disabled by user")],
+                "messages": removal_messages + cleaned_messages + [self._build_no_skill_prompt(reason="All skills explicitly disabled by user")],
             }
 
         # L0: should_route check
@@ -154,24 +195,26 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             record_request(trigger=False, latency_ms=elapsed)
             logger.debug("should_route=False query=%r routing_query=%r", query[:80], routing_query[:120])
             return {
-                "routing_context": {"trigger": False},
+                "routing_context": {"trigger": False, "_source_message_key": source_message_key},
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
-                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="Query does not match any skill scope")],
+                "messages": removal_messages + cleaned_messages + [self._build_no_skill_prompt(reason="Query does not match any skill scope")],
             }
 
         # L1: task segmentation
-        segments = segment_query(routing_query)
+        segments = self._build_intent_segments(intent_scene_tasks, routing_query, intent_scene, intent_scenes)
+        if not segments:
+            segments = segment_query(routing_query, scene_hint=intent_scene, scene_hints=intent_scenes)
         if not segments:
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
             return {
-                "routing_context": {"trigger": False},
+                "routing_context": {"trigger": False, "_source_message_key": source_message_key},
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
-                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="Query cannot be segmented into skill-scoped tasks")],
+                "messages": removal_messages + cleaned_messages + [self._build_no_skill_prompt(reason="Query cannot be segmented into skill-scoped tasks")],
             }
 
         # Process each segment
@@ -180,24 +223,23 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         all_input_refs: list[str] = []
         all_allowed_tools: set[str] = set()
 
-        base_scope_set = set(base_scope_ids)
-
         for seg in segments:
             seg_text = seg["text"]
             seg_scene = seg.get("scene") or intent_scene
+            embedding_query = self._build_embedding_query(seg_text, seg_scene)
 
             # L2: embedding
             try:
-                query_vec = self.embedding_client.embed_text(seg_text)
+                query_vec = self.embedding_client.embed_text(embedding_query)
             except Exception:
                 record_embedding_error()
                 logger.exception("Embedding API failed for segment: %s", seg_text[:80])
                 continue
 
             # L3: ES Top-K
-            filters = {"enabled": True}
+            filters = {"enabled": True, "is_public": False}
             try:
-                candidates = self.es_store.search(query_vector=query_vec, top_k=self.top_k, filters=filters)
+                candidates = self._search_candidates_for_segment(query_vec, seg_scene, filters)
             except Exception:
                 record_es_error()
                 logger.exception("ES search failed for segment: %s", seg_text[:80])
@@ -227,6 +269,13 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                     "input_types": c.get("input_types", []),
                     "output_types": c.get("output_types", []),
                     "is_public": c.get("is_public", False),
+                    "positive_triggers": c.get("positive_triggers", []),
+                    "negative_triggers": c.get("negative_triggers", []),
+                    "keywords": c.get("keywords", []),
+                    "anti_keywords": c.get("anti_keywords", []),
+                    "prefer_when": c.get("prefer_when", []),
+                    "defer_when": c.get("defer_when", []),
+                    "can_compose_with": c.get("can_compose_with", []),
                 })
 
             try:
@@ -269,14 +318,43 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             ))
 
         if not scene_tasks:
+            if default_public_skill_ids:
+                routing_ctx = RoutingContext(
+                    route_mode="single_segment" if len(segments) <= 1 else "multi_segment",
+                    trigger=True,
+                    primary_goal=routing_query,
+                    scene_tasks=[],
+                    global_selected_skills=[],
+                    default_public_skill_ids=default_public_skill_ids,
+                    global_allowed_tools=[],
+                    confidence=0.0,
+                    route_reason="No domain-specific skills matched; default public skills are available",
+                )
+                skills_override_msg = self._build_skills_override(routing_ctx)
+                routing_data = routing_ctx.model_dump()
+                routing_data["_source_message_key"] = source_message_key
+                elapsed = (time.monotonic() - start) * 1000
+                record_request(trigger=True, latency_ms=elapsed)
+                final_skill_ids = []
+                return {
+                    "routing_context": routing_data,
+                    "frontend_enabled_skill_ids": frontend_ids,
+                    "base_scope_skill_ids": base_scope_ids,
+                    "final_scope_skill_ids": final_skill_ids,
+                    "allowed_tool_names": [],
+                    "messages": removal_messages + cleaned_messages + [
+                        SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"})
+                    ],
+                }
+
             elapsed = (time.monotonic() - start) * 1000
             record_request(trigger=False, latency_ms=elapsed)
             return {
-                "routing_context": {"trigger": False},
+                "routing_context": {"trigger": False, "_source_message_key": source_message_key},
                 "frontend_enabled_skill_ids": frontend_ids,
                 "frontend_scope_mode": scope_mode,
                 "base_scope_skill_ids": base_scope_ids,
-                "messages": cleaned_messages + [self._build_no_skill_prompt(reason="No skill candidates found for query segments")],
+                "messages": removal_messages + cleaned_messages + [self._build_no_skill_prompt(reason="No skill candidates found for query segments")],
             }
 
         # L6: build routing_context with final_scope filtering
@@ -286,6 +364,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             base_scope_ids=base_scope_ids,
             routed_skill_ids=global_skills,
         )
+        injected_skill_ids = self._dedupe_skill_ids(final_skill_ids)
         confidence = self._compute_confidence(all_selected)
 
         # allowed_tools collected during resolution.
@@ -298,6 +377,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             primary_goal=self._infer_primary_goal(scene_tasks),
             scene_tasks=scene_tasks,
             global_selected_skills=final_skill_ids,
+            default_public_skill_ids=default_public_skill_ids,
             global_allowed_tools=final_allowed_tools,
             confidence=confidence,
             route_reason=f"Matched {len(scene_tasks)} task segment(s) from user query",
@@ -311,24 +391,26 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         logger.info(
             "SkillRouter: query=%r routing_query=%r intent_scene=%r trigger=%s mode=%s skills=%s latency_ms=%d",
             query[:80], routing_query[:120], intent_scene, routing_ctx.trigger, routing_ctx.route_mode,
-            routing_ctx.global_selected_skills, round(elapsed),
+            injected_skill_ids, round(elapsed),
         )
         logger.info(
             "SkillRouter scope: frontend=%r base_scope=%d routed=%d final=%d allowed_tools=%d trigger=%s",
             frontend_ids, len(base_scope_ids), len(global_skills),
-            len(final_skill_ids), len(final_allowed_tools),
+            len(injected_skill_ids), len(final_allowed_tools),
             routing_ctx.trigger,
         )
 
         new_routed_skill_msg = SystemMessage(content=skills_override_msg, additional_kwargs={"message_type": "routed_skill_prompt"})
+        routing_data = routing_ctx.model_dump()
+        routing_data["_source_message_key"] = source_message_key
 
         return {
-            "routing_context": routing_ctx.model_dump(),
+            "routing_context": routing_data,
             "frontend_enabled_skill_ids": frontend_ids,
             "base_scope_skill_ids": base_scope_ids,
-            "final_scope_skill_ids": final_skill_ids,
+            "final_scope_skill_ids": injected_skill_ids,
             "allowed_tool_names": final_allowed_tools,
-            "messages": cleaned_messages + [new_routed_skill_msg],
+            "messages": removal_messages + cleaned_messages + [new_routed_skill_msg],
         }
 
     @override
@@ -340,11 +422,73 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
     # ------------------------------------------------------------------
 
     @staticmethod
+    def _clean_previous_router_messages(messages: list[Any]) -> tuple[list[Any], list[RemoveMessage]]:
+        cleaned_messages: list[Any] = []
+        removal_messages: list[RemoveMessage] = []
+        for msg in messages:
+            is_previous_router_message = (
+                (
+                    isinstance(msg, SystemMessage)
+                    and msg.additional_kwargs.get("message_type") in {"routed_skill_prompt", "dialogue_action_context"}
+                )
+                or (
+                    isinstance(msg, HumanMessage)
+                    and getattr(msg, "name", None) == "todo_routing_guidance"
+                )
+            )
+            if is_previous_router_message:
+                msg_id = getattr(msg, "id", None)
+                if msg_id:
+                    removal_messages.append(RemoveMessage(id=msg_id))
+                continue
+            cleaned_messages.append(msg)
+        return cleaned_messages, removal_messages
+
+    @staticmethod
+    def _build_intent_segments(
+        intent_scene_tasks: list[dict[str, Any]],
+        routing_query: str,
+        intent_scene: str | None,
+        intent_scenes: list[str],
+    ) -> list[dict[str, Any]]:
+        if not intent_scene_tasks:
+            return []
+
+        segments: list[dict[str, Any]] = []
+        for item in intent_scene_tasks:
+            if not isinstance(item, dict):
+                continue
+            scene = item.get("scene")
+            if not isinstance(scene, str) or not scene.strip():
+                continue
+            text = item.get("task_text")
+            if not isinstance(text, str) or not text.strip():
+                text = item.get("text") if isinstance(item.get("text"), str) else routing_query
+            segments.append({
+                "segment_id": item.get("sub_task_id") or item.get("scene_task_id") or f"seg_{len(segments)+1:03d}",
+                "text": text.strip(),
+                "scene": scene.strip(),
+                "input_refs": item.get("input_refs", []) if isinstance(item.get("input_refs"), list) else [],
+            })
+
+        if segments:
+            return segments
+
+        if intent_scene and intent_scenes:
+            return [{
+                "segment_id": "seg_000",
+                "text": routing_query,
+                "scene": intent_scene,
+                "input_refs": [],
+            }]
+        return []
+
+    @staticmethod
     def _extract_text(message: HumanMessage) -> str:
         """Extract plain text from a HumanMessage."""
         content = message.content
         if isinstance(content, str):
-            return content
+            return _UPLOAD_BLOCK_RE.sub("", content).strip()
         if isinstance(content, list):
             parts = []
             for block in content:
@@ -354,8 +498,99 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
                     t = getattr(block, "text", None)
                     if isinstance(t, str):
                         parts.append(t)
-            return "\n".join(parts)
-        return str(content) if content else ""
+            return _UPLOAD_BLOCK_RE.sub("", "\n".join(parts)).strip()
+        return _UPLOAD_BLOCK_RE.sub("", str(content)).strip() if content else ""
+
+    @staticmethod
+    def _is_internal_human_message(message: HumanMessage) -> bool:
+        additional_kwargs = getattr(message, "additional_kwargs", {}) or {}
+        if isinstance(additional_kwargs, dict):
+            if additional_kwargs.get("internal") is True:
+                return True
+            if additional_kwargs.get("message_type") in {"view_image_context", "routed_skill_prompt"}:
+                return True
+        name = getattr(message, "name", None)
+        return isinstance(name, str) and (
+            name.endswith("_guidance")
+            or name in {"todo_reminder", "routing_skill_guidance", "todo_routing_guidance"}
+        )
+
+    @staticmethod
+    def _source_message_key(message: HumanMessage, query: str) -> str:
+        message_id = getattr(message, "id", None)
+        if message_id:
+            return f"id:{message_id}"
+        return f"text:{query.strip()}"
+
+    @staticmethod
+    def _same_source(previous_context: Any, source_message_key: str) -> bool:
+        return isinstance(previous_context, dict) and previous_context.get("_source_message_key") == source_message_key
+
+    @staticmethod
+    def _build_embedding_query(segment_text: str, scene: str | None) -> str:
+        """Build a scene-aware query for embedding retrieval."""
+        text = segment_text.strip()
+        if not scene:
+            return text
+        return f"Scene: {scene.strip()}\nTask: {text}"
+
+    def _search_candidates_for_segment(
+        self,
+        query_vec: list[float],
+        scene: str | None,
+        filters: dict,
+    ) -> list[dict]:
+        """Search non-public domain candidates for one segment.
+
+        Public skills are injected separately as default shared capabilities
+        and do not participate in SkillRouter ranking.
+        """
+        custom_filters = dict(filters)
+        custom_filters["is_public"] = False
+        if scene:
+            scene_filters = dict(custom_filters)
+            scene_filters["scenes"] = scene
+            scene_candidates = self.es_store.search(
+                query_vector=query_vec,
+                top_k=self._scene_recall_top_k(scene),
+                filters=scene_filters,
+            )
+            return [c for c in scene_candidates if not c.get("is_public", False)]
+
+        candidates = self.es_store.search(
+            query_vector=query_vec,
+            top_k=self.top_k,
+            filters=custom_filters,
+        )
+        return [c for c in candidates if not c.get("is_public", False)]
+
+    def _scene_recall_top_k(self, scene: str) -> int:
+        """Use a larger same-scene recall window for broad skill families."""
+        if scene == "policy_regulation":
+            return max(self.top_k, 10)
+        return max(self.top_k, 12)
+
+    @staticmethod
+    def _dedupe_skill_ids(skill_ids: list[str]) -> list[str]:
+        seen: set[str] = set()
+        deduped: list[str] = []
+        for skill_id in skill_ids:
+            if not skill_id or skill_id in seen:
+                continue
+            seen.add(skill_id)
+            deduped.append(skill_id)
+        return deduped
+
+    @staticmethod
+    def _default_public_skill_ids(base_scope_set: set[str]) -> list[str]:
+        public_ids: list[str] = []
+        for skill in load_skills(enabled_only=True):
+            if skill.category != "public":
+                continue
+            if base_scope_set and skill.name not in base_scope_set:
+                continue
+            public_ids.append(skill.name)
+        return sorted(public_ids)
 
     @staticmethod
     def _collect_task_types(candidates: list[dict], selected: list[SelectedSkill]) -> list[str]:
@@ -428,9 +663,14 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         except Exception:
             container_base_path = "/mnt/skills"
 
-        # Build <available_skills> XML for routed skills
+        injected_skill_ids = self._dedupe_skill_ids(
+            ctx.global_selected_skills
+        )
+
+        # Build <available_skills> XML for routed custom/domain skills only.
+        # Public skills are already present in the stable base system prompt.
         skill_items = ""
-        for idx, skill_id in enumerate(ctx.global_selected_skills, 1):
+        for idx, skill_id in enumerate(injected_skill_ids, 1):
             skill = skill_map.get(skill_id)
             if skill:
                 location = skill.get_container_file_path(container_base_path)
@@ -459,7 +699,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         base_system = _render_skill_system_section(
             skills_list=skills_list,
             container_base_path=container_base_path,
-            empty_available_skills=(len(ctx.global_selected_skills) == 0),
+            empty_available_skills=(len(injected_skill_ids) == 0),
             routed_mode=True,
         )
 
@@ -468,6 +708,47 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
             base_system = base_system.replace("\n</skill_system>", task_pkg_text + "\n</skill_system>")
 
         return base_system
+
+    @staticmethod
+    def _build_dialogue_action_prompt(dialogue_context: dict[str, Any]) -> SystemMessage:
+        pending = {}
+        metadata = dialogue_context.get("metadata")
+        if isinstance(metadata, dict):
+            pending = metadata.get("pending_action") if isinstance(metadata.get("pending_action"), dict) else {}
+            parameter_updates = metadata.get("parameter_updates") if isinstance(metadata.get("parameter_updates"), dict) else {}
+            raw_answer = metadata.get("raw_answer")
+        else:
+            parameter_updates = {}
+            raw_answer = None
+
+        parsed_answer = dialogue_context.get("parsed_answer")
+        lines = [
+            "<dialogue_action_context>",
+            "The current user turn continues, asks about, or updates a previous task. Continue the previous routed task; do not reinterpret this reply as a new business scene.",
+            f"act: {dialogue_context.get('act')}",
+            f"pending_action_id: {dialogue_context.get('pending_action_id')}",
+        ]
+        if pending.get("question"):
+            lines.append(f"pending_question: {pending.get('question')}")
+        if raw_answer:
+            lines.append(f"raw_user_answer: {raw_answer}")
+        if parsed_answer is not None:
+            lines.append(f"parsed_answer: {parsed_answer}")
+        if parameter_updates:
+            lines.append(f"parameter_updates: {parameter_updates}")
+            lines.append("Apply parameter_updates when constructing tool/script arguments unless they conflict with explicit safety or data constraints.")
+        resume_plan = metadata.get("resume_plan") if isinstance(metadata, dict) else None
+        if isinstance(resume_plan, dict):
+            lines.append(f"resume_plan: {resume_plan}")
+        conflicts = metadata.get("conflicts") if isinstance(metadata, dict) else None
+        if conflicts:
+            lines.append(f"conflicts: {conflicts}")
+            lines.append("Resolve conflicts explicitly before running tools.")
+        lines.append("</dialogue_action_context>")
+        return SystemMessage(
+            content="\n".join(lines),
+            additional_kwargs={"message_type": "dialogue_action_context"},
+        )
 
     def _build_no_skill_prompt(self, *, reason: str) -> SystemMessage:
         """Build a current-turn authoritative empty <skill_system> message.

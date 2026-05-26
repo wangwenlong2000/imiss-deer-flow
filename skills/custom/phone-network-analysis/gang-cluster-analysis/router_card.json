@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "gang-cluster-analysis",
+    "name": "gang-cluster-analysis",
+    "description": "围绕一组电话号码或候选对象识别疑似团伙簇，综合共享设备、共同对端、内部关系、邻居重叠和多跳关联输出候选簇、核心节点、桥接点和证据链。适用于团伙/簇/核心成员/桥接点问题；不用于单号码画像、TopN 排名、地域对比或确认性案件定性。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "gang_cluster",
+      "cluster_expansion",
+      "core_bridge_node",
+      "case_group_discovery"
+    ],
+    "input_types": [
+      "seed_user_ids",
+      "dataset_root",
+      "phone_network_graph",
+      "csv",
+      "parquet"
+    ],
+    "output_types": [
+      "cluster_list",
+      "expanded_candidates",
+      "core_nodes",
+      "bridge_nodes",
+      "pair_evidence",
+      "markdown_report",
+      "xlsx"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：gang-cluster-analysis\n描述：围绕一组电话号码或候选对象识别疑似团伙簇，综合共享设备、共同对端、内部关系、邻居重叠和多跳关联输出候选簇、核心节点、桥接点和证据链。适用于团伙/簇/核心成员/桥接点问题；不用于单号码画像、TopN 排名、地域对比或确认性案件定性。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：gang_cluster, cluster_expansion, core_bridge_node, case_group_discovery。\n输入类型：seed_user_ids, dataset_root, phone_network_graph, csv, parquet。\n输出类型：cluster_list, expanded_candidates, core_nodes, bridge_nodes, pair_evidence, markdown_report, xlsx。\n适合使用：是否存在疑似团伙；围绕这组号码扩展团伙簇；找核心节点和桥接点；候选团伙扩展规模；号码对证据链。\n不适合使用：只分析单个号码；只做共享设备查询；比较四川陕西整体差异；上传原始数据建图。\n关键词：团伙，簇，扩展，核心节点，桥接点，候选团伙，证据链。\n反关键词：单号，共享设备查询，地域对比，建图。",
+    "positive_triggers": [
+      "是否存在疑似团伙",
+      "围绕这组号码扩展团伙簇",
+      "找核心节点和桥接点",
+      "候选团伙扩展规模",
+      "号码对证据链"
+    ],
+    "negative_triggers": [
+      "只分析单个号码",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "只做共享设备查询",
+      "比较四川陕西整体差异",
+      "上传原始数据建图"
+    ],
+    "keywords": [
+      "团伙",
+      "簇",
+      "扩展",
+      "核心节点",
+      "桥接点",
+      "候选团伙",
+      "证据链"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "单号",
+      "共享设备查询",
+      "地域对比",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: gang-cluster-analysis\ndescription: 围绕一组电话号码或候选对象识别疑似团伙簇，综合共享设备、共同对端、内部关系、邻居重叠和多跳关联输出候选簇、核心节点、桥接点和证据链。适用于团伙/簇/核心成员/桥接点问题；不用于单号码画像、TopN 排名、地域对比或确认性案件定性。\n---\n\n# gang-cluster-analysis\n\n## 这个 skill 是做什么的\n\n这个 skill 用来做**疑似团伙 / 群组识别**。\n\n它不是只看单个号码，也不是只看两个号码，而是：\n\n- 先从输入号码出发扩展候选成员\n- 再综合 **共享设备、共同对端、内部号码对关系、邻居重叠** 等证据\n- 识别是否存在一个更紧的疑似团伙簇\n- 输出：\n  - 团伙簇列表\n  - 重点簇\n  - 核心节点\n  - 桥接点 / 或桥接解释\n  - 号码对证据链\n  - 共享设备证据\n  - 共同对端证据\n  - Markdown 报告 + 多个 CSV 证据文件\n\n## 它和前面 skill 的关系\n\n这个 skill 本质上是**基础算子 + 现有高级分析 skill 的组合版**：\n\n- 候选扩展：neighbor_query + common_neighbor + relationship_filter\n- 号码对关系：common_neighbor + query_shared_device + relationship_filter\n- 子群识别：subgraph_by_nodes + aggregation_query\n- 核心节点 / 桥接点排序：aggregation_query + 局部图排序\n- 后续复核：association-path-analysis + overlap-analysis + single-number-analysis + shared-device-analysis\n\n所以它不是凭空“猜团伙”，而是把前面已经做好的分析能力组合起来，形成一个更高层的团伙识别 skill。\n\n---\n\n## 输入方式\n\n支持三种输入方式，至少给一种：\n\n1. `--phone-ids`\n2. `--phone-id-file`\n3. `--input-csv + --phone-id-column`\n\n### 常用参数\n\n- `--group-name`：本次分析名字\n- `--candidate-scope`：候选扩展方式\n  - `input_only`\n  - `shared_device`\n  - `common_counterparty`\n  - `mixed`（推荐）\n- `--max-expand-nodes`：最多保留多少候选号码\n- `--top-k`：输出前几条重点结果\n- `--min-shared-device-count`：最少共享设备数\n- `--min-common-counterparty-count`：最少共同对端数\n- `--min-neighbor-overlap`：最少邻居重叠比例\n- `--min-edge-score`：保留关系边的最低分\n- `--focus-min-cluster-size`：重点簇的最小人数\n\n---\n\n## 内置示例文件（这部分非常重要）\n\n### `sample_group_ids.txt` 是什么\n\n`sample_group_ids.txt` 是 **这个 skill 自带的内置示例号码文件**，不是用户上传文件，也不是数据集目录里的原始文件。\n\n它的默认位置是：\n\n```bash\n/mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt\n```\n\n### 当前端或模型看到下面这种说法时，必须这样理解\n\n- “号码文件：sample_group_ids.txt”\n- “使用示例号码文件 sample_group_ids.txt”\n- “请直接用 sample_group_ids.txt 测试”\n\n都应当理解为：\n\n**优先使用 skill 自带的这个内置示例文件**，也就是：\n\n```bash\n/mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt\n```\n\n### 不要做的事\n\n当文件名是 `sample_group_ids.txt` 时：\n\n- **不要先去** `/mnt/user-data/uploads/` 查找\n- **不要先去** `/mnt/datasets/` 查找\n- **不要把它当成用户额外上传的输入文件**\n\n除非用户明确说：\n\n- “我自己上传了一个新的 `sample_group_ids.txt`”\n- 或者给了别的明确绝对路径\n\n否则默认就是 skill 内置示例文件。\n\n---\n\n## 输出内容\n\n会生成 6 个文件：\n\n1. Markdown 总报告\n2. 团伙簇列表 CSV\n3. 核心节点 CSV\n4. 号码对证据 CSV\n5. 共享设备证据 CSV\n6. 共同对端证据 CSV\n\n### 这 6 个文件分别是做什么的\n\n- **Markdown 总报告**：给人直接阅读的总结版，适合前端直接展示。\n- **团伙簇列表 CSV**：每个 cluster 一行，适合看一共有多少候选团伙簇、各簇规模多大。\n- **核心节点 CSV**：每个重点成员一行，适合继续做单号码深挖。\n- **号码对证据 CSV**：每对号码一行，适合复核关系链到底是靠共享设备、共同对端还是内部通话。\n- **共享设备证据 CSV**：每台重点设备一行，适合继续追设备池。\n- **共同对端证据 CSV**：每个重点共同对端一行，适合看群体共同接触目标。\n\n### 能不能合并\n\n不建议把这 6 个文件硬合并成 1 个 CSV。\n\n原因很简单：\n\n- 团伙簇列表是 **cluster 级**\n- 核心节点是 **成员级**\n- 号码对证据是 **pair 级**\n- 共享设备证据是 **device 级**\n- 共同对端证据是 **counterparty 级**\n\n它们的粒度不同，强行拼成一个表反而更乱。\n\n更合理的做法是：\n\n- 保留这 6 份分表\n- 让 Markdown 报告做“总入口”\n- 如果后面确实想做“单文件交付版”，建议额外做一个 `xlsx` 工作簿，而不是强行合并 CSV\n\n---\n\n## 典型命令\n\n### 方式 1：直接给一组号码\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts && python3 gang_cluster_analysis_wrapper.py \\\n  --group-name sample_gang \\\n  --phone-ids \"号码1,号码2,号码3\" \\\n  --candidate-scope mixed \\\n  --top-k 10\n```\n\n### 方式 2：使用 skill 自带示例文件（推荐写法）\n\n**必须优先使用绝对路径，不要只写 `sample_group_ids.txt`。**\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts && python3 gang_cluster_analysis_wrapper.py \\\n  --group-name sample_gang \\\n  --phone-id-file /mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt \\\n  --candidate-scope mixed \\\n  --max-expand-nodes 120 \\\n  --top-k 10 \\\n  --min-shared-device-count 1 \\\n  --min-common-counterparty-count 2\n```\n\n### 方式 3：从用户自己的 CSV 读号码\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts && python3 gang_cluster_analysis_wrapper.py \\\n  --group-name custom_group \\\n  --input-csv /mnt/user-data/uploads/你的文件.csv \\\n  --phone-id-column phone_id \\\n  --candidate-scope mixed \\\n  --top-k 10\n```\n\n---\n\n## 推荐提示词\n\n### Q1：标准团伙识别\n\n请使用 gang-cluster-analysis skill，围绕这组号码识别是否存在疑似团伙簇。要求：\n1. 输出候选扩展规模\n2. 输出识别到的团伙簇列表\n3. 输出重点簇的核心节点和桥接点\n4. 输出共享设备证据、共同对端证据和号码对证据链\n5. 生成 markdown 报告和 csv 证据文件并展示下载附件\n\n### Q2：偏共享设备团伙\n\n请使用 gang-cluster-analysis skill，重点围绕共享设备线索识别团伙。参数：candidate_scope=shared_device, top_k=10。\n\n### Q3：偏共同对端耦合团伙\n\n请使用 gang-cluster-analysis skill，重点围绕共同对端和邻居重叠识别团伙。参数：candidate_scope=common_counterparty, min_common_counterparty_count=2, top_k=10。\n\n### Q4：使用内置示例文件测试（非常推荐这样写）\n\n请使用 gang-cluster-analysis skill，围绕这组号码识别是否存在疑似团伙簇。号码文件使用 skill 自带示例文件：\n`/mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt`\n参数：candidate_scope=mixed, top_k=10。\n\n---\n\n## 前端展示规范（很重要）\n\n前端执行完脚本后，**不要只把 JSON 里的路径字符串打印出来**，而要显式展示附件。\n\n必须按下面顺序做：\n\n1. 运行脚本\n2. 读取 JSON 输出里的：\n   - `report_path`\n   - `artifacts`\n3. 对每个 artifact 先检查文件是否存在\n4. 先读取 Markdown 报告正文\n5. 再把 markdown + csv 全部挂成附件卡片\n\n### 特别规则：当用户提到 `sample_group_ids.txt`\n\n如果用户提示词里写的是：\n\n- `sample_group_ids.txt`\n- “示例号码文件”\n- “skill 自带号码文件”\n\n前端 / 模型应直接使用：\n\n```bash\n/mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt\n```\n\n不要先去 `/mnt/user-data/uploads/` 或 `/mnt/datasets/` 查找。\n\n---\n\n## 结果怎么理解\n\n### 如果识别到“共享设备驱动团伙簇”\n说明这批号码主要靠共用设备连起来，通常优先查设备池。\n\n### 如果识别到“共同对端耦合团伙簇”\n说明这批号码虽然未必直接互打，但共同接触了同一批对象，可能属于同圈层。\n\n### 如果重点团伙簇密度很高，但桥接中心性全为 0\n这通常不表示结果有问题，而是说明这个簇已经非常紧密，内部没有明显“单一桥接点”。此时更应该优先关注：\n\n- 核心节点\n- 共享设备证据\n- 号码对高分关系\n\n### 如果只得到“候选松散关联群组”\n说明有一定关联，但还不足以支撑“紧密团伙簇”的判断，需要继续下钻。\n\n---\n\n## 注意事项\n\n1. 输入号码太少时，更容易得到“候选群组”，不一定形成紧密团伙。\n2. `candidate_scope=mixed` 一般效果最好。\n3. 如果前端要展示下载附件，必须让模型读取 JSON 输出里的 `artifacts` / `report_path`。\n4. 如果号码文件是 `sample_group_ids.txt`，默认就是 skill 内置示例文件，优先使用绝对路径：\n\n```bash\n/mnt/skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/sample_group_ids.txt\n```\n\n5. 如果要进一步复核关系，建议联动：\n   - `shared-device-analysis`\n   - `association-path-analysis`\n   - `overlap-analysis`\n   - `single-number-analysis`\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 92,
+    "conflict_group": "phone_network_gang_cluster",
+    "prefer_when": [
+      "用户问疑似团伙、簇扩展、核心节点或桥接点",
+      "用户提供种子号码集合要求扩展团伙"
+    ],
+    "defer_when": [
+      "用户只关注一组号码的总体风险而不扩展时优先 group-risk-analysis",
+      "用户只问共享设备时优先 shared-device-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/gang-cluster-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/gang-cluster-analysis/SKILL.md",
+    "skill_md_hash": "sha256:3cafd9870023bec8eef6f280911e88a571c26ba03bd2aff91fec6285a6922086",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:9ba7d360de5f0c6d14eefa42cec019329caf7145dc035f98c546944ab69b3dc3",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "gang-cluster-analysis"
+  }
+}

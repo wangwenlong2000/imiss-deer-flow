@@ -1,0 +1,3 @@
+requests>=2.32
+sentence-transformers==5.4.1
+PyMuPDF==1.27.2.3

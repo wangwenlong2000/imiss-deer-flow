@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "object-detection",
+    "name": "object-detection",
+    "description": "Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "object_detection",
+      "bbox_detection"
+    ],
+    "input_types": [
+      "frames_json",
+      "image_frames",
+      "labels"
+    ],
+    "output_types": [
+      "detections_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：object-detection\n描述：Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.\n适用场景：video_surveillance。\n适用任务：object_detection, bbox_detection。\n输入类型：frames_json, image_frames, labels。\n输出类型：detections_json。\n适合使用：检测视频帧中的人车物；YOLO目标检测；输出检测框和置信度；识别帧内对象。\n不适合使用：跨帧跟踪；ROI匹配；生成事件；视频接入。",
+    "positive_triggers": [
+      "检测视频帧中的人车物",
+      "YOLO目标检测",
+      "输出检测框和置信度",
+      "识别帧内对象"
+    ],
+    "negative_triggers": [
+      "跨帧跟踪",
+      "ROI匹配",
+      "生成事件",
+      "视频接入",
+      "分析视频事件并输出证据截图",
+      "截取事件发生帧并做人脸打码脱敏",
+      "生成打码脱敏后的证据图"
+    ],
+    "keywords": [
+      "object detection",
+      "YOLO",
+      "detections",
+      "bbox",
+      "labels",
+      "confidence",
+      "人车物"
+    ],
+    "anti_keywords": [
+      "tracking",
+      "roi_matches",
+      "event_templates",
+      "RTSP",
+      "证据图",
+      "证据截图",
+      "事件发生帧",
+      "打码脱敏",
+      "人脸打码",
+      "脱敏"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: object-detection\ndescription: Detect objects in sampled video frames and return standard Detection schema. Use when Codex has frames and labels and needs YOLO detections with labels, confidences, and bounding boxes. This skill exposes the ultralytics YOLO backend; use it before tracking, ROI mapping, and event rules.\n---\n\n# Object Detection\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf `frames` are missing but the user provided a video path or upload, do not ask the user to provide frames and do not write detection or frame extraction code. First call `video-stream-ingestion/scripts/run.py` if needed, then `frame-sampling/scripts/run.py` to generate `frames`, then call this skill. If `labels` are missing, infer common labels from the task when safe, such as `person` for crowd, fight, behavior, or pedestrian analysis; otherwise ask only for target labels.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython object-detection/scripts/run.py --frames-json <frames.json> --labels person,car --provider ultralytics --config <config.json> --output <detections.json>\n```\n\nParameters: `--frames-json`, `--labels`, `--provider`, `--model-path`, `--config`, `--output`.\n\n## Workflow\n\n1. Read frames and target labels.\n2. Load the configured ultralytics YOLO detector.\n3. Map model labels to internal labels.\n4. Apply per-label confidence thresholds.\n5. Return frame-level Detection records.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `frames`\n- `labels`\n- Optional `detections` to pass through precomputed results\n\n## Outputs\n\nReturns `detections`, each with `frame_id`, `timestamp`, and `objects` containing `object_id`, `label`, `confidence`, `bbox`, and optional `model_label`.\n\n## Failure Modes\n\n- `YOLO_DEPENDENCY_MISSING`\n- `YOLO_MODEL_LOAD_FAILED`\n- `YOLO_MODEL_NOT_FOUND`\n- `YOLO_INFERENCE_FAILED`\n- `FRAME_NOT_FOUND`\n\n## Constraints\n\nDo not infer business events, track identities, or create evidence.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "ultralytics",
+      "opencv"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 84,
+    "conflict_group": "object-detection",
+    "prefer_when": [
+      "检测视频帧中的人车物",
+      "YOLO目标检测",
+      "输出检测框和置信度",
+      "识别帧内对象"
+    ],
+    "defer_when": [
+      "跨帧跟踪",
+      "ROI匹配",
+      "生成事件",
+      "视频接入",
+      "用户要求完整视频事件分析、证据截图和隐私脱敏组合流程时，应优先使用 analyze-video、evidence-snapshot、privacy-masking"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/object-detection",
+    "skill_md_path": "skills/custom/object-detection/SKILL.md",
+    "skill_md_hash": "sha256:b34d4f56de08443bb04982e1d7b8647ec666654888ada6263818d58088d4e410",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:3429e458c635df5af57692177fd6d54511b1254b2aff8386d757254a5a9b5873",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "object-detection"
+  }
+}

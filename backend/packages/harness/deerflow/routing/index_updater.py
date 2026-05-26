@@ -19,6 +19,7 @@ import hashlib
 import json
 import logging
 import os
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -226,11 +227,15 @@ def build_router_card_for_skill(
     Returns (card_dict, error_message).
     """
     # Lazy import to avoid circular deps at module load
+    scripts_dir = _PROJECT_ROOT / "scripts"
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
     from extract_router_cards import (
         CUSTOM_SKILL_PROFILES,
         DEFAULT_PUBLIC_PROFILE,
         PUBLIC_SKILL_DEFAULTS,
         build_router_card,
+        infer_description_from_body,
         parse_frontmatter,
     )
 
@@ -243,7 +248,7 @@ def build_router_card_for_skill(
     frontmatter, body = parse_frontmatter(raw_content)
     skill_id = skill_dir.name
     name = frontmatter.get("name", skill_id)
-    description = frontmatter.get("description", "")
+    description = frontmatter.get("description", "") or infer_description_from_body(body)
 
     is_custom = "custom" in str(skill_dir.relative_to(skills_root))
     category = "custom" if is_custom else "public"
@@ -295,6 +300,14 @@ def build_router_card_for_skill(
         profile=profile,
         es_index=es_index,
     )
+
+    scope = card.setdefault("scope", {})
+    if "scenes" not in scope or not isinstance(scope.get("scenes"), list):
+        legacy_scene = scope.pop("scene", None)
+        if isinstance(legacy_scene, str) and legacy_scene.strip():
+            scope["scenes"] = [legacy_scene.strip()]
+        else:
+            scope["scenes"] = []
 
     return card, None
 

@@ -7,9 +7,6 @@
   },
   "scope": {
     "scenes": [
-      "content_fetching",
-      "wechat_article",
-      "legal_text_processing",
       "policy_regulation"
     ],
     "is_public": false,

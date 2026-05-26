@@ -7,10 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "policy_regulation",
-      "official_document",
-      "government_writing",
-      "china_policy"
+      "policy_regulation"
     ],
     "is_public": false,
     "task_types": [

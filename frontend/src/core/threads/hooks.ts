@@ -285,7 +285,7 @@ export function useThreadStream({
               const uploadedFiles: FileInMessage[] = uploadedFileInfo.map(
                 (info) => ({
                   filename: info.filename,
-                  size: info.size,
+                  size: toFileSizeNumber(info.size),
                   path: info.virtual_path,
                   status: "uploaded" as const,
                 }),

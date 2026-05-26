@@ -95,7 +95,6 @@ export function groupMessages<T>(
     }
 
     if (message.type === "ai") {
-      const onlyWriteTodos = isOnlyWriteTodosToolCallMessage(message);
       if (hasPresentFiles(message)) {
         groups.push({
           id: message.id,
@@ -108,10 +107,7 @@ export function groupMessages<T>(
           type: "assistant:subagent",
           messages: [message],
         });
-      } else if (
-        (hasReasoning(message) || hasToolCalls(message)) &&
-        !onlyWriteTodos
-      ) {
+      } else if (hasReasoning(message) || hasToolCalls(message)) {
         const lastGroup = groups[groups.length - 1];
         // Accumulate consecutive intermediate AI messages into one processing group.
         if (lastGroup?.type !== "assistant:processing") {
@@ -173,7 +169,7 @@ function isExplicitlyInternalAssistantMessage(message: Message) {
 }
 
 function shouldRenderAssistantBubble(message: Message) {
-  if (!hasContent(message)) {
+  if (!hasDisplayableContent(message)) {
     return false;
   }
   if (message.type !== "ai") {
@@ -183,28 +179,16 @@ function shouldRenderAssistantBubble(message: Message) {
     return false;
   }
 
-  // Keep intermediate model/tool orchestration in hidden steps.
-  // A fallback assistant bubble (single message) is injected after grouping
-  // only when this turn has no visible assistant answer at all.
-  if (hasReasoning(message) || hasToolCalls(message)) {
-    if (isOnlyWriteTodosToolCallMessage(message)) {
-      return true;
-    }
+  // Keep tool orchestration in hidden steps. Final answers may still carry
+  // reasoning metadata, so reasoning alone must not hide displayable content.
+  if (hasToolCalls(message)) {
     return false;
   }
   return true;
 }
 
-function isOnlyWriteTodosToolCallMessage(message: Message) {
-  if (message.type !== "ai") {
-    return false;
-  }
-  const toolCalls = message.tool_calls ?? [];
-  return (
-    toolCalls.length > 0 &&
-    toolCalls.every((toolCall) => toolCall.name === "write_todos") &&
-    hasContent(message)
-  );
+function hasDisplayableContent(message: Message) {
+  return extractContentFromMessage(message).trim().length > 0;
 }
 
 function findLastUserMessageIndex(messages: Message[]) {
@@ -238,10 +222,13 @@ function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: num
     if (!message || message.type !== "ai") {
       continue;
     }
-    if (!hasContent(message)) {
+    if (!hasDisplayableContent(message)) {
       continue;
     }
     if (isExplicitlyInternalAssistantMessage(message)) {
+      continue;
+    }
+    if (hasToolCalls(message)) {
       continue;
     }
     return message;
@@ -252,7 +239,9 @@ function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: num
 export function isInternalMessage(message: Message) {
   return (
     message.name === "todo_reminder" ||
-    message.additional_kwargs?.message_type === "routed_skill_prompt"
+    message.additional_kwargs?.message_type === "routed_skill_prompt" ||
+    message.additional_kwargs?.message_type === "view_image_context" ||
+    message.additional_kwargs?.internal === true
   );
 }
 

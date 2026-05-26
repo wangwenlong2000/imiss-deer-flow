@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "dataset-overview-analysis",
+    "name": "dataset-overview-analysis",
+    "description": "对已经形成标准图结构的电话网络数据集做总体概览，统计号码规模、通话边规模、设备边规模、风险标签分布、省份分布、时间覆盖和可分析能力范围。适用于回答“数据里有什么、规模多大、能做什么”；不用于建图、TopN 排名、单号码下钻或团伙簇识别。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "dataset_overview",
+      "scale_statistics",
+      "risk_distribution",
+      "province_distribution"
+    ],
+    "input_types": [
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "overview_report",
+      "statistics_csv",
+      "summary_json",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：dataset-overview-analysis\n描述：对已经形成标准图结构的电话网络数据集做总体概览，统计号码规模、通话边规模、设备边规模、风险标签分布、省份分布、时间覆盖和可分析能力范围。适用于回答“数据里有什么、规模多大、能做什么”；不用于建图、TopN 排名、单号码下钻或团伙簇识别。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：dataset_overview, scale_statistics, risk_distribution, province_distribution。\n输入类型：dataset_root, user_nodes.csv, call_edges.csv, edges_phone_imei.parquet。\n输出类型：overview_report, statistics_csv, summary_json, markdown_report。\n适合使用：这个数据里有什么；请概览一下这个数据；数据规模和风险分布是什么；电话网络数据总体情况。\n不适合使用：上传新原始数据建图；找Top10高风险号码；分析某个号码；团伙簇扩展。\n关键词：概览，总体情况，数据规模，风险分布，省份分布，统计，overview。\n反关键词：建图，TopN，单号，团伙。",
+    "positive_triggers": [
+      "这个数据里有什么",
+      "请概览一下这个数据",
+      "数据规模和风险分布是什么",
+      "电话网络数据总体情况"
+    ],
+    "negative_triggers": [
+      "上传新原始数据建图",
+      "找Top10高风险号码",
+      "分析某个号码",
+      "团伙簇扩展"
+    ],
+    "keywords": [
+      "概览",
+      "总体情况",
+      "数据规模",
+      "风险分布",
+      "省份分布",
+      "统计",
+      "overview"
+    ],
+    "anti_keywords": [
+      "建图",
+      "TopN",
+      "单号",
+      "团伙"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: dataset-overview-analysis\ndescription: 对已经形成标准图结构的电话网络数据集做总体概览，统计号码规模、通话边规模、设备边规模、风险标签分布、省份分布、时间覆盖和可分析能力范围。适用于回答“数据里有什么、规模多大、能做什么”；不用于建图、TopN 排名、单号码下钻或团伙簇识别。\n---\n\n# dataset-overview-analysis\n\n## 一、这个 skill 是做什么的\n\n`dataset-overview-analysis` 是电话网络数据分析链路里的**数据集总览入口 skill**。\n\n它不负责深挖某一个号码，也不直接判断某个团伙是否可疑，而是先回答：\n\n- 当前电话网络数据里有多少号码？\n- 风险标签对象有多少，分布如何？\n- 通话关系规模多大？\n- 是否有时间字段，能不能做时间序列异常分析？\n- 是否有设备关系，能不能做共享设备分析？\n- 当前数据支持哪些后续分析 skill？\n- 数据质量是否存在明显缺失、重复或字段识别问题？\n- 如果用于甲方演示，应该怎样概括“数据里有什么、能做什么”？\n\n它适合作为甲方演示或完整分析流程的第一步。\n\n---\n\n## 二、默认数据集规则\n\n前端和命令行都按同一套规则执行：\n\n1. 如果用户明确指定 `dataset-root` 或数据集路径，优先使用用户指定的数据。\n2. 如果用户只说“使用 unified 数据集”或“使用已预处理好的电话网络数据”，默认使用：\n\n```text\n/workspace/imiss-deer-flow-main/datasets/phone-network\n```\n\n并默认分析：\n\n```text\nprocessed/unified/\n```\n\n3. 如果用户没有指定数据集，也没有额外上传新数据，默认使用已预处理好的 `unified` 电话网络数据。\n4. 该 skill 当前面向**已处理好的图结构数据**，包括：\n   - `user_nodes.csv`\n   - `call_edges.csv`\n   - `edges_phone_imei.parquet` 或 `edges_phone_imei.csv`\n5. 如果前端上传的是原始 CSV/Excel 明细表，而不是上述图结构数据，需要先经过数据接入/建图流程，不能直接用本 skill 当作清洗建图工具。\n\n---\n\n## 三、它输出什么\n\n脚本会生成一组完整证据文件：\n\n- `dataset_overview_<dataset>.md`：技术版总体概览 markdown 报告\n- `dataset_overview_<dataset>_presentation.md`：演示开场版 markdown 报告\n- `dataset_overview_<dataset>_summary.json`：结构化摘要\n- `dataset_overview_<dataset>_evidence.xlsx`：Excel 证据工作簿\n- `dataset_overview_<dataset>_overview_counts.csv`：核心规模统计\n- `dataset_overview_<dataset>_label_distribution.csv`：标签分布\n- `dataset_overview_<dataset>_sub_label_distribution.csv`：子标签分布\n- `dataset_overview_<dataset>_province_distribution.csv`：省份分布\n- `dataset_overview_<dataset>_daily_overview.csv`：日级通话概览\n- `dataset_overview_<dataset>_hourly_top.csv`：小时分布 Top\n- `dataset_overview_<dataset>_top_callers.csv`：高活跃源号码\n- `dataset_overview_<dataset>_top_counterparties.csv`：公共对端\n- `dataset_overview_<dataset>_top_shared_devices.csv`：共享设备样例\n- `dataset_overview_<dataset>_top_phone_device_counts.csv`：号码设备数 Top\n- `dataset_overview_<dataset>_data_quality.csv`：数据质量检查\n- `dataset_overview_<dataset>_available_capabilities.csv`：可分析能力清单\n\n前端展示时，必须展示 markdown 报告，并提供 csv/xlsx/json 附件下载入口。若用户要求“甲方演示开场版”“汇报版”“更通俗的总览”，优先读取并展示 `_presentation.md`。\n\n---\n\n## 四、适合处理的问题\n\n当用户问下面这些问题时，优先使用本 skill：\n\n- “这个电话网络数据集里有什么？”\n- “帮我看一下数据规模和标签分布。”\n- “这个数据能做哪些分析？”\n- “当前数据有没有共享设备关系？”\n- “当前数据有没有时间字段，能不能做时间序列分析？”\n- “先给我一个电话网络数据总体概览。”\n- “甲方演示前，先生成一个数据概览报告。”\n- “生成一份适合演示开场的数据总览。”\n\n---\n\n## 五、不适合处理的问题\n\n下面这些问题不要优先用本 skill：\n\n- “完整分析某个号码” → 用 `single-number-analysis` 或 `risk-evidence-pack`\n- “找 TopN 高风险号码” → 用 `topn-high-risk-discovery`\n- “筛出夜间异常/共享设备明显的号码” → 用 `condition-based-screening`\n- “两个号码怎么连起来” → 用 `association-path-analysis`\n- “两个号码有没有共同对端/共享设备” → 用 `overlap-analysis`\n- “抽取某个号码的一跳/两跳局部图” → 用 `subgraph-extraction-analysis`\n- “分析一组号码像什么群体” → 用 `group-risk-analysis`\n- “识别疑似团伙簇” → 用 `gang-cluster-analysis`\n- “分析某号码最近是否异常活跃” → 用 `time-series-anomaly-analysis`\n\n---\n\n## 六、命令行调用方式\n\n### 1. 标准 unified 数据概览\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-overview-analysis/scripts\npython3 dataset_overview_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --top-k 20\n```\n\n### 2. 一键回归测试\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-overview-analysis/scripts\nbash test_dataset_overview_analysis.sh\n```\n\n---\n\n## 七、前端推荐提示词\n\n### Q1：总体概览\n\n请使用 `dataset-overview-analysis` skill，对已预处理好的 unified 电话网络数据进行总体概览分析，输出对象规模、风险标签分布、通话关系规模、共享设备规模、时间覆盖、数据质量和可分析能力范围，并生成 markdown 报告和 csv/xlsx/json 附件。\n\n### Q2：甲方演示入口\n\n请使用 `dataset-overview-analysis` skill，生成一份适合甲方演示开场使用的电话网络数据总览报告，重点回答“数据里有什么、能做什么、后续可以调用哪些分析 skill”。优先展示 `dataset_overview_unified_presentation.md`，同时保留技术版报告和证据附件。\n\n### Q3：数据质量与能力检查\n\n请使用 `dataset-overview-analysis` skill，检查当前 unified 电话网络数据是否具备节点、通话关系、共享设备、时间序列和标签分布分析能力，并输出数据质量检查表和可用能力清单。\n\n---\n\n## 八、分析逻辑和基础算子对齐\n\n本 skill 是通过基础图分析算子组合实现的：\n\n- 对象规模与标签分布 = `node_lookup + aggregation_query`\n- 通话关系规模与公共对端 = `relationship_filter + aggregation_query`\n- 共享设备概览 = `query_shared_device + aggregation_query`\n- 时间覆盖与小时分布 = `relationship_filter(time window/hour) + aggregation_query`\n- 可分析能力范围 = 基于基础算子可用性和 skill 路由映射生成\n\n也就是说，它不是孤立脚本，而是整个电话网络 skill 体系的“数据入口总览层”。\n\n---\n\n## 九、前端展示要求\n\n脚本返回 JSON 后，前端/调用链路必须：\n\n1. 读取 `report_path` 对应的技术版 markdown 报告。\n2. 如果用户要求演示版、汇报版、开场版，读取 `files.presentation_md` 对应的演示报告。\n3. 展示 markdown 报告正文摘要。\n4. 将 `artifacts` 中的 markdown、csv、xlsx、json 文件作为附件展示或提供下载入口。\n5. 不要只把路径字符串展示给用户。\n6. 如果某些附件文件存在但没有展示，属于前端展示链路问题，不属于脚本执行失败。\n\n---\n\n## 十、后续推荐分析链路\n\n本 skill 通常作为第一步。完成数据概览后，推荐按下面链路继续：\n\n1. 如果要找重点对象：`topn-high-risk-discovery` 或 `condition-based-screening`\n2. 如果要解释单个号码：`risk-evidence-pack` 或 `single-number-analysis`\n3. 如果要分析设备池：`shared-device-analysis`\n4. 如果要分析两个号码关系：`association-path-analysis` 或 `overlap-analysis`\n5. 如果只想看局部邻居结构：`subgraph-extraction-analysis`\n6. 如果要分析号码集合：`group-risk-analysis` 或 `gang-cluster-analysis`\n7. 如果要分析阶段性变化：`time-series-anomaly-analysis`\n\n---\n\n## 十一、输出字段说明\n\nJSON 顶层字段包括：\n\n- `ok`：脚本是否正常执行\n- `status`：`ok` 或 `partial`\n- `dataset`：当前分析的数据集名称\n- `input_summary`：输入路径和参数\n- `result.node_summary`：节点和风险分布概览\n- `result.call_summary`：通话关系和时间覆盖概览\n- `result.device_summary`：共享设备概览\n- `result.quality_summary`：数据质量检查摘要\n- `result.capability_summary`：可分析能力摘要\n- `artifacts`：所有生成文件\n- `files.presentation_md`：演示开场版报告路径\n- `report_path`：技术版 markdown 报告路径\n\n---\n\n## 十二、注意事项\n\n- 本 skill 的目标是“总览”，不是对单个号码或群体做最终研判。\n- 如果某个数据表缺失，脚本会尽量输出 partial 结果，而不是直接失败。\n- 如果数据没有时间字段，时间序列分析能力会标记为受限。\n- 如果数据没有设备关系表，共享设备分析能力会标记为受限。\n- 如果数据没有标签字段，风险对象分布会标记为未知。\n- “有记录日期”不等于连续日历跨度。技术版和演示版报告都会说明该差异，避免把跨年数据误读成连续 289 天数据。\n- 演示报告不输出主观“数据质量评分”，只展示脚本实际检查得到的缺失项、警告项和可用能力。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 88,
+    "conflict_group": "phone_network_overview",
+    "prefer_when": [
+      "用户问数据里有什么或整体规模",
+      "用户需要分析前的全局概览"
+    ],
+    "defer_when": [
+      "用户问能不能分析时优先质量诊断",
+      "用户明确找重点对象时优先 topn-high-risk-discovery"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/dataset-overview-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/dataset-overview-analysis/SKILL.md",
+    "skill_md_hash": "sha256:8d2edef01307c44c029992fecec1c11e572beeb07010b2e6ee94c25ef53b9588",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:1beadc5945d528df6d8202714eaae523209ffc64a0f718e4e4327a9098ab9ebc",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "dataset-overview-analysis"
+  }
+}

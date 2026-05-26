@@ -1,0 +1,14 @@
+# Skill: building-footprint-extraction
+skill:
+  name: building-footprint-extraction
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+io:
+  outputs_dir: ./outputs
+  subdir: building-footprint-extraction
+
+logging:
+  level: INFO

@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "human-review-routing",
+    "name": "human-review-routing",
+    "description": "Decide whether video monitoring event candidates require manual review. Use after event generation and evidence creation when Codex has event confidence, event_type, review_threshold, camera_health, high_risk_event_types, newly added camera signals, or enforcement-impact flags and needs review queue routing."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "human_review_routing",
+      "review_queue_decision"
+    ],
+    "input_types": [
+      "event_json",
+      "camera_health_json",
+      "review_config"
+    ],
+    "output_types": [
+      "review_routing_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：human-review-routing\n描述：Decide whether video monitoring event candidates require manual review. Use after event generation and evidence creation when Codex has event confidence, event_type, review_threshold, camera_health, high_risk_event_types, newly added camera signals, or enforcement-impact flags and needs review queue routing.\n适用场景：video_surveillance。\n适用任务：human_review_routing, review_queue_decision。\n输入类型：event_json, camera_health_json, review_config。\n输出类型：review_routing_json。\n适合使用：判断事件是否需要人工复核；低置信度事件进入复核队列；高风险事件人工审核分流。\n不适合使用：生成事件；证据截图；视频分析；隐私打码。",
+    "positive_triggers": [
+      "判断事件是否需要人工复核",
+      "低置信度事件进入复核队列",
+      "高风险事件人工审核分流"
+    ],
+    "negative_triggers": [
+      "生成事件",
+      "证据截图",
+      "视频分析",
+      "隐私打码"
+    ],
+    "keywords": [
+      "human review",
+      "review_threshold",
+      "review queue",
+      "manual review",
+      "人工复核"
+    ],
+    "anti_keywords": [
+      "event generation",
+      "snapshot",
+      "privacy masking"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: human-review-routing\ndescription: Decide whether video monitoring event candidates require manual review. Use after event generation and evidence creation when Codex has event confidence, event_type, review_threshold, camera_health, high_risk_event_types, newly added camera signals, or enforcement-impact flags and needs review queue routing.\n---\n\n# Human Review Routing\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf event confidence or event fields are missing but the user provided a video analysis request, do not write custom review-routing logic. First call `event-rule-engine/scripts/run.py` and any required upstream skills to produce candidate events, then call this skill for review routing.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython human-review-routing/scripts/run.py --event-json <event.json> --camera-health-json <health.json> --config <config.json> --output <review.json>\n```\n\nParameters: `--event-json`, `--camera-health-json`, `--review-threshold`, `--config`, `--output`.\n\n## Workflow\n\n1. Read event confidence, event type, camera health, and review threshold.\n2. Require review for low confidence, high-risk types, degraded cameras, new cameras, or enforcement impact.\n3. Return review flag, reasons, threshold, and queue.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `event`\n- `camera_health`\n- Optional `review_threshold`\n\nConfig:\n- `default_review_threshold`\n- `event_templates.<event_type>.review_threshold`\n- `high_risk_event_types`\n\n## Outputs\n\nReturns `event_id`, `review_required`, `reasons`, `review_threshold`, and `queue`.\n\n## Failure Modes\n\nThe current implementation tolerates missing optional config and falls back to threshold `0.85`.\n\n## Constraints\n\nDo not merge duplicate events or generate evidence.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 76,
+    "conflict_group": "human-review-routing",
+    "prefer_when": [
+      "判断事件是否需要人工复核",
+      "低置信度事件进入复核队列",
+      "高风险事件人工审核分流"
+    ],
+    "defer_when": [
+      "生成事件",
+      "证据截图",
+      "视频分析",
+      "隐私打码"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/human-review-routing",
+    "skill_md_path": "skills/custom/human-review-routing/SKILL.md",
+    "skill_md_hash": "sha256:04c889eb1c51e2811982c2964bbdac0dba397a079d31df0b52cbb34988154716",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:dbecd9091f8cf3fe7893ea7447c3ed2f74bd1bd3556c7ced195d38e8dbf4c9b4",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "human-review-routing"
+  }
+}
