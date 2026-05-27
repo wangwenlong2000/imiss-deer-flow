@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import mimetypes
 import time
@@ -58,6 +59,8 @@ def _extract_response_text(result: dict | list) -> str:
     else:
         return ""
 
+    invoke_skill_fallback = ""
+
     # Walk backwards to find usable response text, but stop at the last
     # human message to avoid returning text from a previous turn.
     for msg in reversed(messages):
@@ -76,6 +79,11 @@ def _extract_response_text(result: dict | list) -> str:
             if isinstance(content, str) and content:
                 return content
 
+        if not invoke_skill_fallback and msg_type == "tool" and msg.get("name") == "invoke_skill":
+            content = _extract_invoke_skill_summary(msg.get("content"))
+            if content:
+                invoke_skill_fallback = content
+
         # Regular AI message with text content
         if msg_type == "ai":
             content = msg.get("content", "")
@@ -92,6 +100,56 @@ def _extract_response_text(result: dict | list) -> str:
                 text = "".join(parts)
                 if text:
                     return text
+    return invoke_skill_fallback
+
+
+def _extract_invoke_skill_summary(content: Any) -> str:
+    """Extract a user-facing fallback from invoke_skill wrap_output JSON."""
+    if not isinstance(content, str) or not content.strip():
+        return ""
+
+    try:
+        payload = json.loads(content)
+    except Exception:
+        return ""
+
+    if not isinstance(payload, Mapping) or payload.get("status") != "wrapped":
+        return ""
+
+    skill_result = payload.get("skill_result")
+    if not isinstance(skill_result, Mapping):
+        return ""
+
+    result = skill_result.get("result")
+    if not isinstance(result, Mapping):
+        return ""
+
+    display_text = result.get("display_text")
+    if isinstance(display_text, str) and display_text.strip():
+        return display_text.strip()
+
+    summary = result.get("summary")
+    if isinstance(summary, Mapping):
+        overview = summary.get("overview")
+        if isinstance(overview, str) and overview.strip():
+            return overview.strip()
+
+        title = summary.get("title")
+        if isinstance(title, str) and title.strip():
+            return title.strip()
+
+    findings = result.get("findings")
+    if isinstance(findings, list):
+        rendered: list[str] = []
+        for item in findings[:5]:
+            if not isinstance(item, Mapping):
+                continue
+            text = item.get("summary") or item.get("title") or item.get("description")
+            if isinstance(text, str) and text.strip():
+                rendered.append(text.strip())
+        if rendered:
+            return "\n".join(rendered)
+
     return ""
 
 

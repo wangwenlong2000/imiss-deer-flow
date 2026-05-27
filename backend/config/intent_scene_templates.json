@@ -267,7 +267,7 @@
       "风险条款",
       "企业制度"
     ],
-    "anti_keywords": [
+    "strong_anti_keywords": [
       "opengrep",
       "sast",
       "静态扫描",
@@ -277,7 +277,9 @@
       "违规分析",
       "python",
       "java",
-      "javascript",
+      "javascript"
+    ],
+    "anti_keywords": [
       "pcap",
       "Zeek",
       "车流量",
@@ -734,6 +736,16 @@
       "识别街景图片位置",
       "审查合同条款"
     ],
+    "strong_keywords": [
+      "opengrep",
+      "SAST",
+      "静态扫描",
+      "代码安全",
+      "源码审计",
+      "违规分析",
+      "漏洞扫描",
+      "合规扫描"
+    ],
     "keywords": [
       "代码片段",
       "源码",
@@ -746,14 +758,6 @@
       "JavaScript",
       "TypeScript",
       "AST",
-      "opengrep",
-      "SAST",
-      "静态扫描",
-      "代码安全",
-      "源码审计",
-      "违规分析",
-      "漏洞扫描",
-      "合规扫描",
       "调用图",
       "数据流",
       "输入输出",

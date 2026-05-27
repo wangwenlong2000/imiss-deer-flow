@@ -200,7 +200,8 @@ def _wrap_skill_result(
     status: str,
 ) -> dict[str, Any]:
     output_text = legacy_output if isinstance(legacy_output, str) else json.dumps(legacy_output, ensure_ascii=False)
-    overview = output_text.strip() or "Skill execution completed."
+    display_text = output_text.strip()
+    overview = display_text or "Skill execution completed."
     if len(overview) > 1200:
         overview = overview[:1200] + "..."
 
@@ -222,6 +223,7 @@ def _wrap_skill_result(
         "capability": envelope.get("capability") or "skill_invocation",
         "status": status,
         "result": {
+            "display_text": display_text,
             "summary": {
                 "title": f"{skill_name} result",
                 "overview": overview,

@@ -72,4 +72,5 @@ def test_invoke_skill_wrap_output_returns_skill_result(monkeypatch):
     assert response["status"] == "wrapped"
     assert skill_result["schema_version"] == "1.0"
     assert skill_result["request_id"] == "req-1"
+    assert skill_result["result"]["display_text"] == "分析完成，未发现高危异常。"
     assert skill_result["result"]["artifacts"][0]["uri"] == "/mnt/user-data/outputs/report.md"

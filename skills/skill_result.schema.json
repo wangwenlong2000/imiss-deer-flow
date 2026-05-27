@@ -67,6 +67,10 @@
       "required": ["summary", "findings", "evidence", "artifacts"],
       "additionalProperties": false,
       "properties": {
+        "display_text": {
+          "type": "string",
+          "description": "Optional user-facing final text output. Preserve the original human-readable report or summary here when the legacy Skill already produced one. Machine consumers should use summary/findings/evidence instead of reparsing this text."
+        },
         "summary": {
           "$ref": "#/definitions/summary"
         },

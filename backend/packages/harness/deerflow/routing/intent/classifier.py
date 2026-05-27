@@ -1665,6 +1665,8 @@ def _scene_terms(config: dict[str, Any]) -> dict[str, float]:
     add(config.get("name"), 2.5)
     add(config.get("description"), 1.5)
     add(config.get("example"), 1.0, expand_cjk=False)
+    for keyword in config.get("strong_keywords", []) or []:
+        add(keyword, 4.5, expand_cjk=False)
     for keyword in config.get("keywords", []) or []:
         add(keyword, 2.7, expand_cjk=False)
     for positive_example in config.get("positive_examples", []) or []:
@@ -1683,6 +1685,10 @@ def _scene_terms(config: dict[str, Any]) -> dict[str, float]:
 
 def _scene_penalty(query_compact: str, config: dict[str, Any]) -> float:
     penalty = 0.0
+    for anti_keyword in config.get("strong_anti_keywords", []) or []:
+        term = _compact(str(anti_keyword))
+        if term and term in query_compact:
+            penalty -= 6.0
     for anti_keyword in config.get("anti_keywords", []) or []:
         term = _compact(str(anti_keyword))
         if term and term in query_compact:

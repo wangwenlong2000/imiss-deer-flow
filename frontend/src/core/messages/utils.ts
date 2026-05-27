@@ -134,10 +134,9 @@ export function groupMessages<T>(
     lastUserMessageIndex >= 0 &&
     !hasVisibleAssistantAfterIndex(messages, lastUserMessageIndex)
   ) {
-    const fallbackMessage = findLastAssistantFallbackCandidate(
-      messages,
-      lastUserMessageIndex,
-    );
+    const fallbackMessage =
+      findLastAssistantFallbackCandidate(messages, lastUserMessageIndex) ??
+      findLastInvokeSkillFallbackCandidate(messages, lastUserMessageIndex);
     if (fallbackMessage) {
       groups.push({
         id: fallbackMessage.id,
@@ -236,6 +235,30 @@ function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: num
   return null;
 }
 
+function findLastInvokeSkillFallbackCandidate(
+  messages: Message[],
+  afterIndex: number,
+): Message | null {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "tool") {
+      continue;
+    }
+
+    const summary = extractInvokeSkillSummary(message);
+    if (!summary) {
+      continue;
+    }
+
+    return {
+      type: "ai",
+      id: `${message.id ?? "invoke-skill"}:fallback`,
+      content: summary,
+    } as Message;
+  }
+  return null;
+}
+
 export function isInternalMessage(message: Message) {
   return (
     message.name === "todo_reminder" ||
@@ -260,6 +283,65 @@ export function extractTextFromMessage(message: Message) {
       .trim();
   }
   return "";
+}
+
+export function extractInvokeSkillSummary(message: Message) {
+  if (message.type !== "tool" || message.name !== "invoke_skill") {
+    return "";
+  }
+
+  const raw = extractTextFromMessage(message);
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    const payload = JSON.parse(raw) as {
+      status?: string;
+      skill_result?: {
+        result?: {
+          display_text?: string;
+          summary?: {
+            overview?: string;
+            title?: string;
+          };
+          findings?: Array<{
+            summary?: string;
+            title?: string;
+            description?: string;
+          }>;
+        };
+      };
+    };
+
+    if (payload.status !== "wrapped") {
+      return "";
+    }
+
+    const displayText = payload.skill_result?.result?.display_text?.trim();
+    if (displayText) {
+      return displayText;
+    }
+
+    const overview = payload.skill_result?.result?.summary?.overview?.trim();
+    if (overview) {
+      return overview;
+    }
+
+    const title = payload.skill_result?.result?.summary?.title?.trim();
+    if (title) {
+      return title;
+    }
+
+    const findings = payload.skill_result?.result?.findings ?? [];
+    const rendered = findings
+      .map((item) => item.summary?.trim() || item.title?.trim() || item.description?.trim() || "")
+      .filter(Boolean)
+      .slice(0, 5);
+    return rendered.join("\n");
+  } catch {
+    return "";
+  }
 }
 
 export function extractContentFromMessage(message: Message) {
