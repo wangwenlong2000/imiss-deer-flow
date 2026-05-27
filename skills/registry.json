@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "schema_version": "1.0.0",
   "router_index": {
     "type": "elasticsearch",
@@ -15,32 +15,6 @@
     "id_field": "skill_id"
   },
   "skills": [
-    {
-      "id": "law-regulations-rag",
-      "name": "law-regulations-rag",
-      "scenes": [
-        "policy_regulation"
-      ],
-      "is_public": false,
-      "task_types": [
-        "law_retrieval",
-        "policy_retrieval",
-        "legal_basis_mapping",
-        "compliance_reference"
-      ],
-      "input_types": [
-        "text",
-        "docx",
-        "pdf",
-        "xlsx"
-      ],
-      "router_card_path": "skills/custom/law-regulations-rag/router_card.json",
-      "skill_md_path": "skills/custom/law-regulations-rag/SKILL.md",
-      "enabled": true,
-      "routing_text_hash": "sha256:cd47a2168c27527f5ea5a3f66de9f148142b76c63d0c1b62859284b7174f13c8",
-      "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "law-regulations-rag"
-    },
     {
       "id": "network-traffic-analysis",
       "name": "network-traffic-analysis",
@@ -66,7 +40,830 @@
       "enabled": true,
       "routing_text_hash": "sha256:48b32d856aeae8889423de2ce83148cc249e94ff2d21846f20c1d2150ddf373d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "network-traffic-analysis"
+      "es_doc_id": "network-traffic-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-contract-review",
+      "name": "china-contract-review",
+      "scenes": [
+        "legal",
+        "contract_review",
+        "china_law"
+      ],
+      "is_public": false,
+      "task_types": [
+        "contract_review",
+        "clause_review",
+        "contract_risk_identification",
+        "contract_validity_review",
+        "rights_obligations_review",
+        "breach_clause_review",
+        "dispute_resolution_clause_review",
+        "guarantee_security_clause_review",
+        "contract_revision_suggestion",
+        "clause_rewrite"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "contract_text",
+        "clause_text"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-contract-review/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-contract-review/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-contract-review",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-legal-consultation",
+      "name": "china-legal-consultation",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_consultation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_consultation",
+        "legal_relationship_explanation",
+        "risk_reminder",
+        "rights_protection_guidance",
+        "evidence_suggestion",
+        "practical_legal_advice",
+        "case_type_identification",
+        "initial_legal_assessment"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_description",
+        "legal_problem_description"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-legal-consultation/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-legal-consultation/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-legal-consultation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "china-legal-issue-analysis",
+      "name": "china-legal-issue-analysis",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_issue_analysis",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_issue_analysis",
+        "dispute_analysis",
+        "case_type_identification",
+        "legal_relationship_analysis",
+        "claim_basis_analysis",
+        "defense_analysis",
+        "issue_spotting",
+        "risk_assessment",
+        "litigation_arbitration_positioning",
+        "action_planning",
+        "checklist_generation",
+        "legal_citation_verification"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_description",
+        "legal_opinion"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/china-legal-issue-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/china-legal-issue-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "china-legal-issue-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "chinese-policy-analysis",
+      "name": "chinese-policy-analysis",
+      "scenes": [
+        "policy_regulation",
+        "china_policy",
+        "policy_analysis"
+      ],
+      "is_public": false,
+      "task_types": [
+        "policy_analysis",
+        "policy_interpretation",
+        "policy_implementation_assessment",
+        "policy_execution_likelihood",
+        "policy_trend_prediction",
+        "policy_impact_assessment",
+        "policy_strength_assessment",
+        "policy_signal_analysis",
+        "government_policy_reasoning"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "policy_document",
+        "policy_excerpt",
+        "policy_question"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/chinese-policy-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/chinese-policy-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "chinese-policy-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "code2patent",
+      "name": "code2patent",
+      "scenes": [
+        "legal",
+        "patent",
+        "software_patent",
+        "china_law",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "code_to_patent",
+        "patent_disclosure_generation",
+        "software_patent_drafting",
+        "technical_disclosure_drafting",
+        "claim_layout_generation",
+        "claim_evidence_mapping",
+        "patentable_solution_mining",
+        "code_evidence_extraction",
+        "invention_patent_draft_generation",
+        "patent_draft_self_check"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "docx",
+        "pdf",
+        "code",
+        "source_code",
+        "project_directory",
+        "repository",
+        "prd",
+        "technical_document",
+        "patent_idea_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/code2patent/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/code2patent/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "code2patent",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "law-local-retrieval",
+      "name": "law-local-retrieval",
+      "scenes": [
+        "policy_regulation",
+        "china_law",
+        "legal_retrieval",
+        "local_es_retrieval"
+      ],
+      "is_public": false,
+      "task_types": [
+        "law_retrieval",
+        "policy_retrieval",
+        "legal_basis_retrieval",
+        "article_retrieval",
+        "regulation_article_search",
+        "enforcement_basis_search",
+        "compliance_reference_search",
+        "validity_status_search",
+        "metadata_filtered_search",
+        "policy_report_legal_basis_support"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "law_name",
+        "article_no",
+        "metadata_filter"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/law-local-retrieval/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/law-local-retrieval/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "law-local-retrieval",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-briefing",
+      "name": "legal-briefing",
+      "scenes": [
+        "legal",
+        "china_law",
+        "policy_regulation",
+        "legal_briefing",
+        "legal_report"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_briefing",
+        "legal_memo_generation",
+        "legal_material_organization",
+        "legal_summary",
+        "legal_report_generation",
+        "risk_note_generation",
+        "compliance_briefing",
+        "rule_comparison",
+        "legal_analysis_rewriting",
+        "role_based_legal_output"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "retrieved_legal_materials",
+        "statute_excerpt",
+        "case_summary",
+        "policy_excerpt",
+        "analysis_result",
+        "legal_basis_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-briefing/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-briefing/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-briefing",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-document-assistant",
+      "name": "legal-document-assistant",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_document",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_document_template",
+        "legal_document_drafting_guidance",
+        "document_clause_explanation",
+        "personalized_template_adaptation",
+        "dispute_document_guidance",
+        "labor_arbitration_document",
+        "divorce_agreement_guidance",
+        "traffic_accident_claim_document",
+        "rental_agreement_guidance",
+        "demand_letter_guidance"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "legal_problem_description",
+        "document_request",
+        "template_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-document-assistant/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-document-assistant/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-document-assistant",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-proposal-generator",
+      "name": "legal-proposal-generator",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_service_document",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_service_document_generation",
+        "litigation_proposal_generation",
+        "consultation_report_generation",
+        "non_litigation_proposal_generation",
+        "legal_service_proposal_generation",
+        "client_communication_report_generation",
+        "internal_communication_report_generation",
+        "case_analysis_summary_generation",
+        "case_material_structuring",
+        "communication_record_summarization"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "case_materials",
+        "communication_record",
+        "consultation_record",
+        "evidence_materials",
+        "project_background",
+        "meeting_notes"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-proposal-generator/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-proposal-generator/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-proposal-generator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-qa-extractor",
+      "name": "legal-qa-extractor",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_knowledge_base",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_qa_extraction",
+        "consultation_record_structuring",
+        "legal_knowledge_base_generation",
+        "client_conversation_anonymization",
+        "legal_faq_generation",
+        "legal_content_marketing_material",
+        "qa_classification",
+        "legal_dialogue_summarization"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "docx",
+        "pdf",
+        "chat_record",
+        "consultation_record",
+        "communication_record",
+        "transcript",
+        "meeting_notes"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-qa-extractor/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-qa-extractor/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-qa-extractor",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "legal-text-format",
+      "name": "legal-text-format",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_text_processing",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "legal_text_formatting",
+        "legal_article_markdown_formatting",
+        "legal_case_markdown_formatting",
+        "legal_text_cleanup",
+        "legal_document_normalization",
+        "case_text_cleanup",
+        "statute_text_cleanup",
+        "markdown_conversion",
+        "legal_text_archive"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "txt",
+        "legal_article_text",
+        "legal_case_text",
+        "judgment_text",
+        "retrieved_text",
+        "pasted_text",
+        "local_file"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/legal-text-format/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/legal-text-format/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "legal-text-format",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "litigation-analysis",
+      "name": "litigation-analysis",
+      "scenes": [
+        "legal",
+        "china_law",
+        "litigation",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "litigation_analysis",
+        "judgment_analysis",
+        "first_instance_judgment_analysis",
+        "second_instance_judgment_analysis",
+        "appeal_retrial_decision_support",
+        "complaint_evidence_analysis",
+        "hearing_transcript_analysis",
+        "litigation_strategy_assessment",
+        "case_fact_extraction",
+        "court_reasoning_analysis",
+        "client_case_overview_generation"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "judgment",
+        "complaint",
+        "appeal_petition",
+        "defense_statement",
+        "hearing_transcript",
+        "evidence_materials",
+        "litigation_document"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/litigation-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/litigation-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "litigation-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "official-document-writer",
+      "name": "official-document-writer",
+      "scenes": [
+        "policy_regulation",
+        "official_document",
+        "government_writing",
+        "china_policy"
+      ],
+      "is_public": false,
+      "task_types": [
+        "official_document_drafting",
+        "official_document_polishing",
+        "official_document_revision",
+        "request_document_drafting",
+        "report_document_drafting",
+        "briefing_material_drafting",
+        "formal_chinese_document_writing",
+        "policy_grounded_document_writing",
+        "document_export"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "policy_materials",
+        "draft_text",
+        "background_materials",
+        "official_document_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/official-document-writer/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/official-document-writer/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "official-document-writer",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "patent-analysis",
+      "name": "patent-analysis",
+      "scenes": [
+        "legal",
+        "patent",
+        "intellectual_property",
+        "china_law",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "patent_analysis",
+        "claim_analysis",
+        "technical_feature_extraction",
+        "patent_scope_analysis",
+        "patent_infringement_comparison",
+        "fto_analysis",
+        "validity_analysis",
+        "invalidity_risk_assessment",
+        "design_around_analysis",
+        "patent_valuation",
+        "multi_patent_comparison",
+        "patent_portfolio_analysis"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "pdf",
+        "docx",
+        "patent_document",
+        "claim_text",
+        "specification_text",
+        "product_description",
+        "prior_art",
+        "patent_list"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/patent-analysis/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/patent-analysis/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "patent-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "policy-rag",
+      "name": "policy-rag",
+      "scenes": [
+        "policy_regulation",
+        "enterprise_policy",
+        "approval_flow",
+        "internal_rag"
+      ],
+      "is_public": false,
+      "task_types": [
+        "enterprise_policy_rag",
+        "internal_policy_document_split",
+        "approval_excel_conversion",
+        "policy_index_building",
+        "policy_index_rebuilding",
+        "policy_clause_retrieval",
+        "approval_flow_retrieval",
+        "approval_path_search",
+        "internal_policy_qa",
+        "script_driven_policy_processing"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "doc",
+        "docx",
+        "xlsx",
+        "xls",
+        "csv",
+        "enterprise_policy_document",
+        "approval_table",
+        "approval_matrix",
+        "approval_flow_table",
+        "query"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/policy-rag/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/policy-rag/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "policy-rag",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "trademark-assistant",
+      "name": "trademark-assistant",
+      "scenes": [
+        "legal",
+        "china_law",
+        "intellectual_property",
+        "trademark",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "trademark_consultation",
+        "trademark_class_planning",
+        "registrability_prescreen",
+        "trademark_risk_assessment",
+        "trademark_application_material_preparation",
+        "goods_list_generation",
+        "trademark_description_drafting",
+        "nice_classification_lookup",
+        "trademark_application_strategy"
+      ],
+      "input_types": [
+        "text",
+        "md",
+        "docx",
+        "pdf",
+        "image",
+        "trademark_name",
+        "trademark_design",
+        "business_description",
+        "goods_services_description",
+        "target_class"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/trademark-assistant/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/trademark-assistant/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "trademark-assistant",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "wechat-article-fetch",
+      "name": "wechat-article-fetch",
+      "scenes": [
+        "content_fetching",
+        "wechat_article",
+        "legal_text_processing",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "wechat_article_fetch",
+        "wechat_content_extraction",
+        "article_markdown_save",
+        "article_image_download",
+        "wechat_legal_article_fetch",
+        "dynamic_page_fetch",
+        "content_archiving",
+        "markdown_article_generation"
+      ],
+      "input_types": [
+        "text",
+        "url",
+        "wechat_url",
+        "wechat_article_id",
+        "output_path"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/wechat-article-fetch/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/wechat-article-fetch/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "wechat-article-fetch",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "wechat-article-search",
+      "name": "wechat-article-search",
+      "scenes": [
+        "content_search",
+        "wechat_article",
+        "wechat_public_account",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "wechat_article_search",
+        "wechat_post_search",
+        "public_account_article_search",
+        "keyword_based_wechat_search",
+        "wechat_article_collection",
+        "wechat_article_summary_list",
+        "structured_article_search"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "keyword",
+        "public_account_name",
+        "search_request"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/wechat-article-search/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/wechat-article-search/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "wechat-article-search",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
+    },
+    {
+      "id": "yuandian-law-search",
+      "name": "yuandian-law-search",
+      "scenes": [
+        "legal",
+        "china_law",
+        "legal_retrieval",
+        "case_retrieval",
+        "policy_regulation"
+      ],
+      "is_public": false,
+      "task_types": [
+        "law_article_search",
+        "law_article_detail",
+        "legal_basis_retrieval",
+        "case_keyword_search",
+        "case_semantic_search",
+        "case_detail_retrieval",
+        "authoritative_case_search",
+        "regulation_search",
+        "regulation_detail_retrieval",
+        "enterprise_search",
+        "enterprise_detail_retrieval",
+        "legal_retrieval_archive"
+      ],
+      "input_types": [
+        "text",
+        "query",
+        "law_name",
+        "article_no",
+        "case_keyword",
+        "case_description",
+        "case_number",
+        "regulation_name",
+        "enterprise_name",
+        "credit_code"
+      ],
+      "router_card_path": "skills/custom/policies-regulations/yuandian-law-search/router_card.json",
+      "skill_md_path": "skills/custom/policies-regulations/yuandian-law-search/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "yuandian-law-search",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "bootstrap",
@@ -82,7 +879,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:58050df8e06152bc472500bcd282c5da75dabc6e2e464b9efe1ac2fea7e78365",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "bootstrap"
+      "es_doc_id": "bootstrap",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "chart-visualization",
@@ -103,9 +904,13 @@
       "router_card_path": "skills/public/chart-visualization/router_card.json",
       "skill_md_path": "skills/public/chart-visualization/SKILL.md",
       "enabled": true,
-      "routing_text_hash": "sha256:7fac295083fab67d466fd67fd39983a7ceb2283d70a03cdbdcf4e2f92bc9c639",
+      "routing_text_hash": "sha256:50ff76cafb74506e075c46082c7ba20fecd5a39272546678f28a10376468b9f6",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "chart-visualization"
+      "es_doc_id": "chart-visualization",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "claude-to-deerflow",
@@ -121,7 +926,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:88492981a5cfd22106301857a9cea3570e8363c4916dad68b4fd32d110ac0517",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "claude-to-deerflow"
+      "es_doc_id": "claude-to-deerflow",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "consulting-analysis",
@@ -137,7 +946,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:6bfebb369b03ac4fb507c193bfa1fe6cd6b93be64d8a527ad675a9cb34767038",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "consulting-analysis"
+      "es_doc_id": "consulting-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "data-analysis",
@@ -162,7 +975,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:cb65d1e992116ba7ea5028b2364713fcc811595b19b998cdf6a262de5e9eac99",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "data-analysis"
+      "es_doc_id": "data-analysis",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "deep-research",
@@ -178,7 +995,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:137ea4876ff08baae200597bca2832ba8be134474674b32bd479ed44de56ffd4",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "deep-research"
+      "es_doc_id": "deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "find-skills",
@@ -194,7 +1015,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:c777270134454b83f4de816a8708e615019a36bfe440c6b7608fc89711c9b1ea",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "find-skills"
+      "es_doc_id": "find-skills",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "frontend-design",
@@ -210,7 +1035,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:1aeb0dccd8ba9d59e70f0a0c093c9477fd6f13105b978f3b1602723d45d3fc75",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "frontend-design"
+      "es_doc_id": "frontend-design",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "github-deep-research",
@@ -226,7 +1055,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:7350bdc60b576076e883415af7d14cd6e14ba943dfe86a7e7adc044eb105484e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "github-deep-research"
+      "es_doc_id": "github-deep-research",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "image-generation",
@@ -242,7 +1075,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ec4705e895c1e8c1539d3dea7c7024b017739bd753288e3333c9dc9981449673",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "image-generation"
+      "es_doc_id": "image-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "podcast-generation",
@@ -258,7 +1095,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:985b0ce64112878c14a2566e4474b451eaedfa5ef631c685cebee1156c5cf534",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "podcast-generation"
+      "es_doc_id": "podcast-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "ppt-generation",
@@ -274,7 +1115,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ed40888f4f9a40d34a743d1023a5d6259de48a6493ff1d92ee559c02461a1b3a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "ppt-generation"
+      "es_doc_id": "ppt-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "skill-creator",
@@ -290,7 +1135,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:a4d3f6179bb69d3b1ba8f7b58effe328d53f1f0b3d971c599c7ab8028b47af2a",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "skill-creator"
+      "es_doc_id": "skill-creator",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "surprise-me",
@@ -306,7 +1155,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:0e3ed0764bcacb39f519779bb1fd1ab945d3f46cc20cd059f9eac0078d0c164d",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "surprise-me"
+      "es_doc_id": "surprise-me",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "vercel-deploy-claimable",
@@ -322,7 +1175,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:97de0cfee98a52ad4f49ea7154a78d399971b4e437766b670741d138f0cf267e",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "vercel-deploy-claimable"
+      "es_doc_id": "vercel-deploy-claimable",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "video-generation",
@@ -338,7 +1195,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ee5b92bf908687c9f8d3c1adc5d269a57911125b803182e2bf641815ec40129f",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "video-generation"
+      "es_doc_id": "video-generation",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     },
     {
       "id": "web-design-guidelines",
@@ -354,7 +1215,11 @@
       "enabled": true,
       "routing_text_hash": "sha256:ae08d2e251ddf5b9994ab5ad300356c034af39742135dc50378f06fb75194599",
       "es_index": "citybrain-skill-router-cards",
-      "es_doc_id": "web-design-guidelines"
+      "es_doc_id": "web-design-guidelines",
+      "es_indexed": true,
+      "router_status": "ready",
+      "last_indexed_at": "2026-05-20T02:31:39.860850+00:00",
+      "last_router_error": null
     }
   ]
 }
