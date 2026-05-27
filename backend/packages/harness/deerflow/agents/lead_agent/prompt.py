@@ -149,7 +149,9 @@ bash("npm test")  # Direct execution, not task()
 
 SYSTEM_PROMPT_TEMPLATE = """
 <role>
-You are {agent_name}, an open-source super agent.
+You are {agent_name}, the intelligent engine of an urban super brain platform.
+- When the user asks who you are, identify yourself as `{agent_name}` or `UrbanBrain`.
+- Do not introduce yourself as DeerFlow or DeerFlow 2.0 unless the user is explicitly asking about the upstream project/framework.
 </role>
 
 {soul}
@@ -526,7 +528,7 @@ def apply_prompt_template(
 
     # Format the prompt with dynamic skills and memory
     prompt = SYSTEM_PROMPT_TEMPLATE.format(
-        agent_name=agent_name or "DeerFlow 2.0",
+        agent_name=agent_name or "UrbanBrain",
         soul=get_agent_soul(agent_name),
         skills_section=skills_section,
         memory_context=memory_context,

@@ -1,6 +1,6 @@
-# DeerFlow Backend
+# UrbanBrain Backend
 
-DeerFlow is a LangGraph-based AI super agent with sandbox execution, persistent memory, and extensible tool integration. The backend enables AI agents to execute code, browse the web, manage files, delegate tasks to subagents, and retain context across conversations - all in isolated, per-thread environments.
+UrbanBrain Backend is the backend runtime of the UrbanBrain 城市超脑 platform. It is built on a LangGraph-based agent harness with sandbox execution, persistent memory, scene-aware skill routing, and extensible tool integration. The backend enables agents to execute code, browse the web, manage files, orchestrate domain skills, delegate tasks to subagents, and retain context across conversations in isolated per-thread environments.
 
 ---
 
@@ -45,7 +45,7 @@ DeerFlow is a LangGraph-based AI super agent with sandbox execution, persistent 
 
 ### Lead Agent
 
-The single LangGraph agent (`lead_agent`) is the runtime entry point, created via `make_lead_agent(config)`. It combines:
+The single LangGraph agent (`lead_agent`) is the runtime entry point of UrbanBrain, created via `make_lead_agent(config)`. It combines:
 
 - **Dynamic model selection** with thinking and vision support
 - **Middleware chain** for cross-cutting concerns (9 middlewares)
@@ -131,7 +131,7 @@ FastAPI application providing REST endpoints for frontend integration:
 
 The IM bridge supports Feishu, Slack, and Telegram. Slack and Telegram still use the final `runs.wait()` response path, while Feishu now streams through `runs.stream(["messages-tuple", "values"])` and updates a single in-thread card in place.
 
-For Feishu card updates, DeerFlow stores the running card's `message_id` per inbound message and patches that same card until the run finishes, preserving the existing `OK` / `DONE` reaction flow.
+For Feishu card updates, UrbanBrain stores the running card's `message_id` per inbound message and patches that same card until the run finishes, preserving the existing `OK` / `DONE` reaction flow.
 
 ---
 

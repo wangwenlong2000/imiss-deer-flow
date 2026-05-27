@@ -1,38 +1,36 @@
-# 🦌 DeerFlow - 2.0
+# UrbanBrain 城市超脑
 
 <a href="https://trendshift.io/repositories/14699" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14699" alt="bytedance%2Fdeer-flow | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-> On February 28th, 2026, DeerFlow claimed the 🏆 #1 spot on GitHub Trending following the launch of version 2. Thanks a million to our incredible community — you made this happen! 💪🔥
-
-DeerFlow (**D**eep **E**xploration and **E**fficient **R**esearch **Flow**) is an open-source **super agent harness** that orchestrates **sub-agents**, **memory**, and **sandboxes** to do almost anything — powered by **extensible skills**.
+UrbanBrain 是面向城市治理、城市分析与行业场景协同的城市超脑智能体平台。它在多智能体、长期记忆、沙箱执行与可扩展技能体系之上，组织网络流量、程序片段、时空轨迹、视频监控、遥感等场景能力，提供统一的分析、编排与交互入口。
 
 https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 > [!NOTE]
-> **DeerFlow 2.0 is a ground-up rewrite.** It shares no code with v1. If you're looking for the original Deep Research framework, it's maintained on the [`1.x` branch](https://github.com/bytedance/deer-flow/tree/main-1.x) — contributions there are still welcome. Active development has moved to 2.0.
+> 当前仓库已适配为 **UrbanBrain 城市超脑**。底层仍沿用 DeerFlow 2.0 的 agent harness 架构，但对外产品定位、场景技能和系统提示词均以城市超脑为主。
 
-## Official Website
+## 项目定位
 
-Learn more and see **real demos** on our official website.
+UrbanBrain 聚焦以下能力建设：
 
-**[deerflow.tech](https://deerflow.tech/)**
+- 城市场景智能路由与技能编排
+- 多源数据分析与证据聚合
+- 城市业务技能的统一输入输出规范
+- 面向城市超脑应用的前后端智能体底座
 
-## InfoQuest
+当前系统已扩展或接入的典型场景包括：
 
-DeerFlow has newly integrated the intelligent search and crawling toolset independently developed by BytePlus--[InfoQuest (supports free online experience)](https://docs.byteplus.com/en/docs/InfoQuest/What_is_Info_Quest)
-
-<a href="https://docs.byteplus.com/en/docs/InfoQuest/What_is_Info_Quest" target="_blank">
-  <img
-    src="https://sf16-sg.tiktokcdn.com/obj/eden-sg/hubseh7bsbps/20251208-160108.png"   alt="InfoQuest_banner"
-  />
-</a>
+- 网络流量分析
+- 程序片段与代码合规分析
+- 时空轨迹分析
+- 多技能统一调用与结果聚合
+- 场景过滤与 Reranker 精排
 
 ---
 
 ## Table of Contents
 
-- [🦌 DeerFlow - 2.0](#-deerflow---20)
-  - [Official Website](#official-website)
-  - [InfoQuest](#infoquest)
+- [UrbanBrain 城市超脑](#urbanbrain-城市超脑)
+  - [项目定位](#项目定位)
   - [Table of Contents](#table-of-contents)
   - [Quick Start](#quick-start)
     - [Configuration](#configuration)
@@ -43,7 +41,7 @@ DeerFlow has newly integrated the intelligent search and crawling toolset indepe
       - [Sandbox Mode](#sandbox-mode)
       - [MCP Server](#mcp-server)
       - [IM Channels](#im-channels)
-  - [From Deep Research to Super Agent Harness](#from-deep-research-to-super-agent-harness)
+  - [From Agent Harness to UrbanBrain](#from-agent-harness-to-urbanbrain)
   - [Core Features](#core-features)
     - [Skills \& Tools](#skills--tools)
       - [Claude Code Integration](#claude-code-integration)
@@ -64,7 +62,7 @@ DeerFlow has newly integrated the intelligent search and crawling toolset indepe
 
 ### Configuration
 
-1. **Clone the DeerFlow repository**
+1. **Clone the repository**
 
    ```bash
    git clone https://github.com/bytedance/deer-flow.git
@@ -194,7 +192,7 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
 ### Advanced
 #### Sandbox Mode
 
-DeerFlow supports multiple sandbox execution modes:
+UrbanBrain supports multiple sandbox execution modes:
 - **Local Execution** (runs sandbox code directly on the host machine)
 - **Docker Execution** (runs sandbox code in isolated Docker containers)
 - **Docker Execution with Kubernetes** (runs sandbox code in Kubernetes pods via provisioner service)
@@ -207,13 +205,13 @@ See the [Sandbox Configuration Guide](backend/docs/CONFIGURATION.md#sandbox) to 
 
 #### MCP Server
 
-DeerFlow supports configurable MCP servers and skills to extend its capabilities.
+UrbanBrain supports configurable MCP servers and skills to extend its capabilities.
 For HTTP/SSE MCP servers, OAuth token flows are supported (`client_credentials`, `refresh_token`).
 See the [MCP Server Guide](backend/docs/MCP_SERVER.md) for detailed instructions.
 
 #### IM Channels
 
-DeerFlow supports receiving tasks from messaging apps. Channels auto-start when configured — no public IP required for any of them.
+UrbanBrain supports receiving tasks from messaging apps. Channels auto-start when configured — no public IP required for any of them.
 
 | Channel | Transport | Difficulty |
 |---------|-----------|------------|
@@ -308,7 +306,7 @@ FEISHU_APP_SECRET=your_app_secret
 
 **Commands**
 
-Once a channel is connected, you can interact with DeerFlow directly from the chat:
+Once a channel is connected, you can interact with UrbanBrain directly from the chat:
 
 | Command | Description |
 |---------|-------------|
@@ -318,27 +316,30 @@ Once a channel is connected, you can interact with DeerFlow directly from the ch
 | `/memory` | View memory |
 | `/help` | Show help |
 
-> Messages without a command prefix are treated as regular chat — DeerFlow creates a thread and responds conversationally.
+> Messages without a command prefix are treated as regular chat — UrbanBrain creates a thread and responds conversationally.
 
-## From Deep Research to Super Agent Harness
+## From Agent Harness to UrbanBrain
 
-DeerFlow started as a Deep Research framework — and the community ran with it. Since launch, developers have pushed it far beyond research: building data pipelines, generating slide decks, spinning up dashboards, automating content workflows. Things we never anticipated.
+UrbanBrain is built on top of a proven agent harness foundation and is further adapted for city-oriented intelligence workflows. The goal is not only to provide a generic agent runtime, but to turn that runtime into a practical urban super brain that can route scenes, invoke domain skills, aggregate evidence, and coordinate multi-source analysis.
 
-That told us something important: DeerFlow wasn't just a research tool. It was a **harness** — a runtime that gives agents the infrastructure to actually get work done.
+At the infrastructure layer, the project retains the strengths of the original harness design: sandboxed execution, memory, skills, tools, sub-agent orchestration, and LangGraph-based runtime control.
 
-So we rebuilt it from scratch.
+At the product layer, UrbanBrain focuses on business-facing capabilities:
 
-DeerFlow 2.0 is no longer a framework you wire together. It's a super agent harness — batteries included, fully extensible. Built on LangGraph and LangChain, it ships with everything an agent needs out of the box: a filesystem, memory, skills, sandboxed execution, and the ability to plan and spawn sub-agents for complex, multi-step tasks.
+- scene-aware routing for city-domain requests
+- unified skill input/output contracts
+- structured machine-consumable results
+- domain skill orchestration across network traffic, code, trajectory, and related scenarios
 
-Use it as-is. Or tear it apart and make it yours.
+Use it as the runtime foundation of your city super brain, or continue extending it for your own industry workflows.
 
 ## Core Features
 
 ### Skills & Tools
 
-Skills are what make DeerFlow do *almost anything*.
+Skills are what make UrbanBrain handle diverse city and industry workflows.
 
-A standard Agent Skill is a structured capability module — a Markdown file that defines a workflow, best practices, and references to supporting resources. DeerFlow ships with built-in skills for research, report generation, slide creation, web pages, image and video generation, and more. But the real power is extensibility: add your own skills, replace the built-in ones, or combine them into compound workflows.
+A standard Agent Skill is a structured capability module — a Markdown file that defines a workflow, best practices, and references to supporting resources. UrbanBrain can ship with both general-purpose and domain-specific skills. The real power is extensibility: add your own skills, replace existing ones, or combine them into compound workflows for city scenarios.
 
 Skills are loaded progressively — only when the task needs them, not all at once. This keeps the context window lean and makes DeerFlow work well even with token-sensitive models.
 
