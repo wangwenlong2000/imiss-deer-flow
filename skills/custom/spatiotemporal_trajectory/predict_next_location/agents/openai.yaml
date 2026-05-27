@@ -1,0 +1,4 @@
+name: predict_next_location
+display_name: 下一位置预测
+short_description: 使用历史驻留序列训练马尔可夫转移矩阵并预测下一 geohash 或目的地。
+default_prompt: "Use $predict_next_location when the user asks for next stop, next geohash, destination prediction, or Markov mobility prediction. Run scripts/predict_next_location.py and summarize predictions.jsonl."

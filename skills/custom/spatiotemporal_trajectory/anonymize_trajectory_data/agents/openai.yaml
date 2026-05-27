@@ -1,0 +1,4 @@
+name: anonymize_trajectory_data
+display_name: 轨迹隐私脱敏
+short_description: 对敏感时空轨迹做差分隐私加噪、网格泛化、用户哈希和 K 匿名过滤。
+default_prompt: "Use $anonymize_trajectory_data before trajectory RAG or reports when raw GPS/check-in records include sensitive identities or exact coordinates. Run scripts/anonymize_trajectory_data.py and summarize privacy_report.json."

@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -79,6 +80,22 @@ class SkillRouterConfig(BaseModel):
     """Top-level SkillRouter configuration, maps to skill_router section in config.yaml."""
 
     enabled: bool = Field(default=True)
+    mode: Literal["scene_rerank", "embedding_rerank"] = Field(
+        default="scene_rerank",
+        description=(
+            "scene_rerank uses intent scene filtering as the coarse candidate "
+            "set and calls only the reranker. embedding_rerank keeps the legacy "
+            "embedding + ES recall + reranker pipeline."
+        ),
+    )
+    scene_prefilter_enabled: bool = Field(
+        default=True,
+        description="When enabled, use detected scene(s) as the candidate boundary before reranking.",
+    )
+    fallback_global_when_no_scene: bool = Field(
+        default=True,
+        description="When scene_rerank has no detected scene, allow legacy global embedding recall as fallback.",
+    )
     scene_filter_when_disabled: bool = Field(
         default=True,
         description=(

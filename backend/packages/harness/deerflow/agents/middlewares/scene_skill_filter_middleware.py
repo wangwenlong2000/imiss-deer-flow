@@ -87,9 +87,11 @@ class SceneSkillFilterMiddleware(AgentMiddleware[AgentState]):
             default_public_skill_ids=[],
             global_allowed_tools=[],
             confidence=1.0 if selected_ids else 0.0,
-            route_reason="SkillRouter disabled; injected all custom skills for detected intent scene",
+            route_reason="SkillRouter disabled; injected all custom skills for detected intent scene as LeadAgent candidate skills",
         )
         routing_data = routing_ctx.model_dump()
+        routing_data["allowed_skills"] = selected_ids
+        routing_data["selection_owner"] = "lead_agent"
         if source_message_key:
             routing_data["_source_message_key"] = source_message_key
 
@@ -233,8 +235,9 @@ class SceneSkillFilterMiddleware(AgentMiddleware[AgentState]):
         note = (
             "\nScene skill filter result: SkillRouter ranking is disabled. "
             f"Detected scene(s): {scene_text}. "
-            "The listed custom/domain skills are all enabled skills for the detected scene; "
-            "public skills from the base prompt remain available.\n"
+            "The listed custom/domain skills are all enabled skills for the detected scene. "
+            "Treat them as an allowed candidate set, choose the specific matching skill or skills for the task, "
+            "and then load only the chosen skill file(s). Public skills from the base prompt remain available.\n"
         )
         if query:
             note += f"Task: {query}\n"

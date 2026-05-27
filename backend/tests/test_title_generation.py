@@ -69,6 +69,21 @@ class TestTitleMiddleware:
         assert middleware is not None
         assert middleware.state_schema is not None
 
+    def test_extract_response_text_ignores_thinking_blocks(self):
+        content = ["", {"thinking": "1. **分析请求：** internal reasoning"}, {"type": "text", "text": "接口调度确认"}]
+
+        assert TitleMiddleware._extract_response_text(content) == "接口调度确认"
+
+    def test_normalize_title_handles_stringified_thinking_content(self):
+        raw = "['', {'thinking': '1. **分析请求：** internal reasoning'}, {'type': 'text', 'text': '接口调度确认'}]"
+
+        assert TitleMiddleware._normalize_title(raw, "fallback message") == "接口调度确认"
+
+    def test_normalize_title_falls_back_when_only_thinking_content(self):
+        raw = "['', {'thinking': '1. **分析请求：** internal reasoning'}]"
+
+        assert TitleMiddleware._normalize_title(raw, "请检查 Skill 接口规范") == "请检查 Skill 接口规范"
+
     # TODO: Add integration tests with mock Runtime
     # def test_should_generate_title(self):
     #     """Test title generation trigger logic."""

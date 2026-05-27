@@ -1,0 +1,490 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://imiss-deer-flow.local/schemas/skill_input_envelope.schema.json",
+  "title": "SkillInputEnvelope",
+  "description": "Unified input contract from Planner or SkillRouter to a Skill adapter. Existing Skills may keep their legacy implementation; adapters can translate this envelope into current file paths, CLI arguments, environment variables, or selected data sources.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "skill_name",
+    "scenario",
+    "capability",
+    "query",
+    "inputs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Skill input envelope schema version."
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable request or run identifier. UUID is recommended but not required."
+    },
+    "skill_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Target Skill id, normally equal to the SKILL.md front matter name."
+    },
+    "scenario": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Scenario or domain name, such as network_traffic, policy_regulation, remote_sensing_image, video_surveillance, or phone_network."
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Concrete target capability or action requested from this Skill."
+    },
+    "query": {
+      "$ref": "#/definitions/query"
+    },
+    "inputs": {
+      "$ref": "#/definitions/inputs"
+    },
+    "context": {
+      "$ref": "#/definitions/context"
+    },
+    "budget": {
+      "$ref": "#/definitions/budget"
+    },
+    "routing": {
+      "$ref": "#/definitions/routing"
+    },
+    "legacy": {
+      "$ref": "#/definitions/legacy"
+    }
+  },
+  "definitions": {
+    "query": {
+      "type": "object",
+      "required": ["raw"],
+      "additionalProperties": false,
+      "properties": {
+        "raw": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Original user request or task text."
+        },
+        "rewritten": {
+          "type": "string",
+          "description": "Planner-rewritten query optimized for the selected Skill or retriever."
+        },
+        "sub_queries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/sub_query"
+          },
+          "default": [],
+          "description": "Decomposed sub-queries for compound tasks or parallel retrieval."
+        }
+      }
+    },
+    "sub_query": {
+      "type": "object",
+      "required": ["query_id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "query_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable sub-query id. Retrieval results should echo this id in SkillResult evidence."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intent": {
+          "type": "string",
+          "description": "Optional semantic intent, such as policy_lookup, entity_compare, anomaly_search, or evidence_expand."
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/constraint"
+          },
+          "default": []
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/message"
+          },
+          "default": [],
+          "description": "Optional original conversation messages. This can preserve Anthropic-style message content without making the Skill protocol depend on a model vendor protocol."
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/file_input"
+          },
+          "default": []
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/data_source"
+          },
+          "default": []
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true,
+          "default": {},
+          "description": "Skill-specific structured parameters. Each SKILL.md should document which parameters it consumes."
+        },
+        "upstream_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/upstream_result"
+          },
+          "default": [],
+          "description": "References or inline summaries from previous SkillResult outputs in a multi-step plan."
+        }
+      },
+      "anyOf": [
+        {"required": ["messages"]},
+        {"required": ["files"]},
+        {"required": ["data_sources"]},
+        {"required": ["parameters"]},
+        {"required": ["upstream_results"]}
+      ]
+    },
+    "message": {
+      "type": "object",
+      "required": ["role", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "assistant", "system", "tool"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/message_content"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "message_content": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Content block type, such as text, image, document, tool_result, or file_ref."
+        },
+        "text": {
+          "type": "string"
+        },
+        "source": {
+          "type": ["string", "object"]
+        }
+      }
+    },
+    "file_input": {
+      "type": "object",
+      "required": ["path"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Readable file path or URI passed to the Skill adapter."
+        },
+        "file_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "media_type": {
+          "type": "string",
+          "description": "Media type, such as text/csv, application/pdf, image/tiff, or application/vnd.tcpdump.pcap."
+        },
+        "input_type": {
+          "type": "string",
+          "description": "Router input type, such as pcap, csv, pdf, docx, geotiff, parquet, image, or video."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role in this Skill call, such as primary, reference, config, schema, mask, boundary, or optional."
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checksum": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "data_source": {
+      "type": "object",
+      "required": ["source_id", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["dataset", "index", "database", "api", "object_store", "knowledge_base", "user_upload", "other"]
+        },
+        "uri": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "input_type": {
+          "type": "string"
+        },
+        "selected_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "upstream_result": {
+      "type": "object",
+      "required": ["skill_name"],
+      "additionalProperties": false,
+      "properties": {
+        "skill_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "thread_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string",
+          "description": "Preferred response locale, such as zh-CN or en-US."
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/constraint"
+          },
+          "default": []
+        },
+        "deadline_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "required": ["type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Constraint type, such as time_range, region, jurisdiction, entity, format, or source_scope."
+        },
+        "value": {
+          "oneOf": [
+            {"type": "string"},
+            {"type": "number"},
+            {"type": "boolean"},
+            {"type": "array"},
+            {"type": "object", "additionalProperties": true}
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_evidence_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum evidence items this Skill should return. Most important for retrieval profiles."
+        },
+        "max_token_estimate": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Approximate maximum tokens this Skill should spend in returned evidence or injected context."
+        },
+        "max_runtime_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_artifact_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "selected_skill": {
+          "type": "string",
+          "description": "Concrete Skill selected for adapter execution. In scene-filter mode this is chosen by LeadAgent from allowed_skills."
+        },
+        "selected_skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional list when this envelope is part of a multi-Skill plan."
+        },
+        "allowed_skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Candidate Skill ids made available by scene filtering or scope filtering before LeadAgent chooses the concrete selected_skill."
+        },
+        "selection_owner": {
+          "type": "string",
+          "enum": ["skill_router", "planner", "lead_agent", "adapter", "manual"],
+          "description": "Component responsible for choosing selected_skill from allowed_skills."
+        },
+        "scene_task_id": {
+          "type": "string"
+        },
+        "segment_id": {
+          "type": "string"
+        },
+        "retrieval_mode": {
+          "type": "string",
+          "enum": ["none", "semantic", "keyword", "hybrid", "structured"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high"]
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "legacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional compatibility hints for adapters that call existing Skill implementations without modifying them.",
+      "properties": {
+        "selected_data_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "argv": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "working_directory": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

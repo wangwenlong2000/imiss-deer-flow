@@ -268,6 +268,16 @@
       "企业制度"
     ],
     "anti_keywords": [
+      "opengrep",
+      "sast",
+      "静态扫描",
+      "源码审计",
+      "代码安全",
+      "漏洞扫描",
+      "违规分析",
+      "python",
+      "java",
+      "javascript",
       "pcap",
       "Zeek",
       "车流量",
@@ -712,7 +722,9 @@
       "给这段 C++ 代码生成 docstring 和 usage example",
       "检查这段 JavaScript 代码是否能解析成 AST",
       "把这个脚本封装成可复用组件",
-      "根据代码片段生成业务流程图"
+      "根据代码片段生成业务流程图",
+      "调用 opengrep-compliance 对代码做违规分析",
+      "对这段源码做 SAST 静态扫描和合规检查"
     ],
     "negative_examples": [
       "把业务方案写成专利交底书",
@@ -734,6 +746,14 @@
       "JavaScript",
       "TypeScript",
       "AST",
+      "opengrep",
+      "SAST",
+      "静态扫描",
+      "代码安全",
+      "源码审计",
+      "违规分析",
+      "漏洞扫描",
+      "合规扫描",
       "调用图",
       "数据流",
       "输入输出",

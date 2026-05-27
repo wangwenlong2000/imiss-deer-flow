@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "code-to-ast-new",
+    "name": "code-to-ast-new",
+    "description": "将输入的代码转化为 AST（抽象语法树）结构，支持多种编程语言，以 JSON 格式输出 AST 结构。"
+  },
+  "scope": {
+    "scenes": [
+      "program_snippet",
+      "code_analysis",
+      "ast_parsing"
+    ],
+    "is_public": true,
+    "task_types": [
+      "ast_generation",
+      "syntax_tree_export",
+      "code_structure_analysis"
+    ],
+    "input_types": [
+      "source_code",
+      "py_file",
+      "js_file",
+      "java_file",
+      "cpp_file"
+    ],
+    "output_types": [
+      "ast_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：code-to-ast-new\n描述：将输入的代码转化为 AST（抽象语法树）结构，支持多种编程语言，以 JSON 格式输出 AST 结构。\n适用场景：program_snippet、code_analysis、ast_parsing。\n适用任务：ast_generation, syntax_tree_export, code_structure_analysis。\n输入类型：source_code, py_file, js_file, java_file, cpp_file。\n输出类型：ast_json。\n适合使用：把代码转成 AST JSON；解析函数、类、调用节点和语法结构；导出抽象语法树；为后续代码分析提供 AST。\n不适合使用：生成业务 DAG 完整报告；扫描代码安全漏洞；只做代码切分；只做数据流边提取。",
+    "positive_triggers": [
+      "把代码转成 AST JSON",
+      "解析函数、类、调用节点和语法结构",
+      "导出抽象语法树",
+      "为后续代码分析提供 AST"
+    ],
+    "negative_triggers": [
+      "生成业务 DAG 完整报告",
+      "扫描代码安全漏洞",
+      "只做代码切分",
+      "只做数据流边提取"
+    ],
+    "keywords": [
+      "AST",
+      "抽象语法树",
+      "语法树",
+      "ast json",
+      "code-to-ast",
+      "convert.py"
+    ],
+    "anti_keywords": [
+      "OpenGrep",
+      "SAST",
+      "业务DAG完整流水线",
+      "语义标注"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: code-to-ast-new\ndescription: 将输入的代码转化为 AST（抽象语法树）结构，支持多种编程语言，以 JSON 格式输出 AST 结构。\n---\n\n# AST 代码树结构生成技能\n\n## 概述\n\n此技能将输入的代码转化为 AST（抽象语法树）结构，支持多种编程语言，包括 Python、JavaScript、Java、C++ 等。它能够分析代码的语法结构，并以 JSON 格式输出详细的 AST 结构，便于代码分析和处理。\n\n## 核心功能\n\n- **多语言支持**：支持 Python、JavaScript、Java、C++ 等多种编程语言\n- **AST 生成**：将代码转化为抽象语法树结构\n- **JSON 输出**：以 JSON 格式输出 AST 结构\n- **详细分析**：生成详细的 AST 节点和属性\n- **文件支持**：支持直接代码输入和文件输入\n\n## 工作流程\n\n### 步骤 1：接收代码输入\n\n用户可以提供：\n- 直接的代码片段\n- 代码文件路径\n\n### 步骤 2：解析代码\n\n使用提供的脚本解析代码并生成 AST：\n\n```bash\npython /mnt/skills/custom/program_snippet/code-to-ast-new/scripts/convert.py \\\n  --language python \\\n  --code \"def hello():\\n    print('Hello, world!')\" \\\n  --output /mnt/user-data/outputs/ast.json\n```\n\n### 步骤 3：生成 AST 结构\n\n脚本会分析代码的语法结构，生成详细的 AST 节点，包括：\n- 函数定义\n- 类定义\n- 变量声明\n- 表达式\n- 语句\n- 控制流结构\n\n### 步骤 4：输出结果\n\nAST 结构将以 JSON 格式输出，可以直接在对话中呈现或保存到文件。\n\n## 参数\n\n| 参数 | 是否必需 | 描述 |\n|------|----------|------|\n| `--language` | 是 | 编程语言（python, javascript, java, cpp） |\n| `--code` | 要么 `--code` 要么 `--file` | 直接代码输入 |\n| `--file` | 要么 `--code` 要么 `--file` | 代码文件路径 |\n| `--output` | 否 | 保存 AST 输出的路径 |\n| `--indent` | 否 | JSON 输出的缩进空格数（默认：2） |\n\n## 支持的语言\n\n- **Python**：使用内置的 `ast` 模块\n- **JavaScript**：使用 `esprima` 库\n- **Java**：使用占位实现（需要 `javaparser`）\n- **C++**：使用占位实现（需要 `clang`）\n\n## 示例\n\n### Python 代码 AST 示例\n\n**输入：**\n```python\ndef hello():\n    print('Hello, world!')\n```\n\n**命令：**\n```bash\npython /mnt/skills/custom/program_snippet/code-to-ast-new/scripts/convert.py \\\n  --language python \\\n  --code \"def hello():\\n    print('Hello, world!')\"\n```\n\n**输出：**\n```json\n{\n  \"type\": \"Module\",\n  \"body\": [\n    {\n      \"type\": \"FunctionDef\",\n      \"name\": \"hello\",\n      \"args\": {\n        \"type\": \"arguments\",\n        \"posonlyargs\": [],\n        \"args\": [],\n        \"kwonlyargs\": [],\n        \"kw_defaults\": [],\n        \"defaults\": []\n      },\n      \"body\": [\n        {\n          \"type\": \"Expr\",\n          \"value\": {\n            \"type\": \"Call\",\n            \"func\": {\n              \"type\": \"Name\",\n              \"id\": \"print\",\n              \"ctx\": {\n                \"type\": \"Load\"\n              }\n            },\n            \"args\": [\n              {\n                \"type\": \"Constant\",\n                \"value\": \"Hello, world!\",\n                \"kind\": null\n              }\n            ],\n            \"keywords\": []\n          }\n        }\n      ],\n      \"decorator_list\": [],\n      \"returns\": null\n    }\n  ],\n  \"type_ignores\": []\n}\n```\n\n### JavaScript 代码 AST 示例\n\n**输入：**\n```javascript\nfunction hello() {\n  console.log('Hello, world!');\n}\n```\n\n**命令：**\n```bash\npython /mnt/skills/custom/program_snippet/code-to-ast-new/scripts/convert.py \\\n  --language javascript \\\n  --code \"function hello() {\\n  console.log('Hello, world!');\\n}\"\n```\n\n**输出：**\n```json\n{\n  \"type\": \"Program\",\n  \"body\": [\n    {\n      \"type\": \"FunctionDeclaration\",\n      \"id\": {\n        \"type\": \"Identifier\",\n        \"name\": \"hello\"\n      },\n      \"params\": [],\n      \"body\": {\n        \"type\": \"BlockStatement\",\n        \"body\": [\n          {\n            \"type\": \"ExpressionStatement\",\n            \"expression\": {\n              \"type\": \"CallExpression\",\n              \"callee\": {\n                \"type\": \"MemberExpression\",\n                \"object\": {\n                  \"type\": \"Identifier\",\n                  \"name\": \"console\"\n                },\n                \"property\": {\n                  \"type\": \"Identifier\",\n                  \"name\": \"log\"\n                },\n                \"computed\": false\n              },\n              \"arguments\": [\n                {\n                  \"type\": \"Literal\",\n                  \"value\": \"Hello, world!\",\n                  \"raw\": \"'Hello, world!'\"\n                }\n              ]\n            }\n          }\n        ]\n      },\n      \"generator\": false,\n      \"async\": false\n    }\n  ],\n  \"sourceType\": \"script\"\n}\n```\n\n## 文件输入示例\n\n**命令：**\n```bash\npython /mnt/skills/custom/program_snippet/code-to-ast-new/scripts/convert.py \\\n  --language python \\\n  --file /mnt/user-data/uploads/example.py \\\n  --output /mnt/user-data/outputs/ast.json\n```\n\n## 输出处理\n\n- 对于简短的代码，直接在对话中呈现 AST 结构\n- 对于较长的代码，导出到 JSON 文件并通过 `present_files` 工具分享\n- 始终以 JSON 格式输出 AST 结构\n- 提供详细的 AST 节点信息\n\n## 注意事项\n\n- AST 生成的质量取决于代码的语法正确性\n- 非常大的代码文件可能需要更长的处理时间\n- 不同语言的 AST 结构可能有所不同\n- 对于最佳结果，提供语法正确的代码\n- JavaScript AST 生成需要安装 `esprima` 库\n\n## 依赖\n\n- Python 3.7+\n- 对于 JavaScript：`esprima` 库\n- 对于 Java：`javaparser`（可选）\n- 对于 C++：`clang`（可选）\n"
+  },
+  "execution": {
+    "required_tools": [
+      "python"
+    ],
+    "optional_tools": [
+      "esprima",
+      "clang",
+      "javaparser"
+    ],
+    "allowed_file_patterns": [
+      "*.py",
+      "*.js",
+      "*.java",
+      "*.cpp",
+      "*.c"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "dataflow-extractor",
+      "code-business-dag-analysis-pipeline"
+    ]
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "code_ast_generation",
+    "prefer_when": [
+      "用户明确要求 AST、语法树或代码结构 JSON",
+      "任务需要为后续数据流或语义分析准备结构化语法节点"
+    ],
+    "defer_when": [
+      "用户要求完整业务 DAG 诊断时，交给 code-business-dag-analysis-pipeline 编排"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/program_snippet/code-to-ast-new",
+    "skill_md_path": "skills/custom/program_snippet/code-to-ast-new/SKILL.md",
+    "skill_md_hash": "sha256:142105e3e822148b488334a0ff486e705d31849ffef35d9bbfb7e4792f910368",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:aa0a06fa4785c2c241ecc461b3463563f778252ba3be32e8e674414de79766f9",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "code-to-ast-new"
+  }
+}

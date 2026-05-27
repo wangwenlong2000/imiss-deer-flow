@@ -197,6 +197,18 @@ def test_previous_task_followup_does_not_select_program_snippet_scene():
     assert any("对话轮次决策器" in call for call in llm.calls)
 
 
+def test_code_compliance_query_prefers_program_snippet_scene():
+    result = classify_routing_intent(
+        "请你调用opengrep-compliance这个skill，对以下代码进行违规分析",
+        scene_templates=load_scene_templates(),
+    )
+
+    assert result.scene == "program_snippet"
+    assert result.scene_mode == "single"
+    assert result.scenes == ["program_snippet"]
+    assert [task.scene for task in result.scene_tasks] == ["program_snippet"]
+
+
 def test_previous_context_new_task_turn_allows_reclassification():
     previous_intent = {
         "intent": "task",

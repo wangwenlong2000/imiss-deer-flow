@@ -1,0 +1,118 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "forecast_region_flow",
+                     "name":  "forecast_region_flow",
+                     "description":  "Use this skill when the user wants to predict future people or vehicle flow for target regions, based on historical regional activity series or raw trajectory points."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "forecast_region_flow",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "region_heat_jsonl",
+                                      "evidence_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "region_forecasts.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：forecast_region_flow\n描述：Use this skill when the user wants to predict future people or vehicle flow for target regions, based on historical regional activity series or raw trajectory points.\n适用场景：spatiotemporal_trajectory。\n适用任务：forecast_region_flow, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, region_heat_jsonl, evidence_jsonl。\n输出类型：region_forecasts.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to predict future people or vehicle flow for target regions, based on historical regional activity series or raw trajectory points.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "forecast",
+                                     "region",
+                                     "flow",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: forecast_region_flow\ndescription: Use this skill when the user wants to predict future people or vehicle flow for target regions, based on historical regional activity series or raw trajectory points.\nmetadata:\n  short-description: Forecast future regional flow trends.\n---\n\n# forecast_region_flow\n\nUse this Skill after `$analyze_region_heat`, or run it directly on cleaned trajectory/check-in points.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/forecast_region_flow\npython3 scripts/forecast_region_flow.py \\\n  --input /path/to/region_heat.jsonl \\\n  --output-dir /path/to/output \\\n  --group-col geohash \\\n  --metric-col activity_count \\\n  --time-col time_bucket \\\n  --time-bucket day \\\n  --forecast-steps 3\n```\n\nFor raw trajectory points:\n\n```bash\npython3 scripts/forecast_region_flow.py \\\n  --input /path/to/cleaned_points.jsonl \\\n  --output-dir /path/to/output \\\n  --time-col utc \\\n  --lat-col Latitude \\\n  --lon-col Longitude \\\n  --user-col user_id \\\n  --time-bucket day\n```\n\n## Outputs\n\n- `region_forecasts.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Region/time aggregation\n- Rolling baseline estimation\n- Trend extrapolation\n- Volatility interval estimation\n\n## Next Skills\n\nUse forecast outputs with `$fuse_spatial_evidence` or combine with anomaly/event analysis for regional decision support.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "analyze_region_heat",
+                                               "fuse_spatial_evidence"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/forecast_region_flow",
+                   "skill_md_path":  "skills/custom/forecast_region_flow/SKILL.md",
+                   "skill_md_hash":  "sha256:9001f1a43a401dabb9a9a23fb3c774f003fc4960d973e49cd317ebb3c880599e",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:add2b4a5ea3f44227daa3546928c0c172605a6d7e397988c4dec188b6e68be57",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "forecast_region_flow"
+                  }
+}

@@ -1,0 +1,121 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "map_spatial_grid",
+                     "name":  "map_spatial_grid",
+                     "description":  "Use this skill when the user wants to map latitude/longitude trajectory records, staypoints, trips, or check-ins into spatial grids such as Geohash for aggregation and downstream spatial analysis."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "map_spatial_grid",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "staypoints_jsonl",
+                                      "trips_jsonl",
+                                      "region_heat_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "grid_points.jsonl",
+                                       "grid_summary.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：map_spatial_grid\n描述：Use this skill when the user wants to map latitude/longitude trajectory records, staypoints, trips, or check-ins into spatial grids such as Geohash for aggregation and downstream spatial analysis.\n适用场景：spatiotemporal_trajectory。\n适用任务：map_spatial_grid, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, staypoints_jsonl, trips_jsonl, region_heat_jsonl。\n输出类型：grid_points.jsonl, grid_summary.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to map latitude/longitude trajectory records, staypoints, trips, or check-ins into spatial grids such as Geohash for aggregation and downstream spatial analysis.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "map",
+                                     "spatial",
+                                     "grid",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: map_spatial_grid\ndescription: Use this skill when the user wants to map latitude/longitude trajectory records, staypoints, trips, or check-ins into spatial grids such as Geohash for aggregation and downstream spatial analysis.\nmetadata:\n  short-description: Map trajectory coordinates to Geohash grids.\n---\n\n# map_spatial_grid\n\nUse this Skill to normalize spatial positions into grid IDs before regional aggregation or retrieval.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/map_spatial_grid\npython3 scripts/map_spatial_grid.py --input /path/to/cleaned_points.jsonl --output-dir /path/to/output --geohash-precision 6\n```\n\nOptional flags:\n\n```bash\n--lat-col lat --lon-col lon\n```\n\n## Outputs\n\n- `grid_points.jsonl`\n- `grid_summary.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Latitude/longitude detection\n- Pure-Python Geohash encoding\n- Grid-level count aggregation\n\n## Next Skills\n\nUse `grid_points.jsonl` with `$search_spatiotemporal`, `$analyze_region_heat`, and `$mine_trajectory_patterns`.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "search_spatiotemporal",
+                                               "analyze_region_heat",
+                                               "mine_trajectory_patterns"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/map_spatial_grid",
+                   "skill_md_path":  "skills/custom/map_spatial_grid/SKILL.md",
+                   "skill_md_hash":  "sha256:f86d4c0b3b372d1d42ed0a35ce03163c851d3fdecddac1048e45c50f76694d76",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:7b43961d3697a4358e411f8eaaddb22d01a7cf9f63b9ea6cfeca3c468af9579b",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "map_spatial_grid"
+                  }
+}

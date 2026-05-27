@@ -1,0 +1,117 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "analyze_region_heat",
+                     "name":  "analyze_region_heat",
+                     "description":  "Use this skill when the user wants to compute regional activity heat, check-in volume, point density, unique users, or Top-K active geohash regions from trajectory records."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "analyze_region_heat",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "region_heat_jsonl",
+                                      "evidence_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "region_heat.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：analyze_region_heat\n描述：Use this skill when the user wants to compute regional activity heat, check-in volume, point density, unique users, or Top-K active geohash regions from trajectory records.\n适用场景：spatiotemporal_trajectory。\n适用任务：analyze_region_heat, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, region_heat_jsonl, evidence_jsonl。\n输出类型：region_heat.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to compute regional activity heat, check-in volume, point density, unique users, or Top-K active geohash regions from trajectory records.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "analyze",
+                                     "region",
+                                     "heat",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: analyze_region_heat\ndescription: Use this skill when the user wants to compute regional activity heat, check-in volume, point density, unique users, or Top-K active geohash regions from trajectory records.\nmetadata:\n  short-description: Aggregate trajectory activity by region and time bucket.\n---\n\n# analyze_region_heat\n\nUse this Skill to aggregate point-level or evidence-level trajectory records into regional heat indicators.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/analyze_region_heat\npython3 scripts/analyze_region_heat.py \\\n  --input /path/to/cleaned_points.jsonl \\\n  --output-dir /path/to/output \\\n  --geohash-precision 6 \\\n  --time-bucket hour\n```\n\nUseful filters:\n\n```bash\n--time-start 2012-06-01T00:00:00 --time-end 2012-06-30T23:59:59\n--hour-start 7 --hour-end 9 --geohash wx4\n```\n\n## Outputs\n\n- `region_heat.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Optional time/space filtering\n- Geohash region aggregation\n- Activity count\n- Unique user count\n- Optional category Top-N statistics\n\n## Next Skills\n\nUse `region_heat.jsonl` with `$detect_flow_anomaly` for regional flow anomaly detection.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "detect_flow_anomaly"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/analyze_region_heat",
+                   "skill_md_path":  "skills/custom/analyze_region_heat/SKILL.md",
+                   "skill_md_hash":  "sha256:63ba9ab6b78b4de0cafffc1402c5e14d29dec36eabbf1132717efbab12480ef0",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:bdf60b5d1b4fe7d28d00a4a8b8b3ff05b5a32e5c128779a17389bac71aec3a96",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "analyze_region_heat"
+                  }
+}

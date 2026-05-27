@@ -52,6 +52,10 @@ skills/custom/*
 !skills/custom/models
 !skills/custom/phone-network-analysis
 !skills/custom/phone-network-analysis/**
+!skills/custom/spatiotemporal_trajectory
+!skills/custom/spatiotemporal_trajectory/**
+!skills/custom/program_snippet
+!skills/custom/program_snippet/**
 
 # Allow policy regulation custom skills
 !skills/custom/policies-regulations/

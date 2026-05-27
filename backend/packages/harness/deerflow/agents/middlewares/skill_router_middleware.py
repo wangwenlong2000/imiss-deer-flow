@@ -6,9 +6,9 @@ TodoMiddleware.  On each turn it:
 1. Reads the user's last message and uploaded file info.
 2. Performs a lightweight ``should_route`` check.
 3. Segments the query into coarse task segments.
-4. Calls the Embedding API for each segment.
-5. Searches the SkillRouter ES index for Top-K candidates.
-6. Reranks candidates via the Reranker API.
+4. Uses scene filtering as the coarse candidate set when configured.
+5. Reranks candidates via the Reranker API.
+6. Falls back to legacy embedding + ES recall when no scene is available.
 7. Resolves final skill selections.
 8. Writes ``routing_context`` and ``skills_override`` into state.
 """
@@ -16,8 +16,10 @@ TodoMiddleware.  On each turn it:
 from __future__ import annotations
 
 import logging
+import json
 import re
 import time
+from pathlib import Path
 from typing import Any
 
 try:
@@ -44,7 +46,7 @@ from deerflow.routing.query_segmenter import segment_query, should_route
 from deerflow.routing.reranker_client import SkillRouterRerankerClient
 from deerflow.routing.resolver import resolve
 from deerflow.routing.schema import RoutingContext, SceneTask, SelectedSkill
-from deerflow.skills.loader import load_skills
+from deerflow.skills.loader import load_custom_skills, load_skills
 
 logger = logging.getLogger(__name__)
 _UPLOAD_BLOCK_RE = re.compile(r"<uploaded_files>[\s\S]*?</uploaded_files>\s*", re.IGNORECASE)
@@ -58,6 +60,9 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
     def __init__(self) -> None:
         super().__init__()
         config = get_skill_router_config()
+        self.mode = config.mode
+        self.scene_prefilter_enabled = config.scene_prefilter_enabled
+        self.fallback_global_when_no_scene = config.fallback_global_when_no_scene
         self.embedding_client = SkillRouterEmbeddingClient(
             base_url=config.embedding.get_base_url(),
             api_key=config.embedding.get_api_key(),
@@ -226,31 +231,11 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         for seg in segments:
             seg_text = seg["text"]
             seg_scene = seg.get("scene") or intent_scene
-            embedding_query = self._build_embedding_query(seg_text, seg_scene)
-
-            # L2: embedding
-            try:
-                query_vec = self.embedding_client.embed_text(embedding_query)
-            except Exception:
-                record_embedding_error()
-                logger.exception("Embedding API failed for segment: %s", seg_text[:80])
-                continue
-
-            # L3: ES Top-K
-            filters = {"enabled": True, "is_public": False}
-            try:
-                candidates = self._search_candidates_for_segment(query_vec, seg_scene, filters)
-            except Exception:
-                record_es_error()
-                logger.exception("ES search failed for segment: %s", seg_text[:80])
-                candidates = []
-
-            if not candidates:
-                continue
-
-            # v1: Post-filter — guarantee correctness regardless of ES index state
-            if base_scope_set:
-                candidates = [c for c in candidates if c.get("skill_id") in base_scope_set]
+            candidates = self._candidate_skills_for_segment(
+                segment_text=seg_text,
+                scene=seg_scene,
+                base_scope_set=base_scope_set,
+            )
 
             if not candidates:
                 continue
@@ -320,7 +305,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         if not scene_tasks:
             if default_public_skill_ids:
                 routing_ctx = RoutingContext(
-                    route_mode="single_segment" if len(segments) <= 1 else "multi_segment",
+                    route_mode=self._route_mode_name(len(segments)),
                     trigger=True,
                     primary_goal=routing_query,
                     scene_tasks=[],
@@ -372,7 +357,7 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         final_allowed_tools = sorted(all_allowed_tools)
 
         routing_ctx = RoutingContext(
-            route_mode="multi_segment" if len(scene_tasks) > 1 else "single_segment",
+            route_mode=self._route_mode_name(len(scene_tasks)),
             trigger=True,
             primary_goal=self._infer_primary_goal(scene_tasks),
             scene_tasks=scene_tasks,
@@ -533,6 +518,118 @@ class SkillRouterMiddleware(AgentMiddleware[AgentState]):
         if not scene:
             return text
         return f"Scene: {scene.strip()}\nTask: {text}"
+
+    def _route_mode_name(self, task_count: int) -> str:
+        if self.mode == "scene_rerank" and self.scene_prefilter_enabled:
+            return "scene_rerank_multi" if task_count > 1 else "scene_rerank"
+        return "multi_segment" if task_count > 1 else "single_segment"
+
+    def _candidate_skills_for_segment(
+        self,
+        *,
+        segment_text: str,
+        scene: str | None,
+        base_scope_set: set[str],
+    ) -> list[dict[str, Any]]:
+        if self.mode == "scene_rerank" and self.scene_prefilter_enabled:
+            scenes = [scene] if scene else []
+            if scenes:
+                candidates = self._scene_candidates(scenes)
+                if base_scope_set:
+                    candidates = [c for c in candidates if c.get("skill_id") in base_scope_set]
+                return candidates
+            if not self.fallback_global_when_no_scene:
+                return []
+
+        embedding_query = self._build_embedding_query(segment_text, scene)
+        try:
+            query_vec = self.embedding_client.embed_text(embedding_query)
+        except Exception:
+            record_embedding_error()
+            logger.exception("Embedding API failed for segment: %s", segment_text[:80])
+            return []
+
+        filters = {"enabled": True, "is_public": False}
+        try:
+            candidates = self._search_candidates_for_segment(query_vec, scene, filters)
+        except Exception:
+            record_es_error()
+            logger.exception("ES search failed for segment: %s", segment_text[:80])
+            return []
+
+        if base_scope_set:
+            candidates = [c for c in candidates if c.get("skill_id") in base_scope_set]
+        return candidates
+
+    def _scene_candidates(self, scenes: list[str]) -> list[dict[str, Any]]:
+        scene_set = {scene.strip() for scene in scenes if isinstance(scene, str) and scene.strip()}
+        if not scene_set:
+            return []
+
+        candidates: list[dict[str, Any]] = []
+        for skill in load_custom_skills(enabled_only=True):
+            card = self._load_router_card(skill.skill_dir)
+            skill_scenes = self._card_scenes(card)
+            if not (skill_scenes & scene_set):
+                continue
+            candidates.append(self._candidate_from_skill_card(skill, card))
+        return candidates
+
+    @staticmethod
+    def _load_router_card(skill_dir: Path) -> dict[str, Any]:
+        card_path = skill_dir / "router_card.json"
+        if not card_path.exists():
+            return {}
+        try:
+            card = json.loads(card_path.read_text(encoding="utf-8"))
+        except Exception:
+            logger.exception("Failed to read router card: %s", card_path)
+            return {}
+        return card if isinstance(card, dict) else {}
+
+    @staticmethod
+    def _card_scenes(card: dict[str, Any]) -> set[str]:
+        scope = card.get("scope") if isinstance(card, dict) else {}
+        if not isinstance(scope, dict):
+            return set()
+        scenes: set[str] = set()
+        for key in ("scenes", "scene"):
+            value = scope.get(key)
+            if isinstance(value, str) and value.strip():
+                scenes.add(value.strip())
+            elif isinstance(value, list):
+                scenes.update(item.strip() for item in value if isinstance(item, str) and item.strip())
+        return scenes
+
+    @staticmethod
+    def _candidate_from_skill_card(skill: Any, card: dict[str, Any]) -> dict[str, Any]:
+        identity = card.get("identity") if isinstance(card.get("identity"), dict) else {}
+        scope = card.get("scope") if isinstance(card.get("scope"), dict) else {}
+        routing = card.get("routing") if isinstance(card.get("routing"), dict) else {}
+        body = card.get("body") if isinstance(card.get("body"), dict) else {}
+        execution = card.get("execution") if isinstance(card.get("execution"), dict) else {}
+        routing_policy = card.get("routing_policy") if isinstance(card.get("routing_policy"), dict) else {}
+        return {
+            "skill_id": identity.get("id") or skill.name,
+            "name": identity.get("name") or skill.name,
+            "description": identity.get("description") or skill.description,
+            "routing_text": routing.get("routing_text", ""),
+            "body": body.get("content", ""),
+            "scenes": scope.get("scenes", []),
+            "task_types": scope.get("task_types", []),
+            "input_types": scope.get("input_types", []),
+            "output_types": scope.get("output_types", []),
+            "is_public": bool(scope.get("is_public", False)),
+            "positive_triggers": routing.get("positive_triggers", []),
+            "negative_triggers": routing.get("negative_triggers", []),
+            "keywords": routing.get("keywords", []),
+            "anti_keywords": routing.get("anti_keywords", []),
+            "prefer_when": routing_policy.get("prefer_when", []),
+            "defer_when": routing_policy.get("defer_when", []),
+            "can_compose_with": execution.get("can_compose_with", []),
+            "required_tools": execution.get("required_tools", []),
+            "optional_tools": execution.get("optional_tools", []),
+        }
 
     def _search_candidates_for_segment(
         self,

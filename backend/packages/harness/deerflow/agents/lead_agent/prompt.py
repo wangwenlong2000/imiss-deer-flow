@@ -402,13 +402,16 @@ You have access to skills that provide optimized workflows for specific tasks. E
 - Ignore custom/domain skills mentioned in previous turns if they are not listed in the current turn.
 - Do not call tools associated with unavailable skills.
 - If a later current-turn routed_skill_prompt is injected by SkillRouter, its <available_skills> list recommends the custom/domain skills for this turn; public skills from the base prompt remain available as supporting workflows.
+- When SkillRouter ranking is disabled and scene filtering injects all skills for a scene, treat <available_skills> as an allowed candidate set. Select the specific skill or skills that match the current user request before loading skill files or executing workflows.
 {empty_notice}{routed_override_notice}
 **Progressive Loading Pattern:**
-1. When a user query matches an available skill's use case, immediately call `read_file` on the skill's main file using the path attribute provided below.
-2. Read and understand the skill's workflow and instructions.
-3. The skill file contains references to external resources under the same folder.
-4. Load referenced resources only when needed during execution.
-5. Follow the skill's instructions precisely.
+1. When a user query matches an available skill's use case, first choose the concrete skill.
+2. Call `invoke_skill` in `prepare` mode for that selected skill to create and validate the SkillInputEnvelope and legacy invocation package.
+3. Read the returned skill file path and understand the skill's workflow and instructions.
+4. The skill file contains references to external resources under the same folder.
+5. Load referenced resources only when needed during execution.
+6. Follow the skill's instructions precisely.
+7. After legacy execution, call `invoke_skill` in `wrap_output` mode to normalize the result into SkillResult when a machine-readable Skill output is needed.
 
 **Skill Loading Priority Rules:**
 - If a request clearly matches an available skill and also includes uploaded files, load the skill file before reading uploaded data files.

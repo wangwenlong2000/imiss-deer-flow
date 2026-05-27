@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import importlib.util
 import typing
+from types import SimpleNamespace
 
 from deerflow.routing.query_segmenter import should_route, segment_query
 from deerflow.routing.resolver import resolve, pick_primary
@@ -377,6 +378,79 @@ class TestSkillRouterCandidateFiltering:
             "enabled": True,
             "is_public": False,
         }
+
+    def test_scene_rerank_uses_scene_candidates_without_embedding(self, tmp_path, monkeypatch):
+        skill_dir = tmp_path / "program-snippet-skill"
+        skill_dir.mkdir()
+        (skill_dir / "router_card.json").write_text(
+            """
+            {
+              "identity": {"id": "code-to-ast-new", "name": "code-to-ast-new", "description": "AST parser"},
+              "scope": {"scenes": ["program_snippet"], "task_types": ["ast_generation"], "input_types": ["source_code"], "output_types": ["ast_json"], "is_public": true},
+              "routing": {"routing_text": "AST parser", "positive_triggers": ["AST"], "negative_triggers": [], "keywords": ["AST"], "anti_keywords": []},
+              "execution": {"required_tools": ["python"], "optional_tools": [], "can_compose_with": []}
+            }
+            """,
+            encoding="utf-8",
+        )
+        fake_skill = SimpleNamespace(name="code-to-ast-new", description="AST parser", skill_dir=skill_dir)
+        monkeypatch.setattr(_middleware_module, "load_custom_skills", lambda enabled_only=True: [fake_skill])
+
+        class FailingEmbeddingClient:
+            def embed_text(self, _text):
+                raise AssertionError("embedding should not be called in scene_rerank mode")
+
+        middleware = object.__new__(SkillRouterMiddleware)
+        middleware.mode = "scene_rerank"
+        middleware.scene_prefilter_enabled = True
+        middleware.fallback_global_when_no_scene = True
+        middleware.embedding_client = FailingEmbeddingClient()
+
+        candidates = middleware._candidate_skills_for_segment(
+            segment_text="把代码转成 AST",
+            scene="program_snippet",
+            base_scope_set=set(),
+        )
+
+        assert [candidate["skill_id"] for candidate in candidates] == ["code-to-ast-new"]
+        assert candidates[0]["required_tools"] == ["python"]
+
+    def test_scene_rerank_respects_base_scope(self, tmp_path, monkeypatch):
+        skill_dir = tmp_path / "program-snippet-skill"
+        skill_dir.mkdir()
+        (skill_dir / "router_card.json").write_text(
+            '{"identity":{"id":"code-to-ast-new","name":"code-to-ast-new","description":"AST parser"},"scope":{"scenes":["program_snippet"]}}',
+            encoding="utf-8",
+        )
+        fake_skill = SimpleNamespace(name="code-to-ast-new", description="AST parser", skill_dir=skill_dir)
+        monkeypatch.setattr(_middleware_module, "load_custom_skills", lambda enabled_only=True: [fake_skill])
+
+        middleware = object.__new__(SkillRouterMiddleware)
+        middleware.mode = "scene_rerank"
+        middleware.scene_prefilter_enabled = True
+        middleware.fallback_global_when_no_scene = True
+
+        candidates = middleware._candidate_skills_for_segment(
+            segment_text="把代码转成 AST",
+            scene="program_snippet",
+            base_scope_set={"other-skill"},
+        )
+
+        assert candidates == []
+
+    def test_scene_rerank_can_disable_global_fallback_without_scene(self):
+        middleware = object.__new__(SkillRouterMiddleware)
+        middleware.mode = "scene_rerank"
+        middleware.scene_prefilter_enabled = True
+        middleware.fallback_global_when_no_scene = False
+
+        candidates = middleware._candidate_skills_for_segment(
+            segment_text="分析代码",
+            scene=None,
+            base_scope_set=set(),
+        )
+
+        assert candidates == []
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,117 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "analyze_event_impact",
+                     "name":  "analyze_event_impact",
+                     "description":  "Use this skill when the user wants to evaluate the impact of an external event such as rainstorm, sports event, traffic control, holiday, emergency, or policy intervention on regional trajectory volume."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "analyze_event_impact",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "evidence_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "region_impacts.jsonl",
+                                       "summary.json",
+                                       "viz_input.jsonl"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：analyze_event_impact\n描述：Use this skill when the user wants to evaluate the impact of an external event such as rainstorm, sports event, traffic control, holiday, emergency, or policy intervention on regional trajectory volume.\n适用场景：spatiotemporal_trajectory。\n适用任务：analyze_event_impact, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, evidence_jsonl。\n输出类型：region_impacts.jsonl, summary.json, viz_input.jsonl。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to evaluate the impact of an external event such as rainstorm, sports event, traffic control, holiday, emergency, or policy intervention on regional trajectory volume.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "analyze",
+                                     "event",
+                                     "impact",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: analyze_event_impact\ndescription: Use this skill when the user wants to evaluate the impact of an external event such as rainstorm, sports event, traffic control, holiday, emergency, or policy intervention on regional trajectory volume.\nmetadata:\n  short-description: Compare before/during/after regional activity around an event.\n---\n\n# analyze_event_impact\n\nUse this Skill on spatiotemporal trajectory evidence or regional activity evidence. It compares treatment and control regions around an event window with a simplified DID-style calculation.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/analyze_event_impact\npython3 scripts/analyze_event_impact.py \\\n  --input /path/to/evidence.jsonl \\\n  --output-dir /path/to/output \\\n  --event-start 2012-06-09T00:00:00 \\\n  --event-end 2012-06-10T00:00:00 \\\n  --treatment-geohash wtw1z,wtw3s \\\n  --event-name \"大型活动影响\"\n```\n\n## Outputs\n\n- `region_impacts.jsonl`\n- `summary.json`\n- `viz_input.jsonl`\n\n## Algorithm\n\n- Treatment/control split\n- Event-window comparison\n- Welch-style t statistic\n- DID estimate where controls are available\n- Landmark-enriched impact evidence\n\n## Next Skills\n\nUse event-impact outputs with `$fuse_spatial_evidence`, or pair them with hotspot/anomaly results for causal interpretation.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "fuse_spatial_evidence"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/analyze_event_impact",
+                   "skill_md_path":  "skills/custom/analyze_event_impact/SKILL.md",
+                   "skill_md_hash":  "sha256:2ab3120ec9244420b877b8b8ef6532f4999fc4f9bb405f465b4a2f0dae8ade6d",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:9260e09e7f3b539a7cfbb27a08c41a4336aab0c6134e7d7c2837d9f0d8a6a9bc",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "analyze_event_impact"
+                  }
+}
