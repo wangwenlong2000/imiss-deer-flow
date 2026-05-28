@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "flood-risk-mapping",
+    "name": "flood-risk-mapping",
+    "description": "Generates urban flood risk maps by combining optical remote sensing water extraction with DEM elevation analysis. Classifies areas into high/medium/low flood risk levels and outputs risk zone maps and governance reports. Invoke when the user mentions \"洪涝\", \"内涝\", \"洪水风险\", \"flood risk\", \"DEM\", \"水体提取\", \"NDWI\", \"城市积水\" or similar triggers."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "flood_risk_mapping",
+      "ndwi_water_extraction",
+      "dem_elevation_analysis",
+      "risk_zone_classification",
+      "governance_report"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "risk_map_tif",
+      "water_mask_tif",
+      "risk_zones_geojson",
+      "flood_stats_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：flood-risk-mapping\n描述：Generates urban flood risk maps by combining optical remote sensing water extraction with DEM elevation analysis. Classifies areas into high/medium/low flood risk levels and outputs risk zone maps and governance reports. Invoke when the user mentions \"洪涝\", \"内涝\", \"洪水风险\", \"flood risk\", \"DEM\", \"水体提取\", \"NDWI\", \"城市积水\" or similar triggers.\n适用场景：remote_sensing, urban_governance, flood_risk。\n适用任务：flood_risk_mapping, ndwi_water_extraction, dem_elevation_analysis, risk_zone_classification, governance_report。\n输入类型：geotiff, geojson, shapefile。\n输出类型：risk_map_tif, water_mask_tif, risk_zones_geojson, flood_stats_csv, report_md。\n适合使用：生成城市洪涝或内涝风险图；结合 NDWI 水体提取与 DEM 低洼分析；划分高/中/低洪水风险区并输出治理建议。\n不适合使用：评估滑坡或火灾综合灾害风险；提取建筑轮廓；监测城市热岛或 LST；撰写技术方案。",
+    "positive_triggers": [
+      "生成城市洪涝或内涝风险图",
+      "结合 NDWI 水体提取与 DEM 低洼分析",
+      "划分高/中/低洪水风险区并输出治理建议"
+    ],
+    "negative_triggers": [
+      "评估滑坡或火灾综合灾害风险",
+      "提取建筑轮廓",
+      "监测城市热岛或 LST",
+      "撰写技术方案"
+    ],
+    "keywords": [
+      "洪涝",
+      "内涝",
+      "洪水风险",
+      "flood risk",
+      "DEM",
+      "水体提取",
+      "NDWI",
+      "城市积水"
+    ],
+    "anti_keywords": [
+      "滑坡",
+      "火灾",
+      "建筑提取",
+      "热岛",
+      "方案"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: flood-risk-mapping\ndescription: >\n  Generates urban flood risk maps by combining optical remote sensing water extraction with DEM elevation analysis. Classifies areas into high/medium/low flood risk levels and outputs risk zone maps and governance reports. Invoke when the user mentions \"洪涝\", \"内涝\", \"洪水风险\", \"flood risk\", \"DEM\", \"水体提取\", \"NDWI\", \"城市积水\" or similar triggers.\nlicense: MIT\n---\n\n# 城市洪涝风险评估技能（flood-risk-mapping）\n\n## 1. 技能概述\n\n本技能结合光学遥感影像的水体提取（NDWI）与数字高程模型（DEM），综合评估城市洪涝风险，生成高/中/低三级风险分区图，辅助城市防洪规划与应急管理。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_optical` | file (GeoTIFF) | 是 | 光学影像（多波段，用于 NDWI 水体提取），建议 Sentinel-2 |\n| `dem` | file (GeoTIFF) | 是 | 数字高程模型（单位：米），建议 SRTM 30m 或更高精度 |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界 |\n| `water_threshold` | float | 否 | 水体提取 NDWI 阈值，默认 0.2 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **水体提取**：基于 NDWI 提取现有水体范围\n3. **高程分析**：基于 DEM 分位数划分低洼区域\n4. **风险综合评估**：低洼区 + 水体邻近区 = 高风险\n5. **成果输出**：risk_map.tif、water_mask.tif、risk_zones.geojson、flood_stats.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/flood-risk-mapping/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_optical\":\"/path/to/sentinel2.tif\",\"dem\":\"/path/to/srtm.tif\"}' \\\n  --output-dir /tmp/outputs/frm\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `risk_map.tif` | 洪涝风险等级栅格（1=低，2=中，3=高） |\n| `water_mask.tif` | 水体提取结果 |\n| `risk_zones.geojson` | 风险分区矢量，属性含 risk_level、area_m2 |\n| `flood_stats.csv` | 各级风险区面积占比统计 |\n| `report.md` | 洪涝风险分析与防洪治理建议 |\n\n## 6. 治理场景\n\n- **防洪规划**：识别高风险低洼区，优先建设防洪设施\n- **应急管理**：为应急预案提供洪涝风险空间分布\n- **城市扩张管控**：限制在高风险区新建重要基础设施\n- **海绵城市建设**：高风险区优先推进雨水调蓄工程\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户要求基于光学影像和 DEM 生成洪涝/内涝风险分区",
+      "用户提到 NDWI、水体提取、低洼区或城市积水"
+    ],
+    "defer_when": [
+      "任务包含多灾种脆弱性和暴露度综合评估，应优先使用 disaster-risk-assessment",
+      "任务只是普通水体质量反演，应优先使用水质监测 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/flood-risk-mapping",
+    "skill_md_path": "5-21remote-sensing/flood-risk-mapping/SKILL.md",
+    "skill_md_hash": "sha256:d1efd32673934574ebb4b422ced59b38cb67c9255d5364bfbd43a1edf58de54c",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:67983bb080d3059b838bceb8c9ad03e7d31a64e8d719ac6e95c0758b39aff1b5",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "flood-risk-mapping"
+  }
+}

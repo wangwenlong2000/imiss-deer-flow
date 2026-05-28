@@ -1,0 +1,6 @@
+user_id,province,label,sub_label,risk_score
+p1,sichuan,1,purefraud,92
+p2,sichuan,1,risk,70
+p3,sichuan,0,normal,20
+p4,shaanxi,1,risk,55
+p5,sichuan,0,normal,30

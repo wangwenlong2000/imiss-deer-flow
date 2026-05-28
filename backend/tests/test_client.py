@@ -164,6 +164,18 @@ def _tool_result_events(events):
 
 
 class TestStream:
+    def test_serialize_message_preserves_internal_metadata(self, client):
+        msg = HumanMessage(
+            content="internal",
+            id="h-internal",
+            additional_kwargs={"message_type": "view_image_context", "internal": True},
+        )
+
+        serialized = client._serialize_message(msg)
+
+        assert serialized["type"] == "human"
+        assert serialized["additional_kwargs"] == {"message_type": "view_image_context", "internal": True}
+
     def test_basic_message(self, client):
         """stream() emits messages-tuple + values + end for a simple AI reply."""
         ai = AIMessage(content="Hello!", id="ai-1")

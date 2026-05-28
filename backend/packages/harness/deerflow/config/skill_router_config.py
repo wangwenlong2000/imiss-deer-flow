@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -27,7 +28,6 @@ class VectorStoreConfig(BaseModel):
     text_field: str = Field(default="routing_text")
     id_field: str = Field(default="skill_id")
     top_k: int = Field(default=8, description="Number of candidates to retrieve from ES")
-    min_score: float = Field(default=0.45, description="Minimum similarity score threshold")
 
     model_config = ConfigDict(extra="ignore")
 
@@ -80,6 +80,30 @@ class SkillRouterConfig(BaseModel):
     """Top-level SkillRouter configuration, maps to skill_router section in config.yaml."""
 
     enabled: bool = Field(default=True)
+    mode: Literal["scene_rerank", "embedding_rerank"] = Field(
+        default="scene_rerank",
+        description=(
+            "scene_rerank uses intent scene filtering as the coarse candidate "
+            "set and calls only the reranker. embedding_rerank keeps the legacy "
+            "embedding + ES recall + reranker pipeline."
+        ),
+    )
+    scene_prefilter_enabled: bool = Field(
+        default=True,
+        description="When enabled, use detected scene(s) as the candidate boundary before reranking.",
+    )
+    fallback_global_when_no_scene: bool = Field(
+        default=True,
+        description="When scene_rerank has no detected scene, allow legacy global embedding recall as fallback.",
+    )
+    scene_filter_when_disabled: bool = Field(
+        default=True,
+        description=(
+            "When SkillRouter ranking is disabled, still use intent scene recognition "
+            "to inject only custom skills from the detected scene. Public skills remain "
+            "in the base prompt."
+        ),
+    )
     router_cards: RouterCardsConfig = Field(default_factory=RouterCardsConfig)
     vector_store: VectorStoreConfig = Field(default_factory=VectorStoreConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)

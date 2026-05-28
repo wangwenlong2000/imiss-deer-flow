@@ -1,0 +1,14 @@
+# Skill: green-space-monitoring
+skill:
+  name: green-space-monitoring
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+io:
+  outputs_dir: ./outputs
+  subdir: green-space-monitoring
+
+logging:
+  level: INFO

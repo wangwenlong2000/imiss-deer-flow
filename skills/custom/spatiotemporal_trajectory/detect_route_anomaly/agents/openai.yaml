@@ -1,0 +1,4 @@
+name: detect_route_anomaly
+display_name: 路线异常检测
+short_description: 检测异常绕路、异常距离、异常耗时和异常速度的 trip。
+default_prompt: "Use $detect_route_anomaly when the user asks for abnormal trips, route anomalies, detours, unusual speed, or route deviation. Run python3 scripts/detect_route_anomaly.py on trips.jsonl and summarize route_anomalies.jsonl."

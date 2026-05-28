@@ -16,6 +16,16 @@ class Skill:
     enabled: bool = False  # Whether this skill is enabled
 
     @property
+    def is_public(self) -> bool:
+        """Whether this skill lives in the public skill tree."""
+        return self.category == "public"
+
+    @property
+    def is_custom(self) -> bool:
+        """Whether this skill lives in the custom skill tree."""
+        return self.category == "custom"
+
+    @property
     def skill_path(self) -> str:
         """Returns the relative path from the category root (skills/{category}) to this skill's directory"""
         path = self.relative_path.as_posix()

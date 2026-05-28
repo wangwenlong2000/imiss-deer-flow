@@ -1,19 +1,19 @@
 """Middleware for injecting image details into conversation before LLM call."""
 
-from typing import NotRequired, override
+from typing import Annotated, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import ViewedImageData
+from deerflow.agents.thread_state import ViewedImageData, merge_viewed_images
 
 
 class ViewImageMiddlewareState(AgentState):
     """Compatible with the `ThreadState` schema."""
 
-    viewed_images: NotRequired[dict[str, ViewedImageData] | None]
+    viewed_images: Annotated[dict[str, ViewedImageData], merge_viewed_images]
 
 
 class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
@@ -178,8 +178,13 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
         # Create the image details message with text and image content
         image_content = self._create_image_details_message(state)
 
-        # Create a new human message with mixed content (text + images)
-        human_msg = HumanMessage(content=image_content)
+        # Create a model-only human message with mixed content (text + images).
+        # The frontend filters this internal message; it is only needed so the
+        # model can see images after view_image tool calls complete.
+        human_msg = HumanMessage(
+            content=image_content,
+            additional_kwargs={"message_type": "view_image_context", "internal": True},
+        )
 
         print("[ViewImageMiddleware] Injecting image details message with images before LLM call")
 

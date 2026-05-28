@@ -37,6 +37,13 @@ class SkillRouterRerankerClient:
                 c.get("name", ""),
                 c.get("description", ""),
                 c.get("routing_text", ""),
+                _format_list("Positive triggers", c.get("positive_triggers", [])),
+                _format_list("Not a fit when", c.get("negative_triggers", [])),
+                _format_list("Keywords", c.get("keywords", [])),
+                _format_list("Anti keywords", c.get("anti_keywords", [])),
+                _format_list("Prefer when", c.get("prefer_when", [])),
+                _format_list("Defer when", c.get("defer_when", [])),
+                _format_list("Can compose with", c.get("can_compose_with", [])),
                 ", ".join(c.get("scenes", [])),
                 ", ".join(c.get("task_types", [])),
                 c.get("body", ""),
@@ -68,3 +75,9 @@ class SkillRouterRerankerClient:
 
         scored.sort(key=lambda c: c["score"], reverse=True)
         return scored
+
+
+def _format_list(label: str, values: list[str] | None) -> str:
+    if not values:
+        return ""
+    return f"{label}: " + "; ".join(str(v) for v in values if v)

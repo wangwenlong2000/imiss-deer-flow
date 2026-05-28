@@ -372,6 +372,41 @@ class TestExtractResponseText:
         # Should return "" (no text in current turn), NOT "Hi there!" from previous turn
         assert _extract_response_text(result) == ""
 
+    def test_falls_back_to_invoke_skill_wrapped_summary(self):
+        from app.channels.manager import _extract_response_text
+
+        result = {
+            "messages": [
+                {"type": "human", "content": "对网络流量neris做summary"},
+                {
+                    "type": "ai",
+                    "content": "",
+                    "tool_calls": [{"name": "invoke_skill", "args": {"mode": "wrap_output"}}],
+                },
+                {
+                    "type": "tool",
+                    "name": "invoke_skill",
+                    "content": json.dumps(
+                        {
+                            "status": "wrapped",
+                            "skill_result": {
+                                "result": {
+                                    "display_text": "Neris 完整摘要：HTTP、DNS 和 DCE_RPC 占比最高，存在明显异常时段。",
+                                    "summary": {
+                                        "title": "network-traffic-analysis result",
+                                        "overview": "Neris 流量摘要：HTTP、DNS 和 DCE_RPC 占比最高。",
+                                    }
+                                }
+                            },
+                        },
+                        ensure_ascii=False,
+                    ),
+                },
+            ]
+        }
+
+        assert _extract_response_text(result) == "Neris 完整摘要：HTTP、DNS 和 DCE_RPC 占比最高，存在明显异常时段。"
+
 
 # ---------------------------------------------------------------------------
 # ChannelManager tests

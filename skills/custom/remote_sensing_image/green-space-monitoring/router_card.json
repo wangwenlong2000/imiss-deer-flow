@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "green-space-monitoring",
+    "name": "green-space-monitoring",
+    "description": "Monitors urban green space coverage changes using NDVI/EVI vegetation indices from multi-temporal remote sensing imagery. Identifies green space loss and gain areas, and generates governance reports. Invoke when the user mentions \"绿地\", \"植被\", \"NDVI\", \"绿化\", \"green space\", \"EVI\", \"占绿\", \"毁绿\", \"绿地减少\" or similar triggers."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "green_space_change_monitoring",
+      "ndvi_evi_calculation",
+      "vegetation_loss_detection",
+      "green_area_statistics",
+      "governance_report"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "vi_map_tif",
+      "green_loss_zones_geojson",
+      "green_stats_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：green-space-monitoring\n描述：Monitors urban green space coverage changes using NDVI/EVI vegetation indices from multi-temporal remote sensing imagery. Identifies green space loss and gain areas, and generates governance reports. Invoke when the user mentions \"绿地\", \"植被\", \"NDVI\", \"绿化\", \"green space\", \"EVI\", \"占绿\", \"毁绿\", \"绿地减少\" or similar triggers.\n适用场景：remote_sensing, urban_governance, green_space_monitoring。\n适用任务：green_space_change_monitoring, ndvi_evi_calculation, vegetation_loss_detection, green_area_statistics, governance_report。\n输入类型：geotiff, geojson, shapefile。\n输出类型：vi_map_tif, green_loss_zones_geojson, green_stats_csv, report_md。\n适合使用：监测城市绿地覆盖变化；计算 NDVI/EVI 并识别绿地减少或增加区域；识别占绿、毁绿等绿地变化问题。\n不适合使用：评估绿地可达性、人均绿地或生态廊道；反演水质参数；评估城市热岛强度；分析 pcap 网络流量。",
+    "positive_triggers": [
+      "监测城市绿地覆盖变化",
+      "计算 NDVI/EVI 并识别绿地减少或增加区域",
+      "识别占绿、毁绿等绿地变化问题"
+    ],
+    "negative_triggers": [
+      "评估绿地可达性、人均绿地或生态廊道",
+      "反演水质参数",
+      "评估城市热岛强度",
+      "分析 pcap 网络流量"
+    ],
+    "keywords": [
+      "绿地",
+      "植被",
+      "NDVI",
+      "EVI",
+      "绿化",
+      "green space",
+      "占绿",
+      "毁绿",
+      "绿地减少"
+    ],
+    "anti_keywords": [
+      "人均绿地",
+      "生态廊道",
+      "15分钟公园",
+      "水质",
+      "热岛",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: green-space-monitoring\ndescription: >\n  Monitors urban green space coverage changes using NDVI/EVI vegetation indices from multi-temporal remote sensing imagery. Identifies green space loss and gain areas, and generates governance reports. Invoke when the user mentions \"绿地\", \"植被\", \"NDVI\", \"绿化\", \"green space\", \"EVI\", \"占绿\", \"毁绿\", \"绿地减少\" or similar triggers.\nlicense: MIT\n---\n\n# 城市绿地监测技能（green-space-monitoring）\n\n## 1. 技能概述\n\n本技能基于多时相多光谱遥感影像，计算 NDVI/EVI 植被指数，监测城市绿地覆盖变化，精准识别绿地减少（占绿、毁绿）和增加区域，输出绿地变化矢量与治理报告。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_t1` | file (GeoTIFF) | 是 | 前期多光谱影像（已完成大气校正），≥ 4 波段 |\n| `image_t2` | file (GeoTIFF) | 是 | 后期多光谱影像，需与 `image_t1` 同坐标系/分辨率 |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界 |\n| `index` | string | 否 | `ndvi` / `evi`，默认 `ndvi` |\n| `threshold` | float | 否 | 绿地判定阈值（0-1），默认 0.3 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **植被指数计算**：分别计算两期 NDVI/EVI\n3. **绿地提取**：按阈值生成两期绿地掩膜\n4. **变化分析**：计算绿地增减区域及面积\n5. **成果输出**：vi_map_t1/t2.tif、green_loss_zones.geojson、green_stats.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/green-space-monitoring/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_t1\":\"/path/to/2022.tif\",\"image_t2\":\"/path/to/2024.tif\",\"index\":\"ndvi\"}' \\\n  --output-dir /tmp/outputs/gsm\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `vi_map_t1/t2.tif` | 两期植被指数栅格 |\n| `green_loss_zones.geojson` | 绿地减少区域矢量 |\n| `green_stats.csv` | 绿地覆盖率统计（前后期对比） |\n| `report.md` | 绿地变化分析与治理建议 |\n\n## 6. 治理场景\n\n- **违规占绿执法**：识别绿地减少区域，导出点位供执法核查\n- **绿地率考核**：量化城市绿地率变化，支撑规划指标考核\n- **生态修复评估**：监测绿化工程实施效果\n- **城市热岛缓解**：绿地减少区域往往与热岛加剧正相关\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户提供两期遥感影像并要求做绿地增减变化监测",
+      "用户关注占绿毁绿、绿地覆盖率变化或 NDVI/EVI 变化"
+    ],
+    "defer_when": [
+      "用户要求公园城市、15分钟公园圈、人均绿地或生态廊道，应优先使用 urban-greenspace-assessment",
+      "任务只是查看影像元数据，应优先使用 inspect-geo"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/green-space-monitoring",
+    "skill_md_path": "5-21remote-sensing/green-space-monitoring/SKILL.md",
+    "skill_md_hash": "sha256:c254a493e4d6a90a48b111b7030e6577667d81825448fa16e18dc041c4061e01",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:15b3014a01217649832b6aa68e475cbeb1c8c9346cae1dc11a5079c064add15d",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "green-space-monitoring"
+  }
+}

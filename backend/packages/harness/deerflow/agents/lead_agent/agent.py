@@ -11,10 +11,11 @@ from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionM
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
 from deerflow.agents.middlewares.raw_transcript_middleware import RawTranscriptMiddleware
 from deerflow.agents.middlewares.run_history_middleware import RunHistoryMiddleware
+from deerflow.agents.middlewares.scene_skill_filter_middleware import SceneSkillFilterMiddleware
 from deerflow.agents.middlewares.skill_router_middleware import SkillRouterMiddleware
 from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 from deerflow.agents.middlewares.title_middleware import TitleMiddleware
-from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
+from deerflow.agents.middlewares.todo_middleware import RoutingHiddenStepMiddleware, TodoMiddleware
 from deerflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
 from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
 from deerflow.agents.thread_state import ThreadState
@@ -231,20 +232,28 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     #if summarization_middleware is not None:
     #    middlewares.append(summarization_middleware)
 
+    skill_router_config = get_skill_router_config()
+
     # Intent recognition must run before SkillRouter so routing can use the
-    # rewritten query and configured scene hints.
-    if get_skill_router_config().enabled:
+    # rewritten query and configured scene hints. When SkillRouter ranking is
+    # disabled, scene filtering can still use the recognized scene to avoid
+    # injecting unrelated custom skills.
+    if skill_router_config.enabled or skill_router_config.scene_filter_when_disabled:
         middlewares.append(IntentRecognitionMiddleware(model_name=model_name))
 
     # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
-    if get_skill_router_config().enabled:
+    if skill_router_config.enabled:
         middlewares.append(SkillRouterMiddleware())
+    elif skill_router_config.scene_filter_when_disabled:
+        middlewares.append(SceneSkillFilterMiddleware())
 
     # Add TodoList middleware if plan mode is enabled
     is_plan_mode = config.get("configurable", {}).get("is_plan_mode", False)
     todo_list_middleware = _create_todo_list_middleware(is_plan_mode)
     if todo_list_middleware is not None:
         middlewares.append(todo_list_middleware)
+    else:
+        middlewares.append(RoutingHiddenStepMiddleware())
 
     # Add TitleMiddleware
     middlewares.append(TitleMiddleware())
@@ -340,7 +349,11 @@ def make_lead_agent(config: RunnableConfig):
 
     if is_bootstrap:
         # Special bootstrap agent with minimal prompt for initial custom agent creation flow
-        system_prompt = apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, prompt_skills=set(["bootstrap"]))
+        system_prompt = apply_prompt_template(
+            subagent_enabled=subagent_enabled,
+            max_concurrent_subagents=max_concurrent_subagents,
+            available_skills=set(["bootstrap"]),
+        )
 
         return create_agent(
             model=create_chat_model(name=model_name, thinking_enabled=thinking_enabled),
@@ -350,17 +363,25 @@ def make_lead_agent(config: RunnableConfig):
             state_schema=ThreadState,
         )
 
-    # Default lead agent (unchanged behavior)
-    # When SkillRouter is enabled, pass empty prompt_skills so the base system
-    # prompt contains no skills.  SkillRouterMiddleware injects routed skills
-    # dynamically per turn.
-    skill_router_enabled = get_skill_router_config().enabled
-    base_prompt_skills: set[str] | None = set() if skill_router_enabled else None
+    # Default lead agent.
+    # When SkillRouter is enabled, keep public skills in the stable base prompt.
+    # Custom skills are selected dynamically by SkillRouterMiddleware per turn.
+    skill_router_config = get_skill_router_config()
+    base_skill_categories: set[str] | None = (
+        {"public"}
+        if skill_router_config.enabled or skill_router_config.scene_filter_when_disabled
+        else None
+    )
 
     return create_agent(
         model=create_chat_model(name=model_name, thinking_enabled=thinking_enabled, reasoning_effort=reasoning_effort),
         tools=get_available_tools(model_name=model_name, groups=selected_tool_groups, subagent_enabled=subagent_enabled),
         middleware=_build_middlewares(config, model_name=model_name, agent_name=agent_name),
-        system_prompt=apply_prompt_template(subagent_enabled=subagent_enabled, max_concurrent_subagents=max_concurrent_subagents, agent_name=agent_name, prompt_skills=base_prompt_skills),
+        system_prompt=apply_prompt_template(
+            subagent_enabled=subagent_enabled,
+            max_concurrent_subagents=max_concurrent_subagents,
+            agent_name=agent_name,
+            skill_categories=base_skill_categories,
+        ),
         state_schema=ThreadState,
     )

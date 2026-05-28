@@ -1,5 +1,7 @@
 """Middleware for automatic thread title generation."""
 
+import ast
+import json
 from typing import NotRequired, override
 
 from langchain.agents import AgentState
@@ -105,7 +107,7 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
     def _normalize_title(raw_title: str, user_msg: str) -> str:
         """Normalize model output and provide a deterministic fallback."""
         config = get_title_config()
-        title = raw_title.strip().strip('"').strip("'")
+        title = TitleMiddleware._extract_title_text(raw_title).strip().strip('"').strip("'")
         if title:
             return title[: config.max_chars] if len(title) > config.max_chars else title
 
@@ -114,17 +116,71 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
             return user_msg[:fallback_chars].rstrip() + "..."
         return user_msg if user_msg else "New Conversation"
 
+    @staticmethod
+    def _extract_response_text(content) -> str:
+        """Extract visible text from model response content and ignore thinking blocks."""
+        if content is None:
+            return ""
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            parts: list[str] = []
+            for part in content:
+                if isinstance(part, str):
+                    if part.strip():
+                        parts.append(part)
+                elif isinstance(part, dict):
+                    if part.get("type") == "text" and isinstance(part.get("text"), str):
+                        parts.append(part["text"])
+                    elif "text" in part and isinstance(part.get("text"), str):
+                        parts.append(part["text"])
+                    # Intentionally ignore {"thinking": "..."} and other non-text blocks.
+                else:
+                    text = getattr(part, "text", None)
+                    if isinstance(text, str):
+                        parts.append(text)
+            return "\n".join(part.strip() for part in parts if part.strip())
+        text = getattr(content, "text", None)
+        if isinstance(text, str):
+            return text
+        return str(content)
+
+    @staticmethod
+    def _extract_title_text(raw_title: str) -> str:
+        """Handle stringified content blocks from thinking-capable gateways."""
+        raw = raw_title.strip()
+        if not raw:
+            return ""
+
+        parsed = None
+        if raw[0] in "[{":
+            try:
+                parsed = json.loads(raw)
+            except Exception:
+                try:
+                    parsed = ast.literal_eval(raw)
+                except Exception:
+                    parsed = None
+        if parsed is not None:
+            return TitleMiddleware._extract_response_text(parsed)
+
+        # Some gateways leak labels despite prompt instructions.
+        for prefix in ("Title:", "标题：", "标题:"):
+            if raw.startswith(prefix):
+                return raw[len(prefix):].strip()
+        return raw
+
     async def _generate_title(self, state: TitleMiddlewareState) -> str:
         """Generate a concise title based on the conversation."""
         prompt, user_msg, _assistant_msg = self._build_title_prompt(state)
 
         # Use a lightweight model to generate title
-        model = create_chat_model(thinking_enabled=False)
+        config = get_title_config()
+        model = create_chat_model(name=config.model_name, thinking_enabled=False)
 
         try:
             response = await model.ainvoke(prompt)
-            # Ensure response content is string
-            title_content = str(response.content) if response.content else ""
+            title_content = self._extract_response_text(response.content)
             return self._normalize_title(title_content, user_msg)
         except Exception as e:
             print(f"Failed to generate title: {e}")
@@ -133,11 +189,12 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
     def _generate_title_sync(self, state: TitleMiddlewareState) -> str:
         """Synchronous variant used by sync graph execution."""
         prompt, user_msg, _assistant_msg = self._build_title_prompt(state)
-        model = create_chat_model(thinking_enabled=False)
+        config = get_title_config()
+        model = create_chat_model(name=config.model_name, thinking_enabled=False)
 
         try:
             response = model.invoke(prompt)
-            title_content = str(response.content) if response.content else ""
+            title_content = self._extract_response_text(response.content)
             return self._normalize_title(title_content, user_msg)
         except Exception as e:
             print(f"Failed to generate title: {e}")

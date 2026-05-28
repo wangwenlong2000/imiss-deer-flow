@@ -1,0 +1,7 @@
+counterparty_id,screened_member_count,total_calls,member_preview
+c1,4,4,"p1, p2, p3, p5"
+c2,4,4,"p1, p2, p3, p5"
+c3,4,4,"p1, p2, p3, p5"
+c4,3,3,"p1, p2, p5"
+c5,2,2,"p1, p2"
+c6,2,2,"p1, p2"

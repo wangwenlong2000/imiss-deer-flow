@@ -9,27 +9,13 @@ import logging
 import re
 import uuid
 
+from deerflow.routing.intent_policy import policy_float, policy_list
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # should_route
 # ---------------------------------------------------------------------------
-
-_SKIP_KEYWORDS = [
-    "你好",
-    "在吗",
-    "谢谢",
-    "你是谁",
-    "介绍一下自己",
-]
-
-_SKIP_PATTERNS = [
-    r"^ok\s*$",
-    r"^thanks?\s*$",
-    r"^嗯\s*$",
-    r"^好的\s*$",
-]
-
 
 def is_obvious_chitchat(query: str, uploaded_files: list[dict] | None = None) -> bool:
     """Return True when a turn is clearly conversational and should not route."""
@@ -39,10 +25,10 @@ def is_obvious_chitchat(query: str, uploaded_files: list[dict] | None = None) ->
         return True
 
     text = query.strip()
-    if text in _SKIP_KEYWORDS:
+    if text in policy_list("chitchat", "exact_keywords"):
         return True
 
-    return any(re.match(pat, text, re.IGNORECASE) for pat in _SKIP_PATTERNS)
+    return any(re.match(str(pat), text, re.IGNORECASE) for pat in policy_list("chitchat", "regex_patterns"))
 
 
 def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
@@ -57,8 +43,6 @@ def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
         return False
 
     text = query.strip()
-    lower = text.lower()
-
     if is_obvious_chitchat(text):
         return False
 
@@ -69,19 +53,12 @@ def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
         return True
 
     # References to "this file/table/data"
-    file_refs = ["这个文件", "这个表", "这个数据", "这份文件", "这份数据", "这份表"]
-    for ref in file_refs:
+    for ref in policy_list("should_route", "file_refs"):
         if ref in text:
             return True
 
     # Task-intent keywords
-    task_intents = [
-        "分析", "判断", "生成", "统计", "检索", "处理", "识别",
-        "解析", "预测", "评估", "对比", "提取", "计算",
-        "画图", "制图", "汇总", "总结", "查询", "查找",
-        "合规", "风险", "异常", "安全",
-    ]
-    for kw in task_intents:
+    for kw in policy_list("should_route", "task_intents"):
         if kw in text:
             return True
 
@@ -92,28 +69,11 @@ def should_route(query: str, uploaded_files: list[dict] | None = None) -> bool:
 # Task segmentation
 # ---------------------------------------------------------------------------
 
-# Keyword patterns that hint at a specific scene.  Order matters: more specific
-# patterns should appear first.
-_SCENE_PATTERNS = [
-    ("network_traffic", re.compile(
-        r"pcap|pcapng|\.cap|流量|网络|异常通信|可疑域名|安全事件|"
-        r"协议|DNS|HTTP|TLS|TCP|会话|流量分析",
-        re.IGNORECASE,
-    )),
-    ("policy_regulation", re.compile(
-        r"法规|政策|法律|合规|台账|条例|通知|整治|依据|"
-        r"条款|条文|法律条文|合规风险|合规判断",
-        re.IGNORECASE,
-    )),
-    ("data_analysis", re.compile(
-        r"excel|csv|统计|图表|表格|数据清洗|表格解析|"
-        r"画图|绘制|可视化",
-        re.IGNORECASE,
-    )),
-]
-
-
-def segment_query(query: str) -> list[dict]:
+def segment_query(
+    query: str,
+    scene_hint: str | None = None,
+    scene_hints: list[str] | None = None,
+) -> list[dict]:
     """Split *query* into coarse-grained task segments.
 
     First version uses rule-based matching.  Returns a list of dicts with
@@ -123,10 +83,23 @@ def segment_query(query: str) -> list[dict]:
     if not text:
         return []
 
-    matched_scenes: list[str] = []
-    for scene, pat in _SCENE_PATTERNS:
-        if pat.search(text):
-            matched_scenes.append(scene)
+    hints: list[str] = []
+    if scene_hints:
+        for hint in scene_hints:
+            if isinstance(hint, str) and hint.strip() and hint.strip() not in hints:
+                hints.append(hint.strip())
+    if not hints and scene_hint and scene_hint.strip():
+        hints.append(scene_hint.strip())
+
+    if hints:
+        return [{
+            "segment_id": _new_id(),
+            "text": text,
+            "scene": hint,
+            "input_refs": [],
+        } for hint in hints]
+
+    matched_scenes = _match_configured_scenes(text)
 
     # If no scene matched, return a single "unknown" segment
     if not matched_scenes:
@@ -153,3 +126,52 @@ def segment_query(query: str) -> list[dict]:
 
 def _new_id() -> str:
     return f"seg_{uuid.uuid4().hex[:6]}"
+
+
+def _match_configured_scenes(text: str) -> list[str]:
+    """Return scene ids matched from configured intent scene templates."""
+    try:
+        from deerflow.routing.intent import load_scene_templates
+        from deerflow.routing.intent.classifier import _compact, _scene_terms
+    except Exception:
+        return []
+
+    matches: list[tuple[str, float]] = []
+    try:
+        query_compact = _compact(text)
+        for scene_id, scene_config in load_scene_templates().items():
+            terms = _scene_terms(scene_config)
+            if not terms:
+                continue
+
+            score = 0.0
+            matched = 0
+            for term, weight in terms.items():
+                if term and term in query_compact:
+                    matched += 1
+                    score += weight
+
+            if matched:
+                score = min(
+                    policy_float("thresholds", "scene_match_max_score"),
+                    policy_float("thresholds", "scene_match_base_score")
+                    + score / policy_float("thresholds", "scene_match_score_divisor"),
+                )
+
+            if score >= policy_float("thresholds", "scene_match_min_score"):
+                configured_scene = scene_config.get("scene")
+                if isinstance(configured_scene, str) and configured_scene.strip():
+                    matches.append((configured_scene.strip(), score))
+                else:
+                    matches.append((scene_id, score))
+    except Exception:
+        logger.exception("Failed to match configured scenes for query segmentation")
+        return []
+
+    seen: set[str] = set()
+    scenes: list[str] = []
+    for scene, _score in sorted(matches, key=lambda item: item[1], reverse=True):
+        if scene not in seen:
+            seen.add(scene)
+            scenes.append(scene)
+    return scenes

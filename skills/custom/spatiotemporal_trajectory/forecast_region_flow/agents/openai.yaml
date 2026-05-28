@@ -1,0 +1,4 @@
+name: forecast_region_flow
+display_name: 区域流量预测
+short_description: 预测目标区域未来时段的人流、车流或签到量变化趋势。
+default_prompt: "Use $forecast_region_flow when the user asks for future regional flow trends, expected check-in changes, future hotspot changes, or next-hour/next-day regional demand."

@@ -4,6 +4,7 @@ import pytest
 
 from deerflow.sandbox.tools import (
     VIRTUAL_PATH_PREFIX,
+    _is_sandbox_connection_error,
     mask_local_paths_in_output,
     replace_virtual_path,
     resolve_local_tool_path,
@@ -109,3 +110,10 @@ def test_validate_local_bash_command_paths_allows_virtual_and_system_paths() -> 
         "/bin/echo ok > /mnt/user-data/workspace/out.txt && cat /dev/null",
         thread_data,
     )
+
+
+def test_sandbox_connection_error_detection_is_specific() -> None:
+    assert _is_sandbox_connection_error("Error: [Errno 111] Connection refused")
+    assert _is_sandbox_connection_error("Error: Max retries exceeded with url: /v1/shell/exec")
+    assert not _is_sandbox_connection_error("Connection refused appears in normal command output")
+    assert not _is_sandbox_connection_error("Error: command exited with code 1")

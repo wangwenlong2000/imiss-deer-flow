@@ -1,0 +1,5 @@
+user_id,province,label,sub_label,risk_score,call_count,unique_counterparties,night_call_count,night_call_ratio,device_count,shared_device_count,shared_peer_total,matched_condition_names,matched_condition_count,evidence_summary,screening_score,recommended_followup
+p5,sichuan,0,normal,30,4,4,4,1.0,2,1,2,unlabeled_only|broad_contacts|shared_device_count,3,未标注风险对象；联系人广度=4；共享设备数=1,44.75,"shared-device-analysis, single-number-analysis, time-series-anomaly-analysis"
+p1,sichuan,1,purefraud,92,12,12,11,0.9166666666666666,1,1,2,broad_contacts|shared_device_count,2,联系人广度=12；共享设备数=1,41.25,"shared-device-analysis, single-number-analysis, time-series-anomaly-analysis"
+p2,sichuan,1,risk,70,6,6,0,0.0,1,1,2,broad_contacts|shared_device_count,2,联系人广度=6；共享设备数=1,37.0,"shared-device-analysis, single-number-analysis"
+p3,sichuan,0,normal,20,3,3,0,0.0,1,0,0,unlabeled_only|broad_contacts,2,未标注风险对象；联系人广度=3,26.0,single-number-analysis

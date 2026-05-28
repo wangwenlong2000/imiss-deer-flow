@@ -95,7 +95,6 @@ export function groupMessages<T>(
     }
 
     if (message.type === "ai") {
-      const onlyWriteTodos = isOnlyWriteTodosToolCallMessage(message);
       if (hasPresentFiles(message)) {
         groups.push({
           id: message.id,
@@ -108,10 +107,7 @@ export function groupMessages<T>(
           type: "assistant:subagent",
           messages: [message],
         });
-      } else if (
-        (hasReasoning(message) || hasToolCalls(message)) &&
-        !onlyWriteTodos
-      ) {
+      } else if (hasReasoning(message) || hasToolCalls(message)) {
         const lastGroup = groups[groups.length - 1];
         // Accumulate consecutive intermediate AI messages into one processing group.
         if (lastGroup?.type !== "assistant:processing") {
@@ -138,10 +134,9 @@ export function groupMessages<T>(
     lastUserMessageIndex >= 0 &&
     !hasVisibleAssistantAfterIndex(messages, lastUserMessageIndex)
   ) {
-    const fallbackMessage = findLastAssistantFallbackCandidate(
-      messages,
-      lastUserMessageIndex,
-    );
+    const fallbackMessage =
+      findLastAssistantFallbackCandidate(messages, lastUserMessageIndex) ??
+      findLastInvokeSkillFallbackCandidate(messages, lastUserMessageIndex);
     if (fallbackMessage) {
       groups.push({
         id: fallbackMessage.id,
@@ -173,7 +168,7 @@ function isExplicitlyInternalAssistantMessage(message: Message) {
 }
 
 function shouldRenderAssistantBubble(message: Message) {
-  if (!hasContent(message)) {
+  if (!hasDisplayableContent(message)) {
     return false;
   }
   if (message.type !== "ai") {
@@ -183,28 +178,16 @@ function shouldRenderAssistantBubble(message: Message) {
     return false;
   }
 
-  // Keep intermediate model/tool orchestration in hidden steps.
-  // A fallback assistant bubble (single message) is injected after grouping
-  // only when this turn has no visible assistant answer at all.
-  if (hasReasoning(message) || hasToolCalls(message)) {
-    if (isOnlyWriteTodosToolCallMessage(message)) {
-      return true;
-    }
+  // Keep tool orchestration in hidden steps. Final answers may still carry
+  // reasoning metadata, so reasoning alone must not hide displayable content.
+  if (hasToolCalls(message)) {
     return false;
   }
   return true;
 }
 
-function isOnlyWriteTodosToolCallMessage(message: Message) {
-  if (message.type !== "ai") {
-    return false;
-  }
-  const toolCalls = message.tool_calls ?? [];
-  return (
-    toolCalls.length > 0 &&
-    toolCalls.every((toolCall) => toolCall.name === "write_todos") &&
-    hasContent(message)
-  );
+function hasDisplayableContent(message: Message) {
+  return extractContentFromMessage(message).trim().length > 0;
 }
 
 function findLastUserMessageIndex(messages: Message[]) {
@@ -238,10 +221,13 @@ function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: num
     if (!message || message.type !== "ai") {
       continue;
     }
-    if (!hasContent(message)) {
+    if (!hasDisplayableContent(message)) {
       continue;
     }
     if (isExplicitlyInternalAssistantMessage(message)) {
+      continue;
+    }
+    if (hasToolCalls(message)) {
       continue;
     }
     return message;
@@ -249,10 +235,36 @@ function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: num
   return null;
 }
 
+function findLastInvokeSkillFallbackCandidate(
+  messages: Message[],
+  afterIndex: number,
+): Message | null {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "tool") {
+      continue;
+    }
+
+    const summary = extractInvokeSkillSummary(message);
+    if (!summary) {
+      continue;
+    }
+
+    return {
+      type: "ai",
+      id: `${message.id ?? "invoke-skill"}:fallback`,
+      content: summary,
+    } as Message;
+  }
+  return null;
+}
+
 export function isInternalMessage(message: Message) {
   return (
     message.name === "todo_reminder" ||
-    message.additional_kwargs?.message_type === "routed_skill_prompt"
+    message.additional_kwargs?.message_type === "routed_skill_prompt" ||
+    message.additional_kwargs?.message_type === "view_image_context" ||
+    message.additional_kwargs?.internal === true
   );
 }
 
@@ -271,6 +283,65 @@ export function extractTextFromMessage(message: Message) {
       .trim();
   }
   return "";
+}
+
+export function extractInvokeSkillSummary(message: Message) {
+  if (message.type !== "tool" || message.name !== "invoke_skill") {
+    return "";
+  }
+
+  const raw = extractTextFromMessage(message);
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    const payload = JSON.parse(raw) as {
+      status?: string;
+      skill_result?: {
+        result?: {
+          display_text?: string;
+          summary?: {
+            overview?: string;
+            title?: string;
+          };
+          findings?: Array<{
+            summary?: string;
+            title?: string;
+            description?: string;
+          }>;
+        };
+      };
+    };
+
+    if (payload.status !== "wrapped") {
+      return "";
+    }
+
+    const displayText = payload.skill_result?.result?.display_text?.trim();
+    if (displayText) {
+      return displayText;
+    }
+
+    const overview = payload.skill_result?.result?.summary?.overview?.trim();
+    if (overview) {
+      return overview;
+    }
+
+    const title = payload.skill_result?.result?.summary?.title?.trim();
+    if (title) {
+      return title;
+    }
+
+    const findings = payload.skill_result?.result?.findings ?? [];
+    const rendered = findings
+      .map((item) => item.summary?.trim() || item.title?.trim() || item.description?.trim() || "")
+      .filter(Boolean)
+      .slice(0, 5);
+    return rendered.join("\n");
+  } catch {
+    return "";
+  }
 }
 
 export function extractContentFromMessage(message: Message) {

@@ -7,9 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "legal",
-      "contract_review",
-      "china_law"
+      "policy_regulation"
     ],
     "is_public": false,
     "task_types": [

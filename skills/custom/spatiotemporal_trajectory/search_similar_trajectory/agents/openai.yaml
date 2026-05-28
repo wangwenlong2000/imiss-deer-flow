@@ -1,0 +1,4 @@
+name: search_similar_trajectory
+display_name: 相似轨迹检索
+short_description: 基于起终点、距离和耗时检索相似 trip。
+default_prompt: "Use $search_similar_trajectory when the user asks for similar trips, similar commute routes, or historical trajectory matches. Run python3 scripts/search_similar_trajectory.py on trips.jsonl and summarize similar_trajectories.jsonl."

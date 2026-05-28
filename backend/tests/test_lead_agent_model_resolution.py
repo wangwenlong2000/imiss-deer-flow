@@ -8,6 +8,7 @@ from deerflow.agents.lead_agent import agent as lead_agent_module
 from deerflow.config.app_config import AppConfig
 from deerflow.config.model_config import ModelConfig
 from deerflow.config.sandbox_config import SandboxConfig
+from deerflow.config.skill_router_config import SkillRouterConfig
 
 
 def _make_app_config(models: list[ModelConfig]) -> AppConfig:
@@ -135,3 +136,64 @@ def test_build_middlewares_uses_resolved_model_name_for_vision(monkeypatch):
     )
 
     assert any(isinstance(m, lead_agent_module.ViewImageMiddleware) for m in middlewares)
+
+
+def test_build_middlewares_scene_filter_when_skill_router_disabled(monkeypatch):
+    app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
+
+    monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
+    monkeypatch.setattr(lead_agent_module, "_create_summarization_middleware", lambda: None)
+    monkeypatch.setattr(lead_agent_module, "_create_todo_list_middleware", lambda is_plan_mode: None)
+    monkeypatch.setattr(
+        lead_agent_module,
+        "get_skill_router_config",
+        lambda: SkillRouterConfig(enabled=False, scene_filter_when_disabled=True),
+    )
+
+    middlewares = lead_agent_module._build_middlewares(
+        {"configurable": {"model_name": "safe-model", "is_plan_mode": False, "subagent_enabled": False}},
+        model_name="safe-model",
+    )
+
+    assert any(isinstance(m, lead_agent_module.IntentRecognitionMiddleware) for m in middlewares)
+    assert any(isinstance(m, lead_agent_module.SceneSkillFilterMiddleware) for m in middlewares)
+    assert any(isinstance(m, lead_agent_module.RoutingHiddenStepMiddleware) for m in middlewares)
+    assert not any(isinstance(m, lead_agent_module.SkillRouterMiddleware) for m in middlewares)
+
+
+def test_make_lead_agent_uses_public_base_prompt_when_scene_filter_enabled(monkeypatch):
+    app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
+
+    import deerflow.tools as tools_module
+
+    monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
+    monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr(lead_agent_module, "_build_middlewares", lambda config, model_name, agent_name=None: [])
+    monkeypatch.setattr(
+        lead_agent_module,
+        "get_skill_router_config",
+        lambda: SkillRouterConfig(enabled=False, scene_filter_when_disabled=True),
+    )
+    monkeypatch.setattr(lead_agent_module, "create_chat_model", lambda **kwargs: object())
+    monkeypatch.setattr(lead_agent_module, "create_agent", lambda **kwargs: kwargs)
+
+    captured: dict[str, object] = {}
+
+    def _fake_prompt_template(**kwargs):
+        captured.update(kwargs)
+        return "prompt"
+
+    monkeypatch.setattr(lead_agent_module, "apply_prompt_template", _fake_prompt_template)
+
+    lead_agent_module.make_lead_agent(
+        {
+            "configurable": {
+                "model_name": "safe-model",
+                "thinking_enabled": False,
+                "is_plan_mode": False,
+                "subagent_enabled": False,
+            }
+        }
+    )
+
+    assert captured["skill_categories"] == {"public"}

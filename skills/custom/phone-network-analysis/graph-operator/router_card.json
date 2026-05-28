@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "graph-operator",
+    "name": "graph-operator",
+    "description": "提供电话网络图数据的基础图分析算子，包括节点查询、邻居展开、共享设备、共同对端、共同设备、路径追踪、子图抽取和基础图统计。该 skill 更适合作为上层业务 skill 的底层积木；普通用户问筛选重点号码等业务结论时应优先路由到对应业务分析 skill。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "graph_operator",
+      "node_query",
+      "edge_filter",
+      "aggregation",
+      "common_neighbor",
+      "shared_device",
+      "path_analysis",
+      "subgraph_extraction",
+      "ranking_scoring"
+    ],
+    "input_types": [
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet",
+      "csv",
+      "parquet",
+      "json"
+    ],
+    "output_types": [
+      "operator_result",
+      "graph_metrics",
+      "filtered_edges",
+      "ranked_nodes",
+      "subgraph",
+      "csv",
+      "json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：graph-operator\n描述：提供电话网络图数据的基础图分析算子，包括节点查询、邻居展开、共享设备、共同对端、共同设备、路径追踪、子图抽取和基础图统计。该 skill 更适合作为上层业务 skill 的底层积木；普通用户问筛选重点号码等业务结论时应优先路由到对应业务分析 skill。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：graph_operator, node_query, edge_filter, aggregation, common_neighbor, shared_device, path_analysis, subgraph_extraction, ranking_scoring。\n输入类型：user_nodes.csv, call_edges.csv, edges_phone_imei.parquet, csv, parquet, json。\n输出类型：operator_result, graph_metrics, filtered_edges, ranked_nodes, subgraph, csv, json。\n适合使用：按号码ID或设备ID查询节点属性；按时间、省份、边类型过滤通话关系；统计通话次数、联系人广度、共享设备数量、夜间通话比例；分析共同邻居、共同对端、共享设备、路径、子图和风险排序；调用电话网络底层图算子支撑上层分析。\n不适合使用：筛选重点号码；按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码；从全量数据找重点对象；上传原始CSV并要求自动建图；生成面向甲方的完整风险证据包报告；比较四川和陕西整体差异；做政策法规检索或合规条款问答。\n关键词：图算子，节点查询，关系过滤，聚合统计，共同邻居，共同对端，共享设备，路径分析，子图抽取，排序评分，基础算子。\n反关键词：筛选，筛出，找出，重点号码，条件筛选，夜间通话异常，联系人广度高，政策法规，PCAP，交通流量，卫星遥感，合规条款。",
+    "positive_triggers": [
+      "按号码ID或设备ID查询节点属性",
+      "按时间、省份、边类型过滤通话关系",
+      "统计通话次数、联系人广度、共享设备数量、夜间通话比例",
+      "分析共同邻居、共同对端、共享设备、路径、子图和风险排序",
+      "调用电话网络底层图算子支撑上层分析"
+    ],
+    "negative_triggers": [
+      "上传原始CSV并要求自动建图",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "生成面向甲方的完整风险证据包报告",
+      "比较四川和陕西整体差异",
+      "做政策法规检索或合规条款问答"
+    ],
+    "keywords": [
+      "图算子",
+      "节点查询",
+      "关系过滤",
+      "聚合统计",
+      "共同邻居",
+      "共同对端",
+      "共享设备",
+      "路径分析",
+      "子图抽取",
+      "排序评分",
+      "基础算子"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "找出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "政策法规",
+      "PCAP",
+      "交通流量",
+      "卫星遥感",
+      "合规条款"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: graph-operator\ndescription: 提供电话网络图数据的基础图分析算子，包括节点查询、邻居展开、共享设备、共同对端、共同设备、路径追踪、子图抽取和基础图统计。该 skill 更适合作为上层业务 skill 的底层积木；普通用户问业务结论时应优先路由到对应业务分析 skill。\n---\n\n# graph-operator\n\n## 这个 skill 是做什么的\n\n这个 skill 用于对**图结构数据**进行最基础的分析与处理，聚焦于轻量、可直接运行的基础算子，不依赖大型图数据库或完整图分析平台。\n\n当前阶段重点是：\n1. 先把基础图分析能力统一收口为 DeerFlow 可调用 skill\n2. 再在其上组合形成单号码研判、双号码关联分析、局部团伙图分析等业务型 skill\n\n当前 skill 支持两类 operator：\n\n### 一、8 个核心基础图分析算子\n1. `query_phone_node`：查询单个号码节点的基础属性、通话情况和设备情况\n2. `expand_neighbors`：展开某个节点的一跳邻居\n3. `query_shared_device`：查询某个号码关联的设备，以及这些设备是否还被其他号码共同使用\n4. `common_counterparty`：计算两个号码共同联系过的对端\n5. `common_device`：计算两个号码共同使用过的设备\n6. `path_trace`：追踪两个号码在图中的路径关系\n7. `subgraph_extract`：抽取某个号码周围的局部关系图\n8. `basic_graph_metrics`：计算图的基础统计信息\n\n### 二、2 个工程辅助 operator\n9. `load_graph`：从 edge list / CSV / Parquet 文件加载图或关系表\n10. `export_graph`：把图导出为 edgelist / graphml / json\n\n兼容保留的旧名称：\n- `shortest_path`：当前对应 `path_trace` 的基础版\n- `extract_subgraph`：当前对应 `subgraph_extract` 的旧接口\n\n## 什么时候使用这个 skill\n\n当用户的问题属于下面这些类型时，应该优先使用本 skill：\n\n- “帮我加载这份边表/边列表数据，看看图里有多少节点和边”\n- “帮我展开节点 A 的邻居”\n- “帮我找 A 到 B 的最短路径”\n- “帮我统计这张图的基础指标”\n- “帮我抽取一批节点对应的局部子图”\n- “帮我把图导出成 GraphML / JSON / edgelist”\n- “帮我分析两个号码有没有共同联系过的对端”\n- “帮我分析两个号码有没有共同使用过的设备”\n- “帮我看这个号码本身的节点信息和基础画像”\n- “帮我看这个号码关联了哪些设备，这些设备还被谁共用”\n- “帮我看两个号码在图里有没有路径关系，中间经过了谁”\n- “帮我围绕某个号码抽取 1 跳或 2 跳的局部关系图”\n\n## 什么时候不要使用这个 skill\n\n下面这些情况不是当前第一版 skill 的目标：\n\n- 大规模分布式图计算\n- 需要 GPU 图分析的任务\n- 复杂社区发现、动态图、图神经网络训练\n- 强依赖图数据库的 Cypher 查询\n\n## 输入约定\n\n本 skill 当前建议通过脚本 `scripts/graph_operator_wrapper.py` 执行，统一输入参数如下：\n\n- `--operator`：算子名称，必填\n- `--graph-path`：图数据文件路径，`load_graph` 及其它需要图输入的操作必填\n- `--graph-format`：图格式，可选值 `csv` / `edgelist` / `graphml` / `json`，默认 `csv`\n- `--source-col`：CSV 源节点列名，默认 `src`\n- `--target-col`：CSV 目标节点列名，默认 `dst`\n- `--node`：邻居展开时的目标节点\n- `--source`：最短路径起点\n- `--target`：最短路径终点\n- `--nodes`：子图抽取时的节点列表，逗号分隔，如 `A,B,C`\n- `--output-path`：导出图时的输出文件路径\n- `--export-format`：导出格式，可选值 `edgelist` / `graphml` / `json`\n- `--directed`：是否按有向图加载，传入该参数即表示有向图\n\n## 输出约定\n\n所有 operator 都返回统一 JSON，格式如下：\n\n```json\n{\n  \"ok\": true,\n  \"operator\": \"shortest_path\",\n  \"input_summary\": {\n    \"source\": \"A\",\n    \"target\": \"C\"\n  },\n  \"result\": {\n    \"path\": [\"A\", \"B\", \"C\"],\n    \"length\": 2\n  },\n  \"notes\": []\n}\n```\n\n## 数据路径规则\n\n电话网络图数据优先使用以下候选路径，并在执行前先检查文件是否存在：\n\n1. `/mnt/datasets/phone-network/processed/unified/call_edges.csv`\n2. `/mnt/user-data/workspace/imiss-deer-flow-main/datasets/phone-network/processed/unified/call_edges.csv`\n\n执行 graph operator 前，必须先确认实际可用路径。\n若候选路径 1 存在，则优先使用候选路径 1。\n若候选路径 1 不存在但候选路径 2 存在，则使用候选路径 2。\n不要在未检查完上述候选路径前要求用户上传文件。\n不要重复安装 `networkx`、`pandas`，因为 sandbox 镜像中已提供这些依赖。\n\n---\nname: graph-operator\nsummary: 基于 NetworkX 的通用图结构基础分析 skill，支持图加载、邻居展开、最短路径、基础图统计和子图抽取。\n---\n\n\n## 内部实现方式\n\n本 skill 当前第一版使用 Python + NetworkX 实现基础算子，执行入口为：\n\n```bash\npython scripts/graph_operator_wrapper.py ...\n```\n\n## 推荐工作流\n\n### 1. 图加载与检查\n先用 `load_graph` 看图是否成功读入，以及节点数、边数是否正常。\n\n### 2. 基础查询\n对目标节点做 `expand_neighbors`，快速看其局部结构。\n\n### 3. 路径分析\n对两个节点做 `shortest_path`，验证连通关系。\n\n### 4. 统计汇总\n对整张图做 `basic_graph_metrics`。\n\n### 5. 局部抽取或导出\n按需要做 `extract_subgraph` 或 `export_graph`。\n\n## 参考资料\n\n本 skill 附带的 `references/` 目录用于提供 NetworkX 的基础知识与代码模板：\n\n- `graph-basics.md`：基础建图与常用操作\n- `algorithms.md`：路径、连通性、中心性等算法示例\n- `io.md`：图输入输出、格式转换、pandas 互转\n- `README_SHORT.md`：当前 skill 最小可运行版说明\n\n本 skill 运行在定制 sandbox 中，`networkx`、`pandas`、`duckdb`、`pyarrow` 已预装。\n执行时不要主动安装依赖，除非明确检测到 import 失败。\n\n## 使用注意事项\n\n1. 对电话网络通话边文件来说，通常：\n   - `src_user_id` 表示主叫 / 用户号码\n   - `dst_counterparty_id` 表示被叫或对端号码\n\n2. `path_trace` 当前第一版基于单张关系图上的最短路径搜索。\n   - 如果使用 `call_edges.csv`，表示沿“号码 -> 对端号码”的关系寻找路径\n   - 若不加 `--directed`，默认按无向图分析\n   - 若加 `--directed`，则按有向路径分析\n\n3. `subgraph_extract` 当前第一版基于 ego graph（局部邻域子图）。\n   - 推荐使用 `--center-node` 指定中心号码\n   - 推荐配合 `--hops` 控制抽取范围（1 跳 / 2 跳）\n   - 推荐配合 `--max-nodes` 控制返回规模\n   - 当局部子图过大时，会进行截断，但会优先保留中心节点和距离更近的节点\n\n4. `query_phone_node` 适合做单号码基础画像；\n   `query_shared_device`、`common_device`、`common_counterparty` 适合做号码关联分析；\n   `path_trace`、`subgraph_extract` 适合做局部结构分析。\n\n5. `load_graph` 和 `export_graph` 属于工程辅助 operator，\n   不属于“8 个核心基础图分析算子”，但用于读图和导图很重要。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 70,
+    "conflict_group": "phone_network_graph_operator",
+    "prefer_when": [
+      "用户明确要求底层图查询、过滤、统计、路径、子图或排序算子",
+      "上层 skill 需要复用基础图分析能力"
+    ],
+    "defer_when": [
+      "用户是在上传新原始数据，应优先 dataset-onboarding-graph-preprocess",
+      "用户要求业务化报告，应优先 risk-evidence-pack 或对应业务 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/graph-operator",
+    "skill_md_path": "skills/custom/phone-network-analysis/graph-operator/SKILL.md",
+    "skill_md_hash": "sha256:609a0cb71e6d7402d7c04f17e22513dbd099853acf0a868461893352981d56fc",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:45d78af8381ed06439450db32d060142c11f2d93ed3d105a81761668fb35ffc4",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "graph-operator"
+  }
+}

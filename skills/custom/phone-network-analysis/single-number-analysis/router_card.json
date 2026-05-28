@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "single-number-analysis",
+    "name": "single-number-analysis",
+    "description": "对单个电话号码进行完整综合画像和下钻分析，输出基础属性、通话行为、联系人广度、共享设备、关系圈规模、Top 可疑节点、桥接/枢纽角色、风险解释和 Markdown 报告。适用于完整分析一个号码；若用户要求正式证据包，应使用 risk-evidence-pack。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "single_number_profile",
+      "number_risk_analysis",
+      "local_relation_analysis",
+      "behavior_profile"
+    ],
+    "input_types": [
+      "user_id",
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "number_profile",
+      "risk_explanation",
+      "local_relations",
+      "markdown_report",
+      "csv",
+      "json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：single-number-analysis\n描述：对单个电话号码进行完整综合画像和下钻分析，输出基础属性、通话行为、联系人广度、共享设备、关系圈规模、Top 可疑节点、桥接/枢纽角色、风险解释和 Markdown 报告。适用于完整分析一个号码；若用户要求正式证据包，应使用 risk-evidence-pack。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：single_number_profile, number_risk_analysis, local_relation_analysis, behavior_profile。\n输入类型：user_id, dataset_root, user_nodes.csv, call_edges.csv, edges_phone_imei.parquet。\n输出类型：number_profile, risk_explanation, local_relations, markdown_report, csv, json。\n适合使用：分析这个号码；这个号码为什么可疑；这个号码有哪些联系人、设备和风险特征；单号码画像。\n不适合使用：找全局TopN高风险号码；生成正式风险证据包；分析一组号码群体风险；上传原始数据建图。\n关键词：单号，号码画像，这个号码，联系人，设备，风险特征，为什么可疑。\n反关键词：TopN，证据包，群体，建图。",
+    "positive_triggers": [
+      "分析这个号码",
+      "这个号码为什么可疑",
+      "这个号码有哪些联系人、设备和风险特征",
+      "单号码画像"
+    ],
+    "negative_triggers": [
+      "找全局TopN高风险号码",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "生成正式风险证据包",
+      "分析一组号码群体风险",
+      "上传原始数据建图"
+    ],
+    "keywords": [
+      "单号",
+      "号码画像",
+      "这个号码",
+      "联系人",
+      "设备",
+      "风险特征",
+      "为什么可疑"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "TopN",
+      "证据包",
+      "群体",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: single-number-analysis\ndescription: 对单个电话号码进行完整综合画像和下钻分析，输出基础属性、通话行为、联系人广度、共享设备、关系圈规模、Top 可疑节点、桥接/枢纽角色、风险解释和 Markdown 报告。适用于完整分析一个号码；若用户要求正式证据包，应使用 risk-evidence-pack。\n---\n\n# single-number-analysis\n\n## 这个 skill 是做什么的\n\n这个 skill 不是“子图抽取子技能”，而是一个 **完整的单号码综合分析 skill**。\n\n它面向 **单个号码** 做下面几类事情：\n\n1. 输出号码画像摘要\n2. 从通话 / 设备 / 混合关系三个视角分析该号码\n3. 评估关系圈规模，并区分“截断前 / 截断后”\n4. 输出 Top 可疑节点排序\n5. 输出共享设备主线索\n6. 识别局部 Hub 和桥接点\n7. 推荐下一步最值得下钻的节点\n8. 自动生成 Markdown 报告并提供附件\n\n---\n\n## 什么时候优先使用它\n\n当用户的问题属于下面这些类型时，应该优先使用本 skill：\n\n- “帮我完整分析这个号码”\n- “这个号码值不值得重点查”\n- “围绕这个号码，谁最可疑”\n- “这个号码的共享设备线索强不强”\n- “输出这个号码的画像、关系圈规模、可疑节点和调查建议”\n- “请生成 markdown 报告并给我下载”\n\n### 不要误用成 subgraph-extraction-analysis 的情况\n\n如果用户明确要求的是 **完整单号码综合分析**，就不要只调用子图技能。\n\n也就是说：\n\n- 要完整分析一个号码 → 用 `single-number-analysis`\n- 只想抽 1 跳 / 2 跳局部图 → 用 `subgraph-extraction-analysis`\n\n---\n\n## 输入参数\n\n### 必填参数\n\n- `--phone-id`：目标号码 ID\n\n### 可选参数\n\n- `--hops`：关系圈跳数，默认 `2`\n- `--max-nodes`：最多保留多少个关键节点，默认 `200`\n- `--top-k`：输出多少个 Top 可疑节点，默认 `10`\n- `--analysis-mode`：分析模式，可选 `mixed` / `call_only` / `device_only`，默认 `mixed`\n- `--directed-call`：是否按有向通话图分析\n- `--user-node-path`：号码画像表路径\n- `--call-graph-path`：通话边表路径\n- `--device-graph-path`：号码-设备边表路径\n- `--source-col`：通话边源列名，默认 `src_user_id`\n- `--target-col`：通话边目标列名，默认 `dst_counterparty_id`\n- `--device-source-col`：设备边号码列名，默认 `user_id`\n- `--device-target-col`：设备列名，默认 `imei`\n- `--output-dir`：报告输出目录，默认 `/mnt/user-data/outputs`\n\n---\n\n## 输出内容\n\n脚本输出 JSON，重点字段包括：\n\n- `phone_profile`：号码画像摘要\n- `analysis_view`：当前分析模式和参数\n- `call_relation_analysis`：通话关系统计\n- `shared_device_analysis`：共享设备统计与线索\n- `subgraph_analysis`：关系圈规模、截断状态、结构边数统计\n- `top_suspicious_nodes`：Top 可疑节点\n- `key_roles`：局部 Hub / 局部桥接点\n- `drilldown_seeds`：推荐二次下钻节点\n- `human_summary`：一句话结论\n- `investigation_next_steps`：下一步调查建议\n- `report_path`：Markdown 报告路径\n- `report_exists`：报告文件是否存在\n- `artifacts`：前端可展示附件信息\n\n---\n\n## 特别说明：边数统计口径\n\n本 skill 里会明确区分三类数字：\n\n1. **原始通话记录数**\n   - 按原始通话表逐条统计\n   - 重复通话会重复计数\n\n2. **设备关系投影次数**\n   - 一台设备关联多个号码时，会被投影成多个号码对\n   - 不同设备可重复贡献多次\n\n3. **图去重边数**\n   - 用于关系图展示和结构规模描述\n   - 同一对号码只算一条结构边\n\n所以如果你看到“原始记录数”和“图边数”不一样，属于正常现象，不是 bug。\n\n---\n\n## 命令行使用示例\n\n### 示例 1：完整混合分析\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/single-number-analysis/scripts && python3 single_number_analysis_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --hops 2 \\\n  --max-nodes 200 \\\n  --top-k 10 \\\n  --analysis-mode mixed\n```\n\n### 示例 2：仅通话 + 有向模式\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/single-number-analysis/scripts && python3 single_number_analysis_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --hops 2 \\\n  --max-nodes 200 \\\n  --top-k 10 \\\n  --analysis-mode call_only \\\n  --directed-call\n```\n\n### 示例 3：仅共享设备模式\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/single-number-analysis/scripts && python3 single_number_analysis_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --hops 2 \\\n  --max-nodes 200 \\\n  --top-k 10 \\\n  --analysis-mode device_only\n```\n\n---\n\n## 前端提示词建议\n\n### 提示词 1：完整单号码分析\n\n```text\n请使用 phone-network-analysis/single-number-analysis skill 对下面这个号码做完整分析：\n1. 输出号码画像\n2. 输出通话关系分析\n3. 输出共享设备分析\n4. 输出关系圈规模（截断前 / 截断后）\n5. 输出 Top 可疑节点\n6. 输出桥接点/枢纽点\n7. 输出推荐二次下钻节点\n8. 生成 markdown 报告并展示下载附件\n\n号码ID：<PHONE_ID>\n参数：hops=2, max_nodes=200, top_k=10, analysis_mode=mixed\n```\n\n### 提示词 2：只看通话视角\n\n```text\n请使用 phone-network-analysis/single-number-analysis skill 只从通话关系视角分析这个号码，按有向图处理，并生成 markdown 报告。\n号码ID：<PHONE_ID>\n参数：analysis_mode=call_only, directed_call=true, hops=2, max_nodes=200, top_k=10\n```\n\n### 提示词 3：只看共享设备视角\n\n```text\n请使用 phone-network-analysis/single-number-analysis skill 只从共享设备视角分析这个号码，并给出最值得继续调查的 3 个节点。\n号码ID：<PHONE_ID>\n参数：analysis_mode=device_only, hops=2, max_nodes=200, top_k=10\n```\n\n---\n\n## 前端执行要求\n\n脚本运行后，如果返回了 `report_path` / `report_exists` / `artifacts`：\n\n1. 必须先检查 `report_exists` 或直接检查文件存在\n2. 再读取完整 Markdown 报告\n3. 最终把 Markdown 作为附件展示给用户\n4. 不要只显示路径字符串\n\n---\n\n## 和其他 skill 的关系\n\n- `graph-operator`：底层基础算子层\n- `subgraph-extraction-analysis`：只负责局部子图抽取\n- `single-number-analysis`：面向业务的完整单号码分析主 skill\n- `association-path-analysis`：继续做路径型联合核查\n- `overlap-analysis`：继续做重叠关系核查\n\n也就是说：\n\n**single-number-analysis 不是替代基础算子，而是把基础算子组合起来，形成真正可直接使用的电话网络业务 skill。**\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "phone_network_single_number",
+    "prefer_when": [
+      "用户提供一个号码并要求分析其画像或风险",
+      "用户需要单号下钻解释"
+    ],
+    "defer_when": [
+      "用户强调证据包、交付报告时优先 risk-evidence-pack",
+      "用户问多个号码集合时优先 group-risk-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/single-number-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/single-number-analysis/SKILL.md",
+    "skill_md_hash": "sha256:aed4fbc965fb0599b21c095bb92afbef2e8fb4435f874a0f73f66d1ab9d61368",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:0d65622b914c51b5a288dd29e8a6911130e4f40b708eead4fcaf2e6cb84952da",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "single-number-analysis"
+  }
+}

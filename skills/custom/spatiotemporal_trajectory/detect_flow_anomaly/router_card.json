@@ -1,0 +1,118 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "detect_flow_anomaly",
+                     "name":  "detect_flow_anomaly",
+                     "description":  "Use this skill when the user wants to detect macro-level mobility flow anomalies, including abnormal region heat, check-in spikes, OD flow spikes, sudden decreases, or unusual time-window activity."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "detect_flow_anomaly",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "region_heat_jsonl",
+                                      "evidence_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "flow_anomalies.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：detect_flow_anomaly\n描述：Use this skill when the user wants to detect macro-level mobility flow anomalies, including abnormal region heat, check-in spikes, OD flow spikes, sudden decreases, or unusual time-window activity.\n适用场景：spatiotemporal_trajectory。\n适用任务：detect_flow_anomaly, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, region_heat_jsonl, evidence_jsonl。\n输出类型：flow_anomalies.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to detect macro-level mobility flow anomalies, including abnormal region heat, check-in spikes, OD flow spikes, sudden decreases, or unusual time-window activity.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "detect",
+                                     "flow",
+                                     "anomaly",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: detect_flow_anomaly\ndescription: Use this skill when the user wants to detect macro-level mobility flow anomalies, including abnormal region heat, check-in spikes, OD flow spikes, sudden decreases, or unusual time-window activity.\nmetadata:\n  short-description: Detect regional or OD flow anomalies.\n---\n\n# detect_flow_anomaly\n\nUse this Skill after `$analyze_region_heat` or `$analyze_od_flow`.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/detect_flow_anomaly\npython3 scripts/detect_flow_anomaly.py \\\n  --input /path/to/region_heat.jsonl \\\n  --output-dir /path/to/output \\\n  --group-col geohash \\\n  --metric-col activity_count\n```\n\nFor OD flow anomalies:\n\n```bash\npython3 scripts/detect_flow_anomaly.py --input /path/to/od_matrix.jsonl --output-dir /path/to/output --group-col od_pair --metric-col flow_count\n```\n\n## Outputs\n\n- `flow_anomalies.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Region or OD grouping\n- Activity/flow metric scoring\n- Robust MAD/z-score fallback scoring\n- High/low anomaly ranking\n\n## Next Skills\n\nUse anomaly outputs as evidence for final trajectory reports or event-impact analysis.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "analyze_region_heat",
+                                               "analyze_od_flow"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/detect_flow_anomaly",
+                   "skill_md_path":  "skills/custom/detect_flow_anomaly/SKILL.md",
+                   "skill_md_hash":  "sha256:0345eae9575db674257fe92d62b7d562cea732b9dc7af1dde3a4e97952fd9f73",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:a8e3eed75e594fe06d8d1277c4d83e114a242b1172adda45bc28c1a4192c325a",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "detect_flow_anomaly"
+                  }
+}

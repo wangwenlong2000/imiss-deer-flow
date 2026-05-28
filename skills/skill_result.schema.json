@@ -1,0 +1,489 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://imiss-deer-flow.local/schemas/skill_result.schema.json",
+  "title": "SkillResult",
+  "description": "Unified machine-readable output contract for custom Skills. Execution and retrieval Skills should return this envelope shape, with Skill-specific details filled inside result, diagnostics, and artifacts.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "skill_name",
+    "scenario",
+    "capability",
+    "status",
+    "result",
+    "diagnostics",
+    "errors"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "SkillResult schema version."
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable request or run identifier. UUID is recommended but not required."
+    },
+    "skill_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Skill id, normally equal to the SKILL.md front matter name."
+    },
+    "scenario": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Scenario or domain name, such as network_traffic, policy_regulation, remote_sensing_image, video_surveillance, or phone_network."
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Concrete capability or action completed by this Skill run."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "partial_success", "failed"],
+      "description": "Overall execution status."
+    },
+    "result": {
+      "$ref": "#/definitions/result"
+    },
+    "diagnostics": {
+      "$ref": "#/definitions/diagnostics"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/error"
+      },
+      "description": "Recoverable or fatal errors encountered during execution. Empty when status is success."
+    }
+  },
+  "definitions": {
+    "result": {
+      "type": "object",
+      "required": ["summary", "findings", "evidence", "artifacts"],
+      "additionalProperties": false,
+      "properties": {
+        "display_text": {
+          "type": "string",
+          "description": "Optional user-facing final text output. Preserve the original human-readable report or summary here when the legacy Skill already produced one. Machine consumers should use summary/findings/evidence instead of reparsing this text."
+        },
+        "summary": {
+          "$ref": "#/definitions/summary"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/finding"
+          },
+          "description": "Core findings produced by this Skill."
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/evidence"
+          },
+          "description": "Structured evidence supporting findings or retrieval answers."
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/artifact"
+          },
+          "description": "Generated files or durable outputs."
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["title", "overview"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "overview": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "$ref": "#/definitions/severity"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "key_metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/metric"
+          },
+          "default": []
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["finding_id", "type", "title", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Skill-specific finding type, such as ja3_match, legal_basis_gap, or high_risk_area."
+        },
+        "severity": {
+          "$ref": "#/definitions/severity"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entity"
+          },
+          "default": []
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "References to evidence.evidence_id values."
+        },
+        "recommended_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Skill-specific structured finding details."
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_id", "type", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "table",
+            "metric",
+            "timeseries",
+            "image_annotation",
+            "geo_feature",
+            "graph",
+            "text",
+            "file"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "data": {
+          "description": "Inline evidence payload. Shape depends on evidence type.",
+          "oneOf": [
+            {"type": "object", "additionalProperties": true},
+            {"type": "array"},
+            {"type": "string"},
+            {"type": "number"},
+            {"type": "boolean"},
+            {"type": "null"}
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "Optional URI or path for evidence stored outside the JSON payload."
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/source_ref"
+          },
+          "default": []
+        },
+        "query_id": {
+          "type": "string",
+          "description": "Optional retrieval sub-query id when this evidence comes from a retrieval profile."
+        },
+        "token_estimate": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional approximate token cost for retrieval evidence."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["artifact_id", "type", "title", "uri"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["file", "directory", "image", "chart", "table", "report", "json", "other"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "media_type": {
+          "type": "string",
+          "description": "Media type such as text/markdown, application/json, image/png, or text/csv."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": ["warnings", "data_quality", "provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/warning"
+          }
+        },
+        "data_quality": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Data quality metrics and caveats, such as rows_read, rows_analyzed, missing_fields, or coverage."
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/source_ref"
+          }
+        },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "started_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ended_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "duration_ms": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "retrieval": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Optional retrieval-profile diagnostics.",
+          "properties": {
+            "query_id": {
+              "type": "string"
+            },
+            "query_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budget": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "max_evidence_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "max_token_estimate": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "token_estimate": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "retrievers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "severity", "recoverable"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["warning", "error", "fatal"]
+        },
+        "recoverable": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "required": ["code", "message", "severity"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error"]
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "required": ["source"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "required": ["type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": ["string", "number", "boolean"]
+        },
+        "label": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "required": ["name", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": ["string", "number", "boolean"]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "low", "medium", "high", "critical"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

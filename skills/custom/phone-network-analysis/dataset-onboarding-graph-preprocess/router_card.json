@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "dataset-onboarding-graph-preprocess",
+    "name": "dataset-onboarding-graph-preprocess",
+    "description": "将新上传的电话网络原始 CSV、Excel、JSON 或 Parquet 数据进行字段识别、清洗、质量检查和建图预处理，生成 user_nodes.csv、call_edges.csv、edges_phone_imei.parquet 等标准图结构文件。适用于原始数据接入、无法建图诊断和字段映射；已是标准图结构的数据应先走数据质量诊断或具体分析 skill。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "dataset_onboarding",
+      "graph_preprocess",
+      "schema_mapping",
+      "data_quality_check"
+    ],
+    "input_types": [
+      "csv",
+      "xlsx",
+      "xls",
+      "json",
+      "jsonl",
+      "parquet",
+      "raw_phone_network_data"
+    ],
+    "output_types": [
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet",
+      "schema_mapping.json",
+      "data_quality_report.csv",
+      "preprocess_summary.json",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：dataset-onboarding-graph-preprocess\n描述：将新上传的电话网络原始 CSV、Excel、JSON 或 Parquet 数据进行字段识别、清洗、质量检查和建图预处理，生成 user_nodes.csv、call_edges.csv、edges_phone_imei.parquet 等标准图结构文件。适用于原始数据接入、无法建图诊断和字段映射；已是标准图结构的数据应先走数据质量诊断或具体分析 skill。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：dataset_onboarding, graph_preprocess, schema_mapping, data_quality_check。\n输入类型：csv, xlsx, xls, json, jsonl, parquet, raw_phone_network_data。\n输出类型：user_nodes.csv, call_edges.csv, edges_phone_imei.parquet, schema_mapping.json, data_quality_report.csv, preprocess_summary.json, markdown_report。\n适合使用：我上传了一组新的电话网络CSV；请把这些数据整理成可以分析的图结构；请先处理这些原始数据；自动识别号码、对端、设备、时间、标签和省份字段。\n不适合使用：数据已经建图，想找TopN高风险号码；分析单个号码为什么可疑；查看历史报告；政策法规检索。\n关键词：上传，原始数据，建图，预处理，字段映射，标准图结构，user_nodes，call_edges，edges_phone_imei。\n反关键词：已经建图，TopN，证据包，政策法规。",
+    "positive_triggers": [
+      "我上传了一组新的电话网络CSV",
+      "请把这些数据整理成可以分析的图结构",
+      "请先处理这些原始数据",
+      "自动识别号码、对端、设备、时间、标签和省份字段"
+    ],
+    "negative_triggers": [
+      "数据已经建图，想找TopN高风险号码",
+      "分析单个号码为什么可疑",
+      "查看历史报告",
+      "政策法规检索"
+    ],
+    "keywords": [
+      "上传",
+      "原始数据",
+      "建图",
+      "预处理",
+      "字段映射",
+      "标准图结构",
+      "user_nodes",
+      "call_edges",
+      "edges_phone_imei"
+    ],
+    "anti_keywords": [
+      "已经建图",
+      "TopN",
+      "证据包",
+      "政策法规"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: dataset-onboarding-graph-preprocess\ndescription: 将新上传的电话网络原始 CSV、Excel、JSON 或 Parquet 数据进行字段识别、清洗、质量检查和建图预处理，生成 user_nodes.csv、call_edges.csv、edges_phone_imei.parquet 等标准图结构文件。适用于原始数据接入、无法建图诊断和字段映射；已是标准图结构的数据应先走数据质量诊断或具体分析 skill。\n---\n\n# dataset-onboarding-graph-preprocess\n\n## 1. 技能定位\n\n`dataset-onboarding-graph-preprocess` 是电话网络数据分析体系中的“数据接入 / 预处理 / 建图”技能。\n\n它负责把前端上传的原始 CSV、Excel、Parquet 或 JSON 表格转换为后续电话网络分析技能统一使用的图结构数据：\n\n```text\nprocessed/<dataset>/user_nodes.csv\nprocessed/<dataset>/call_edges.csv\nprocessed/graph_views/<dataset>/edges_phone_imei.parquet\n```\n\n只要新上传的数据被转换成上述结构，后续就可以继续调用 `dataset-overview-analysis`、`single-number-analysis`、`topn-high-risk-discovery`、`condition-based-screening`、`shared-device-analysis`、`group-risk-analysis`、`gang-cluster-analysis`、`risk-evidence-pack`、`time-series-anomaly-analysis` 等技能。\n\n## 2. 必须使用本技能的场景\n\n只要用户提出下面任意需求，就必须优先使用本技能：\n\n- 上传了新的电话网络原始 CSV / Excel / JSON / Parquet，需要转换成项目统一图结构；\n- 希望把原始通话记录、用户标签表、设备绑定表接入现有电话网络分析链路；\n- 希望生成 `user_nodes.csv`、`call_edges.csv`、`edges_phone_imei.parquet`；\n- 希望检查上传数据字段能否被识别；\n- 希望处理“不规整数据”“中文字段”“坏时间”“重复行”“缺失值”；\n- 希望处理错误数据，并说明为什么不能建图；\n- 用户提到“建图、预处理、数据接入、上传数据、原始数据、转成标准图结构、无法建图、质量检查、字段映射”等关键词。\n\n如果用户只是想分析已经预处理好的 `unified` 数据，不需要调用本技能，应直接调用对应分析技能。\n\n## 3. 前端调用原则\n\n前端使用时必须优先运行正式 wrapper，**不要临时重写脚本，不要手写替代脚本**。\n\n标准脚本路径：\n\n```text\n/mnt/skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py\n```\n\n如果运行环境是项目 Docker，路径通常是：\n\n```text\n/workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py\n```\n\n如果前端上传文件后不知道路径，先在常见上传目录中查找：\n\n```bash\nfind /mnt/user-data -maxdepth 6 \\( -name \"*.csv\" -o -name \"*.xlsx\" -o -name \"*.xls\" -o -name \"*.json\" -o -name \"*.parquet\" \\) 2>/dev/null | head -80\n```\n\n然后把**真实包含上传文件的目录**作为 `--input-dir`。常见前端上传目录可能是：\n\n```text\n/mnt/user-data/uploads/\n/mnt/user-data/workspace/\n/mnt/user-data/workspace/onboarding_input/\n```\n\n不要直接使用不存在的占位路径，例如 `/workspace/imiss-deer-flow-main/uploads/new_phone_dataset`，除非你已经手动把文件放到了这个目录。\n\n## 4. 用户可见输出规范\n\n- 面向用户的最终回答必须使用中文。\n- 不要输出英文说明句，例如 “Run the script”、“Read report”、“Generated files”。\n- 可以保留命令、文件名、参数名本身的英文，例如 `user_nodes.csv`、`artifact_mode=essential`。\n- 不要在最终回答正文里连续粘贴同一份 Markdown 报告两遍。\n- 下载入口由前端附件卡片展示即可，正文只需要简要说明“报告和标准图结构文件已生成”。\n- 如果已经展示了完整 Markdown 报告正文，就不要再把同一份报告全文复制一次。\n- 如果输入文件缺少号码字段，也要运行本技能生成质量诊断报告，不要回复“找不到 skill”。\n\n## 5. 输入数据要求\n\n本技能支持一个目录或多个文件。支持格式：\n\n- `.csv`\n- `.xlsx` / `.xls`\n- `.parquet`\n- `.json`\n\n可以接受以下几类表：\n\n1. 用户标签表：包含号码、标签、省份等字段。\n2. 通话明细表：包含主叫、被叫、时间、时长、设备等字段。\n3. 设备绑定表：包含号码和设备 ID。\n4. 混合明细表：一张表里同时包含号码、对端、设备、时间、标签。\n5. 错误或不完整表：脚本会尽量读取并输出质量诊断，不会直接让前端无结果。\n\n注意：设备绑定表没有“对端列”、用户标签表没有“对端列/设备列”是正常情况。脚本会把这类情况记录为“角色说明”，不当作质量错误。\n\n## 6. 字段自动识别\n\n脚本会自动识别常见中英文字段名：\n\n| 标准含义 | 常见字段名 |\n|---|---|\n| 号码 | phone、phone_number、mobile、msisdn、caller、src_user_id、subscriber、main_number、主叫、主叫号码、手机号、手机号码、号码、用户号码 |\n| 对端 | callee、called、counterparty、dst_counterparty_id、peer、target、peer_number、被叫、被叫号码、对端、对端号码、联系人号码 |\n| 设备 | imei、device_id、terminal、terminal_id、设备号、终端、终端号、meid、imsi |\n| 时间 | event_time、call_time、timestamp、start_datetime、通话时间、呼叫时间、开始时间 |\n| 日期 | event_date、date、call_date、通话日期 |\n| 小时 | event_hour、hour、call_hour、小时、时段 |\n| 时长 | duration、duration_sec、call_duration、seconds、通话时长、时长、秒数 |\n| 标签 | label、is_risk、risk_label、标签、风险标签、是否风险 |\n| 子标签 | sub_label、risk_type、子标签、风险类型、标签类型 |\n| 省份 | province、省份、归属省、归属地省、归属地、area_province |\n\n如果自动识别不准，必须通过命令行显式指定字段，例如：\n\n```bash\n--source-col caller --target-col callee --device-col imei --time-col call_time\n```\n\n## 7. 输出 schema\n\n### user_nodes.csv\n\n```text\nprovince,dataset_name,user_id,label,sub_label,age,open_card_time,access_mode,monthly_fee,monthly_flow_mb,monthly_call_duration,caller_ratio_3m,caller_dispersion_3m,cross_province_ratio_3m,broadband_flag,source_table\n```\n\n### call_edges.csv\n\n```text\nprovince,dataset_name,src_user_id,dst_counterparty_id,event_time,event_date,event_hour,duration,call_type,imei,city,county,station,cell,roaming_place,counterparty_belong,source_table\n```\n\n### edges_phone_imei.parquet\n\n```text\nsrc_id,dst_id,src_type,dst_type,edge_type,dataset,user_id,imei,edge_count\n```\n\n## 8. 脱敏与 ID 规则\n\n默认情况下，本技能会对原始号码、对端和设备 ID 重新哈希，避免把原始敏感 ID 写入图结构或报告。\n\n默认哈希策略：\n\n- 号码和对端使用同一类 `phone` 哈希空间；\n- 设备使用 `device` 哈希空间；\n- 同一原始号码在不同文件中会得到相同哈希 ID；\n- 同一原始设备在不同文件中会得到相同哈希 ID；\n- 可以通过 `--hash-salt` 固定盐值，保证同一批数据可复现。\n\n如果输入本身已经是哈希 ID，并且确实希望保留，可使用：\n\n```bash\n--preserve-existing-ids\n```\n\n注意：如果多个来源的数据想做跨来源同实体联动，必须使用同一哈希盐值、统一脱敏规则或提供实体映射表。\n\n## 9. artifact_mode 规则\n\n- `markdown_only`：只展示 Markdown 报告下载入口。\n- `essential`：展示 Markdown 报告 + 标准三件套：`user_nodes.csv`、`call_edges.csv`、`edges_phone_imei.parquet`。推荐前端默认使用。\n- `full`：展示 Markdown 报告 + 标准三件套 + summary / mapping / quality 明细文件。适合命令行验收或调试。\n\n无论 `artifact_mode` 怎么设置，脚本都会在输出目录生成完整文件。这个参数只控制前端展示哪些下载卡片，避免附件过多或重复。\n\n## 10. 标准运行命令\n\n前端常用命令：\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts\n\npython3 dataset_onboarding_graph_preprocess_wrapper.py \\\n  --input-dir /mnt/user-data/uploads \\\n  --dataset-root /mnt/user-data/workspace/phone-network \\\n  --dataset onboarded_demo \\\n  --dataset-name phone-network-onboarded-demo \\\n  --province unknown \\\n  --hash-salt project_fixed_salt \\\n  --hash-length 64 \\\n  --overwrite \\\n  --artifact-mode essential\n```\n\n本地 Docker 项目环境常用命令。注意：使用前必须先把待处理文件放进该目录：\n\n```bash\nmkdir -p /workspace/imiss-deer-flow-main/uploads/new_phone_dataset\n# cp /path/to/your/*.csv /workspace/imiss-deer-flow-main/uploads/new_phone_dataset/\n\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts\n\npython3 dataset_onboarding_graph_preprocess_wrapper.py \\\n  --input-dir /workspace/imiss-deer-flow-main/uploads/new_phone_dataset \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset onboarded_demo \\\n  --province unknown \\\n  --hash-salt project_fixed_salt \\\n  --hash-length 64 \\\n  --overwrite \\\n  --artifact-mode essential\n```\n\n如果路径下没有可读取文件，脚本会输出质量诊断报告，不会直接崩溃。\n\n## 11. 前端推荐提示词\n\n### 规整数据接入\n\n```text\n请使用 dataset-onboarding-graph-preprocess skill，将我上传的原始电话网络 CSV/Excel 文件转换为电话网络分析所需的标准图结构。请自动识别号码、对端、设备、时间、标签和省份字段，生成 user_nodes.csv、call_edges.csv、edges_phone_imei.parquet，并输出字段映射、质量检查和 markdown 报告。参数：dataset=onboarded_demo，artifact_mode=essential，hash_length=64。请只展示一次报告，不要连续重复粘贴同一份 Markdown。\n```\n\n### 不规整数据接入\n\n```text\n请使用 dataset-onboarding-graph-preprocess skill，处理我上传的不规整电话网络数据。数据中可能包含中文字段、缺失值、坏时间、重复行和 JSON 用户标签。请先查找上传文件所在目录，再运行 dataset_onboarding_graph_preprocess_wrapper.py，不要临时重写脚本。请尽量自动识别字段并生成标准图结构，同时输出字段映射、质量检查、警告说明和 markdown 报告。参数：dataset=onboarded_messy_demo，artifact_mode=essential，hash_length=64。请只展示一次报告，不要连续重复粘贴同一份 Markdown。\n```\n\n### 错误数据诊断\n\n```text\n请使用 dataset-onboarding-graph-preprocess skill，处理我上传的错误测试数据。即使数据缺少号码字段，也请运行正式 wrapper 输出质量检查报告，说明为什么不能正常建图。不要回复找不到 skill，不要临时重写脚本。参数：dataset=onboarded_bad_demo，artifact_mode=markdown_only，hash_length=64。\n```\n\n## 12. 一键测试\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts\nchmod +x *.py *.sh\nbash test_dataset_onboarding_graph_preprocess.sh\n```\n\n测试脚本会：\n\n1. 生成规整原始通话数据、用户标签表和设备绑定表；\n2. 检查规整数据能否生成标准三件套；\n3. 检查显式字段映射和 `markdown_only` 模式；\n4. 检查不规整中文字段、缺失值、坏时间场景；\n5. 检查缺少号码字段的错误数据是否能生成质量诊断报告；\n6. 检查不存在输入目录时能否输出诊断 JSON / Markdown；\n7. 检查使用真实存在输入目录的正式处理命令；\n8. 确认最终输出 `[OK] dataset-onboarding-graph-preprocess tests finished`。\n\n## 13. 重要边界\n\n- 本技能只负责把原始表格转换为当前项目需要的图结构，不负责判断业务风险事实。\n- 如果原始文件没有号码字段，不能建用户节点，但会生成质量诊断报告。\n- 如果原始文件没有对端字段，不能建通话边。\n- 如果原始文件没有设备字段，不能建共享设备边。\n- 如果不同来源数据要做同实体联动，必须使用统一哈希盐值、统一脱敏规则或实体映射表。\n- 本技能生成的是表格式图结构，不是必须写入图数据库。后续技能通过 CSV/Parquet 表执行图查询和聚合分析。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 95,
+    "conflict_group": "phone_network_dataset_onboarding",
+    "prefer_when": [
+      "用户上传新电话网络原始数据",
+      "用户要求把原始表整理为标准图结构"
+    ],
+    "defer_when": [
+      "数据已经是标准三件套时应转给后续分析 skill",
+      "用户只是在问数据质量时优先 dataset-quality-and-linkability-diagnostic"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess",
+    "skill_md_path": "skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/SKILL.md",
+    "skill_md_hash": "sha256:51124d601c36b60617afbf13cb89316b26ce1627c9d4c5135c928d21337b1a37",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c18f848ba3c95baebb688379ebaa566b8a9a0705807e69f26348476e5f6d0bc3",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "dataset-onboarding-graph-preprocess"
+  }
+}

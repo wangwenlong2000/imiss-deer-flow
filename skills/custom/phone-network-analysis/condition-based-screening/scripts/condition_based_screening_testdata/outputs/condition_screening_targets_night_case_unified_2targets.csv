@@ -1,0 +1,3 @@
+user_id,province,label,sub_label,risk_score,call_count,unique_counterparties,night_call_count,night_call_ratio,device_count,shared_device_count,shared_peer_total,matched_condition_names,matched_condition_count,evidence_summary,screening_score,recommended_followup
+p1,sichuan,1,purefraud,92,12,12,11,0.9166666666666666,1,1,2,night_ratio|night_count,2,夜间占比=0.92；夜间次数=11,40.25,"shared-device-analysis, single-number-analysis, time-series-anomaly-analysis"
+p5,sichuan,0,normal,30,4,4,4,1.0,2,1,2,night_ratio|night_count,2,夜间占比=1.00；夜间次数=4,34.75,"shared-device-analysis, single-number-analysis, time-series-anomaly-analysis"

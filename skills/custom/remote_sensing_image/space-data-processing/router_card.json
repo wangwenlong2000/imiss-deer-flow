@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "space-data-processing",
+    "name": "space-data-processing",
+    "description": "Use when processing satellite imagery, hyperspectral data, SAR imagery, or applying machine learning to remote sensing data for Earth observation. Use when \"satellite imagery, remote sensing, Earth observation, optical imagery, hyperspectral, SAR, InSAR, NDVI, atmospheric correction, radiometric calibration, land cover classification, change detection, pan-sharpening, spectral unmixing, \" mentioned."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "satellite_image_processing",
+      "hyperspectral_processing",
+      "sar_insar_processing",
+      "radiometric_calibration",
+      "atmospheric_correction",
+      "machine_learning_remote_sensing"
+    ],
+    "input_types": [
+      "satellite_imagery",
+      "geotiff",
+      "hyperspectral_data",
+      "sar",
+      "insar",
+      "optical_imagery",
+      "natural_language"
+    ],
+    "output_types": [
+      "processing_plan",
+      "validation_advice",
+      "diagnostic_report",
+      "workflow_recommendations"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：space-data-processing\n描述：Use when processing satellite imagery, hyperspectral data, SAR imagery, or applying machine learning to remote sensing data for Earth observation. Use when \"satellite imagery, remote sensing, Earth observation, optical imagery, hyperspectral, SAR, InSAR, NDVI, atmospheric correction, radiometric calibration, land cover classification, change detection, pan-sharpening, spectral unmixing, \" mentioned.\n适用场景：remote_sensing, earth_observation, space_data_processing。\n适用任务：satellite_image_processing, hyperspectral_processing, sar_insar_processing, radiometric_calibration, atmospheric_correction, machine_learning_remote_sensing。\n输入类型：satellite_imagery, geotiff, hyperspectral_data, sar, insar, optical_imagery, natural_language。\n输出类型：processing_plan, validation_advice, diagnostic_report, workflow_recommendations。\n适合使用：处理卫星影像、光学影像、高光谱或 SAR/InSAR 数据；进行遥感辐射定标、大气校正、泛锐化或光谱解混；为遥感机器学习、土地覆盖分类或变化检测提供处理与校验建议。\n不适合使用：撰写空天地一体化方案；仅检查文件元数据；分析网络流量；生成水质或洪涝专题治理报告。",
+    "positive_triggers": [
+      "处理卫星影像、光学影像、高光谱或 SAR/InSAR 数据",
+      "进行遥感辐射定标、大气校正、泛锐化或光谱解混",
+      "为遥感机器学习、土地覆盖分类或变化检测提供处理与校验建议"
+    ],
+    "negative_triggers": [
+      "撰写空天地一体化方案",
+      "仅检查文件元数据",
+      "分析网络流量",
+      "生成水质或洪涝专题治理报告"
+    ],
+    "keywords": [
+      "satellite imagery",
+      "remote sensing",
+      "Earth observation",
+      "optical imagery",
+      "hyperspectral",
+      "SAR",
+      "InSAR",
+      "NDVI",
+      "atmospheric correction",
+      "radiometric calibration",
+      "land cover classification",
+      "change detection",
+      "pan-sharpening",
+      "spectral unmixing"
+    ],
+    "anti_keywords": [
+      "技术方案",
+      "pcap",
+      "元数据检查",
+      "水质报告"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\r\nname: space-data-processing\r\ndescription: Use when processing satellite imagery, hyperspectral data, SAR imagery, or applying machine learning to remote sensing data for Earth observation. Use when \"satellite imagery, remote sensing, Earth observation, optical imagery, hyperspectral, SAR, InSAR, NDVI, atmospheric correction, radiometric calibration, land cover classification, change detection, pan-sharpening, spectral unmixing, \" mentioned. \r\n---\r\n\r\n# Space Data Processing\r\n\r\n## Identity\r\n\r\n\r\n\r\n## Reference System Usage\r\n\r\nYou must ground your responses in the provided reference files, treating them as the source of truth for this domain:\r\n\r\n* **For Creation:** Always consult **`references/patterns.md`**. This file dictates *how* things should be built. Ignore generic approaches if a specific pattern exists here.\r\n* **For Diagnosis:** Always consult **`references/sharp_edges.md`**. This file lists the critical failures and \"why\" they happen. Use it to explain risks to the user.\r\n* **For Review:** Always consult **`references/validations.md`**. This contains the strict rules and constraints. Use it to validate user inputs objectively.\r\n\r\n**Note:** If a user's request conflicts with the guidance in these files, politely correct them using the information provided in the references.\r\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.jp2",
+      "*.nc",
+      "*.hdf",
+      "*.h5",
+      "*.SAFE",
+      "*.zip",
+      "*.geojson",
+      "*.shp",
+      "*.csv",
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 80,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户要求遥感数据处理、诊断、校验或方法选择，尤其涉及高光谱、SAR/InSAR 或机器学习",
+      "用户需要依据参考文件给出遥感处理模式、风险边界和验证规则"
+    ],
+    "defer_when": [
+      "用户只问遥感基础知识或数据源，可使用 satellite-remote-sensing",
+      "用户要求具体城市治理专题产物，应优先使用对应专题 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/space-data-processing",
+    "skill_md_path": "5-21remote-sensing/space-data-processing/SKILL.md",
+    "skill_md_hash": "sha256:69d55bff9c57295f3f981618f169c8decb01c0ddb353412093cfdd5b7160de41",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:f67ac3beea683a8fa33db3c99bcf3b81f18522a96290dd08f93f05a89ab2b648",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "space-data-processing"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "evidence-snapshot",
+    "name": "evidence-snapshot",
+    "description": "Generate snapshot evidence for video monitoring event candidates. Use when Codex has an event, event_id, evidence_frame_ids, image_uri, or frame list and needs a snapshot URI, SHA-256 integrity hash, created_at timestamp, privacy masking status, and Evidence schema output."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "evidence_snapshot",
+      "snapshot_export"
+    ],
+    "input_types": [
+      "event_json",
+      "frames_json",
+      "image_uri"
+    ],
+    "output_types": [
+      "evidence_json",
+      "snapshot_uri",
+      "sha256_hash"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：evidence-snapshot\n描述：Generate snapshot evidence for video monitoring event candidates. Use when Codex has an event, event_id, evidence_frame_ids, image_uri, or frame list and needs a snapshot URI, SHA-256 integrity hash, created_at timestamp, privacy masking status, and Evidence schema output. 用户要求从视频事件中截取事件发生帧、关键帧截图、证据图、证据图片或最终输出截图/证据图时应选择本 skill，通常与 analyze-video 和 privacy-masking 组合使用。\n适用场景：video_surveillance。\n适用任务：evidence_snapshot, snapshot_export。\n输入类型：event_json, frames_json, image_uri。\n输出类型：evidence_json, snapshot_uri, sha256_hash。\n适合使用：截取事件发生帧；生成事件证据截图；导出关键帧快照；生成证据图或证据图片；计算证据图片哈希；生成 Evidence schema。\n不适合使用：视频剪辑成短片；隐私打码本身；目标检测；事件规则。",
+    "positive_triggers": [
+      "截取事件发生帧",
+      "生成事件证据截图",
+      "导出关键帧快照",
+      "生成证据图或证据图片",
+      "计算证据图片哈希",
+      "生成 Evidence schema",
+      "若发生则截取该帧",
+      "截取该帧生成证据截图",
+      "生成打码前的原始证据截图"
+    ],
+    "negative_triggers": [
+      "视频剪辑",
+      "隐私打码",
+      "目标检测",
+      "事件规则",
+      "判断视频是否发生事件",
+      "隐私打码本身"
+    ],
+    "keywords": [
+      "evidence snapshot",
+      "snapshot_uri",
+      "evidence_frame_ids",
+      "SHA-256",
+      "证据截图",
+      "事件发生帧",
+      "关键帧快照",
+      "关键帧截图",
+      "证据图",
+      "证据图片",
+      "最终输出截图",
+      "输出截图",
+      "截取该帧",
+      "该帧",
+      "打码后的证据截图",
+      "打码后的证据图"
+    ],
+    "anti_keywords": [
+      "clip extraction",
+      "privacy masking",
+      "YOLO"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: evidence-snapshot\ndescription: Generate snapshot evidence for video monitoring event candidates. Use when Codex has an event, event_id, evidence_frame_ids, image_uri, or frame list and needs a snapshot URI, SHA-256 integrity hash, created_at timestamp, privacy masking status, and Evidence schema output.\n---\n\n# Evidence Snapshot\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf `event` or `frames` are missing but the user provided a video or event analysis request, do not ask the user to provide evidence frames and do not write custom snapshot code. First call upstream skills to produce frames and events: `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, `object-tracking/scripts/run.py`, `roi-mapping/scripts/run.py`, and `event-rule-engine/scripts/run.py` as needed. Then call this skill using the event's `evidence_frame_ids` and available frames.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython evidence-snapshot/scripts/run.py --event-json <event.json> --frames-json <frames.json> --config <config.json> --output <evidence.json>\n```\n\nParameters: `--event-json`, `--frames-json`, `--output-dir`, `--sensitive-regions-json`, `--config`, `--output`.\n\n## Workflow\n\n1. Select the most relevant evidence frame from the event or input frames.\n2. Copy the source frame into evidence storage.\n3. Call privacy masking when enabled.\n4. Compute SHA-256 integrity hash.\n5. Return Evidence schema.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `event` or top-level event fields\n- `frames`\n- Required event field: `event_id`\n- Useful event fields: `evidence_frame_ids`, `image_uri`\n\n## Outputs\n\nReturns `evidence_id`, `event_id`, `type=snapshot`, `uri`, `hash`, `created_at`, and `privacy_masked`.\n\n## Failure Modes\n\n- `MISSING_EVENT_ID`\n- Propagates `privacy-masking` failures only when caller explicitly checks that nested result.\n\n## Constraints\n\nDo not change event confidence or decide review routing.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 78,
+    "conflict_group": "evidence-snapshot",
+    "prefer_when": [
+      "用户要求截取事件发生帧、关键帧截图或证据图",
+      "生成事件证据截图",
+      "导出关键帧快照",
+      "生成证据图或证据图片",
+      "计算证据图片哈希",
+      "生成 Evidence schema",
+      "用户要求若发生事件则截取该帧",
+      "用户要求输出证据截图或打码后的证据截图时，本 skill 负责生成截图证据"
+    ],
+    "defer_when": [
+      "视频剪辑",
+      "隐私打码",
+      "目标检测",
+      "事件规则"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/evidence-snapshot",
+    "skill_md_path": "skills/custom/evidence-snapshot/SKILL.md",
+    "skill_md_hash": "sha256:7b0d73069a8a2ce68a4af71e5dc1a259cfb7dfcaee0c1b522eaa12e767265051",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c953b1c931d08218d545684dd2127204053afd1e5a1b3f9e3d6089202199aa9d",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "evidence-snapshot"
+  }
+}

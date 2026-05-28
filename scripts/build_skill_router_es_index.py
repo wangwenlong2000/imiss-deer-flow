@@ -35,6 +35,51 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _normalize_scenes(scope: dict) -> list[str]:
+    """Return a normalized scene list from legacy or current card schemas."""
+    scenes = scope.get("scenes")
+    if isinstance(scenes, list) and scenes:
+        return [s for s in scenes if isinstance(s, str) and s.strip()]
+
+    scene = scope.get("scene")
+    if isinstance(scene, str) and scene.strip():
+        return [scene.strip()]
+
+    return []
+
+
+def _compact_join(values: list | tuple | None, sep: str = "，") -> str:
+    if not values:
+        return ""
+    return sep.join(str(value).strip() for value in values if str(value).strip())
+
+
+def _build_embedding_text(card: dict) -> str:
+    """Build the positive-only text used for coarse vector recall.
+
+    Keep negative/defer/anti-keyword boundaries out of this text. They are
+    stored as structured ES fields and used by reranking/resolution, not by
+    the first-stage embedding search.
+    """
+    identity = card.get("identity", {})
+    scope = card.get("scope", {})
+    routing = card.get("routing", {})
+    execution = card.get("execution", {})
+
+    parts = [
+        f"名称：{identity.get('id', '')}",
+        f"描述：{identity.get('description', '')}",
+        "适用场景：" + _compact_join(_normalize_scenes(scope)),
+        "适用任务：" + _compact_join(scope.get("task_types", [])),
+        "输入类型：" + _compact_join(scope.get("input_types", [])),
+        "输出类型：" + _compact_join(scope.get("output_types", [])),
+        "适合使用：" + _compact_join(routing.get("positive_triggers", []), "；"),
+        "关键词：" + _compact_join(routing.get("keywords", [])),
+        "可组合：" + _compact_join(execution.get("can_compose_with", [])),
+    ]
+    return "\n".join(part for part in parts if part.strip() and not part.endswith("："))
+
+
 def _load_registry(root: str) -> dict:
     """Load registry.json or return a stub to be filled from disk scan."""
     path = os.path.join(root, "skills", "registry.json")
@@ -68,7 +113,7 @@ def _scan_skills(root: str) -> dict:
                     {
                         "id": card["identity"]["id"],
                         "name": card["identity"]["name"],
-                        "scenes": card["scope"]["scenes"],
+                        "scenes": _normalize_scenes(card["scope"]),
                         "is_public": card["scope"]["is_public"],
                         "task_types": card["scope"]["task_types"],
                         "input_types": card["scope"]["input_types"],
@@ -90,25 +135,39 @@ def _build_es_document(card: dict, embedding: list[float]) -> dict:
     identity = card["identity"]
     scope = card["scope"]
     routing = card["routing"]
+    execution = card.get("execution", {})
+    routing_policy = card.get("routing_policy", {})
     source = card["source"]
     embedding_info = card.get("embedding", {})
+    embedding_text = _build_embedding_text(card)
 
     return {
         "skill_id": identity["id"],
         "name": identity["name"],
         "description": identity["description"],
-        "scenes": scope["scenes"],
+        "scenes": _normalize_scenes(scope),
         "is_public": scope["is_public"],
         "task_types": scope["task_types"],
         "input_types": scope["input_types"],
         "output_types": scope.get("output_types", []),
+        "embedding_text": embedding_text,
         "routing_text": routing["routing_text"],
+        "positive_triggers": routing.get("positive_triggers", []),
+        "negative_triggers": routing.get("negative_triggers", []),
+        "keywords": routing.get("keywords", []),
+        "anti_keywords": routing.get("anti_keywords", []),
+        "prefer_when": routing_policy.get("prefer_when", []),
+        "defer_when": routing_policy.get("defer_when", []),
+        "can_compose_with": execution.get("can_compose_with", []),
+        "required_tools": execution.get("required_tools", []),
+        "optional_tools": execution.get("optional_tools", []),
         "body": card.get("body", {}).get("content", ""),
         "skill_dir": source.get("skill_dir", ""),
         "skill_md_path": source.get("skill_md_path", ""),
         "router_card_path": source.get("skill_dir", "") + "/router_card.json",
         "skill_md_hash": source.get("skill_md_hash", ""),
         "routing_text_hash": embedding_info.get("text_hash", "sha256:" + _sha256(routing["routing_text"])),
+        "embedding_text_hash": "sha256:" + _sha256(embedding_text),
         "embedding_model": embedding_info.get("model", "SkillRouter-Embedding-0.6B"),
         "embedding_vector": embedding,
         "enabled": True,
@@ -129,7 +188,17 @@ def _build_mapping(dims: int) -> dict:
                 "task_types": {"type": "keyword"},
                 "input_types": {"type": "keyword"},
                 "output_types": {"type": "keyword"},
+                "embedding_text": {"type": "text"},
                 "routing_text": {"type": "text"},
+                "positive_triggers": {"type": "text"},
+                "negative_triggers": {"type": "text"},
+                "keywords": {"type": "keyword"},
+                "anti_keywords": {"type": "keyword"},
+                "prefer_when": {"type": "text"},
+                "defer_when": {"type": "text"},
+                "can_compose_with": {"type": "keyword"},
+                "required_tools": {"type": "keyword"},
+                "optional_tools": {"type": "keyword"},
                 "body": {"type": "text"},
                 "skill_dir": {"type": "keyword"},
                 "skill_md_path": {"type": "keyword"},
@@ -158,10 +227,10 @@ def main() -> None:
     es_store = SkillRouterElasticStore()
 
     # ------------------------------------------------------------------
-    # Collect routing texts and generate embeddings
+    # Collect positive-only embedding texts and generate embeddings
     # ------------------------------------------------------------------
     cards: list[dict] = []
-    routing_texts: list[str] = []
+    embedding_texts: list[str] = []
 
     for skill in registry.get("skills", []):
         if not skill.get("enabled", True):
@@ -177,7 +246,7 @@ def main() -> None:
             card = json.load(f)
 
         cards.append(card)
-        routing_texts.append(card["routing"]["routing_text"])
+        embedding_texts.append(_build_embedding_text(card))
 
     if not cards:
         logger.error("No router cards found to index")
@@ -187,11 +256,11 @@ def main() -> None:
     # Batch embeddings to avoid very long requests
     batch_size = 16
     all_embeddings: list[list[float]] = []
-    for i in range(0, len(routing_texts), batch_size):
-        batch = routing_texts[i : i + batch_size]
+    for i in range(0, len(embedding_texts), batch_size):
+        batch = embedding_texts[i : i + batch_size]
         embeddings = embedding_client.embed_texts(batch)
         all_embeddings.extend(embeddings)
-        logger.info("  Embedded %d/%d", min(i + batch_size, len(routing_texts)), len(routing_texts))
+        logger.info("  Embedded %d/%d", min(i + batch_size, len(embedding_texts)), len(embedding_texts))
 
     if not all_embeddings:
         logger.error("No embeddings generated")

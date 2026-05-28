@@ -44,6 +44,35 @@ _TEXT_DATA_FILE_EXTENSIONS = {".csv", ".json", ".jsonl"}
 _BINARY_DATA_FILE_EXTENSIONS = {".parquet", ".xlsx", ".xls", ".pcap", ".pcapng", ".cap"}
 _DEFAULT_DATA_PREVIEW_LINES = 20
 _MAX_DATA_PREVIEW_LINES = 50
+_SANDBOX_CONNECTION_ERROR_MARKERS = (
+    "[Errno 111]",
+    "Connection refused",
+    "Failed to establish a new connection",
+    "Max retries exceeded",
+)
+
+
+def _is_sandbox_connection_error(output: str) -> bool:
+    """Return True when a sandbox command result is a transport-level failure."""
+    if not output.startswith("Error:"):
+        return False
+    return any(marker in output for marker in _SANDBOX_CONNECTION_ERROR_MARKERS)
+
+
+def _invalidate_runtime_sandbox(runtime: ToolRuntime[ContextT, ThreadState], sandbox_id: str) -> None:
+    """Drop a stale sandbox from runtime state/provider so the next call reacquires it."""
+    if sandbox_id != "local":
+        try:
+            get_sandbox_provider().destroy(sandbox_id)  # type: ignore[attr-defined]
+        except AttributeError:
+            get_sandbox_provider().release(sandbox_id)
+        except Exception:
+            # Best-effort cleanup. Reacquire below will still discover/create.
+            pass
+
+    if runtime.state is not None:
+        runtime.state.pop("sandbox", None)
+    runtime.context.pop("sandbox_id", None)
 
 
 def replace_virtual_path(path: str, thread_data: ThreadDataState | None) -> str:
@@ -513,7 +542,16 @@ def bash_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, com
             command = replace_virtual_paths_in_command(command, thread_data)
             output = sandbox.execute_command(command)
             return mask_local_paths_in_output(output, thread_data)
-        return sandbox.execute_command(command)
+
+        output = sandbox.execute_command(command)
+        if _is_sandbox_connection_error(output):
+            sandbox_state = runtime.state.get("sandbox") if runtime.state is not None else None
+            sandbox_id = sandbox_state.get("sandbox_id") if sandbox_state else None
+            if sandbox_id:
+                _invalidate_runtime_sandbox(runtime, sandbox_id)
+                sandbox = ensure_sandbox_initialized(runtime)
+                output = sandbox.execute_command(command)
+        return output
     except SandboxError as e:
         return f"Error: {e}"
     except PermissionError as e:

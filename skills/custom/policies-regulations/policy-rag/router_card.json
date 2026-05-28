@@ -7,10 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "policy_regulation",
-      "enterprise_policy",
-      "approval_flow",
-      "internal_rag"
+      "policy_regulation"
     ],
     "is_public": false,
     "task_types": [

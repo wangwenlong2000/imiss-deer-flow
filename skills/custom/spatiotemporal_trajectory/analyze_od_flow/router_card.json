@@ -1,0 +1,120 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "analyze_od_flow",
+                     "name":  "analyze_od_flow",
+                     "description":  "Use this skill when the user asks for OD flow analysis, origin-destination matrices, commute corridors, migration routes, or region-to-region movement aggregation from staypoints."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "analyze_od_flow",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "staypoints_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "od_matrix.jsonl",
+                                       "top_corridors.jsonl",
+                                       "summary.json",
+                                       "viz_input.jsonl"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：analyze_od_flow\n描述：Use this skill when the user asks for OD flow analysis, origin-destination matrices, commute corridors, migration routes, or region-to-region movement aggregation from staypoints.\n适用场景：spatiotemporal_trajectory。\n适用任务：analyze_od_flow, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, staypoints_jsonl。\n输出类型：od_matrix.jsonl, top_corridors.jsonl, summary.json, viz_input.jsonl。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user asks for OD flow analysis, origin-destination matrices, commute corridors, migration routes, or region-to-region movement aggregation from staypoints.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "analyze",
+                                     "od",
+                                     "flow",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: analyze_od_flow\ndescription: Use this skill when the user asks for OD flow analysis, origin-destination matrices, commute corridors, migration routes, or region-to-region movement aggregation from staypoints.\nmetadata:\n  short-description: Build OD matrix and rank movement corridors.\n---\n\n# analyze_od_flow\n\nUse this Skill after `$extract_stay_points`. Preferred input is `staypoints.jsonl`.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/analyze_od_flow\npython3 scripts/analyze_od_flow.py --input /path/to/staypoints.jsonl --output-dir /path/to/output --geohash-precision 5 --top-k 20\n```\n\n## Outputs\n\n- `od_matrix.jsonl`\n- `top_corridors.jsonl`\n- `summary.json`\n- `viz_input.jsonl`\n\n## Algorithm\n\n- Consecutive staypoint OD construction\n- Geohash aggregation\n- Unique-user counting\n- Average travel-duration statistics\n- Corridor ranking with business landmark enrichment\n\n## Next Skills\n\nUse `od_matrix.jsonl` with `$analyze_spatiotemporal_accessibility` and `$measure_spatiotemporal_entropy`.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "extract_stay_points",
+                                               "analyze_spatiotemporal_accessibility",
+                                               "measure_spatiotemporal_entropy"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/analyze_od_flow",
+                   "skill_md_path":  "skills/custom/analyze_od_flow/SKILL.md",
+                   "skill_md_hash":  "sha256:eb9d6b3d65c64d61b1a8a0b03b517e212c158e9de1df17bdc30eecce5c98e11b",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:d2fc87455c977b32d918a288627763a5d085a1836460ca43309db4b13ab18636",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "analyze_od_flow"
+                  }
+}

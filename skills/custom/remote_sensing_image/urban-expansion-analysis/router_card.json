@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "urban-expansion-analysis",
+    "name": "urban-expansion-analysis",
+    "description": "Quantifies multi-year urban expansion speed, direction, pattern and land-use structure evolution. Invoke when the user mentions \"urban expansion\", \"LULC change\", \"transition matrix\", \"growth boundary\", \"compact city\", \"城市扩张\", \"土地利用变化\", \"建成区增长\", \"占补平衡\", \"转移矩阵\", \"增长边界\" or similar. The skill builds land-use transition matrices from multi-year classified imagery, computes expansion-intensity indices, identifies infill / edge / leapfrog patterns, and provides a simple future projection."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "urban_expansion_analysis",
+      "lulc_transition_matrix",
+      "expansion_intensity_index",
+      "growth_pattern_classification",
+      "scenario_projection"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "csv",
+      "json"
+    ],
+    "output_types": [
+      "transition_matrix_csv",
+      "expansion_intensity_json",
+      "expansion_direction_json",
+      "expansion_patches_geojson",
+      "scenario_forecast_json",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：urban-expansion-analysis\n描述：城市扩张与土地利用动态分析 Skill。仅适用于多年或多期土地利用分类栅格的城市扩张速度、扩张方向、扩张模式、建设用地增长、土地利用转移矩阵、城市增长边界和情景外推分析，也可在土地利用类别中统计绿地、林地等地类的转入转出。用户明确提到“多年”“多期”“城市扩张”“土地利用变化”“建成区增长”“转移矩阵”“增长边界”“扩张强度”“扩张方向”“扩张模式”时使用本 skill。\n适用场景：remote_sensing_image, territorial_spatial_planning, urban_expansion。\n适用任务：urban_expansion_analysis, lulc_transition_matrix, expansion_intensity_index, growth_pattern_classification, scenario_projection。\n输入类型：geotiff, geojson, csv, json。\n输出类型：transition_matrix_csv, expansion_intensity_json, expansion_direction_json, expansion_patches_geojson, scenario_forecast_json, report_md。\n适合使用：分析多年城市扩张速度、方向和模式；构建土地利用转移矩阵并识别建设用地增长或绿地等地类转入转出；评估城市增长边界、占补平衡或紧凑城市策略。\n不适合使用：单期城市绿地生态评估；在没有多年/多期土地利用序列的情况下计算绿地覆盖率、斑块数量、平均斑块面积、最大斑块占比、生态连通性或景观指数；两期影像找具体违建点位；单期提取不透水面；监测城市热岛 LST；撰写技术方案。",
+    "positive_triggers": [
+      "分析多年城市扩张速度、方向和模式",
+      "构建土地利用转移矩阵并识别建设用地增长",
+      "评估城市增长边界、占补平衡或紧凑城市策略"
+    ],
+    "negative_triggers": [
+      "两期影像找具体违建点位",
+      "单期提取不透水面",
+      "监测城市热岛 LST",
+      "撰写技术方案",
+      "对单期影像覆盖范围进行城市绿地生态评估",
+      "计算绿地覆盖率、斑块数量、平均斑块面积、最大斑块占比或生态连通性",
+      "输出绿地生态连通性和绿地优化建议",
+      "评估绿地斑块格局、景观指标或生态廊道",
+      "分析城市绿地生态功能而非多年建设用地扩张"
+    ],
+    "keywords": [
+      "urban expansion",
+      "LULC change",
+      "transition matrix",
+      "growth boundary",
+      "compact city",
+      "多年",
+      "多期",
+      "城市扩张",
+      "土地利用变化",
+      "建成区增长",
+      "占补平衡",
+      "转移矩阵",
+      "增长边界",
+      "扩张强度",
+      "扩张方向",
+      "扩张模式"
+    ],
+    "anti_keywords": [
+      "违建点位",
+      "NDBI",
+      "LST",
+      "方案",
+      "pcap",
+      "城市绿地生态评估",
+      "绿地生态评估",
+      "单期绿地评估"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: urban-expansion-analysis\ndescription: >\n  Quantifies multi-year urban expansion speed, direction, pattern and land-use\n  structure evolution. Invoke when the user mentions \"urban expansion\",\n  \"LULC change\", \"transition matrix\", \"growth boundary\", \"compact city\",\n  \"城市扩张\", \"土地利用变化\", \"建成区增长\", \"占补平衡\", \"转移矩阵\", \"增长边界\"\n  or similar. The skill builds land-use transition matrices from multi-year\n  classified imagery, computes expansion-intensity indices, identifies\n  infill / edge / leapfrog patterns, and provides a simple future projection.\nversion: 0.1.0\ncategory: territorial-spatial-planning\ndomain: remote-sensing\nlanguage:\n  metadata: en\n  report: zh-CN\nentrypoint: scripts/main.py\nlicense: MIT\ntags: [urban-expansion, LULC, transition-matrix, growth-boundary]\n---\n\n# 城市扩张与土地利用动态分析（urban-expansion-analysis）\n\n## 1. 技能概述\n\n量化分析城市扩张速度、方向、模式以及土地利用结构演变规律，辅助国土空间规划实施评估、\n城市增长边界（UGB）优化与紧凑城市策略制定。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 必需 | 说明 |\n|--------|------|:--:|------|\n| `classified_images` | list[file] | 是 | 多个年份的土地利用分类栅格 GeoTIFF（像素值=类别编码） |\n| `years` | list[int] | 是 | 与 `classified_images` 同长度的年份列表 |\n| `class_mapping` | dict / file | 否 | 类别编码 → 名称映射，不提供则使用默认 |\n| `urban_classes` | list[int] | 否 | 被视为\"建设用地\"的类别编码，默认 `[1]` |\n| `city_center` | list[number] | 否 | 城市中心经纬度 `[lon, lat]`，用于方向分析 |\n| `ugb` | file (GeoJSON) | 否 | 城市增长边界矢量，用于 UGB 占比分析 |\n| `socioeconomic` | file (CSV) | 否 | 年份级社会经济数据（GDP、人口），用于相关性分析 |\n\n默认 `class_mapping`：\n```\n1=建设用地  2=耕地  3=林地  4=草地  5=水体  6=湿地  7=裸地  8=其他\n```\n\n## 3. 用户输入引导\n\n> 为进行城市扩张与土地利用动态分析，请提供：\n> 1. **多年土地利用分类图**（`classified_images`）：每年一个 GeoTIFF，像元值代表类别。至少 2 年。\n> 2. **年份列表**（`years`）：例如 `[2015, 2020, 2025]`。\n> 3. （推荐）**类别编码映射**（`class_mapping`）：使您的数据类别对齐默认体系，否则采用默认。\n> 4. （可选）**城市中心点**（`city_center`）：用于分析各方向扩张比例；不提供则自动取影像质心。\n\n## 4. 处理流程\n\n1. `check-inputs`：校验影像数量等于年份数，且像素尺寸一致\n2. 对最早/最晚两期计算**土地利用转移矩阵**（多期则逐年成对）\n3. **扩张强度指数（EII）**：`ΔUrbanArea_i / TotalArea_i / Years`，>1.92% 为\"高速\"\n4. **扩张方向**：以 `city_center` 为极点的 8 象限扩张面积占比\n5. **扩张模式**：基于扩张斑块的**质心-填充-边缘**分类（infilling / edge-expansion / leapfrog）\n6. 若提供 UGB：统计 UGB 内外的扩张面积\n7. 若提供 `socioeconomic`：计算与 GDP/人口的相关系数\n8. 简单情景外推：按平均年扩张速率线性外推未来 5/10 年面积\n\n## 5. 参数说明（`config.yaml`）\n\n```yaml\nclasses:\n  urban_codes: [1]\n  default_mapping:\n    1: 建设用地\n    2: 耕地\n    3: 林地\n    4: 草地\n    5: 水体\n    6: 湿地\n    7: 裸地\n    8: 其他\npattern:\n  infilling_ratio: 0.6\n  leapfrog_distance_m: 500\nforecast:\n  horizons_years: [5, 10]\n```\n\n## 6. 调用示例\n\n```bash\npython /mnt/skills/custom/remote-sensing/urban-expansion-analysis/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"classified_images\":[\"/mnt/user-data/uploads/lulc_2015.tif\",\"/mnt/user-data/uploads/lulc_2020.tif\",\"/mnt/user-data/uploads/lulc_2025.tif\"],\"years\":[2015,2020,2025],\"urban_classes\":[1]}' \\\n  --output-dir /mnt/user-data/outputs/expand_20260417\n```\n\n## 7. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `transition_matrix.csv` | 类别转移矩阵（面积/比例） |\n| `expansion_intensity.json` | 扩张强度指数 (EII) 与分级 |\n| `expansion_direction.json` | 8 方向扩张面积占比 |\n| `expansion_patches.geojson` | 扩张斑块 + 模式分类字段 |\n| `scenario_forecast.json` | 未来情景外推 |\n| `report.md` | 综合报告 |\n\n## 8. 治理场景\n\n- 国土空间规划实施评估\n- 城市增长边界执行情况核查\n- 资源环境承载力分析\n- 紧凑城市 vs 蔓延发展诊断\n\n## 9. 注意事项\n\n- 请确保多期分类图使用**相同类别体系**；否则请通过 `class_mapping` 做类别合并映射\n- \"线性外推\"仅作演示；严肃情景预测请使用 CA-Markov / SLEUTH / FLUS 等专业模型\n- `infilling` / `edge-expansion` / `leapfrog` 阈值基于斑块质心到既有建成区的最短距离\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 84,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户提供多年或多期土地利用分类图并要求分析城市扩张或转移矩阵",
+      "用户关注建成区增长、扩张方向、扩张模式、扩张强度或增长边界"
+    ],
+    "defer_when": [
+      "用户只要求两期影像变化检测和问题点位，应优先使用 urban-change-detection",
+      "用户只要求不透水面提取，应优先使用 impervious-surface-mapping",
+      "任务要求绿地生态评估、绿地覆盖率、景观斑块指标或生态连通性时，应优先使用 urban-greenspace-assessment",
+      "任务只要求两期影像变化检测和问题点位，应优先使用 urban-change-detection",
+      "任务只要求不透水面提取，应优先使用 impervious-surface-mapping"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/urban-expansion-analysis",
+    "skill_md_path": "5-21remote-sensing/urban-expansion-analysis/SKILL.md",
+    "skill_md_hash": "sha256:011a4fa276bd6bc42bb4844588eb383237e07f57970136f8b09dc34905774e02",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:99bb1be9d37d60c3be894ce200f4f3dc617610f2cf46bec90b1cf0cccd65fcba",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "urban-expansion-analysis"
+  }
+}

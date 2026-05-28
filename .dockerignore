@@ -70,3 +70,11 @@ backend/.coverage
 !README.md
 !frontend/README.md
 !backend/README.md
+
+# DeerFlow / LangGraph runtime state
+backend/.deer-flow/
+.deer-flow/
+
+# LangGraph runtime/cache
+backend/.langgraph_api/
+.langgraph_api/

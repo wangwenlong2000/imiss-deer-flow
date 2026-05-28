@@ -1,0 +1,12 @@
+rules:
+  - id: php-obfuscation-methods-masking
+    patterns:
+      - pattern-regex: ^.{,401}$
+      - pattern-either:
+          - pattern-regex: (?<!\w)(base64_decode|base64_encode|bin2hex|chr|explode|hex2bin|hexdec)\((.*(?<!\w)\1\(){4,}
+          - pattern-regex: (?<!\w)(implode|mt_rand|openssl_decrypt|openssl_encrypt|ord|pack|preg_replace)(.*(?<!\w)\1\(){4,}
+          - pattern-regex: (?<!\w)(random_bytes|sprintf|str_pad|str_replace|strtr|strval|substr|unpack)(.*(?<!\w)\1\(){4,}
+    message: Obfuscation by concatenation of string manipulating methods.
+    severity: WARNING
+    languages:
+      - php

@@ -11,7 +11,7 @@ import {
   SquareTerminalIcon,
   WrenchIcon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 
 import {
   ChainOfThought,
@@ -99,19 +99,11 @@ export function MessageGroup({
             key={step.id}
             icon={LightbulbIcon}
             label={
-              <div className="space-y-1">
-                {step.title && (
-                  <div className="text-muted-foreground text-xs font-medium">
-                    {step.title}
-                  </div>
-                )}
-                <MarkdownContent
-                  content={step.content}
-                  isLoading={isLoading}
-                  rehypePlugins={rehypePlugins}
-                  className="my-0 text-sm"
-                />
-              </div>
+              <HiddenStepLabel
+                step={step}
+                isLoading={isLoading}
+                rehypePlugins={rehypePlugins}
+              />
             }
           />
         ))}
@@ -417,6 +409,7 @@ interface CoTToolCallStep extends GenericCoTStep<"toolCall"> {
 
 interface CoTHiddenStep extends GenericCoTStep<"hiddenStep"> {
   title?: string;
+  source?: string;
   content: string;
 }
 
@@ -481,7 +474,7 @@ function convertToSteps(messages: Message[]): CoTStep[] {
 
 function formatHiddenSteps(
   content: string,
-): Array<{ title?: string; content: string }> {
+): Array<{ title?: string; source?: string; content: string }> {
   const stripped = content
     .replace(/<\/?system_reminder>/g, "")
     .replace(
@@ -504,6 +497,7 @@ function formatHiddenSteps(
       const body = (match[2] ?? "").trim();
       return {
         title: extractHiddenStepTitle(attrs) ?? undefined,
+        source: extractHiddenStepSource(attrs) ?? undefined,
         content: body,
       };
     })
@@ -525,4 +519,318 @@ function extractHiddenStepTitle(attrs: string) {
     return "SkillRouter 路由";
   }
   return null;
+}
+
+function extractHiddenStepSource(attrs: string) {
+  const sourceMatch = /\bsource=(["'])(.*?)\1/.exec(attrs);
+  return sourceMatch?.[2] ?? null;
+}
+
+function HiddenStepLabel({
+  step,
+  isLoading,
+  rehypePlugins,
+}: {
+  step: CoTHiddenStep;
+  isLoading: boolean;
+  rehypePlugins: ReturnType<typeof useRehypeSplitWordsIntoSpans>;
+}) {
+  const summary =
+    step.source === "intent_recognition" || step.title === "意图识别"
+      ? parseIntentRecognitionSummary(step.content)
+      : step.source === "skill_router" || step.title === "SkillRouter 路由"
+      ? parseSkillRouterSummary(step.content)
+      : null;
+
+  if (!summary) {
+    return (
+      <div className="space-y-1">
+        {step.title && (
+          <div className="text-muted-foreground text-xs font-medium">
+            {step.title}
+          </div>
+        )}
+        <MarkdownContent
+          content={step.content}
+          isLoading={isLoading}
+          rehypePlugins={rehypePlugins}
+          className="my-0 text-sm"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="text-muted-foreground text-xs font-medium">
+        {step.title ?? "隐藏步骤"}
+      </div>
+      {summary.routingQuery && (
+        <SummaryRow
+          label="路由任务"
+          value={summary.routingQuery}
+        />
+      )}
+      {summary.sceneLine && (
+        <SummaryRow label="识别场景" value={summary.sceneLine} />
+      )}
+      {summary.routeReason && (
+        <SummaryRow label="路由原因" value={summary.routeReason} />
+      )}
+      {summary.primaryGoal && (
+        <SummaryRow label="主要目标" value={summary.primaryGoal} />
+      )}
+      {summary.taskSpans.length > 0 && (
+        <SummaryBlock
+          label={summary.taskSpans.length > 1 ? "任务切分" : "任务内容"}
+        >
+          <ul className="list-disc space-y-1 pl-5">
+            {summary.taskSpans.map((text, index) => (
+              <li key={`${index}-${text}`}>{text}</li>
+            ))}
+          </ul>
+        </SummaryBlock>
+      )}
+      {summary.sceneTasks.length > 0 && (
+        <SummaryBlock label="场景任务">
+          <ul className="space-y-2">
+            {summary.sceneTasks.map((task, index) => (
+              <li
+                key={`${index}-${task.scene}-${task.text}`}
+                className="rounded-md border bg-background px-2 py-1"
+              >
+                <div className="font-medium">
+                  {task.scene}
+                  {task.sceneName ? `（${task.sceneName}）` : ""}
+                </div>
+                <div className="text-sm">{task.text}</div>
+                {task.params && (
+                  <div className="text-muted-foreground text-xs">
+                    参数：{task.params}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </SummaryBlock>
+      )}
+      {summary.routeTasks.length > 0 && (
+        <SummaryBlock label="路由分段">
+          <ul className="space-y-2">
+            {summary.routeTasks.map((task, index) => (
+              <li
+                key={`${index}-${task.scene}-${task.text}`}
+                className="rounded-md border bg-background px-2 py-1"
+              >
+                <div className="font-medium">
+                  {task.text}
+                  {task.scene ? `（${task.scene}）` : ""}
+                </div>
+                {task.skills.length > 0 && (
+                  <div className="text-muted-foreground text-xs">
+                    推荐 skill：{task.skills.join(", ")}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </SummaryBlock>
+      )}
+      {summary.taskHints.length > 0 && (
+        <SummaryBlock label="任务提示">
+          <ul className="list-disc space-y-1 pl-5">
+            {summary.taskHints.map((text, index) => (
+              <li key={`${index}-${text}`}>{text}</li>
+            ))}
+          </ul>
+        </SummaryBlock>
+      )}
+      {summary.selectedSkills.length > 0 && (
+        <SummaryBlock label="已选技能">
+          <div className="flex flex-wrap gap-2">
+            {summary.selectedSkills.map((skill, index) => (
+              <span
+                key={`${index}-${skill}`}
+                className="rounded-md bg-muted px-2 py-1 text-xs"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </SummaryBlock>
+      )}
+    </div>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-0.5">
+      <div className="text-muted-foreground text-xs">{label}</div>
+      <div className="text-sm">{value}</div>
+    </div>
+  );
+}
+
+function SummaryBlock({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="text-muted-foreground text-xs">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+function parseIntentRecognitionSummary(content: string) {
+  return parseRoutingSummary(content);
+}
+
+function parseSkillRouterSummary(content: string) {
+  return parseRoutingSummary(content);
+}
+
+function parseRoutingSummary(content: string) {
+  const stripped = content
+    .replace(/<\/?system_reminder>/g, "")
+    .replace(
+      /Use the following current-turn intent and routing guidance when deciding whether to create or update todos\.\s*Treat it as planning context, not as a user request\./g,
+      "",
+    )
+    .trim();
+
+  if (!stripped) {
+    return null;
+  }
+
+  const summary = {
+    routingQuery: "",
+    sceneLine: "",
+    routeReason: "",
+    primaryGoal: "",
+    isMultiScene: false,
+    taskSpans: [] as string[],
+    sceneTasks: [] as Array<{
+      scene: string;
+      sceneName?: string;
+      text: string;
+      params?: string;
+    }>,
+    routeTasks: [] as Array<{
+      scene: string;
+      text: string;
+      skills: string[];
+    }>,
+    taskHints: [] as string[],
+    selectedSkills: [] as string[],
+  };
+
+  let currentSection: "task_spans" | "scene_tasks" | "task_hints" | "skills" | null = null;
+
+  for (const rawLine of stripped.split("\n")) {
+    const line = rawLine.trim();
+    if (!line) {
+      continue;
+    }
+    if (line.startsWith("改写后的任务：")) {
+      summary.routingQuery = line.replace(/^改写后的任务：/, "").trim();
+      currentSection = null;
+      continue;
+    }
+    if (line.startsWith("识别场景：")) {
+      summary.sceneLine = line.replace(/^识别场景：/, "").trim();
+      summary.isMultiScene = summary.sceneLine.includes("场景模式：multi");
+      currentSection = null;
+      continue;
+    }
+    if (line.startsWith("路由原因：")) {
+      summary.routeReason = line.replace(/^路由原因：/, "").trim();
+      currentSection = null;
+      continue;
+    }
+    if (line.startsWith("主要目标：")) {
+      summary.primaryGoal = line.replace(/^主要目标：/, "").trim();
+      currentSection = null;
+      continue;
+    }
+    if (line.startsWith("任务切分：")) {
+      currentSection = "task_spans";
+      continue;
+    }
+    if (line.startsWith("场景任务：")) {
+      currentSection = "scene_tasks";
+      continue;
+    }
+    if (line.startsWith("任务提示：")) {
+      currentSection = "task_hints";
+      continue;
+    }
+    if (line.startsWith("本轮可用 skills：")) {
+      const skills = line.replace(/^本轮可用 skills：/, "").trim();
+      summary.selectedSkills = skills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+      currentSection = "skills";
+      continue;
+    }
+
+    if (!line.startsWith("- ")) {
+      continue;
+    }
+
+    const value = line.slice(2).trim();
+    if (currentSection === "task_spans") {
+      summary.taskSpans.push(value);
+      continue;
+    }
+    if (currentSection === "task_hints") {
+      summary.taskHints.push(value);
+      continue;
+    }
+    if (currentSection === "skills") {
+      summary.selectedSkills.push(value);
+      continue;
+    }
+    if (currentSection === "scene_tasks") {
+      const match = /^([^:：]+)(?:（([^）]+)）)?[:：]\s*(.*?)(?:；参数：(.+))?$/.exec(value);
+      if (match) {
+        summary.sceneTasks.push({
+          scene: match[1]?.trim() ?? "",
+          sceneName: match[2]?.trim() ?? undefined,
+          text: match[3]?.trim() ?? "",
+          params: match[4]?.trim() ?? undefined,
+        });
+      } else {
+        summary.sceneTasks.push({ scene: value, text: "" });
+      }
+      continue;
+    }
+
+    if (line.startsWith("- ")) {
+      const match = /^-\s*(.*?)(?:；场景：([^；]+))?(?:；(?:使用|推荐) skill：(.+))?$/.exec(line);
+      if (match) {
+        const scene = match[2]?.trim() ?? "";
+        const skills = (match[3] ?? "")
+          .split(",")
+          .map((skill) => skill.trim())
+          .filter(Boolean);
+        if (!scene && skills.length === 0) {
+          continue;
+        }
+        summary.routeTasks.push({
+          text: match[1]?.trim() ?? "",
+          scene,
+          skills,
+        });
+      }
+    }
+  }
+
+  return summary;
 }

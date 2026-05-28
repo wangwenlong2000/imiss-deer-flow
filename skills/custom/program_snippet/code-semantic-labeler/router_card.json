@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "code-semantic-labeler",
+    "name": "code-semantic-labeler",
+    "description": "使用责任链模式实现代码语义标注，将代码中的节点映射到城市业务语义。"
+  },
+  "scope": {
+    "scenes": [
+      "program_snippet",
+      "code_analysis",
+      "semantic_labeling",
+      "smart_city_semantics"
+    ],
+    "is_public": true,
+    "task_types": [
+      "semantic_label",
+      "ontology_rule_match",
+      "business_type_mapping",
+      "code_summary"
+    ],
+    "input_types": [
+      "python",
+      "source_code",
+      "ast_nodes",
+      "call_nodes"
+    ],
+    "output_types": [
+      "labeled_nodes_json",
+      "code_summary"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：code-semantic-labeler\n描述：使用责任链模式实现代码语义标注，将代码中的节点映射到城市业务语义。\n适用场景：program_snippet、code_analysis、semantic_labeling、smart_city_semantics。\n适用任务：semantic_label, ontology_rule_match, business_type_mapping, code_summary。\n输入类型：python, source_code, ast_nodes, call_nodes。\n输出类型：labeled_nodes_json, code_summary。\n适合使用：给代码节点打业务语义标签；把 cv2.VideoCapture 标注为 Camera 等业务类型；使用 ontology_rules.json 标注节点；识别 Unknown 或低置信业务标签。\n不适合使用：只生成 AST；只切分代码；只抽取数据流；扫描安全合规问题。",
+    "positive_triggers": [
+      "给代码节点打业务语义标签",
+      "把 cv2.VideoCapture 标注为 Camera 等业务类型",
+      "使用 ontology_rules.json 标注节点",
+      "识别 Unknown 或低置信业务标签"
+    ],
+    "negative_triggers": [
+      "只生成 AST",
+      "只切分代码",
+      "只抽取数据流",
+      "扫描安全合规问题"
+    ],
+    "keywords": [
+      "语义标注",
+      "semantic label",
+      "labeled_nodes",
+      "ontology_rules",
+      "Camera",
+      "Detection",
+      "Tracking",
+      "业务类型"
+    ],
+    "anti_keywords": [
+      "OpenGrep",
+      "SAST",
+      "AST only",
+      "dataflow only"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "# 代码语义标注器\n\n## 基本信息\n- **名称**: 代码语义标注器\n- **描述**: 使用责任链模式实现代码语义标注，将代码中的节点映射到城市业务语义。\n- **版本**: 1.1.0\n- **标签**: 代码分析, 语义标注, 责任链模式\n\n## 功能\n- **责任链模式**：按顺序使用多个标注器，规则库优先，LLM 兜底\n- **规则基于标注**：使用精确或模糊前缀匹配进行语义标注\n- **LLM 兜底**：当规则未命中时，使用 LLM 进行语义标注\n- **代码总结**：当 ontology_rules 中没有标注时，调用大模型对代码进行总结\n- **AST 分析**：使用 code-to-ast-new 进行真实的 AST 分析\n- **本体规则管理**：提供接口管理 ontology_rules，支持从文件加载和保存\n\n## 工作流程\n1. **代码切分**：将原始代码切分为可处理的块（模拟）\n2. **AST 分析**：使用 code-to-ast-new 解析 AST，提取核心变量和函数调用\n3. **语义标注**：使用责任链模式对节点进行语义标注\n4. **代码总结**：当规则未命中时，调用大模型对代码进行总结\n5. **结果输出**：将处理结果组装成统一的 JSON 结构返回\n\n## 参数\n\n### 输入参数\n| 参数名 | 类型 | 描述 | 是否必填 | 默认值 |\n|-------|------|------|---------|-------|\n| code | string | 要分析的 Python 代码字符串 | 是 | 无 |\n| rules_file | string | 本体规则文件路径 | 否 | ontology_rules.json |\n\n### 输出参数\n| 参数名 | 类型 | 描述 |\n|-------|------|------|\n| status | string | 处理状态，成功为 \"success\"，失败为 \"error\" |\n| message | string | 错误信息，仅当 status 为 \"error\" 时存在 |\n| pipeline_steps | array | 执行的管道步骤 |\n| labeled_nodes | array | 标注后的节点列表，每个节点包含 \"name\" 和 \"type\" 字段 |\n| code_summary | string | 代码总结，当规则未命中时生成 |\n\n## 示例\n\n### 输入示例\n```json\n{\n  \"code\": \"import cv2\\n\\n# 读取视频\\ncap = cv2.VideoCapture(0)\\n\\n# 目标检测\\nresults = model.predict(frame)\\n\\n# 目标跟踪\\ntracks = tracker.update(results)\\n\\n# 保存结果\\ndb.save(tracks)\"\n}\n```\n\n### 输出示例\n```json\n{\n  \"status\": \"success\",\n  \"pipeline_steps\": [\"split\", \"ast_extract\", \"semantic_label\", \"code_summary\"],\n  \"labeled_nodes\": [\n    {\"name\": \"cv2.VideoCapture\", \"type\": \"Camera\"},\n    {\"name\": \"model.predict\", \"type\": \"Detection\"},\n    {\"name\": \"tracker.update\", \"type\": \"Tracking\"},\n    {\"name\": \"db.save\", \"type\": \"Database\"}\n  ],\n  \"code_summary\": \"这是一段包含视频流读取和目标检测的 Python 代码。\"\n}\n```\n\n## 命令行使用\n\n### 分析代码\n```bash\npython scripts/label.py \\\n  --code \"import cv2\\ncap = cv2.VideoCapture(0)\\nresults = model.predict(frame)\\ntracks = tracker.update(results)\\ndb.save(tracks)\"\n```\n\n### 分析代码文件\n```bash\npython scripts/label.py \\\n  --file input.py \\\n  --output output.json\n```\n\n### 添加本体规则\n```bash\npython scripts/label.py \\\n  --add-rule \"cv2\" \"Camera\"\n```\n\n### 指定本体规则文件\n```bash\npython scripts/label.py \\\n  --code \"import cv2\\ncap = cv2.VideoCapture(0)\" \\\n  --rules-file custom_rules.json\n```\n\n## 依赖\n- Python 3.7+\n- 标准库 `abc`, `ast`, `json`, `os`, `sys`\n- code-to-ast-new 技能\n\n## 注意事项\n- 此技能使用模拟的 LLM 调用，实际实现中应该调用真实的 LLM API\n- 规则库的质量直接影响标注结果的准确性\n- 对于复杂的代码，可能需要更复杂的 AST 分析逻辑\n- 代码总结功能在规则未命中时触发，提供代码的整体语义理解\n- 本体规则文件默认保存在技能目录下的 ontology_rules.json 文件中\n\n## 扩展指南\n\n### 添加新的标注器\n1. 继承 `BaseLabeler` 类\n2. 实现 `label` 方法\n3. 将新标注器添加到 `SemanticLabelingPipeline` 中\n\n### 修改本体规则\n1. 编辑 ontology_rules.json 文件\n2. 或使用命令行参数 `--add-rule` 添加规则\n3. 或使用 `OntologyManager` 类的方法管理规则\n\n### 集成真实的 LLM\n1. 修改 `LLMFallbackLabeler._call_llm_api` 方法，调用真实的 LLM API\n2. 修改 `CodeSummarizer._call_llm_api` 方法，调用真实的 LLM API\n\n### 集成真实的代码切分\n修改 `DeerFlowOrchestrator._mock_code_split` 方法，集成真实的代码切分技能\n"
+  },
+  "execution": {
+    "required_tools": [
+      "python"
+    ],
+    "optional_tools": [
+      "llm_fallback"
+    ],
+    "allowed_file_patterns": [
+      "*.py",
+      "ontology_rules.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "pipeline-graph-builder",
+      "code-business-dag-analysis-pipeline"
+    ]
+  },
+  "routing_policy": {
+    "priority": 84,
+    "conflict_group": "code_semantic_labeling",
+    "prefer_when": [
+      "用户要求把代码调用节点映射为业务类型",
+      "需要基于本体规则或 LLM 兜底生成 labeled_nodes"
+    ],
+    "defer_when": [
+      "用户要求完整业务 DAG 诊断时，交给 code-business-dag-analysis-pipeline 编排"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/program_snippet/code-semantic-labeler",
+    "skill_md_path": "skills/custom/program_snippet/code-semantic-labeler/SKILL.md",
+    "skill_md_hash": "sha256:b41171eebf76b2d4eafadc98882143c05ba75ea2defef8f851cb084c4d1d41f6",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:b4a8558453bb1193d0a2dde764d08c0fd3ff4f2cd900b06b5177a4e1fccd3f8b",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "code-semantic-labeler"
+  }
+}

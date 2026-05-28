@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "sichuan-shaanxi-comparison",
+    "name": "sichuan-shaanxi-comparison",
+    "description": "比较四川与陕西电话网络数据在对象规模、风险标签、行为模式、共享设备规模、群体结构、时间覆盖和代表性对象上的地域差异。该 skill 只做地域对比和汇报材料，不做跨省同实体联动、跨省共享设备识别或跨省共同对端识别。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "province_comparison",
+      "regional_contrast",
+      "sichuan_shaanxi",
+      "comparison_report"
+    ],
+    "input_types": [
+      "unified_dataset",
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "comparison_report",
+      "technical_report",
+      "presentation_report",
+      "csv",
+      "json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：sichuan-shaanxi-comparison\n描述：比较四川与陕西电话网络数据在对象规模、风险标签、行为模式、共享设备规模、群体结构、时间覆盖和代表性对象上的地域差异。该 skill 只做地域对比和汇报材料，不做跨省同实体联动、跨省共享设备识别或跨省共同对端识别。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：province_comparison, regional_contrast, sichuan_shaanxi, comparison_report。\n输入类型：unified_dataset, dataset_root, user_nodes.csv, call_edges.csv, edges_phone_imei.parquet。\n输出类型：comparison_report, technical_report, presentation_report, csv, json。\n适合使用：比较四川和陕西电话网络数据差异；四川和陕西的风险特征有什么不同；两个省的行为模式、群体结构和对象分布有什么差异；做地域对比。\n不适合使用：跨省同实体联动；判断四川和陕西是否同一真实设备；跨省共享设备识别；跨省共同对端识别；分析单个号码。\n关键词：四川，陕西，地域对比，省份对比，差异，行为模式，风险特征，甲方汇报。\n反关键词：跨省同实体，真实共享设备，共同对端，单号，建图。",
+    "positive_triggers": [
+      "比较四川和陕西电话网络数据差异",
+      "四川和陕西的风险特征有什么不同",
+      "两个省的行为模式、群体结构和对象分布有什么差异",
+      "做地域对比"
+    ],
+    "negative_triggers": [
+      "跨省同实体联动",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "判断四川和陕西是否同一真实设备",
+      "跨省共享设备识别",
+      "跨省共同对端识别",
+      "分析单个号码"
+    ],
+    "keywords": [
+      "四川",
+      "陕西",
+      "地域对比",
+      "省份对比",
+      "差异",
+      "行为模式",
+      "风险特征",
+      "甲方汇报"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "跨省同实体",
+      "真实共享设备",
+      "共同对端",
+      "单号",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: sichuan-shaanxi-comparison\ndescription: 比较四川与陕西电话网络数据在对象规模、风险标签、行为模式、共享设备规模、群体结构、时间覆盖和代表性对象上的地域差异。该 skill 只做地域对比和汇报材料，不做跨省同实体联动、跨省共享设备识别或跨省共同对端识别。\n---\n\n# sichuan-shaanxi-comparison\n\n## 作用定位\n\n`sichuan-shaanxi-comparison` 是电话网络数据分析体系中的**地域对比分析 skill**，面向已经预处理成统一图结构的电话网络数据，专门比较四川与陕西两个地区在对象规模、风险标签、通话行为、共享设备、群体结构和代表性对象上的差异。\n\n它用于回答：\n\n- 四川和陕西的数据规模有什么不同？\n- 两地风险对象分布有什么不同？\n- 两地通话活跃度、联系人广度、夜间行为有什么不同？\n- 两地共享设备和设备池风险是否不同？\n- 两地群体结构和代表性对象有什么差异？\n- 后续应调用哪些 skill 继续下钻？\n\n本 skill 不输出最终定性结论，只输出基于当前数据的地域差异证据和后续研判入口。\n\n---\n\n## 必须注意：不要用其他 skill 替代本 skill\n\n当前任务只要明确要求“四川-陕西对比”“四川与陕西地域对比”“两省风险特征/行为模式/群体结构差异”，必须优先运行本目录下的：\n\n```bash\nsichuan_shaanxi_comparison_wrapper.py\n```\n\n不要用 `condition-based-screening` 的两个省份筛选结果手工拼接来替代本 skill。原因是：\n\n- `condition-based-screening` 是条件筛选工具，适合回答“满足某些条件的对象有哪些”；\n- `sichuan-shaanxi-comparison` 是全量地域对比工具，适合回答“两地整体差异是什么”；\n- 两者可以互补，但不能互相替代。\n\n本 skill 生成的正式文件名必须以：\n\n```text\nsichuan_shaanxi_comparison_\n```\n\n开头。如果输出文件全是 `condition_screening_...`，说明前端没有正确执行本 skill。\n\n---\n\n## 适用数据\n\n默认使用电话网络统一数据集：\n\n```text\n/mnt/datasets/phone-network/processed/unified/user_nodes.csv\n/mnt/datasets/phone-network/processed/unified/call_edges.csv\n/mnt/datasets/phone-network/processed/graph_views/unified/edges_phone_imei.parquet\n```\n\n在本地项目 Docker 容器中测试时，通常路径为：\n\n```text\n/workspace/imiss-deer-flow-main/datasets/phone-network/processed/unified/user_nodes.csv\n/workspace/imiss-deer-flow-main/datasets/phone-network/processed/unified/call_edges.csv\n/workspace/imiss-deer-flow-main/datasets/phone-network/processed/graph_views/unified/edges_phone_imei.parquet\n```\n\n如果用户没有指定数据集，优先使用：\n\n```text\ndataset=unified\n```\n\n---\n\n## 与基础算子的关系\n\n本 skill 是由电话网络基础图分析算子组合实现的，不是单独脱离现有体系的新逻辑。\n\n| 分析内容 | 对应基础算子风格 |\n|---|---|\n| 对象规模、标签分布、省份分布 | `node_lookup + aggregation_query` |\n| 通话记录规模、联系人广度、夜间占比 | `relationship_filter + aggregation_query` |\n| 共享设备、设备池、跨省设备样例 | `query_shared_device + aggregation_query` |\n| 代表性对象排序 | `aggregation_query + scoring_layer` |\n| 群体结构指标 | `subgraph_by_nodes / aggregation_query + scoring_layer` |\n| 地域差异解释 | `province filter + metric contrast + evidence ranking` |\n\n---\n\n## 分析口径\n\n本 skill 默认做的是**全量地域对比**，不是条件筛选。\n\n它会比较：\n\n1. 对象规模和风险比例；\n2. `label / sub_label` 分布；\n3. 通话记录、联系人广度、夜间占比；\n4. 时间覆盖与归一化行为强度；\n5. 共享设备、设备池和高挂载设备；\n6. 群体结构指标；\n7. 两省代表性对象和共享设备样例。\n\n由于四川和陕西数据的时间覆盖可能不同，报告中会明确给出“时间可比性提醒”。跨省比较时，应优先参考人均、日均和比例类指标，不要只看原始通话总量。\n\n---\n\n## 运行方式\n\n### 前端/平台默认运行\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts && python3 sichuan_shaanxi_comparison_wrapper.py \\\n  --dataset unified \\\n  --province-a sichuan \\\n  --province-b shaanxi \\\n  --top-k 10\n```\n\n### 本地项目容器运行\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts\npython3 sichuan_shaanxi_comparison_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --province-a sichuan \\\n  --province-b shaanxi \\\n  --top-k 10\n```\n\n### 一键测试\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts\nbash test_sichuan_shaanxi_comparison.sh\n```\n\n---\n\n## 主要参数\n\n| 参数 | 说明 | 默认值 |\n|---|---|---|\n| `--dataset-root` | 电话网络数据根目录 | 自动识别 `/workspace/...` 或 `/mnt/datasets/...` |\n| `--dataset` | 数据集名称 | `unified` |\n| `--province-a` | 第一个对比省份 | `sichuan` |\n| `--province-b` | 第二个对比省份 | `shaanxi` |\n| `--top-k` | 每个省份输出的 Top 样例数量 | `10` |\n| `--output-dir` | 输出目录 | `/mnt/user-data/outputs` |\n\n---\n\n## 输出内容\n\n本 skill 会生成一组结构化结果。\n\n### 1. Markdown 报告\n\n- `sichuan_shaanxi_comparison_unified.md`：技术版完整报告\n- `sichuan_shaanxi_comparison_unified_presentation.md`：甲方汇报版报告\n\n### 2. CSV 证据表\n\n- `node_overview.csv`：两省对象规模、风险数、风险占比\n- `label_distribution.csv`：两省 label 分布\n- `sub_label_distribution.csv`：两省 sub_label 分布\n- `call_behavior.csv`：通话行为和时间归一化指标\n- `hourly_distribution.csv`：小时分布对比\n- `device_summary.csv`：共享设备对比\n- `top_shared_devices.csv`：Top 共享设备样例\n- `cross_device_examples.csv`：跨省共享设备样例，如果存在则输出\n- `structure_metrics.csv`：群体结构指标\n- `metric_contrast.csv`：关键差异指标\n- `top_objects.csv`：两省代表性对象样例\n- `top_callers.csv`：两省高活跃号码样例\n\n### 3. 结构化附件\n\n- `summary.json`：结构化摘要\n- `evidence.xlsx`：多 sheet 证据工作簿\n\n---\n\n## 前端使用提示词\n\n### Q1：完整地域对比分析\n\n```text\n请使用 sichuan-shaanxi-comparison skill，对 unified 电话网络数据中的四川和陕西开展全量地域对比分析。要求必须运行 sichuan_shaanxi_comparison_wrapper.py，不要用 condition-based-screening 代替。请输出对象规模、风险标签分布、通话行为模式、时间覆盖与归一化指标、共享设备信号、群体结构差异、代表性对象样例，并生成 markdown 报告和 csv/xlsx/json 附件。\n```\n\n### Q2：甲方汇报版\n\n```text\n请使用 sichuan-shaanxi-comparison skill，生成一份适合甲方汇报的四川-陕西电话网络地域对比报告。要求必须展示 sichuan_shaanxi_comparison_unified_presentation.md，并同时提供技术版 markdown、summary.json、evidence.xlsx 和 csv 证据附件下载入口。重点说明两地风险特征、行为模式、群体结构、时间覆盖口径和后续分析建议。\n```\n\n### Q3：设备与团伙线索重点版\n\n```text\n请使用 sichuan-shaanxi-comparison skill，对四川和陕西进行地域对比，重点关注共享设备、设备池风险、群体结构差异和代表性风险对象。必须运行本 skill 的 wrapper 脚本，并输出后续可联动 shared-device-analysis、gang-cluster-analysis、dataset-quality-and-linkability-diagnostic 的建议。\n```\n\n---\n\n## 结果解释原则\n\n1. 地域差异不等于风险定性，只说明当前数据中的统计差异。\n2. 如果两省时间覆盖不同，原始通话总量只能作为规模背景，应优先参考人均、日均和比例类指标。\n3. 共享设备、共同对端、夜间行为等都属于证据信号，需要结合后续 skill 下钻确认。\n4. Top 对象样例用于后续分析入口，不代表最终名单。\n5. 如果出现疑似跨省共享设备样例，不应直接判定为跨省同实体联动，应先交给 `dataset-quality-and-linkability-diagnostic` 做跨省可联动性诊断，并提醒当前 unified 数据不支持可靠跨省同实体联动。\n6. 如果需要单个号码解释，应调用 `risk-evidence-pack` 或 `single-number-analysis`。\n7. 如果需要“按联系人广度、共享设备、省份等条件筛选”，应另行调用 `condition-based-screening`，不要把它的筛选结果当作本 skill 的地域总览报告。\n\n---\n\n## 推荐后续链路\n\n完成本 skill 后，建议按以下路径继续：\n\n1. `dataset-quality-and-linkability-diagnostic`：如用户要求跨省同实体联动，先做跨省可联动性诊断，并提醒当前 unified 数据不支持可靠跨省同实体联动。\n2. `risk-evidence-pack`：对代表性号码生成完整证据包。\n3. `shared-device-analysis`：对 Top 共享设备做设备池深挖。\n4. `gang-cluster-analysis`：对疑似设备池或群体结构做团伙簇识别。\n5. `time-series-anomaly-analysis`：对两省重点对象进行阶段性行为变化分析。\n\n\n## 前端调用强约束\n\n当用户要求“四川-陕西对比”“地域对比”“两省风险特征差异”时，必须调用本目录下的 `scripts/sichuan_shaanxi_comparison_wrapper.py`。不要用 `condition-based-screening` 分别筛选两省后手工拼接报告，因为那是条件切片分析，不是全量地域对比。\n\n输出报告必须明确展示：\n\n1. 这是全量地域对比，不是条件切片；\n2. 两省时间覆盖不同，原始总量只作规模背景；\n3. 跨省行为对比优先看比例、人均、日均、每活跃号码日均指标；\n4. 如用户需要特定条件对象对比，才另行调用 `condition-based-screening`。\n\n\n## 附件展示模式\n\n本技能支持 `--artifact-mode` 控制前端展示的下载附件数量：\n\n- `full`：默认模式，展示技术报告、演示报告、全部 CSV、summary JSON 和 evidence XLSX，适合命令行验收和证据链检查。\n- `essential`：只展示技术报告、演示报告、summary JSON 和 evidence XLSX，适合常规前端分析。\n- `markdown_only`：只展示两个 Markdown 报告，适合用户明确说“只要 markdown 报告”或希望前端输出简洁的场景。\n\n如果用户明确要求“只要 markdown 报告”，前端必须在执行命令时加上：\n\n```bash\n--artifact-mode markdown_only\n```\n\n注意：即使使用 `markdown_only`，脚本仍会在输出目录生成完整证据文件，只是不把 CSV/XLSX/JSON 放入 `artifacts` 展示列表，避免前端下载卡片过多。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 88,
+    "conflict_group": "phone_network_regional_comparison",
+    "prefer_when": [
+      "用户明确比较四川和陕西整体差异",
+      "用户要求地域对比或甲方汇报版对比报告"
+    ],
+    "defer_when": [
+      "用户要求跨省同实体联动时应转给数据质量诊断并提醒当前不支持",
+      "用户只分析一个省内部对象时优先对应业务分析 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/sichuan-shaanxi-comparison",
+    "skill_md_path": "skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/SKILL.md",
+    "skill_md_hash": "sha256:4d69201385e4f70404093ec0ce6cabde9ac44909e6c7622a91f12ae4f4c41449",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:ecc3041c3f0d9fdf7830c384cd67485cbe9d43c77e1d890baf04ed5cd3568b82",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "sichuan-shaanxi-comparison"
+  }
+}

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from deerflow.skills.loader import get_skills_root_path, load_skills
+from deerflow.skills.loader import get_skills_root_path, load_custom_skills, load_public_skills, load_skills
 
 
 def _write_skill(skill_dir: Path, name: str, description: str) -> None:
@@ -64,3 +64,26 @@ def test_load_skills_skips_hidden_directories(tmp_path: Path):
 
     assert "ok-skill" in names
     assert "secret-skill" not in names
+
+
+def test_load_skills_can_filter_by_category(tmp_path: Path):
+    """Public and custom skill inventories can be loaded independently."""
+    skills_root = tmp_path / "skills"
+
+    _write_skill(skills_root / "public" / "data-analysis", "data-analysis", "Data analysis")
+    _write_skill(skills_root / "custom" / "network" / "traffic", "network-traffic-analysis", "Traffic analysis")
+
+    public_skills = load_public_skills(skills_path=skills_root, use_config=False, enabled_only=False)
+    custom_skills = load_custom_skills(skills_path=skills_root, use_config=False, enabled_only=False)
+    explicit_public = load_skills(
+        skills_path=skills_root,
+        use_config=False,
+        enabled_only=False,
+        categories={"public"},
+    )
+
+    assert [skill.name for skill in public_skills] == ["data-analysis"]
+    assert [skill.name for skill in custom_skills] == ["network-traffic-analysis"]
+    assert [skill.name for skill in explicit_public] == ["data-analysis"]
+    assert public_skills[0].is_public is True
+    assert custom_skills[0].is_custom is True

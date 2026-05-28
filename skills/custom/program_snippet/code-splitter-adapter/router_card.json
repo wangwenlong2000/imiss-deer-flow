@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "code-splitter-adapter",
+    "name": "code-splitter-adapter",
+    "description": "使用适配器模式和工厂模式封装 LangChain 和 LlamaIndex 中的代码切分工具，对外提供统一的调用接口。"
+  },
+  "scope": {
+    "scenes": [
+      "program_snippet",
+      "code_analysis",
+      "code_chunking",
+      "rag_preprocessing"
+    ],
+    "is_public": true,
+    "task_types": [
+      "code_split",
+      "chunk_generation",
+      "splitter_strategy_selection"
+    ],
+    "input_types": [
+      "source_code",
+      "repository_file"
+    ],
+    "output_types": [
+      "code_chunks_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：code-splitter-adapter\n描述：使用适配器模式和工厂模式封装 LangChain 和 LlamaIndex 中的代码切分工具，对外提供统一的调用接口。\n适用场景：program_snippet、code_analysis、code_chunking、rag_preprocessing。\n适用任务：code_split, chunk_generation, splitter_strategy_selection。\n输入类型：source_code, repository_file。\n输出类型：code_chunks_json。\n适合使用：切分代码为 chunks；选择 LangChain 或 LlamaIndex 代码切分策略；为 RAG 或代码分析准备片段；按语言拆分函数、类或模块级代码。\n不适合使用：直接生成业务 DAG；只转 AST；只抽取数据流；扫描漏洞合规。",
+    "positive_triggers": [
+      "切分代码为 chunks",
+      "选择 LangChain 或 LlamaIndex 代码切分策略",
+      "为 RAG 或代码分析准备片段",
+      "按语言拆分函数、类或模块级代码"
+    ],
+    "negative_triggers": [
+      "直接生成业务 DAG",
+      "只转 AST",
+      "只抽取数据流",
+      "扫描漏洞合规"
+    ],
+    "keywords": [
+      "代码切分",
+      "chunk",
+      "splitter",
+      "LangChain",
+      "LlamaIndex",
+      "code-splitter-adapter"
+    ],
+    "anti_keywords": [
+      "OpenGrep",
+      "SAST",
+      "AST only",
+      "业务DAG完整诊断"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: code-splitter-adapter\ndescription: 使用适配器模式和工厂模式封装 LangChain 和 LlamaIndex 中的代码切分工具，对外提供统一的调用接口。\n---\n\n# 代码切分工具适配器技能\n\n## 概述\n\n此技能使用适配器模式和工厂模式，对 LangChain 和 LlamaIndex 中的代码切分工具进行标准化封装，对外提供统一的调用接口。它支持多种编程语言的代码切分，可以根据需要选择不同的切分策略。\n\n## 核心功能\n\n- **统一接口**：提供统一的 `split_code` 方法，屏蔽底层实现差异\n- **多策略支持**：支持 LangChain 和 LlamaIndex 两种切分策略\n- **多语言支持**：支持多种编程语言的代码切分\n- **错误处理**：对 LlamaIndex 解析失败的情况提供友好的错误信息\n- **元数据支持**：支持附加元数据到切分后的代码片段\n\n## 工作流程\n\n### 步骤 1：选择切分策略\n\n用户可以选择使用 LangChain 或 LlamaIndex 的切分策略。\n\n### 步骤 2：配置切分参数\n\n根据需要配置切分参数，如 chunk_size、chunk_overlap 等。\n\n### 步骤 3：调用切分方法\n\n使用统一的 `split_code` 方法切分代码。\n\n### 步骤 4：获取切分结果\n\n获取标准化格式的切分结果。\n\n## 使用示例\n\n### 基本使用\n\n```python\nfrom code_splitter import get_code_splitter\n\n# 使用 LangChain 策略\nlangchain_splitter = get_code_splitter(strategy=\"langchain\", chunk_size=1000, chunk_overlap=200)\nresult = langchain_splitter.split_code(\n    code=\"def foo():\\n    pass\\n\\nclass Bar:\\n    pass\",\n    language=\"python\",\n    metadata={\"source\": \"utils.py\"}\n)\n\n# 使用 LlamaIndex 策略\nllamaindex_splitter = get_code_splitter(strategy=\"llamaindex\")\nresult = llamaindex_splitter.split_code(\n    code=\"def foo():\\n    pass\\n\\nclass Bar:\\n    pass\",\n    language=\"python\",\n    metadata={\"source\": \"utils.py\"}\n)\n```\n\n### 命令行使用\n\n```bash\npython /mnt/skills/custom/program_snippet/code-splitter-adapter/scripts/split.py \\\n  --strategy langchain \\\n  --code \"def foo():\\n    pass\\n\\nclass Bar:\\n    pass\" \\\n  --language python \\\n  --metadata '{\"source\": \"utils.py\"}'\n```\n\n## 参数\n\n| 参数 | 描述 |\n|------|------|\n| `strategy` | 切分策略，可选值为 \"langchain\" 或 \"llamaindex\" |\n| `code` | 要切分的代码字符串 |\n| `language` | 代码的编程语言 |\n| `metadata` | 附加的元数据 |\n| `chunk_size` | 切分后的代码块大小（仅 LangChain 策略） |\n| `chunk_overlap` | 代码块之间的重叠大小（仅 LangChain 策略） |\n\n## 支持的编程语言\n\n### LangChain 支持的语言\n\n- python\n- java\n- javascript\n- typescript\n- html\n- css\n- markdown\n- json\n- xml\n- sql\n- rust\n- go\n- cpp\n- c++ (alias for cpp)\n- c\n- php\n- ruby\n- swift\n- kotlin\n\n### LlamaIndex 支持的语言\n\n- python\n- javascript\n- typescript\n- java\n- c\n- cpp\n- rust\n- go\n- ruby\n- php\n- swift\n- kotlin\n\n## 输出格式\n\n无论使用哪种切分策略，返回的结果格式都是一致的：\n\n```json\n[\n    {\"content\": \"def foo():\\n    pass\", \"metadata\": {\"source\": \"utils.py\", \"chunk_index\": 0}},\n    {\"content\": \"class Bar:\\n    pass\", \"metadata\": {\"source\": \"utils.py\", \"chunk_index\": 1}}\n]\n```\n\n## 依赖\n\n- Python 3.7+\n- langchain-text-splitters (使用 LangChain 策略时)\n- llama-index (使用 LlamaIndex 策略时)\n- tree-sitter (使用 LlamaIndex 策略时，用于 AST 解析)\n\n## 安装依赖\n\n```bash\n# 安装 LangChain 依赖\npip install langchain-text-splitters\n\n# 安装 LlamaIndex 依赖\npip install llama-index\n\n# 安装 tree-sitter 语言包（根据需要）\npip install tree-sitter-python tree-sitter-javascript # 示例\n```\n\n## 注意事项\n\n- 使用 LlamaIndex 策略时，需要安装对应的 tree-sitter 语言包\n- 对于复杂的代码，不同的切分策略可能会产生不同的切分结果\n- 切分参数的选择会影响切分质量，建议根据具体场景调整\n"
+  },
+  "execution": {
+    "required_tools": [
+      "python"
+    ],
+    "optional_tools": [
+      "langchain-text-splitters",
+      "llama-index",
+      "tree-sitter"
+    ],
+    "allowed_file_patterns": [
+      "*.py",
+      "*.js",
+      "*.ts",
+      "*.java",
+      "*.cpp",
+      "*.go",
+      "*.rs"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "code-rag",
+      "code-business-dag-analysis-pipeline"
+    ]
+  },
+  "routing_policy": {
+    "priority": 80,
+    "conflict_group": "code_chunking",
+    "prefer_when": [
+      "用户只要求代码切分、chunk 生成或切分策略对比",
+      "需要为代码 RAG 或后续流水线准备片段"
+    ],
+    "defer_when": [
+      "用户要求完整业务 DAG 时，交给 code-business-dag-analysis-pipeline"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/program_snippet/code-splitter-adapter",
+    "skill_md_path": "skills/custom/program_snippet/code-splitter-adapter/SKILL.md",
+    "skill_md_hash": "sha256:04a078847a1209c2568a346694f270c92db0808a4658418141765de7454b2356",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:464455040997fb040f599dff3f61c117ed5427e56941af978b2663eb371e7b65",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "code-splitter-adapter"
+  }
+}

@@ -430,6 +430,151 @@ SkillRouter 专用索引的 ES mapping：
 
 所有自定义场景 Skill 在执行分析后，应将最终输出标准化为 `SkillResult` 形状。这确保前端、后端、报告生成和后续 Agent 能统一消费 Skill 输出。
 
+机器可校验的 JSON Schema 位于：
+
+```text
+skills/skill_result.schema.json
+```
+
+`SkillResult` 是统一输出底座，不单独为 retrieve 再另起一套输出协议。执行型 Skill 和 retrieve 型 Skill 都应返回该 envelope；retrieve 型 Skill 可在 `result.evidence[].query_id`、`result.evidence[].token_estimate` 和 `diagnostics.retrieval` 中补充检索剖面字段。
+
+---
+
+## 5A. Skill Input Envelope 输入规范
+
+Planner 或 SkillRouter 调用 Skill 前，应先生成标准化的 `SkillInputEnvelope`。它是调度层到 Skill adapter 的输入契约，不要求现有 Skill 立即修改实现。
+
+机器可校验的 JSON Schema 位于：
+
+```text
+skills/skill_input_envelope.schema.json
+```
+
+### 5A.1 定位
+
+`SkillInputEnvelope` 用于描述一次 Skill 调用需要的用户问题、文件、数据源、参数、上下文、预算和路由信息。
+
+现有 Skill 可以继续按原有方式运行：
+
+```text
+Planner / SkillRouter
+  ↓
+SkillInputEnvelope
+  ↓
+Adapter
+  ↓
+现有 Skill 实现
+  ↓
+SkillResult
+```
+
+Adapter 负责把 Envelope 转成现有 Skill 需要的文件路径、CLI 参数、环境变量或 `selected_data_sources`。
+
+### 5A.2 顶层结构
+
+```json
+{
+  "schema_version": "1.0",
+  "request_id": "uuid",
+  "skill_name": "network-traffic-analysis",
+  "scenario": "network_traffic",
+  "capability": "pcap_analysis",
+  "query": {
+    "raw": "请分析这个 pcap 的异常通信",
+    "rewritten": "分析 pcap 文件中的异常通信、可疑域名和安全事件",
+    "sub_queries": [
+      {"query_id": "q1", "text": "识别异常通信", "intent": "anomaly_search"}
+    ]
+  },
+  "inputs": {
+    "files": [
+      {
+        "path": "/mnt/user-data/uploads/sample.pcap",
+        "input_type": "pcap",
+        "role": "primary"
+      }
+    ],
+    "data_sources": [],
+    "parameters": {"view": "auto"}
+  },
+  "budget": {
+    "max_evidence_count": 8,
+    "max_token_estimate": 6000
+  },
+  "routing": {
+    "selected_skill": "network-traffic-analysis",
+    "retrieval_mode": "none",
+    "priority": "normal"
+  }
+}
+```
+
+### 5A.3 字段约定
+
+| 字段 | 说明 |
+|------|------|
+| `query.raw` | 用户原始问题，必须保留 |
+| `query.rewritten` | Planner 面向目标 Skill 改写后的问题 |
+| `query.sub_queries` | 复合 query 拆解结果，每个子问题必须有 `query_id` |
+| `inputs.messages` | 可选保留 Anthropic-style 原始消息，不作为唯一 Skill 输入协议 |
+| `inputs.files` | 上传文件或本地文件引用 |
+| `inputs.data_sources` | 数据集、索引、数据库、知识库、API 等来源 |
+| `inputs.parameters` | Skill 特定参数，由各 `SKILL.md` 的 Input handling 说明 |
+| `context` | 线程、用户、语言、时区、约束等上下文 |
+| `budget` | Planner 设置的预算，retrieve 型 Skill 必须尊重 |
+| `routing` | 本次调度的 Skill、segment、依赖和检索模式 |
+| `legacy` | 兼容现有 Skill 实现的 adapter 提示，不作为新 Skill 的首选接口 |
+
+在关闭 SkillRouter、只启用场景过滤时，场景过滤输出的是 `routing.allowed_skills` 候选集合。LeadAgent 或 Planner 需要先从候选集合里选出具体 `routing.selected_skill`，Input Adapter 再基于 `selected_skill + SkillInputEnvelope` 做 legacy 调用转换。不要把场景下全部 Skill 直接交给 Input Adapter。
+
+系统层 adapter 入口为：
+
+```text
+invoke_skill
+```
+
+使用方式：
+
+```text
+LeadAgent 选中 selected_skill
+  ↓
+invoke_skill(mode="prepare", skill_name=selected_skill, input_envelope=...)
+  ↓
+读取返回的 skill 文件并按现有 SKILL.md 流程执行
+  ↓
+invoke_skill(mode="wrap_output", skill_name=selected_skill, legacy_output=..., legacy_artifacts=...)
+  ↓
+得到校验通过的 SkillResult
+```
+
+### 5A.4 与 SKILL.md 的关系
+
+`SkillInputEnvelope` 是统一输入底座；`SKILL.md` 只需要声明本 Skill 如何消费它，不需要复制完整 JSON Schema。
+
+推荐每个新 Skill 在 `SKILL.md` 中加入：
+
+```markdown
+## Input handling
+
+This Skill accepts the unified SkillInputEnvelope.
+
+Required:
+- `query.raw`
+- `inputs.files[]`: ...
+
+Optional:
+- `inputs.parameters.<name>`: ...
+- `budget.max_evidence_count`
+- `budget.max_token_estimate`
+
+Adapter behavior:
+- ...
+```
+
+### 5A.5 与 retrieve 调度的关系
+
+retrieve 型 Skill 必须读取并尊重 `budget.max_evidence_count` 和 `budget.max_token_estimate`。如果 Planner 拆解了复合 query，retrieve 返回的 `SkillResult.result.evidence[]` 应回填对应的 `query_id`，方便聚合层按子问题对齐、去重、排序和裁剪。
+
 ### 5.1 顶层结构
 
 ```json
@@ -512,7 +657,7 @@ SkillRouter 专用索引的 ES mapping：
 | `text` | 纯文本 |
 | `file` | 文件引用 |
 
-每种类型的字段详见 `CUSTOM_SKILL_STANDARD.md`。
+每条 evidence 至少应包含 `evidence_id`、`type`、`title`。retrieve 型 Skill 返回的 evidence 应额外带上 `query_id`；如能估算上下文成本，应带上 `token_estimate`，便于聚合层按预算裁剪。
 
 #### artifacts — 生成的文件
 
@@ -534,6 +679,19 @@ SkillRouter 专用索引的 ES mapping：
   "data_quality": {"rows_read": 55, "rows_analyzed": 12},
   "provenance": [{"source": "abuse.ch SSLBL", "url": "...", "retrieved_at": "..."}],
   "runtime": {"started_at": "...", "duration_ms": 1830}
+}
+```
+
+retrieve 型 Skill 可在 `diagnostics.retrieval` 中记录本次检索的预算、实际 token 估算、子 query 和参与的 retriever：
+
+```json
+{
+  "retrieval": {
+    "query_ids": ["q1", "q2"],
+    "budget": {"max_evidence_count": 8, "max_token_estimate": 6000},
+    "token_estimate": 4200,
+    "retrievers": ["policy-rag", "law-local-retrieval"]
+  }
 }
 ```
 
@@ -576,6 +734,8 @@ SkillRouter 专用索引的 ES mapping：
 
 ### 6.1 路由流程
 
+默认推荐使用 `scene_rerank` 模式：场景过滤负责粗筛，Reranker 只在场景候选内排序。Embedding/ES 不再承担业务域粗筛职责，只作为无场景 fallback 或兼容旧模式使用。
+
 ```
 用户 query + uploaded_files
     │
@@ -583,23 +743,43 @@ SkillRouter 专用索引的 ES mapping：
     │
     ▼ L1: 任务粗拆分 → task_segments[]
     │
-    ▼ L2: Embedding API 为每个 segment 生成 query vector
+    ▼ L2: scene filter 从本地 router_card 取该场景全部 custom skills
     │
-    ▼ L3: Elasticsearch Top-K 召回候选 Router Cards
-    │     (过滤: enabled=true; v1 后过滤: skill_id ∈ base_scope)
+    ▼ L3: base_scope 过滤候选
     │
-    ▼ L4: Reranker API 精排
+    ▼ L4: Reranker API 在场景候选内精排
     │
-    ▼ L5: 公共 Skill 约束（每 segment 最多 2 个）
+    ▼ L5: resolver 选择 primary/supporting skills
     │
     ▼ L6: 生成 routing_context（写入 ThreadState）
     │
     ▼ L7: 生成 skills_override SystemMessage（注入 Agent）
 ```
 
-### 6.2 SkillRouter 读取的 ES 文档字段
+fallback 规则：
 
-SkillRouter 中间件从 ES 召回的每条候选文档中读取以下字段：
+| 情况 | 行为 |
+|------|------|
+| 有高置信 scene | 只在该 scene 的 custom skills 内 rerank |
+| 多 scene / 多 segment | 每个 segment 使用自己的 scene 候选；最终合并结果 |
+| 无 scene 且 `fallback_global_when_no_scene=true` | 走旧 embedding + ES 召回 + rerank |
+| 无 scene 且 `fallback_global_when_no_scene=false` | 不召回 custom skills，交给公共 skill 或普通 Agent |
+
+配置项：
+
+```yaml
+skill_router:
+  enabled: true
+  mode: scene_rerank
+  scene_prefilter_enabled: true
+  fallback_global_when_no_scene: true
+```
+
+旧模式仍可通过 `mode: embedding_rerank` 启用，此时流程为 Embedding API → ES Top-K → Reranker API。
+
+### 6.2 SkillRouter 读取的候选字段
+
+`scene_rerank` 模式从本地 `router_card.json` 读取候选；`embedding_rerank` 模式从 ES 文档读取候选。两种候选都应规整成同一字段集：
 
 | 字段 | 用途 |
 |------|------|
@@ -611,7 +791,7 @@ SkillRouter 中间件从 ES 召回的每条候选文档中读取以下字段：
 | `task_types` | 任务类型匹配 |
 | `input_types` | 文件类型匹配 |
 | `output_types` | 输出类型推断 |
-| `routing_text` | Embedding 向量来源（不直接使用） |
+| `routing_text` | Reranker 输入；旧模式也用作 Embedding 向量来源 |
 | `body` | Reranker 精排输入 |
 | `enabled` | 过滤禁用的 Skill |
 
@@ -665,7 +845,7 @@ SkillRouter 中间件执行两级 scope 过滤：
 
 ### 7.1 手工步骤
 
-1. 在 `skills/custom/<skill-id>/` 或 `skills/public/<skill-id>/` 下创建目录
+1. 在 `skills/custom/<skill-id>/` 或 `skills/custom/program_snippet/<skill-id>/` 下创建目录
 2. 编写 `SKILL.md`，包含 front matter 和正文
 3. 按需编写 `references/capability-catalog.md`、`references/input-output-contract.md`、`references/playbooks.md`
 
@@ -710,7 +890,7 @@ python scripts/update_skill_router_index.py --skill custom/<skill-id>
 
 | 维度 | 公共 Skill | 场景 Skill |
 |------|-----------|-----------|
-| 路径 | `skills/public/<skill-id>/` | `skills/custom/<skill-id>/` |
+| 路径 | `skills/custom/program_snippet/<skill-id>/` | `skills/custom/<skill-id>/` |
 | `scope.is_public` | `true` | `false` |
 | `scope.scenes` | 必须包含 `"public"` | 填写具体场景名 |
 | `routing_policy.priority` | 建议 50 | 建议 90 |

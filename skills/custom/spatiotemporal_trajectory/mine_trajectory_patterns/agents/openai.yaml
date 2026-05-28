@@ -1,0 +1,4 @@
+name: mine_trajectory_patterns
+display_name: 轨迹模式挖掘
+short_description: 挖掘高频 Geohash 序列、典型通勤链路和区域转移模式。
+default_prompt: "Use $mine_trajectory_patterns when the user asks for frequent trajectory sequences, typical commute paths, movement chains, or transition patterns. Run python3 scripts/mine_trajectory_patterns.py and summarize patterns.jsonl plus transitions.jsonl."

@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "pipeline-reasoner",
+    "name": "pipeline-reasoner",
+    "description": "使用 DeerFlow CloudLLMReasoner 的本地图推理规则分析业务 DAG， 并输出严格 JSON 格式的流水线类型、缺失模块和逻辑异常诊断结果。"
+  },
+  "scope": {
+    "scenes": [
+      "program_snippet",
+      "business_dag",
+      "pipeline_reasoning",
+      "diagnosis"
+    ],
+    "is_public": true,
+    "task_types": [
+      "pipeline_type_inference",
+      "missing_module_detection",
+      "logic_anomaly_detection",
+      "dag_reasoning"
+    ],
+    "input_types": [
+      "business_dag_json",
+      "networkx_graph",
+      "pipeline_nodes_edges"
+    ],
+    "output_types": [
+      "diagnosis_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：pipeline-reasoner\n描述：使用 DeerFlow CloudLLMReasoner 的本地图推理规则分析业务 DAG， 并输出严格 JSON 格式的流水线类型、缺失模块和逻辑异常诊断结果。\n适用场景：program_snippet、business_dag、pipeline_reasoning、diagnosis。\n适用任务：pipeline_type_inference, missing_module_detection, logic_anomaly_detection, dag_reasoning。\n输入类型：business_dag_json, networkx_graph, pipeline_nodes_edges。\n输出类型：diagnosis_json。\n适合使用：诊断业务 DAG 的流水线类型；分析缺失模块；发现逻辑断层、反向依赖或顺序异常；输出 pipeline_type、missing、anomalies。\n不适合使用：从原始代码完整跑流水线；只构建 DAG 不做推理；扫描代码合规漏洞；生成 AST 或 chunks。",
+    "positive_triggers": [
+      "诊断业务 DAG 的流水线类型",
+      "分析缺失模块",
+      "发现逻辑断层、反向依赖或顺序异常",
+      "输出 pipeline_type、missing、anomalies"
+    ],
+    "negative_triggers": [
+      "从原始代码完整跑流水线",
+      "只构建 DAG 不做推理",
+      "扫描代码合规漏洞",
+      "生成 AST 或 chunks"
+    ],
+    "keywords": [
+      "pipeline-reasoner",
+      "CloudLLMReasoner",
+      "missing",
+      "anomalies",
+      "pipeline_type",
+      "流水线诊断"
+    ],
+    "anti_keywords": [
+      "OpenGrep",
+      "SAST",
+      "AST",
+      "chunk"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: pipeline-reasoner\ndescription: >-\n  使用 DeerFlow CloudLLMReasoner 的本地图推理规则分析业务 DAG，\n  并输出严格 JSON 格式的流水线类型、缺失模块和逻辑异常诊断结果。\n---\n\n# Pipeline Reasoner\n\n## 目标\n\nSkill 6 使用 `deerflow.pipeline.CloudLLMReasoner` 作为 DeerFlow Agentic RAG 的图逻辑推理引擎。该类保留 `CloudLLMReasoner` 名称以兼容既有调用方，但当前实现不再依赖 OpenAI 兼容 API key，而是由 DeerFlow 根据 pipeline-reasoner 方法论在本地完成推理诊断。\n\n该推理器负责诊断：\n\n- `pipeline_type`：推断出的智慧城市业务分类。\n- `missing`：流水线中可能缺失的关键业务模块。\n- `anomalies`：逻辑断层、反向依赖、数据流不连通或业务顺序异常。\n\n## 模块位置\n\n```text\nbackend/packages/harness/deerflow/pipeline/reasoner.py\n```\n\n推荐导入方式：\n\n```python\nfrom deerflow.pipeline import CloudLLMReasoner\n```\n\n## 使用方式\n\n```python\nimport networkx as nx\n\nfrom deerflow.pipeline import CloudLLMReasoner\n\ngraph = nx.DiGraph()\ngraph.add_node(\"camera.open\", type=\"Camera\")\ngraph.add_node(\"model.predict\", type=\"Detection\")\ngraph.add_edge(\"camera.open\", \"model.predict\")\n\nreasoner = CloudLLMReasoner()\ndiagnosis = reasoner.reason(graph)\n```\n\n期望输出结构：\n\n```python\n{\n    \"pipeline_type\": \"交通监控与存储\",\n    \"missing\": [\"Decode\", \"Storage\"],\n    \"anomalies\": [\"逻辑断层: Camera 与 Detection 之间没有数据流转路径\"],\n}\n```\n\n## 序列化约定\n\n`_serialize_for_llm(graph)` 只提取两类信息，以保持 Prompt 极简：\n\n1. 节点业务类型：优先读取每个节点的 `type` 属性。\n2. 边的拓扑路径：渲染为 `SourceType -> TargetType`。\n\n严禁序列化完整节点属性、边 payload、源码、元数据或原始 `networkx` 图对象。\n\n序列化示例：\n\n```text\nNodeTypes:\nCamera\nDetection\nEdges:\nCamera -> Detection\n```\n\n## 本地推理约定\n\n`CloudLLMReasoner.reason(graph)` 不会发起网络请求。它会基于以下信息进行确定性诊断：\n\n- 节点业务类型，例如 `Camera`、`Decode`、`Detection`、`Tracking`、`Storage`。\n- 边的拓扑方向，例如 `Camera -> Detection`。\n- 智慧城市流水线常见阶段顺序，例如采集、解码、预处理、检测、跟踪、识别、分析、告警、存储、输出。\n\n输出仍然严格保持 `pipeline_type`、`missing`、`anomalies` 三个字段，便于上游或下游模块继续按原 JSON 契约消费结果。\n\n## 异常处理\n\n以下情况会返回安全诊断结果：\n\n- 空图会返回 `pipeline_type=\"unknown\"`，并在 `anomalies` 中标记“空流水线”。\n- 无法识别的节点类型不会中断推理，只会跳过对应阶段规则。\n- 存在循环、反向依赖或关键路径缺失时，会写入 `anomalies`。\n\n```python\n{\n    \"pipeline_type\": \"unknown\",\n    \"missing\": [],\n    \"anomalies\": [\"空流水线: 未发现可诊断的业务节点\"],\n}\n```\n\n## 验证方式\n\n修改后运行聚焦测试：\n\n```powershell\npytest backend\\tests\\test_pipeline_reasoner.py\n```\n"
+  },
+  "execution": {
+    "required_tools": [
+      "python",
+      "networkx"
+    ],
+    "optional_tools": [],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "pipeline-graph-builder",
+      "code-business-dag-analysis-pipeline"
+    ]
+  },
+  "routing_policy": {
+    "priority": 87,
+    "conflict_group": "pipeline_reasoning",
+    "prefer_when": [
+      "用户已有业务 DAG 并要求诊断类型、缺失模块或逻辑异常",
+      "任务只需要本地图推理 JSON 结果"
+    ],
+    "defer_when": [
+      "用户从原始 Python 代码开始并要求完整报告时，使用 code-business-dag-analysis-pipeline"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/program_snippet/pipeline-reasoner",
+    "skill_md_path": "skills/custom/program_snippet/pipeline-reasoner/SKILL.md",
+    "skill_md_hash": "sha256:1f0e16a59e78388be3c427b2fbafbc51175cbd6f528847e71f529bc8d21717d3",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c4a2197fe06be1729727286b6fa7efe1f13510fa43fbda025b0b5a821fa5db4c",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "pipeline-reasoner"
+  }
+}

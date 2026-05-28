@@ -7,10 +7,7 @@
   },
   "scope": {
     "scenes": [
-      "policy_regulation",
-      "china_law",
-      "legal_retrieval",
-      "local_es_retrieval"
+      "policy_regulation"
     ],
     "is_public": false,
     "task_types": [

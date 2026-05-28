@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "topn-high-risk-discovery",
+    "name": "topn-high-risk-discovery",
+    "description": "在用户没有指定硬性筛选条件时，基于预设综合风险评分模型对电话网络全量号码进行自动打分、排序和候选发现，输出 TopN 高风险排行榜、风险分、排名驱动因素和证据摘要。核心任务是自动发现“最值得优先核查”的对象，不是按用户规则过滤；适用于“找 Top10 高风险号码/生成风险排行榜/哪些号码最可疑/自动发现重点对象/综合评分排序”等开放式发现问题。不用于按省份、标签、夜间阈值、联系人阈值、共享设备阈值等明确条件筛选号码，不解释单个号码，不生成单号码证据包，不做原始数据建图或地域对比。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "topn_risk_discovery",
+      "risk_scoring",
+      "suspicious_number_ranking",
+      "key_object_discovery"
+    ],
+    "input_types": [
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "topn_csv",
+      "risk_ranking",
+      "risk_drivers",
+      "evidence_summary",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：topn-high-risk-discovery\n描述：在用户没有指定硬性筛选条件时，基于预设综合风险评分模型对电话网络全量号码进行自动打分、排序和候选发现，输出 TopN 高风险排行榜、风险分、排名驱动因素和证据摘要。核心任务是自动发现“最值得优先核查”的对象，不是按用户规则过滤；适用于“找 Top10 高风险号码/生成风险排行榜/哪些号码最可疑/自动发现重点对象/综合评分排序”等开放式发现问题。不用于按省份、标签、夜间阈值、联系人阈值、共享设备阈值等明确条件筛选号码，不解释单个号码，不生成单号码证据包，不做原始数据建图或地域对比。\n适用场景：phone_network\n适用任务：topn_risk_discovery，risk_scoring，suspicious_number_ranking，key_object_discovery\n输入类型：dataset_root，user_nodes.csv，call_edges.csv，edges_phone_imei.parquet\n输出类型：topn_csv，risk_ranking，risk_drivers，evidence_summary，markdown_report\n适合使用：帮我找最可疑的号码；请找Top10高风险对象；哪些号码最值得关注；高风险号码排名；自动发现重点对象；没有指定筛选条件时找重点号码\n不适合使用：只分析一个号码；按明确条件筛选夜间通话异常、联系人广度高、共享设备多的号码；用户说筛选/筛出/圈定且列出多个指标条件；只做数据概览；上传原始CSV建图；比较四川和陕西\n关键词：TopN，Top10，高风险，可疑号码，重点对象，风险评分，排名\n反关键词：筛选，筛出，圈定，同时满足，条件筛选，规则筛选，夜间通话异常，联系人广度高，共享设备比较多，单个号码，概览，建图，地域对比。",
+    "positive_triggers": [
+      "帮我找最可疑的号码",
+      "请找Top10高风险对象",
+      "哪些号码最值得关注",
+      "高风险号码排名",
+      "自动发现重点对象",
+      "没有指定筛选条件时找重点号码"
+    ],
+    "negative_triggers": [
+      "只分析一个号码",
+      "按明确条件筛选夜间通话异常、联系人广度高、共享设备多的号码",
+      "用户说筛选/筛出/圈定且列出多个指标条件",
+      "只做数据概览",
+      "上传原始CSV建图",
+      "比较四川和陕西"
+    ],
+    "keywords": [
+      "TopN",
+      "Top10",
+      "高风险",
+      "可疑号码",
+      "重点对象",
+      "风险评分",
+      "排名"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "圈定",
+      "同时满足",
+      "条件筛选",
+      "规则筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "共享设备比较多",
+      "单个号码",
+      "概览",
+      "建图",
+      "地域对比"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: topn-high-risk-discovery\ndescription: 在用户没有指定硬性筛选条件时，基于预设综合风险评分模型对电话网络全量号码进行自动打分、排序和候选发现，输出 TopN 高风险排行榜、风险分、排名驱动因素和证据摘要。核心任务是自动发现“最值得优先核查”的对象，不是按用户规则过滤；适用于“找 Top10 高风险号码/生成风险排行榜/哪些号码最可疑/自动发现重点对象/综合评分排序”等开放式发现问题。不用于按省份、标签、夜间阈值、联系人阈值、共享设备阈值等明确条件筛选号码，不解释单个号码，不生成单号码证据包，不做原始数据建图或地域对比。\n---\n\n# topn-high-risk-discovery\n\n## 这个 skill 是做什么的\n\n`topn-high-risk-discovery` 是电话网络数据中的**自动发现与综合排名型** skill。\n\n它的核心不是按用户给出的条件做过滤，而是：\n\n> 用户没有给出硬性筛选规则时，系统基于预设综合风险评分模型，对全量号码或候选集合进行自动打分和排序，找出最值得优先核查的 TopN 对象。\n\n它直接生成：\n\n- TopN 高风险候选榜；\n- 未标注高可疑榜；\n- 设备驱动高可疑榜；\n- 风险分和排名；\n- 排名驱动因素；\n- Top 证据摘要；\n- Markdown 报告；\n- CSV 风险名单。\n\n它回答的是：\n\n1. 全量号码里谁最值得优先核查；\n2. 哪些号码综合风险分最高；\n3. 哪些未标注号码虽然没有风险标签，但结构特征很可疑；\n4. 哪些对象主要由共享设备或联系人广度等因素驱动上榜；\n5. 每个上榜对象的主要排名驱动因素是什么。\n\n## 与 condition-based-screening 的强边界\n\n必须严格区分本 skill 和 `condition-based-screening`。\n\n| 维度 | topn-high-risk-discovery | condition-based-screening |\n|---|---|---|\n| 用户意图 | 用户希望系统自动发现重点对象 | 用户已经给出明确筛选规则 |\n| 核心动作 | 自动打分、排序、生成榜单 | 筛选、过滤、命中解释 |\n| 典型词 | TopN、Top10、排行榜、最可疑、自动发现、优先核查、综合评分 | 筛选、过滤、满足条件、阈值、同时满足、按省份、按标签 |\n| 输出重点 | 排名、风险分、驱动因素 | 命中对象、筛选链路、命中条件 |\n| 是否按用户规则过滤 | 不作为核心任务 | 是核心任务 |\n\n如果用户说：\n\n- “找 Top10 高风险号码”；\n- “生成高风险排行榜”；\n- “哪些号码最可疑”；\n- “自动发现重点对象”；\n- “综合风险评分排序”；\n\n应使用本 skill。\n\n如果用户说：\n\n- “筛选夜间通话占比超过阈值的号码”；\n- “过滤出四川省风险标签对象”；\n- “找同时满足联系人广度高和共享设备多的号码”；\n- “按省份、标签或阈值筛选对象”；\n\n应使用 `condition-based-screening`，不是本 skill。\n\n## 适合使用的场景\n\n本 skill 适合开放式发现、自动评分、优先级排序类问题，例如：\n\n- 现在这批电话网络数据中最值得优先核查的 TopN 号码是谁；\n- 哪些号码综合风险分最高；\n- 请生成一份高风险号码排行榜；\n- 请自动发现未标注但结构特征可疑的号码；\n- 请找出设备关系特别异常、值得优先关注的号码；\n- 请输出重点对象名单、风险分、驱动因素和证据摘要。\n\n## 不适合使用的场景\n\n以下情况不要使用本 skill：\n\n- 用户已经给出明确条件，要求按条件筛选；\n- 用户要求按省份、标签、夜间阈值、联系人阈值、共享设备阈值过滤号码；\n- 用户要求找“同时满足某几个条件”的对象；\n- 用户要求解释某一个号码为什么可疑；\n- 用户要求生成单号码风险证据包；\n- 用户上传原始 CSV，要求先建图；\n- 用户要求四川和陕西做地域对比；\n- 用户要求跨省同实体联动识别。\n\n对应应转向：\n\n- 条件筛选：`condition-based-screening`；\n- 单号码画像：`single-number-analysis`；\n- 单号码证据包：`risk-evidence-pack`；\n- 原始数据建图：`dataset-onboarding-graph-preprocess`；\n- 四川陕西地域对比：`sichuan-shaanxi-comparison`；\n- 跨省可联动性判断：`dataset-quality-and-linkability-diagnostic`。\n\n---\n\n## 一、数据集使用规则\n\n### 规则 1：用户明确指定数据集时，优先使用用户指定的数据集\n\n如果用户问题或命令中明确给出：\n\n- `--dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network`\n- `--dataset unified`\n- “使用 unified / sichuan / shaanxi 数据”\n\n则直接按用户指定执行。\n\n### 规则 2：用户没有指定数据集根目录时，优先使用真实 unified 预处理数据\n\n脚本优先自动查找以下真实数据位置：\n\n1. `PHONE_NETWORK_DATASETS_ROOT`\n2. `<repo_root>/datasets/phone-network`\n3. `/workspace/imiss-deer-flow-main/datasets/phone-network`\n4. `/mnt/datasets/phone-network`\n5. `~/imiss-deer-flow-main/datasets/phone-network`\n\n### 规则 3：用户没有指定 dataset 时，默认使用 `unified`\n\n前端问题中出现：\n\n- “在现有电话网络数据里找高风险号码”；\n- “对 unified 数据生成风险榜”；\n- “自动找最可疑对象”；\n\n都应默认理解为：\n\n```text\ndataset-root = datasets/phone-network\ndataset = unified\n```\n\n---\n\n## 二、输入数据\n\n本 skill 默认依赖标准图结构三件套：\n\n```text\ndatasets/phone-network/processed/unified/user_nodes.csv\ndatasets/phone-network/processed/unified/call_edges.csv\ndatasets/phone-network/processed/unified/edges_phone_imei.parquet\n```\n\n各文件作用：\n\n| 文件 | 用途 |\n|---|---|\n| `user_nodes.csv` | 号码节点画像、标签、省份、sub_label |\n| `call_edges.csv` | 通话活跃度、对端数量、联系人广度、夜间行为 |\n| `edges_phone_imei.parquet` | 设备关联、共享设备、设备驱动风险 |\n\n---\n\n## 三、它是怎么基于基础算子实现的\n\n本 skill 通过基础图分析算子组合完成自动风险发现：\n\n- `node_lookup`：读取号码画像、标签、省份等节点属性；\n- `aggregation_query + neighbor_query`：聚合通话记录、联系人广度、对端数量；\n- `neighbor_query + subgraph_by_nodes`：扩展共享设备关系，得到共享设备数、牵出号码数、最强共享设备；\n- `relationship_filter + aggregation_query`：做候选范围预过滤和多视角特征聚合；\n- `scoring_layer`：对多维特征进行综合风险评分；\n- `ranking_layer`：输出 TopN 榜单和不同视角的发现结果。\n\n因此它本质上是：\n\n```text\n基础图分析算子 -> 多维特征聚合 -> 综合评分 -> 自动排序 -> TopN 重点对象发现\n```\n\n---\n\n## 四、核心输入参数\n\n### 排名与发现参数\n\n- `--top-n`：综合总榜 TopN，默认 `20`；\n- `--discovery-top-n`：未标注榜 / 设备榜 TopN，默认 `10`；\n- `--analysis-mode`：`mixed` / `call_only` / `device_only`；\n- `--ranking-view`：\n  - `all_views`\n  - `overall`\n  - `unlabeled_only`\n  - `device_priority`\n- `--candidate-scope`：\n  - `all`\n  - `labeled_only`\n  - `unlabeled_only`\n- `--province`：候选范围省份限制，例如 `sichuan`。\n\n### 候选范围预过滤参数\n\n- `--min-call-records`\n- `--min-counterparties`\n- `--min-shared-device-count`\n- `--min-device-count`\n- `--min-shared-peer-total`\n- `--include-sub-labels`\n- `--exclude-sub-labels`\n\n重要说明：\n\n> 这些参数在本 skill 中只用于限制自动评分的候选范围，不改变本 skill 的性质。只要用户的核心诉求是“生成风险榜单、自动发现最可疑号码、综合评分排序”，就仍然属于本 skill。若用户的核心诉求是“按这些条件筛出满足规则的对象”，则应使用 `condition-based-screening`。\n\n---\n\n## 五、输出内容\n\nJSON 输出里最关键的字段包括：\n\n- `top_overall_numbers`：综合风险总榜；\n- `top_unlabeled_numbers`：未标注高可疑榜；\n- `top_device_driven_numbers`：设备驱动高可疑榜；\n- `top3_evidence_pack`：Top 对象证据摘要；\n- `view_summaries`：不同榜单视角的摘要；\n- `discovery_insights`：自动发现结论；\n- `report_context_flags`：报告上下文控制信息；\n- `report_path`：Markdown 报告路径；\n- `risk_list_csv_path`：风险名单 CSV 路径；\n- `artifacts`：前端附件列表。\n\n输出报告应明确说明：\n\n- 排名依据；\n- 风险分；\n- 主要驱动因素；\n- Top 证据摘要；\n- 是否是未标注但高可疑线索；\n- 建议下一步下钻的 skill。\n\n---\n\n## 六、命令行示例\n\n进入脚本目录：\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/topn-high-risk-discovery/scripts\n```\n\n### 示例 1：完整自动重点对象发现\n\n```bash\npython3 topn_high_risk_discovery_wrapper.py \\\n  --top-n 20 \\\n  --discovery-top-n 10 \\\n  --analysis-mode mixed \\\n  --ranking-view all_views \\\n  --candidate-scope all\n```\n\n### 示例 2：只看未标注高可疑对象榜\n\n```bash\npython3 topn_high_risk_discovery_wrapper.py \\\n  --top-n 10 \\\n  --discovery-top-n 10 \\\n  --analysis-mode mixed \\\n  --ranking-view unlabeled_only \\\n  --candidate-scope unlabeled_only\n```\n\n### 示例 3：设备驱动重点对象榜\n\n```bash\npython3 topn_high_risk_discovery_wrapper.py \\\n  --top-n 10 \\\n  --discovery-top-n 10 \\\n  --analysis-mode device_only \\\n  --ranking-view device_priority \\\n  --candidate-scope all \\\n  --min-shared-device-count 1\n```\n\n### 示例 4：四川省候选范围内自动排序\n\n```bash\npython3 topn_high_risk_discovery_wrapper.py \\\n  --top-n 20 \\\n  --discovery-top-n 10 \\\n  --analysis-mode mixed \\\n  --ranking-view all_views \\\n  --candidate-scope all \\\n  --province sichuan \\\n  --exclude-sub-labels whitelist\n```\n\n注意：示例 4 的 `--province` 和 `--exclude-sub-labels` 只是限定自动评分的候选范围，不是规则筛选任务。\n\n---\n\n## 七、前端推荐提问模板\n\n### 模板 1：自动 TopN 风险发现\n\n```text\n请自动发现 unified 电话网络数据中 Top10 最值得优先核查的高风险号码，输出风险分、排名驱动因素和证据摘要。\n```\n\n### 模板 2：未标注高可疑发现\n\n```text\n请自动找出尚未标注为风险、但结构特征已经明显可疑的号码，并生成未标注高可疑榜单。\n```\n\n### 模板 3：设备驱动重点对象发现\n\n```text\n请自动生成设备关系异常驱动的高风险号码排行榜，说明哪些号码主要因为共享设备或设备牵出关系异常而上榜。\n```\n\n### 模板 4：开放式重点对象名单\n\n```text\n请综合电话网络中的通话行为、联系人广度、设备关联和标签信息，自动生成一份最值得优先核查的重点对象名单。\n```\n\n---\n\n## 八、快速测试\n\n建议运行脚本目录下的：\n\n```bash\nbash test_topn_high_risk_discovery_fast.sh\n```\n\n该测试脚本会：\n\n1. 自动创建项目根目录下的 `logs/topn-high-risk-discovery/`；\n2. 保存每次测试的完整终端输出；\n3. 列出生成的 Markdown 和 CSV 文件。\n\n---\n\n## 九、什么时候该用这个 skill\n\n当问题是开放式发现和排序时，优先用本 skill：\n\n- “一批号码里谁最值得先查？”\n- “帮我自动发现重点对象并生成名单。”\n- “帮我找 Top10 高风险号码。”\n- “哪些号码最可疑？”\n- “帮我生成风险排行榜。”\n- “帮我找未标注但很可疑的号码。”\n- “帮我找设备关系特别异常、值得优先关注的号码。”\n\n## 十、什么时候不要用这个 skill\n\n当问题是规则过滤或对象下钻时，不要用本 skill：\n\n- “筛选夜间通话占比超过 0.35 的号码。”\n- “筛选四川省中共享设备数量不少于 1 的号码。”\n- “筛选同时满足联系人广度高和共享设备多的号码。”\n- “这个号码为什么可疑？”\n- “请给这个号码生成风险证据包。”\n- “请比较四川和陕西差异。”\n\n对应转向：\n\n- 条件筛选：`condition-based-screening`；\n- 单号码画像：`single-number-analysis`；\n- 单号码证据包：`risk-evidence-pack`；\n- 两号码路径：`association-path-analysis`；\n- 两号码关系重叠：`overlap-analysis`；\n- 四川陕西地域对比：`sichuan-shaanxi-comparison`。\n\n---\n\n## 十一、结果解读原则\n\n本 skill 的结果表示“系统自动综合评分后认为最值得优先核查的对象”，不是最终风险定性。\n\n解读时应说明：\n\n- 当前榜单的候选范围；\n- 使用的 ranking view；\n- 风险分和排名；\n- 每个对象的主要驱动因素；\n- Top 证据摘要；\n- 是否属于未标注高可疑线索；\n- 建议下一步调用哪个下钻 skill。\n\n推荐后续链路：\n\n- 解释 Top1 号码：`single-number-analysis`；\n- 生成 Top1 证据包：`risk-evidence-pack`；\n- 共享设备下钻：`shared-device-analysis`；\n- 团伙簇扩展：`gang-cluster-analysis`；\n- 时间变化分析：`time-series-anomaly-analysis`。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "phone_network_risk_discovery",
+    "prefer_when": [
+      "用户想从数据集中找出最值得关注的对象",
+      "用户要求输出高风险号码排名"
+    ],
+    "defer_when": [
+      "用户提供单个号码并问为什么可疑时优先 single-number-analysis",
+      "用户要求证据包时优先 risk-evidence-pack"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/topn-high-risk-discovery",
+    "skill_md_path": "skills/custom/phone-network-analysis/topn-high-risk-discovery/SKILL.md",
+    "skill_md_hash": "sha256:24a4bb5d080e3bfd05774ad45c4b0bb938501313d2a9f75182c80dda9ca355f5",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:4320427fdc9e803052b5c6897368d31a4cb7cd24fda614b12ad50284c78b7a5a",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "topn-high-risk-discovery"
+  }
+}

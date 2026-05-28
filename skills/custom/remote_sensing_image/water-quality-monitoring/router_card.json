@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "water-quality-monitoring",
+    "name": "water-quality-monitoring",
+    "description": "Retrieves key water-quality parameters from multispectral imagery, identifies pollution anomalies and tracks temporal trends. Invoke when the user mentions \"water quality\", \"chlorophyll-a\", \"suspended sediment\", \"black-odor water\", \"drinking water source\", \"eutrophication\", \"NDWI\", \"水质\", \"叶绿素\", \"悬浮物\", \"黑臭水体\", \"饮用水源\", \"污染源\" or similar. The skill computes water indices, inverts Chl-a / TSS / turbidity, locates pollution hotspots and suspected outfalls, and reports spatiotemporal change."
+  },
+  "scope": {
+    "scenes": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "water_parameter_retrieval",
+      "chl_a_tss_turbidity_inversion",
+      "pollution_anomaly_detection",
+      "hotspot_outfall_identification",
+      "temporal_trend_report"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile",
+      "json"
+    ],
+    "output_types": [
+      "parameter_maps",
+      "hotspot_vectors",
+      "anomaly_map",
+      "trend_report",
+      "report_md"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：water-quality-monitoring\n描述：Retrieves key water-quality parameters from multispectral imagery, identifies pollution anomalies and tracks temporal trends. Invoke when the user mentions \"water quality\", \"chlorophyll-a\", \"suspended sediment\", \"black-odor water\", \"drinking water source\", \"eutrophication\", \"NDWI\", \"水质\", \"叶绿素\", \"悬浮物\", \"黑臭水体\", \"饮用水源\", \"污染源\" or similar. The skill computes water indices, inverts Chl-a / TSS / turbidity, locates pollution hotspots and suspected outfalls, and reports spatiotemporal change.\n适用场景：remote_sensing, water_governance, pollution_monitoring。\n适用任务：water_parameter_retrieval, chl_a_tss_turbidity_inversion, pollution_anomaly_detection, hotspot_outfall_identification, temporal_trend_report。\n输入类型：geotiff, geojson, shapefile, json。\n输出类型：parameter_maps, hotspot_vectors, anomaly_map, trend_report, report_md。\n适合使用：反演叶绿素 a、悬浮物、浊度等关键水质参数；识别污染异常、黑臭水体或疑似排污口；跟踪水质时空变化趋势并输出热点报告。\n不适合使用：仅做简单水体浊度/叶绿素分级；洪涝风险制图；绿地变化监测；撰写项目方案。",
+    "positive_triggers": [
+      "反演叶绿素 a、悬浮物、浊度等关键水质参数",
+      "识别污染异常、黑臭水体或疑似排污口",
+      "跟踪水质时空变化趋势并输出热点报告"
+    ],
+    "negative_triggers": [
+      "仅做简单水体浊度/叶绿素分级",
+      "洪涝风险制图",
+      "绿地变化监测",
+      "撰写项目方案"
+    ],
+    "keywords": [
+      "water quality",
+      "chlorophyll-a",
+      "suspended sediment",
+      "black-odor water",
+      "drinking water source",
+      "eutrophication",
+      "NDWI",
+      "水质",
+      "叶绿素",
+      "悬浮物",
+      "黑臭水体",
+      "饮用水源",
+      "污染源"
+    ],
+    "anti_keywords": [
+      "简单水质分级",
+      "洪涝",
+      "绿地",
+      "方案",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: water-quality-monitoring\ndescription: >\n  Retrieves key water-quality parameters from multispectral imagery, identifies\n  pollution anomalies and tracks temporal trends. Invoke when the user mentions\n  \"water quality\", \"chlorophyll-a\", \"suspended sediment\", \"black-odor water\",\n  \"drinking water source\", \"eutrophication\", \"NDWI\", \"水质\", \"叶绿素\", \"悬浮物\",\n  \"黑臭水体\", \"饮用水源\", \"污染源\" or similar. The skill computes water indices,\n  inverts Chl-a / TSS / turbidity, locates pollution hotspots and suspected\n  outfalls, and reports spatiotemporal change.\nversion: 0.1.0\ncategory: water-governance\ndomain: remote-sensing\nlanguage:\n  metadata: en\n  report: zh-CN\nentrypoint: scripts/main.py\nlicense: MIT\ntags: [water-quality, chlorophyll, TSS, NDWI, pollution]\n---\n\n# 水环境质量遥感监测技能（water-quality-monitoring）\n\n## 1. 技能概述\n\n基于多光谱遥感数据（Sentinel-2、Landsat-8/9、GF-1/6 等）反演地表水体的关键水质参数，\n识别污染异常区域与变化趋势，辅助河湖监管、饮用水源保护与黑臭水体治理。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 必需 | 说明 |\n|--------|------|:--:|------|\n| `rs_image` | file (GeoTIFF) | 是 | 多光谱影像，至少含 蓝/绿/红/近红 四波段 |\n| `water_boundary` | file (GeoJSON/Shapefile) | 是 | 目标水体边界矢量（河段/湖面） |\n| `history_reference` | file (JSON) | 否 | 历史水质阈值或均值 JSON，用于异常识别 |\n| `params` | list | 否 | 需反演的参数列表：`chl_a`, `tsm`, `turbidity`, `ndwi`, `bod_proxy`（默认全部） |\n| `date` | string | 否 | 影像日期 YYYY-MM-DD，用于时间序列衔接 |\n\n## 3. 用户输入引导\n\n> 为反演您关注水体的水质，请提供：\n> 1. **多光谱遥感影像**（`rs_image`）：GeoTIFF，建议 Sentinel-2 L2A（已做大气校正）；至少含 B2/B3/B4/B8。\n> 2. **水体边界**（`water_boundary`）：GeoJSON 或 Shapefile，用于将分析限定在水面像元内。\n> 3. （可选）**历史水质阈值**（`history_reference`）：JSON，格式如 `{\"chl_a\": {\"mean\": 12, \"std\": 4}}`，供异常检测使用。\n\n## 4. 处理流程\n\n1. `check-inputs`\n2. NDWI/MNDWI 水体掩膜；与用户提供的水体边界交集\n3. 分别反演叶绿素 a、悬浮物（TSM）、浊度等参数（使用常见经验模型：OC2/OC3、Nechad TSM）\n4. 与历史参考对比得到异常图\n5. 识别污染热点（高叶绿素 + 高悬浮物连通区）→ 估计疑似排污口（热点周边河岸）\n6. 黑臭水体指示：`bod_proxy`（基于可见光比值的经验评分）\n7. 输出参数分布图、热点矢量、趋势报告\n\n## 5. 参数说明（`config.yaml`）\n\n```yaml\nbands:\n  blue: 1\n  green: 2\n  red: 3\n  nir: 4\nretrieval:\n  chl_a:\n    method: oc3\n    a: [0.283, -2.753, 1.457, 0.659, -1.403]\n  tsm:\n    method: nechad\n    Ap: 355.85\n    Cp: 1.74\n    Bp: 0.19563\n  turbidity:\n    method: dogliotti\n    k_low: 228.1\n    k_high: 3078.9\nanomaly:\n  sigma_threshold: 2.0\nhotspot:\n  chl_a_high: 15\n  tsm_high: 30\n  min_patch_size: 20\n```\n\n## 6. 调用示例\n\n```bash\npython /mnt/skills/custom/remote-sensing/water-quality-monitoring/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"rs_image\":\"/mnt/user-data/uploads/s2.tif\",\"water_boundary\":\"/mnt/user-data/uploads/river.geojson\",\"params\":[\"chl_a\",\"tsm\"]}' \\\n  --output-dir /mnt/user-data/outputs/water_20260417\n```\n\n## 7. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `chl_a.tif` / `tsm.tif` / `turbidity.tif` | 反演参数分布图 |\n| `anomaly_map.tif` | 异常指示图（与历史偏差 σ） |\n| `hotspots.geojson` | 污染热点区域 |\n| `suspected_sources.geojson` | 疑似排污点位 |\n| `stats.json` | 水体内参数统计 |\n| `report.md` | 水质评估与治理建议 |\n\n## 8. 治理场景\n\n- 河长制考核断面辅助\n- 饮用水源地一二级保护区风险排查\n- 黑臭水体治理成效前后对比\n- 汛期高悬浮物预警\n\n## 9. 注意事项\n\n- 本技能针对**内陆水体**优化；海岸带请结合大气校正结果\n- 叶绿素反演受水色类型（Case-1 / Case-2）影响，多云覆盖影像慎用\n- \"疑似排污源\"为启发式定位，不能替代执法；须现场复核\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户关注水质参数反演、污染异常、黑臭水体、饮用水源保护或污染源追踪",
+      "用户提供历史参考阈值并要求趋势或异常检测"
+    ],
+    "defer_when": [
+      "用户只要求简单浑浊度和叶绿素水质分级，应优先使用 water-body-quality-monitoring",
+      "用户要求水体范围用于洪涝风险，应优先使用 flood-risk-mapping"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/water-quality-monitoring",
+    "skill_md_path": "5-21remote-sensing/water-quality-monitoring/SKILL.md",
+    "skill_md_hash": "sha256:9514dc356e2293da92ef3ff9b897d099ce58b163f4e5ee6b2bc986573fe5d07d",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:5399f723046cf2e5e84fab7a5f0ebbaae9b398730e7626e91b4754fe48d3ad1e",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "water-quality-monitoring"
+  }
+}

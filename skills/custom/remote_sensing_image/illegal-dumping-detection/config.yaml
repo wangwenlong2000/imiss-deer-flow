@@ -1,0 +1,14 @@
+# Skill: illegal-dumping-detection
+skill:
+  name: illegal-dumping-detection
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+io:
+  outputs_dir: ./outputs
+  subdir: illegal-dumping-detection
+
+logging:
+  level: INFO

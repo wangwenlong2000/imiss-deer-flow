@@ -7,9 +7,6 @@
   },
   "scope": {
     "scenes": [
-      "legal",
-      "china_law",
-      "legal_knowledge_base",
       "policy_regulation"
     ],
     "is_public": false,

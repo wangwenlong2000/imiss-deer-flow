@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "overlap-analysis",
+    "name": "overlap-analysis",
+    "description": "分析两个电话号码之间的关系重叠情况，包括共同对端、共享设备、直接通话、重叠比例和关键证据点。适用于用户询问两个号码有没有共同联系人、共同设备或联系圈重叠；不负责按夜间通话异常、联系人广度高、共享设备数量多等条件从全量数据筛选重点号码。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "overlap_analysis",
+      "common_counterparty",
+      "shared_device",
+      "relation_overlap"
+    ],
+    "input_types": [
+      "user_id",
+      "user_id_list",
+      "phone_network_graph",
+      "csv",
+      "parquet"
+    ],
+    "output_types": [
+      "common_counterparties",
+      "shared_devices",
+      "overlap_score",
+      "overlap_explanation",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：overlap-analysis\n描述：分析两个电话号码之间的关系重叠情况，包括共同对端、共享设备、直接通话、重叠比例和关键证据点。适用于用户询问两个号码有没有共同联系人、共同设备或联系圈重叠；不负责按夜间通话异常、联系人广度高、共享设备数量多等条件从全量数据筛选重点号码。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：overlap_analysis, common_counterparty, shared_device, relation_overlap。\n输入类型：user_id, user_id_list, phone_network_graph, csv, parquet。\n输出类型：common_counterparties, shared_devices, overlap_score, overlap_explanation, markdown_report。\n适合使用：两个号码有没有共同联系人；两个号码有没有共享设备；联系圈是否重叠；分析共同对端和共享设备。\n不适合使用：筛选重点号码；按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码；从全量数据找重点对象；上传原始数据建图；找全局TopN高风险号码；抽取单个号码局部子图；政策法规检索。\n关键词：重叠，共同联系人，共同对端，共享设备，联系圈，overlap。\n反关键词：筛选，筛出，找出，重点号码，条件筛选，夜间通话异常，联系人广度高，共享设备数量多，原始数据建图，TopN，概览，法规。",
+    "positive_triggers": [
+      "两个号码有没有共同联系人",
+      "两个号码有没有共享设备",
+      "联系圈是否重叠",
+      "分析共同对端和共享设备"
+    ],
+    "negative_triggers": [
+      "上传原始数据建图",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "找全局TopN高风险号码",
+      "抽取单个号码局部子图",
+      "政策法规检索"
+    ],
+    "keywords": [
+      "重叠",
+      "共同联系人",
+      "共同对端",
+      "共享设备",
+      "联系圈",
+      "overlap"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "找出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "共享设备数量多",
+      "原始数据建图",
+      "TopN",
+      "概览",
+      "法规"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: overlap-analysis\ndescription: 分析两个电话号码之间的关系重叠情况，包括共同对端、共享设备、直接通话、重叠比例和关键证据点。适用于用户询问两个号码有没有共同联系人、共同设备或联系圈重叠；不负责多跳路径解释、单号画像、群体分析或地域对比。\n---\n\n# overlap-analysis\n\n## 这个 skill 是做什么的\n\n这是一个 **YiGraph 风格的重叠关系分析 skill**，专门回答“两个号码到底重叠了多少、重叠在哪些地方、这种重叠是否异常”这类问题。\n\n它不重点回答“这两个号码怎么连起来”，那是 `association-path-analysis` 的职责；\n它重点回答的是：\n\n- 两个号码有没有 **共同对端**\n- 两个号码有没有 **共享设备**\n- 两个号码有没有 **直接通话**\n- 这些重叠关系的 **数量、比例、强弱等级**\n- 哪些共同对端 / 共享设备是最值得优先核查的 **关键证据点**\n- 下一步应该优先查什么\n\n它属于一个 **高级分析 skill**，建立在基础算子 `graph-operator` 之上，用于把基础查询结果包装成更像 YiGraph 的业务解释输出。\n\n---\n\n## 和 YiGraph 的关系\n\n这个 skill 主要对齐 YiGraph 里的这几类能力：\n\n1. **Graph Query / common_neighbor**\n   - 对应“两个节点的共同邻居是谁”\n   - 在电话网络任务里，对应“两个号码的共同对端是谁”\n\n2. **relationship_filter / aggregation_query**\n   - 对应“边和关系的筛选、计数、聚合”\n   - 在电话网络任务里，对应“共享设备数、共同对端数、重叠率、强弱分级”\n\n3. **YiGraph 风格的解释层**\n   - 不只返回原始列表，还返回：\n     - 重叠强度判断\n     - Top 证据节点\n     - 风险提示\n     - 下一步调查建议\n\n也就是说，这个 skill 不是直接把 YiGraph 的原始服务搬进来，而是：\n\n**复用 YiGraph 的问题分类方式 + 查询能力映射方式 + 解释风格，结合你当前电话网络数据做适配实现。**\n\n---\n\n## 实际调用脚本\n\n`/mnt/skills/custom/phone-network-analysis/overlap-analysis/scripts/overlap_analysis_wrapper.py`\n\n---\n\n## 推荐调用方式\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/overlap-analysis/scripts && python3 overlap_analysis_wrapper.py \\\n  --phone-a \"<PHONE_A>\" \\\n  --phone-b \"<PHONE_B>\" \\\n  --top-k 10 \\\n  --min-common-counterparty 1\n```\n\n---\n\n## 参数说明\n\n- `--phone-a`：号码 A\n- `--phone-b`：号码 B\n- `--call-graph-path`：通话边文件，默认 `/mnt/datasets/phone-network/processed/unified/call_edges.csv`\n- `--device-graph-path`：号码-设备边文件，默认 `/mnt/datasets/phone-network/processed/graph_views/unified/edges_phone_imei.parquet`\n- `--graph-format`：通话边文件格式，默认 `csv`\n- `--source-col`：通话边起点列，默认 `src_user_id`\n- `--target-col`：通话边终点列，默认 `dst_counterparty_id`\n- `--device-source-col`：号码-设备边起点列，默认 `user_id`\n- `--device-target-col`：号码-设备边终点列，默认 `imei`\n- `--top-k`：返回多少个共同对端 / 共享设备证据预览，默认 `10`\n- `--min-common-counterparty`：判定“共同对端重叠”时的最低证据数门槛，默认 `1`\n\n---\n\n## 推荐输出结构\n\n前端分析时，建议固定输出下面这几部分：\n\n1. **直接配对信号**\n   - A→B 是否直接通话\n   - B→A 是否直接通话\n\n2. **共同对端重叠分析**\n   - A 的对端数\n   - B 的对端数\n   - 共同对端数\n   - Jaccard 重叠率\n   - Top-K 共同对端证据\n\n3. **共享设备重叠分析**\n   - A 的设备数\n   - B 的设备数\n   - 共享设备数\n   - Jaccard 重叠率\n   - Top-K 共享设备证据\n\n4. **综合重叠强度判断**\n   - strong / medium / weak / none\n\n5. **关键证据点排序**\n   - 哪些共同对端最值得查\n   - 哪些共享设备最值得查\n\n6. **下一步调查建议**\n\n7. **Markdown 报告**\n\n---\n\n## 这个 skill 适合回答哪些问题\n\n- “这两个号码有没有共同联系人？”\n- “这两个号码的重叠关系强不强？”\n- “它们有没有共享设备？”\n- “这两个号码是否属于同一个联系圈？”\n- “共同对端多不多？值不值得继续查？”\n- “共享设备是不是异常强证据？”\n\n---\n\n## 和 association-path-analysis 的区别\n\n- `association-path-analysis`：回答 **怎么连起来的**\n- `overlap-analysis`：回答 **重叠得有多强**\n\n你可以把它理解成：\n\n- 路径 skill 负责“链路”\n- overlap skill 负责“重合度”\n\n两者是互补关系，不是重复关系。\n\n---\n\n## 前端首测推荐参数\n\n建议先用：\n\n- `top_k=10`\n- `min_common_counterparty=1`\n\n如果结果太泛，再逐步收紧到：\n\n- `top_k=5`\n- `min_common_counterparty=2`\n\n---\n\n## 文件输出说明（必须遵守）\n\n脚本会自动生成 Markdown 报告，并保存到：\n\n`/mnt/user-data/outputs/`\n\n### 前端执行时的强制要求\n\n当 `overlap_analysis_wrapper.py` 返回 JSON 后：\n\n1. 必须读取返回结果中的 `report_path`\n2. 必须确认该文件存在\n3. 最终回复中必须把这个 Markdown 文件作为最终产物交付\n4. 不要只打印 `report_path` 这个字符串\n\n### 推荐执行流程\n\n先执行分析脚本，例如：\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/overlap-analysis/scripts && python3 overlap_analysis_wrapper.py \\\n  --phone-a \"<PHONE_A>\" \\\n  --phone-b \"<PHONE_B>\" \\\n  --top-k 10 \\\n  --min-common-counterparty 1\n```\n\n如果返回结果里有：\n\n- `report_path`\n\n则继续确认文件存在：\n\n```bash\ntest -f \"<REPORT_PATH>\" && echo \"REPORT_EXISTS\"\n```\n\n然后在最终回答中：\n\n- 正常展示分析结果\n- 单独列出报告文件路径\n- 把该 Markdown 文件作为最终报告产物返回\n\n### 说明\n\n如果前端只显示路径文本而没有下载卡片，这通常不是分析脚本失败，而是文件交付动作没有被明确执行。\n因此，调用本 skill 时，必须把“报告文件交付”当成最后一步，而不是只展示路径。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "phone_network_overlap_analysis",
+    "prefer_when": [
+      "用户明确比较两个号码或两个集合的重叠关系",
+      "用户关注共同对端或共享设备"
+    ],
+    "defer_when": [
+      "用户要团伙扩展时优先 gang-cluster-analysis",
+      "用户要单号画像时优先 single-number-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/overlap-analysis",
+    "skill_md_path": "skills/custom/phone-network-analysis/overlap-analysis/SKILL.md",
+    "skill_md_hash": "sha256:7ade685e8c80ff07edc3c35d855feb1ce8d9cd3cbd48091231174023becbd115",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:b5b9357e48d5c031406ad9072593c2e2606c296d06df83648643cbd6b3eb7188",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "overlap-analysis"
+  }
+}

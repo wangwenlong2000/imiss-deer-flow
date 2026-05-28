@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "road-traffic-analysis",
+    "name": "road-traffic-analysis",
+    "description": "Use this skill for road traffic tasks, including Baidu realtime services, route planning, weather, geocoding, around-location traffic, local/uploaded CSV traffic data analysis, local/uploaded CSV traffic forecasting, local/uploaded CSV traffic anomaly detection, and Xi'an 2024 traffic annual-report RAG retrieval. Do not use for OSM graph parsing, legacy congestion reports, or generic non-road network traffic."
+  },
+  "scope": {
+    "scenes": [
+      "road_traffic"
+    ],
+    "is_public": false,
+    "task_types": [
+      "realtime_traffic_query",
+      "route_planning",
+      "road_weather_query",
+      "geocoding",
+      "around_traffic_query",
+      "csv_traffic_analysis",
+      "traffic_forecasting",
+      "traffic_anomaly_detection",
+      "traffic_report_rag"
+    ],
+    "input_types": [
+      "text",
+      "address",
+      "coordinates",
+      "csv",
+      "xlsx",
+      "json"
+    ],
+    "output_types": [
+      "traffic_status",
+      "route_plan",
+      "forecast_result",
+      "anomaly_findings",
+      "traffic_report_evidence"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：road-traffic-analysis\n描述：Use this skill for road traffic tasks, including Baidu realtime services, route planning, weather, geocoding, around-location traffic, local/uploaded CSV traffic data analysis, local/uploaded CSV traffic forecasting, local/uploaded CSV traffic anomaly detection, and Xi'an 2024 traffic annual-report RAG retrieval. Do not use for OSM graph parsing, legacy congestion reports, or generic non-road network traffic.\n适用场景：road_traffic。\n适用任务：realtime_traffic_query, route_planning, road_weather_query, geocoding, around_traffic_query, csv_traffic_analysis, traffic_forecasting, traffic_anomaly_detection, traffic_report_rag。\n输入类型：text, address, coordinates, csv, xlsx, json。\n输出类型：traffic_status, route_plan, forecast_result, anomaly_findings, traffic_report_evidence。\n适合使用：查询道路实时拥堵、路况、路线规划或周边交通；分析道路交通流量 CSV 数据、历史趋势、峰谷规律或拥堵情况；预测未来交通流量或检测异常交通流量；检索西安交通年报中的拥堵、运行趋势或治理背景资料。\n不适合使用：分析 pcap 网络通信流量；通过街景照片定位地点；检索政策法规条款；处理程序代码片段。",
+    "positive_triggers": [
+      "查询道路实时拥堵、路况、路线规划或周边交通",
+      "分析道路交通流量 CSV 数据、历史趋势、峰谷规律或拥堵情况",
+      "预测未来交通流量或检测异常交通流量",
+      "检索西安交通年报中的拥堵、运行趋势或治理背景资料"
+    ],
+    "negative_triggers": [
+      "分析 pcap 网络通信流量",
+      "通过街景照片定位地点",
+      "检索政策法规条款",
+      "处理程序代码片段"
+    ],
+    "keywords": [
+      "道路交通",
+      "交通流量",
+      "路况",
+      "拥堵",
+      "堵车",
+      "实时交通",
+      "路线规划",
+      "周边交通",
+      "交通预测",
+      "异常流量",
+      "车流量",
+      "西安交通",
+      "交通年报",
+      "road traffic",
+      "traffic flow"
+    ],
+    "anti_keywords": [
+      "pcap",
+      "DNS",
+      "HTTP",
+      "街景",
+      "照片定位",
+      "政策法规",
+      "程序片段"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "No need to check real-time traffic unless you ask for it.\nPrioritize local data and methodologies for data sourcing; web searching is not required.\n# Road Traffic Analysis\nThis is the single road-traffic skill. It covers realtime API tasks, CSV data analysis, forecasting, anomaly detection, RAG evidence retrieval, and one local CSV data source:\nFor queries involving multiple tasks, account for their logical dependencies and perform task chain decomposition.\nThe model should preferentially use the native skills included in this scope, such as traffic anomaly detection, prediction, and API querying.\nFor real-time traffic analysis queries, actively consider weather factors.\nIf the user requires chart plotting, refer to the chart-visualization skill.\n| Family | Use For | Script |\n| --- | --- | --- |\n| Realtime services | Baidu route, weather, geocode, single-road traffic, around-location traffic | `scripts/simple_baidu_services.py` |\n| CSV data analysis | Understand, summarize, compare, aggregate, and explain uploaded/local CSV traffic data | inspect with `scripts/forecast_runner.py`, then LLM-authored pandas analysis |\n| Forecasting | Predict future traffic flow from uploaded CSV or inline history | `scripts/forecast_runner.py` |\n| Anomaly detection | Detect abnormal traffic flow from uploaded CSV or inline history | `scripts/anomaly_runner.py` |\n| RAG knowledge retrieval | Retrieve cited background facts from the 2024 Xi'an traffic annual report | `scripts/rag_xian2024_min.py` |\nLocal CSV database:\n- Path: `/mnt/skills/custom/road-traffic-analysis/data/csv`\n- Use for built-in/sample/local road-traffic CSV data.\n- Choose a CSV by browsing directory and filenames, then handle it as uploaded CSV data for analysis, forecast, or anomaly detection.\nUse `/mnt/skills/custom/road-traffic-analysis/...` in the agent sandbox. In repo-local debugging, use `skills/custom/road-traffic-analysis/...`.\n`BAIDU_AK` must come from the environment for Baidu realtime services. Do not place API keys in prompts, examples, logs, or tracked files.\n## Prompt-Driven Document Routing\nThe LLM decides whether a request needs annual-report RAG. Do not build or call any script-level intent classifier for document routing.\nUse `rag_xian2024_min.py query` only when the user asks for at least one of these:\n- Recent years traffic report facts or indicators\n- Xi'an recent-years traffic congestion, traffic operation trends, congestion changes, bottleneck areas, or congestion governance context\n- citywide background, annual trend, benchmark, or planning context\n- comparison against annual-report metrics\n- source-backed wording for a governance, leadership, or decision-support report\n- explanation of realtime findings using annual-report context\nWhen citing, please list evidence sources in detail, including the specific file, line number, page, or section.\nDo not use RAG for direct current-status tasks unless the user also asks for background, benchmark, or cited report context:\n- current road congestion\n- today's weather\n- route planning\n- CSV forecasting\n- CSV anomaly detection\nFor mixed governance questions, decompose in this order:\n1. Get current measurements from realtime tools.\n2. Retrieve annual-report context with RAG.\n3. Synthesize the answer and keep the evidence types separate.\nFor broad Xi'an historical/background questions such as \"近年来西安市交通拥堵情况\",\n\"近几年西安交通运行趋势\", \"西安拥堵变化\", or \"西安拥堵治理情况\", prefer\n`rag_xian2024_min.py query` immediately. Do not first search `/mnt/user-data/workspace`,\nask for uploaded CSV data, or use web search unless the user explicitly asks for uploaded\ndata analysis, realtime status, or web search.\n## Prompt Guidance\nThe LLM decides the task family from the user's wording. Do not build script-level intent classifiers or rigid keyword rules.\n1. Realtime traffic, route, weather, geocoding, and nearby road-condition requests use `simple_baidu_services.py`.\n2. Descriptive CSV questions use CSV data analysis. This includes requests to analyze past days, summarize traffic conditions, compare roads/sensors/time periods, calculate averages/totals, describe peak/off-peak patterns, or explain historical trends.\n3. Future traffic-flow prediction uses `forecast_runner.py`.\n4. Abnormal flow, outlier, sudden jump, threshold breach, or anomaly detection uses `anomaly_runner.py`.\n5. Citywide Xi'an traffic background, recent-years congestion situation, traffic operation trends, annual-report facts, benchmark indicators, development context, and source-backed governance-report wording use `rag_xian2024_min.py query` after prompt-based intent judgment.\n6. If a user asks for realtime status plus policy/background explanation, run the realtime API first, then retrieve RAG evidence for context. Do not let RAG replace realtime measurements.\n7. If the user asks to use built-in, sample, local, existing, or database CSV data, list `/mnt/skills/custom/road-traffic-analysis/data/csv`, choose the best matching `.csv` by filename/path, then handle it ..."
+  },
+  "execution": {
+    "required_tools": [
+      "bash",
+      "read_file"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.xlsx",
+      "*.json",
+      "*.txt",
+      "*.md"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 90,
+    "conflict_group": "road_traffic_analysis",
+    "prefer_when": [
+      "用户询问道路路况、拥堵、路线、周边交通、交通流量分析、预测或异常检测",
+      "用户要求使用本地或上传的交通 CSV 数据做统计、趋势、预测或异常分析"
+    ],
+    "defer_when": [
+      "用户说的网络流量是 pcap、DNS、HTTP、TLS 等通信流量时优先使用 network-traffic-analysis",
+      "用户通过街景图像、建筑、招牌或道路照片找地点时优先使用 location-matcher"
+    ]
+  },
+  "source": {
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/custom/road-traffic-analysis",
+    "skill_md_path": "skills/custom/road-traffic-analysis/SKILL.md",
+    "skill_md_hash": "sha256:c802aed141cbc8002168d56ae2f5b16549ee5ba6d8b80d2f28431cc9f89fcf87",
+    "generated_at": "2026-05-21T14:25:38Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:0458aad0c4f8624504243735d3b8d242d3cc8059463f1debaea0c11ddb975662",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "road-traffic-analysis"
+  }
+}

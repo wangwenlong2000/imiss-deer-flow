@@ -231,23 +231,32 @@ class DeerFlowClient:
     @staticmethod
     def _serialize_message(msg) -> dict:
         """Serialize a LangChain message to a plain dict for values events."""
+        def add_common_fields(d: dict[str, Any], msg) -> dict[str, Any]:
+            name = getattr(msg, "name", None)
+            if name:
+                d["name"] = name
+            additional_kwargs = getattr(msg, "additional_kwargs", None)
+            if additional_kwargs:
+                d["additional_kwargs"] = additional_kwargs
+            return d
+
         if isinstance(msg, AIMessage):
             d: dict[str, Any] = {"type": "ai", "content": msg.content, "id": getattr(msg, "id", None)}
             if msg.tool_calls:
                 d["tool_calls"] = [{"name": tc["name"], "args": tc["args"], "id": tc.get("id")} for tc in msg.tool_calls]
-            return d
+            return add_common_fields(d, msg)
         if isinstance(msg, ToolMessage):
-            return {
+            return add_common_fields({
                 "type": "tool",
                 "content": msg.content if isinstance(msg.content, str) else str(msg.content),
                 "name": getattr(msg, "name", None),
                 "tool_call_id": getattr(msg, "tool_call_id", None),
                 "id": getattr(msg, "id", None),
-            }
+            }, msg)
         if isinstance(msg, HumanMessage):
-            return {"type": "human", "content": msg.content, "id": getattr(msg, "id", None)}
+            return add_common_fields({"type": "human", "content": msg.content, "id": getattr(msg, "id", None)}, msg)
         if isinstance(msg, SystemMessage):
-            return {"type": "system", "content": msg.content, "id": getattr(msg, "id", None)}
+            return add_common_fields({"type": "system", "content": msg.content, "id": getattr(msg, "id", None)}, msg)
         return {"type": "unknown", "content": str(msg), "id": getattr(msg, "id", None)}
 
     @staticmethod

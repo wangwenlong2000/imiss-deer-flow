@@ -15,8 +15,8 @@ import {
 import { type BundledLanguage, codeToHtml, type ShikiTransformer } from "shiki";
 
 type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
-  code: string;
-  language: BundledLanguage;
+  code?: unknown;
+  language?: BundledLanguage | string;
   showLineNumbers?: boolean;
 };
 
@@ -50,26 +50,58 @@ const lineNumberTransformer: ShikiTransformer = {
 };
 
 export async function highlightCode(
-  code: string,
-  language: BundledLanguage,
+  code: unknown,
+  language?: BundledLanguage | string,
   showLineNumbers = false,
 ) {
+  const safeCode = normalizeCode(code);
+  const safeLanguage = normalizeLanguage(language);
   const transformers: ShikiTransformer[] = showLineNumbers
     ? [lineNumberTransformer]
     : [];
 
   return await Promise.all([
-    codeToHtml(code, {
-      lang: language,
+    codeToHtml(safeCode, {
+      lang: safeLanguage,
       theme: "one-light",
       transformers,
     }),
-    codeToHtml(code, {
-      lang: language,
+    codeToHtml(safeCode, {
+      lang: safeLanguage,
       theme: "one-dark-pro",
       transformers,
     }),
   ]);
+}
+
+function normalizeCode(code: unknown): string {
+  if (typeof code === "string") {
+    return code;
+  }
+  if (code == null) {
+    return "";
+  }
+  return String(code);
+}
+
+function normalizeLanguage(language?: BundledLanguage | string): BundledLanguage {
+  if (typeof language === "string" && language.trim()) {
+    return language.trim() as BundledLanguage;
+  }
+  return "text" as BundledLanguage;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function fallbackCodeHtml(code: string) {
+  return `<pre><code>${escapeHtml(code)}</code></pre>`;
 }
 
 export const CodeBlock = ({
@@ -82,24 +114,36 @@ export const CodeBlock = ({
 }: CodeBlockProps) => {
   const [html, setHtml] = useState<string>("");
   const [darkHtml, setDarkHtml] = useState<string>("");
-  const mounted = useRef(false);
+  const highlightedCode = normalizeCode(code);
+  const copyCode = highlightedCode;
+  const mounted = useRef(true);
 
   useEffect(() => {
-    highlightCode(code, language, showLineNumbers).then(([light, dark]) => {
-      if (!mounted.current) {
-        setHtml(light);
-        setDarkHtml(dark);
-        mounted.current = true;
-      }
-    });
+    let cancelled = false;
+    mounted.current = true;
+    highlightCode(highlightedCode, language, showLineNumbers)
+      .then(([light, dark]) => {
+        if (!cancelled && mounted.current) {
+          setHtml(light);
+          setDarkHtml(dark);
+        }
+      })
+      .catch(() => {
+        if (!cancelled && mounted.current) {
+          const fallback = fallbackCodeHtml(highlightedCode);
+          setHtml(fallback);
+          setDarkHtml(fallback);
+        }
+      });
 
     return () => {
+      cancelled = true;
       mounted.current = false;
     };
-  }, [code, language, showLineNumbers]);
+  }, [highlightedCode, language, showLineNumbers]);
 
   return (
-    <CodeBlockContext.Provider value={{ code }}>
+    <CodeBlockContext.Provider value={{ code: copyCode }}>
       <div
         className={cn(
           "group bg-background text-foreground relative size-full overflow-hidden rounded-md border",
