@@ -1,0 +1,16 @@
+{
+  "case": "streetmodel-query-embedding",
+  "skill": "video-embedding-index",
+  "thread_id": "dbfc8cbd-ebd9-46e2-899e-4924731a23f5",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "stream_error": null,
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-173823-streetmodel-retry/streetmodel-query-embedding/artifacts/outputs/streetmodel-query-embedding/result.json",
+  "result_status": "success",
+  "error_code": null,
+  "message": null,
+  "embedded_count": null,
+  "failed_count": null,
+  "dimensions": 2048,
+  "passed": true
+}

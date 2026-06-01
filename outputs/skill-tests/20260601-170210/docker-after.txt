@@ -1,0 +1,11 @@
+NAMES                           IMAGE                                                 STATUS                        PORTS
+deer-flow-sandbox-dc9ec0ff      huangxiao-deerflow-sandbox:network-tools              Up 16 seconds (healthy)       0.0.0.0:8186->8080/tcp, [::]:8186->8080/tcp
+deer-flow-sandbox-ca5446ad      huangxiao-deerflow-sandbox:network-tools              Up 46 seconds (healthy)       0.0.0.0:8185->8080/tcp, [::]:8185->8080/tcp
+deer-flow-sandbox-7396d0d0      huangxiao-deerflow-sandbox:network-tools              Up About a minute (healthy)   0.0.0.0:8187->8080/tcp, [::]:8187->8080/tcp
+deer-flow-sandbox-cf3f9550      huangxiao-deerflow-sandbox:network-tools              Up 8 minutes (healthy)        0.0.0.0:8183->8080/tcp, [::]:8183->8080/tcp
+deer-flow-sandbox-df9ec218      huangxiao-deerflow-sandbox:network-tools              Up 8 minutes (healthy)        0.0.0.0:8182->8080/tcp, [::]:8182->8080/tcp
+deer-flow-sandbox-994cb0e2      huangxiao-deerflow-sandbox:network-tools              Up 9 minutes (healthy)        0.0.0.0:8184->8080/tcp, [::]:8184->8080/tcp
+huangxiao-deer-flow-nginx       nginx:alpine                                          Up 5 days                     80/tcp, 0.0.0.0:3230->3230/tcp, [::]:3230->3230/tcp
+huangxiao-deer-flow-gateway     huangxiao-deer-flow-dev-gateway                       Up 5 days                     2024/tcp, 8001/tcp
+huangxiao-deer-flow-langgraph   huangxiao-deer-flow-dev-langgraph                     Up 5 days                     2024/tcp, 8001/tcp
+huangxiao-deer-flow-frontend    huangxiao-deer-flow-dev-frontend                      Up 5 days                     3000/tcp

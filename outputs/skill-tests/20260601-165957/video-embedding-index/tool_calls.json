@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_ed002927013242aea2b1014e",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index skill 文档",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_0799ece3de15498596e8f266",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index skill 入口脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/video-embedding-index\npython /mnt/skills/custom/video-embedding-index/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index/result.json"
+    }
+  },
+  {
+    "id": "call_d2752a44771a4272ba45dd2d",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index skill 入口脚本",
+      "command": "cd /mnt/skills/custom/video-embedding-index && python scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index/result.json"
+    }
+  },
+  {
+    "id": "call_8692648a9e8641319f808215",
+    "name": "read_file",
+    "args": {
+      "description": "读取生成的 result.json 结果文件",
+      "path": "/mnt/user-data/outputs/video-embedding-index/result.json"
+    }
+  }
+]

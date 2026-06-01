@@ -1,0 +1,11 @@
+{
+  "skill": "video-embedding-index",
+  "version": "1.0.0",
+  "status": "failed",
+  "error_code": "STREETMODEL_CONNECTION_FAILED",
+  "message": "Could not connect to StreetModel at http://219.245.185.245:3130: [Errno 111] Connection refused",
+  "retryable": true,
+  "detail": {
+    "base_url": "http://219.245.185.245:3130"
+  }
+}

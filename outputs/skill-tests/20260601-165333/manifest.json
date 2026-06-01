@@ -1,0 +1,62 @@
+{
+  "started_at": "2026-06-01T16:53:33+0800",
+  "finished_at": "2026-06-01T16:55:51+0800",
+  "results": [
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-165333/batch-video-ingestion/artifacts/outputs/batch-video-ingestion/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "batch-video-ingestion",
+      "thread_id": "6b3361b6-dd4e-420b-8335-e9f62b025e8c",
+      "run_id": "019e8263-6958-7362-8499-8e693b841bdd",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-165333/video-search/artifacts/outputs/video-search/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "video-search",
+      "thread_id": "a5ed59e3-584f-4da2-95fe-eead83528ff7",
+      "run_id": "019e8263-fea0-74d3-9e4c-bee5ee50fa2e",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-165333/video-embedding-index/artifacts/outputs/video-embedding-index/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "video-embedding-index",
+      "thread_id": "8171a60b-9a38-4f6f-bfe3-5c174a9fa182",
+      "run_id": "019e8264-8b62-74f3-a886-c0d5b458d31c",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-165333/object-statistics/artifacts/outputs/object-statistics/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "object-statistics",
+      "thread_id": "1823af36-dc52-40c3-8044-651961d0b31c",
+      "run_id": "019e8265-0d0a-7391-af5a-1ba7b7e69c64",
+      "stream_error": null,
+      "sse_errors": []
+    }
+  ]
+}

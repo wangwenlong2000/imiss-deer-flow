@@ -1,0 +1,14 @@
+{
+  "case": "streetmodel-semantic-search",
+  "skill": "video-search",
+  "thread_id": "6471a0c3-364b-4ea2-a272-07b0fde14952",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "stream_error": null,
+  "sse_errors": [],
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-171845-streetmodel-semantic/streetmodel-semantic-search/artifacts/outputs/streetmodel-video-search/result.json",
+  "result_status": "failed",
+  "error_code": "STREETMODEL_CONNECTION_FAILED",
+  "message": "Could not connect to StreetModel at http://219.245.185.245:3130: [Errno 111] Connection refused",
+  "passed": false
+}

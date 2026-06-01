@@ -1,0 +1,13 @@
+{
+  "thread_id": "6471a0c3-364b-4ea2-a272-07b0fde14952",
+  "created_at": "2026-06-01T09:19:12.072755+00:00",
+  "updated_at": "2026-06-01T09:19:12.072755+00:00",
+  "state_updated_at": "2026-06-01T09:19:12.072755+00:00",
+  "metadata": {
+    "purpose": "streetmodel-semantic-search",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

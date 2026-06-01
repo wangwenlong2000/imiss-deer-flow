@@ -49,7 +49,7 @@ class AioSandbox(Sandbox):
             The output of the command.
         """
         try:
-            result = self._client.shell.exec_command(command=command)
+            result = self._client.shell.exec_command(command=command, timeout=600)
             output = result.data.output if result.data else ""
             return output if output else "(no output)"
         except Exception as e:

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_d76fa0cada9c44acb89e79f2",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index 技能文档",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_95dcabf925c24998b56c3a94",
+    "name": "bash",
+    "args": {
+      "description": "执行 StreetModel 链路测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/streetmodel-query-embedding && python /mnt/skills/custom/video-embedding-index/scripts/run.py --embedding-provider streetmodel --query \"路口有很多车辆经过\" --query-vector-output /mnt/user-data/outputs/streetmodel-query-embedding/query_vector.json --base-url http://219.245.185.245:3130 --timeout-seconds 600 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/streetmodel-query-embedding/result.json"
+    }
+  },
+  {
+    "id": "call_187a6c5e30674833bd399f69",
+    "name": "read_file",
+    "args": {
+      "description": "读取 StreetModel 查询结果",
+      "path": "/mnt/user-data/outputs/streetmodel-query-embedding/result.json"
+    }
+  }
+]

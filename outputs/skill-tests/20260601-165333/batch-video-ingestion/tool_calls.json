@@ -1,0 +1,42 @@
+[
+  {
+    "id": "call_aabe3e7b16f64cf9afafab0b",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion skill 文档",
+      "path": "/mnt/skills/custom/batch-video-ingestion/SKILL.md"
+    }
+  },
+  {
+    "id": "call_99c24fda41ce4476a3e0bd86",
+    "name": "bash",
+    "args": {
+      "description": "执行 batch-video-ingestion 测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/batch-video-ingestion /mnt/user-data/workspace/batch-video-ingestion\npython - <<'PY'\nimport json, pathlib\nvideos = {\"videos\":[{\"video_id\":\"video-traffic-agent-test\",\"camera_id\":\"CAM_DEERFLOW_001\",\"file_path\":\"/mnt/datasets/Vedio-demo/Trafic.mp4\",\"source_type\":\"local_file\",\"capture_seconds\":2,\"metadata\":{\"filename\":\"Trafic.mp4\",\"location\":{\"city\":\"宁波市\",\"district\":\"奉化区\"}}}]}\np = pathlib.Path('/mnt/user-data/workspace/batch-video-ingestion/videos.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(videos, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion/videos.json --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_f108b410281d470c9f1e41a3",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 执行结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_a2f19cef9ddc4b23aca02cbf",
+    "name": "bash",
+    "args": {
+      "description": "检查工作区输出目录内容",
+      "command": "ls -la /mnt/user-data/outputs/batch-video-ingestion/ 2>&1; echo \"---\"; ls -la /mnt/user-data/workspace/batch-video-ingestion/ 2>&1"
+    }
+  },
+  {
+    "id": "call_e8158b20af9e4d9c85947add",
+    "name": "bash",
+    "args": {
+      "description": "读取结果文件内容",
+      "command": "cat /mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  }
+]

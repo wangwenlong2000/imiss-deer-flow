@@ -1,0 +1,48 @@
+{
+  "started_at": "2026-06-01T17:02:10+0800",
+  "finished_at": "2026-06-01T17:03:33+0800",
+  "results": [
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-170210/video-search/artifacts/outputs/video-search/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "video-search",
+      "thread_id": "a7ed3194-4e10-4a18-aa02-d573fda074ab",
+      "run_id": "019e826b-4ce3-7032-bb19-b13077e164ef",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-170210/video-embedding-index/artifacts/outputs/video-embedding-index/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "video-embedding-index",
+      "thread_id": "42ffb668-b855-4d3b-87ea-b626ec0cf4d7",
+      "run_id": "019e826b-b464-7991-b306-855218c0d484",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-170210/object-statistics/artifacts/outputs/object-statistics/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "object-statistics",
+      "thread_id": "0cd6e325-164a-4773-b7f1-5e1ec6fa03f9",
+      "run_id": "019e826c-239b-7de0-a77a-9b07fce32cb9",
+      "stream_error": null,
+      "sse_errors": []
+    }
+  ]
+}

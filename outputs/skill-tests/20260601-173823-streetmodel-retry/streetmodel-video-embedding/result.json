@@ -1,0 +1,12 @@
+{
+  "skill": "video-embedding-index",
+  "version": "1.0.0",
+  "status": "failed",
+  "error_code": "STREETMODEL_REQUEST_FAILED",
+  "message": "StreetModel request failed: HTTP 400",
+  "retryable": false,
+  "detail": {
+    "path": "/embed",
+    "response": "{\"detail\":\"视频文件不存在: /home/huangxiao/City_brain/imiss-deer-flow-main/datasets/Vedio-demo/Trafic.mp4\"}"
+  }
+}

@@ -1,0 +1,10 @@
+请测试 `video-embedding-index` 的 StreetModel 链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/video-embedding-index/SKILL.md`。
+2. 再调用 bash 执行下面命令，不要改路径，不要省略输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/streetmodel-video-embedding/result.json`。最终回复只需要给出 status/error_code/关键计数，不要展开完整向量。
+
+```bash
+mkdir -p /mnt/user-data/outputs/streetmodel-video-embedding && python /mnt/skills/custom/video-embedding-index/scripts/run.py --video-id video-traffic-agent-test --video-uri /home/huangxiao/City_brain/imiss-deer-flow-main/datasets/Vedio-demo/Trafic.mp4 --target-index huangxiao-video-library-vector-v1 --owner huangxiao --embedding-provider streetmodel --base-url http://219.245.185.245:3130 --timeout-seconds 600 --deerflow-path-prefix /home/huangxiao/City_brain/imiss-deer-flow-main/datasets --streetmodel-path-prefix /home/huangxiao/City_brain/imiss-deer-flow-main/datasets --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/streetmodel-video-embedding/result.json
+```

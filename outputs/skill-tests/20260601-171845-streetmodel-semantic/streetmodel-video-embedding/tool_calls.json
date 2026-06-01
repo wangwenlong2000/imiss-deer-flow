@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_0625168d5af94d62aeb2a9ae",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index 技能文档了解工作流程",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_801a3793610549d9a912aa24",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index 脚本测试 StreetModel 真实调用",
+      "command": "mkdir -p /mnt/user-data/outputs/streetmodel-video-embedding && python /mnt/skills/custom/video-embedding-index/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 1 --embedding-provider streetmodel --base-url http://219.245.185.245:3130 --timeout-seconds 120 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/streetmodel-video-embedding/result.json"
+    }
+  },
+  {
+    "id": "call_c85c0a7a6f3f4099b9e1538a",
+    "name": "read_file",
+    "args": {
+      "description": "读取 StreetModel 测试生成的结果 JSON 文件",
+      "path": "/mnt/user-data/outputs/streetmodel-video-embedding/result.json"
+    }
+  }
+]

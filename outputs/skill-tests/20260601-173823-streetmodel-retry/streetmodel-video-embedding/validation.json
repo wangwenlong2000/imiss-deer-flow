@@ -1,0 +1,16 @@
+{
+  "case": "streetmodel-video-embedding",
+  "skill": "video-embedding-index",
+  "thread_id": "0afb28ad-8ce2-4f0b-bb83-f6a43af4d07f",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "stream_error": null,
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-173823-streetmodel-retry/streetmodel-video-embedding/artifacts/outputs/streetmodel-video-embedding/result.json",
+  "result_status": "failed",
+  "error_code": "STREETMODEL_REQUEST_FAILED",
+  "message": "StreetModel request failed: HTTP 400",
+  "embedded_count": null,
+  "failed_count": null,
+  "dimensions": null,
+  "passed": false
+}

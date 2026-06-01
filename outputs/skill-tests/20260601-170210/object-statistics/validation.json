@@ -1,0 +1,14 @@
+{
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-170210/object-statistics/artifacts/outputs/object-statistics/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "object-statistics",
+  "thread_id": "0cd6e325-164a-4773-b7f1-5e1ec6fa03f9",
+  "run_id": "019e826c-239b-7de0-a77a-9b07fce32cb9",
+  "stream_error": null,
+  "sse_errors": []
+}

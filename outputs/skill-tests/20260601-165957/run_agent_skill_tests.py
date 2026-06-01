@@ -267,9 +267,12 @@ p.parent.mkdir(parents=True, exist_ok=True)
 json.dump(videos, p.open('w'), ensure_ascii=False, indent=2)
 PY
 python {skill_path}/scripts/run.py --manifest-json {ws}/videos.json --index citybrain-video-library --config {CONFIG} --refresh --output {out}/result.json""",
-        "video-search": f"""mkdir -p {out} && python {skill_path}/scripts/run.py --query Trafic --camera-id {CAMERA_ID} --labels person,car,bus,truck,motorcycle,bicycle --top-k 5 --index citybrain-video-library --config {CONFIG} --output {out}/result.json""",
-        "video-embedding-index": f"""mkdir -p {out} && python {skill_path}/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config {CONFIG} --output {out}/result.json""",
-        "object-statistics": f"""mkdir -p {out} && python {skill_path}/scripts/run.py --camera-id {CAMERA_ID} --index citybrain-video-library --config {CONFIG} --output {out}/result.json""",
+        "video-search": f"""mkdir -p {out}
+python {skill_path}/scripts/run.py --query Trafic --camera-id {CAMERA_ID} --labels person,car,bus,truck,motorcycle,bicycle --top-k 5 --index citybrain-video-library --config {CONFIG} --output {out}/result.json""",
+        "video-embedding-index": f"""mkdir -p {out}
+python {skill_path}/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config {CONFIG} --output {out}/result.json""",
+        "object-statistics": f"""mkdir -p {out}
+python {skill_path}/scripts/run.py --camera-id {CAMERA_ID} --index citybrain-video-library --config {CONFIG} --output {out}/result.json""",
         "evidence-package-generation": f"""mkdir -p {out} {ws}
 python /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path {TRAFFIC_VIDEO} --timestamp 1 --output-path {ws}/source.jpg --output {ws}/keyframe_result.json
 python - <<'PY'

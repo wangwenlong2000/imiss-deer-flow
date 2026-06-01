@@ -1,0 +1,12 @@
+请测试 `video-embedding-index` 的 StreetModel 语义向量真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/video-embedding-index/SKILL.md`。
+2. 再调用 bash 执行下面命令，不要改路径，不要省略输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/streetmodel-video-embedding/result.json`，最终回复返回 JSON 内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/streetmodel-video-embedding && python /mnt/skills/custom/video-embedding-index/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 1 --embedding-provider streetmodel --base-url http://219.245.185.245:3130 --timeout-seconds 120 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/streetmodel-video-embedding/result.json
+```
+
+成功判定：本次重点验证 StreetModel 真实调用。如果 StreetModel 不可达，也必须返回 skill 生成的结构化失败 JSON。

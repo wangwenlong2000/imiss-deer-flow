@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_ea39ed18fa594c51915f3922",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-search skill 文档了解 StreetModel 语义搜索流程",
+      "path": "/mnt/skills/custom/video-search/SKILL.md"
+    }
+  },
+  {
+    "id": "call_d4b6ad5f63ea45148ee861be",
+    "name": "bash",
+    "args": {
+      "description": "执行 StreetModel 语义向量视频搜索测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/streetmodel-video-search && python /mnt/skills/custom/video-search/scripts/run.py --query \"路口有很多车辆经过\" --index huangxiao-video-library-vector-v1 --embedding-provider streetmodel --vector-query-mode semantic --top-k 3 --base-url http://219.245.185.245:3130 --timeout-seconds 120 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/streetmodel-video-search/result.json"
+    }
+  },
+  {
+    "id": "call_d9bfb3ec93f24d8882e33a46",
+    "name": "read_file",
+    "args": {
+      "description": "读取 StreetModel 视频搜索结果 JSON",
+      "path": "/mnt/user-data/outputs/streetmodel-video-search/result.json"
+    }
+  }
+]

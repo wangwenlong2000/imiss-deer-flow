@@ -1,0 +1,33 @@
+{
+  "skill": "object-statistics",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "source": "elasticsearch",
+    "total_objects": 54,
+    "total_tracks": 26,
+    "by_label": {
+      "bus": 9,
+      "car": 45
+    },
+    "by_camera": {
+      "CAM_DEERFLOW_001": 54
+    },
+    "by_time_bucket": {
+      "2026-05-20 10:00": 54
+    },
+    "movement_states": {
+      "moving": 12,
+      "stationary": 14
+    },
+    "group_by": [
+      "label",
+      "camera",
+      "time",
+      "movement"
+    ],
+    "index": "citybrain-video-library",
+    "matched_videos": 3
+  }
+}

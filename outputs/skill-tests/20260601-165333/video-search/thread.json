@@ -1,0 +1,13 @@
+{
+  "thread_id": "a5ed59e3-584f-4da2-95fe-eead83528ff7",
+  "created_at": "2026-06-01T08:54:11.870231+00:00",
+  "updated_at": "2026-06-01T08:54:11.870231+00:00",
+  "state_updated_at": "2026-06-01T08:54:11.870231+00:00",
+  "metadata": {
+    "purpose": "video-search-agent-skill-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

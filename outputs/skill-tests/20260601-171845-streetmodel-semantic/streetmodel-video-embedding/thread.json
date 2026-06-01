@@ -1,0 +1,13 @@
+{
+  "thread_id": "f6b3403c-55b8-4d53-9c87-f95d624ce50e",
+  "created_at": "2026-06-01T09:18:45.370198+00:00",
+  "updated_at": "2026-06-01T09:18:45.370198+00:00",
+  "state_updated_at": "2026-06-01T09:18:45.370198+00:00",
+  "metadata": {
+    "purpose": "streetmodel-video-embedding",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}
