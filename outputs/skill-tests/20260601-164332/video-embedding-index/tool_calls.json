@@ -1,0 +1,50 @@
+[
+  {
+    "id": "call_7a823e6fa7cb42dba94ecc11",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_abe5f0c99c4a4f1dbc77f215",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index skill 的入口脚本进行真链路测试",
+      "command": "mkdir -p /mnt/user-data/outputs/video-embedding-index\npython /mnt/skills/custom/video-embedding-index/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index/result.json"
+    }
+  },
+  {
+    "id": "call_baab47634ac14115b183a19d",
+    "name": "bash",
+    "args": {
+      "description": "检查脚本文件是否存在",
+      "command": "ls -la /mnt/skills/custom/video-embedding-index/scripts/"
+    }
+  },
+  {
+    "id": "call_e4ba128123604091b7b0e568",
+    "name": "bash",
+    "args": {
+      "description": "检查配置文件是否存在",
+      "command": "ls -la /mnt/skills/custom/configs/deerflow_config.json"
+    }
+  },
+  {
+    "id": "call_c89f6faa459a4828bf69220c",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index 脚本并捕获完整输出",
+      "command": "cd /mnt/skills/custom/video-embedding-index && python scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --limit 5 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index/result.json 2>&1"
+    }
+  },
+  {
+    "id": "call_a2fc62f3f397487284c9fec3",
+    "name": "read_file",
+    "args": {
+      "description": "读取生成的 result.json 结果文件",
+      "path": "/mnt/user-data/outputs/video-embedding-index/result.json"
+    }
+  }
+]

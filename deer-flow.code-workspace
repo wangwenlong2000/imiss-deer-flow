@@ -5,6 +5,9 @@
     },
     {
       "path": "../splits"
+    },
+    {
+      "path": "../shanghaitech"
     }
   ],
   "settings": {

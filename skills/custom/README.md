@@ -138,6 +138,8 @@ ES_PASSWORD=123456
 
 默认普通视频库索引名为 `citybrain-video-library`。个人向量索引建议使用 `huangxiao-video-library-vector-v1`，避免影响共享数据。`video-embedding-index` 可从普通视频库读取文档，生成向量后写入个人向量索引。
 
+StreetModel 视频级向量接入使用 `Qwen3-VL-Embedding-2B`，默认写入 2048 维字段 `video_vector-Qwen3-VL-Embedding-2B_urban_governance`。视频文档中的本地路径必须能映射到 GPU 节点可访问的共享目录，默认从 `/data/deerflow/videos` 映射到 `/nfsdat2/home/xhuangslm/shared_videos`。
+
 ## Example Commands
 
 统一事件分析准备：
@@ -160,6 +162,48 @@ python skills/custom/object-detection/scripts/run.py \
   --provider ultralytics \
   --config skills/custom/configs/deerflow_config.json \
   --output /mnt/data/video-monitoring-runs/run_001/detections.json
+```
+
+生成 StreetModel 视频级向量并写入个人 ES 索引：
+
+```bash
+python skills/custom/video-embedding-index/scripts/run.py \
+  --source-index citybrain-video-library \
+  --target-index huangxiao-video-library-vector-v1 \
+  --owner huangxiao \
+  --embedding-provider streetmodel \
+  --config config.yaml \
+  --output /tmp/video_embedding_index.json
+```
+
+直接对一个 StreetModel 可访问的视频路径生成向量并写入个人 ES 索引：
+
+```bash
+python skills/custom/video-embedding-index/scripts/run.py \
+  --embedding-provider streetmodel \
+  --video-id camera01_0001 \
+  --video-uri /nfsdat2/home/xhuangslm/shared_videos/camera01/0001.mp4 \
+  --video-vector-output /tmp/camera01_0001_video_vector.json \
+  --config config.yaml \
+  --output /tmp/camera01_0001_video_embedding.json
+```
+
+生成文本 query 向量并检索已入库视频向量：
+
+```bash
+python skills/custom/video-embedding-index/scripts/run.py \
+  --embedding-provider streetmodel \
+  --query "夜晚路口有很多车辆经过" \
+  --query-vector-output /tmp/video_query_vector.json \
+  --config config.yaml \
+  --output /tmp/video_query_embedding.json
+
+python skills/custom/video-search/scripts/run.py \
+  --index huangxiao-video-library-vector-v1 \
+  --query "夜晚路口有很多车辆经过" \
+  --query-vector-json /tmp/video_query_vector.json \
+  --config config.yaml \
+  --output /tmp/video_search.json
 ```
 
 ## Removed Event Rule Skills

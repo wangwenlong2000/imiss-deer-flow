@@ -729,10 +729,16 @@ export const PromptInput = ({
       form.reset();
     }
 
-    // Convert blob URLs to data URLs asynchronously
+    // Convert previewable images to data URLs for downstream renderers.
+    // Keep larger files such as videos on their object URLs so upload does not
+    // duplicate the whole payload in browser memory.
     Promise.all(
       files.map(async ({ id, ...item }) => {
-        if (item.url && item.url.startsWith("blob:")) {
+        if (
+          item.url &&
+          item.url.startsWith("blob:") &&
+          item.mediaType?.startsWith("image/")
+        ) {
           const dataUrl = await convertBlobUrlToDataUrl(item.url);
           // If conversion failed, keep the original blob URL
           return {

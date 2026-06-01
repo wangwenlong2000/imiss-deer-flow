@@ -1,0 +1,14 @@
+{
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-164332/video-search/artifacts/outputs/video-search/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "video-search",
+  "thread_id": "e0266560-58d2-4ab4-8507-25cd64cad5a7",
+  "run_id": "019e825a-bf09-7c51-8a11-c3f6f3ecec67",
+  "stream_error": null,
+  "sse_errors": []
+}

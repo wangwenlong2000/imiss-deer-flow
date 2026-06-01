@@ -178,6 +178,22 @@ embedding:
   device:
   normalize: true
 
+streetmodel_embedding:
+  enabled: true
+  base_url: http://219.245.185.245:3130
+  model_name: Qwen3-VL-Embedding-2B
+  mode: video
+  vector_field: video_vector-Qwen3-VL-Embedding-2B_urban_governance
+  dimensions: 2048
+  instruction: Represent this surveillance video for urban scene retrieval.
+  text_instruction: Represent this surveillance/street-view query for urban scene retrieval.
+  batch_size: 1
+  timeout_seconds: 600
+  video:
+    item_type: video
+    deerflow_path_prefix: /data/deerflow/videos
+    streetmodel_path_prefix: /nfsdat2/home/xhuangslm/shared_videos
+
 # ============================================================================
 # Elasticsearch Configuration
 # ============================================================================

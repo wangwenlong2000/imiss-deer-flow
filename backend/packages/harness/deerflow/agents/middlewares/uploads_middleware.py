@@ -13,6 +13,17 @@ from deerflow.config.paths import Paths, get_paths
 
 logger = logging.getLogger(__name__)
 
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".wmv", ".flv", ".ts", ".m4v"}
+
+
+def _file_extension(file: dict) -> str:
+    extension = file.get("extension")
+    if isinstance(extension, str) and extension:
+        return extension.lower()
+    filename = file.get("filename")
+    return Path(str(filename)).suffix.lower() if filename else ""
+
 
 class UploadsMiddlewareState(AgentState):
     """State schema for uploads middleware."""
@@ -73,7 +84,18 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
                 lines.append(f"  Path: {file['path']}")
                 lines.append("")
 
-        lines.append("You can read these files using the `read_file` tool with the paths shown above.")
+        all_files = [*new_files, *historical_files]
+        has_images = any(_file_extension(file) in IMAGE_EXTENSIONS for file in all_files)
+        has_videos = any(_file_extension(file) in VIDEO_EXTENSIONS for file in all_files)
+
+        if has_images:
+            lines.append("Image files can be inspected with the `view_image` tool when a vision-capable model is selected.")
+        if has_videos:
+            lines.append(
+                "Video files should be processed with the video-analysis skills or ffmpeg frame extraction first; "
+                "then inspect the extracted frames with `view_image`. Do not read raw video bytes with `read_file`."
+            )
+        lines.append("You can read text and data files using the `read_file` tool with the paths shown above.")
         lines.append("</uploaded_files>")
 
         return "\n".join(lines)

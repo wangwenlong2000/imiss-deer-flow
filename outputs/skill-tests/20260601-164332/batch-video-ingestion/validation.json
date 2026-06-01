@@ -1,0 +1,14 @@
+{
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260601-164332/batch-video-ingestion/artifacts/outputs/batch-video-ingestion/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "batch-video-ingestion",
+  "thread_id": "00c4f2ac-6e43-49bb-a25d-6214e999173a",
+  "run_id": "019e825a-3c16-7612-8877-6d8fee4552e7",
+  "stream_error": null,
+  "sse_errors": []
+}

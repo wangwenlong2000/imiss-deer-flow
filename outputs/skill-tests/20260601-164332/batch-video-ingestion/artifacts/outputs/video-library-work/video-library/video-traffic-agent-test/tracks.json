@@ -1,0 +1,450 @@
+{
+  "skill": "object-tracking",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "tracks": [
+      {
+        "track_id": "track_0001",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "bus",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          575.26,
+          139.02,
+          643.5,
+          236.52
+        ],
+        "trajectory": [
+          [
+            623.83,
+            248.72
+          ],
+          [
+            612.33,
+            211.63
+          ],
+          [
+            609.38,
+            187.77
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.8276,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0002",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          425.17,
+          350.9,
+          519.73,
+          442.75
+        ],
+        "trajectory": [
+          [
+            471.99,
+            395.73
+          ],
+          [
+            472.45,
+            396.82
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.7046,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0003",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "bus",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:00+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          426.48,
+          102.59,
+          471.02,
+          159.81
+        ],
+        "trajectory": [
+          [
+            448.75,
+            131.2
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.5573,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001"
+        ]
+      },
+      {
+        "track_id": "track_0004",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:01+08:00",
+        "duration_seconds": 1,
+        "last_bbox": [
+          534.81,
+          114.88,
+          582.28,
+          164.66
+        ],
+        "trajectory": [
+          [
+            506.4,
+            188.72
+          ],
+          [
+            508.88,
+            163.5
+          ],
+          [
+            558.54,
+            139.77
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.5141,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000010800_0002"
+        ]
+      },
+      {
+        "track_id": "track_0005",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          22.91,
+          197.97,
+          92.08,
+          240.83
+        ],
+        "trajectory": [
+          [
+            63.82,
+            216.27
+          ],
+          [
+            126.09,
+            220.43
+          ],
+          [
+            58.64,
+            259.35
+          ],
+          [
+            57.49,
+            219.4
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.5506,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0006",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          94.61,
+          209.94,
+          149.35,
+          250.35
+        ],
+        "trajectory": [
+          [
+            228.16,
+            176.47
+          ],
+          [
+            188.54,
+            199.78
+          ],
+          [
+            124.48,
+            190.25
+          ],
+          [
+            132.66,
+            224.1
+          ],
+          [
+            121.98,
+            230.14
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.561,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0007",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:00+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          773.71,
+          171.49,
+          804.52,
+          195.68
+        ],
+        "trajectory": [
+          [
+            747.75,
+            178.2
+          ],
+          [
+            789.12,
+            183.59
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.4748,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000000800_0001"
+        ]
+      },
+      {
+        "track_id": "track_0008",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          451.57,
+          159.67,
+          495.42,
+          194.42
+        ],
+        "trajectory": [
+          [
+            413.86,
+            243.92
+          ],
+          [
+            448.85,
+            205.06
+          ],
+          [
+            473.5,
+            177.04
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.5013,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0009",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:00+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 2,
+        "last_bbox": [
+          1162.97,
+          205.52,
+          1279.09,
+          247.37
+        ],
+        "trajectory": [
+          [
+            1221.51,
+            225.34
+          ],
+          [
+            1221.93,
+            226.0
+          ],
+          [
+            1221.03,
+            226.44
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.3843,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000000800_0001",
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0010",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:01+08:00",
+        "end_time": "2026-05-20T10:00:01+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          376.96,
+          468.77,
+          514.39,
+          605.85
+        ],
+        "trajectory": [
+          [
+            445.67,
+            537.31
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.813,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000010800_0002"
+        ]
+      },
+      {
+        "track_id": "track_0011",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:01+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 1,
+        "last_bbox": [
+          468.51,
+          227.36,
+          530.95,
+          280.05
+        ],
+        "trajectory": [
+          [
+            487.37,
+            310.57
+          ],
+          [
+            499.73,
+            253.71
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.8028,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000010800_0002",
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0012",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "bus",
+        "start_time": "2026-05-20T10:00:01+08:00",
+        "end_time": "2026-05-20T10:00:01+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          23.25,
+          132.6,
+          100.95,
+          204.32
+        ],
+        "trajectory": [
+          [
+            62.1,
+            168.46
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.4864,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000010800_0002"
+        ]
+      },
+      {
+        "track_id": "track_0013",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:02+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          642.46,
+          148.25,
+          677.17,
+          173.39
+        ],
+        "trajectory": [
+          [
+            659.82,
+            160.82
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.5411,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      },
+      {
+        "track_id": "track_0014",
+        "camera_id": "CAM_DEERFLOW_001",
+        "label": "car",
+        "start_time": "2026-05-20T10:00:02+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          175.65,
+          168.91,
+          226.68,
+          209.11
+        ],
+        "trajectory": [
+          [
+            201.17,
+            189.01
+          ]
+        ],
+        "movement_state": "stationary",
+        "confidence": 0.497,
+        "evidence_frame_ids": [
+          "CAM_DEERFLOW_001_202605201000020800_0003"
+        ]
+      }
+    ]
+  }
+}

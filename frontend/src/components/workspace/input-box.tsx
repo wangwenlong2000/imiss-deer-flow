@@ -339,7 +339,9 @@ export function InputBox({
         onStop?.();
         return;
       }
-      if (!message.text) {
+      const hasText = message.text.trim().length > 0;
+      const hasFiles = message.files.length > 0;
+      if (!hasText && !hasFiles) {
         return;
       }
       setFollowups([]);

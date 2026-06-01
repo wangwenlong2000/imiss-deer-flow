@@ -1,0 +1,18 @@
+{
+  "videos": [
+    {
+      "video_id": "video-traffic-agent-test",
+      "camera_id": "CAM_DEERFLOW_001",
+      "file_path": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+      "source_type": "local_file",
+      "capture_seconds": 2,
+      "metadata": {
+        "filename": "Trafic.mp4",
+        "location": {
+          "city": "宁波市",
+          "district": "奉化区"
+        }
+      }
+    }
+  ]
+}
