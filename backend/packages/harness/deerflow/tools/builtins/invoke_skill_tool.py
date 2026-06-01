@@ -270,7 +270,7 @@ def invoke_skill_tool(
     skill_name: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
     mode: Literal["prepare", "wrap_output"] = "prepare",
-    input_envelope: dict[str, Any] | None = None,
+    input_envelope: dict[str, Any] | str | None = None,
     capability: str | None = None,
     legacy_output: str | dict[str, Any] | list[Any] | None = None,
     legacy_artifacts: list[str] | None = None,
@@ -312,7 +312,14 @@ def invoke_skill_tool(
         })
 
     allowed = _state_allowed_skills(runtime)
-    if allowed is not None and skill_name not in allowed and skill.skill_path not in allowed:
+    is_public_skill = getattr(skill, "category", None) == "public"
+
+    if (
+        allowed is not None
+        and not is_public_skill
+        and skill_name not in allowed
+        and skill.skill_path not in allowed
+    ):
         return _json_response({
             "status": "error",
             "error": {
@@ -323,6 +330,29 @@ def invoke_skill_tool(
         })
 
     try:
+        if isinstance(input_envelope, str):
+            try:
+                parsed_input_envelope = json.loads(input_envelope)
+            except json.JSONDecodeError as exc:
+                return _json_response({
+                    "status": "error",
+                    "error": {
+                        "code": "INVALID_SKILL_INPUT_ENVELOPE",
+                        "message": f"input_envelope must be a dictionary or valid JSON object string: {exc}",
+                    },
+                })
+
+            if not isinstance(parsed_input_envelope, dict):
+                return _json_response({
+                    "status": "error",
+                    "error": {
+                        "code": "INVALID_SKILL_INPUT_ENVELOPE",
+                        "message": "input_envelope JSON string must decode to an object/dictionary.",
+                    },
+                })
+
+            input_envelope = parsed_input_envelope
+
         envelope = _normalize_input_envelope(
             runtime=runtime,
             skill_name=skill.name,

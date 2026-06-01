@@ -192,7 +192,11 @@ export function DataCenterPage() {
   }, [t.dataCenter.title, t.pages.appName]);
 
   useEffect(() => {
-    setChatSelection(readSelectedDataSourceIds());
+    const selectedIds = readSelectedDataSourceIds().filter(
+      (id) => !id.startsWith("es-"),
+    );
+    setChatSelection(selectedIds);
+    writeSelectedDataSourceIds(selectedIds);
   }, []);
 
   const registeredSources = data?.sources ?? [];
@@ -235,7 +239,9 @@ export function DataCenterPage() {
     );
   }, [selectedId, visibleSources]);
 
-  const { data: selectedSourceDetail } = useDataSourceDetail(selectedSource?.id);
+  const { data: selectedSourceDetail } = useDataSourceDetail(
+    isEsSource(selectedSource) ? null : selectedSource?.id,
+  );
 
   const selectedEsIndexName = isEsSource(selectedSource)
     ? getEsIndexName(selectedSource)
@@ -257,6 +263,11 @@ export function DataCenterPage() {
 
   const handleUseForChat = () => {
     if (!selectedSource) {
+      return;
+    }
+
+    if (isEsSource(selectedSource)) {
+      toast.info("Elasticsearch 索引用于 RAG 检索展示，不需要添加到对话文件系统");
       return;
     }
 

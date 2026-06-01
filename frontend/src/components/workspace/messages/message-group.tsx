@@ -152,6 +152,38 @@ export function MessageGroup({
   );
 }
 
+function getInvokeSkillLabel(args: Record<string, unknown>) {
+  const skillName = args.skill_name;
+  const mode = args.mode;
+
+  if (typeof skillName !== "string" || !skillName.trim()) {
+    return "调用 Skill";
+  }
+
+  if (mode === "prepare") {
+    return `准备调用 Skill：${skillName}`;
+  }
+
+  if (mode === "wrap_output") {
+    return `整理 Skill 输出：${skillName}`;
+  }
+
+  return `调用 Skill：${skillName}`;
+}
+
+function getToolCallLabel(
+  name: string,
+  args: Record<string, unknown>,
+  fallback: ReactNode,
+) {
+  if (name === "invoke_skill") {
+    return getInvokeSkillLabel(args);
+  }
+
+  return fallback;
+}
+
+
 function ToolCall({
   id,
   messageId,
@@ -381,10 +413,12 @@ function ToolCall({
   } else {
     const description: string | undefined = (args as { description: string })
       ?.description;
+    const fallbackLabel = description ?? t.toolCalls.useTool(name);
+
     return (
       <ChainOfThoughtStep
         key={id}
-        label={description ?? t.toolCalls.useTool(name)}
+        label={getToolCallLabel(name, args, fallbackLabel)}
         icon={WrenchIcon}
       ></ChainOfThoughtStep>
     );
