@@ -44,7 +44,7 @@
     "defer_when": []
   },
   "source": {
-    "skill_dir": "home/gaozhuohui/imiss-deer-flow-main/skills/public/consulting-analysis",
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/consulting-analysis",
     "skill_md_path": "skills/public/consulting-analysis/SKILL.md",
     "skill_md_hash": "sha256:70bdbe8d99ab9a64d340517b0de24afc637faeb763958dac154e5350719354b0",
     "generated_at": "2026-05-21T14:30:43Z",

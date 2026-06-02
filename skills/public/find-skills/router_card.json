@@ -44,7 +44,7 @@
     "defer_when": []
   },
   "source": {
-    "skill_dir": "home/gaozhuohui/imiss-deer-flow-main/skills/public/find-skills",
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/find-skills",
     "skill_md_path": "skills/public/find-skills/SKILL.md",
     "skill_md_hash": "sha256:bdeaf9de2e46ae87b273c8ed6fd95b7095f0be46815b86fc0f9ef162c94f2c71",
     "generated_at": "2026-05-21T14:30:43Z",

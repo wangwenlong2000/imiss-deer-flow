@@ -177,7 +177,7 @@ cd /mnt/skills/custom/policies-regulations/policy-rag && python3 scripts/check_e
 1. 当前对话上传的文件
 2. `/mnt/user-data/uploads`
 3. 用户明确提供的绝对路径
-4. `/mnt/datasets/policies-regulations/policy-rag/raw`
+4. `/mnt/datasets/policy-rag/raw`
 
 ### 2. 当用户要求检索已有知识库时
 按以下顺序解析数据源：
