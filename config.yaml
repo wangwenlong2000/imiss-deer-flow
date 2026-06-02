@@ -15,30 +15,34 @@
 config_version: 1
 
 # ============================================================================
-# Docker Port Overrides
-# ============================================================================
-# Used by scripts/update-docker-ports.sh to update docker/nginx related files.
-# Priority when running the script: environment variables > docker_ports > built-in defaults.
-docker_ports:
-  nginx: 2026
-  langgraph: 2024
-  gateway: 8001
-  frontend: 3000
-subnet:
-  dev: 192.168.200.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
-  
-# ============================================================================
 # Models Configuration
 # ============================================================================
 # Configure available LLM models for the agent to use
 
 models:
-  - name: qwen3.5-plus
-    display_name: Qwen3.5 Plus
+  - name: glm-5
+    display_name: GLM-5
+    use: langchain_anthropic:ChatAnthropic
+    model: glm-5
+    api_key: $ANTHROPIC_API_KEY
+    base_url: $ANTHROPIC_BASE_URL
+    max_tokens: 8192
+    temperature: 0.7
+    supports_vision: false
+    supports_thinking: false
+    supports_reasoning_effort: false
+    when_thinking_enabled:
+      extra_body:
+        thinking:
+          type: enabled
+
+  - name: qwen3.6-plus
+    display_name: Qwen3.6 Plus
     use: langchain_openai:ChatOpenAI
-    model: qwen3.5-plus
+    model: qwen3.6-plus
     api_key: $DASHSCOPE_API_KEY
     base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    #base_url: http://129.211.141.253:65530/api/coding
     max_tokens: 8192   # 多模态模型输出 token 限制可能不同，视具体模型而定
     temperature: 0.7
     supports_vision: true  # 必须显式开启，系统才会注入 view_image 能力
@@ -49,6 +53,21 @@ models:
         thinking:
           type: enabled
 
+  - name: deepseek-v4-pro
+    display_name: DeepSeek V4 Pro
+    use: deerflow.models.patched_deepseek:PatchedChatDeepSeek
+    model: deepseek-v4-pro
+    api_key: $DEEPSEEK_API_KEY
+    api_base: https://api.deepseek.com
+    max_tokens: 8192
+    temperature: 0.7
+    supports_vision: true  # 必须显式开启，系统才会注入 view_image 能力
+    supports_thinking: true
+    supports_reasoning_effort: true
+    when_thinking_enabled:
+      extra_body:
+        thinking:
+          type: enabled
 
 # ============================================================================
 # Embedding Configuration
@@ -61,13 +80,15 @@ embedding:
   # - dashscope              (OpenAI-compatible API)
   # - openai
   # - openai-compatible
-  provider: sentence-transformers
+  provider: openai-compatible
   model: BAAI/bge-m3
-  api_key:
-  base_url:
+  api_key: unused
+  base_url: $EMBEDDING_BASE_URL
+  # Note: embedding service env variable renamed to EMBEDDING_BASE_URL
   dimensions:
   device:
   normalize: true
+  allow_download: false
 
 # ============================================================================
 # Elasticsearch Configuration
@@ -75,12 +96,12 @@ embedding:
 # Used by standalone indexing scripts such as index_rag_docs.py.
 elasticsearch:
   hosts:
-    - http://localhost:9200
-  index_name: network-traffic-rag
+    - $ES_URL
+  index_name: $NETWORK_TRAFFIC_ES_INDEX
   api_key:
-  username:
-  password:
-  verify_certs: true
+  username: $ES_USERNAME
+  password: $ES_PASSWORD
+  verify_certs: false
   request_timeout: 30
   
   # Example: Volcengine (Doubao) model
@@ -227,12 +248,19 @@ tool_groups:
 # Configure available tools for the agent to use
 
 tools:
-  # Web search tool (requires Tavily API key)
+  # Web search tool (uses Baidu HTML search; no API key required, but may be affected by anti-bot/network policy)
   - name: web_search
     group: web
-    use: deerflow.community.tavily.tools:web_search_tool
+    use: deerflow.community.baidu.tools:web_search_tool
     max_results: 5
-    # api_key: $TAVILY_API_KEY  # Set if needed
+    timeout: 10
+
+  # Web search tool (requires Tavily API key)
+  # - name: web_search
+  #   group: web
+  #   use: deerflow.community.tavily.tools:web_search_tool
+  #   max_results: 5
+  #   api_key: $TAVILY_API_KEY  # Set if needed
 
   # Web search tool (requires InfoQuest API key)
   # - name: web_search
@@ -299,50 +327,36 @@ tools:
 # ============================================================================
 # Choose between local sandbox (direct execution) or Docker-based AIO sandbox
 
-# Option 1: Local Sandbox (Default)
-# Executes commands directly on the host machine
+# AIO sandbox runs each thread in its own container.
+# The image below is built from docker/sandbox/Dockerfile and includes tshark + zeek.
 sandbox:
-  use: deerflow.sandbox.local:LocalSandboxProvider
-
-# Option 2: Container-based AIO Sandbox
-# Executes commands in isolated containers (Docker or Apple Container)
-# On macOS: Automatically prefers Apple Container if available, falls back to Docker
-# On other platforms: Uses Docker
-# Uncomment to use:
-# sandbox:
-#   use: deerflow.community.aio_sandbox:AioSandboxProvider
-#
-#   # Optional: Container image to use (works with both Docker and Apple Container)
-#   # Default: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
-#   # Recommended: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest (works on both x86_64 and arm64)
-#   # image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
-#
-#   # Optional: Base port for sandbox containers (default: 8080)
-#   # port: 8080
-
-#   # Optional: Maximum number of concurrent sandbox containers (default: 3)
-#   # When the limit is reached the least-recently-used sandbox is evicted to
-#   # make room for new ones. Use a positive integer here; omit this field to use the default.
-#   # replicas: 3
-#
-#   # Optional: Prefix for container names (default: deer-flow-sandbox)
-#   # container_prefix: deer-flow-sandbox
-#
-#   # Optional: Additional mount directories from host to container
-#   # NOTE: Skills directory is automatically mounted from skills.path to skills.container_path
-#   # mounts:
-#   #   # Other custom mounts
-#   #   - host_path: /path/on/host
-#   #     container_path: /home/user/shared
-#   #     read_only: false
-#
-#   # Optional: Environment variables to inject into the sandbox container
-#   # Values starting with $ will be resolved from host environment variables
-#   # environment:
-#   #   NODE_ENV: production
-#   #   DEBUG: "false"
-#   #   API_KEY: $MY_API_KEY        # Reads from host's MY_API_KEY env var
-#   #   DATABASE_URL: $DATABASE_URL  # Reads from host's DATABASE_URL env var
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  image: $DEER_FLOW_SANDBOX_IMAGE
+  port: 8080
+  replicas: 3
+  container_prefix: deer-flow-sandbox
+  environment:
+    ES_URL: $ES_URL
+    NETWORK_TRAFFIC_ES_INDEX: $NETWORK_TRAFFIC_ES_INDEX
+    ES_USERNAME: $ES_USERNAME
+    ES_PASSWORD: $ES_PASSWORD
+    EMBEDDING_API_KEY: $EMBEDDING_API_KEY
+    EMBEDDING_BASE_URL: $EMBEDDING_BASE_URL
+    NETWORK_TRAFFIC_CACHE_ROOT: /tmp/.network-traffic-cache
+    NETWORK_TRAFFIC_WORKSPACE_ROOT: /tmp/.network-traffic-workspace
+  mounts:
+    #- host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/raw
+    #  container_path: /mnt/datasets/network-traffic/raw
+    #  read_only: true
+    #- host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/schema
+    #  container_path: /mnt/datasets/network-traffic/schema
+    #  read_only: true
+    - host_path: /home/wwl/imiss-deer-flow-main/datasets
+      container_path: /mnt/datasets
+      read_only: true
+    - host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/processed
+      container_path: /mnt/datasets/network-traffic/processed
+      read_only: false
 
 # Option 3: Provisioner-managed AIO Sandbox (docker-compose-dev)
 # Each sandbox_id gets a dedicated Pod in k3s, managed by the provisioner.
@@ -390,10 +404,10 @@ skills:
 # Automatic conversation title generation settings
 
 title:
-  enabled: false
+  enabled: true
   max_words: 6
   max_chars: 60
-  model_name: null # Use default model (first model in models list)
+  model_name: glm-5
 
 # ============================================================================
 # Summarization Configuration
@@ -412,9 +426,9 @@ summarization:
   # Summarization runs when ANY threshold is met (OR logic)
   # You can specify a single trigger or a list of triggers
   trigger:
-    # Trigger when token count reaches 15564
+    # Trigger when token count reaches 700000
     - type: tokens
-      value: 15564
+      value: 700000
     # Uncomment to also trigger when message count reaches 50
     # - type: messages
     #   value: 50
@@ -425,9 +439,9 @@ summarization:
   # Context retention policy after summarization
   # Specifies how much recent history to preserve
   keep:
-    # Keep the most recent 10 messages (recommended)
+    # Keep the most recent 50 messages
     type: messages
-    value: 10
+    value: 50
     # Alternative: Keep specific token count
     # type: tokens
     # value: 3000
@@ -437,7 +451,7 @@ summarization:
 
   # Maximum tokens to keep when preparing messages for summarization
   # Set to null to skip trimming (not recommended for very long conversations)
-  trim_tokens_to_summarize: 15564
+  trim_tokens_to_summarize: 700000
 
   # Custom summary prompt template (null = use default LangChain prompt)
   # The prompt should guide the model to extract important context
@@ -490,6 +504,48 @@ checkpointer:
 # checkpointer:
 #   type: postgres
 #   connection_string: postgresql://user:password@localhost:5432/deerflow
+
+# ============================================================================
+# SkillRouter Configuration
+# ============================================================================
+# Skill routing middleware: task segmentation, scene recognition, skill selection
+
+skill_router:
+  enabled: false
+  # When enabled=false, still use intent scene recognition to inject only
+  # custom skills from the detected scene. Public skills stay in the base prompt.
+  scene_filter_when_disabled: true
+
+  router_cards:
+    registry_path: "skills/registry.json"
+    card_root: "skills"
+    strict_missing_router_card: false
+
+  vector_store:
+    provider: "elasticsearch"
+    url_env: "ES_URL"
+    username_env: "ES_USERNAME"
+    password_env: "ES_PASSWORD"
+    index_env: "SKILL_ROUTER_ES_INDEX"
+    default_index: "citybrain-skill-router-cards"
+    vector_field: "embedding_vector"
+    text_field: "routing_text"
+    id_field: "skill_id"
+    top_k: 8
+
+  embedding:
+    provider: "skillrouter_embedding_api"
+    model_name: "SkillRouter-Embedding-0.6B"
+    base_url_env: "SKILLROUTER_EMBEDDING_BASE_URL"
+    api_key_env: "SKILLROUTER_EMBEDDING_BASE_KEY"
+    default_base_url: "http://192.168.200.1:7800/v1"
+
+  reranker:
+    provider: "skillrouter_reranker_api"
+    model_name: "SkillRouter-Reranker-0.6B"
+    base_url_env: "SKILLROUTER_RERANKER_BASE_URL"
+    api_key_env: "SKILLROUTER_RERANKER_BASE_KEY"
+    default_base_url: "http://192.168.200.1:7801/v1"
 
 # ============================================================================
 # IM Channels Configuration
