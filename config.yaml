@@ -511,7 +511,7 @@ checkpointer:
 # Skill routing middleware: task segmentation, scene recognition, skill selection
 
 skill_router:
-  enabled: true
+  enabled: false
   # When enabled=false, still use intent scene recognition to inject only
   # custom skills from the detected scene. Public skills stay in the base prompt.
   scene_filter_when_disabled: true
