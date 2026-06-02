@@ -12,7 +12,7 @@ from requests.auth import HTTPBasicAuth
 ES_URL = os.getenv("POLICY_ES_URL", "http://172.17.0.1:3128").rstrip("/")
 ES_USER = os.getenv("POLICY_ES_USER", "citybrain-street")
 ES_PASSWORD = os.getenv("POLICY_ES_PASSWORD", "123456")
-ES_INDEX = os.getenv("POLICY_ES_INDEX", "cn_law_articles_text_embedding_v4")
+ES_INDEX = os.getenv("POLICY_ES_INDEX", "cn_law_articles")
 
 
 def main():

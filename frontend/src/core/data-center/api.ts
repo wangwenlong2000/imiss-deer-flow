@@ -117,3 +117,95 @@ export async function uploadDataSourceFiles(
 
   return response.json();
 }
+
+
+export interface EsIndexItem {
+  name: string;
+  display_name: string;
+  type: "elasticsearch";
+  health: string | null;
+  status: string | null;
+  uuid?: string | null;
+  pri: number;
+  rep: number;
+  docs_count: number;
+  docs_deleted: number;
+  store_size_bytes: number;
+  pri_store_size_bytes: number;
+}
+
+export interface EsIndexListResponse {
+  total: number;
+  items: EsIndexItem[];
+}
+
+export interface EsFieldItem {
+  name: string;
+  type: string;
+}
+
+export interface EsIndexDetailResponse {
+  name: string;
+  docs_count: number;
+  docs_deleted: number;
+  store_size_bytes: number;
+  field_count: number;
+  fields: EsFieldItem[];
+}
+
+export interface EsSampleItem {
+  id: string | null;
+  score: number | null;
+  source: Record<string, unknown>;
+}
+
+export interface EsSamplesResponse {
+  index: string;
+  total: unknown;
+  items: EsSampleItem[];
+}
+
+export async function listEsIndices(): Promise<EsIndexListResponse> {
+  const response = await fetch(`${getBackendBaseURL()}/api/data-center/es/indices`);
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorDetail(response, "Failed to list Elasticsearch indices"),
+    );
+  }
+
+  return response.json();
+}
+
+export async function getEsIndexDetail(
+  indexName: string,
+): Promise<EsIndexDetailResponse> {
+  const response = await fetch(
+    `${getBackendBaseURL()}/api/data-center/es/indices/${encodeURIComponent(indexName)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorDetail(response, "Failed to load Elasticsearch index detail"),
+    );
+  }
+
+  return response.json();
+}
+
+export async function getEsIndexSamples(
+  indexName: string,
+  size = 5,
+): Promise<EsSamplesResponse> {
+  const response = await fetch(
+    `${getBackendBaseURL()}/api/data-center/es/indices/${encodeURIComponent(indexName)}/samples?size=${size}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorDetail(response, "Failed to load Elasticsearch samples"),
+    );
+  }
+
+  return response.json();
+}

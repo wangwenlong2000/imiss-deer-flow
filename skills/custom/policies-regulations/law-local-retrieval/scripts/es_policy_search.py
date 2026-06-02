@@ -23,7 +23,7 @@ from requests.auth import HTTPBasicAuth
 DEFAULT_ES_URL = os.getenv("POLICY_ES_URL", "http://172.17.0.1:3128")
 DEFAULT_ES_USER = os.getenv("POLICY_ES_USER", "citybrain-street")
 DEFAULT_ES_PASSWORD = os.getenv("POLICY_ES_PASSWORD", "123456")
-DEFAULT_ES_INDEX = os.getenv("POLICY_ES_INDEX", "cn_law_articles_text_embedding_v4")
+DEFAULT_ES_INDEX = os.getenv("POLICY_ES_INDEX", "cn_law_articles")
 DEFAULT_VECTOR_FIELD = os.getenv("POLICY_ES_VECTOR_FIELD", "vector-text-embedding-v4")
 
 
