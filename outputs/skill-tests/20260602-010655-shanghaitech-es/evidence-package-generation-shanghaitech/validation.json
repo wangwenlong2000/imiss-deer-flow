@@ -1,0 +1,63 @@
+{
+  "case_id": "evidence-package-generation-shanghaitech",
+  "skill": "evidence-package-generation",
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/evidence-package-generation-shanghaitech/artifacts/outputs/evidence-package-generation-shanghaitech/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "result_exists": true,
+  "agent_chain_passed": true,
+  "result_status": "success",
+  "error_code": null,
+  "message": null,
+  "data_summary": {
+    "package_id": "PKG_1c5931e913",
+    "manifest_uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/manifest.json",
+    "evidence": [
+      {
+        "video_id": "shanghaitech-07-007-agent-test",
+        "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+        "artifacts": [
+          {
+            "type": "snapshot",
+            "status": "success",
+            "result": {
+              "skill": "evidence-snapshot",
+              "version": "1.0.0",
+              "status": "success",
+              "confidence": 1.0,
+              "data": {
+                "evidence_id": "EVD_e99bdcef",
+                "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+                "type": "snapshot",
+                "uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/items/EVT_SHANGHAITECH_07_007_AGENT_TEST/evidence/EVT_SHANGHAITECH_07_007_AGENT_TEST_snapshot.txt",
+                "hash": "sha256:c8d19d11f0883557b3acbc249fb01c7eb5414a8a490fc440907ceaefb02945a3",
+                "created_at": "2026-06-01T17:08:44.871839+00:00",
+                "privacy_masked": false
+              }
+            }
+          },
+          {
+            "type": "clip",
+            "status": "success",
+            "result": {
+              "skill": "video-segment-extraction",
+              "version": "1.0.0",
+              "status": "success",
+              "confidence": 1.0,
+              "data": {
+                "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+                "clip_uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/items/EVT_SHANGHAITECH_07_007_AGENT_TEST/evidence/EVT_SHANGHAITECH_07_007_AGENT_TEST_clip.mp4",
+                "start_time": "2026-06-02T00:00:00+08:00",
+                "end_time": "2026-06-02T00:00:04+08:00"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "thread_id": "a69c3f2f-8264-4f28-9ab3-5809582c4963",
+  "run_id": "019e8428-7563-7803-a972-acc9e42a4344",
+  "stream_error": null,
+  "sse_errors": []
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_ad527cd736d047d68ee51768",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_32ded430c3a64d84a1490160",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index skill 的测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/video-embedding-index-deterministic-shanghaitech\npython /mnt/skills/custom/video-embedding-index/scripts/run.py --source-index huangxiao-shanghaitech-es-agent-test --target-index huangxiao-shanghaitech-vector-agent-test --owner huangxiao --video-id shanghaitech-07-007-agent-test --limit 1 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index-deterministic-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_313376234a124908a204d91f",
+    "name": "bash",
+    "args": {
+      "description": "重新执行 video-embedding-index skill 的测试命令",
+      "command": "cd /mnt/skills/custom/video-embedding-index && python scripts/run.py --source-index huangxiao-shanghaitech-es-agent-test --target-index huangxiao-shanghaitech-vector-agent-test --owner huangxiao --video-id shanghaitech-07-007-agent-test --limit 1 --embedding-provider deterministic-hash --dimensions 1024 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index-deterministic-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_1712dd06d254449f98d61165",
+    "name": "read_file",
+    "args": {
+      "description": "读取测试生成的 result.json 结果文件",
+      "path": "/mnt/user-data/outputs/video-embedding-index-deterministic-shanghaitech/result.json"
+    }
+  }
+]

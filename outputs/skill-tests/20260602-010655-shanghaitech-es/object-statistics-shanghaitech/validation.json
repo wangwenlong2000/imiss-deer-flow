@@ -1,0 +1,25 @@
+{
+  "case_id": "object-statistics-shanghaitech",
+  "skill": "object-statistics",
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/object-statistics-shanghaitech/artifacts/outputs/object-statistics-shanghaitech/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "result_exists": true,
+  "agent_chain_passed": true,
+  "result_status": "success",
+  "error_code": null,
+  "message": null,
+  "data_summary": {
+    "index": "huangxiao-shanghaitech-es-agent-test",
+    "matched_videos": 1,
+    "total_objects": 4,
+    "total_tracks": 2,
+    "by_label": {
+      "person": 4
+    }
+  },
+  "thread_id": "57d326a4-653c-49e8-985b-2b0e900f25a6",
+  "run_id": "019e8428-169b-7802-8205-11bc9df69877",
+  "stream_error": null,
+  "sse_errors": []
+}

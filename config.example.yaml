@@ -193,6 +193,14 @@ streetmodel_embedding:
     item_type: video
     deerflow_path_prefix: /data/deerflow/videos
     streetmodel_path_prefix: /nfsdat2/home/xhuangslm/shared_videos
+  video_preprocess:
+    enabled: true
+    mode: frame_proxy
+    sample_fps: 1.0
+    max_sampled_frames: 300
+    proxy_output_fps: 4.0
+    max_width: 768
+    output_subdir: embedding_proxies
 
 # ============================================================================
 # Elasticsearch Configuration

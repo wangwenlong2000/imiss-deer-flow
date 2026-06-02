@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_435941a3437b408b9e0dbfef",
+    "name": "read_file",
+    "args": {
+      "description": "读取 object-statistics skill 的 SKILL.md 文件",
+      "path": "/mnt/skills/custom/object-statistics/SKILL.md"
+    }
+  },
+  {
+    "id": "call_da2446918dfa4812ae88fe6e",
+    "name": "bash",
+    "args": {
+      "description": "执行 object-statistics skill 的测试命令",
+      "command": "mkdir -p /mnt/user-data/outputs/object-statistics-shanghaitech && python /mnt/skills/custom/object-statistics/scripts/run.py --video-id shanghaitech-07-007-agent-test --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-statistics-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_f9a41d3d5dcb44d19059b7d8",
+    "name": "read_file",
+    "args": {
+      "description": "读取生成的 result.json 文件",
+      "path": "/mnt/user-data/outputs/object-statistics-shanghaitech/result.json"
+    }
+  }
+]

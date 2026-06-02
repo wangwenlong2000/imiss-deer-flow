@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_89f84665ef6845bf88fb428b",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-embedding-index skill 文档",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_ff4f62f6c7d04369b915fd07",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-embedding-index skill 真链路测试",
+      "command": "mkdir -p /mnt/user-data/outputs/video-embedding-index-streetmodel-video-workspace-prefix /mnt/user-data/workspace/streetmodel_shared && python /mnt/skills/custom/video-embedding-index/scripts/run.py --embedding-provider streetmodel --video-id shanghaitech-07-007-agent-test-streetmodel-workspace --video-uri /mnt/datasets/shanghaitech-agent-eval/07_007.avi --copy-video-to-shared --deerflow-path-prefix /mnt/user-data/workspace/streetmodel_shared --streetmodel-path-prefix /nfsdat2/home/xhuangslm/shared_videos/codex_unmounted_workspace --target-index huangxiao-shanghaitech-vector-agent-test --owner huangxiao --timeout-seconds 120 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index-streetmodel-video-workspace-prefix/result.json"
+    }
+  },
+  {
+    "id": "call_a29dcdeb8f13471193ea4057",
+    "name": "read_file",
+    "args": {
+      "description": "读取测试结果 JSON 文件",
+      "path": "/mnt/user-data/outputs/video-embedding-index-streetmodel-video-workspace-prefix/result.json"
+    }
+  }
+]

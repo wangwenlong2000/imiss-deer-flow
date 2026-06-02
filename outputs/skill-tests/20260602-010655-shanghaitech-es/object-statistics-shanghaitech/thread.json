@@ -1,0 +1,13 @@
+{
+  "thread_id": "57d326a4-653c-49e8-985b-2b0e900f25a6",
+  "created_at": "2026-06-01T17:08:00.281357+00:00",
+  "updated_at": "2026-06-01T17:08:00.281357+00:00",
+  "state_updated_at": "2026-06-01T17:08:00.281357+00:00",
+  "metadata": {
+    "purpose": "object-statistics-shanghaitech-agent-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

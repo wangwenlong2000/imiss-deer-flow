@@ -1,0 +1,31 @@
+{
+  "skill": "object-statistics",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "source": "elasticsearch",
+    "total_objects": 4,
+    "total_tracks": 2,
+    "by_label": {
+      "person": 4
+    },
+    "by_camera": {
+      "CAM_SHANGHAITECH_07_007": 4
+    },
+    "by_time_bucket": {
+      "2026-05-20 10:00": 4
+    },
+    "movement_states": {
+      "moving": 2
+    },
+    "group_by": [
+      "label",
+      "camera",
+      "time",
+      "movement"
+    ],
+    "index": "huangxiao-shanghaitech-es-agent-test",
+    "matched_videos": 1
+  }
+}

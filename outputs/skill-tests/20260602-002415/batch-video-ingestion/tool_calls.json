@@ -1,0 +1,50 @@
+[
+  {
+    "id": "call_71b48b215726403ebbb16563",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion skill 文件",
+      "path": "/mnt/skills/custom/batch-video-ingestion/SKILL.md"
+    }
+  },
+  {
+    "id": "call_e195b5ba5b334cea8e3ffe47",
+    "name": "bash",
+    "args": {
+      "description": "执行 batch-video-ingestion skill 的完整测试链路",
+      "command": "mkdir -p /mnt/user-data/outputs/batch-video-ingestion /mnt/user-data/workspace/batch-video-ingestion\npython - <<'PY'\nimport json, pathlib\nvideos = {\"videos\":[{\"video_id\":\"video-traffic-agent-test\",\"camera_id\":\"CAM_DEERFLOW_001\",\"file_path\":\"/mnt/datasets/Vedio-demo/Trafic.mp4\",\"source_type\":\"local_file\",\"capture_seconds\":2,\"metadata\":{\"filename\":\"Trafic.mp4\",\"location\":{\"city\":\"宁波市\",\"district\":\"奉化区\"}}}]}\np = pathlib.Path('/mnt/user-data/workspace/batch-video-ingestion/videos.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(videos, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion/videos.json --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_ecfd8cd2b103480eba2eb0d7",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 执行结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_b94297ae5c3741a68712efc3",
+    "name": "bash",
+    "args": {
+      "description": "重新执行并捕获完整输出",
+      "command": "mkdir -p /mnt/user-data/outputs/batch-video-ingestion /mnt/user-data/workspace/batch-video-ingestion && python - <<'PY'\nimport json, pathlib\nvideos = {\"videos\":[{\"video_id\":\"video-traffic-agent-test\",\"camera_id\":\"CAM_DEERFLOW_001\",\"file_path\":\"/mnt/datasets/Vedio-demo/Trafic.mp4\",\"source_type\":\"local_file\",\"capture_seconds\":2,\"metadata\":{\"filename\":\"Trafic.mp4\",\"location\":{\"city\":\"宁波市\",\"district\":\"奉化区\"}}}]}\np = pathlib.Path('/mnt/user-data/workspace/batch-video-ingestion/videos.json')\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(videos, p.open('w'), ensure_ascii=False, indent=2)\nprint(\"videos.json created\")\nPY\npython /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion/videos.json --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion/result.json 2>&1"
+    }
+  },
+  {
+    "id": "call_ef2995aa79a14355ace4178b",
+    "name": "bash",
+    "args": {
+      "description": "检查输出目录和脚本是否存在",
+      "command": "ls -la /mnt/user-data/outputs/batch-video-ingestion/ 2>&1 && echo \"---\" && ls -la /mnt/skills/custom/batch-video-ingestion/scripts/ 2>&1 && echo \"---\" && ls -la /mnt/skills/custom/configs/ 2>&1"
+    }
+  },
+  {
+    "id": "call_41dd097c3fe64b6480584db2",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 执行结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion/result.json"
+    }
+  }
+]

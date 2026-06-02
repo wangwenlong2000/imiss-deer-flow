@@ -1,0 +1,17 @@
+{
+  "case_id": "video-embedding-index-streetmodel-video-workspace-prefix",
+  "skill": "video-embedding-index",
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-011116-shanghaitech-es/video-embedding-index-streetmodel-video-workspace-prefix/artifacts/outputs/video-embedding-index-streetmodel-video-workspace-prefix/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "result_exists": true,
+  "agent_chain_passed": true,
+  "result_status": "failed",
+  "error_code": "STREETMODEL_REQUEST_FAILED",
+  "message": "StreetModel request failed: HTTP 400",
+  "data_summary": {},
+  "thread_id": "3c0f9419-efee-4451-87cd-2d532c111c51",
+  "run_id": "019e842b-132d-7c12-8b76-7b9e4c62ccbc",
+  "stream_error": null,
+  "sse_errors": []
+}

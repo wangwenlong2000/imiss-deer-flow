@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_e5855eac76d54cb89f675fb5",
+    "name": "read_file",
+    "args": {
+      "description": "Read the video-embedding-index SKILL.md to understand the skill workflow",
+      "path": "/mnt/skills/custom/video-embedding-index/SKILL.md"
+    }
+  },
+  {
+    "id": "call_14b4ce3153ec4e86bda6e9e0",
+    "name": "bash",
+    "args": {
+      "description": "Execute the video-embedding-index skill with StreetModel for the ShanghaiTech test case",
+      "command": "mkdir -p /mnt/user-data/outputs/video-embedding-index-streetmodel-video && python /mnt/skills/custom/video-embedding-index/scripts/run.py --embedding-provider streetmodel --video-id shanghaitech-07-007-agent-test-streetmodel --video-uri /mnt/datasets/shanghaitech-agent-eval/07_007.avi --copy-video-to-shared --target-index huangxiao-shanghaitech-vector-agent-test --owner huangxiao --timeout-seconds 120 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-embedding-index-streetmodel-video/result.json"
+    }
+  },
+  {
+    "id": "call_e014dba51dcd45adba506fe2",
+    "name": "read_file",
+    "args": {
+      "description": "Read the result.json from the test execution",
+      "path": "/mnt/user-data/outputs/video-embedding-index-streetmodel-video/result.json"
+    }
+  }
+]

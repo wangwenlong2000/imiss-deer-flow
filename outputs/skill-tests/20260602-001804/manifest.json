@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-06-02T00:18:04+0800",
+  "finished_at": "2026-06-02T00:18:29+0800",
+  "results": [
+    {
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-001804/video-stream-ingestion/artifacts/outputs/video-stream-ingestion/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "status_success": true,
+      "passed": true,
+      "result_status": "success",
+      "result_error": null,
+      "skill": "video-stream-ingestion",
+      "thread_id": "d34a5044-37b8-4f4a-babb-1494d4a9a29e",
+      "run_id": "019e83fa-6258-71e1-a686-775d0c6bfeb6",
+      "stream_error": null,
+      "sse_errors": []
+    }
+  ]
+}

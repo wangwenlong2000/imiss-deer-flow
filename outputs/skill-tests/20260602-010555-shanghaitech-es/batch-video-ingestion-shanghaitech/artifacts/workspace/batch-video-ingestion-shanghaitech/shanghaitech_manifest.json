@@ -1,0 +1,39 @@
+{
+  "videos": [
+    {
+      "video_id": "shanghaitech-07-007-agent-test",
+      "camera_id": "CAM_SHANGHAITECH_07_007",
+      "file_path": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+      "source_type": "local_file",
+      "capture_seconds": 2,
+      "interval_seconds": 1,
+      "analysis_mode": "object_detection",
+      "labels": [
+        "person",
+        "bicycle"
+      ],
+      "location": {
+        "city": "上海市",
+        "district": "浦东新区",
+        "address": "ShanghaiTech campus surveillance dataset sample"
+      },
+      "metadata": {
+        "filename": "07_007.avi",
+        "dataset": "ShanghaiTech",
+        "split": "training",
+        "scene": "campus_pedestrian_surveillance",
+        "camera_name": "ShanghaiTech 07 scene camera",
+        "original_host_path": "/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi",
+        "description": "ShanghaiTech真实样例07_007，校园行人监控短视频，用于ES skill Agent真链路测试"
+      },
+      "tags": [
+        "ShanghaiTech",
+        "campus",
+        "pedestrian",
+        "surveillance",
+        "agent-es-skill-test"
+      ],
+      "description": "ShanghaiTech campus pedestrian surveillance sample 07_007 from the real dataset."
+    }
+  ]
+}

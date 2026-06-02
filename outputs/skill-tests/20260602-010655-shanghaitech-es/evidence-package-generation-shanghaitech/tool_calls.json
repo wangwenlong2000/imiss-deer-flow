@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_4b78349c08544204b4711b6e",
+    "name": "read_file",
+    "args": {
+      "description": "读取 evidence-package-generation skill 文档",
+      "path": "/mnt/skills/custom/evidence-package-generation/SKILL.md"
+    }
+  },
+  {
+    "id": "call_67c4d37f7b9346f687d54058",
+    "name": "bash",
+    "args": {
+      "description": "执行 evidence-package-generation 测试用例",
+      "command": "mkdir -p /mnt/user-data/outputs/evidence-package-generation-shanghaitech /mnt/user-data/workspace/evidence-package-generation-shanghaitech\npython - <<'PY'\nimport json, pathlib\nevent = {\"event_id\": \"EVT_SHANGHAITECH_07_007_AGENT_TEST\", \"video_id\": \"shanghaitech-07-007-agent-test\", \"camera_id\": \"CAM_SHANGHAITECH_07_007\", \"event_type\": \"manual_evidence\", \"event_time\": \"2026-06-02T00:00:01+08:00\", \"event_elapsed_seconds\": 1, \"confidence\": 0.8, \"description\": \"Evidence package smoke event for ShanghaiTech sample 07_007.\"}\np = pathlib.Path(\"/mnt/user-data/workspace/evidence-package-generation-shanghaitech/event.json\")\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(event, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/evidence-package-generation/scripts/run.py --video-id shanghaitech-07-007-agent-test --event-json /mnt/user-data/workspace/evidence-package-generation-shanghaitech/event.json --output-dir /mnt/user-data/outputs/evidence-package-generation-shanghaitech/package --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/evidence-package-generation-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_281366da95c54295ae77e698",
+    "name": "read_file",
+    "args": {
+      "description": "读取测试结果 JSON",
+      "path": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/result.json"
+    }
+  }
+]

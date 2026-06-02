@@ -1,0 +1,22 @@
+请测试 `batch-video-ingestion` skill 的 Agent 真链路，测试用例：`batch-video-ingestion-shanghaitech`。
+
+测试说明：Ingest the real ShanghaiTech 07_007 sample into a personal ES test index.
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/batch-video-ingestion/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json`，并在最终回复中返回这个 JSON 的核心字段和简短结论；如果失败，保留 error_code/message/detail。
+
+```bash
+mkdir -p /mnt/user-data/outputs/batch-video-ingestion-shanghaitech /mnt/user-data/workspace/batch-video-ingestion-shanghaitech
+python - <<'PY'
+import json, pathlib
+manifest = {"videos": [{"video_id": "shanghaitech-07-007-agent-test", "camera_id": "CAM_SHANGHAITECH_07_007", "file_path": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi", "source_type": "local_file", "capture_seconds": 2, "interval_seconds": 1, "analysis_mode": "object_detection", "labels": ["person", "bicycle"], "location": {"city": "上海市", "district": "浦东新区", "address": "ShanghaiTech campus surveillance dataset sample"}, "metadata": {"filename": "07_007.avi", "dataset": "ShanghaiTech", "split": "training", "scene": "campus_pedestrian_surveillance", "camera_name": "ShanghaiTech 07 scene camera", "original_host_path": "/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi", "description": "ShanghaiTech真实样例07_007，校园行人监控短视频，用于ES skill Agent真链路测试"}, "tags": ["ShanghaiTech", "campus", "pedestrian", "surveillance", "agent-es-skill-test"], "description": "ShanghaiTech campus pedestrian surveillance sample 07_007 from the real dataset."}]}
+p = pathlib.Path("/mnt/user-data/workspace/batch-video-ingestion-shanghaitech/shanghaitech_manifest.json")
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(manifest, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion-shanghaitech/shanghaitech_manifest.json --index huangxiao-shanghaitech-es-agent-test --analysis-mode object_detection --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json`。

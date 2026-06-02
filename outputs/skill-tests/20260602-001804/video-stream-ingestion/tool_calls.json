@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_5adef73a856746d896470e87",
+    "name": "read_file",
+    "args": {
+      "description": "读取 video-stream-ingestion skill 文档",
+      "path": "/mnt/skills/custom/video-stream-ingestion/SKILL.md"
+    }
+  },
+  {
+    "id": "call_1be60de8e1094c53abdfb9ee",
+    "name": "bash",
+    "args": {
+      "description": "执行 video-stream-ingestion skill 入口脚本",
+      "command": "mkdir -p /mnt/user-data/outputs/video-stream-ingestion && python /mnt/skills/custom/video-stream-ingestion/scripts/run.py --video /mnt/datasets/Vedio-demo/Trafic.mp4 --camera-id CAM_DEERFLOW_001 --source-type local_file --capture-seconds 10 --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-stream-ingestion/result.json"
+    }
+  },
+  {
+    "id": "call_10302cee6797499e8595a05b",
+    "name": "read_file",
+    "args": {
+      "description": "读取生成的 result.json 文件",
+      "path": "/mnt/user-data/outputs/video-stream-ingestion/result.json"
+    }
+  }
+]

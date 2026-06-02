@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     gnupg \
     ca-certificates \
+    ffmpeg \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
@@ -25,8 +26,11 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.20 /uv /uvx /usr/local/bin/
 # Set working directory
 WORKDIR /app
 
-# Copy frontend source code
+# Copy backend and local MCP extension source code
 COPY backend ./backend
+COPY mcp_servers ./mcp_servers
+COPY scripts/streetmodel-video-embedding-mcp ./scripts/streetmodel-video-embedding-mcp
+RUN chmod +x /app/scripts/streetmodel-video-embedding-mcp
 
 # Install dependencies with cache mount
 RUN --mount=type=cache,target=/root/.cache/uv \

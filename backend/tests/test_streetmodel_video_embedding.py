@@ -47,6 +47,13 @@ def http_error(code: int, payload: Any | None = None) -> urllib.error.HTTPError:
     return urllib.error.HTTPError("http://example.test", code, "error", {}, BytesIO(data))
 
 
+class FakeCompletedProcess:
+    def __init__(self, returncode: int = 0, stdout: str = "", stderr: str = ""):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+
+
 class StreetModelVideoEmbeddingTests(unittest.TestCase):
     def test_streetmodel_path_mapping_rules(self):
         module = load_script(VIDEO_EMBED_SCRIPT, "video_embedding_index_path_test")
@@ -143,7 +150,7 @@ class StreetModelVideoEmbeddingTests(unittest.TestCase):
                     return FakeResponse(payload={"refreshed": True})
                 raise AssertionError(f"Unexpected request: {method} {url}")
 
-            argv = ["run.py", "--embedding-provider", "streetmodel", "--config", str(config_path), "--output", str(output_path)]
+            argv = ["run.py", "--embedding-provider", "streetmodel", "--video-preprocess", "none", "--config", str(config_path), "--output", str(output_path)]
             with (
                 mock.patch.object(module.urllib.request, "urlopen", side_effect=fake_urlopen),
                 mock.patch.object(sys, "argv", argv),
@@ -257,6 +264,8 @@ class StreetModelVideoEmbeddingTests(unittest.TestCase):
                 "direct-video-001",
                 "--video-uri",
                 "/nfsdat2/home/xhuangslm/shared_videos/camera01/0001.mp4",
+                "--video-preprocess",
+                "none",
                 "--video-vector-output",
                 str(vector_output),
                 "--config",
@@ -335,6 +344,8 @@ class StreetModelVideoEmbeddingTests(unittest.TestCase):
                 "--streetmodel-path-prefix",
                 "/street/shared",
                 "--copy-video-to-shared",
+                "--video-preprocess",
+                "none",
                 "--config",
                 str(config_path),
                 "--output",
@@ -352,6 +363,105 @@ class StreetModelVideoEmbeddingTests(unittest.TestCase):
             self.assertTrue(copied_path.is_file())
             self.assertEqual(copied_path.read_bytes(), b"fake-video")
             self.assertTrue(upserts[0]["video_embedding_uri"].startswith("/street/shared/direct_uploads/local-video-001-"))
+
+    def test_explicit_video_uri_creates_frame_proxy_and_writes_single_doc(self):
+        module = load_script(VIDEO_EMBED_SCRIPT, "video_embedding_index_frame_proxy_test")
+        vector = [0.9] * 2048
+        embed_payloads: list[dict[str, Any]] = []
+        upserts: list[dict[str, Any]] = []
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            deerflow_prefix = tmp_path / "deerflow" / "videos"
+            local_video = deerflow_prefix / "camera01" / "0001.mp4"
+            local_video.parent.mkdir(parents=True)
+            local_video.write_bytes(b"fake-video")
+            config_path = tmp_path / "config.json"
+            config_path.write_text(json.dumps({"elasticsearch": {"hosts": ["http://es.test"]}}), encoding="utf-8")
+            output_path = tmp_path / "result.json"
+
+            def fake_urlopen(req, timeout=0):
+                url = req.full_url
+                method = req.get_method()
+                body = json.loads(req.data.decode("utf-8")) if req.data else None
+                if url == "http://streetmodel.test/health":
+                    return FakeResponse(payload={"status": "ok"})
+                if url == "http://streetmodel.test/models":
+                    return FakeResponse(payload={"models": [{"name": "Qwen3-VL-Embedding-2B", "exists": True}]})
+                if url == "http://streetmodel.test/embed":
+                    embed_payloads.append(body)
+                    self.assertTrue(body["items"][0]["uri"].startswith("/street/shared/embedding_proxies/proxy-video-001-"))
+                    self.assertTrue(body["items"][0]["uri"].endswith("/proxy.mp4"))
+                    return FakeResponse(payload={"embeddings": [vector], "shape": [1, 2048]})
+                if url == "http://es.test/huangxiao-video-library-vector-v1" and method == "HEAD":
+                    raise http_error(404)
+                if url == "http://es.test/huangxiao-video-library-vector-v1" and method == "PUT":
+                    return FakeResponse(payload={"acknowledged": True})
+                if url == "http://es.test/huangxiao-video-library-vector-v1/_doc/proxy-video-001" and method == "PUT":
+                    upserts.append(body)
+                    return FakeResponse(payload={"result": "created"})
+                if url == "http://es.test/huangxiao-video-library-vector-v1/_refresh" and method == "POST":
+                    return FakeResponse(payload={"refreshed": True})
+                raise AssertionError(f"Unexpected request: {method} {url}")
+
+            def fake_run(cmd, capture_output=True, text=True, check=False):
+                if cmd[0] == "ffprobe":
+                    return FakeCompletedProcess(
+                        stdout=json.dumps(
+                            {
+                                "streams": [{"width": 1920, "height": 1080}],
+                                "format": {"duration": "120.0"},
+                            }
+                        )
+                    )
+                if cmd[0] == "ffmpeg":
+                    Path(cmd[-1]).write_bytes(b"proxy-video")
+                    return FakeCompletedProcess()
+                raise AssertionError(f"Unexpected command: {cmd}")
+
+            argv = [
+                "run.py",
+                "--embedding-provider",
+                "streetmodel",
+                "--base-url",
+                "http://streetmodel.test",
+                "--target-index",
+                "huangxiao-video-library-vector-v1",
+                "--video-id",
+                "proxy-video-001",
+                "--video-uri",
+                str(local_video),
+                "--deerflow-path-prefix",
+                str(deerflow_prefix),
+                "--streetmodel-path-prefix",
+                "/street/shared",
+                "--config",
+                str(config_path),
+                "--output",
+                str(output_path),
+            ]
+            with (
+                mock.patch.object(module.urllib.request, "urlopen", side_effect=fake_urlopen),
+                mock.patch.object(module.shutil, "which", side_effect=lambda name: f"/usr/bin/{name}" if name in {"ffmpeg", "ffprobe"} else None),
+                mock.patch.object(module.subprocess, "run", side_effect=fake_run),
+                mock.patch.object(sys, "argv", argv),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                self.assertEqual(module.main(), 0)
+
+            self.assertEqual(len(embed_payloads), 1)
+            self.assertEqual(len(upserts), 1)
+            indexed_doc = upserts[0]
+            self.assertEqual(indexed_doc[VECTOR_FIELD], vector)
+            self.assertEqual(indexed_doc["raw_segment_uri"], "/street/shared/camera01/0001.mp4")
+            self.assertEqual(indexed_doc["video_embedding_source_uri"], "/street/shared/camera01/0001.mp4")
+            self.assertEqual(indexed_doc["video_embedding_preprocess_mode"], "frame_proxy")
+            self.assertEqual(indexed_doc["video_embedding_source_duration_seconds"], 120.0)
+            self.assertEqual(indexed_doc["video_embedding_sampled_frames"], 120)
+            self.assertTrue(indexed_doc["video_embedding_proxy_uri"].startswith("/street/shared/embedding_proxies/proxy-video-001-"))
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["data"]["embedded_count"], 1)
+            self.assertEqual(result["data"]["documents"][0]["video_embedding_preprocess_mode"], "frame_proxy")
 
     def test_video_search_uses_configured_hyphenated_vector_field(self):
         module = load_script(VIDEO_SEARCH_SCRIPT, "video_search_vector_field_test")

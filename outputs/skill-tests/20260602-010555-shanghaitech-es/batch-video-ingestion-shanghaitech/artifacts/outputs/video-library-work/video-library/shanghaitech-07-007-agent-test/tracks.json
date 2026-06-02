@@ -1,0 +1,70 @@
+{
+  "skill": "object-tracking",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "tracks": [
+      {
+        "track_id": "track_0001",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "label": "person",
+        "start_time": "2026-05-20T10:00:01+08:00",
+        "end_time": "2026-05-20T10:00:01+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          0.1,
+          228.14,
+          49.38,
+          428.87
+        ],
+        "trajectory": [
+          [
+            69.71,
+            357.44
+          ],
+          [
+            24.74,
+            328.5
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.6079,
+        "evidence_frame_ids": [
+          "CAM_SHANGHAITECH_07_007_202605201000010800_0002",
+          "CAM_SHANGHAITECH_07_007_202605201000010800_0002"
+        ]
+      },
+      {
+        "track_id": "track_0002",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "label": "person",
+        "start_time": "2026-05-20T10:00:02+08:00",
+        "end_time": "2026-05-20T10:00:02+08:00",
+        "duration_seconds": 0,
+        "last_bbox": [
+          222.28,
+          218.48,
+          292.17,
+          435.15
+        ],
+        "trajectory": [
+          [
+            189.42,
+            311.5
+          ],
+          [
+            257.23,
+            326.81
+          ]
+        ],
+        "movement_state": "moving",
+        "confidence": 0.8394,
+        "evidence_frame_ids": [
+          "CAM_SHANGHAITECH_07_007_202605201000020800_0003",
+          "CAM_SHANGHAITECH_07_007_202605201000020800_0003"
+        ]
+      }
+    ]
+  }
+}

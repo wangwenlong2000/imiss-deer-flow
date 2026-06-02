@@ -2,10 +2,10 @@
 
 ## 目标
 
-DeerFlow 将视频文件路径传给 StreetModel Server，由 GPU 模型服务直接读取视频并生成视频级 embedding。
+DeerFlow 将视频文件路径转换为 StreetModel Server 可访问的路径。为了避免长视频超过模型处理能力，默认先在 DeerFlow/MCP 侧按时间抽帧并重编码成一个短 proxy MP4，再把 proxy 视频路径传给 StreetModel Server 生成视频级 embedding。
 
 ```text
-1 个视频 -> 1 条 2048 维向量
+1 个原视频 -> 1 个 frame-proxy 视频 -> 1 条 2048 维向量 -> 1 条 ES 文档
 ```
 
 服务地址：
@@ -31,9 +31,14 @@ video_vector-Qwen3-VL-Embedding-2B_urban_governance
 ```text
 DeerFlow
   |
+  | ffmpeg frame-proxy
+  | 1 fps, max 300 sampled frames
+  v
+Proxy MP4 in shared video directory
+  |
   | POST /embed
   | items[].type = video
-  | items[].uri  = 模型服务器可访问的视频绝对路径
+  | items[].uri  = 模型服务器可访问的 proxy 视频绝对路径
   v
 StreetModel Server on GPU
   |
@@ -121,6 +126,15 @@ streetmodel_embedding:
     item_type: video
     deerflow_path_prefix: /data/deerflow/videos
     streetmodel_path_prefix: /nfsdat2/home/xhuangslm/shared_videos
+
+  video_preprocess:
+    enabled: true
+    mode: frame_proxy
+    sample_fps: 1.0
+    max_sampled_frames: 300
+    proxy_output_fps: 4.0
+    max_width: 768
+    output_subdir: embedding_proxies
 ```
 
 说明：
@@ -128,6 +142,7 @@ streetmodel_embedding:
 ```text
 batch_size 建议先用 1，稳定后再考虑增大。
 timeout_seconds 建议至少 600，避免首批模型冷启动超时。
+长视频默认使用 frame-proxy：约 1 秒 1 帧，最多 300 帧，重新编码为短 MP4 后再传给 embedding 模型。短视频如果确认可直接处理，可用 `--video-preprocess none` 关闭。
 ```
 
 ## DeerFlow 请求格式

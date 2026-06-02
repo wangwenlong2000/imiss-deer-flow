@@ -8,6 +8,7 @@ import json
 import math
 import os
 import shutil
+import subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -33,6 +34,12 @@ DEFAULT_STREETMODEL_VIDEO_INSTRUCTION = "Represent this surveillance video for u
 DEFAULT_STREETMODEL_TEXT_INSTRUCTION = "Represent this surveillance/street-view query for urban scene retrieval."
 DEFAULT_DEERFLOW_VIDEO_PREFIX = "/data/deerflow/videos"
 DEFAULT_STREETMODEL_VIDEO_PREFIX = "/nfsdat2/home/xhuangslm/shared_videos"
+DEFAULT_VIDEO_PREPROCESS_MODE = "frame_proxy"
+DEFAULT_FRAME_SAMPLE_FPS = 1.0
+DEFAULT_MAX_SAMPLED_FRAMES = 300
+DEFAULT_PROXY_OUTPUT_FPS = 4.0
+DEFAULT_PROXY_MAX_WIDTH = 768
+DEFAULT_PROXY_OUTPUT_SUBDIR = "embedding_proxies"
 PROXY_ENV_KEYS = ("http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY")
 
 
@@ -179,6 +186,14 @@ class EsClient:
                     "created_at": {"type": "date"},
                     "updated_at": {"type": "date"},
                     "video_embedding_uri": {"type": "keyword"},
+                    "video_embedding_source_uri": {"type": "keyword"},
+                    "video_embedding_proxy_uri": {"type": "keyword"},
+                    "video_embedding_proxy_path": {"type": "keyword"},
+                    "video_embedding_preprocess_mode": {"type": "keyword"},
+                    "video_embedding_source_duration_seconds": {"type": "float"},
+                    "video_embedding_sample_fps": {"type": "float"},
+                    "video_embedding_effective_sample_fps": {"type": "float"},
+                    "video_embedding_sampled_frames": {"type": "integer"},
                     "video_embedding_dimensions": {"type": "integer"},
                     "vector": vector_property,
                 }
@@ -229,6 +244,56 @@ def streetmodel_config(args: argparse.Namespace, config: dict[str, Any]) -> dict
         "text_instruction": str(cfg.get("text_instruction") or DEFAULT_STREETMODEL_TEXT_INSTRUCTION),
         "deerflow_path_prefix": str(args.deerflow_path_prefix or video_cfg.get("deerflow_path_prefix") or DEFAULT_DEERFLOW_VIDEO_PREFIX),
         "streetmodel_path_prefix": str(args.streetmodel_path_prefix or video_cfg.get("streetmodel_path_prefix") or DEFAULT_STREETMODEL_VIDEO_PREFIX),
+    }
+
+
+def _coerce_float(value: Any, default: float) -> float:
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_int(value: Any, default: int) -> int:
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def normalize_video_preprocess_mode(mode: str | None, enabled: bool = True) -> str:
+    if not enabled:
+        return "none"
+    normalized = str(mode or DEFAULT_VIDEO_PREPROCESS_MODE).strip().lower().replace("-", "_")
+    if normalized in {"", "false", "off", "disabled", "none"}:
+        return "none"
+    if normalized in {"frame_proxy", "frameproxy", "proxy"}:
+        return "frame_proxy"
+    raise EmbeddingError(
+        "UNSUPPORTED_VIDEO_PREPROCESS_MODE",
+        f"Unsupported video preprocess mode: {mode}",
+        False,
+        {"mode": mode, "supported_modes": ["frame_proxy", "none"]},
+    )
+
+
+def video_preprocess_config(args: argparse.Namespace, config: dict[str, Any]) -> dict[str, Any]:
+    cfg = config.get("streetmodel_embedding", {}) if isinstance(config.get("streetmodel_embedding"), dict) else {}
+    pre_cfg = cfg.get("video_preprocess", {}) if isinstance(cfg.get("video_preprocess"), dict) else {}
+    enabled = bool(pre_cfg.get("enabled", True))
+    mode_arg = getattr(args, "video_preprocess", None)
+    mode = normalize_video_preprocess_mode(mode_arg or pre_cfg.get("mode"), enabled if mode_arg is None else True)
+    return {
+        "mode": mode,
+        "sample_fps": max(0.001, _coerce_float(getattr(args, "frame_sample_fps", None), _coerce_float(pre_cfg.get("sample_fps"), DEFAULT_FRAME_SAMPLE_FPS))),
+        "max_sampled_frames": max(1, _coerce_int(getattr(args, "max_sampled_frames", None), _coerce_int(pre_cfg.get("max_sampled_frames"), DEFAULT_MAX_SAMPLED_FRAMES))),
+        "proxy_output_fps": max(0.001, _coerce_float(getattr(args, "proxy_output_fps", None), _coerce_float(pre_cfg.get("proxy_output_fps"), DEFAULT_PROXY_OUTPUT_FPS))),
+        "proxy_max_width": max(16, _coerce_int(getattr(args, "proxy_max_width", None), _coerce_int(pre_cfg.get("max_width"), DEFAULT_PROXY_MAX_WIDTH))),
+        "output_subdir": str(pre_cfg.get("output_subdir") or DEFAULT_PROXY_OUTPUT_SUBDIR).strip("/ ") or DEFAULT_PROXY_OUTPUT_SUBDIR,
     }
 
 
@@ -304,6 +369,271 @@ def materialize_streetmodel_video_uri(
         ) from copy_exc
 
     return to_streetmodel_video_uri(str(target), deerflow_prefix, streetmodel_prefix), str(target)
+
+
+def local_video_source_path(
+    original_video_path: str,
+    model_video_uri: str,
+    deerflow_prefix: str,
+    streetmodel_prefix: str,
+    copied_video_path: str | None = None,
+) -> Path:
+    candidates: list[str] = []
+    if copied_video_path:
+        candidates.append(copied_video_path)
+    candidates.append(str(original_video_path).removeprefix("file://"))
+    candidates.append(str(model_video_uri).removeprefix("file://"))
+    if str(model_video_uri).startswith(streetmodel_prefix):
+        candidates.append(str(model_video_uri).replace(streetmodel_prefix, deerflow_prefix, 1))
+
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        path = Path(candidate).expanduser()
+        if path.is_file():
+            return path
+
+    raise EmbeddingError(
+        "VIDEO_PREPROCESS_SOURCE_NOT_READABLE",
+        "Video preprocessing requires a local readable source file before calling StreetModel",
+        False,
+        {
+            "video_path": original_video_path,
+            "model_video_uri": model_video_uri,
+            "deerflow_path_prefix": deerflow_prefix,
+            "streetmodel_path_prefix": streetmodel_prefix,
+            "checked_paths": list(seen),
+        },
+    )
+
+
+def _parse_float(value: Any) -> float | None:
+    if value in (None, "", "N/A"):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) and number > 0 else None
+
+
+def probe_video_metadata(path: Path) -> dict[str, Any]:
+    if not shutil.which("ffprobe"):
+        raise EmbeddingError("FFPROBE_MISSING", "ffprobe is required for video embedding preprocessing", False)
+    cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=width,height,nb_frames:format=duration",
+        "-of",
+        "json",
+        str(path),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        raise EmbeddingError(
+            "FFPROBE_FAILED",
+            "ffprobe failed to read video metadata",
+            True,
+            {"video_path": str(path), "stderr": result.stderr[-2000:]},
+        )
+    try:
+        payload = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError as exc:
+        raise EmbeddingError(
+            "FFPROBE_INVALID_RESPONSE",
+            "ffprobe returned invalid JSON",
+            True,
+            {"video_path": str(path), "stdout": result.stdout[-2000:]},
+        ) from exc
+    stream = (payload.get("streams") or [{}])[0] if isinstance(payload.get("streams"), list) else {}
+    metadata = {
+        "duration_seconds": _parse_float((payload.get("format") or {}).get("duration")),
+        "width": _coerce_int(stream.get("width"), 0) or None,
+        "height": _coerce_int(stream.get("height"), 0) or None,
+    }
+    nb_frames = _parse_float(stream.get("nb_frames"))
+    if nb_frames is not None:
+        metadata["frame_count"] = int(nb_frames)
+    return metadata
+
+
+def safe_path_stem(value: str | None, fallback: str = "video") -> str:
+    raw = value or fallback
+    safe = "".join(ch if ch.isascii() and (ch.isalnum() or ch in "-_.") else "_" for ch in str(raw))
+    return safe.strip("._") or fallback
+
+
+def format_ffmpeg_float(value: float) -> str:
+    text = f"{float(value):.6f}".rstrip("0").rstrip(".")
+    return text or "0"
+
+
+def build_proxy_paths(
+    source_path: Path,
+    video_id: str | None,
+    deerflow_prefix: str,
+    preprocess_cfg: dict[str, Any],
+) -> Path:
+    stem = safe_path_stem(video_id or source_path.stem)
+    digest_source = "|".join(
+        [
+            str(source_path.resolve()) if source_path.exists() else str(source_path),
+            str(source_path.stat().st_mtime_ns if source_path.exists() else ""),
+            str(preprocess_cfg.get("sample_fps")),
+            str(preprocess_cfg.get("max_sampled_frames")),
+            str(preprocess_cfg.get("proxy_output_fps")),
+            str(preprocess_cfg.get("proxy_max_width")),
+        ]
+    )
+    digest = hashlib.sha1(digest_source.encode("utf-8")).hexdigest()[:12]
+    return Path(deerflow_prefix) / str(preprocess_cfg["output_subdir"]) / f"{stem}-{digest}" / "proxy.mp4"
+
+
+def create_frame_proxy_video(
+    source_path: Path,
+    video_id: str | None,
+    street_cfg: dict[str, Any],
+    preprocess_cfg: dict[str, Any],
+) -> dict[str, Any]:
+    if not shutil.which("ffmpeg"):
+        raise EmbeddingError("FFMPEG_MISSING", "ffmpeg is required for video embedding preprocessing", False)
+
+    metadata = probe_video_metadata(source_path)
+    duration = metadata.get("duration_seconds")
+    sample_fps = float(preprocess_cfg["sample_fps"])
+    max_frames = int(preprocess_cfg["max_sampled_frames"])
+    effective_fps = sample_fps
+    if duration:
+        estimated = max(1, math.ceil(duration * sample_fps))
+        if estimated > max_frames:
+            effective_fps = max_frames / duration
+    sampled_frames = max(1, math.ceil(duration * effective_fps)) if duration else None
+
+    proxy_path = build_proxy_paths(source_path, video_id, street_cfg["deerflow_path_prefix"], preprocess_cfg)
+    try:
+        proxy_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise EmbeddingError(
+            "VIDEO_PROXY_OUTPUT_UNAVAILABLE",
+            f"Could not create video embedding proxy directory: {proxy_path.parent}",
+            False,
+            {"proxy_path": str(proxy_path), "error": str(exc)},
+        ) from exc
+
+    fps_value = format_ffmpeg_float(effective_fps)
+    output_fps_value = format_ffmpeg_float(float(preprocess_cfg["proxy_output_fps"]))
+    max_width = int(preprocess_cfg["proxy_max_width"])
+    vf = f"fps={fps_value},scale='min({max_width},iw)':-2,setpts=N/{output_fps_value}/TB"
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(source_path),
+        "-vf",
+        vf,
+        "-an",
+        "-r",
+        output_fps_value,
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        str(proxy_path),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if result.returncode != 0 or not proxy_path.is_file():
+        raise EmbeddingError(
+            "VIDEO_PROXY_GENERATION_FAILED",
+            "ffmpeg failed to create video embedding frame proxy",
+            True,
+            {"video_path": str(source_path), "proxy_path": str(proxy_path), "stderr": result.stderr[-2000:]},
+        )
+
+    proxy_uri = to_streetmodel_video_uri(
+        str(proxy_path),
+        street_cfg["deerflow_path_prefix"],
+        street_cfg["streetmodel_path_prefix"],
+    )
+    return {
+        "mode": "frame_proxy",
+        "video_uri": proxy_uri,
+        "proxy_deerflow_path": str(proxy_path),
+        "proxy_uri": proxy_uri,
+        "source_duration_seconds": duration,
+        "source_width": metadata.get("width"),
+        "source_height": metadata.get("height"),
+        "sample_fps": sample_fps,
+        "effective_sample_fps": round(effective_fps, 6),
+        "sampled_frames": sampled_frames,
+        "max_sampled_frames": max_frames,
+        "proxy_output_fps": float(preprocess_cfg["proxy_output_fps"]),
+        "proxy_max_width": max_width,
+    }
+
+
+def prepare_streetmodel_embedding_video(
+    original_video_path: str,
+    model_video_uri: str,
+    copied_video_path: str | None,
+    street_cfg: dict[str, Any],
+    preprocess_cfg: dict[str, Any],
+    video_id: str | None = None,
+) -> dict[str, Any]:
+    if preprocess_cfg.get("mode") == "none":
+        return {
+            "mode": "none",
+            "video_uri": model_video_uri,
+            "source_uri": model_video_uri,
+            "proxy_uri": None,
+            "proxy_deerflow_path": None,
+        }
+
+    source_path = local_video_source_path(
+        original_video_path,
+        model_video_uri,
+        street_cfg["deerflow_path_prefix"],
+        street_cfg["streetmodel_path_prefix"],
+        copied_video_path,
+    )
+    prepared = create_frame_proxy_video(source_path, video_id, street_cfg, preprocess_cfg)
+    prepared["source_uri"] = model_video_uri
+    return prepared
+
+
+def apply_video_embedding_metadata(
+    doc: dict[str, Any],
+    prepared_video: dict[str, Any],
+    copied_video_path: str | None = None,
+) -> None:
+    doc["video_embedding_uri"] = prepared_video["video_uri"]
+    doc["video_embedding_source_uri"] = prepared_video.get("source_uri") or prepared_video["video_uri"]
+    doc["video_embedding_preprocess_mode"] = prepared_video.get("mode", "none")
+    if prepared_video.get("proxy_uri"):
+        doc["video_embedding_proxy_uri"] = prepared_video["proxy_uri"]
+    if prepared_video.get("proxy_deerflow_path"):
+        doc["video_embedding_proxy_path"] = prepared_video["proxy_deerflow_path"]
+    if prepared_video.get("source_duration_seconds") is not None:
+        doc["video_embedding_source_duration_seconds"] = prepared_video["source_duration_seconds"]
+    if prepared_video.get("sample_fps") is not None:
+        doc["video_embedding_sample_fps"] = prepared_video["sample_fps"]
+    if prepared_video.get("effective_sample_fps") is not None:
+        doc["video_embedding_effective_sample_fps"] = prepared_video["effective_sample_fps"]
+    if prepared_video.get("sampled_frames") is not None:
+        doc["video_embedding_sampled_frames"] = prepared_video["sampled_frames"]
+    if copied_video_path:
+        doc["deerflow_video_path"] = copied_video_path
 
 
 def source_video_path(doc: dict[str, Any]) -> str:
@@ -558,6 +888,11 @@ def main() -> int:
     parser.add_argument("--deerflow-path-prefix")
     parser.add_argument("--streetmodel-path-prefix")
     parser.add_argument("--copy-video-to-shared", action="store_true")
+    parser.add_argument("--video-preprocess", choices=["frame-proxy", "frame_proxy", "none"])
+    parser.add_argument("--frame-sample-fps", type=float)
+    parser.add_argument("--max-sampled-frames", type=int)
+    parser.add_argument("--proxy-output-fps", type=float)
+    parser.add_argument("--proxy-max-width", type=int)
     parser.add_argument("--allow-shared-index", action="store_true")
     parser.add_argument("--config")
     parser.add_argument("--output")
@@ -567,9 +902,11 @@ def main() -> int:
     provider, model, dims, normalize_embeddings = embedding_config(args, config)
     vector_field = vector_field_config(args, config, provider)
     street_cfg: dict[str, Any] = {}
+    preprocess_cfg: dict[str, Any] = {}
     try:
         if provider == "streetmodel":
             street_cfg = streetmodel_config(args, config)
+            preprocess_cfg = video_preprocess_config(args, config)
             model = street_cfg["model_name"]
             dims = street_cfg["dimensions"]
             embedder = StreetModelEmbedder(
@@ -623,15 +960,21 @@ def main() -> int:
                 copy_to_shared=args.copy_video_to_shared,
                 video_id=args.video_id,
             )
-            vector = embedder.encode_video_uri(video_uri)
+            prepared_video = prepare_streetmodel_embedding_video(
+                args.video_uri,
+                video_uri,
+                copied_video_path,
+                street_cfg,
+                preprocess_cfg,
+                args.video_id,
+            )
+            vector = embedder.encode_video_uri(prepared_video["video_uri"])
             out_doc = explicit_video_doc(video_uri, args.video_id)
             out_doc["owner"] = args.owner
             out_doc["embedding_provider"] = provider
             out_doc["embedding_model"] = model
-            out_doc["video_embedding_uri"] = video_uri
+            apply_video_embedding_metadata(out_doc, prepared_video, copied_video_path)
             out_doc["video_embedding_dimensions"] = len(vector)
-            if copied_video_path:
-                out_doc["deerflow_video_path"] = copied_video_path
             out_doc[vector_field] = vector
             doc_id = str(out_doc["video_id"])
             es.upsert_doc(args.target_index, doc_id, out_doc)
@@ -642,7 +985,9 @@ def main() -> int:
             return emit(failed(exc.code, exc.message, exc.retryable, exc.detail), args.output)
         vector_payload = {
             "video_id": doc_id,
-            "video_uri": video_uri,
+            "video_uri": prepared_video["video_uri"],
+            "source_video_uri": prepared_video.get("source_uri"),
+            "proxy_video_uri": prepared_video.get("proxy_uri"),
             "vector": vector,
             "embedding_provider": provider,
             "embedding_model": model,
@@ -665,8 +1010,13 @@ def main() -> int:
                             "video_id": doc_id,
                             "dimensions": len(vector),
                             "vector_field": vector_field,
-                            "video_embedding_uri": video_uri,
+                            "video_embedding_uri": prepared_video["video_uri"],
+                            "video_embedding_source_uri": prepared_video.get("source_uri"),
+                            "video_embedding_proxy_uri": prepared_video.get("proxy_uri"),
+                            "video_embedding_preprocess_mode": prepared_video.get("mode"),
+                            "video_embedding_sampled_frames": prepared_video.get("sampled_frames"),
                             "deerflow_video_path": copied_video_path,
+                            "video_embedding_proxy_path": prepared_video.get("proxy_deerflow_path"),
                         }
                     ],
                     "failures": [],
@@ -697,18 +1047,25 @@ def main() -> int:
             if text:
                 out_doc["embedding_text"] = text
             if provider == "streetmodel":
+                original_video_path = source_video_path(doc)
                 video_uri, copied_video_path = materialize_streetmodel_video_uri(
-                    source_video_path(doc),
+                    original_video_path,
                     street_cfg["deerflow_path_prefix"],
                     street_cfg["streetmodel_path_prefix"],
                     copy_to_shared=args.copy_video_to_shared,
                     video_id=str(out_doc.get("video_id") or ""),
                 )
-                vector = embedder.encode_video_uri(video_uri)
-                out_doc["video_embedding_uri"] = video_uri
+                prepared_video = prepare_streetmodel_embedding_video(
+                    original_video_path,
+                    video_uri,
+                    copied_video_path,
+                    street_cfg,
+                    preprocess_cfg,
+                    str(out_doc.get("video_id") or ""),
+                )
+                vector = embedder.encode_video_uri(prepared_video["video_uri"])
+                apply_video_embedding_metadata(out_doc, prepared_video, copied_video_path)
                 out_doc["video_embedding_dimensions"] = len(vector)
-                if copied_video_path:
-                    out_doc["deerflow_video_path"] = copied_video_path
                 doc_id = str(out_doc.get("video_id") or hashlib.sha1(video_uri.encode("utf-8")).hexdigest())
             else:
                 if not text:
@@ -721,6 +1078,12 @@ def main() -> int:
             item = {"video_id": doc_id, "dimensions": len(vector), "vector_field": vector_field, "embedding_text_chars": len(text)}
             if provider == "streetmodel":
                 item["video_embedding_uri"] = out_doc.get("video_embedding_uri")
+                item["video_embedding_source_uri"] = out_doc.get("video_embedding_source_uri")
+                item["video_embedding_proxy_uri"] = out_doc.get("video_embedding_proxy_uri")
+                item["video_embedding_preprocess_mode"] = out_doc.get("video_embedding_preprocess_mode")
+                item["video_embedding_sampled_frames"] = out_doc.get("video_embedding_sampled_frames")
+                if out_doc.get("video_embedding_proxy_path"):
+                    item["video_embedding_proxy_path"] = out_doc.get("video_embedding_proxy_path")
                 if out_doc.get("deerflow_video_path"):
                     item["deerflow_video_path"] = out_doc.get("deerflow_video_path")
             documents.append(item)

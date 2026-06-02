@@ -57,6 +57,9 @@ tests/
 # Frontend build only needs frontend/
 # Backend build only needs backend/
 scripts/
+!scripts/
+scripts/*
+!scripts/streetmodel-video-embedding-mcp
 logs/
 docker/
 skills/

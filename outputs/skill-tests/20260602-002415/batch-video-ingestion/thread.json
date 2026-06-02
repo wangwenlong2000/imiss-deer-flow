@@ -1,0 +1,13 @@
+{
+  "thread_id": "b5255ef8-57a1-4bf4-a00a-c4a60a1f4ad0",
+  "created_at": "2026-06-01T16:24:15.430449+00:00",
+  "updated_at": "2026-06-01T16:24:15.430449+00:00",
+  "state_updated_at": "2026-06-01T16:24:15.430449+00:00",
+  "metadata": {
+    "purpose": "batch-video-ingestion-agent-skill-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

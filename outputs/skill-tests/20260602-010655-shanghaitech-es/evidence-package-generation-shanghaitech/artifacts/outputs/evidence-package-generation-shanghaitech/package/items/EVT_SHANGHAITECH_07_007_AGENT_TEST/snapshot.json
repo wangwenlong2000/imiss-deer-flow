@@ -1,0 +1,15 @@
+{
+  "skill": "evidence-snapshot",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "evidence_id": "EVD_e99bdcef",
+    "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+    "type": "snapshot",
+    "uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/items/EVT_SHANGHAITECH_07_007_AGENT_TEST/evidence/EVT_SHANGHAITECH_07_007_AGENT_TEST_snapshot.txt",
+    "hash": "sha256:c8d19d11f0883557b3acbc249fb01c7eb5414a8a490fc440907ceaefb02945a3",
+    "created_at": "2026-06-01T17:08:44.871839+00:00",
+    "privacy_masked": false
+  }
+}

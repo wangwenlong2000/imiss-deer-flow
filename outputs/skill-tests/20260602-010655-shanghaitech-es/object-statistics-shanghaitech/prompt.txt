@@ -1,0 +1,15 @@
+请测试 `object-statistics` skill 的 Agent 真链路，测试用例：`object-statistics-shanghaitech`。
+
+测试说明：Aggregate object statistics for the ingested ShanghaiTech video document.
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/object-statistics/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/object-statistics-shanghaitech/result.json`，并在最终回复中返回这个 JSON 的核心字段和简短结论；如果失败，保留 error_code/message/detail。
+
+```bash
+mkdir -p /mnt/user-data/outputs/object-statistics-shanghaitech
+python /mnt/skills/custom/object-statistics/scripts/run.py --video-id shanghaitech-07-007-agent-test --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/object-statistics-shanghaitech/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/object-statistics-shanghaitech/result.json`。

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "call_aa66dbc2437b4c11b90fd388",
+    "name": "read_file",
+    "args": {
+      "description": "Read video-search SKILL.md to understand the skill workflow",
+      "path": "/mnt/skills/custom/video-search/SKILL.md"
+    }
+  },
+  {
+    "id": "call_d73428746f834760afb96857",
+    "name": "bash",
+    "args": {
+      "command": "mkdir -p /mnt/user-data/outputs/video-search && python /mnt/skills/custom/video-search/scripts/run.py --query Trafic --camera-id CAM_DEERFLOW_001 --labels person,car,bus,truck,motorcycle,bicycle --top-k 5 --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-search/result.json",
+      "description": "Execute video-search skill run.py script with specified parameters"
+    }
+  },
+  {
+    "id": "call_d3de0f38e13c4e629a92daaf",
+    "name": "read_file",
+    "args": {
+      "description": "Read the generated result.json to verify output",
+      "path": "/mnt/user-data/outputs/video-search/result.json"
+    }
+  }
+]

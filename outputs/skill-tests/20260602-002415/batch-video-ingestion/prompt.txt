@@ -1,0 +1,20 @@
+请测试 `batch-video-ingestion` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/batch-video-ingestion/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/batch-video-ingestion/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/batch-video-ingestion /mnt/user-data/workspace/batch-video-ingestion
+python - <<'PY'
+import json, pathlib
+videos = {"videos":[{"video_id":"video-traffic-agent-test","camera_id":"CAM_DEERFLOW_001","file_path":"/mnt/datasets/Vedio-demo/Trafic.mp4","source_type":"local_file","capture_seconds":2,"metadata":{"filename":"Trafic.mp4","location":{"city":"宁波市","district":"奉化区"}}}]}
+p = pathlib.Path('/mnt/user-data/workspace/batch-video-ingestion/videos.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(videos, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion/videos.json --index citybrain-video-library --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/batch-video-ingestion/result.json`。

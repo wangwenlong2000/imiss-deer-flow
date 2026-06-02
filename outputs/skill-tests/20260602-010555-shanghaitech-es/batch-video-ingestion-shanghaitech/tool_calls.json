@@ -1,0 +1,42 @@
+[
+  {
+    "id": "call_1c2d0730788c49b99ed4e59d",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion skill 文档以了解其工作流程",
+      "path": "/mnt/skills/custom/batch-video-ingestion/SKILL.md"
+    }
+  },
+  {
+    "id": "call_3a6b86c08f4b4b0db622c198",
+    "name": "bash",
+    "args": {
+      "description": "创建目录并执行 batch-video-ingestion skill 真链路测试",
+      "command": "mkdir -p /mnt/user-data/outputs/batch-video-ingestion-shanghaitech /mnt/user-data/workspace/batch-video-ingestion-shanghaitech\npython - <<'PY'\nimport json, pathlib\nmanifest = {\"videos\": [{\"video_id\": \"shanghaitech-07-007-agent-test\", \"camera_id\": \"CAM_SHANGHAITECH_07_007\", \"file_path\": \"/mnt/datasets/shanghaitech-agent-eval/07_007.avi\", \"source_type\": \"local_file\", \"capture_seconds\": 2, \"interval_seconds\": 1, \"analysis_mode\": \"object_detection\", \"labels\": [\"person\", \"bicycle\"], \"location\": {\"city\": \"上海市\", \"district\": \"浦东新区\", \"address\": \"ShanghaiTech campus surveillance dataset sample\"}, \"metadata\": {\"filename\": \"07_007.avi\", \"dataset\": \"ShanghaiTech\", \"split\": \"training\", \"scene\": \"campus_pedestrian_surveillance\", \"camera_name\": \"ShanghaiTech 07 scene camera\", \"original_host_path\": \"/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi\", \"description\": \"ShanghaiTech真实样例07_007，校园行人监控短视频，用于ES skill Agent真链路测试\"}, \"tags\": [\"ShanghaiTech\", \"campus\", \"pedestrian\", \"surveillance\", \"agent-es-skill-test\"], \"description\": \"ShanghaiTech campus pedestrian surveillance sample 07_007 from the real dataset.\"}]}\np = pathlib.Path(\"/mnt/user-data/workspace/batch-video-ingestion-shanghaitech/shanghaitech_manifest.json\")\np.parent.mkdir(parents=True, exist_ok=True)\njson.dump(manifest, p.open('w'), ensure_ascii=False, indent=2)\nPY\npython /mnt/skills/custom/batch-video-ingestion/scripts/run.py --manifest-json /mnt/user-data/workspace/batch-video-ingestion-shanghaitech/shanghaitech_manifest.json --index huangxiao-shanghaitech-es-agent-test --analysis-mode object_detection --config /mnt/skills/custom/configs/deerflow_config.json --refresh --output /mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_895eb5f4f922422aa269e0e2",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 测试结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_897078dc9c1e487e9622c1e1",
+    "name": "bash",
+    "args": {
+      "description": "检查输出目录和工作空间目录的内容",
+      "command": "ls -la /mnt/user-data/outputs/batch-video-ingestion-shanghaitech/ 2>&1; echo \"---\"; ls -la /mnt/user-data/workspace/batch-video-ingestion-shanghaitech/ 2>&1"
+    }
+  },
+  {
+    "id": "call_7d4856a7be844453a51500c4",
+    "name": "read_file",
+    "args": {
+      "description": "读取 batch-video-ingestion 测试结果",
+      "path": "/mnt/user-data/outputs/batch-video-ingestion-shanghaitech/result.json"
+    }
+  }
+]

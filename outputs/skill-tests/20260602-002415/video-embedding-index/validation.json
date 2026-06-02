@@ -1,0 +1,14 @@
+{
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-002415/video-embedding-index/artifacts/outputs/video-embedding-index/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "status_success": true,
+  "passed": true,
+  "result_status": "success",
+  "result_error": null,
+  "skill": "video-embedding-index",
+  "thread_id": "48a69439-0b34-4017-9562-329d1e009b8a",
+  "run_id": "019e8401-07b3-7db2-9687-ffdf8823e778",
+  "stream_error": null,
+  "sse_errors": []
+}

@@ -1,0 +1,43 @@
+{
+  "skill": "frame-sampling",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "camera_id": "CAM_SHANGHAITECH_07_007",
+    "frames": [
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000000800_0001",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "timestamp": "2026-05-20T10:00:00+08:00",
+        "image_uri": "/mnt/user-data/outputs/video-library-work/video-library/shanghaitech-07-007-agent-test/frames/CAM_SHANGHAITECH_07_007/CAM_SHANGHAITECH_07_007_202605201000000800_0001.jpg",
+        "width": 856,
+        "height": 480,
+        "sequence": 1,
+        "source_elapsed_seconds": 0.0
+      },
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000010800_0002",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "timestamp": "2026-05-20T10:00:01+08:00",
+        "image_uri": "/mnt/user-data/outputs/video-library-work/video-library/shanghaitech-07-007-agent-test/frames/CAM_SHANGHAITECH_07_007/CAM_SHANGHAITECH_07_007_202605201000010800_0002.jpg",
+        "width": 856,
+        "height": 480,
+        "sequence": 2,
+        "source_elapsed_seconds": 1.0
+      },
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000020800_0003",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "timestamp": "2026-05-20T10:00:02+08:00",
+        "image_uri": "/mnt/user-data/outputs/video-library-work/video-library/shanghaitech-07-007-agent-test/frames/CAM_SHANGHAITECH_07_007/CAM_SHANGHAITECH_07_007_202605201000020800_0003.jpg",
+        "width": 856,
+        "height": 480,
+        "sequence": 3,
+        "source_elapsed_seconds": 2.0
+      }
+    ],
+    "source_video_uri": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+    "fps": 25.0
+  }
+}

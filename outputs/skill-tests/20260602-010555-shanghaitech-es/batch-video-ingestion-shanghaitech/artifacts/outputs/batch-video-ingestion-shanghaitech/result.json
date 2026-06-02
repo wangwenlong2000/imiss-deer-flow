@@ -1,0 +1,25 @@
+{
+  "skill": "batch-video-ingestion",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "ingested_count": 1,
+    "failed_count": 0,
+    "index": "huangxiao-shanghaitech-es-agent-test",
+    "documents": [
+      {
+        "video_id": "shanghaitech-07-007-agent-test",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "filename": "07_007.avi",
+        "labels": [
+          "person"
+        ],
+        "analysis_status": "success",
+        "ingestion_mode": "object_detection",
+        "content_detection_enabled": true
+      }
+    ],
+    "failures": []
+  }
+}

@@ -47,7 +47,7 @@
       "description": "PostgreSQL database access"
     },
     "elasticsearch": {
-      "enabled": false,
+      "enabled": true,
       "type": "stdio",
       "command": "npx",
       "args": [
@@ -61,6 +61,26 @@
       "headers": {},
       "oauth": null,
       "description": "Elasticsearch search and query"
+    },
+    "streetmodel-video-embedding": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "if [ -x ./scripts/streetmodel-video-embedding-mcp ]; then exec ./scripts/streetmodel-video-embedding-mcp; elif [ -x ../scripts/streetmodel-video-embedding-mcp ]; then exec ../scripts/streetmodel-video-embedding-mcp; else echo 'streetmodel-video-embedding MCP wrapper not found' >&2; exit 1; fi"
+      ],
+      "env": {
+        "DEER_FLOW_CONFIG_PATH": "$DEER_FLOW_CONFIG_PATH",
+        "ES_URL": "$ES_URL",
+        "ES_USERNAME": "$ES_USERNAME",
+        "ES_PASSWORD": "$ES_PASSWORD",
+        "STREETMODEL_BASE_URL": "$STREETMODEL_BASE_URL"
+      },
+      "url": null,
+      "headers": {},
+      "oauth": null,
+      "description": "StreetModel/Qwen3-VL video embedding tools for health checks, frame-proxy video vector indexing, and query vector generation"
     }
   },
   "skills": {
