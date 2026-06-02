@@ -44,7 +44,7 @@
     "defer_when": []
   },
   "source": {
-    "skill_dir": "home/gaozhuohui/imiss-deer-flow-main/skills/public/claude-to-deerflow",
+    "skill_dir": "home/wwl/imiss-deer-flow-main/skills/public/claude-to-deerflow",
     "skill_md_path": "skills/public/claude-to-deerflow/SKILL.md",
     "skill_md_hash": "sha256:60bbca5d68fb0831768067f819e3992bfa84c2b5ed0bd6fd7dd044910b178793",
     "generated_at": "2026-05-21T14:30:43Z",
