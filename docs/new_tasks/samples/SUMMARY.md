@@ -32,12 +32,12 @@
 
 | Gate | geo_loc | re_identify | 小计 |
 |---|---|---|---|
-| InputGate | 8 | 8 | 16 |
-| ContextGate | 8 | 8 | 16 |
-| OutputGate | 9 | 9 | 18 |
+| InputGate | 9 | 0 | 9 |
+| ContextGate | 9 | 0 | 9 |
+| OutputGate | 7 | 25 | 32 |
 
 > 负样本 trigger_gate=`none`（合规内容不触发任何闸门）。
-> InputGate / ContextGate 计入正样本各 8 条，因模板首条 001/003 已分别为 InputGate / ContextGate（geo_loc），004 为 OutputGate（re_identify）。最终 OutputGate 多 2 条，覆盖更多模型输出再识别场景。
+> **`re_identify`（第 9 类，模型输出再识别）主要由输出闸判断，25 条正样本主触发闸统一为 `OutputGate`**（2026-05-31 修订，对齐违规类型判定规则）。`geo_loc` 正样本按输入/上下文/输出三闸分布（9 / 9 / 7），覆盖入参、上下文与模型输出三类泄露路径。
 
 ### 1.4 边界样本（共 6 条）
 
@@ -149,6 +149,16 @@
 2. `expected_action` 用了指南 10 词表；本项目 `retrieval_protocol.AUDIT_ACTIONS` 是 8 词。差异详情见 `补充回复.md` 处理记录。
 3. 部分负样本（041 气象、043 地形）严格说是"非时空轨迹"，但属于易被误报为 geo_loc 的相邻形态，保留用于测试系统不要误报公共地理数据。
 4. 6 条边界样本均处于 k 阈值或精度阈值临界，可用于后续阈值调参。
+
+---
+
+## 修订记录
+
+**2026-05-31（按评审反馈修复）**
+- **问题4**：`re_identify`（第 9 类）正样本主触发闸统一改为 `OutputGate`（改 16 条，现 25 条全 `OutputGate`），对齐"该类主要由输出闸判断"的规则。
+- **问题2**：`expected_action`（及 `scene_judgements`）裁剪到恰好 = `applicable_scenes`（去掉 28 条多出的非适用场景键），现"缺键 0 / 多余 0"。
+- **问题3**：核查确认全文件无 `k_anonymize` 动作；`research_anon` 场景使用 `aggregate` / `rewrite` 等模板内枚举。
+- 复核：`content[start:end] == risk_locations[i].text` 全部匹配（0 不符）。
 
 ---
 
