@@ -1,45 +1,50 @@
 ---
 name: anonymize_trajectory_data
-description: Use this skill when the user asks to anonymize, desensitize, privacy-protect, differentially perturb, k-anonymize, hash user IDs, grid-generalize, or prepare sensitive GPS/check-in trajectory data before RAG or LLM analysis.
+description: >
+  Use this skill when the user wants to anonymize / de-identify raw trajectory data before sharing or analysis: pseudonymize user ids, generalize fine-grained locations to coarser geohash cells, and bucket timestamps. Produces a privacy-preserving JSONL plus a summary with k-anonymity style coverage stats.
 metadata:
-  short-description: 对敏感时空轨迹做用户哈希、坐标加噪、时间桶化、网格泛化与 K 匿名过滤。
+  short-description: 轨迹脱敏：用户ID哈希化、地理粗化（geohash截断）、时间分桶。
 ---
 
 # anonymize_trajectory_data
 
-Use this Skill before exposing sensitive trajectory evidence to retrieval or report generation.
+轨迹数据脱敏。用户提到 脱敏/匿名化/去标识/隐私保护/k-匿名 时调用。
 
 ## Command
 
 ```bash
 cd /mnt/skills/custom/anonymize_trajectory_data
-python3 scripts/anonymize_trajectory_data.py --input /path/to/raw_trajectory.csv --output-dir /path/to/output --epsilon 1.0 --geohash-precision 5 --min-users 5
+python3 scripts/anonymize_trajectory_data.py --input <file> --output-dir /path/to/output
 ```
 
 ## Input
 
-CSV with user, latitude, longitude, timestamp, and optional category columns.
+cleaned_points.jsonl 或 staypoints.jsonl（任意含 user/经纬度或geohash/时间 的轨迹文件）
 
-Useful flags:
+## Optional Flags
 
 ```bash
---user-col user_id --lat-col latitude --lon-col longitude --time-col timestamp --cat-col category
---city-label Shanghai --epsilon 1.0 --geohash-precision 5 --min-users 5 --salt citybench_v1 --seed 42
+--coarse-precision int  # 脱敏后保留的 geohash 位数，默认 5（越小越粗，隐私越强）
+--time-bucket str       # 时间分桶：hour | day，默认 hour
+--salt str              # 用户ID哈希盐值，默认 spatiotemporal_v1
+--drop-latlon           # 丢弃精确经纬度，只保留粗化 geohash（默认开启）
 ```
 
 ## Outputs
 
-- `evidence.jsonl`
-- `privacy_report.json`
+- `anonymized.jsonl`
+- `summary.json`
 
-## Algorithm
+## Algorithm Note
 
-- Irreversible user-id hashing
-- Laplace coordinate noise for differential privacy
-- Time bucketing and geohash grid generalization
-- K-anonymity filtering for sparse cells
-- Privacy provenance fields for RAG evidence
+- 用户ID：`hash_uid(salt + user_id)` → 12 位 sha256 摘要（不可逆伪名）。
+- 空间泛化：把 geohash 截断到 `--coarse-precision` 位；默认丢弃精确 lat/lon。
+- 时间泛化：时间戳按 hour/day 分桶。
+- summary 给出脱敏后每个粗化网格的记录数与最小桶大小（k 值），便于评估再识别风险。
+
+详见 `references/usage.md` 与 `_trajectory_common_v2/trajectory_tasks.py`（复用 `hash_uid`/`read_records`/`normalize_record`）。
 
 ## Next Skills
 
-Use `evidence.jsonl` with `$citybench-rag-search`, `$search_spatiotemporal`, `$analyze_region_heat`, or `$fuse_spatial_evidence`.
+- `$map_spatial_grid`
+- `$analyze_od_flow`

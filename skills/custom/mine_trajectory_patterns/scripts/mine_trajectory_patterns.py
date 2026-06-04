@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-COMMON = Path(__file__).resolve().parents[2] / "citybench-skills-pack-new" / "custom" / "_trajectory_common"
+COMMON = Path(__file__).resolve().parents[2] / "_trajectory_common_v2"
 sys.path.insert(0, str(COMMON))
 
 from trajectory_tasks import mine_trajectory_patterns  # noqa: E402

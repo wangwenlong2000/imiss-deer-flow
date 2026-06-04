@@ -23,7 +23,7 @@ python3 scripts/forecast_region_flow.py \
   --forecast-steps 3
 ```
 
-For raw CityBench points:
+For raw 时空轨迹点:
 
 ```bash
 python3 scripts/forecast_region_flow.py \

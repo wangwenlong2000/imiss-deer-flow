@@ -1,4 +1,4 @@
 name: analyze_spatiotemporal_accessibility
-display_name: 空间可达性分析
-short_description: 基于历史 OD 耗时图计算从指定网格出发的轨迹等时圈和辐射范围。
-default_prompt: "Use $analyze_spatiotemporal_accessibility when the user asks for isochrone, reachable area, accessibility, radiation range, or travel-time coverage. Run scripts/analyze_spatiotemporal_accessibility.py with --origin-geohash."
+display_name: 经验等时圈空间可达性
+short_description: 基于历史 OD 耗时矩阵跑 Dijkstra，多 budget 切等时圈。
+default_prompt: "Use $analyze_spatiotemporal_accessibility when the user asks to compute isochrones (reachable areas within X minutes), travel-time accessibility, or radiation range from a starting region. Run python3 scripts/analyze_spatiotemporal_accessibility.py and summarize summary.json."

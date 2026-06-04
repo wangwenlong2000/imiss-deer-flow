@@ -1,4 +1,4 @@
 name: classify_trajectory_state
-display_name: 轨迹状态识别
-short_description: 基于速度、空间跨度、方向性和网格多样性识别运动状态。
-default_prompt: "Use $classify_trajectory_state when the user asks for trajectory state, movement semantics, cruising, migration, random walk, or long-stay behavior. Run scripts/classify_trajectory_state.py and summarize state_classification.jsonl."
+display_name: 运动状态分类
+short_description: 把每个用户分类为：长时静止/定向迁徙/高频巡游/随机游走。
+default_prompt: "Use $classify_trajectory_state when the user wants to classify each user's trajectory into motion states such as stationary, directed migration, frequent circulation, or random walk. Run python3 scripts/classify_trajectory_state.py and summarize summary.json."

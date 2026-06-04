@@ -1444,3 +1444,98 @@ def fuse_spatial_evidence(input_paths: list[Path], output_dir: Path, top_k: int)
     }
     write_json(output_dir / "summary.json", summary)
     return summary
+
+
+# ════════════════════════════════════════════════════════════════════
+#  Geohash → 中文地名查表（自包含；与 _trajectory_common_v2 行为一致）
+#  说明：Gen-A 库原本只输出 geohash，不带地名。这里补一组「standalone」
+#  地名解析函数，使 agent 无论把 sys.path 指向 Gen-A 还是 Gen-B，调用
+#  lookup_landmark 都能拿到一致的中文地名，彻底消除「地名时灵时不灵」。
+#  本组函数为「附加能力」，不改动上方任何既有分析函数的输出行为。
+# ════════════════════════════════════════════════════════════════════
+
+_LANDMARK_CACHE: dict | None = None
+
+
+def _load_landmarks() -> dict:
+    """加载 geohash_landmarks.json。自包含：只在本库目录及姊妹库内查找，
+    不依赖任何独立检索 skill。找不到返回空 dict（不缓存空结果，便于补放后即时生效）。"""
+    global _LANDMARK_CACHE
+    if _LANDMARK_CACHE:
+        return _LANDMARK_CACHE
+    here = Path(__file__).resolve().parent          # .../_trajectory_common/
+    custom_root = here.parent                        # .../skills/custom/
+    candidates = [
+        here / "geohash_landmarks.json",                                      # ① 本库自带
+        custom_root / "_trajectory_common_v2" / "geohash_landmarks.json",     # ② 姊妹库（Gen-B）
+        custom_root / "_landmarks" / "geohash_landmarks.json",                # ③ 集中存放（可选）
+    ]
+    for c in candidates:
+        if c.exists():
+            try:
+                _LANDMARK_CACHE = json.loads(c.read_text(encoding="utf-8"))
+                return _LANDMARK_CACHE
+            except (json.JSONDecodeError, OSError):
+                continue
+    try:
+        for c in custom_root.rglob("geohash_landmarks.json"):
+            try:
+                _LANDMARK_CACHE = json.loads(c.read_text(encoding="utf-8"))
+                return _LANDMARK_CACHE
+            except (json.JSONDecodeError, OSError):
+                continue
+    except OSError:
+        pass
+    return {}
+
+
+def lookup_landmark(city: str | None, geohash: str | None) -> dict | None:
+    """给定 (city, geohash) → {landmark, district, lat, lon, tags}；支持前缀匹配。"""
+    if not geohash:
+        return None
+    data = _load_landmarks()
+    cities = [city] if city else ["Shanghai", "Beijing", "Guangzhou", "Shenzhen"]
+    for c in cities:
+        if not c:
+            continue
+        cmap = data.get(c, {})
+        if geohash in cmap:
+            return cmap[geohash]
+        for prefix, info in cmap.items():
+            if isinstance(info, dict) and geohash.startswith(prefix):
+                return info
+    return None
+
+
+def format_label(city: str | None, geohash: str | None) -> str:
+    """返回 '陆家嘴金融区(wtw3s)'；查不到则 'City-geohash'。"""
+    if not geohash:
+        return "(unknown)"
+    info = lookup_landmark(city, geohash)
+    if info:
+        return f"{info['landmark']}({geohash})"
+    return f"{city or 'Unknown'}-{geohash}"
+
+
+def enrich_records(records: list[dict], geohash_keys: list[str] | None = None,
+                   city: str | None = None) -> list[dict]:
+    """批量给记录注入 landmark/district/lat/lon。原地修改并返回。"""
+    keys = geohash_keys or ["geohash", "region_geohash", "origin_geohash", "grid_id"]
+    for r in records:
+        for k in keys:
+            gh = r.get(k)
+            if not gh:
+                continue
+            info = lookup_landmark(city or r.get("city"), gh)
+            if info:
+                prefix = k.replace("_geohash", "").replace("geohash", "").strip("_")
+                if prefix:
+                    r[f"{prefix}_landmark"] = info["landmark"]
+                    r[f"{prefix}_district"] = info["district"]
+                else:
+                    r["landmark"] = info["landmark"]
+                    r["district"] = info["district"]
+                    r.setdefault("lat", info["lat"])
+                    r.setdefault("lon", info["lon"])
+                break
+    return records

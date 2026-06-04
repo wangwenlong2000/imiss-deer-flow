@@ -14,7 +14,7 @@ from trajectory_tasks import flow_anomaly  # noqa: E402
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Detect region or OD flow anomalies.")
-    parser.add_argument("--input", required=True, help="Input region_heat.jsonl, od_matrix.jsonl, or CityBench evidence JSONL")
+    parser.add_argument("--input", required=True, help="Input region_heat.jsonl, od_matrix.jsonl, or evidence JSONL")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--group-col")
     parser.add_argument("--metric-col")

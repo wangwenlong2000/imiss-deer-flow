@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-PREPROCESS_SCRIPTS = Path(__file__).resolve().parents[2] / "trajectory-preprocess" / "scripts"
+PREPROCESS_SCRIPTS = Path(__file__).resolve().parents[2] / "_trajectory_preprocess"
 sys.path.insert(0, str(PREPROCESS_SCRIPTS))
 
 from trajectory_preprocess_lib import clean_points, load_points, point_to_record, write_jsonl  # noqa: E402

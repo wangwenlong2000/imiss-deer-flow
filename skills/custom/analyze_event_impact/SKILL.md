@@ -7,7 +7,7 @@ metadata:
 
 # analyze_event_impact
 
-Use this Skill on CityBench evidence or regional activity evidence. It compares treatment and control regions around an event window with a simplified DID-style calculation.
+Use this Skill on evidence or regional activity evidence. It compares treatment and control regions around an event window with a simplified DID-style calculation.
 
 ## Command
 
