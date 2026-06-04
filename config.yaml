@@ -336,6 +336,7 @@ sandbox:
   replicas: 3
   container_prefix: deer-flow-sandbox
   environment:
+    BAIDU_AK: $BAIDU_AK
     ES_URL: $ES_URL
     NETWORK_TRAFFIC_ES_INDEX: $NETWORK_TRAFFIC_ES_INDEX
     ES_USERNAME: $ES_USERNAME

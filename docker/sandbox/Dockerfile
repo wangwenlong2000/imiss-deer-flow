@@ -69,6 +69,9 @@ RUN apt-get update \
        pyyaml \
        PyYAML \
        requests \
+       python-dotenv>=1.0 \
+       statsforecast>=1.7.8 \
+       adtk>=0.6.2 \
        pytz \
        scikit-learn \
        rrcf \
