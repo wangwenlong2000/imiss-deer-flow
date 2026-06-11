@@ -12,6 +12,7 @@ from app.gateway.routers import (
     data_center,
     mcp,
     memory,
+    mobile,
     models,
     skill_router,
     skills,
@@ -187,6 +188,9 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # SkillRouter management API is mounted at /api/skill-router
     app.include_router(skill_router.router)
+
+    # Mobile adapter API is mounted at /api/mobile
+    app.include_router(mobile.router)
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:

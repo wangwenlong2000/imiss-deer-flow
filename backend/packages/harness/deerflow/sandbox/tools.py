@@ -529,7 +529,7 @@ def bash_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, com
     - Use `python -m pip` (inside the virtual environment) to install Python packages.
 
     Args:
-        description: Explain why you are running this command in short words. ALWAYS PROVIDE THIS PARAMETER FIRST.
+        description: 中文动作摘要。必须用简体中文简要说明本次命令的业务目的，例如“检查是否已有历史筛选结果”“执行重点号码筛选分析”“读取筛选结果文件”。不要使用英文句子，不要写入完整命令、代码、绝对路径或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
         command: The bash command to execute. Always use absolute paths for files and directories.
     """
     try:
@@ -565,7 +565,7 @@ def ls_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, path:
     """List the contents of a directory up to 2 levels deep in tree format.
 
     Args:
-        description: Explain why you are listing this directory in short words. ALWAYS PROVIDE THIS PARAMETER FIRST.
+        description: 中文动作摘要。必须用简体中文简要说明本次列目录的目的，例如“查看输出目录中的分析结果文件”“检查 Skill 目录结构”。不要使用英文句子，不要写入完整路径或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
         path: The **absolute** path to the directory to list.
     """
     try:
@@ -600,7 +600,7 @@ def read_file_tool(
     """Read the contents of a text file. Use this to examine source code, configuration files, logs, or any text-based file.
 
     Args:
-        description: Explain why you are reading this file in short words. ALWAYS PROVIDE THIS PARAMETER FIRST.
+        description: 中文动作摘要。必须用简体中文简要说明本次读取文件的目的，例如“读取 Skill 使用说明”“读取筛选结果报告”“查看法规检索结果”。不要使用英文句子，不要写入完整路径或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
         path: The **absolute** path to the file to read.
         start_line: Optional starting line number (1-indexed, inclusive). Use with end_line to read a specific range.
         end_line: Optional ending line number (1-indexed, inclusive). Use with start_line to read a specific range.
@@ -669,7 +669,7 @@ def write_file_tool(
     """Write text content to a file.
 
     Args:
-        description: Explain why you are writing to this file in short words. ALWAYS PROVIDE THIS PARAMETER FIRST.
+        description: 中文动作摘要。必须用简体中文简要说明本次写入文件的目的，例如“保存综合分析报告”“写入筛选结果摘要”“保存可视化图表说明”。不要使用英文句子，不要写入完整路径、代码或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
         path: The **absolute** path to the file to write to. ALWAYS PROVIDE THIS PARAMETER SECOND.
         content: The content to write to the file. ALWAYS PROVIDE THIS PARAMETER THIRD.
     """
@@ -707,7 +707,7 @@ def str_replace_tool(
     If `replace_all` is False (default), the substring to replace must appear **exactly once** in the file.
 
     Args:
-        description: Explain why you are replacing the substring in short words. ALWAYS PROVIDE THIS PARAMETER FIRST.
+        description: 中文动作摘要。必须用简体中文简要说明本次替换文本的目的，例如“修正配置文件中的接口地址”“更新提示词语言约束”。不要使用英文句子，不要写入完整路径、代码或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
         path: The **absolute** path to the file to replace the substring in. ALWAYS PROVIDE THIS PARAMETER SECOND.
         old_str: The substring to replace. ALWAYS PROVIDE THIS PARAMETER THIRD.
         new_str: The new substring. ALWAYS PROVIDE THIS PARAMETER FOURTH.

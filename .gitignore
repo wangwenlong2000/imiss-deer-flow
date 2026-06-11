@@ -99,6 +99,7 @@ web/
 backend/Dockerfile.langgraph
 config.yaml.bak
 backend/.langgraph_api/
+config.yaml
 
 # Local network traffic datasets
 datasets/network-traffic/raw/**

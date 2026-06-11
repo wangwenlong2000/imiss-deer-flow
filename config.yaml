@@ -15,27 +15,24 @@
 config_version: 1
 
 # ============================================================================
+# Docker Port Overrides
+# ============================================================================
+# Used by scripts/update-docker-ports.sh to update docker/nginx related files.
+# Priority when running the script: environment variables > docker_ports > built-in defaults.
+docker_ports:
+  nginx: 3328
+  langgraph: 3329
+  gateway: 3330
+  frontend: 3331
+subnet:
+  dev: 192.168.201.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
+  
+# ============================================================================
 # Models Configuration
 # ============================================================================
 # Configure available LLM models for the agent to use
 
 models:
-  - name: glm-5
-    display_name: GLM-5
-    use: langchain_anthropic:ChatAnthropic
-    model: glm-5
-    api_key: $ANTHROPIC_API_KEY
-    base_url: $ANTHROPIC_BASE_URL
-    max_tokens: 8192
-    temperature: 0.7
-    supports_vision: false
-    supports_thinking: false
-    supports_reasoning_effort: false
-    when_thinking_enabled:
-      extra_body:
-        thinking:
-          type: enabled
-
   - name: qwen3.6-plus
     display_name: Qwen3.6 Plus
     use: langchain_openai:ChatOpenAI
@@ -47,27 +44,11 @@ models:
     temperature: 0.7
     supports_vision: true  # 必须显式开启，系统才会注入 view_image 能力
     supports_thinking: true
-    supports_reasoning_effort: true
+    supports_reasoning_effort: false
     when_thinking_enabled:
       extra_body:
-        thinking:
-          type: enabled
-
-  - name: deepseek-v4-pro
-    display_name: DeepSeek V4 Pro
-    use: deerflow.models.patched_deepseek:PatchedChatDeepSeek
-    model: deepseek-v4-pro
-    api_key: $DEEPSEEK_API_KEY
-    api_base: https://api.deepseek.com
-    max_tokens: 8192
-    temperature: 0.7
-    supports_vision: true  # 必须显式开启，系统才会注入 view_image 能力
-    supports_thinking: true
-    supports_reasoning_effort: true
-    when_thinking_enabled:
-      extra_body:
-        thinking:
-          type: enabled
+        enable_thinking: true
+        thinking_budget: 2048
 
 # ============================================================================
 # Embedding Configuration
@@ -97,9 +78,9 @@ embedding:
 elasticsearch:
   hosts:
     - $ES_URL
-  index_name: $NETWORK_TRAFFIC_ES_INDEX
+  index_name: $LAW_REGULATIONS_ES_INDEX
   api_key:
-  username: $ES_USERNAME
+  username: $ES_USER
   password: $ES_PASSWORD
   verify_certs: false
   request_timeout: 30
@@ -253,14 +234,7 @@ tools:
     group: web
     use: deerflow.community.baidu.tools:web_search_tool
     max_results: 5
-    timeout: 10
-
-  # Web search tool (requires Tavily API key)
-  # - name: web_search
-  #   group: web
-  #   use: deerflow.community.tavily.tools:web_search_tool
-  #   max_results: 5
-  #   api_key: $TAVILY_API_KEY  # Set if needed
+    api_key: $TAVILY_API_KEY  # Set if needed
 
   # Web search tool (requires InfoQuest API key)
   # - name: web_search
@@ -327,36 +301,70 @@ tools:
 # ============================================================================
 # Choose between local sandbox (direct execution) or Docker-based AIO sandbox
 
-# AIO sandbox runs each thread in its own container.
-# The image below is built from docker/sandbox/Dockerfile and includes tshark + zeek.
+# Option 1: Local Sandbox (Default)
+# Executes commands directly on the host machine
+#sandbox:
+#  use: deerflow.sandbox.local:LocalSandboxProvider
+
 sandbox:
   use: deerflow.community.aio_sandbox:AioSandboxProvider
   image: $DEER_FLOW_SANDBOX_IMAGE
-  port: 8080
+  port: 8181
   replicas: 3
   container_prefix: deer-flow-sandbox
   environment:
     ES_URL: $ES_URL
-    NETWORK_TRAFFIC_ES_INDEX: $NETWORK_TRAFFIC_ES_INDEX
-    ES_USERNAME: $ES_USERNAME
+    LAW_REGULATIONS_ES_INDEX: $LAW_REGULATIONS_ES_INDEX
+    ES_USERNAME: $ES_USER
     ES_PASSWORD: $ES_PASSWORD
     EMBEDDING_API_KEY: $EMBEDDING_API_KEY
     EMBEDDING_BASE_URL: $EMBEDDING_BASE_URL
-    NETWORK_TRAFFIC_CACHE_ROOT: /tmp/.network-traffic-cache
-    NETWORK_TRAFFIC_WORKSPACE_ROOT: /tmp/.network-traffic-workspace
+    LAW_REGULATIONS_CACHE_ROOT: /tmp/.law-regulations-cache
+    LAW_REGULATIONS_WORKSPACE_ROOT: /tmp/.law-regulations-workspace
   mounts:
-    #- host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/raw
-    #  container_path: /mnt/datasets/network-traffic/raw
-    #  read_only: true
-    #- host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/schema
-    #  container_path: /mnt/datasets/network-traffic/schema
-    #  read_only: true
-    - host_path: /home/wwl/imiss-deer-flow-main/datasets
+    - host_path: $DEER_FLOW_HOST_DATASETS_PATH
       container_path: /mnt/datasets
       read_only: true
-    - host_path: /home/wwl/imiss-deer-flow-main/datasets/network-traffic/processed
-      container_path: /mnt/datasets/network-traffic/processed
-      read_only: false
+
+# Option 2: Container-based AIO Sandbox
+# Executes commands in isolated containers (Docker or Apple Container)
+# On macOS: Automatically prefers Apple Container if available, falls back to Docker
+# On other platforms: Uses Docker
+# Uncomment to use:
+# sandbox:
+#   use: deerflow.community.aio_sandbox:AioSandboxProvider
+#
+#   # Optional: Container image to use (works with both Docker and Apple Container)
+#   # Default: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+#   # Recommended: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest (works on both x86_64 and arm64)
+#   # image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+#
+#   # Optional: Base port for sandbox containers (default: 8080)
+#   # port: 8080
+
+#   # Optional: Maximum number of concurrent sandbox containers (default: 3)
+#   # When the limit is reached the least-recently-used sandbox is evicted to
+#   # make room for new ones. Use a positive integer here; omit this field to use the default.
+#   # replicas: 3
+#
+#   # Optional: Prefix for container names (default: deer-flow-sandbox)
+#   # container_prefix: deer-flow-sandbox
+#
+#   # Optional: Additional mount directories from host to container
+#   # NOTE: Skills directory is automatically mounted from skills.path to skills.container_path
+#   # mounts:
+#   #   # Other custom mounts
+#   #   - host_path: /path/on/host
+#   #     container_path: /home/user/shared
+#   #     read_only: false
+#
+#   # Optional: Environment variables to inject into the sandbox container
+#   # Values starting with $ will be resolved from host environment variables
+#   # environment:
+#   #   NODE_ENV: production
+#   #   DEBUG: "false"
+#   #   API_KEY: $MY_API_KEY        # Reads from host's MY_API_KEY env var
+#   #   DATABASE_URL: $DATABASE_URL  # Reads from host's DATABASE_URL env var
 
 # Option 3: Provisioner-managed AIO Sandbox (docker-compose-dev)
 # Each sandbox_id gets a dedicated Pod in k3s, managed by the provisioner.
@@ -407,7 +415,7 @@ title:
   enabled: true
   max_words: 6
   max_chars: 60
-  model_name: glm-5
+  model_name: qwen3.6-plus  # Use the same model as configured in the models section for consistency
 
 # ============================================================================
 # Summarization Configuration
@@ -512,9 +520,6 @@ checkpointer:
 
 skill_router:
   enabled: false
-  # When enabled=false, still use intent scene recognition to inject only
-  # custom skills from the detected scene. Public skills stay in the base prompt.
-  scene_filter_when_disabled: true
 
   router_cards:
     registry_path: "skills/registry.json"
@@ -532,6 +537,7 @@ skill_router:
     text_field: "routing_text"
     id_field: "skill_id"
     top_k: 8
+    min_score: 0.45
 
   embedding:
     provider: "skillrouter_embedding_api"
