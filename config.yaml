@@ -69,6 +69,18 @@ models:
         thinking:
           type: enabled
 
+  - name: qwen2.5-coder-32b
+    display_name: Qwen2.5-Coder-32B
+    use: langchain_openai:ChatOpenAI
+    model: qwen2.5-coder-32b-instruct
+    api_key: unused
+    base_url: http://192.168.200.1:8001/v1
+    max_tokens: 4096
+    temperature: 0.7
+    supports_vision: false
+    supports_thinking: false
+    supports_reasoning_effort: false
+
 # ============================================================================
 # Embedding Configuration
 # ============================================================================
