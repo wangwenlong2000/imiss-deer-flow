@@ -1,0 +1,137 @@
+{
+  "case_id": "video-search-shanghaitech",
+  "skill": "video-search",
+  "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/video-search-shanghaitech/artifacts/outputs/video-search-shanghaitech/result.json",
+  "read_skill_md": true,
+  "bash_entrypoint": true,
+  "result_exists": true,
+  "agent_chain_passed": true,
+  "result_status": "success",
+  "error_code": null,
+  "message": null,
+  "data_summary": {
+    "total": 1,
+    "query_mode": "keyword_filter",
+    "index": "huangxiao-shanghaitech-es-agent-test",
+    "vector_field": "vector",
+    "hits": [
+      {
+        "score": 1.8144113,
+        "video_id": "shanghaitech-07-007-agent-test",
+        "camera_id": "CAM_SHANGHAITECH_07_007",
+        "filename": "07_007.avi",
+        "raw_segment_uri": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+        "started_at": "2026-05-20T10:00:00+08:00",
+        "ended_at": "2026-05-20T10:00:02+08:00",
+        "labels": [
+          "person"
+        ],
+        "object_summary": {
+          "total_objects": 4,
+          "by_label": {
+            "person": 4
+          },
+          "analysis_status": "success",
+          "detections": [
+            {
+              "frame_id": "CAM_SHANGHAITECH_07_007_202605201000000800_0001",
+              "timestamp": "2026-05-20T10:00:00+08:00",
+              "objects": []
+            },
+            {
+              "frame_id": "CAM_SHANGHAITECH_07_007_202605201000010800_0002",
+              "timestamp": "2026-05-20T10:00:01+08:00",
+              "objects": [
+                {
+                  "object_id": "det_0002_001",
+                  "label": "person",
+                  "confidence": 0.6834,
+                  "bbox": [
+                    40.97,
+                    237.47,
+                    98.45,
+                    477.42
+                  ],
+                  "model_label": "person"
+                },
+                {
+                  "object_id": "det_0002_002",
+                  "label": "person",
+                  "confidence": 0.5324,
+                  "bbox": [
+                    0.1,
+                    228.14,
+                    49.38,
+                    428.87
+                  ],
+                  "model_label": "person"
+                }
+              ]
+            },
+            {
+              "frame_id": "CAM_SHANGHAITECH_07_007_202605201000020800_0003",
+              "timestamp": "2026-05-20T10:00:02+08:00",
+              "objects": [
+                {
+                  "object_id": "det_0003_001",
+                  "label": "person",
+                  "confidence": 0.8685,
+                  "bbox": [
+                    147.52,
+                    213.24,
+                    231.31,
+                    409.75
+                  ],
+                  "model_label": "person"
+                },
+                {
+                  "object_id": "det_0003_002",
+                  "label": "person",
+                  "confidence": 0.8102,
+                  "bbox": [
+                    222.28,
+                    218.48,
+                    292.17,
+                    435.15
+                  ],
+                  "model_label": "person"
+                }
+              ]
+            }
+          ]
+        },
+        "location": {
+          "city": "上海市",
+          "district": "浦东新区",
+          "address": "ShanghaiTech campus surveillance dataset sample"
+        },
+        "metadata": {
+          "filename": "07_007.avi",
+          "dataset": "ShanghaiTech",
+          "split": "training",
+          "scene": "campus_pedestrian_surveillance",
+          "camera_name": "ShanghaiTech 07 scene camera",
+          "original_host_path": "/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi",
+          "description": "ShanghaiTech真实样例07_007，校园行人监控短视频，用于ES skill Agent真链路测试",
+          "file_ext": ".avi",
+          "source_path": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+          "path_tokens": [
+            "/",
+            "mnt",
+            "datasets",
+            "shanghaitech",
+            "agent",
+            "eval",
+            "07",
+            "007",
+            "avi"
+          ]
+        }
+      }
+    ]
+  },
+  "thread_id": "2c1f26c4-42fb-443e-9e7b-b49bfac7bfbb",
+  "run_id": "019e8427-aafb-7a11-9ad7-997947de7ed9",
+  "stream_error": null,
+  "sse_errors": []
+}

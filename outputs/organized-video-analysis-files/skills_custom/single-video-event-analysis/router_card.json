@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "single-video-event-analysis",
+    "name": "single-video-event-analysis",
+    "description": "Analyze one local monitoring video for incidents by extracting frames and having the LLM review visible evidence. This is the only custom event-detection entrypoint."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["single_video_event_analysis", "frame_based_event_detection", "visual_timeline_analysis"],
+    "input_types": ["video_path", "mp4", "mov", "avi", "mkv"],
+    "output_types": ["review_manifest", "visual_timeline", "event_candidates"]
+  },
+  "routing": {
+    "routing_text": "名称：single-video-event-analysis\n描述：统一的视频监控事件分析入口。输入一个本地监控视频，先抽取带时间戳的帧，再由 LLM 按时间顺序审图，输出事件候选、证据帧、置信度和人工复核建议。YOLO 只能作为可选目标上下文，不能决定事件语义。\n适合使用：分析视频是否有异常事件；检测打架、摔倒、车祸、拥堵、聚集、烟火、入侵、占道；生成可见证据时间线。\n不适合使用：只做 YOLO 目标检测；只剪辑视频；只做摄像头健康检查。",
+    "positive_triggers": ["分析视频事件", "检测异常事件", "监控视频审查", "打架", "摔倒", "车祸", "拥堵", "聚集", "烟火", "入侵", "占道"],
+    "negative_triggers": ["只做目标检测", "YOLO检测框", "只剪辑视频", "摄像头健康检查"],
+    "keywords": ["single-video-event-analysis", "事件检测", "异常事件", "LLM审帧", "视觉时间线", "证据帧"],
+    "anti_keywords": ["object detection only", "bbox only", "ffmpeg only"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "optional_tools": ["write_file", "ffmpeg", "ffprobe"],
+    "allowed_file_patterns": ["*.mp4", "*.mov", "*.avi", "*.mkv", "*.webm"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 96,
+    "conflict_group": "video-event-analysis",
+    "prefer_when": ["视频事件分析", "异常事件检测", "监控取证"],
+    "defer_when": ["只需要目标检测", "只需要视频剪辑", "只需要健康检查"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/single-video-event-analysis",
+    "skill_md_path": "skills/custom/single-video-event-analysis/SKILL.md",
+    "generator_version": "manual-llm-event-review-1.0.0"
+  },
+  "embedding": {
+    "es_doc_id": "single-video-event-analysis"
+  }
+}

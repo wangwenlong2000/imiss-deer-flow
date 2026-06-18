@@ -1,0 +1,22 @@
+请测试 `evidence-package-generation` skill 的 Agent 真链路，测试用例：`evidence-package-generation-shanghaitech`。
+
+测试说明：Build an evidence package by retrieving the ShanghaiTech video from ES.
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/evidence-package-generation/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/evidence-package-generation-shanghaitech/result.json`，并在最终回复中返回这个 JSON 的核心字段和简短结论；如果失败，保留 error_code/message/detail。
+
+```bash
+mkdir -p /mnt/user-data/outputs/evidence-package-generation-shanghaitech /mnt/user-data/workspace/evidence-package-generation-shanghaitech
+python - <<'PY'
+import json, pathlib
+event = {"event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST", "video_id": "shanghaitech-07-007-agent-test", "camera_id": "CAM_SHANGHAITECH_07_007", "event_type": "manual_evidence", "event_time": "2026-06-02T00:00:01+08:00", "event_elapsed_seconds": 1, "confidence": 0.8, "description": "Evidence package smoke event for ShanghaiTech sample 07_007."}
+p = pathlib.Path("/mnt/user-data/workspace/evidence-package-generation-shanghaitech/event.json")
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(event, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/evidence-package-generation/scripts/run.py --video-id shanghaitech-07-007-agent-test --event-json /mnt/user-data/workspace/evidence-package-generation-shanghaitech/event.json --output-dir /mnt/user-data/outputs/evidence-package-generation-shanghaitech/package --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/evidence-package-generation-shanghaitech/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/evidence-package-generation-shanghaitech/result.json`。

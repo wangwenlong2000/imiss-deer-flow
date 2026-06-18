@@ -1,0 +1,20 @@
+请测试 `single-video-event-analysis` skill 的 Agent 真链路。
+
+必须严格执行：
+1. 先调用 read_file 读取 `/mnt/skills/custom/single-video-event-analysis/SKILL.md`。
+2. 再调用 bash 执行下面这段命令，不要改路径，不要省略任何输出文件。
+3. 执行完成后读取 `/mnt/user-data/outputs/single-video-event-analysis/result.json`，并在最终回复中返回这个 JSON 的内容和简短结论。
+
+```bash
+mkdir -p /mnt/user-data/outputs/single-video-event-analysis /mnt/user-data/workspace/single-video-event-analysis
+python - <<'PY'
+import json, pathlib
+payload = {"source_type":"local_file","video_path":"/mnt/datasets/Vedio-demo/fight.mp4","camera_id":"CAM_DEERFLOW_001","target_events":["fight","fall_down","other_abnormal_event"],"output_dir":"/mnt/user-data/outputs/single-video-event-analysis/artifacts/review","coarse_fps":0.2,"dense_fps":1.0,"scene_threshold":0.3,"dense_window":1.0,"max_frames":12}
+p = pathlib.Path('/mnt/user-data/workspace/single-video-event-analysis/input.json')
+p.parent.mkdir(parents=True, exist_ok=True)
+json.dump(payload, p.open('w'), ensure_ascii=False, indent=2)
+PY
+python /mnt/skills/custom/single-video-event-analysis/scripts/run.py --input /mnt/user-data/workspace/single-video-event-analysis/input.json --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/single-video-event-analysis/result.json
+```
+
+成功判定：必须能看到 read_file 读取该 SKILL.md、bash 执行该 skill 入口、并生成 `/mnt/user-data/outputs/single-video-event-analysis/result.json`。

@@ -1,0 +1,10 @@
+{
+  "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+  "video_id": "shanghaitech-07-007-agent-test",
+  "camera_id": "CAM_SHANGHAITECH_07_007",
+  "event_type": "manual_evidence",
+  "event_time": "2026-06-02T00:00:01+08:00",
+  "event_elapsed_seconds": 1,
+  "confidence": 0.8,
+  "description": "Evidence package smoke event for ShanghaiTech sample 07_007."
+}

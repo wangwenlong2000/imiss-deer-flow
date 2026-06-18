@@ -1,0 +1,81 @@
+{
+  "video": {
+    "path": "/mnt/datasets/Vedio-demo/fight.mp4",
+    "filename": "fight.mp4",
+    "duration_seconds": 254.82,
+    "fps": 30.0,
+    "resolution": "1728x1080",
+    "codec": "h264",
+    "file_size_mb": 84.0,
+    "camera_id": "CAM_DEERFLOW_001"
+  },
+  "visual_timeline": [
+    {
+      "time": "0:00:00.000",
+      "frame_id": "frame_000000000ms",
+      "observation": "餐厅内正常用餐场景，多桌客人在就餐，前景有两名男子站立交谈，背景有人进出餐厅。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:10.000",
+      "frame_id": "frame_000010000ms",
+      "observation": "场景基本平静，一名穿深色夹克的男子走向前景餐桌，有人在看手机。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:20.000",
+      "frame_id": "frame_000020000ms",
+      "observation": "穿深色夹克的男子离开餐桌区域，走向门口方向，气氛开始紧张。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:30.000",
+      "frame_id": "frame_000030000ms",
+      "observation": "左侧区域出现骚动，有人站起，穿蓝色外套的人进入画面，冲突开始酝酿。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:40.000",
+      "frame_id": "frame_000040000ms",
+      "observation": "肢体冲突爆发，多人参与，一名穿灰色上衣的人被推倒在地，周围多人围拢，场面混乱。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:50.000",
+      "frame_id": "frame_000050000ms",
+      "observation": "混战继续，更多人参与打斗，桌椅被碰倒，地上散落瓶子和杂物，有人举椅子，有人互相推搡拉扯。",
+      "uncertainty": null
+    },
+    {
+      "time": "0:00:55.000",
+      "frame_id": "frame_000055000ms",
+      "observation": "冲突仍在持续，多人聚集在餐厅中央区域打斗，周围顾客躲避或围观。",
+      "uncertainty": null
+    }
+  ],
+  "events": [
+    {
+      "event_id": "EVT_CAM_DEERFLOW_001_001",
+      "event_type": "fight",
+      "start_time": "0:00:30.000",
+      "end_time": "0:00:55.000",
+      "confidence": 0.95,
+      "severity": "high",
+      "evidence_frame_ids": [
+        "frame_000030000ms",
+        "frame_000040000ms",
+        "frame_000050000ms",
+        "frame_000055000ms"
+      ],
+      "reason": "从 0:00:30 开始出现骚动和人员聚集，0:00:40 可见明显肢体冲突，有人被推倒在地，0:00:50 多人参与混战，桌椅翻倒，地面散落物品，有人举椅子作为武器。多个连续帧显示暴力行为升级，确认为斗殴事件。",
+      "requires_review": true
+    }
+  ],
+  "summary": "在餐厅监控视频中发现一起严重的群体斗殴事件。事件从 0:00:30 开始酝酿，0:00:40 爆发肢体冲突，至少 5-8 人参与打斗，有人被推倒在地，现场桌椅翻倒，物品散落。事件持续至 0:00:55 后仍在继续。建议人工审查并报告相关部门。",
+  "warnings": [
+    "视频文件名为 fight.mp4，与实际检测到的斗殴事件一致",
+    "仅分析了前 55 秒的抽帧画面，后续可能还有更多事件",
+    "事件严重程度高，需要人工审查确认",
+    "画面中有多名顾客可能受到波及，建议关注受伤情况"
+  ]
+}

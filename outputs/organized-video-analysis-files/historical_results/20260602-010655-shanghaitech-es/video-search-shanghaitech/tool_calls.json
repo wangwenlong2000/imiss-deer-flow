@@ -1,0 +1,34 @@
+[
+  {
+    "id": "call_d0c3bd17764b49efb9aaba97",
+    "name": "read_file",
+    "args": {
+      "description": "Read video-search skill definition",
+      "path": "/mnt/skills/custom/video-search/SKILL.md"
+    }
+  },
+  {
+    "id": "call_20ad3703d8074755bf712abf",
+    "name": "bash",
+    "args": {
+      "description": "Execute video-search skill with ShanghaiTech test case",
+      "command": "mkdir -p /mnt/user-data/outputs/video-search-shanghaitech\npython /mnt/skills/custom/video-search/scripts/run.py --query ShanghaiTech --camera-id CAM_SHANGHAITECH_07_007 --top-k 5 --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-search-shanghaitech/result.json"
+    }
+  },
+  {
+    "id": "call_35a363709e0944efb82bba78",
+    "name": "bash",
+    "args": {
+      "description": "Execute video-search skill with ShanghaiTech test case",
+      "command": "mkdir -p /mnt/user-data/outputs/video-search-shanghaitech && python /mnt/skills/custom/video-search/scripts/run.py --query ShanghaiTech --camera-id CAM_SHANGHAITECH_07_007 --top-k 5 --index huangxiao-shanghaitech-es-agent-test --config /mnt/skills/custom/configs/deerflow_config.json --output /mnt/user-data/outputs/video-search-shanghaitech/result.json 2>&1"
+    }
+  },
+  {
+    "id": "call_dae39dbc2168419e85bb7d1d",
+    "name": "read_file",
+    "args": {
+      "description": "Read video-search result JSON",
+      "path": "/mnt/user-data/outputs/video-search-shanghaitech/result.json"
+    }
+  }
+]

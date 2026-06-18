@@ -1,0 +1,347 @@
+{
+  "started_at": "2026-06-02T01:06:55+0800",
+  "finished_at": "2026-06-02T01:10:29+0800",
+  "sample": {
+    "source_sample": "/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi",
+    "dataset_sample": "/home/huangxiao/City_brain/imiss-deer-flow-main/datasets/shanghaitech-agent-eval/07_007.avi",
+    "sandbox_video": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+    "source_sha256": "6c7f67d1353ce7d6b914b4ff0809397c9c9348cab376e868a39f726f2220cba1",
+    "dataset_sha256": "6c7f67d1353ce7d6b914b4ff0809397c9c9348cab376e868a39f726f2220cba1",
+    "bytes": 805556
+  },
+  "results": [
+    {
+      "case_id": "batch-video-ingestion-shanghaitech",
+      "skill": "batch-video-ingestion",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/batch-video-ingestion-shanghaitech/artifacts/outputs/batch-video-ingestion-shanghaitech/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "ingested_count": 1,
+        "failed_count": 0,
+        "index": "huangxiao-shanghaitech-es-agent-test",
+        "documents": [
+          {
+            "video_id": "shanghaitech-07-007-agent-test",
+            "camera_id": "CAM_SHANGHAITECH_07_007",
+            "filename": "07_007.avi",
+            "labels": [
+              "person"
+            ],
+            "analysis_status": "success",
+            "ingestion_mode": "object_detection",
+            "content_detection_enabled": true
+          }
+        ],
+        "failures": []
+      },
+      "thread_id": "c0b6399e-da92-4260-b300-aab9cbf7b4b0",
+      "run_id": "019e8427-1944-72c2-a0bf-e296b0a5ae11",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "video-search-shanghaitech",
+      "skill": "video-search",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/video-search-shanghaitech/artifacts/outputs/video-search-shanghaitech/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "total": 1,
+        "query_mode": "keyword_filter",
+        "index": "huangxiao-shanghaitech-es-agent-test",
+        "vector_field": "vector",
+        "hits": [
+          {
+            "score": 1.8144113,
+            "video_id": "shanghaitech-07-007-agent-test",
+            "camera_id": "CAM_SHANGHAITECH_07_007",
+            "filename": "07_007.avi",
+            "raw_segment_uri": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+            "started_at": "2026-05-20T10:00:00+08:00",
+            "ended_at": "2026-05-20T10:00:02+08:00",
+            "labels": [
+              "person"
+            ],
+            "object_summary": {
+              "total_objects": 4,
+              "by_label": {
+                "person": 4
+              },
+              "analysis_status": "success",
+              "detections": [
+                {
+                  "frame_id": "CAM_SHANGHAITECH_07_007_202605201000000800_0001",
+                  "timestamp": "2026-05-20T10:00:00+08:00",
+                  "objects": []
+                },
+                {
+                  "frame_id": "CAM_SHANGHAITECH_07_007_202605201000010800_0002",
+                  "timestamp": "2026-05-20T10:00:01+08:00",
+                  "objects": [
+                    {
+                      "object_id": "det_0002_001",
+                      "label": "person",
+                      "confidence": 0.6834,
+                      "bbox": [
+                        40.97,
+                        237.47,
+                        98.45,
+                        477.42
+                      ],
+                      "model_label": "person"
+                    },
+                    {
+                      "object_id": "det_0002_002",
+                      "label": "person",
+                      "confidence": 0.5324,
+                      "bbox": [
+                        0.1,
+                        228.14,
+                        49.38,
+                        428.87
+                      ],
+                      "model_label": "person"
+                    }
+                  ]
+                },
+                {
+                  "frame_id": "CAM_SHANGHAITECH_07_007_202605201000020800_0003",
+                  "timestamp": "2026-05-20T10:00:02+08:00",
+                  "objects": [
+                    {
+                      "object_id": "det_0003_001",
+                      "label": "person",
+                      "confidence": 0.8685,
+                      "bbox": [
+                        147.52,
+                        213.24,
+                        231.31,
+                        409.75
+                      ],
+                      "model_label": "person"
+                    },
+                    {
+                      "object_id": "det_0003_002",
+                      "label": "person",
+                      "confidence": 0.8102,
+                      "bbox": [
+                        222.28,
+                        218.48,
+                        292.17,
+                        435.15
+                      ],
+                      "model_label": "person"
+                    }
+                  ]
+                }
+              ]
+            },
+            "location": {
+              "city": "上海市",
+              "district": "浦东新区",
+              "address": "ShanghaiTech campus surveillance dataset sample"
+            },
+            "metadata": {
+              "filename": "07_007.avi",
+              "dataset": "ShanghaiTech",
+              "split": "training",
+              "scene": "campus_pedestrian_surveillance",
+              "camera_name": "ShanghaiTech 07 scene camera",
+              "original_host_path": "/home/huangxiao/City_brain/shanghaitech/shanghaitech/training/videos/07_007.avi",
+              "description": "ShanghaiTech真实样例07_007，校园行人监控短视频，用于ES skill Agent真链路测试",
+              "file_ext": ".avi",
+              "source_path": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+              "path_tokens": [
+                "/",
+                "mnt",
+                "datasets",
+                "shanghaitech",
+                "agent",
+                "eval",
+                "07",
+                "007",
+                "avi"
+              ]
+            }
+          }
+        ]
+      },
+      "thread_id": "2c1f26c4-42fb-443e-9e7b-b49bfac7bfbb",
+      "run_id": "019e8427-aafb-7a11-9ad7-997947de7ed9",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "object-statistics-shanghaitech",
+      "skill": "object-statistics",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/object-statistics-shanghaitech/artifacts/outputs/object-statistics-shanghaitech/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "index": "huangxiao-shanghaitech-es-agent-test",
+        "matched_videos": 1,
+        "total_objects": 4,
+        "total_tracks": 2,
+        "by_label": {
+          "person": 4
+        }
+      },
+      "thread_id": "57d326a4-653c-49e8-985b-2b0e900f25a6",
+      "run_id": "019e8428-169b-7802-8205-11bc9df69877",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "evidence-package-generation-shanghaitech",
+      "skill": "evidence-package-generation",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/evidence-package-generation-shanghaitech/artifacts/outputs/evidence-package-generation-shanghaitech/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "package_id": "PKG_1c5931e913",
+        "manifest_uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/manifest.json",
+        "evidence": [
+          {
+            "video_id": "shanghaitech-07-007-agent-test",
+            "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+            "artifacts": [
+              {
+                "type": "snapshot",
+                "status": "success",
+                "result": {
+                  "skill": "evidence-snapshot",
+                  "version": "1.0.0",
+                  "status": "success",
+                  "confidence": 1.0,
+                  "data": {
+                    "evidence_id": "EVD_e99bdcef",
+                    "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+                    "type": "snapshot",
+                    "uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/items/EVT_SHANGHAITECH_07_007_AGENT_TEST/evidence/EVT_SHANGHAITECH_07_007_AGENT_TEST_snapshot.txt",
+                    "hash": "sha256:c8d19d11f0883557b3acbc249fb01c7eb5414a8a490fc440907ceaefb02945a3",
+                    "created_at": "2026-06-01T17:08:44.871839+00:00",
+                    "privacy_masked": false
+                  }
+                }
+              },
+              {
+                "type": "clip",
+                "status": "success",
+                "result": {
+                  "skill": "video-segment-extraction",
+                  "version": "1.0.0",
+                  "status": "success",
+                  "confidence": 1.0,
+                  "data": {
+                    "event_id": "EVT_SHANGHAITECH_07_007_AGENT_TEST",
+                    "clip_uri": "/mnt/user-data/outputs/evidence-package-generation-shanghaitech/package/items/EVT_SHANGHAITECH_07_007_AGENT_TEST/evidence/EVT_SHANGHAITECH_07_007_AGENT_TEST_clip.mp4",
+                    "start_time": "2026-06-02T00:00:00+08:00",
+                    "end_time": "2026-06-02T00:00:04+08:00"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "thread_id": "a69c3f2f-8264-4f28-9ab3-5809582c4963",
+      "run_id": "019e8428-7563-7803-a972-acc9e42a4344",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "video-embedding-index-deterministic-shanghaitech",
+      "skill": "video-embedding-index",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/video-embedding-index-deterministic-shanghaitech/artifacts/outputs/video-embedding-index-deterministic-shanghaitech/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "failed_count": 0,
+        "source_index": "huangxiao-shanghaitech-es-agent-test",
+        "target_index": "huangxiao-shanghaitech-vector-agent-test",
+        "embedded_count": 1,
+        "embedding_provider": "deterministic-hash",
+        "embedding_model": "BAAI/bge-m3",
+        "vector_field": "vector",
+        "documents": [
+          {
+            "video_id": "shanghaitech-07-007-agent-test",
+            "dimensions": 1024,
+            "vector_field": "vector",
+            "embedding_text_chars": 2434
+          }
+        ],
+        "failures": []
+      },
+      "thread_id": "007c78fe-83f3-4fdd-ba46-d11597cd2812",
+      "run_id": "019e8428-fc76-7820-a064-63bd1ffeb250",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "video-embedding-index-streetmodel-query",
+      "skill": "video-embedding-index",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/video-embedding-index-streetmodel-query/artifacts/outputs/video-embedding-index-streetmodel-query/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "success",
+      "error_code": null,
+      "message": null,
+      "data_summary": {
+        "embedding_provider": "streetmodel",
+        "embedding_model": "Qwen3-VL-Embedding-2B",
+        "dimensions": 2048,
+        "vector_field": "video_vector-Qwen3-VL-Embedding-2B_urban_governance"
+      },
+      "thread_id": "cb668988-f0b5-404e-8e12-3305affef118",
+      "run_id": "019e8429-7ac1-7243-990b-4bae284e46ec",
+      "stream_error": null,
+      "sse_errors": []
+    },
+    {
+      "case_id": "video-embedding-index-streetmodel-video",
+      "skill": "video-embedding-index",
+      "result_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/outputs/skill-tests/20260602-010655-shanghaitech-es/video-embedding-index-streetmodel-video/artifacts/outputs/video-embedding-index-streetmodel-video/result.json",
+      "read_skill_md": true,
+      "bash_entrypoint": true,
+      "result_exists": true,
+      "agent_chain_passed": true,
+      "result_status": "failed",
+      "error_code": "VIDEO_COPY_TO_SHARED_FAILED",
+      "message": "Failed to copy video to DeerFlow shared prefix /data/deerflow/videos: [Errno 13] Permission denied: '/data/deerflow/videos/direct_uploads'",
+      "data_summary": {},
+      "thread_id": "f5187fe0-9e5a-45f9-82ea-4c3bc3d15389",
+      "run_id": "019e8429-ed81-7820-a1b0-c36e1de47ccf",
+      "stream_error": null,
+      "sse_errors": []
+    }
+  ]
+}

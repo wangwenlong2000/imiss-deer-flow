@@ -1,0 +1,16 @@
+{
+  "source_type": "local_file",
+  "video_path": "/mnt/datasets/Vedio-demo/fight.mp4",
+  "camera_id": "CAM_DEERFLOW_001",
+  "target_events": [
+    "fight",
+    "fall_down",
+    "other_abnormal_event"
+  ],
+  "output_dir": "/mnt/user-data/outputs/single-video-event-analysis/artifacts/review",
+  "coarse_fps": 0.2,
+  "dense_fps": 1.0,
+  "scene_threshold": 0.3,
+  "dense_window": 1.0,
+  "max_frames": 12
+}

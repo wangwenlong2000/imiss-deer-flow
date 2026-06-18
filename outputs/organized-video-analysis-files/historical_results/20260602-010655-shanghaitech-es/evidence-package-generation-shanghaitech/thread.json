@@ -1,0 +1,13 @@
+{
+  "thread_id": "a69c3f2f-8264-4f28-9ab3-5809582c4963",
+  "created_at": "2026-06-01T17:08:24.545039+00:00",
+  "updated_at": "2026-06-01T17:08:24.545039+00:00",
+  "state_updated_at": "2026-06-01T17:08:24.545039+00:00",
+  "metadata": {
+    "purpose": "evidence-package-generation-shanghaitech-agent-test",
+    "created_by": "codex"
+  },
+  "status": "idle",
+  "config": {},
+  "values": null
+}

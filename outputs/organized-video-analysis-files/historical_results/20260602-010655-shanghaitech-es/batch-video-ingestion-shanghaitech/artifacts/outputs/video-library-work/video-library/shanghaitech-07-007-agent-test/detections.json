@@ -1,0 +1,76 @@
+{
+  "skill": "object-detection",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 0.7236,
+  "data": {
+    "detections": [
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000000800_0001",
+        "timestamp": "2026-05-20T10:00:00+08:00",
+        "objects": []
+      },
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000010800_0002",
+        "timestamp": "2026-05-20T10:00:01+08:00",
+        "objects": [
+          {
+            "object_id": "det_0002_001",
+            "label": "person",
+            "confidence": 0.6834,
+            "bbox": [
+              40.97,
+              237.47,
+              98.45,
+              477.42
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_002",
+            "label": "person",
+            "confidence": 0.5324,
+            "bbox": [
+              0.1,
+              228.14,
+              49.38,
+              428.87
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_SHANGHAITECH_07_007_202605201000020800_0003",
+        "timestamp": "2026-05-20T10:00:02+08:00",
+        "objects": [
+          {
+            "object_id": "det_0003_001",
+            "label": "person",
+            "confidence": 0.8685,
+            "bbox": [
+              147.52,
+              213.24,
+              231.31,
+              409.75
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_002",
+            "label": "person",
+            "confidence": 0.8102,
+            "bbox": [
+              222.28,
+              218.48,
+              292.17,
+              435.15
+            ],
+            "model_label": "person"
+          }
+        ]
+      }
+    ],
+    "model": "/mnt/skills/custom/models/yolov8n.pt"
+  }
+}

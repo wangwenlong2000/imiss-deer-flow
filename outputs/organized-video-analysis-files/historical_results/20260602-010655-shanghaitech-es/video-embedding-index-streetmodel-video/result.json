@@ -1,0 +1,13 @@
+{
+  "skill": "video-embedding-index",
+  "version": "1.0.0",
+  "status": "failed",
+  "error_code": "VIDEO_COPY_TO_SHARED_FAILED",
+  "message": "Failed to copy video to DeerFlow shared prefix /data/deerflow/videos: [Errno 13] Permission denied: '/data/deerflow/videos/direct_uploads'",
+  "retryable": false,
+  "detail": {
+    "video_path": "/mnt/datasets/shanghaitech-agent-eval/07_007.avi",
+    "target_path": "/data/deerflow/videos/direct_uploads/shanghaitech-07-007-agent-test-streetmodel-882669cabd92.avi",
+    "deerflow_path_prefix": "/data/deerflow/videos"
+  }
+}
