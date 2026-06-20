@@ -7,6 +7,8 @@ description: Check video monitoring camera quality from sampled frames and retur
 
 ## Execution Priority
 
+For business requests about a camera ID or camera health without frames already provided, load `city-video-intelligence` first and run its router script before this atomic skill. This skill is the downstream health checker after a video source or sampled frames are known.
+
 Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
 
 ## Input Resolution

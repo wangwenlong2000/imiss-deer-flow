@@ -1,11 +1,13 @@
 ---
 name: video-stream-ingestion
-description: Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to RTSP, GB28181, platform APIs, or live streams.
+description: Normalize an existing local video file after city-video-intelligence has routed a video-library or analysis request, returning raw segment/session metadata. For direct user ingestion, Elasticsearch, StreetModel, search, statistics, evidence, or camera-health requests, load city-video-intelligence first. Use this atomic skill when Codex already has a clear plan and a local MP4/MOV/AVI/MKV file before frame sampling.
 ---
 
 # Video File Normalization
 
 ## Execution Priority
+
+For any direct user business request that combines video ingestion with search, embedding, statistics, evidence, or other city-video operations, load `city-video-intelligence` first and run its router script. Use this atomic skill only after the business route is clear.
 
 Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
 

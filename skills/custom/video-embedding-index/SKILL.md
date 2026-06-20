@@ -1,13 +1,17 @@
 ---
 name: video-embedding-index
-description: Generate text or StreetModel video-level embeddings for video-library documents and write vectors into a protected personal Elasticsearch index. Use when Codex needs semantic vector search for indexed monitoring videos, especially for huangxiao-video-library-vector-v1.
+description: Generate text or StreetModel video-level embeddings for video-library documents after city-video-intelligence has routed the request, and write vectors into a protected personal Elasticsearch index. For direct user StreetModel, ingest-and-embed, semantic retrieval, benchmark, or keyword-vs-vector requests, load city-video-intelligence first. Use when Codex already has a clear embedding plan for indexed monitoring videos, especially for huangxiao-video-library-vector-v1.
 ---
 
 # Video Embedding Index
 
 ## Execution Priority
 
-Prioritize the `streetmodel-video-embedding` MCP server when it is enabled. Use `streetmodel_health`, `streetmodel_embed_video`, and `streetmodel_embed_query` before falling back to this skill's `scripts/run.py` entrypoint. Only write custom code after the MCP tools and script result are unsuitable or cannot cover the requested task.
+For direct user business requests that ask to test StreetModel, compare keyword and vector search, ingest-and-embed videos, or perform semantic monitoring-video retrieval, load `city-video-intelligence` first and run its router script. Use this atomic skill only after the business route is clear.
+
+For business execution, do not run proactive StreetModel health probes or `curl` checks. Run the selected embedding action once; if it returns a concrete StreetModel failure, report that failure and stop. Use `streetmodel_health` only when the user explicitly asks to debug StreetModel service health.
+
+Prioritize the `streetmodel-video-embedding` MCP embedding tools when they are enabled and the request is already routed. Use `streetmodel_embed_video` or `streetmodel_embed_query` before falling back to this skill's `scripts/run.py` entrypoint. Only write custom code after the MCP tools and script result are unsuitable or cannot cover the requested task.
 
 ## Safety Boundary
 
@@ -33,7 +37,7 @@ If the MCP tools are missing, fail, or are not exposed to the current agent, use
 python video-embedding-index/scripts/run.py --source-index citybrain-video-library --target-index huangxiao-video-library-vector-v1 --owner huangxiao --embedding-provider streetmodel --config <config.json> --output <result.json>
 ```
 
-Parameters: `--source-index`, `--target-index`, `--owner`, `--video-id`, `--video-uri`, `--video-vector-output`, `--query`, `--query-vector-output`, `--limit`, `--config`, `--output`, `--allow-shared-index`, `--embedding-provider`, `--embedding-model`, `--dimensions`, `--vector-field`, `--base-url`, `--timeout-seconds`, `--deerflow-path-prefix`, `--streetmodel-path-prefix`, `--video-preprocess`, `--frame-sample-fps`, `--max-sampled-frames`, `--proxy-output-fps`, `--proxy-max-width`.
+Parameters: `--source-index`, `--target-index`, `--owner`, `--video-id`, `--video-uri`, `--video-vector-output`, `--query`, `--query-vector-output`, `--limit`, `--config`, `--output`, `--allow-shared-index`, `--refresh`, `--embedding-provider`, `--embedding-model`, `--dimensions`, `--vector-field`, `--base-url`, `--timeout-seconds`, `--deerflow-path-prefix`, `--streetmodel-path-prefix`, `--video-preprocess`, `--frame-sample-fps`, `--max-sampled-frames`, `--proxy-output-fps`, `--proxy-max-width`.
 
 Single uploaded/local video copied into the configured shared prefix:
 
@@ -86,6 +90,8 @@ Returns `embedded_count`, `failed_count`, `source_index`, `target_index`, `owner
 - `VECTOR_FIELD_DIMENSION_MISMATCH`
 - `ES_CONNECTION_FAILED`
 - `ES_REQUEST_FAILED`
+
+When the script returns `status="failed"` for `STREETMODEL_CONNECTION_FAILED`, `STREETMODEL_REQUEST_FAILED`, `STREETMODEL_MODEL_NOT_FOUND`, `VECTOR_FIELD_DIMENSION_MISMATCH`, or any other embedding failure, report that concrete failure and stop. Do not probe ports, search for config files, or try alternate service URLs unless the user explicitly asks for debugging.
 
 ## Constraints
 

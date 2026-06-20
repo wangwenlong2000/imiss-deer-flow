@@ -280,6 +280,8 @@ p.parent.mkdir(parents=True, exist_ok=True)
 json.dump(event, p.open('w'), ensure_ascii=False, indent=2)
 PY
 python {skill_path}/scripts/run.py --event-json {ws}/event.json --output-dir {out}/package --index citybrain-video-library --config {CONFIG} --output {out}/result.json""",
+        "city-video-intelligence": f"""mkdir -p {out}
+python {skill_path}/scripts/run.py --request "我是交警队的，需要调取奉化区大成路路口今天上午 8-10 点的监控，并准备交通事件取证材料" --output {out}/result.json""",
     }
     command = command_by_skill[skill]
     return f"""请测试 `{skill}` skill 的 Agent 真链路。
@@ -316,6 +318,7 @@ SKILLS = [
     "video-embedding-index",
     "object-statistics",
     "evidence-package-generation",
+    "city-video-intelligence",
 ]
 
 

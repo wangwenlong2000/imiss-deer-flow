@@ -42,6 +42,10 @@ backend/.deer-flow/
 .deerflow-no-nginx/
 .claude/
 
+# Skill and agent test run artifacts
+outputs/skill-tests/business-scenarios/
+outputs/skill-tests/20*/
+
 !skills/custom/.gitkeep
 !skills/custom/network-traffic-analysis/
 !skills/custom/network-traffic-analysis/**

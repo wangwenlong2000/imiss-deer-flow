@@ -9,6 +9,10 @@ description: Search indexed monitoring videos in Elasticsearch by keyword, camer
 
 Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
 
+## Business Orchestration Gate
+
+For monitoring-video business requests, StreetModel testing, retrieval benchmark requests, or requests comparing keyword search with vector search, load `city-video-intelligence` first and run its router script with the raw user question. If that plan returns `follow_up_question`, stop immediately and make the whole visible response exactly that question. Use this skill only after the business route is clear.
+
 ## Input Resolution
 
 Use structured filters when the user names a camera, time window, object class, event type, or video id. Use `--query` for natural-language or keyword search. Use `--embedding-provider streetmodel` when the query should be embedded by `Qwen3-VL-Embedding-2B` directly. Use `--query-vector-json` only when the user provides a precomputed vector. Use `--vector-field` for a non-default dense vector field such as `video_vector-Qwen3-VL-Embedding-2B_urban_governance`.

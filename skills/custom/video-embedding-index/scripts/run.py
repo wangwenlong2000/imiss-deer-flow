@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import http.client
 import json
 import math
 import os
@@ -688,6 +689,13 @@ class StreetModelEmbedder:
                 True,
                 {"base_url": self.base_url},
             )
+        except (http.client.HTTPException, OSError) as exc:
+            raise EmbeddingError(
+                "STREETMODEL_CONNECTION_FAILED",
+                f"Could not connect to StreetModel at {self.base_url}: {exc}",
+                True,
+                {"base_url": self.base_url},
+            )
         try:
             return json.loads(text) if text.strip() else {}
         except json.JSONDecodeError:
@@ -894,6 +902,7 @@ def main() -> int:
     parser.add_argument("--proxy-output-fps", type=float)
     parser.add_argument("--proxy-max-width", type=int)
     parser.add_argument("--allow-shared-index", action="store_true")
+    parser.add_argument("--refresh", action="store_true", help="Accepted for workflow compatibility; target indices are refreshed automatically when writes complete.")
     parser.add_argument("--config")
     parser.add_argument("--output")
     args = parser.parse_args()

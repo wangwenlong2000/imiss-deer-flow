@@ -5,6 +5,7 @@ import argparse
 import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.error
@@ -142,6 +143,53 @@ def hash_file(path: Path) -> str:
     return "sha256:" + sha256(path.read_bytes()).hexdigest()
 
 
+def seconds_arg(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
+
+
+def uri_to_path(uri: str | None) -> Path | None:
+    if not uri:
+        return None
+    return Path(str(uri).removeprefix("file://"))
+
+
+def ensure_artifact_hashes(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    for artifact in artifacts:
+        result = artifact.get("result")
+        data = result.get("data") if isinstance(result, dict) and isinstance(result.get("data"), dict) else {}
+        uri = data.get("clip_uri") or data.get("uri")
+        if uri and not data.get("hash"):
+            path = uri_to_path(str(uri))
+            if path:
+                file_hash = hash_file(path)
+                if file_hash:
+                    data["hash"] = file_hash
+    return artifacts
+
+
+def summarize_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    summary: list[dict[str, Any]] = []
+    for item in evidence:
+        for artifact in item.get("artifacts", []):
+            result = artifact.get("result") if isinstance(artifact.get("result"), dict) else {}
+            data = result.get("data") if isinstance(result.get("data"), dict) else {}
+            uri = data.get("clip_uri") or data.get("uri")
+            entry = {
+                "video_id": item.get("video_id"),
+                "event_id": item.get("event_id"),
+                "type": artifact.get("type"),
+                "status": artifact.get("status"),
+                "uri": uri,
+                "hash": data.get("hash"),
+            }
+            if data.get("start_time"):
+                entry["start_time"] = data.get("start_time")
+            if data.get("end_time"):
+                entry["end_time"] = data.get("end_time")
+            summary.append(entry)
+    return summary
+
+
 def event_from_input(input_data: dict[str, Any], event_json: str | None) -> dict[str, Any]:
     if event_json:
         data = load_structured(event_json)
@@ -149,6 +197,53 @@ def event_from_input(input_data: dict[str, Any], event_json: str | None) -> dict
             return data.get("event") if isinstance(data.get("event"), dict) else data
     event = input_value(input_data, "event", default={})
     return event if isinstance(event, dict) else {}
+
+
+def parse_elapsed_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    text = value.strip()
+    if not text:
+        return None
+    if re.match(r"^\d+(?:\.\d+)?$", text):
+        return float(text)
+    parts = text.replace("：", ":").split(":")
+    if len(parts) not in {2, 3}:
+        return None
+    try:
+        numbers = [float(part) for part in parts]
+    except ValueError:
+        return None
+    if len(numbers) == 2:
+        minutes, seconds = numbers
+        return minutes * 60 + seconds
+    hours, minutes, seconds = numbers
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def merge_cli_event(event: dict[str, Any], args: argparse.Namespace) -> dict[str, Any]:
+    cli_event: dict[str, Any] = {}
+    if args.event_id:
+        cli_event["event_id"] = args.event_id
+    if args.raw_segment_uri:
+        cli_event["raw_segment_uri"] = args.raw_segment_uri
+    if args.event_type:
+        cli_event["event_type"] = args.event_type
+    if args.camera_id:
+        cli_event["camera_id"] = args.camera_id
+    if args.event_elapsed_seconds is not None:
+        cli_event["event_elapsed_seconds"] = args.event_elapsed_seconds
+    elif args.event_time:
+        elapsed = parse_elapsed_seconds(args.event_time)
+        if elapsed is not None:
+            cli_event["event_elapsed_seconds"] = elapsed
+    if args.event_time and "event_elapsed_seconds" not in cli_event:
+        cli_event["event_time"] = args.event_time
+    if cli_event and "event_id" not in cli_event and "event_id" not in event:
+        cli_event["event_id"] = f"EVT_{uuid4().hex[:8]}"
+    if cli_event and "event_type" not in cli_event and "event_type" not in event:
+        cli_event["event_type"] = "manual_evidence"
+    return {**event, **cli_event}
 
 
 def items_from_search(search_result_json: str | None, input_data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -193,8 +288,10 @@ def generate_for_item(item: dict[str, Any], package_dir: Path, pre_seconds: floa
     artifacts.append({"type": "snapshot", "status": snapshot.get("status"), "result": snapshot})
     raw_segment_uri = item.get("raw_segment_uri")
     event_time = event.get("event_time") or event.get("start_time") or item.get("video", {}).get("started_at")
+    if raw_segment_uri and not event_time and event.get("event_elapsed_seconds") is not None:
+        event_time = datetime.now(timezone.utc).isoformat()
     if raw_segment_uri and event_time:
-        clip_args = ["--event-id", str(event_id), "--raw-segment-uri", str(raw_segment_uri), "--event-time", str(event_time), "--pre-seconds", str(pre_seconds), "--post-seconds", str(post_seconds), "--output-dir", str(item_dir), "--output", str(item_dir / "clip.json")]
+        clip_args = ["--event-id", str(event_id), "--raw-segment-uri", str(raw_segment_uri), "--event-time", str(event_time), "--pre-seconds", seconds_arg(pre_seconds), "--post-seconds", seconds_arg(post_seconds), "--output-dir", str(item_dir), "--output", str(item_dir / "clip.json")]
         if event.get("event_elapsed_seconds") is not None:
             clip_args.extend(["--event-elapsed-seconds", str(event["event_elapsed_seconds"])])
         if config_path:
@@ -211,6 +308,12 @@ def main() -> int:
     parser.add_argument("--video-id")
     parser.add_argument("--event-json")
     parser.add_argument("--search-result-json")
+    parser.add_argument("--raw-segment-uri")
+    parser.add_argument("--event-id")
+    parser.add_argument("--event-type")
+    parser.add_argument("--event-time")
+    parser.add_argument("--event-elapsed-seconds", type=float)
+    parser.add_argument("--camera-id")
     parser.add_argument("--output-dir")
     parser.add_argument("--pre-seconds", type=float, default=2)
     parser.add_argument("--post-seconds", type=float, default=3)
@@ -223,7 +326,7 @@ def main() -> int:
     package_id = input_value(input_data, "package_id", default=f"PKG_{uuid4().hex[:10]}")
     package_dir = Path(args.output_dir or input_value(input_data, "output_dir", default=str(Path("outputs") / "evidence-packages" / package_id)))
     package_dir.mkdir(parents=True, exist_ok=True)
-    event = event_from_input(input_data, args.event_json)
+    event = merge_cli_event(event_from_input(input_data, args.event_json), args)
     search_items = items_from_search(args.search_result_json, input_data)
     video_id = args.video_id or input_value(input_data, "video_id") or event.get("video_id")
     video = None
@@ -246,11 +349,19 @@ def main() -> int:
     evidence = []
     for item in items:
         artifacts = generate_for_item(item, package_dir, args.pre_seconds, args.post_seconds, args.config)
+        artifacts = ensure_artifact_hashes(artifacts)
         evidence.append({"video_id": item.get("video_id"), "event_id": item.get("event", {}).get("event_id"), "artifacts": artifacts})
     manifest = {"package_id": package_id, "created_at": datetime.now(timezone.utc).isoformat(), "index": args.index, "items": items, "evidence": evidence}
     manifest_path = package_dir / "manifest.json"
     write_json(manifest_path, manifest)
-    data = {"package_id": package_id, "manifest_uri": str(manifest_path), "manifest_hash": hash_file(manifest_path), "items": items, "evidence": evidence}
+    data = {
+        "package_id": package_id,
+        "manifest_uri": str(manifest_path),
+        "manifest_hash": hash_file(manifest_path),
+        "items": items,
+        "evidence": evidence,
+        "artifact_summary": summarize_evidence(evidence),
+    }
     return emit(success(data, 1.0), args.output)
 
 

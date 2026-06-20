@@ -424,7 +424,7 @@ def main() -> int:
     parser.add_argument("--config")
     parser.add_argument("--output")
     parser.add_argument("--refresh", action="store_true")
-    parser.add_argument("--analysis-mode", choices=["metadata_only", "object_detection"], default="object_detection", help="metadata_only is fast and does not inspect frames; object_detection samples frames and runs YOLO/tracking, which is slower.")
+    parser.add_argument("--analysis-mode", choices=["metadata_only", "object_detection"], default="metadata_only", help="metadata_only is fast and does not inspect frames; object_detection samples frames and runs YOLO/tracking, which is slower.")
     parser.add_argument("--skip-content-detection", action="store_true", help="Alias for --analysis-mode metadata_only.")
     args = parser.parse_args()
     input_data = load_structured(args.input) if args.input else {}
