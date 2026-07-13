@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,21 +168,24 @@ SKILL = "camera-health-check"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Check camera health from sampled frames or an override.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--frames-json")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
+    p.add_argument("--camera-id")
     p.add_argument("--health-status")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    frames = load_list(args.frames_json, "frames") if args.frames_json else []
-    forced = args.health_status or config.get("camera_health", {}).get(args.camera_id)
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
+    forced = args.health_status or input_value(input_data, "health_status") or input_dict(input_data, "camera_health").get("health_status") or config.get("camera_health", {}).get(camera_id)
     if not frames and forced != "ok":
-        data = {"camera_id": args.camera_id, "health_status": "unavailable", "health_score": 0, "issues": [{"type": "offline", "confidence": 1.0, "reason": "no frames available"}]}
+        data = {"camera_id": camera_id, "health_status": "unavailable", "health_score": 0, "issues": [{"type": "offline", "confidence": 1.0, "reason": "no frames available"}]}
     elif forced and forced != "ok":
-        data = {"camera_id": args.camera_id, "health_status": forced, "health_score": 55 if forced == "degraded" else 0, "issues": [{"type": forced, "confidence": 0.9, "reason": "configured health override"}]}
+        data = {"camera_id": camera_id, "health_status": forced, "health_score": 55 if forced == "degraded" else 0, "issues": [{"type": forced, "confidence": 0.9, "reason": "configured health override"}]}
     else:
-        data = {"camera_id": args.camera_id, "health_status": "ok", "health_score": 100, "issues": []}
+        data = {"camera_id": camera_id, "health_status": "ok", "health_score": 100, "issues": []}
     return emit(success(SKILL, data), args.output)
 
 if __name__ == "__main__":

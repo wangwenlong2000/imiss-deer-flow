@@ -48,6 +48,15 @@ def log(msg: str):
     print(msg, file=sys.stderr, flush=True)
 
 
+def load_input(path: str | None) -> dict:
+    """Load an optional JSON payload used by DeerFlow-style --input calls."""
+    if not path:
+        return {}
+    source = Path(path)
+    text = source.read_text(encoding="utf-8")
+    return json.loads(text) if text.strip() else {}
+
+
 def format_timestamp(seconds: float) -> str:
     """Convert seconds to H:MM:SS.mmm display format."""
     h = int(seconds // 3600)
@@ -594,29 +603,44 @@ def main():
     parser = argparse.ArgumentParser(
         description="Multi-pass video frame extraction for forensic analysis."
     )
-    parser.add_argument("video_file", help="Path to video file")
+    parser.add_argument("video_file", nargs="?", help="Path to video file")
+    parser.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields")
     parser.add_argument("--output-dir", default=None,
                         help="Where to save frames (default: auto-generated)")
-    parser.add_argument("--coarse-fps", type=float, default=1.0,
+    parser.add_argument("--coarse-fps", type=float, default=None,
                         help="FPS for coarse pass (default: 1.0)")
-    parser.add_argument("--dense-fps", type=float, default=4.0,
+    parser.add_argument("--dense-fps", type=float, default=None,
                         help="FPS for dense pass (default: 4.0)")
-    parser.add_argument("--scene-threshold", type=float, default=0.3,
+    parser.add_argument("--scene-threshold", type=float, default=None,
                         help="Scene detection sensitivity 0-1 (default: 0.3, lower = more sensitive)")
-    parser.add_argument("--dense-window", type=float, default=2.0,
+    parser.add_argument("--dense-window", type=float, default=None,
                         help="Seconds before/after scene change for dense pass (default: 2.0)")
-    parser.add_argument("--chapter-duration", type=int, default=300,
+    parser.add_argument("--chapter-duration", type=int, default=None,
                         help="Seconds per chapter for chunked processing (default: 300)")
-    parser.add_argument("--max-frames", type=int, default=2000,
+    parser.add_argument("--max-frames", type=int, default=None,
                         help="Safety limit to avoid extracting too many (default: 2000)")
     parser.add_argument("--offset-pass", action="store_true",
                         help="Enable Pass 3: extract at 0.5s offset for double coverage")
     args = parser.parse_args()
+    input_data = load_input(args.input)
+    args.video_file = args.video_file or input_data.get("video_file") or input_data.get("video") or input_data.get("raw_segment_uri") or input_data.get("file_path")
+    args.output_dir = args.output_dir or input_data.get("output_dir")
+    args.coarse_fps = args.coarse_fps if args.coarse_fps is not None else float(input_data.get("coarse_fps", 1.0))
+    args.dense_fps = args.dense_fps if args.dense_fps is not None else float(input_data.get("dense_fps", 4.0))
+    args.scene_threshold = args.scene_threshold if args.scene_threshold is not None else float(input_data.get("scene_threshold", 0.3))
+    args.dense_window = args.dense_window if args.dense_window is not None else float(input_data.get("dense_window", 2.0))
+    args.chapter_duration = args.chapter_duration if args.chapter_duration is not None else int(input_data.get("chapter_duration", 300))
+    args.max_frames = args.max_frames if args.max_frames is not None else int(input_data.get("max_frames", 2000))
+    args.offset_pass = args.offset_pass or bool(input_data.get("offset_pass", False))
 
     # --- Validate prerequisites ---
     check_tools()
 
-    video_path = os.path.abspath(args.video_file)
+    if not args.video_file:
+        log("ERROR: video_file is required, either as a positional argument or in --input JSON.")
+        sys.exit(1)
+
+    video_path = os.path.abspath(str(args.video_file).removeprefix("file://"))
     if not os.path.isfile(video_path):
         log(f"ERROR: File not found: {video_path}")
         sys.exit(1)

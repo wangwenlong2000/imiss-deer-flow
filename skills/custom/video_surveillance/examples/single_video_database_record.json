@@ -1,0 +1,35 @@
+{
+  "id": "video-traffic-001",
+  "name": "Trafic",
+  "type": "uploaded_file",
+  "status": "ready",
+  "description": "浙江省宁波市奉化区大成路与斗门路西口交通监控视频",
+  "path": "/home/huangxiao/City_brain/imiss-deer-flow-main/datasets/Vedio-demo/Trafic.mp4",
+  "virtual_path": "/mnt/datasets/Vedio-demo/Trafic.mp4",
+  "updated_at": "2026-05-25T00:00:00+08:00",
+  "owner_scope": "workspace",
+  "selectable_in_chat": true,
+  "thread_id": null,
+  "metadata": {
+    "filename": "Trafic.mp4",
+    "file_ext": ".mp4",
+    "mime_type": "video/mp4",
+    "source_kind": "video_file",
+    "size_bytes": null,
+    "shooting_started_at": "2022-09-29T15:59:00+08:00",
+    "shooting_ended_at": "2022-09-29T16:14:00+08:00",
+    "duration_seconds": 901,
+    "duration_text": "15 分 1 秒",
+    "location": {
+      "province": "浙江省",
+      "city": "宁波市",
+      "district": "奉化区",
+      "address": "大成路与斗门路西口"
+    },
+    "width": 1280,
+    "height": 674,
+    "resolution": "1280x674",
+    "fps": 12,
+    "sha256": null
+  }
+}

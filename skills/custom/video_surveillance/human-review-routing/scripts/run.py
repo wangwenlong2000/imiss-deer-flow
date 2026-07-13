@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,17 +168,20 @@ SKILL = "human-review-routing"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Route event candidates to manual review or auto-pass.")
-    p.add_argument("--event-json", required=True)
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
+    p.add_argument("--event-json")
     p.add_argument("--camera-health-json")
     p.add_argument("--review-threshold", type=float)
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    event = load_dict(args.event_json, "event")
-    camera_health = load_dict(args.camera_health_json) if args.camera_health_json else {}
-    template = config.get("event_templates", {}).get(event.get("event_type"), {})
-    threshold = args.review_threshold if args.review_threshold is not None else float(template.get("review_threshold", config.get("default_review_threshold", 0.85)))
+    event = load_dict(args.event_json, "event") if args.event_json else input_dict(input_data, "event") or input_data
+    camera_health = load_dict(args.camera_health_json) if args.camera_health_json else input_dict(input_data, "camera_health")
+    event_type = event.get("event_type")
+    review_thresholds = config.get("review_thresholds", {})
+    threshold = args.review_threshold if args.review_threshold is not None else float(input_value(input_data, "review_threshold", default=review_thresholds.get(event_type, config.get("default_review_threshold", 0.85))))
     high_risk = set(config.get("high_risk_event_types", []))
     reasons = []
     if float(event.get("confidence", 0)) < threshold:

@@ -50,6 +50,23 @@ models:
         enable_thinking: true
         thinking_budget: 2048
 
+  - name: qwen3.6-35b-a3b
+    display_name: qwen3.6-35b-a3b
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.6-35b-a3b
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    #base_url: http://129.211.141.253:65530/api/coding
+    max_tokens: 8192   # 多模态模型输出 token 限制可能不同，视具体模型而定
+    temperature: 0.7
+    supports_vision: true  # 必须显式开启，系统才会注入 view_image 能力
+    supports_thinking: true
+    supports_reasoning_effort: false
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
+        thinking_budget: 2048
+
 # ============================================================================
 # Embedding Configuration
 # ============================================================================
@@ -71,6 +88,26 @@ embedding:
   normalize: true
   allow_download: false
 
+streetmodel_embedding:
+  enabled: true
+  base_url: http://219.245.185.245:3130
+  model_name: Qwen3-VL-Embedding-2B
+  mode: video
+  vector_field: video_vector-Qwen3-VL-Embedding-2B_urban_governance
+  dimensions: 2048
+  instruction: Represent this surveillance video for urban scene retrieval.
+  text_instruction: Represent this surveillance/street-view query for urban scene retrieval.
+  batch_size: 1
+  timeout_seconds: 600
+  video:
+    item_type: video
+    deerflow_path_prefix: /data/deerflow/videos
+    streetmodel_path_prefix: /nfsdat2/home/xhuangslm/shared_videos
+
+video_library:
+  vector_dims: 1024
+
+
 # ============================================================================
 # Elasticsearch Configuration
 # ============================================================================
@@ -84,6 +121,8 @@ elasticsearch:
   password: $ES_PASSWORD
   verify_certs: false
   request_timeout: 30
+
+
   
   # Example: Volcengine (Doubao) model
   # - name: doubao-seed-1.8
@@ -313,6 +352,7 @@ sandbox:
   replicas: 3
   container_prefix: deer-flow-sandbox
   environment:
+    BAIDU_AK: $BAIDU_AK
     ES_URL: $ES_URL
     LAW_REGULATIONS_ES_INDEX: $LAW_REGULATIONS_ES_INDEX
     ES_USERNAME: $ES_USER

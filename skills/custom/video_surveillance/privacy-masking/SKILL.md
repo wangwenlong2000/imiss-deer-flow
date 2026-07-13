@@ -1,6 +1,6 @@
 ---
 name: privacy-masking
-description: Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI, sensitive_regions, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files.
+description: Mask sensitive visual data in video evidence such as faces, license plates, phone numbers, and doorplates. Use when Codex has an evidence image URI and explicit sensitive_regions bbox coordinates, or privacy_masking config and needs a masked URI before exposing snapshots or clips externally. This skill exposes OpenCV image read/write and Gaussian blur masking for real files.
 ---
 
 # Privacy Masking
@@ -22,12 +22,22 @@ Run this skill directly with its own script. The script does not call other skil
 python privacy-masking/scripts/run.py --image-uri <image.jpg> --sensitive-regions-json <regions.json> --config <config.json> --output <masked.json>
 ```
 
+`<regions.json>` must provide explicit coordinates:
+
+```json
+{
+  "sensitive_regions": [
+    {"type": "face", "bbox": [20, 20, 180, 160]}
+  ]
+}
+```
+
 Parameters: `--image-uri`, `--sensitive-regions-json`, `--method`, `--disabled`, `--config`, `--output`.
 
 ## Workflow
 
 1. Read evidence URI and configured mask types.
-2. Locate or accept sensitive regions.
+2. Require caller-provided `sensitive_regions` coordinates. This skill does not auto-detect faces, plates, or text.
 3. Apply configured blur, mosaic, or solid mask.
 4. Return masked URI, mask status, regions, and method.
 
@@ -38,7 +48,7 @@ This skill is implemented as an atomic standalone script in its own `scripts/run
 ## Inputs
 
 - `uri` or `image_uri`
-- Optional `sensitive_regions`: list of bboxes or region dicts
+- Required `sensitive_regions`: list of bboxes or region dicts with `bbox: [x1, y1, x2, y2]` when masking is enabled
 - Optional `output_key` for memory storage mode
 
 ## Outputs
@@ -48,6 +58,7 @@ Returns `uri`, `privacy_masked`, `masked_regions`, and `method`.
 ## Failure Modes
 
 - `MISSING_URI`
+- `MISSING_SENSITIVE_REGIONS`
 - `IMAGE_READ_FAILED`
 
 ## Constraints

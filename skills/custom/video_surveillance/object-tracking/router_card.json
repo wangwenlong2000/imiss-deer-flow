@@ -3,98 +3,37 @@
   "identity": {
     "id": "object-tracking",
     "name": "object-tracking",
-    "description": "Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules."
+    "description": "Associate detections across frames into object tracks for object analytics only."
   },
   "scope": {
-    "scenes": [
-      "video_surveillance"
-    ],
+    "scenes": ["video_surveillance"],
     "is_public": false,
-    "task_types": [
-      "object_tracking",
-      "trajectory_analysis"
-    ],
-    "input_types": [
-      "detections_json",
-      "frames_json",
-      "camera_id"
-    ],
-    "output_types": [
-      "tracks_json"
-    ]
+    "task_types": ["object_tracking", "trajectory_analysis"],
+    "input_types": ["detections_json"],
+    "output_types": ["tracks_json"]
   },
   "routing": {
-    "routing_text": "名称：object-tracking\n描述：Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules.\n适用场景：video_surveillance。\n适用任务：object_tracking, trajectory_analysis。\n输入类型：detections_json, frames_json, camera_id。\n输出类型：tracks_json。\n适合使用：跨帧跟踪目标；生成轨迹；计算目标持续时间；跟踪检测到的人车物。\n不适合使用：单帧目标检测；ROI区域匹配；事件合并；证据截图。",
-    "positive_triggers": [
-      "跨帧跟踪目标",
-      "生成轨迹",
-      "计算目标持续时间",
-      "跟踪检测到的人车物"
-    ],
-    "negative_triggers": [
-      "单帧目标检测",
-      "ROI区域匹配",
-      "事件合并",
-      "证据截图"
-    ],
-    "keywords": [
-      "tracking",
-      "tracks",
-      "trajectory",
-      "track_id",
-      "movement_state",
-      "duration"
-    ],
-    "anti_keywords": [
-      "YOLO only",
-      "snapshot",
-      "duplicate merge"
-    ]
-  },
-  "body": {
-    "source": "SKILL.md",
-    "content": "---\nname: object-tracking\ndescription: Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules.\n---\n\n# Object Tracking\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf `detections` are missing but the user provided frames or a video, do not ask the user to provide detections and do not write tracking code. Call upstream skills in order: `frame-sampling/scripts/run.py` when frames are missing, then `object-detection/scripts/run.py`, then this skill. Use the detection labels implied by the task, such as `person` for people, fight, crowd, or behavior analysis.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython object-tracking/scripts/run.py --detections-json <detections.json> --camera-id <camera_id> --config <config.json> --output <tracks.json>\n```\n\nParameters: `--detections-json`, `--camera-id`, `--association-distance-pixels`, `--stationary-distance-pixels`, `--config`, `--output`.\n\n## Workflow\n\n1. Sort detections by timestamp.\n2. Associate same-label detections across frames.\n3. Build track trajectory, start/end times, duration, last bbox, and confidence.\n4. Classify movement state as stationary or moving.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\n- `camera_id`\n- `detections`\n- Optional `tracks` to pass through precomputed tracks\n\n## Outputs\n\nReturns `tracks`, each with `track_id`, `label`, `start_time`, `end_time`, `duration_seconds`, `trajectory`, `movement_state`, `confidence`, `last_bbox`, and `evidence_frame_ids`.\n\n## Failure Modes\n\nThe current implementation tolerates empty detections and returns an empty track list.\n\n## Constraints\n\nDo not apply ROI rules or emit event candidates.\n"
+    "routing_text": "名称：object-tracking\n描述：把检测框按时间关联成轨迹，输出 track_id、轨迹、持续时间、运动状态。不能用于判断事件语义。\n适合使用：目标轨迹；跨帧关联；移动/静止状态。\n不适合使用：事件检测；异常行为判断。",
+    "positive_triggers": ["目标跟踪", "轨迹", "跨帧关联", "track"],
+    "negative_triggers": ["事件检测", "异常事件", "打架", "摔倒"],
+    "keywords": ["tracking", "trajectory", "track_id"],
+    "anti_keywords": ["event"]
   },
   "execution": {
-    "required_tools": [
-      "read_file",
-      "bash"
-    ],
-    "optional_tools": [
-      "write_file"
-    ],
-    "allowed_file_patterns": [
-      "*.json"
-    ],
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 83,
+    "priority": 72,
     "conflict_group": "object-tracking",
-    "prefer_when": [
-      "跨帧跟踪目标",
-      "生成轨迹",
-      "计算目标持续时间",
-      "跟踪检测到的人车物"
-    ],
-    "defer_when": [
-      "单帧目标检测",
-      "ROI区域匹配",
-      "事件合并",
-      "证据截图"
-    ]
+    "prefer_when": ["需要目标轨迹"],
+    "defer_when": ["需要事件分析"]
   },
   "source": {
     "skill_dir": "skills/custom/object-tracking",
     "skill_md_path": "skills/custom/object-tracking/SKILL.md",
-    "skill_md_hash": "sha256:3d847af71f6fc07202a08108e3d9618dd67685e2e1ba7e3b11fa7e2af66073d6",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "generator_version": "manual-object-only-1.0.0"
   },
-  "embedding": {
-    "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:7889ecf9f4e16b4388160f528c1695d9190093393bd2ed808aa1fb949c02a64f",
-    "es_index": "citybrain-skill-router-cards",
-    "es_doc_id": "object-tracking"
-  }
+  "embedding": {"es_doc_id": "object-tracking"}
 }

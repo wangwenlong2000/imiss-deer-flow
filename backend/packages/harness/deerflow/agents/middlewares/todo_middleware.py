@@ -141,6 +141,16 @@ def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
             text = span.get("text") or span.get("task_text") or ""
             if isinstance(text, str) and text.strip():
                 lines.append(f"- {text.strip()}")
+    planning_steps = intent_ctx.get("planning_steps") or []
+    if isinstance(planning_steps, list) and planning_steps:
+        lines.append("任务规划：")
+        for index, step in enumerate(planning_steps, 1):
+            if isinstance(step, dict):
+                text = step.get("text") or step.get("task_text") or step.get("content") or ""
+            else:
+                text = str(step)
+            if isinstance(text, str) and text.strip():
+                lines.append(f"{index}. {text.strip()}")
     scene_tasks = intent_ctx.get("scene_tasks") or []
     if isinstance(scene_tasks, list) and scene_tasks:
         lines.append("场景任务：")

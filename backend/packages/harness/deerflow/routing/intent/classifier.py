@@ -62,6 +62,7 @@ class RoutingIntentResult(BaseModel):
     # New multi-scene fields
     scenes: list[str] = Field(default_factory=list)  # All matched scenes
     task_spans: list[TaskSpan] = Field(default_factory=list)
+    planning_steps: list[TaskSpan] = Field(default_factory=list)
     scene_tasks: list[SubTask] = Field(default_factory=list)
     sub_tasks: list[SubTask] = Field(default_factory=list)  # Split sub-tasks
     # Common fields
@@ -339,6 +340,18 @@ def classify_routing_intent_with_llm(
         if not scenes:
             scenes = [public_scene_id]
 
+        try:
+            planning_steps = _generate_planning_steps_with_llm(
+                query,
+                llm=llm,
+                routing_query=routing_query,
+                scene_ids=scenes,
+                task_spans=task_span_models,
+                scene_tasks=scene_tasks,
+            )
+        except Exception:
+            planning_steps = []
+
         return RoutingIntentResult(
             intent=baseline.intent,
             original_query=query,
@@ -356,6 +369,7 @@ def classify_routing_intent_with_llm(
             scene_tasks=scene_tasks,
             sub_tasks=scene_tasks,
             task_spans=task_span_models,
+            planning_steps=planning_steps,
         )
     except Exception:
         return baseline
@@ -509,6 +523,18 @@ async def aclassify_routing_intent_with_llm(
         if not scenes:
             scenes = [public_scene_id]
 
+        try:
+            planning_steps = await _agenerate_planning_steps_with_llm(
+                query,
+                llm=llm,
+                routing_query=routing_query,
+                scene_ids=scenes,
+                task_spans=task_span_models,
+                scene_tasks=scene_tasks,
+            )
+        except Exception:
+            planning_steps = []
+
         return RoutingIntentResult(
             intent=baseline.intent,
             original_query=query,
@@ -526,6 +552,7 @@ async def aclassify_routing_intent_with_llm(
             scene_tasks=scene_tasks,
             sub_tasks=scene_tasks,
             task_spans=task_span_models,
+            planning_steps=planning_steps,
         )
     except Exception:
         return baseline
@@ -897,6 +924,59 @@ async def _aextract_task_spans_with_llm(
         query=query,
         baseline_scene=baseline_scene or "无",
         baseline_confidence=baseline_confidence,
+    )
+    raw = await _ainvoke_text(llm, system_prompt, query)
+    return _parse_task_span_items(raw)
+
+def _generate_planning_steps_with_llm(
+    query: str,
+    *,
+    llm: Any,
+    routing_query: str,
+    scene_ids: list[str],
+    task_spans: list[TaskSpan],
+    scene_tasks: list[SubTask],
+) -> list[TaskSpan]:
+    system_prompt = _render_policy_prompt(
+        "generate_planning_steps",
+        query=query,
+        routing_query=routing_query or query,
+        scene_ids=", ".join(scene_ids or []),
+        task_spans_json=json.dumps(
+            [span.model_dump() for span in task_spans],
+            ensure_ascii=False,
+        ),
+        scene_tasks_json=json.dumps(
+            [task.model_dump() for task in scene_tasks],
+            ensure_ascii=False,
+        ),
+    )
+    raw = _invoke_text(llm, system_prompt, query)
+    return _parse_task_span_items(raw)
+
+
+async def _agenerate_planning_steps_with_llm(
+    query: str,
+    *,
+    llm: Any,
+    routing_query: str,
+    scene_ids: list[str],
+    task_spans: list[TaskSpan],
+    scene_tasks: list[SubTask],
+) -> list[TaskSpan]:
+    system_prompt = _render_policy_prompt(
+        "generate_planning_steps",
+        query=query,
+        routing_query=routing_query or query,
+        scene_ids=", ".join(scene_ids or []),
+        task_spans_json=json.dumps(
+            [span.model_dump() for span in task_spans],
+            ensure_ascii=False,
+        ),
+        scene_tasks_json=json.dumps(
+            [task.model_dump() for task in scene_tasks],
+            ensure_ascii=False,
+        ),
     )
     raw = await _ainvoke_text(llm, system_prompt, query)
     return _parse_task_span_items(raw)

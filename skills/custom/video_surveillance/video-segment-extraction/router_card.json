@@ -3,116 +3,38 @@
   "identity": {
     "id": "video-segment-extraction",
     "name": "video-segment-extraction",
-    "description": "Extract playable short video evidence clips around event times. Use when Codex has event_id, camera_id, raw_segment_uri, event_time, event_elapsed_seconds, pre_seconds, or post_seconds and needs an MP4 clip URI plus clip time range. This skill exposes FFmpeg-backed clipping for real local videos and memory-backed synthetic clips for tests."
+    "description": "Extract playable short video evidence clips around event times using FFmpeg."
   },
   "scope": {
-    "scenes": [
-      "video_surveillance"
-    ],
+    "scenes": ["video_surveillance"],
     "is_public": false,
-    "task_types": [
-      "video_clip_extraction",
-      "evidence_clip"
-    ],
-    "input_types": [
-      "raw_segment_uri",
-      "event_time",
-      "event_elapsed_seconds",
-      "event_id"
-    ],
-    "output_types": [
-      "clip_json",
-      "mp4_clip_uri",
-      "clip_time_range"
-    ]
+    "task_types": ["video_clip", "evidence_clip"],
+    "input_types": ["video_path", "event_json"],
+    "output_types": ["clip_json", "mp4"]
   },
   "routing": {
-    "routing_text": "名称：video-segment-extraction\n描述：Extract playable short video evidence clips around event times. Use when Codex has event_id, camera_id, raw_segment_uri, event_time, event_elapsed_seconds, pre_seconds, or post_seconds and needs an MP4 clip URI plus clip time range. This skill exposes FFmpeg-backed clipping for real local videos and memory-backed synthetic clips for tests.\n适用场景：video_surveillance。\n适用任务：video_clip_extraction, evidence_clip。\n输入类型：raw_segment_uri, event_time, event_elapsed_seconds, event_id。\n输出类型：clip_json, mp4_clip_uri, clip_time_range。\n适合使用：按事件时间截取视频片段；生成证据短视频；提取事件前后几秒的视频；输出clip URI。\n不适合使用：分析视频内容；目标检测；抽帧采样；隐私打码。",
-    "positive_triggers": [
-      "按事件时间截取视频片段",
-      "生成证据短视频",
-      "提取事件前后几秒的视频",
-      "输出clip URI"
-    ],
-    "negative_triggers": [
-      "分析视频内容",
-      "目标检测",
-      "抽帧采样",
-      "隐私打码",
-      "只要求截图或证据图而不是视频片段",
-      "截取事件发生帧并做人脸打码脱敏"
-    ],
-    "keywords": [
-      "clip extraction",
-      "pre_seconds",
-      "post_seconds",
-      "event_elapsed_seconds",
-      "证据片段",
-      "ffmpeg"
-    ],
-    "anti_keywords": [
-      "analyze video",
-      "YOLO",
-      "privacy masking",
-      "截图",
-      "证据截图",
-      "证据图",
-      "事件发生帧",
-      "打码脱敏",
-      "脱敏后的证据图"
-    ]
-  },
-  "body": {
-    "source": "SKILL.md",
-    "content": "---\nname: video-segment-extraction\ndescription: Extract playable short video evidence clips around event times. Use when Codex has event_id, camera_id, raw_segment_uri, event_time, event_elapsed_seconds, pre_seconds, or post_seconds and needs an MP4 clip URI plus clip time range. This skill exposes FFmpeg-backed clipping for real local videos and memory-backed synthetic clips for tests.\n---\n\n# Video Segment Extraction\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## Input Resolution\n\nIf event timing is missing but the user provided a video analysis request, do not write custom clipping code. First call upstream event skills, especially `event-rule-engine/scripts/run.py`, to produce an event with `event_time` or `event_elapsed_seconds`; then call this skill with `raw_segment_uri`, `event_id`, and the pre/post window.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython video-segment-extraction/scripts/run.py --event-id <event_id> --raw-segment-uri <video.mp4> --event-time <iso_time> --event-elapsed-seconds <seconds> --config <config.json> --output <clip.json>\n```\n\nParameters: `--event-id`, `--raw-segment-uri`, `--event-time`, `--start-time`, `--event-elapsed-seconds`, `--pre-seconds`, `--post-seconds`, `--output-dir`, `--config`, `--output`.\n\n## Workflow\n\n1. Read event id, source segment, event time, and pre/post window.\n2. Locate the source media range.\n3. Clip or synthesize a short segment in a playable format.\n4. Store and return the clip URI and time range.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\nRequired:\n- `event_id`\n- `event_time` or `start_time`\n\nCommon fields:\n- `camera_id`\n- `raw_segment_uri`\n- `event_elapsed_seconds`\n- `pre_seconds`\n- `post_seconds`\n\n## Outputs\n\nReturns `event_id`, `clip_uri`, `start_time`, and `end_time`.\n\n## Failure Modes\n\n- `MISSING_EVENT`\n- `FFMPEG_CLIP_FAILED`\n\n## Constraints\n\nDo not decide whether an event occurred. Do not modify event confidence.\n"
+    "routing_text": "名称：video-segment-extraction\n描述：根据事件时间从原始视频截取证据短片段，输出 clip_uri 和片段时间范围。事件时间通常来自 single-video-event-analysis。\n适合使用：截取事件视频片段；生成证据短视频。\n不适合使用：判断事件；目标检测。",
+    "positive_triggers": ["截取事件片段", "证据短视频", "clip", "视频片段"],
+    "negative_triggers": ["事件检测", "目标检测"],
+    "keywords": ["ffmpeg", "clip", "segment", "evidence"],
+    "anti_keywords": ["detect"]
   },
   "execution": {
-    "required_tools": [
-      "read_file",
-      "bash",
-      "ffmpeg"
-    ],
-    "optional_tools": [
-      "write_file",
-      "ffprobe"
-    ],
-    "allowed_file_patterns": [
-      "*.mp4",
-      "*.mov",
-      "*.avi",
-      "*.mkv",
-      "*.json"
-    ],
+    "required_tools": ["bash", "ffmpeg"],
+    "optional_tools": ["ffprobe"],
+    "allowed_file_patterns": ["*.json", "*.mp4", "*.mov", "*.avi", "*.mkv"],
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 80,
+    "priority": 74,
     "conflict_group": "video-segment-extraction",
-    "prefer_when": [
-      "按事件时间截取视频片段",
-      "生成证据短视频",
-      "提取事件前后几秒的视频",
-      "输出clip URI"
-    ],
-    "defer_when": [
-      "分析视频内容",
-      "目标检测",
-      "抽帧采样",
-      "隐私打码",
-      "用户要求输出截图、事件发生帧或证据图而非 MP4 证据短视频时，应优先使用 evidence-snapshot"
-    ]
+    "prefer_when": ["需要截取证据短视频"],
+    "defer_when": ["需要事件分析"]
   },
   "source": {
     "skill_dir": "skills/custom/video-segment-extraction",
     "skill_md_path": "skills/custom/video-segment-extraction/SKILL.md",
-    "skill_md_hash": "sha256:fe66cd8209e22d568b6540f95283d9558acbfb3cb4a8c4a338ab41a99cc0bb1f",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "generator_version": "manual-llm-event-review-1.0.0"
   },
-  "embedding": {
-    "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:0f3c96bba0569417ba7d1e9e12f954ed5f199cbb8590f01173bd9eb16cedc093",
-    "es_index": "citybrain-skill-router-cards",
-    "es_doc_id": "video-segment-extraction"
-  }
+  "embedding": {"es_doc_id": "video-segment-extraction"}
 }

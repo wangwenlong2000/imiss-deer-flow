@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -146,6 +167,8 @@ def iter_detection_objects(detections: list[dict[str, Any]]):
 SKILL = "video-stream-ingestion"
 
 def probe_video(path: Path) -> dict[str, Any]:
+    if not shutil.which("ffprobe"):
+        raise FileNotFoundError("ffprobe")
     cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:format=duration", "-of", "default=noprint_wrappers=1:nokey=0", str(path)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     metadata: dict[str, Any] = {}
@@ -160,36 +183,43 @@ def probe_video(path: Path) -> dict[str, Any]:
     return metadata
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Normalize a video source into raw segment metadata.")
+    p = argparse.ArgumentParser(description="Normalize a local video file into raw segment metadata.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--video", "--file-path", dest="file_path")
-    p.add_argument("--stream-url")
     p.add_argument("--raw-segment-uri")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
-    p.add_argument("--source-type", choices=["mock", "local_file", "rtsp", "gb28181", "api"])
-    p.add_argument("--capture-seconds", type=int, default=10)
+    p.add_argument("--camera-id")
+    p.add_argument("--source-type", choices=["local_file"])
+    p.add_argument("--capture-seconds", type=int)
     p.add_argument("--started-at")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    source_type = args.source_type or ("local_file" if args.file_path else "mock")
-    started_at = args.started_at or config.get("now") or "2026-05-20T10:00:00+08:00"
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    file_path = args.file_path or input_value(input_data, "video", "video_path", "file_path")
+    raw_uri = args.raw_segment_uri or input_value(input_data, "raw_segment_uri")
+    source_type = args.source_type or input_value(input_data, "source_type") or "local_file"
+    if source_type != "local_file":
+        return emit(failed(SKILL, "UNSUPPORTED_SOURCE", f"Only local_file video input is supported: {source_type}"), args.output)
+    duration = args.capture_seconds if args.capture_seconds is not None else int(input_value(input_data, "capture_seconds", default=10))
+    started_at = args.started_at or input_value(input_data, "started_at") or config.get("now") or "2026-05-20T10:00:00+08:00"
     session_id = f"VS_{uuid4().hex[:8]}"
-    raw_uri = args.raw_segment_uri
-    duration = args.capture_seconds
     width = height = None
-    if source_type == "local_file":
-        path = Path(args.file_path or args.stream_url or "")
-        if not path.exists():
-            return emit(failed(SKILL, "SOURCE_NOT_FOUND", f"Local video not found: {path}"), args.output)
-        raw_uri = str(path)
+    path = Path(file_path or raw_uri or "")
+    if not path.exists():
+        return emit(failed(SKILL, "SOURCE_NOT_FOUND", f"Local video not found: {path}"), args.output)
+    raw_uri = str(path)
+    try:
         meta = probe_video(path)
-        if meta.get("duration"):
-            duration = min(duration, int(float(meta["duration"])))
-        width, height = meta.get("width"), meta.get("height")
+    except FileNotFoundError:
+        return emit(failed(SKILL, "FFPROBE_MISSING", "ffprobe is required but was not found in PATH", False), args.output)
+    if meta.get("duration"):
+        duration = min(duration, int(float(meta["duration"])))
+    width, height = meta.get("width"), meta.get("height")
     if not raw_uri:
-        raw_uri = args.stream_url or f"memory://raw/{args.camera_id}/{session_id}.mp4"
-    data = {"camera_id": args.camera_id, "source_type": source_type, "stream_status": "ok", "video_session_id": session_id, "started_at": started_at, "ended_at": iso_add_seconds(started_at, duration), "raw_segment_uri": raw_uri, "duration_seconds": duration, "width": width, "height": height}
+        return emit(failed(SKILL, "SOURCE_NOT_FOUND", "A local video path is required"), args.output)
+    data = {"camera_id": camera_id, "source_type": source_type, "file_status": "ok", "video_session_id": session_id, "started_at": started_at, "ended_at": iso_add_seconds(started_at, duration), "raw_segment_uri": raw_uri, "duration_seconds": duration, "width": width, "height": height}
     return emit(success(SKILL, data), args.output)
 
 if __name__ == "__main__":

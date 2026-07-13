@@ -1,6 +1,6 @@
 ---
 name: roi-mapping
-description: Match detections or tracks against configured camera ROI polygons. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for no-parking, sidewalk, road, public-area, or other ROI types before spatial event detection.
+description: Match detections or tracks against configured camera ROI polygons for geometric object analytics. Use when Codex has camera_id plus tracks or objects and needs point containment or bbox overlap matches for configured areas. Do not use this skill to decide event semantics.
 ---
 
 # ROI Mapping
@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If tracks or detections are missing but the user provided a video, do not ask the user to provide geometric inputs and do not write ROI matching code. Call `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, and `object-tracking/scripts/run.py` as needed before this skill. If ROI polygons are missing, first use camera ROI definitions from the config; only ask the user when neither config nor task context provides usable ROIs.
+If tracks or detections are missing but the user provided a video, call `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, and `object-tracking/scripts/run.py` as needed before this skill. If ROI polygons are missing, first use camera ROI definitions from the config; only ask the user when neither config nor task context provides usable ROIs.
 
 
 ## Atomic CLI
@@ -53,4 +53,4 @@ The current implementation returns empty matches when ROI configuration or bboxe
 
 ## Constraints
 
-Do not create final event types. Keep geometric matching explainable.
+Do not create final event types or abnormal-event conclusions. Keep geometric matching explainable.

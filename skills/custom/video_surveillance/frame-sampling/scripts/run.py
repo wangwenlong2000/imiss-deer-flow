@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,27 +168,38 @@ SKILL = "frame-sampling"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Sample image frames from a local video.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--video", required=False)
     p.add_argument("--frames-json")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
+    p.add_argument("--camera-id")
     p.add_argument("--capture-seconds", type=float)
-    p.add_argument("--interval-seconds", type=float, default=1.0)
+    p.add_argument("--interval-seconds", type=float)
     p.add_argument("--fps", type=float)
     p.add_argument("--started-at")
     p.add_argument("--output-dir")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    if args.frames_json:
-        return emit(success(SKILL, {"camera_id": args.camera_id, "frames": load_list(args.frames_json, "frames")}), args.output)
-    if not args.video:
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
+    if frames:
+        return emit(success(SKILL, {"camera_id": camera_id, "frames": frames}), args.output)
+    video = args.video or input_value(input_data, "video", "video_path", "raw_segment_uri", "file_path")
+    if not video:
         return emit(failed(SKILL, "MISSING_VIDEO", "--video or --frames-json is required"), args.output)
+    sampling = input_dict(input_data, "sampling_strategy")
+    interval_seconds = args.interval_seconds if args.interval_seconds is not None else float(sampling.get("interval_seconds", 1.0))
+    fps = args.fps if args.fps is not None else sampling.get("fps")
+    capture_seconds = args.capture_seconds if args.capture_seconds is not None else input_value(input_data, "capture_seconds")
+    started_at = args.started_at or input_value(input_data, "started_at")
+    output_dir = args.output_dir or input_value(input_data, "output_dir")
     try:
         import cv2
     except ModuleNotFoundError:
         return emit(failed(SKILL, "OPENCV_MISSING", "opencv-python-headless is required"), args.output)
-    path = Path(args.video.removeprefix("file://"))
+    path = Path(str(video).removeprefix("file://"))
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
         return emit(failed(SKILL, "VIDEO_OPEN_FAILED", f"Could not open video: {path}", True), args.output)
@@ -175,10 +207,10 @@ def main() -> int:
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    duration = args.capture_seconds if args.capture_seconds is not None else (total / video_fps if total else config.get("default_capture_seconds", 10))
-    step = 1 / max(args.fps, 0.001) if args.fps else args.interval_seconds
-    start = args.started_at or config.get("now") or "2026-05-20T10:00:00+08:00"
-    out_dir = Path(args.output_dir or config.get("output_dir", "outputs")) / "frames" / args.camera_id
+    duration = capture_seconds if capture_seconds is not None else (total / video_fps if total else config.get("default_capture_seconds", 10))
+    step = 1 / max(float(fps), 0.001) if fps else interval_seconds
+    start = started_at or config.get("now") or "2026-05-20T10:00:00+08:00"
+    out_dir = Path(output_dir or config.get("output_dir", "outputs")) / "frames" / camera_id
     
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -193,14 +225,14 @@ def main() -> int:
         if not ok:
             break
         ts = iso_add_seconds(start, elapsed)
-        frame_id = f"{args.camera_id}_{ts.replace('-', '').replace(':', '').replace('+', '').replace('T', '')}_{seq:04d}"
+        frame_id = f"{camera_id}_{ts.replace('-', '').replace(':', '').replace('+', '').replace('T', '')}_{seq:04d}"
         image_path = out_dir / f"{frame_id}.jpg"
         cv2.imwrite(str(image_path), frame)
-        frames.append({"frame_id": frame_id, "camera_id": args.camera_id, "timestamp": ts, "image_uri": str(image_path), "width": width, "height": height, "sequence": seq, "source_elapsed_seconds": round(elapsed, 3)})
+        frames.append({"frame_id": frame_id, "camera_id": camera_id, "timestamp": ts, "image_uri": str(image_path), "width": width, "height": height, "sequence": seq, "source_elapsed_seconds": round(elapsed, 3)})
         seq += 1
         elapsed += step
     cap.release()
-    return emit(success(SKILL, {"camera_id": args.camera_id, "frames": frames, "source_video_uri": str(path), "fps": video_fps}), args.output)
+    return emit(success(SKILL, {"camera_id": camera_id, "frames": frames, "source_video_uri": str(path), "fps": video_fps}), args.output)
 
 if __name__ == "__main__":
     raise SystemExit(main())

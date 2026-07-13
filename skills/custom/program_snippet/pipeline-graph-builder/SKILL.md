@@ -20,7 +20,7 @@ description: >-
 生产模块位于：
 
 ```text
-backend/packages/harness/deerflow/pipeline/
+skills/public/deerflow-pipeline-runtime/deerflow/pipeline/
 ```
 
 核心导入：
@@ -193,5 +193,5 @@ pytest backend\tests\test_pipeline_graph_builder.py
 如果环境安装了 `ruff`，再运行：
 
 ```powershell
-ruff check backend\packages\harness\deerflow\pipeline backend\tests\test_pipeline_graph_builder.py
+ruff check skills\public\deerflow-pipeline-runtime\deerflow\pipeline backend\tests\test_pipeline_graph_builder.py
 ```

@@ -1,3 +1,4 @@
 opencv-python
 ultralytics
-
+PyYAML>=6.0
+sentence-transformers

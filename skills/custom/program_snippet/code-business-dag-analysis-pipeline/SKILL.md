@@ -27,12 +27,12 @@ description: >-
 
 | 顺序 | 技能名 | 位置 | 状态 |
 | --- | --- | --- | --- |
-| 1 | `code-to-ast-new` | `skills/custom/program_snippet/code-to-ast-new` | 已存在 |
-| 2 | `code-splitter-adapter` | `skills/custom/program_snippet/code-splitter-adapter` | 已存在 |
-| 3 | `dataflow-extractor` | `skills/custom/program_snippet/dataflow-extractor` | 已存在 |
-| 4 | `code-semantic-labeler` | `skills/custom/program_snippet/code-semantic-labeler` | 已存在 |
-| 5 | `pipeline-graph-builder` | `skills/custom/program_snippet/pipeline-graph-builder` / `deerflow.pipeline.PipelineGraphBuilder` | 已存在 |
-| 6 | `pipeline-reasoner` | `skills/custom/program_snippet/pipeline-reasoner` / `deerflow.pipeline.CloudLLMReasoner` | 已存在 |
+| 1 | `code-to-ast-new` | `skills/public/code-to-ast-new` | 已存在 |
+| 2 | `code-splitter-adapter` | `skills/public/code-splitter-adapter` | 已存在 |
+| 3 | `dataflow-extractor` | `skills/public/dataflow-extractor` | 已存在 |
+| 4 | `code-semantic-labeler` | `skills/public/code-semantic-labeler` | 已存在 |
+| 5 | `pipeline-graph-builder` | `skills/public/pipeline-graph-builder` / `deerflow.pipeline.PipelineGraphBuilder` | 已存在 |
+| 6 | `pipeline-reasoner` | `skills/public/pipeline-reasoner` / `deerflow.pipeline.CloudLLMReasoner` | 已存在 |
 
 本技能提供 `scripts/run_pipeline.py` 作为联动入口，按上述顺序调用这些技能或其后端实现。
 
@@ -289,7 +289,7 @@ print(json.dumps(result, ensure_ascii=False, indent=2))
 如果需要直接从源码文件运行完整流水线，使用：
 
 ```powershell
-python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts\run_pipeline.py `
+python skills\public\code-business-dag-analysis-pipeline\scripts\run_pipeline.py `
   --file path\to\input.py `
   --output result.json `
   --report-output report.md
@@ -311,7 +311,7 @@ python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts
 修改提示词或文档后，至少检查：
 
 ```powershell
-python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts\render_report.py --help
+python skills\public\code-business-dag-analysis-pipeline\scripts\render_report.py --help
 ```
 
 如果修改了实际代码实现，才需要运行：

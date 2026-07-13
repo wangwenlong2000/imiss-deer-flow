@@ -15,3 +15,6 @@ Example command inside the DeerFlow sandbox:
     --config /mnt/skills/custom/configs/deerflow_config.json \
     --output /mnt/data/video-monitoring-runs/run_001/frame_sampling_result.json
 
+All standalone run.py scripts accept --input JSON. CLI flags override fields from
+the JSON payload, so tests can start with one input file and only override the
+few values they need.

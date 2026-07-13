@@ -22,9 +22,11 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## 操作规范
 1. **截取片段**：
-   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py segment <input> <start> <duration> <output>`
+   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation segment --input-path <input> --start-time <start> --duration <duration> --output-path <output>`
 2. **提取关键帧**：
-   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py keyframe <input> <timestamp> <output>`
+   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path <input> --timestamp <timestamp> --output-path <output>`
+3. **JSON 入口**：
+   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --input <input.json> --output <result.json>`
 
 ## 注意事项
 - 所有输出文件路径必须位于 `/mnt/user-data/outputs/`。

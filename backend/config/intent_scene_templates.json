@@ -871,5 +871,138 @@
       "ambiguity_margin": 0.08,
       "top_k": 5
     }
+  },
+  "table_yearbook": {
+    "name": "表格年鉴",
+    "description": "统计年鉴、政府公报表格、统计报表、规则数据表、带网格和表头的表格图片或已转换的 table.json/semantic.json 表格数据解析场景。适用于从表格图片或复杂表格中精确定位行列单元格、提取切片、计算占比/合计/同比/排名，并基于 local-table-ocr skill 生成原始表格 JSON、语义增强 JSON、带行列索引的增强图，再通过 get_cell/get_slice 精确取值。",
+    "example": "JSON：[{'name': '表格对象', 'desc': '需要解析的统计年鉴截图、报表图片、表格 JSON、semantic JSON 或 Excel 转换表格', 'value': ''}, {'name': '定位依据', 'desc': '用于定位单元格或切片的行名、列名、表头、指标名称或统计口径', 'value': ''}, {'name': '计算指标', 'desc': '需要提取或计算的指标，如单元格数值、合计、占比、同比、环比、排名、平均值等', 'value': ''}, {'name': '输出形式', 'desc': '用户期望的输出，如精确数值、计算过程、表格摘要、报告或验证结果', 'value': ''}]\n输入：使用 total offences 这一行，计算青少年法院和成人法院合计范围内女性被告案件占全部已完成法院案件的百分比\n答：{'name': '表格对象', 'value': '统计年鉴/法院案件表格'}, {'name': '定位依据', 'value': 'total offences 行、youth court females number 列、adult court females number 列、total number 列'}, {'name': '计算指标', 'value': '女性被告案件占全部已完成法院案件的百分比'}, {'name': '输出形式', 'value': '精确数值和计算过程'}",
+    "parameters": [
+      {
+        "name": "表格对象",
+        "desc": "需要解析的统计年鉴截图、政府公报表格、报表图片、带表头和网格的数据表、Excel 转换表格、table.json 或 semantic.json 文件",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "定位依据",
+        "desc": "用于定位目标数据的行名、列名、表头层级、指标名称、统计口径、单元格坐标或切片范围",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "计算指标",
+        "desc": "需要提取或计算的目标，如单元格取值、行/列切片、合计、占比、同比、环比、排名、平均值、最大值、最小值等",
+        "type": "string",
+        "required": false,
+        "options": [
+          "单元格取值",
+          "行切片",
+          "列切片",
+          "合计",
+          "占比",
+          "同比",
+          "环比",
+          "排名",
+          "平均值",
+          "最大值",
+          "最小值",
+          "表格摘要",
+          "结果验证"
+        ]
+      },
+      {
+        "name": "输出形式",
+        "desc": "用户期望的输出，如精确数值、计算过程、表格摘要、结构化 JSON、报告、验证结果或可回溯单元格证据",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "scene": "table_yearbook",
+    "positive_examples": [
+      "帮我识别这张统计年鉴表格截图，并计算目标指标占比",
+      "从这个年鉴表格里提取 total offences 行对应的女性被告案件数量",
+      "根据表格中的行列标题，定位指定单元格并给出精确数值",
+      "读取这个复杂表格 JSON，计算青少年法院和成人法院合计后的百分比",
+      "对这张带网格和多级表头的报表截图做 OCR，并输出带行列索引的取值结果",
+      "从政府公报统计表中提取某地区某年份的数据并计算同比变化",
+      "使用 local-table-ocr 分析这个表格图片，不要直接凭视觉估算",
+      "验证这个表格测试用例中 3 个单元格的取值和最终 20.1% 的计算结果"
+    ],
+    "negative_examples": [
+      "查询陕西省施工围挡高度相关政策并判断是否合规",
+      "分析 pcap 文件里是否存在 C2 通信",
+      "统计道路实时车流量和拥堵指数",
+      "分析手机号话单中的共同联系人",
+      "识别街景图片所在道路位置",
+      "分析卫星遥感影像中的土地利用变化",
+      "检测监控视频中是否有人群聚集",
+      "检查 Python 代码是否存在漏洞"
+    ],
+    "strong_keywords": [
+      "统计年鉴",
+      "年鉴表格",
+      "表格 OCR",
+      "local-table-ocr",
+      "table.json",
+      "semantic.json",
+      "indexed.png",
+      "get_cell",
+      "get_slice"
+    ],
+    "keywords": [
+      "表格",
+      "数据表",
+      "统计表",
+      "报表",
+      "政府公报",
+      "年鉴",
+      "Excel",
+      "xlsx",
+      "单元格",
+      "行列",
+      "表头",
+      "多级表头",
+      "合并单元格",
+      "网格线",
+      "取值",
+      "切片",
+      "占比",
+      "同比",
+      "环比",
+      "合计",
+      "排名",
+      "精确定位",
+      "total offences",
+      "female accused",
+      "completed court cases"
+    ],
+    "anti_keywords": [
+      "pcap",
+      "Zeek",
+      "DNS",
+      "TLS",
+      "话单",
+      "CDR",
+      "基站",
+      "GPS轨迹",
+      "街景定位",
+      "遥感影像",
+      "监控视频",
+      "合同审查",
+      "法律条文",
+      "源码审计",
+      "SAST",
+      "漏洞扫描"
+    ],
+    "confusable_with": [
+      "policy_regulation",
+      "program_snippet",
+      "road_traffic"
+    ],
+    "routing": {
+      "threshold": 0.55,
+      "ambiguity_margin": 0.08,
+      "top_k": 5
+    }
   }
 }

@@ -22,17 +22,17 @@ code-to-ast-new
 
 | 顺序 | 技能名 | 路径 | 确认结果 |
 | --- | --- | --- | --- |
-| 1 | `code-to-ast-new` | `skills/custom/program_snippet/code-to-ast-new` | 存在 |
-| 2 | `code-splitter-adapter` | `skills/custom/program_snippet/code-splitter-adapter` | 存在 |
-| 3 | `dataflow-extractor` | `skills/custom/program_snippet/dataflow-extractor` | 存在 |
-| 4 | `code-semantic-labeler` | `skills/custom/program_snippet/code-semantic-labeler` | 存在 |
-| 5 | `pipeline-graph-builder` | `skills/custom/program_snippet/pipeline-graph-builder`，后端 `deerflow.pipeline.PipelineGraphBuilder` | 存在 |
-| 6 | `pipeline-reasoner` | `skills/custom/program_snippet/pipeline-reasoner`，后端 `deerflow.pipeline.CloudLLMReasoner` | 存在 |
+| 1 | `code-to-ast-new` | `skills/public/code-to-ast-new` | 存在 |
+| 2 | `code-splitter-adapter` | `skills/public/code-splitter-adapter` | 存在 |
+| 3 | `dataflow-extractor` | `skills/public/dataflow-extractor` | 存在 |
+| 4 | `code-semantic-labeler` | `skills/public/code-semantic-labeler` | 存在 |
+| 5 | `pipeline-graph-builder` | `skills/public/pipeline-graph-builder`，后端 `deerflow.pipeline.PipelineGraphBuilder` | 存在 |
+| 6 | `pipeline-reasoner` | `skills/public/pipeline-reasoner`，后端 `deerflow.pipeline.CloudLLMReasoner` | 存在 |
 
 当前流水线技能目录中新增了联动脚本：
 
 ```text
-skills/custom/program_snippet/code-business-dag-analysis-pipeline/scripts/run_pipeline.py
+skills/public/code-business-dag-analysis-pipeline/scripts/run_pipeline.py
 ```
 
 ## 3. 输入
@@ -180,7 +180,7 @@ skills/custom/program_snippet/code-business-dag-analysis-pipeline/scripts/run_pi
 直接运行完整流水线：
 
 ```powershell
-python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts\run_pipeline.py `
+python skills\public\code-business-dag-analysis-pipeline\scripts\run_pipeline.py `
   --file path\to\input.py `
   --output result.json
 ```
@@ -194,7 +194,7 @@ python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts
 示例：
 
 ```powershell
-python skills\custom\program_snippet\code-business-dag-analysis-pipeline\scripts\render_report.py `
+python skills\public\code-business-dag-analysis-pipeline\scripts\render_report.py `
   --input result.json `
   --output report.md
 ```
