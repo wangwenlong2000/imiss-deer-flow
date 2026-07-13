@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -53,6 +53,27 @@ def load_dict(path: str | None, key: str | None = None) -> dict[str, Any]:
     if key and isinstance(data.get("data"), dict) and isinstance(data["data"].get(key), dict):
         return data["data"][key]
     return data
+
+def load_input(path: str | None) -> dict[str, Any]:
+    data = load_structured(path)
+    return data if isinstance(data, dict) else {}
+
+def input_value(input_data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+    nested = input_data.get("data") if isinstance(input_data.get("data"), dict) else {}
+    for key in keys:
+        if input_data.get(key) is not None:
+            return input_data[key]
+        if nested.get(key) is not None:
+            return nested[key]
+    return default
+
+def input_list(input_data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = input_value(input_data, key, default=[])
+    return value if isinstance(value, list) else []
+
+def input_dict(input_data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = input_value(input_data, key, default={})
+    return value if isinstance(value, dict) else {}
 
 def parse_json_arg(value: str | None, default: Any) -> Any:
     return json.loads(value) if value else default
@@ -147,19 +168,24 @@ SKILL = "roi-mapping"
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Match tracks or objects to ROIs.")
+    p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--tracks-json")
     p.add_argument("--objects-json")
     p.add_argument("--rois-json")
-    p.add_argument("--camera-id", default="CAM_DEERFLOW_001")
+    p.add_argument("--camera-id")
     p.add_argument("--roi-types")
-    p.add_argument("--position-strategy", choices=["bottom_center", "center_point", "bbox_overlap"], default="bottom_center")
+    p.add_argument("--position-strategy", choices=["bottom_center", "center_point", "bbox_overlap"])
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
+    input_data = load_input(args.input)
     config = load_config(args.config)
-    rois = load_list(args.rois_json, "rois") if args.rois_json else config.get("cameras", {}).get(args.camera_id, {}).get("rois", [])
-    objects = load_list(args.objects_json, "objects") if args.objects_json else load_list(args.tracks_json, "tracks")
-    roi_types = set(x.strip() for x in args.roi_types.split(",")) if args.roi_types else set(roi.get("type") for roi in rois)
+    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    rois = load_list(args.rois_json, "rois") if args.rois_json else input_list(input_data, "rois") or config.get("cameras", {}).get(camera_id, {}).get("rois", [])
+    objects = load_list(args.objects_json, "objects") if args.objects_json else input_list(input_data, "objects") or (load_list(args.tracks_json, "tracks") if args.tracks_json else input_list(input_data, "tracks"))
+    roi_value = args.roi_types if args.roi_types is not None else input_value(input_data, "roi_types")
+    roi_types = set(x.strip() for x in roi_value.split(",")) if isinstance(roi_value, str) else set(roi_value or [roi.get("type") for roi in rois])
+    position_strategy = args.position_strategy or input_value(input_data, "position_strategy", default="bottom_center")
     matches = []
     for obj in objects:
         bbox = obj.get("last_bbox") or obj.get("bbox")
@@ -169,11 +195,11 @@ def main() -> int:
             if roi_types and roi.get("type") not in roi_types:
                 continue
             polygon = roi.get("polygon", [])
-            if args.position_strategy == "bbox_overlap":
+            if position_strategy == "bbox_overlap":
                 overlap = bbox_overlap(bbox, polygon_bounds(polygon))
                 matched = overlap > 0
             else:
-                point = bbox_center(bbox) if args.position_strategy == "center_point" else bbox_bottom_center(bbox)
+                point = bbox_center(bbox) if position_strategy == "center_point" else bbox_bottom_center(bbox)
                 matched = point_in_polygon(point, polygon)
                 overlap = 1.0 if matched else 0.0
             matches.append({"object_id": subject_id(obj), "roi_id": roi.get("id"), "roi_type": roi.get("type"), "overlap_ratio": round(overlap,4), "matched": matched, "confidence": obj.get("confidence", 1.0)})

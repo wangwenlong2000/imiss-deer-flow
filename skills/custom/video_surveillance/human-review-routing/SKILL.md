@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If event confidence or event fields are missing but the user provided a video analysis request, do not write custom review-routing logic. First call `event-rule-engine/scripts/run.py` and any required upstream skills to produce candidate events, then call this skill for review routing.
+If event confidence or event fields are missing but the user provided a video analysis request, first call `single-video-event-analysis` to produce candidate events, then call this skill for review routing.
 
 
 ## Atomic CLI
@@ -42,7 +42,7 @@ This skill is implemented as an atomic standalone script in its own `scripts/run
 
 Config:
 - `default_review_threshold`
-- `event_templates.<event_type>.review_threshold`
+- `review_thresholds.<event_type>`
 - `high_risk_event_types`
 
 ## Outputs

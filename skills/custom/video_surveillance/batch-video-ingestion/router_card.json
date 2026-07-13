@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "batch-video-ingestion",
+    "name": "batch-video-ingestion",
+    "description": "Batch ingest local monitoring videos into Elasticsearch with enriched metadata, optional object detection summaries, and searchable documents."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["batch_video_ingestion", "video_library_indexing"],
+    "input_types": ["video_manifest", "video_directory", "local_video"],
+    "output_types": ["elasticsearch_documents", "ingestion_report"]
+  },
+  "routing": {
+    "routing_text": "名称：batch-video-ingestion\n描述：批量视频入库，将本地监控视频元数据、位置、标签、描述、路径词和可选抽帧目标摘要写入 Elasticsearch 视频库。支持 metadata_only 快速入库和 object_detection 内容检测入库；内容检测更耗时。\n适合使用：批量视频入库；建立视频索引；视频库初始化；目标摘要入库；只入元数据快速建库。\n不适合使用：视频检索；目标统计报表；事件判断；证据包生成。",
+    "positive_triggers": ["批量视频入库", "视频入库", "建立视频索引", "导入视频库", "元数据入库", "内容检测入库"],
+    "negative_triggers": ["只检索", "只统计", "生成证据包", "判断事件"],
+    "keywords": ["batch", "ingestion", "video_dir", "manifest", "Elasticsearch", "analysis_mode", "metadata_only", "object_detection"],
+    "anti_keywords": ["search only", "statistics only", "evidence package"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "optional_tools": ["ffprobe", "opencv", "ultralytics"],
+    "allowed_file_patterns": ["*.json", "*.mp4", "*.mov", "*.avi", "*.mkv"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 78,
+    "conflict_group": "video-library-ingestion",
+    "prefer_when": ["批量视频入库", "视频库索引初始化"],
+    "defer_when": ["视频检索", "目标统计", "证据包生成"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/batch-video-ingestion",
+    "skill_md_path": "skills/custom/batch-video-ingestion/SKILL.md",
+    "generator_version": "manual-video-library-1.0.0"
+  },
+  "embedding": {"es_doc_id": "batch-video-ingestion"}
+}

@@ -1,17 +1,19 @@
 ---
 name: video-stream-ingestion
-description: Ingest video monitoring sources and return raw segment/session metadata. Use when Codex needs to connect or normalize RTSP, GB28181, platform API, local MP4, or mock video sources before frame sampling; especially when input includes camera_id, source_type, stream_url, file_path, capture_seconds, or raw_segment_uri. This skill exposes the production Python implementation and FFprobe-backed local-file probing, but must not run vision inference or event logic.
+description: Normalize an existing local video file after city-video-intelligence has routed a video-library or analysis request, returning raw segment/session metadata. For direct user ingestion, Elasticsearch, StreetModel, search, statistics, evidence, or camera-health requests, load city-video-intelligence first. Use this atomic skill when Codex already has a clear plan and a local MP4/MOV/AVI/MKV file before frame sampling.
 ---
 
-# Video Stream Ingestion
+# Video File Normalization
 
 ## Execution Priority
+
+For any direct user business request that combines video ingestion with search, embedding, statistics, evidence, or other city-video operations, load `city-video-intelligence` first and run its router script. Use this atomic skill only after the business route is clear.
 
 Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.
 
 ## Input Resolution
 
-If the user provides a video path, local file, stream URL, or uploaded video, build the input JSON for this skill instead of writing ingestion code. Use a stable default `camera_id` when the user does not provide one, infer `source_type=local_file` for file paths, and pass the path as `file_path`, `stream_url`, or `raw_segment_uri` as appropriate. Only ask the user for clarification when no usable video source can be inferred.
+If the user provides a local video path or uploaded video file, build the input JSON for this skill instead of writing normalization code. Use a stable default `camera_id` when the user does not provide one, infer `source_type=local_file`, and pass the path as `file_path`, `video_path`, or `raw_segment_uri`. Only ask the user for clarification when no usable video file can be inferred.
 
 
 ## Atomic CLI
@@ -22,14 +24,13 @@ Run this skill directly with its own script. The script does not call other skil
 python video-stream-ingestion/scripts/run.py --video <video.mp4> --camera-id <camera_id> --source-type local_file --capture-seconds 10 --config <config.json> --output <result.json>
 ```
 
-Parameters: `--video`, `--stream-url`, `--camera-id`, `--source-type`, `--capture-seconds`, `--started-at`, `--config`, `--output`.
+Parameters: `--video`, `--raw-segment-uri`, `--camera-id`, `--source-type`, `--capture-seconds`, `--started-at`, `--config`, `--output`.
 
 ## Workflow
 
-1. Read camera id, source type, stream URL or local file, and capture duration.
-2. Select the source adapter for RTSP, GB28181, API, local file, or mock input.
-3. Capture a short segment with timeout and retry-aware failure handling.
-4. Store the raw segment and return session metadata.
+1. Read camera id, local video file path, and optional capture duration.
+2. Validate that the file exists and probe width, height, and duration with ffprobe.
+3. Return normalized `raw_segment_uri` and session metadata for downstream frame sampling.
 
 ## Available Implementation
 
@@ -39,17 +40,16 @@ This skill is implemented as an atomic standalone script in its own `scripts/run
 
 Required:
 - `camera_id`
-- `source_type`: `local_file`, `mock`, `rtsp`, `gb28181`, or `api`
+- `source_type`: `local_file`
 
 Common fields:
-- `stream_url` or `file_path`
+- `file_path`, `video_path`, or `raw_segment_uri`
 - `capture_seconds`
 - `started_at`
-- `raw_segment_uri`
 
 ## Outputs
 
-Returns `raw_segment_uri`, `video_session_id`, `started_at`, `ended_at`, `duration_seconds`, and optional video width/height.
+Returns `raw_segment_uri`, `video_session_id`, `started_at`, `ended_at`, `duration_seconds`, video width/height when available, and `file_status`.
 
 ## Failure Modes
 

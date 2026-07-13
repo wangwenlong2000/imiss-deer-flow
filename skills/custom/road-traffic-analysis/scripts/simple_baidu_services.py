@@ -73,7 +73,8 @@ def _safe_slug(text: str) -> str:
 
 
 def _traffic_cache_dir() -> Path:
-    return Path(__file__).resolve().parents[4] / "datasets" / "road-traffic" / "cache" / "baidu_traffic"
+    return Path("/mnt/user-data/outputs/road-traffic/cache/baidu_traffic")
+    #return Path(__file__).resolve().parents[4] / "datasets" / "road-traffic" / "cache" / "baidu_traffic"
 
 
 def _collect_congestion_sections(traffic_data: dict[str, Any] | None) -> list[dict[str, Any]]:

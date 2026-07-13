@@ -14,7 +14,7 @@ from typing import Any
 LOGGER = logging.getLogger("skill.urban-greenspace-assessment")
 
 INPUT_SCHEMA: list[dict[str, Any]] = [
-    {"name": "rs_image", "type": "file", "required": True,
+    {"name": "rs_image", "type": "file", "required": False,
      "description": "高分辨率遥感影像（GeoTIFF，至少含红、近红波段）"},
     {"name": "boundary", "type": "file", "required": True,
      "description": "行政区划/街道边界（GeoJSON/Shapefile）"},
@@ -42,23 +42,90 @@ def _load_inputs(raw: str | None) -> dict[str, Any]:
         return {}
     p = Path(raw)
     if p.exists() and p.is_file():
-        return json.loads(p.read_text(encoding="utf-8"))
+        return json.loads(p.read_text(encoding="utf-8-sig"))
     return json.loads(raw)
+
+
+def _inspect_raster(path: str) -> dict[str, Any]:
+    try:
+        import rasterio  # type: ignore
+    except ImportError as exc:
+        return {
+            "ok": False,
+            "reason": "当前环境缺少 rasterio，无法读取 GeoTIFF；请安装依赖后重试，或提供已验证的 green_mask 并在具备 rasterio 的环境运行",
+            "exception": str(exc),
+        }
+    try:
+        with rasterio.open(path) as src:
+            return {
+                "ok": True,
+                "bands": int(src.count),
+                "width": int(src.width),
+                "height": int(src.height),
+                "crs": str(src.crs) if src.crs else None,
+                "dtype": src.dtypes[0] if src.dtypes else None,
+            }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"无法作为 GeoTIFF 读取: {exc}",
+            "exception": exc.__class__.__name__,
+        }
 
 
 def check_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
     missing, invalid = [], []
+    has_rs_image = bool(inputs.get("rs_image"))
+    has_green_mask = bool(inputs.get("green_mask"))
+    if not has_rs_image and not has_green_mask:
+        missing.append({
+            "name": "rs_image",
+            "type": "file",
+            "required": True,
+            "description": "高分辨率遥感影像（GeoTIFF，至少含红、近红波段）；若已有绿地掩膜，可改传 green_mask"
+        })
     for s in INPUT_SCHEMA:
         v = inputs.get(s["name"])
         if s["required"] and v in (None, ""):
             missing.append(s); continue
         if v and s["type"] == "file" and not Path(v).exists():
             invalid.append({**s, "reason": f"文件不存在: {v}"})
+    if has_rs_image and not has_green_mask and Path(str(inputs["rs_image"])).exists():
+        raster_info = _inspect_raster(str(inputs["rs_image"]))
+        if not raster_info["ok"]:
+            invalid.append({
+                "name": "rs_image",
+                "type": "file",
+                "required": True,
+                "reason": raster_info["reason"],
+            })
+        elif int(raster_info.get("bands", 0)) < 4:
+            invalid.append({
+                "name": "rs_image",
+                "type": "file",
+                "required": True,
+                "reason": (
+                    f"当前脚本只支持含红光与近红外波段的多光谱影像，检测到 {raster_info.get('bands')} 个波段。"
+                    "RGB-only 影像不能计算真实 NDVI；请补充含 NIR 的多光谱 GeoTIFF，或提供已有绿地二值掩膜 green_mask。"
+                ),
+            })
+    if has_green_mask and Path(str(inputs["green_mask"])).exists():
+        mask_info = _inspect_raster(str(inputs["green_mask"]))
+        if not mask_info["ok"]:
+            invalid.append({
+                "name": "green_mask",
+                "type": "file",
+                "required": True,
+                "reason": f"已有绿地掩膜无法作为 GeoTIFF 读取：{mask_info['reason']}。请提供可读的单波段/多波段二值 GeoTIFF 掩膜。",
+            })
     prompt = None
-    if missing:
+    if missing or invalid:
         lines = ["为评估城市绿地生态，请补充："]
         for i, m in enumerate(missing, 1):
             lines.append(f"{i}. **{m['name']}**：{m['description']}")
+        offset = len(missing)
+        for i, item in enumerate(invalid, 1):
+            lines.append(f"{offset + i}. **{item['name']}**：{item.get('reason', '输入无效')}")
         prompt = "\n".join(lines)
     return {"ok": not missing and not invalid, "missing_inputs": missing,
             "invalid_inputs": invalid, "prompt": prompt}
@@ -117,30 +184,25 @@ def run(inputs: dict[str, Any], config: dict[str, Any], output_dir: Path) -> dic
 
 # ---- 子函数 ----
 def _extract_green(inputs, ndvi_th, min_patch):
-    import numpy as np
-    try:
-        import rasterio  # type: ignore
-        if inputs.get("green_mask") and Path(inputs["green_mask"]).exists():
-            with rasterio.open(inputs["green_mask"]) as src:
-                return src.profile, (src.read(1) > 0).astype("uint8")
-        if Path(inputs["rs_image"]).exists() and Path(inputs["rs_image"]).stat().st_size > 200:
-            with rasterio.open(inputs["rs_image"]) as src:
-                arr = src.read().astype("float32")
-                profile = src.profile
-                if arr.shape[0] >= 4:
-                    red = arr[2]; nir = arr[3]
-                else:
-                    red = arr[-2]; nir = arr[-1]
-                ndvi = (nir - red) / (nir + red + 1e-6)
-                green = (ndvi > ndvi_th).astype("uint8")
-                green = _clean(green, min_patch)
-                return profile, green
-    except (ImportError, Exception) as e:
-        LOGGER.info("降级：生成合成绿地掩膜（%s）", e)
-    # 降级：合成
-    rng = np.random.default_rng(1)
-    arr = (rng.random((128, 128)) > 0.7).astype("uint8")
-    return None, arr
+    import rasterio  # type: ignore
+    if inputs.get("green_mask") and Path(inputs["green_mask"]).exists():
+        with rasterio.open(inputs["green_mask"]) as src:
+            return src.profile, (src.read(1) > 0).astype("uint8")
+    if Path(inputs["rs_image"]).exists():
+        with rasterio.open(inputs["rs_image"]) as src:
+            if src.count < 4:
+                raise ValueError(
+                    f"当前脚本需要至少 4 个波段以读取红光和近红外波段，检测到 {src.count} 个波段。"
+                    "RGB-only 影像无法计算真实 NDVI，请提供含 NIR 的多光谱影像或 green_mask。"
+                )
+            arr = src.read().astype("float32")
+            profile = src.profile
+            red = arr[2]; nir = arr[3]
+            ndvi = (nir - red) / (nir + red + 1e-6)
+            green = (ndvi > ndvi_th).astype("uint8")
+            green = _clean(green, min_patch)
+            return profile, green
+    raise FileNotFoundError("未找到可用的 rs_image 或 green_mask")
 
 
 def _clean(binary, min_patch):
@@ -366,7 +428,16 @@ def main() -> int:
             return 2
         out_dir = Path(args.output_dir or (config.get("io") or {}).get(
             "outputs_dir", "./outputs")) / "urban-greenspace-assessment"
-        result = run(inputs, config, out_dir)
+        try:
+            result = run(inputs, config, out_dir)
+        except Exception as exc:
+            print(json.dumps({
+                "ok": False,
+                "error": "script_execution_failed",
+                "message": str(exc),
+                "next_step": "请补充脚本支持的输入：含红光与近红外波段的多光谱 GeoTIFF，或已有绿地二值掩膜 green_mask；不要临时编写自定义脚本替代本 skill 脚本。"
+            }, ensure_ascii=False, indent=2))
+            return 3
     else:
         result = {"ok": True, "note": "report action 由调用方直接读取 run 的 markdown"}
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))

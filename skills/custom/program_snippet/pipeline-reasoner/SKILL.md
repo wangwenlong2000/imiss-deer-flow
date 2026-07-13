@@ -20,7 +20,7 @@ Skill 6 使用 `deerflow.pipeline.CloudLLMReasoner` 作为 DeerFlow Agentic RAG 
 ## 模块位置
 
 ```text
-backend/packages/harness/deerflow/pipeline/reasoner.py
+skills/public/deerflow-pipeline-runtime/deerflow/pipeline/reasoner.py
 ```
 
 推荐导入方式：

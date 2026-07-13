@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON_BIN="$REPO_ROOT/backend/.venv/bin/python"
+
+if [ ! -x "$PYTHON_BIN" ]; then
+    echo "backend virtualenv not found: $REPO_ROOT/backend/.venv" >&2
+    echo "Run: cd $REPO_ROOT/backend && uv sync" >&2
+    exit 1
+fi
+
+if ! "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1
+from mcp.server.fastmcp import FastMCP
+PY
+then
+    echo "Python MCP SDK is not installed in backend/.venv." >&2
+    echo "Run: cd $REPO_ROOT/backend && uv sync" >&2
+    exit 1
+fi
+
+export PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}"
+export DEER_FLOW_CONFIG_PATH="${DEER_FLOW_CONFIG_PATH:-$REPO_ROOT/config.yaml}"
+
+exec "$PYTHON_BIN" -m mcp_servers.streetmodel_video_embedding.server "$@"

@@ -77,6 +77,10 @@ class MobileChatRequest(BaseModel):
     thread_id: str | None = Field(default=None, description="Existing DeerFlow LangGraph thread id")
     assistant_id: str | None = Field(default=None, description="LangGraph assistant id")
     stream: bool = Field(default=False, description="Reserved for future SSE streaming")
+    attachments: list[dict[str, Any]] | None = Field(
+        default=None,
+        description="Uploaded file metadata returned by DeerFlow uploads API",
+    )
 
 class DeerFlowMobileRunRequest(BaseModel):
     query: str = Field(..., description="User query from city brain platform")
@@ -86,6 +90,18 @@ class DeerFlowMobileRunRequest(BaseModel):
     context: dict[str, Any] | None = Field(default=None, description="Optional extra context")
     thread_id: str | None = Field(default=None, description="Existing DeerFlow LangGraph thread id")
     assistant_id: str | None = Field(default=None, description="LangGraph assistant id")
+    attachments: list[dict[str, Any]] | None = Field(
+        default=None,
+        description="Uploaded file metadata returned by DeerFlow uploads API",
+    )
+
+
+class DeerFlowMobileEnsureThreadRequest(BaseModel):
+    conversation_id: str = Field(..., description="Mobile city brain conversation id")
+    source: str | None = Field(default="citybrain", description="Caller source")
+    user_id: str | None = Field(default=None, description="Mobile platform user id")
+    assistant_id: str | None = Field(default=None, description="LangGraph assistant id")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional extra metadata")
 
 
 def make_segment(
@@ -309,7 +325,12 @@ def _build_fallback_intent_content(current_query: str) -> str:
 
 
 def _split_intent_and_planner_content(intent_content: str) -> tuple[str, str]:
-    """把意图识别内容中的“任务切分”部分拆出来，作为规划智能体输出。"""
+    """优先把意图识别内容中的“任务规划”拆出来，作为规划智能体输出。
+
+    兼容旧格式：
+    - 新格式：提取“任务规划”
+    - 旧格式：如果没有“任务规划”，退回提取“任务切分”
+    """
     if not intent_content.strip():
         return "", ""
 
@@ -317,29 +338,44 @@ def _split_intent_and_planner_content(intent_content: str) -> tuple[str, str]:
     intent_lines: list[str] = []
     planner_lines: list[str] = []
 
-    in_task_split = False
+    section_starters = (
+        "改写后的任务",
+        "识别场景",
+        "任务切分",
+        "任务规划",
+        "场景任务",
+        "路由任务",
+        "对话类型",
+        "任务内容",
+        "已提取参数",
+        "任务提示",
+    )
+
+    has_task_planning = any(
+        line.strip().startswith("任务规划")
+        for line in lines
+    )
+    target_title = "任务规划" if has_task_planning else "任务切分"
+
+    in_target_section = False
 
     for line in lines:
         stripped = line.strip()
 
-        # 进入“任务切分”段落
-        if stripped.startswith("任务切分"):
-            in_task_split = True
+        if stripped.startswith(target_title):
+            in_target_section = True
             continue
 
-        # 遇到下一个段落，结束“任务切分”
-        if in_task_split and (
-            stripped.startswith("场景任务")
-            or stripped.startswith("识别场景")
-            or stripped.startswith("路由任务")
-            or stripped.startswith("对话类型")
-            or stripped.startswith("任务内容")
+        if in_target_section and any(
+            stripped.startswith(title)
+            for title in section_starters
+            if title != target_title
         ):
-            in_task_split = False
+            in_target_section = False
             intent_lines.append(line)
             continue
 
-        if in_task_split:
+        if in_target_section:
             if stripped:
                 planner_lines.append(line)
             continue
@@ -452,6 +488,324 @@ def _extract_tool_calls_from_message(msg: dict[str, Any]) -> list[dict[str, Any]
     return tool_calls if isinstance(tool_calls, list) else []
 
 
+CLARIFICATION_TOOL_NAMES = {"ask_clarification"}
+
+
+def _is_clarification_tool_name(name: str) -> bool:
+    return str(name or "").strip() in CLARIFICATION_TOOL_NAMES
+
+
+def _parse_tool_args(args: Any) -> Any:
+    if isinstance(args, str):
+        try:
+            return json.loads(args)
+        except Exception:
+            return {"raw": args}
+    return args
+
+
+
+def _extract_pending_action_from_event(raw_event: dict[str, Any]) -> dict[str, Any] | None:
+    data = raw_event.get("data") if isinstance(raw_event, dict) else None
+
+    for obj in _walk_dicts(data):
+        if not isinstance(obj, dict):
+            continue
+
+        pending = obj.get("pending_action")
+        if isinstance(pending, dict) and pending.get("type") == "clarification":
+            return pending
+
+    return None
+
+
+def _format_pending_action_question(pending_action: dict[str, Any]) -> str:
+    question = str(pending_action.get("question") or "").strip()
+    options = pending_action.get("options")
+
+    if question and isinstance(options, list) and options:
+        lines: list[str] = []
+        for item in options:
+            if isinstance(item, dict):
+                label = str(item.get("label") or item.get("value") or "").strip()
+                index = item.get("index")
+                if label:
+                    if index:
+                        lines.append(f"  {index}. {label}")
+                    else:
+                        lines.append(f"  - {label}")
+            elif str(item).strip():
+                lines.append(f"  - {item}")
+
+        if lines:
+            return question + "\n\n" + "\n".join(lines)
+
+    return question
+
+
+def _make_clarification_payload(
+    *,
+    conversation_id: str | None,
+    thread_id: str | None,
+    content: str,
+    pending_action: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "type": "clarification",
+        "status": "need_user_input",
+        "role": "反馈智能体",
+        "content": content.strip() or "当前任务需要补充信息，请进一步说明你的需求。",
+        "thread_id": thread_id,
+        "conversation_id": conversation_id,
+        "resume_required": True,
+    }
+
+    if isinstance(pending_action, dict):
+        pending_action_id = pending_action.get("id")
+        if isinstance(pending_action_id, str) and pending_action_id.strip():
+            payload["pending_action_id"] = pending_action_id.strip()
+
+        payload["pending_action"] = {
+            "id": pending_action.get("id"),
+            "type": pending_action.get("type"),
+            "question": pending_action.get("question"),
+            "expected_answer_type": pending_action.get("expected_answer_type"),
+            "options": pending_action.get("options") or [],
+        }
+
+    return payload
+
+
+def _is_actual_clarification_tool_message(obj: dict[str, Any]) -> bool:
+    """Only match the real ToolMessage generated by ClarificationMiddleware.
+
+    Do not match AI tool_call objects. Some tool_call objects may have
+    type='tool_call' and name='ask_clarification', but they are not the final
+    user-facing clarification message.
+    """
+    if not isinstance(obj, dict):
+        return False
+
+    raw_type = str(obj.get("type") or obj.get("role") or "").lower()
+
+    # 只认真正的 ToolMessage，不认 tool_call / tool_calls
+    if raw_type not in {"tool", "toolmessage", "tool_message"}:
+        return False
+
+    if obj.get("name") != "ask_clarification":
+        return False
+
+    # AI tool_call 通常会带 args/function；真正 ToolMessage 不应该带这些字段
+    if "args" in obj or "function" in obj:
+        return False
+
+    content = _extract_text_content(obj.get("content"))
+    if not content:
+        content = str(obj.get("content") or "").strip()
+
+    return bool(content)
+
+def _iter_message_lists_from_event(raw_event: dict[str, Any]):
+    if not isinstance(raw_event, dict):
+        return
+
+    data = raw_event.get("data")
+    if not isinstance(data, dict):
+        return
+
+    # values.data.raw_messages / values.data.messages
+    for key in ("raw_messages", "messages"):
+        messages = data.get(key)
+        if isinstance(messages, list):
+            yield messages
+
+    # updates.data.<node>.raw_messages / messages
+    if raw_event.get("event") == "updates":
+        for node_value in data.values():
+            if not isinstance(node_value, dict):
+                continue
+
+            for key in ("raw_messages", "messages"):
+                messages = node_value.get(key)
+                if isinstance(messages, list):
+                    yield messages
+
+
+def _slice_after_latest_human_message(
+    messages: list[Any],
+    current_query: str,
+) -> list[dict[str, Any]]:
+    """Only keep messages after the latest human message.
+
+    values events often contain the whole thread history. For clarification,
+    we must not scan old ask_clarification messages from previous turns.
+    """
+    start_index = -1
+
+    # 优先找与当前 query 匹配的 human
+    for i, msg in enumerate(messages):
+        if not isinstance(msg, dict):
+            continue
+
+        if _message_type(msg) == "human" and _query_matches(msg.get("content"), current_query):
+            start_index = i
+
+    # 如果匹配不到 current_query，就退回找最后一个 human。
+    # 这对“上传文件 + 补充信息”场景更稳，因为 values 里最后一个 human 通常就是当前轮用户消息。
+    if start_index < 0:
+        for i in range(len(messages) - 1, -1, -1):
+            msg = messages[i]
+            if isinstance(msg, dict) and _message_type(msg) == "human":
+                start_index = i
+                break
+
+    if start_index >= 0:
+        return [m for m in messages[start_index + 1:] if isinstance(m, dict)]
+
+    # 没有人类消息时，说明可能是当前轮增量 updates，直接保留
+    return [m for m in messages if isinstance(m, dict)]
+
+
+def _iter_current_turn_messages_from_event(
+    raw_event: dict[str, Any],
+    current_query: str,
+):
+    for messages in _iter_message_lists_from_event(raw_event) or []:
+        for msg in _slice_after_latest_human_message(messages, current_query):
+            if isinstance(msg, dict):
+                yield msg
+
+
+def _event_has_current_turn_clarification_tool_call(
+    raw_event: dict[str, Any],
+    current_query: str,
+) -> bool:
+    for msg in _iter_current_turn_messages_from_event(raw_event, current_query):
+        for tool_call in _extract_tool_calls_from_message(msg):
+            if not isinstance(tool_call, dict):
+                continue
+
+            name = str(
+                tool_call.get("name")
+                or tool_call.get("function", {}).get("name")
+                or ""
+            )
+
+            if _is_clarification_tool_name(name):
+                return True
+
+    return False
+
+
+def _iter_message_lists_from_event(raw_event: dict[str, Any]):
+    if not isinstance(raw_event, dict):
+        return
+
+    data = raw_event.get("data")
+    if not isinstance(data, dict):
+        return
+
+    # values.data.raw_messages / values.data.messages
+    for key in ("raw_messages", "messages"):
+        messages = data.get(key)
+        if isinstance(messages, list):
+            yield messages
+
+    # updates.data.<node>.raw_messages / messages
+    if raw_event.get("event") == "updates":
+        for node_value in data.values():
+            if not isinstance(node_value, dict):
+                continue
+            for key in ("raw_messages", "messages"):
+                messages = node_value.get(key)
+                if isinstance(messages, list):
+                    yield messages
+
+
+def _iter_current_turn_messages_from_event(
+    raw_event: dict[str, Any],
+    current_query: str,
+):
+    for messages in _iter_message_lists_from_event(raw_event) or []:
+        for msg in _current_turn_or_incremental_messages(messages, current_query):
+            if isinstance(msg, dict):
+                yield msg
+
+
+def _event_has_current_turn_clarification_tool_call(
+    raw_event: dict[str, Any],
+    current_query: str,
+) -> bool:
+    for msg in _iter_current_turn_messages_from_event(raw_event, current_query):
+        for tool_call in _extract_tool_calls_from_message(msg):
+            if not isinstance(tool_call, dict):
+                continue
+
+            name = str(
+                tool_call.get("name")
+                or tool_call.get("function", {}).get("name")
+                or ""
+            )
+
+            if _is_clarification_tool_name(name):
+                return True
+
+    return False
+
+def _extract_clarification_from_event(
+    raw_event: dict[str, Any],
+    *,
+    conversation_id: str | None,
+    thread_id: str | None,
+    current_query: str,
+) -> dict[str, Any] | None:
+    if not isinstance(raw_event, dict):
+        return None
+
+    pending_action = _extract_pending_action_from_event(raw_event)
+
+    # 1. 只从当前用户消息之后的 messages 中找 ask_clarification ToolMessage
+    # 不要全量 _walk_dicts(data)，否则会扫到历史 clarification。
+    candidates: list[dict[str, Any]] = []
+
+    for msg in _iter_current_turn_messages_from_event(raw_event, current_query):
+        if _is_actual_clarification_tool_message(msg):
+            candidates.append(msg)
+
+    if candidates:
+        # 如果同一事件里出现多个 clarification，取最后一个，更接近当前轮最新状态
+        msg = candidates[-1]
+
+        content = _extract_text_content(msg.get("content"))
+        if not content:
+            content = str(msg.get("content") or "").strip()
+
+        return _make_clarification_payload(
+            conversation_id=conversation_id,
+            thread_id=thread_id,
+            content=content,
+            pending_action=pending_action,
+        )
+
+    # 2. pending_action 只能作为“当前轮确实调用了 ask_clarification”时的兜底
+    # 不能单独看到 pending_action 就返回，否则会把上一轮 pending_action 当成当前轮。
+    if (
+        isinstance(pending_action, dict)
+        and _event_has_current_turn_clarification_tool_call(raw_event, current_query)
+    ):
+        content = _format_pending_action_question(pending_action)
+        if content:
+            return _make_clarification_payload(
+                conversation_id=conversation_id,
+                thread_id=thread_id,
+                content=content,
+                pending_action=pending_action,
+            )
+
+    return None
+
+
+
 def _extract_description_from_args(args: Any) -> str:
     if not isinstance(args, dict):
         return ""
@@ -540,6 +894,9 @@ def _extract_tool_segments(raw_events: list[Any], current_query: str) -> list[di
                 continue
             
             if name == "present_files":
+                continue
+
+            if _is_clarification_tool_name(name):
                 continue
 
             args = tool_call.get("args")
@@ -892,6 +1249,35 @@ def adapt_events_to_mobile(
     raw_events: list[Any],
     current_query: str,
 ) -> dict[str, Any]:
+
+    for raw_event in raw_events:
+        if not isinstance(raw_event, dict):
+            continue
+
+        clarification = _extract_clarification_from_event(
+            raw_event,
+            conversation_id=session_id,
+            thread_id=thread_id,
+            current_query=current_query,
+        )
+
+        if clarification:
+            return {
+                "session_id": session_id or thread_id,
+                "thread_id": thread_id,
+                "type": "clarification",
+                "status": "need_user_input",
+                "clarification": clarification,
+                "segments": [
+                    make_segment(
+                        agent_id="feedback",
+                        content=clarification["content"],
+                        status="need_user_input",
+                        source_event="clarification",
+                    )
+                ],
+            }
+
     segments: list[dict[str, Any]] = []
 
     intent_content = _extract_current_turn_intent_content(raw_events, current_query)
@@ -1067,6 +1453,139 @@ def _build_mobile_download_url(thread_id: str, filename: str) -> str | None:
     )
 
 
+def _coerce_file_size(value: Any) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        return int(value)
+    except Exception:
+        return None
+
+
+def _normalize_mobile_attachments(attachments: Any) -> list[dict[str, Any]]:
+    """Convert mobile attachments to DeerFlow LangGraph message files.
+
+    DeerFlow UploadsMiddleware expects files under:
+    messages[0].additional_kwargs.files[].path
+
+    The path must be the sandbox virtual path, for example:
+    /mnt/user-data/uploads/example.xlsx
+    """
+    if not isinstance(attachments, list):
+        return []
+
+    files: list[dict[str, Any]] = []
+    for item in attachments:
+        if not isinstance(item, dict):
+            continue
+
+        filename = str(item.get("filename") or item.get("name") or "").strip()
+        raw_path = str(
+            item.get("virtual_path")
+            or item.get("path")
+            or item.get("file_path")
+            or ""
+        ).strip()
+
+        if not filename and raw_path:
+            filename = Path(raw_path).name
+
+        # A side should send virtual_path. This fallback handles accidental
+        # backend local paths from the upload response.
+        if raw_path and not raw_path.startswith("/mnt/user-data/"):
+            marker = "/user-data/"
+            if marker in raw_path:
+                raw_path = "/mnt" + raw_path[raw_path.index(marker):]
+
+        if not raw_path and filename:
+            raw_path = f"/mnt/user-data/uploads/{Path(filename).name}"
+
+        if not filename or not raw_path.startswith("/mnt/user-data/"):
+            continue
+
+        file_info: dict[str, Any] = {
+            "filename": filename,
+            "path": raw_path,
+            "status": str(item.get("status") or "uploaded"),
+        }
+
+        size = _coerce_file_size(item.get("size"))
+        if size is not None:
+            file_info["size"] = size
+
+        files.append(file_info)
+
+    return files
+
+
+def _attachments_from_request(req: Any, context: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    attachments = getattr(req, "attachments", None)
+    if isinstance(attachments, list):
+        return attachments
+
+    if isinstance(context, dict):
+        for key in ("attachments", "files"):
+            value = context.get(key)
+            if isinstance(value, list):
+                return value
+
+    return []
+
+
+def _build_langgraph_input(query: str, attachments: Any = None) -> dict[str, Any]:
+    message: dict[str, Any] = {
+        "role": "human",
+        "content": query,
+    }
+
+    files = _normalize_mobile_attachments(attachments)
+    if files:
+        message["additional_kwargs"] = {"files": files}
+
+    return {"messages": [message]}
+
+
+async def ensure_mobile_thread(req: DeerFlowMobileEnsureThreadRequest) -> tuple[str, bool]:
+    """Ensure a real LangGraph thread for a mobile conversation.
+
+    Returns:
+        (thread_id, created)
+    """
+    from langgraph_sdk import get_client
+
+    conversation_id = str(req.conversation_id or "").strip()
+    if not conversation_id:
+        raise ValueError("conversation_id is required")
+
+    existing_thread_id = CONVERSATION_THREAD_MAP.get(conversation_id)
+    if existing_thread_id:
+        return existing_thread_id, False
+
+    client = get_client(url=DEFAULT_LANGGRAPH_URL)
+
+    metadata: dict[str, Any] = {
+        "conversation_id": conversation_id,
+        "source": req.source or "citybrain",
+    }
+    if req.user_id:
+        metadata["user_id"] = req.user_id
+    if isinstance(req.metadata, dict):
+        metadata.update(req.metadata)
+
+    try:
+        thread = await client.threads.create(metadata=metadata)
+    except TypeError:
+        # Compatible with older langgraph_sdk versions that do not accept metadata.
+        thread = await client.threads.create()
+
+    thread_id = str(thread.get("thread_id") or "")
+    if not thread_id:
+        raise RuntimeError(f"LangGraph thread create returned no thread_id: {thread}")
+
+    CONVERSATION_THREAD_MAP[conversation_id] = thread_id
+    return thread_id, True
+
+
 async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, list[Any]]:
     """Call LangGraph Server and collect current-run events.
 
@@ -1106,7 +1625,7 @@ async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, 
     async for chunk in client.runs.stream(
         thread_id,
         assistant_id,
-        input={"messages": [{"role": "human", "content": req.query}]},
+        input=_build_langgraph_input(req.query, req.attachments),
         config=DEFAULT_RUN_CONFIG,
         context=run_context,
         stream_mode=["updates", "values", "messages-tuple"],
@@ -1163,7 +1682,7 @@ async def _produce_langgraph_stream(
         async for chunk in client.runs.stream(
             thread_id,
             assistant_id,
-            input={"messages": [{"role": "human", "content": chat_req.query}]},
+            input=_build_langgraph_input(chat_req.query, chat_req.attachments),
             config=DEFAULT_RUN_CONFIG,
             context=run_context,
             stream_mode=["updates", "values", "messages-tuple"],
@@ -1203,6 +1722,7 @@ async def _stream_deerflow_mobile_run(
         thread_id=thread_id,
         assistant_id=req.assistant_id,
         stream=True,
+        attachments=_attachments_from_request(req, context),
     )
 
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
@@ -1213,6 +1733,8 @@ async def _stream_deerflow_mobile_run(
     emitted_keys: set[tuple[str, str, str]] = set()
     emitted_segments: list[dict[str, Any]] = []
     next_order = 1
+    clarification_emitted = False
+    pending_clarification: dict[str, Any] | None = None
 
     def emit_new_segments(final: bool = False) -> list[dict[str, Any]]:
         nonlocal next_order
@@ -1305,8 +1827,24 @@ async def _stream_deerflow_mobile_run(
                 if isinstance(raw_event, dict):
                     raw_events.append(raw_event)
 
-                for segment in emit_new_segments(final=False):
-                    yield _sse_event("segment", segment)
+                    clarification = _extract_clarification_from_event(
+                        raw_event,
+                        conversation_id=req.conversation_id,
+                        thread_id=current_thread_id,
+                        current_query=req.query,
+                    )
+
+                    if clarification and not clarification_emitted:
+                        clarification_emitted = True
+                        pending_clarification = clarification
+
+                        # 不要立刻 break，也不要 cancel producer_task。
+                        # 继续消费 LangGraph stream，等 kind == "done" 后再把 clarification 发给移动端。
+                        continue
+
+                if not clarification_emitted:
+                    for segment in emit_new_segments(final=False):
+                        yield _sse_event("segment", segment)
 
             elif kind == "error":
                 yield _sse_event(
@@ -1319,9 +1857,17 @@ async def _stream_deerflow_mobile_run(
                         "status": "failed",
                     },
                 )
+
+                yield "data: [DONE]\n\n"
+
                 break
 
             elif kind == "done":
+                if pending_clarification:
+                    yield _sse_event("clarification", pending_clarification)
+                    yield "data: [DONE]\n\n"
+                    break
+
                 for segment in emit_new_segments(final=True):
                     yield _sse_event("segment", segment)
 
@@ -1336,11 +1882,44 @@ async def _stream_deerflow_mobile_run(
                         "ordered_segments": emitted_segments,
                     },
                 )
+
+                yield "data: [DONE]\n\n"
+
                 break
 
     finally:
         if not producer_task.done():
             producer_task.cancel()
+
+
+@router.post("/api/deerflow/mobile/threads/ensure")
+async def deerflow_mobile_ensure_thread(req: DeerFlowMobileEnsureThreadRequest) -> dict[str, Any]:
+    try:
+        thread_id, created = await ensure_mobile_thread(req)
+        assistant_id = req.assistant_id or DEFAULT_ASSISTANT_ID
+
+        return {
+            "code": 0,
+            "message": "success",
+            "data": {
+                "conversation_id": req.conversation_id,
+                "thread_id": thread_id,
+                "assistant_id": assistant_id,
+                "created": created,
+            },
+        }
+
+    except Exception as exc:
+        return {
+            "code": 500,
+            "message": f"ensure thread failed: {type(exc).__name__}: {exc}",
+            "data": {
+                "conversation_id": req.conversation_id,
+                "thread_id": None,
+                "assistant_id": req.assistant_id or DEFAULT_ASSISTANT_ID,
+                "created": False,
+            },
+        }
 
 
 @router.post("/api/mobile/chat")
@@ -1393,6 +1972,7 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
         thread_id=thread_id,
         assistant_id=req.assistant_id,
         stream=req.stream,
+        attachments=_attachments_from_request(req, context),
     )
 
     try:

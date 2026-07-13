@@ -1,14 +1,14 @@
 # DeerFlow Video Monitoring Bundle
 
-## What This Folder Contains
-
 This folder is designed to be used as the DeerFlow custom skills root.
 
-It contains:
+## What This Folder Contains
 
-- 17 independent Skill directories, each with its own `SKILL.md` and `scripts/run.py`
-- Shared implementation code in `src/`
-- Shared runner helpers in `tools/`
+- `single-video-event-analysis`: the unified LLM frame-review entrypoint for incident analysis
+- `object-detection`: YOLO object detection only
+- Video utility skills for ingestion, frame sampling, FFmpeg extraction, evidence snapshots, masking, review routing, and duplicate merging
+- Video library skills for Elasticsearch-backed batch ingestion, search, object statistics, and evidence package generation
+- Personal video-vector indexing with `video-embedding-index`
 - YOLO model weights in `models/yolov8n.pt`
 - DeerFlow-oriented config in `configs/deerflow_config.json`
 - Python dependency list in `requirements.txt`
@@ -21,24 +21,7 @@ Mount or copy this folder so that its contents are available at:
 /mnt/skills/custom
 ```
 
-The directory should look like:
-
-```text
-/mnt/skills/custom/
-  object-detection/
-    SKILL.md
-    scripts/run.py
-  frame-sampling/
-    SKILL.md
-    scripts/run.py
-  ...
-  src/
-  tools/
-  models/yolov8n.pt
-  configs/deerflow_config.json
-```
-
-Do not place the whole folder under `/mnt/skills/custom/deerflow_video_monitoring_bundle` unless DeerFlow is configured to discover nested skills. The Skill directories should be directly under the custom skills root.
+Do not place the whole folder under a nested bundle directory unless DeerFlow is configured to discover nested skills.
 
 ## Runtime Dependencies
 
@@ -48,7 +31,7 @@ Install Python dependencies in the DeerFlow execution environment:
 pip install -r /mnt/skills/custom/requirements.txt
 ```
 
-System tools required:
+System tools required for video extraction and clipping:
 
 ```bash
 ffmpeg
@@ -63,43 +46,20 @@ The config uses:
 "model_path": "/mnt/skills/custom/models/yolov8n.pt"
 ```
 
-If you mount the bundle elsewhere, update `configs/deerflow_config.json`.
+YOLO is used only by `object-detection`; it must not be treated as an event detector.
 
-## Video Input Configuration
-
-The default config expects videos at:
-
-```text
-/mnt/data/videos/
-```
-
-Example:
-
-```text
-/mnt/data/videos/Trafic.mp4
-```
-
-Each Skill input JSON should pass the concrete video path or frame paths it needs.
-
-## Calling Individual Skills
-
-Each Skill has its own standalone entrypoint:
+## Main Event Analysis Call
 
 ```bash
-python /mnt/skills/custom/<skill-name>/scripts/run.py \
-  --input <input.json> \
+python /mnt/skills/custom/single-video-event-analysis/scripts/run.py \
+  --input /mnt/data/video-monitoring-runs/run_001/single_video_analysis_input.json \
   --config /mnt/skills/custom/configs/deerflow_config.json \
-  --output <result.json>
+  --output /mnt/data/video-monitoring-runs/run_001/prepared_manifest.json
 ```
 
-Examples:
+The script extracts frames and creates `review_manifest.json`. The Agent must then inspect the listed frames and produce the final event timeline and event candidates from visible evidence.
 
-```bash
-python /mnt/skills/custom/video-stream-ingestion/scripts/run.py \
-  --input /mnt/data/video-monitoring-runs/run_001/video_ingestion_input.json \
-  --config /mnt/skills/custom/configs/deerflow_config.json \
-  --output /mnt/data/video-monitoring-runs/run_001/video_ingestion_result.json
-```
+## Object Detection Call
 
 ```bash
 python /mnt/skills/custom/object-detection/scripts/run.py \
@@ -108,23 +68,35 @@ python /mnt/skills/custom/object-detection/scripts/run.py \
   --output /mnt/data/video-monitoring-runs/run_001/object_detection_result.json
 ```
 
-## Composition Pattern
-
-Agent can compose Skills in this order:
+## Current Composition Pattern
 
 ```text
-video-stream-ingestion
-  -> frame-sampling
-  -> camera-health-check
+single-video-event-analysis
+  -> evidence-snapshot
+  -> video-segment-extraction
+  -> privacy-masking
+  -> human-review-routing
+  -> duplicate-event-merge
+```
+
+Optional object analytics:
+
+```text
+frame-sampling
   -> object-detection
   -> object-tracking
   -> roi-mapping
-  -> event-rule-engine
-  -> duplicate-event-merge
-  -> evidence-snapshot
-  -> video-segment-extraction
-  -> human-review-routing
 ```
 
-The output JSON of one Skill should be transformed into the input JSON of the next Skill by the agent or by a future workflow adapter.
+Video library workflow:
 
+```text
+batch-video-ingestion
+  -> video-search
+  -> object-statistics
+  -> evidence-package-generation
+```
+
+The video library skills use `ES_URL`, `ES_USERNAME`, and `ES_PASSWORD` from the sandbox environment. The default index is `citybrain-video-library`; precomputed vectors may be stored in `vector`, but this bundle does not generate embeddings automatically.
+
+For personal semantic search, use `video-embedding-index` to write vectors into `huangxiao-video-library-vector-v1`. This keeps shared ES service access separate from per-user index ownership.

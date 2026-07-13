@@ -48,6 +48,67 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
         """
         return any("\u4e00" <= char <= "\u9fff" for char in text)
 
+    @staticmethod
+    def _normalize_options(options: object) -> list[str]:
+        """Normalize clarification options to a clean list of strings.
+
+        The LLM may pass options as:
+        - list[str]
+        - list[dict]
+        - JSON string like '["A", "B"]'
+        - comma-separated string
+        """
+        import json
+
+        if options is None:
+            return []
+
+        if isinstance(options, str):
+            text = options.strip()
+            if not text:
+                return []
+
+            # First try JSON list string.
+            try:
+                parsed = json.loads(text)
+                return ClarificationMiddleware._normalize_options(parsed)
+            except Exception:
+                pass
+
+            # Fallback: split common separators.
+            for sep in ("，", ",", "；", ";", "\n"):
+                if sep in text:
+                    return [
+                        item.strip().strip('"').strip("'")
+                        for item in text.split(sep)
+                        if item.strip().strip('"').strip("'")
+                    ]
+
+            return [text]
+
+        if isinstance(options, list):
+            normalized: list[str] = []
+            for item in options:
+                if isinstance(item, str):
+                    label = item.strip()
+                elif isinstance(item, dict):
+                    label = str(
+                        item.get("label")
+                        or item.get("value")
+                        or item.get("text")
+                        or item.get("name")
+                        or ""
+                    ).strip()
+                else:
+                    label = str(item).strip()
+
+                if label:
+                    normalized.append(label)
+
+            return normalized
+
+        return []
+    
     def _format_clarification_message(self, args: dict) -> str:
         """Format the clarification arguments into a user-friendly message.
 
@@ -60,7 +121,7 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
         question = args.get("question", "")
         clarification_type = args.get("clarification_type", "missing_info")
         context = args.get("context")
-        options = args.get("options", [])
+        options = self._normalize_options(args.get("options"))
 
         # Type-specific icons
         type_icons = {
@@ -140,7 +201,9 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
 
     @staticmethod
     def _build_pending_action(args: dict, state: dict | None) -> dict:
-        options = args.get("options") or []
+        options = ClarificationMiddleware._normalize_options(args.get("options"))
+
+
         clarification_type = args.get("clarification_type", "missing_info")
         expected_answer_type = "single_choice" if options else (
             "confirmation" if clarification_type in {"risk_confirmation", "suggestion"} else "free_text"

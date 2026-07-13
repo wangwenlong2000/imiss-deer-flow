@@ -1,6 +1,6 @@
 ---
 name: object-tracking
-description: Track detected objects across video frames and return Track schema. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids before ROI mapping and temporal event rules.
+description: Track detected objects across video frames and return Track schema for object analytics only. Use when Codex has frame-level detections and needs stable track ids, trajectories, duration, last bbox, movement state, confidence, and evidence frame ids. Do not use this skill to infer video events or abnormal behavior.
 ---
 
 # Object Tracking
@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If `detections` are missing but the user provided frames or a video, do not ask the user to provide detections and do not write tracking code. Call upstream skills in order: `frame-sampling/scripts/run.py` when frames are missing, then `object-detection/scripts/run.py`, then this skill. Use the detection labels implied by the task, such as `person` for people, fight, crowd, or behavior analysis.
+If `detections` are missing but the user provided frames or a video, call upstream skills in order: `frame-sampling/scripts/run.py` when frames are missing, then `object-detection/scripts/run.py`, then this skill. Use only object labels, not event labels.
 
 
 ## Atomic CLI
@@ -51,4 +51,4 @@ The current implementation tolerates empty detections and returns an empty track
 
 ## Constraints
 
-Do not apply ROI rules or emit event candidates.
+Do not apply ROI rules, infer anomalies, or emit event candidates.

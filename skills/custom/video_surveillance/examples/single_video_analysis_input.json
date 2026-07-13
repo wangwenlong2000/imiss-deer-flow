@@ -1,0 +1,28 @@
+{
+  "source_type": "local_file",
+  "video_path": "/home/huangxiao/City_brain/imiss-deer-flow-main/datasets/Vedio-demo/Trafic.mp4",
+  "camera_id": "CAM_DEERFLOW_001",
+  "analysis_task": "分析这个视频中是否存在异常事件，并输出可见证据、时间段、置信度和是否需要人工复核。",
+  "target_events": [
+    "traffic_congestion",
+    "fight",
+    "fall_down",
+    "traffic_accident",
+    "pedestrian_intrusion",
+    "smoke_or_fire",
+    "crowd_gathering",
+    "illegal_occupation",
+    "other_abnormal_event"
+  ],
+  "output_dir": "/mnt/data/video-monitoring-runs/single_video_demo",
+  "coarse_fps": 1.0,
+  "dense_fps": 4.0,
+  "scene_threshold": 0.3,
+  "dense_window": 2.0,
+  "output_requirements": {
+    "include_timeline": true,
+    "include_key_frames": true,
+    "include_event_candidates": true,
+    "include_uncertainty": true
+  }
+}

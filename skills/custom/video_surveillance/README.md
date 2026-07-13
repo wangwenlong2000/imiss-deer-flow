@@ -1,134 +1,91 @@
 # Custom Video Monitoring Skills
 
-本目录是一组面向“监控视频分析”的自定义 skills。它们不是一个单体技能，而是一组可独立路由、独立执行、可按链路组合的原子能力。
-
-每个 skill 目录通常包含：
-
-- `SKILL.md`：给 Agent 使用的技能说明和执行约束。
-- `router_card.json`：给 SkillRouter 使用的独立路由卡。
-- `scripts/run.py` 或专用脚本：该 skill 的实际执行入口。
-
-## 总体作用
-
-这组 skills 用于从视频源接入开始，完成抽帧、LLM 视觉分析、可选的目标检测/跟踪/ROI 辅助、事件候选生成、去重、证据生成、隐私打码和人工复核分流。
-
-事件检测的默认链路应优先走抽帧视觉分析，而不是直接依赖目标检测框或规则脚本：
+本目录是一组面向“监控视频分析”的 DeerFlow custom skills。当前架构已经收敛为：
 
 ```text
-analyze-video 或 frame-sampling
-  -> LLM 按时间顺序查看抽帧图片
-  -> 生成 visual_observations / visual_timeline
-  -> spatial-occupancy-event / temporal-persistence-event / density-aggregation-event / object-composition-event
-  -> event-template-mapping
-  -> duplicate-event-merge
-  -> evidence-snapshot
-  -> privacy-masking
-  -> video-segment-extraction
+视频事件检测：single-video-event-analysis
+目标检测：object-detection
+视频/证据工具：抽帧、剪辑、打码、复核、去重
+```
+
+核心原则：
+
+- **YOLO 只做目标检测**：输出 `label`、`confidence`、`bbox`，不判断打架、摔倒、车祸、拥堵、烟火、入侵等事件。
+- **事件检测统一入口**：所有视频事件语义判断都走 `single-video-event-analysis`，先抽帧，再由 LLM 按时间顺序审查可见证据。
+- **旧规则事件 skills 已移除**：不再使用按 ROI/轨迹/密度/组合规则硬判事件的 skill。
+
+## Recommended Event Flow
+
+```text
+single-video-event-analysis
+  -> extract timestamped frames
+  -> build review_manifest.json
+  -> LLM reviews frames chronologically
+  -> visual_timeline + event_candidates
+  -> evidence-snapshot / video-segment-extraction / privacy-masking
   -> human-review-routing
 ```
 
-已有可靠结构化检测结果时，仍可以使用规则/几何辅助链路：
+目标检测、跟踪和 ROI 匹配可以作为对象分析或辅助上下文使用，但不能作为事件结论来源：
 
 ```text
-video-stream-ingestion
-  -> frame-sampling
-  -> camera-health-check
+frame-sampling
   -> object-detection
   -> object-tracking
   -> roi-mapping
-  -> spatial-occupancy-event / temporal-persistence-event / density-aggregation-event / object-composition-event
-  -> event-template-mapping
-  -> event-rule-engine
-  -> duplicate-event-merge
-  -> evidence-snapshot
-  -> privacy-masking
-  -> video-segment-extraction
-  -> human-review-routing
 ```
 
-`analyze-video` 是偏取证回溯和事件检测的高层视频分析 skill，适合对本地视频做场景切分、关键帧提取、逐帧视觉审核和时间线分析。对打架、车祸、摔倒、聚集、拥堵、烟火、入侵、占道等事件，Agent 应先查看抽帧图片，再决定事件类型、时间范围、证据帧和置信度。其他 skills 可作为结构化流水线或辅助判断使用。
+视频库检索和证据归档使用 Elasticsearch 作为后端：
 
-## Skill 列表
+```text
+batch-video-ingestion
+  -> video-search
+  -> object-statistics
+  -> evidence-package-generation
+```
 
-| Skill | 作用 |
+## Skill List
+
+| Skill | Role |
 | --- | --- |
-| `analyze-video` | 对本地视频做场景检测、关键帧提取、章节切分、逐帧视觉审核、事件时间线和取证回溯。 |
-| `video-stream-ingestion` | 接入或规范化视频源，输出 `raw_segment_uri` 和视频会话元数据。 |
+| `single-video-event-analysis` | 统一的视频事件分析入口。输入本地视频，抽帧并生成 LLM 审帧 manifest，最终输出视觉时间线和事件候选。 |
+| `analyze-video` | 视频抽帧和取证准备工具，使用 FFmpeg 做场景检测、粗采样、密集采样和 `metadata.json`。 |
+| `video-stream-ingestion` | 规范化本地视频文件，输出 `raw_segment_uri` 和视频会话元数据。 |
 | `frame-sampling` | 从视频片段或已有帧记录中生成标准 Frame schema。 |
 | `camera-health-check` | 检查摄像头画面质量，例如黑屏、模糊、遮挡、冻结、不可用。 |
-| `object-detection` | 对抽样帧做人车物等目标检测，输出 Detection schema。 |
-| `object-tracking` | 对检测结果做跨帧关联，输出 Track schema、轨迹和持续时间。 |
-| `roi-mapping` | 将检测目标或轨迹匹配到摄像头 ROI 多边形。 |
-| `spatial-occupancy-event` | 基于抽帧视觉证据判断目标是否占用指定 ROI 区域，可选使用 ROI 几何结果辅助。 |
-| `temporal-persistence-event` | 基于抽帧时间线判断目标、动作或状态是否持续足够长时间。 |
-| `density-aggregation-event` | 基于抽帧视觉证据判断是否存在数量过多、密度过高、排队、拥堵或聚集。 |
-| `object-composition-event` | 基于抽帧视觉证据判断多目标组合关系，例如接触、碰撞、人车物组合、距离关系、分组关系。 |
-| `event-template-mapping` | 将视觉观察或方法级结果映射为最终 Event Candidate 语义。 |
-| `event-rule-engine` | 编排抽帧视觉分析和事件模板映射；已有结构化输入时也可执行规则引擎。 |
-| `duplicate-event-merge` | 合并同摄像头、同类型、同 ROI 或时间窗口重叠的重复事件。 |
+| `object-detection` | YOLO 目标检测，只输出人车物等对象的 Detection schema。 |
+| `object-tracking` | 对检测结果做跨帧关联，输出 Track schema、轨迹和持续时间；不判断事件。 |
+| `roi-mapping` | 将检测目标或轨迹匹配到摄像头 ROI 多边形；只做几何匹配。 |
+| `duplicate-event-merge` | 合并重复事件候选，适合单视频或批量视频分析后的去重。 |
 | `evidence-snapshot` | 为事件生成证据截图、哈希和 Evidence schema。 |
 | `video-segment-extraction` | 按事件时间从原始视频中截取证据短片段。 |
 | `privacy-masking` | 对证据图片中的人脸、车牌、手机号、门牌等敏感区域打码。 |
 | `human-review-routing` | 判断事件是否需要进入人工复核队列。 |
 | `ffmpeg-utils` | 提供底层视频剪辑、截帧等 FFmpeg 工具能力。 |
+| `batch-video-ingestion` | 批量视频入库，将本地视频元数据、目标摘要和可检索文档写入 Elasticsearch。 |
+| `video-search` | 从视频库按关键词、摄像头、时间、目标类别和可选预计算向量检索视频。 |
+| `video-embedding-index` | 为视频库文档生成 embedding，并写入个人专属向量索引，默认 `huangxiao-video-library-vector-v1`。 |
+| `object-statistics` | 基于视频库记录或检测/跟踪 JSON 统计目标数量、类别、摄像头、时间和运动状态。 |
+| `evidence-package-generation` | 根据视频库记录、事件或检索结果生成证据包 manifest、截图和短视频片段。 |
 
-## 实现原则
-
-这些 skills 采用“原子脚本 + 结构化 JSON”的方式实现：
-
-1. 每个 skill 优先运行自己的脚本入口。
-2. 脚本通过命令行参数读取输入 JSON、配置文件和输出路径。
-3. 输出统一为 JSON，包含 `skill`、`version`、`status`、`confidence` 和 `data`。
-4. 原子 skill 不直接依赖共享 registry，也不隐式调用其他 skill。
-5. 上游缺失时，应由 Agent 按 `SKILL.md` 中的链路显式调用上游 skill。
-6. 路由层按每个 skill 的 `router_card.json` 单独检索，不把整套链路当成一张卡。
-
-这种设计的目的：
-
-- 方便单独测试每个环节。
-- 方便 SkillRouter 精准命中具体能力。
-- 避免一个大 skill 把所有视频任务都吸走。
-- 让中间产物可审计、可复用、可回放。
-
-## 路由卡说明
-
-每个 skill 都应该有自己的 `router_card.json`：
-
-```text
-skills/custom/<skill-name>/router_card.json
-```
-
-路由卡只描述当前 skill 自己：
-
-- `identity`：skill id、名称和描述。
-- `scope`：适用场景、任务类型、输入输出类型。
-- `routing`：正向触发词、负向触发词、关键词和路由文本。
-- `body`：对应 `SKILL.md` 内容。
-- `execution`：需要的工具和允许的文件类型。
-- `routing_policy`：优先级、冲突组和让渡条件。
-- `source` / `embedding`：来源、hash 和索引元数据。
-
-不要把所有视频 skills 写进一张路由卡。正确做法是每个 skill 一张卡，入库后由 SkillRouter 在候选集中做 top-k 检索。
-
-## 数据流
-
-核心数据对象：
+## Data Objects
 
 - `raw_segment_uri`：原始视频片段路径或视频源规范化结果。
 - `frames`：抽样帧列表，包含 `frame_id`、`camera_id`、`timestamp`、`image_uri` 等。
-- `detections`：帧级目标检测结果，包含 label、confidence、bbox。
-- `tracks`：跨帧目标轨迹，包含 track id、持续时间、最后位置、运动状态。
-- `roi_matches`：目标或轨迹与 ROI 的匹配结果。
-- `method_outputs`：空间、时间、密度、多目标组合等方法级事件结果。
-- `events`：候选事件。
+- `review_manifest`：给 LLM 审帧使用的帧清单、目标事件和输出要求。
+- `visual_timeline`：LLM 基于可见帧写出的时间线观察。
+- `events`：LLM 基于可见证据生成的候选事件。
+- `detections`：YOLO 帧级目标检测结果，只包含对象框和置信度。
+- `tracks`：跨帧目标轨迹，供目标统计或检索使用。
+- `roi_matches`：目标或轨迹与 ROI 的几何匹配结果。
 - `evidence`：证据截图、哈希、隐私处理状态。
 - `review`：人工复核分流结果。
+- `video_library_document`：写入 Elasticsearch 的视频库文档，包含 `video_id`、`camera_id`、元数据、目标摘要和检索文本。
+- `evidence_package`：证据包 manifest，包含 package_id、items、evidence artifacts 和哈希。
 
-## Sandbox 依赖配置
+## Dependencies
 
-### 最小依赖
-
-如果只运行不涉及视频读写、图像处理、真实检测的 JSON 规则类 skills，最小依赖是：
+### Minimal
 
 ```yaml
 runtime:
@@ -138,14 +95,12 @@ system_packages:
   - bash
 
 python_packages:
-  - PyYAML
+  - PyYAML>=6.0
 ```
 
-`PyYAML` 是可选依赖。只有读取 `.yaml` / `.yml` 配置时才需要；如果所有输入配置都是 JSON，可以不装。
+### Video Processing
 
-### 视频处理依赖
-
-运行 `analyze-video`、`video-stream-ingestion`、`video-segment-extraction`、`ffmpeg-utils` 时建议配置：
+`single-video-event-analysis`、`analyze-video`、`video-segment-extraction`、`ffmpeg-utils` 需要：
 
 ```yaml
 system_packages:
@@ -153,156 +108,104 @@ system_packages:
   - ffmpeg
 ```
 
-其中 `ffprobe` 通常随 `ffmpeg` 一起安装，用于读取视频宽高、时长、码流等元数据。
+### Image Processing
 
-### 图像处理依赖
-
-运行 `frame-sampling`、`evidence-snapshot`、`privacy-masking` 的真实文件处理能力时需要 OpenCV：
-
-```text
-opencv-python>=4.8
-```
-
-如果 sandbox 是无 GUI 环境，通常可以使用：
+`frame-sampling`、`evidence-snapshot`、`privacy-masking` 需要 OpenCV：
 
 ```text
 opencv-python-headless>=4.8
 ```
 
-### 目标检测依赖
+### Object Detection
 
-`object-detection` 支持 mock 后端和真实 YOLO 后端。真实 YOLO 后端需要：
+`object-detection` 的真实 YOLO 后端需要：
 
 ```text
 ultralytics>=8.0
 ```
 
-`ultralytics` 会带入 PyTorch 相关依赖，sandbox 镜像需要考虑模型下载、CPU/GPU、缓存目录和网络权限。如果只是做链路测试，可以使用 mock provider，不需要安装 `ultralytics`。
+`object-detection` 不再提供 mock 模式；链路测试也必须使用 `--provider ultralytics` 和真实帧图片。
 
-### 推荐 requirements
+### Video Library Elasticsearch
 
-当前目录已有：
-
-```text
-opencv-python
-ultralytics
-```
-
-建议补充：
-
-```text
-PyYAML>=6.0
-```
-
-如果使用无 GUI sandbox，可以把 `opencv-python` 换成：
-
-```text
-opencv-python-headless
-```
-
-## 推荐 Sandbox 示例
-
-偏完整的视频监控分析环境：
-
-```yaml
-runtime:
-  python: ">=3.10"
-
-system_packages:
-  - bash
-  - ffmpeg
-
-python_packages:
-  - PyYAML>=6.0
-  - opencv-python-headless>=4.8
-  - ultralytics>=8.0
-```
-
-偏轻量的规则和后处理环境：
-
-```yaml
-runtime:
-  python: ">=3.10"
-
-system_packages:
-  - bash
-
-python_packages:
-  - PyYAML>=6.0
-```
-
-## 运行示例
-
-抽帧并做 LLM 视觉事件分析的推荐起点：
+`batch-video-ingestion`、`video-search`、`object-statistics` 和 `evidence-package-generation` 通过标准库 HTTP 访问 Elasticsearch，不新增 Python 依赖。运行环境需要提供：
 
 ```bash
-python skills/custom/analyze-video/scripts/extract_frames.py \
-  /mnt/user-data/uploads/input.mp4 \
-  --output-dir /mnt/user-data/outputs/video_review
+ES_URL=http://localhost:3128
+ES_USERNAME=citybrain-street
+ES_PASSWORD=123456
 ```
 
-执行后读取 `/mnt/user-data/outputs/video_review/metadata.json`，再按时间顺序查看输出帧图片。事件检测报告应基于可见帧证据给出 `event_type`、`time_range`、`evidence_frame_ids`、`reason`、`confidence` 和 `requires_review`。
+默认普通视频库索引名为 `citybrain-video-library`。个人向量索引建议使用 `huangxiao-video-library-vector-v1`，避免影响共享数据。`video-embedding-index` 可从普通视频库读取文档，生成向量后写入个人向量索引。
 
-单独运行目标检测：
+StreetModel 视频级向量接入使用 `Qwen3-VL-Embedding-2B`，默认写入 2048 维字段 `video_vector-Qwen3-VL-Embedding-2B_urban_governance`。视频文档中的本地路径必须能映射到 GPU 节点可访问的共享目录，默认从 `/data/deerflow/videos` 映射到 `/nfsdat2/home/xhuangslm/shared_videos`。
+
+## Example Commands
+
+统一事件分析准备：
+
+```bash
+python skills/custom/single-video-event-analysis/scripts/run.py \
+  --input skills/custom/examples/single_video_analysis_input.json \
+  --config skills/custom/configs/deerflow_config.json \
+  --output /mnt/data/video-monitoring-runs/run_001/prepared_manifest.json
+```
+
+脚本会生成 `review_manifest.json`。Agent/LLM 必须查看 manifest 中的帧图，再输出 `visual_timeline` 和 `events`。
+
+单独运行 YOLO 目标检测：
 
 ```bash
 python skills/custom/object-detection/scripts/run.py \
-  --frames-json /mnt/user-data/outputs/frames.json \
-  --labels person,car \
-  --provider mock \
-  --output /mnt/user-data/outputs/detections.json
+  --frames-json /mnt/data/video-monitoring-runs/run_001/frames.json \
+  --labels person,car,bus,truck,motorcycle,bicycle \
+  --provider ultralytics \
+  --config skills/custom/configs/deerflow_config.json \
+  --output /mnt/data/video-monitoring-runs/run_001/detections.json
 ```
 
-单独运行 ROI 匹配：
+生成 StreetModel 视频级向量并写入个人 ES 索引：
 
 ```bash
-python skills/custom/roi-mapping/scripts/run.py \
-  --tracks-json /mnt/user-data/outputs/tracks.json \
-  --camera-id CAM_DEERFLOW_001 \
-  --config skills/custom/configs/deerflow_config.json \
-  --output /mnt/user-data/outputs/roi_matches.json
+python skills/custom/video-embedding-index/scripts/run.py \
+  --source-index citybrain-video-library \
+  --target-index huangxiao-video-library-vector-v1 \
+  --owner huangxiao \
+  --embedding-provider streetmodel \
+  --config config.yaml \
+  --output /tmp/video_embedding_index.json
 ```
 
-已有可靠 `frames`、`detections`、`tracks`、`roi_matches` 时，单独运行事件规则引擎：
+直接对一个 StreetModel 可访问的视频路径生成向量并写入个人 ES 索引：
 
 ```bash
-python skills/custom/event-rule-engine/scripts/run.py \
-  --frames-json /mnt/user-data/outputs/frames.json \
-  --detections-json /mnt/user-data/outputs/detections.json \
-  --tracks-json /mnt/user-data/outputs/tracks.json \
-  --roi-matches-json /mnt/user-data/outputs/roi_matches.json \
-  --camera-id CAM_DEERFLOW_001 \
-  --config skills/custom/configs/deerflow_config.json \
-  --output /mnt/user-data/outputs/events.json
+python skills/custom/video-embedding-index/scripts/run.py \
+  --embedding-provider streetmodel \
+  --video-id camera01_0001 \
+  --video-uri /nfsdat2/home/xhuangslm/shared_videos/camera01/0001.mp4 \
+  --video-vector-output /tmp/camera01_0001_video_vector.json \
+  --config config.yaml \
+  --output /tmp/camera01_0001_video_embedding.json
 ```
 
-## 开发约束
+生成文本 query 向量并检索已入库视频向量：
 
-- 不要在 Agent 推理中直接读取完整视频或大文件内容。
-- 不要绕过已有脚本手写一套同功能逻辑。
-- 不要让方法级 skill 直接生成最终业务事件或证据。
-- 不要让证据类 skill 反向执行检测、跟踪或事件规则。
-- 修改某个 skill 时，同步检查它的 `SKILL.md`、`router_card.json` 和脚本参数是否一致。
-- 新增 skill 时，应新增对应目录、`SKILL.md`、脚本入口和独立 `router_card.json`。
+```bash
+python skills/custom/video-embedding-index/scripts/run.py \
+  --embedding-provider streetmodel \
+  --query "夜晚路口有很多车辆经过" \
+  --query-vector-output /tmp/video_query_vector.json \
+  --config config.yaml \
+  --output /tmp/video_query_embedding.json
 
-## 常见问题
+python skills/custom/video-search/scripts/run.py \
+  --index huangxiao-video-library-vector-v1 \
+  --query "夜晚路口有很多车辆经过" \
+  --query-vector-json /tmp/video_query_vector.json \
+  --config config.yaml \
+  --output /tmp/video_search.json
+```
 
-`ffprobe` 找不到：
+## Removed Event Rule Skills
 
-安装 `ffmpeg`，并确认 `ffmpeg` 和 `ffprobe` 都在 PATH 中。
-
-`PyYAML is required to read YAML files`：
-
-安装 `PyYAML`，或者把配置改成 JSON。
-
-OpenCV 读取图片或视频失败：
-
-确认输入路径在 sandbox 内可访问；无 GUI 环境优先使用 `opencv-python-headless`。
-
-YOLO 依赖缺失：
-
-使用 mock provider 做链路测试，或在 sandbox 中安装 `ultralytics` 并准备模型文件/缓存。
-
-路由命中不准：
-
-检查对应 skill 的 `router_card.json`，重点看 `routing_text`、`positive_triggers`、`negative_triggers`、`keywords` 和 `anti_keywords`。
+旧的规则事件类 skills 已删除，不再作为路由目标或链路组件。如果需要判断事件，请使用 `single-video-event-analysis`。

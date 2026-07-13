@@ -1,28 +1,41 @@
-# Skill: urban-greenspace-assessment
-# English metadata + Chinese report mode.
+# Skill: V1+urban-greenspace-assessment
+# Chinese report mode. Keys align with scripts/main.py.
 
 skill:
-  name: urban-greenspace-assessment
-  version: 0.1.0
+  name: "V1+urban-greenspace-assessment"
+  base_name: urban-greenspace-assessment
+  version: 1.0.0
   language:
-    metadata: en
+    metadata: zh-CN
     report: zh-CN
 
-algorithm:
-  # NDVI threshold for classifying green pixels
+extraction:
+  # NDVI threshold for classifying green pixels.
+  # Suggested range: 0.15-0.25 for winter/leaf-off scenes, 0.25-0.35 for growing season scenes.
   ndvi_threshold: 0.30
-  # Minimum patch size to keep (pixels)
-  min_patch_pixels: 20
+  # Minimum connected patch size to keep, in pixels.
+  min_patch_size: 20
+  # Reserved for future morphology enhancement.
+  morph_kernel: 3
 
 landscape:
-  # A patch larger than this is considered a "large park" (m^2)
+  # A patch larger than this is considered a large park/major greenspace.
   large_patch_area_m2: 10000
+  # Reserved corridor search radius.
+  connectivity_radius_m: 300
+  # 500m walking catchment approximation.
+  service_distance_m: 500
 
 equity:
-  # Per-capita green target (m^2/person) - national/WHO-style benchmark
+  # Per-capita green target in m2/person.
   target_per_capita_m2: 15
-  # Service area radius (meters) - 500m walking catchment
-  service_distance_m: 500
+
+quality:
+  assumed_pixel_size_m: 10
+  warn_if_synthetic_fallback: true
+  require_report_files:
+    - metrics.json
+    - report.md
 
 io:
   outputs_dir: ./outputs
@@ -30,3 +43,4 @@ io:
 
 logging:
   level: INFO
+

@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If event timing is missing but the user provided a video analysis request, do not write custom clipping code. First call upstream event skills, especially `event-rule-engine/scripts/run.py`, to produce an event with `event_time` or `event_elapsed_seconds`; then call this skill with `raw_segment_uri`, `event_id`, and the pre/post window.
+If event timing is missing but the user provided a video analysis request, first call `single-video-event-analysis` to produce an event with visible time range or elapsed seconds; then call this skill with `raw_segment_uri`, `event_id`, and the pre/post window.
 
 
 ## Atomic CLI

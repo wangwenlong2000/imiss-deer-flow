@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If `event` or `frames` are missing but the user provided a video or event analysis request, do not ask the user to provide evidence frames and do not write custom snapshot code. First call upstream skills to produce frames and events: `frame-sampling/scripts/run.py`, `object-detection/scripts/run.py`, `object-tracking/scripts/run.py`, `roi-mapping/scripts/run.py`, and `event-rule-engine/scripts/run.py` as needed. Then call this skill using the event's `evidence_frame_ids` and available frames.
+If `event` or `frames` are missing but the user provided a video or event analysis request, first use `single-video-event-analysis` to produce event candidates and evidence frame ids. Then call this skill using the event's `evidence_frame_ids` and available frames.
 
 
 ## Atomic CLI

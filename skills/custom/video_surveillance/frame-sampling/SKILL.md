@@ -1,6 +1,6 @@
 ---
 name: frame-sampling
-description: Sample structured frames from video monitoring segments or streams. Use when Codex has raw_segment_uri, camera_id, source_type=local_file, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction and mock frame generation for tests.
+description: Sample structured frames from an existing video file. Use when Codex has video_path, file_path, raw_segment_uri, camera_id, sampling_strategy, capture_seconds, or provided frame records and needs stable Frame schema outputs. This skill exposes OpenCV-backed real video frame extraction.
 ---
 
 # Frame Sampling
@@ -11,7 +11,7 @@ Prioritize calling this skill's `scripts/run.py` entrypoint first. Only write cu
 
 ## Input Resolution
 
-If the user provides a video file instead of `frames`, do not ask the user to provide frames and do not write custom OpenCV extraction code. First call `video-stream-ingestion/scripts/run.py` when the source needs normalization, then call this skill with `camera_id`, `source_type=local_file`, `raw_segment_uri`, `capture_seconds`, and `sampling_strategy`. Use `sampling_strategy.mode=interval` and `interval_seconds=1` as the default unless the user requests a different cadence.
+If the user provides a video file instead of `frames`, do not ask the user to provide frames and do not write custom OpenCV extraction code. Call this skill directly with `camera_id`, `video_path`/`file_path`/`raw_segment_uri`, `capture_seconds`, and `sampling_strategy`. Use `sampling_strategy.mode=interval` and `interval_seconds=1` as the default unless the user requests a different cadence.
 
 
 ## Atomic CLI
@@ -26,7 +26,7 @@ Parameters: `--video`, `--frames-json`, `--camera-id`, `--capture-seconds`, `--i
 
 ## Workflow
 
-1. Read camera id, raw segment URI, and sampling strategy.
+1. Read camera id, local video path, and sampling strategy.
 2. Support interval, fps, keyframe, and adaptive strategies when available.
 3. Generate stable frame ids from camera id, timestamp, and sequence.
 4. Store sampled images and return Frame schema records.
@@ -42,7 +42,7 @@ Required:
 
 Common fields:
 - `raw_segment_uri`
-- `source_type`
+- `video_path` or `file_path`
 - `started_at`
 - `capture_seconds`
 - `sampling_strategy.mode`: `interval` or `fps`

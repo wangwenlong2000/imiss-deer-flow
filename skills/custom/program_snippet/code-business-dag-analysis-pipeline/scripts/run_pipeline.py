@@ -31,10 +31,7 @@ STEP_ORDER = [
 
 
 def _repo_root() -> Path:
-    for parent in Path(__file__).resolve().parents:
-        if (parent / "backend").exists() and (parent / "skills").exists():
-            return parent
-    raise RuntimeError("Cannot locate DeerFlow repository root")
+    return Path(__file__).resolve().parents[4]
 
 
 def _skill_root() -> Path:
@@ -217,10 +214,13 @@ def run_pipeline(raw_code: str) -> dict[str, Any]:
         return _error_result(failed_step="language-check", error="raw_code is empty", steps=[])
 
     steps: list[dict[str, Any]] = []
-    skills_dir = _repo_root() / "skills" / "custom" / "program_snippet"
+    skills_dir = _repo_root() / "skills" / "public"
+    pipeline_runtime_path = skills_dir / "deerflow-pipeline-runtime"
+    if str(pipeline_runtime_path) not in sys.path:
+        sys.path.insert(0, str(pipeline_runtime_path))
     backend_path = _repo_root() / "backend" / "packages" / "harness"
     if str(backend_path) not in sys.path:
-        sys.path.insert(0, str(backend_path))
+        sys.path.append(str(backend_path))
 
     try:
         ast.parse(raw_code)

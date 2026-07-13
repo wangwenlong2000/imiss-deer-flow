@@ -1,0 +1,127 @@
+{
+  "schema_name": "video_monitoring_analysis_data_requirements",
+  "schema_version": "2.0.0",
+  "purpose": "说明当前视频监控分析架构所需的数据：事件检测统一由 single-video-event-analysis 抽帧后交给 LLM 审图；YOLO 只作为目标检测，不作为事件判断依据。",
+  "minimum_input_package": {
+    "video": {
+      "video_path": "/mnt/data/videos/Trafic.mp4",
+      "source_type": "local_file",
+      "camera_id": "CAM_DEERFLOW_001",
+      "timezone": "Asia/Shanghai",
+      "shooting_started_at": "2022-09-29T15:59:00+08:00"
+    },
+    "analysis_request": {
+      "analysis_mode": "single_video_llm_review",
+      "target_events": [
+        "traffic_congestion",
+        "fight",
+        "fall_down",
+        "traffic_accident",
+        "pedestrian_intrusion",
+        "smoke_or_fire",
+        "crowd_gathering",
+        "illegal_occupation",
+        "other_abnormal_event"
+      ],
+      "sampling_strategy": {
+        "coarse_fps": 1.0,
+        "dense_fps": 4.0,
+        "scene_threshold": 0.3,
+        "dense_window": 2.0,
+        "max_frames": 2000
+      }
+    }
+  },
+  "optional_context_data": {
+    "camera": {
+      "name": "示例路口北向枪机",
+      "location": {
+        "province": "浙江省",
+        "city": "宁波市",
+        "district": "奉化区",
+        "address": "大成路与斗门路西口"
+      },
+      "mounting": {
+        "height_meters": 6.5,
+        "direction_degrees": 90,
+        "view_description": "覆盖人行横道、机动车道和路口中心区域"
+      }
+    },
+    "roi_definitions": [
+      {
+        "id": "ROI_CROSSWALK_001",
+        "name": "北侧人行横道",
+        "type": "crosswalk",
+        "coordinate_type": "pixel",
+        "polygon": [[320, 620], [980, 610], [1100, 760], [260, 780]],
+        "note": "ROI 仅作为 LLM 审图时的空间参考或 roi-mapping 的几何输出，不直接决定事件。"
+      }
+    ],
+    "object_detection": {
+      "provider": "ultralytics",
+      "model": "yolov8n.pt",
+      "allowed_use": "object_labels_and_bboxes_only",
+      "disallowed_use": "event_semantics_or_abnormal_behavior_judgement"
+    }
+  },
+  "pipeline_generated_data": {
+    "review_manifest": {
+      "review_manifest_uri": "/mnt/data/video-monitoring-runs/run_001/review_manifest.json",
+      "metadata_uri": "/mnt/data/video-monitoring-runs/run_001/metadata.json",
+      "frames": [
+        {
+          "frame_id": "frame_000012000ms",
+          "image_uri": "/mnt/data/video-monitoring-runs/run_001/chapters/chapter_001/frames/frame_000012000ms.jpg",
+          "timestamp_seconds": 12.0,
+          "timestamp_display": "0:00:12.000",
+          "pass": "coarse"
+        }
+      ]
+    },
+    "optional_detections": [
+      {
+        "frame_id": "frame_000012000ms",
+        "objects": [
+          {
+            "object_id": "det_0001_001",
+            "label": "person",
+            "confidence": 0.91,
+            "bbox": [512.4, 380.2, 590.8, 690.5]
+          }
+        ]
+      }
+    ]
+  },
+  "analysis_outputs": {
+    "visual_timeline": [
+      {
+        "time": "0:00:12.000",
+        "frame_id": "frame_000012000ms",
+        "observation": "画面可见若干车辆正常通行，未见明显碰撞或烟火。",
+        "uncertainty": "远处目标较小。"
+      }
+    ],
+    "event_candidates": [
+      {
+        "event_id": "EVT_traffic_congestion_001",
+        "event_type": "traffic_congestion",
+        "camera_id": "CAM_DEERFLOW_001",
+        "start_time": "0:01:10.000",
+        "end_time": "0:01:45.000",
+        "confidence": 0.76,
+        "severity": "medium",
+        "evidence_frame_ids": ["frame_000070000ms", "frame_000090000ms"],
+        "reason": "连续多帧可见车流排队缓慢移动，队列未在短时间内消散。",
+        "requires_review": true
+      }
+    ]
+  },
+  "readiness_checklist": [
+    "视频必须有可访问的本地路径。",
+    "必须保留抽帧 metadata 和 review_manifest，便于复核。",
+    "LLM 事件结论必须引用 evidence_frame_ids。",
+    "YOLO 检测结果只能作为对象上下文，不得单独生成事件。",
+    "高风险或低置信度事件必须进入人工复核。",
+    "对外展示证据前应执行隐私打码。"
+  ]
+}

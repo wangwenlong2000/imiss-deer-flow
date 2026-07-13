@@ -54,7 +54,7 @@
   },
   "body": {
     "source": "SKILL.md",
-    "content": "---\nname: ffmpeg-utils\ndescription: 视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\nversion: 1.0.0\nauthor: Gemini\ncompatibility: \">=2.0.0\"\nallowed-tools:\n  - bash\n---\n\n# 视频处理工具技能 (FFmpeg Utils)\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## 技能说明\n提供基于 FFmpeg 的底层视频操作能力。\n\n## 触发关键词\n- \"剪辑视频\", \"截取片段\", \"提取关键帧\", \"ffmpeg\"\n\n## 操作规范\n1. **截取片段**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py segment <input> <start> <duration> <output>`\n2. **提取关键帧**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/ffmpeg_ops.py keyframe <input> <timestamp> <output>`\n\n## 注意事项\n- 所有输出文件路径必须位于 `/mnt/user-data/outputs/`。\n"
+    "content": "---\nname: ffmpeg-utils\ndescription: 视频处理工具集，支持视频截取和关键帧提取。常用于将监控视频剪辑为证据片段。\nversion: 1.0.0\nauthor: Gemini\ncompatibility: \">=2.0.0\"\nallowed-tools:\n  - bash\n---\n\n# 视频处理工具技能 (FFmpeg Utils)\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\n## 技能说明\n提供基于 FFmpeg 的底层视频操作能力。\n\n## 触发关键词\n- \"剪辑视频\", \"截取片段\", \"提取关键帧\", \"ffmpeg\"\n\n## 操作规范\n1. **截取片段**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation segment --input-path <input> --start-time <start> --duration <duration> --output-path <output>`\n2. **提取关键帧**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --operation keyframe --input-path <input> --timestamp <timestamp> --output-path <output>`\n3. **JSON 入口**：\n   - 调用：`python3 /mnt/skills/custom/ffmpeg-utils/scripts/run.py --input <input.json> --output <result.json>`\n\n## 注意事项\n- 所有输出文件路径必须位于 `/mnt/user-data/outputs/`。\n"
   },
   "execution": {
     "required_tools": [
@@ -95,7 +95,7 @@
   "source": {
     "skill_dir": "skills/custom/ffmpeg-utils",
     "skill_md_path": "skills/custom/ffmpeg-utils/SKILL.md",
-    "skill_md_hash": "sha256:baae3f0d23b59ca724c0659d854c6764230de19ee26cc999656e8b30cf2687dc",
+    "skill_md_hash": "sha256:be89230e2465cc6baa42d0baa452b8133cd63c726c3a0c02016e4c0d2269412f",
     "generated_at": "2026-05-21T00:00:00Z",
     "generator_version": "manual-independent-0.2.0"
   },

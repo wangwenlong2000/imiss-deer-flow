@@ -114,3 +114,23 @@ datasets/network-traffic/outputs/**
 .github/skills/
 **/.env
 intent_files_backup/
+
+# local env / secrets
+.env
+.env.*
+!.env.example
+
+# backup files
+*.bak
+*.bak-*
+*.bak.*
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# local data / audit / archive
+datasets/
+env-audit/
+*.zip

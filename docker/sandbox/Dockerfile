@@ -17,6 +17,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        ca-certificates \
        curl \
+       git \
        gnupg \
        gnupg2 \
        nodejs \
@@ -39,6 +40,9 @@ RUN apt-get update \
        libproj-dev \
        libgeos-dev \
        libspatialindex-dev \
+       libhdf5-dev \
+       libnetcdf-dev \
+       libtiff-tools \
        libgl1 \
        libglib2.0-0 \
        libsm6 \
@@ -66,8 +70,7 @@ RUN apt-get update \
        duckdb \
        xlrd \
        openpyxl \
-       pyyaml \
-       PyYAML \
+       sentence-transformers \
        requests \
        pytz \
        scikit-learn \
@@ -75,16 +78,38 @@ RUN apt-get update \
        openai \
        elasticsearch \
        networkx \
+       matplotlib \
+       pillow \
        opencv-python-headless \
-       ultralytics \
+       scikit-image \
+       tifffile \
+       xarray \
+       rioxarray \
        rasterio \
+       geopandas \
        shapely \
+       fiona \
+       pyproj \
+       pyogrio \
+       netCDF4 \
+       h5py \
+       zarr \
+       dask \
+       folium \
+       mapclassify \
+       earthpy \
+       rio-cogeo \
+       pystac \
+       pystac-client \
+       planetary-computer \
+       ultralytics \
        python-docx \
        pytest \
-       geopandas \
-       pyogrio \
-       fiona \
        geoai-py \
+       "PyYAML>=6.0" \
+       "python-dotenv>=1.0" \
+       "statsforecast>=1.7.8" \
+       "adtk>=0.6.2" \
     \
     && mkdir -p /opt/node-deps \
     && npm install --prefix /opt/node-deps cheerio \
@@ -94,4 +119,4 @@ RUN apt-get update \
 
 RUN npx -y playwright install-deps chromium \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /root/.cache/pip

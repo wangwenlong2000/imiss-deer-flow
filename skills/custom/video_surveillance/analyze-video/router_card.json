@@ -3,141 +3,38 @@
   "identity": {
     "id": "analyze-video",
     "name": "analyze-video",
-    "description": "专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。"
+    "description": "Prepare monitoring video evidence by extracting timestamped frames and metadata. Use as frame-extraction support, not as the final event-detection entrypoint."
   },
   "scope": {
-    "scenes": [
-      "video_surveillance"
-    ],
+    "scenes": ["video_surveillance"],
     "is_public": false,
-    "task_types": [
-      "video_analysis",
-      "scene_detection",
-      "frame_review",
-      "incident_timeline",
-      "forensic_report"
-    ],
-    "input_types": [
-      "mp4",
-      "mov",
-      "avi",
-      "mkv",
-      "video_path"
-    ],
-    "output_types": [
-      "frame_metadata",
-      "scene_segments",
-      "timeline_report"
-    ]
+    "task_types": ["scene_detection", "frame_extraction", "forensic_preparation"],
+    "input_types": ["mp4", "mov", "avi", "mkv", "video_path"],
+    "output_types": ["frame_metadata", "scene_segments", "metadata_json"]
   },
   "routing": {
-    "routing_text": "名称：analyze-video\n描述：专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。\n适用场景：video_surveillance。\n适用任务：video_analysis, scene_detection, frame_review, incident_timeline, forensic_report, frame_based_event_detection。\n输入类型：mp4, mov, avi, mkv, video_path。\n输出类型：frame_metadata, scene_segments, visual_timeline, event_candidates, timeline_report。\n适合使用：分析视频事件；通过抽帧视觉分析异常行为；监控事件检测；逐帧审图生成事件时间线；视频取证。\n不适合使用：生成AI视频；只剪辑视频片段；只做目标检测；只做摄像头健康检查。",
-    "positive_triggers": [
-      "分析视频事件",
-      "通过抽帧视觉分析异常行为",
-      "监控事件检测",
-      "逐帧审图生成事件时间线",
-      "视频取证",
-      "判断视频中是否发生事件",
-      "分析视频中是否发生事件",
-      "为证据截图和隐私打码提供事件帧依据"
-    ],
-    "negative_triggers": [
-      "生成AI视频",
-      "只剪辑视频片段",
-      "只做目标检测",
-      "只做摄像头健康检查"
-    ],
-    "keywords": [
-      "analyze-video",
-      "事件检测",
-      "异常行为",
-      "抽帧",
-      "视觉分析",
-      "监控事件",
-      "frame review",
-      "人员聚集",
-      "异常停留",
-      "监控录像",
-      "分析视频",
-      "视频事件",
-      "分析结果",
-      "视频分析",
-      "打架",
-      "摔倒",
-      "拥堵",
-      "烟火",
-      "入侵",
-      "是否发生事件",
-      "发生事件",
-      "若发生",
-      "事件帧",
-      "该帧",
-      "截取该帧"
-    ],
-    "anti_keywords": [
-      "文生视频",
-      "AI视频生成",
-      "pcap",
-      "法规",
-      "台账"
-    ]
-  },
-  "body": {
-    "source": "SKILL.md",
-    "content": "---\nname: analyze-video\ndescription: 专业法医级视频抽帧与视觉分析技能。支持场景检测、多阶段帧提取、LLM逐帧审图、事件时间线和结构化报告生成。适用于事件检测、异常行为、车祸取证、打架、摔倒、聚集、拥堵、烟火、入侵、占道等高精度监控分析场景。\nversion: 1.0.0\nauthor: jdrodriguez\ncompatibility: \">=2.0.0\"\nallowed-tools:\n  - bash\n  - read_file\n  - write_file\n---\n\n# 专业视频取证分析技能 (Analyze Video)\n\n## Execution Priority\n\nPrioritize calling this skill's `scripts/extract_frames.py` entrypoint first to produce timestamped frames and metadata. After extraction, the Agent must inspect the frame images directly and build the event timeline from visible evidence.\n\n## 技能说明\n`analyze-video` 是一个高精度的视频帧分析工具，专为“城市超脑”中的法医级取证和事件检测设计。它通过 `ffmpeg` 在本地执行场景变更检测，并自动将长视频划分为多个“章节”，以便 Agent 对抽出的关键帧进行多模态视觉审核，而不是只依赖目标检测框或规则脚本。\n\n## 核心能力\n- **自动分段**：自动识别视频中的重要场景并进行章节切分。\n- **自适应抓图**：在场景剧烈变化处自动增加抓拍频率，确保不遗漏关键动作。\n- **LLM逐帧审图**：要求 Agent 直接查看抽帧图片，记录对象、动作、空间关系、状态变化和不确定性。\n- **结构化分析**：为每一帧生成精确的时间戳和元数据，并输出事件时间线。\n\n## 触发关键词\n- \"分析视频\", \"事件检测\", \"异常行为\", \"监控事件\", \"取证\", \"视频回溯\", \"analyze-video\", \"检查监控\", \"打架\", \"车祸\", \"摔倒\", \"聚集\", \"拥堵\", \"烟火\", \"入侵\", \"占道\"\n\n## 权限声明\n- `bash`: 用于执行 `python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py`。\n- `ffmpeg`: 核心依赖。\n\n## 操作规范 (Guidelines)\n1. **工作流程**：\n   - 调用：`python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py <video_path> --output-dir /mnt/user-data/workspace/video_review`。\n   - 读取产生的 `metadata.json` 了解视频章节分布。\n   - 先查看全局粗采样帧，建立事件候选时间线。\n   - 对候选时间段查看 dense/keyframe 结果，逐帧描述可见主体、动作、空间关系、状态变化和证据质量。\n   - 将视觉观察转换成结构化事件候选：`event_type`、`time_range`、`evidence_frame_ids`、`reason`、`confidence`、`requires_review`。\n2. **注意事项**：\n   - 提取过程可能耗时较长（视视频长度而定）。\n   - 不要只根据文件名、用户描述或检测标签判断事件；必须基于抽帧图片中的可见证据。\n   - 模糊、遮挡、视角不足或单帧证据不足时，应降低置信度并标记人工复核。\n   - 最终产物应汇总为一份包含时间轴的 PDF 或 Markdown 报告。\n\n## 示例 (Example)\n**用户：** \"分析一下 `/mnt/datasets/surveillance/raw/test_video_01.mp4` 里的异常行为。\"\n**Agent 动作：**\n- 执行：`python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py /mnt/datasets/surveillance/raw/test_video_01.mp4`\n- 根据输出的 `output_dir` 读取元数据。\n- 回复用户： \"视频提取完成，共识别出 3 个关键场景，正在为您逐一分析...\"\n"
+    "routing_text": "名称：analyze-video\n描述：视频抽帧和取证准备工具，使用 FFmpeg 做场景检测、粗采样、密集采样并生成 metadata.json。最终事件检测请使用 single-video-event-analysis。\n适合使用：视频抽帧；关键帧提取；场景变化检测；生成审帧素材。\n不适合使用：最终事件检测；YOLO目标检测；人工复核。",
+    "positive_triggers": ["视频抽帧", "关键帧提取", "场景检测", "metadata.json", "取证准备"],
+    "negative_triggers": ["判断事件", "检测异常事件", "只做YOLO"],
+    "keywords": ["ffmpeg", "frame extraction", "scene detection", "metadata"],
+    "anti_keywords": ["event candidate", "bbox"]
   },
   "execution": {
-    "required_tools": [
-      "read_file",
-      "bash",
-      "ffmpeg"
-    ],
-    "optional_tools": [
-      "write_file",
-      "ffprobe"
-    ],
-    "allowed_file_patterns": [
-      "*.mp4",
-      "*.mov",
-      "*.avi",
-      "*.mkv",
-      "*.flv",
-      "*.webm"
-    ],
+    "required_tools": ["bash", "ffmpeg"],
+    "optional_tools": ["ffprobe", "read_file"],
+    "allowed_file_patterns": ["*.mp4", "*.mov", "*.avi", "*.mkv", "*.webm"],
     "can_run_standalone": true
   },
   "routing_policy": {
-    "priority": 88,
-    "conflict_group": "analyze-video",
-    "prefer_when": [
-      "分析视频事件",
-      "通过抽帧视觉分析异常行为",
-      "监控事件检测",
-      "逐帧审图生成事件时间线",
-      "视频取证",
-      "判断视频中是否发生事件",
-      "分析视频中是否发生事件",
-      "用户要求分析视频、判断事件、截取证据帧并打码时，本 skill 应作为主分析技能"
-    ],
-    "defer_when": [
-      "生成AI视频",
-      "只剪辑视频片段",
-      "只做目标检测",
-      "只做摄像头健康检查"
-    ]
+    "priority": 70,
+    "conflict_group": "video-frame-extraction",
+    "prefer_when": ["只需要抽帧", "需要场景切分"],
+    "defer_when": ["需要事件检测", "需要异常分析"]
   },
   "source": {
     "skill_dir": "skills/custom/analyze-video",
     "skill_md_path": "skills/custom/analyze-video/SKILL.md",
-    "skill_md_hash": "sha256:aeffc23ab60da5c0160485d1e28a6d5776e413520d45ec3e0aed07d9f24b936b",
-    "generated_at": "2026-05-21T00:00:00Z",
-    "generator_version": "manual-independent-0.2.0"
+    "generator_version": "manual-frame-prep-1.0.0"
   },
-  "embedding": {
-    "model": "SkillRouter-Embedding-0.6B",
-    "text_hash": "sha256:31d905c7a10ff7487f4417cea95144f1496daa842c4c4ca7ab39f0369ec2a39a",
-    "es_index": "citybrain-skill-router-cards",
-    "es_doc_id": "analyze-video"
-  }
+  "embedding": {"es_doc_id": "analyze-video"}
 }
