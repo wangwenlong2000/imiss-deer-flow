@@ -16,7 +16,7 @@ from deerflow.agents.middlewares.skill_router_middleware import SkillRouterMiddl
 from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 from deerflow.agents.middlewares.title_middleware import TitleMiddleware
 from deerflow.agents.middlewares.todo_middleware import RoutingHiddenStepMiddleware, TodoMiddleware
-from deerflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
+from deerflow.agents.middlewares.tool_error_handling_middleware import build_compliance_input_gate_middlewares, build_lead_runtime_middlewares
 from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
 from deerflow.agents.thread_state import ThreadState
 from deerflow.config.agents_config import load_agent_config
@@ -240,6 +240,13 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     # injecting unrelated custom skills.
     if skill_router_config.enabled or skill_router_config.scene_filter_when_disabled:
         middlewares.append(IntentRecognitionMiddleware(model_name=model_name))
+
+    # Compliance InputGate must run AFTER intent recognition: `before_agent` executes
+    # in forward list order, and the gate needs the recognized intent to apply the
+    # guide's §9.7 rule that a sensitive entity is only a violation when paired with
+    # high-risk intent. The context/output gates are mounted separately, at the front
+    # of build_lead_runtime_middlewares() — see the comment there.
+    middlewares.extend(build_compliance_input_gate_middlewares())
 
     # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
     if skill_router_config.enabled:

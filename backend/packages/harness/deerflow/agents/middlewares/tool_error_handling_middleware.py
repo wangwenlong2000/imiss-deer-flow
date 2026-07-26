@@ -91,7 +91,78 @@ def _build_runtime_middlewares(
         middlewares.append(DanglingToolCallMiddleware())
 
     middlewares.append(ToolErrorHandlingMiddleware())
+
+    # The context and output gates go at the very FRONT of the list. Two
+    # orderings depend on it:
+    #
+    #   wrap_tool_call — composes first-in-list = outermost. ToolErrorHandling
+    #     (appended just above, hence innermost) converts any exception into an
+    #     error ToolMessage. A compliance gate inside it would have detection
+    #     failures silently downgraded to "tool failed, carry on" — a gate that
+    #     fails open without saying so.
+    #
+    #   after_model — runs in REVERSE list order, so front-of-list means the
+    #     OutputGate is the LAST component to rewrite the AIMessage, and nothing
+    #     downstream can reintroduce the violating text.
+    #
+    # The INPUT gate is deliberately not here: it uses before_agent, which runs
+    # in FORWARD order, and it needs IntentRecognitionMiddleware's result to make
+    # the "sensitive entity + high-risk intent" judgement. It is appended after
+    # IntentRecognitionMiddleware in lead_agent/agent.py instead.
+    #
+    # test_compliance_gates.py asserts all of these positions rather than
+    # trusting this comment to stay true.
+    middlewares[:0] = build_compliance_flow_middlewares()
     return middlewares
+
+
+def build_compliance_flow_middlewares() -> list[AgentMiddleware]:
+    """Context and output gate middlewares, or none when compliance is off.
+
+    Imports are deliberately local and guarded: compliance is disabled by
+    default, and a problem in this subsystem must not stop agents being built.
+    """
+    try:
+        from deerflow.config.compliance_config import get_compliance_config
+
+        config = get_compliance_config()
+        if not config.enabled:
+            return []
+
+        from deerflow.agents.middlewares.compliance_context_gate_middleware import ComplianceContextGateMiddleware
+        from deerflow.agents.middlewares.compliance_output_gate_middleware import ComplianceOutputGateMiddleware
+
+        gates: list[AgentMiddleware] = []
+        if config.gates.output.enabled:
+            gates.append(ComplianceOutputGateMiddleware())
+        if config.gates.context.enabled:
+            gates.append(ComplianceContextGateMiddleware())
+        return gates
+    except Exception:
+        logger.exception("compliance: failed to build gate middlewares; agent will run WITHOUT compliance context/output gates")
+        return []
+
+
+def build_compliance_input_gate_middlewares() -> list[AgentMiddleware]:
+    """Input gate middleware, mounted after IntentRecognitionMiddleware.
+
+    Separate from the flow gates because ``before_agent`` runs in forward list
+    order: the input gate has to come *after* intent recognition to combine
+    "sensitive entity" with "high-risk intent" (guide §9.7).
+    """
+    try:
+        from deerflow.config.compliance_config import get_compliance_config
+
+        config = get_compliance_config()
+        if not config.enabled or not config.gates.input.enabled:
+            return []
+
+        from deerflow.agents.middlewares.compliance_input_gate_middleware import ComplianceInputGateMiddleware
+
+        return [ComplianceInputGateMiddleware()]
+    except Exception:
+        logger.exception("compliance: failed to build the input gate middleware; agent will run WITHOUT it")
+        return []
 
 
 def build_lead_runtime_middlewares(*, lazy_init: bool = True) -> list[AgentMiddleware]:
