@@ -63,8 +63,8 @@ batch-video-ingestion
 | `human-review-routing` | 判断事件是否需要进入人工复核队列。 |
 | `ffmpeg-utils` | 提供底层视频剪辑、截帧等 FFmpeg 工具能力。 |
 | `batch-video-ingestion` | 批量视频入库，将本地视频元数据、目标摘要和可检索文档写入 Elasticsearch。 |
-| `video-search` | 从视频库按关键词、摄像头、时间、目标类别和可选预计算向量检索视频。 |
-| `video-embedding-index` | 为视频库文档生成 embedding，并写入个人专属向量索引，默认 `huangxiao-video-library-vector-v1`。 |
+| `video-search` | 支持以图搜视频，以及文字关键词检索、LLM 优化后的语义向量检索和双路 RRF 融合。 |
+| `video-embedding-index` | 为视频库文档生成 embedding，仅原位增强 `citybrain-video-library`。 |
 | `object-statistics` | 基于视频库记录或检测/跟踪 JSON 统计目标数量、类别、摄像头、时间和运动状态。 |
 | `evidence-package-generation` | 根据视频库记录、事件或检索结果生成证据包 manifest、截图和短视频片段。 |
 
@@ -136,7 +136,7 @@ ES_USERNAME=citybrain-street
 ES_PASSWORD=123456
 ```
 
-默认普通视频库索引名为 `citybrain-video-library`。个人向量索引建议使用 `huangxiao-video-library-vector-v1`，避免影响共享数据。`video-embedding-index` 可从普通视频库读取文档，生成向量后写入个人向量索引。
+统一视频库索引名为 `citybrain-video-library`。所有视频 ES 工具仅允许读写该索引，其他索引名会在访问 Elasticsearch 前以 `UNSUPPORTED_VIDEO_INDEX` 拒绝。新入库流程把视频主档、嵌入状态和 StreetModel 向量保存在同一文档中，并通过 ES `_update` 原位补充向量字段。
 
 StreetModel 视频级向量接入使用 `Qwen3-VL-Embedding-2B`，默认写入 2048 维字段 `video_vector-Qwen3-VL-Embedding-2B_urban_governance`。视频文档中的本地路径必须能映射到 GPU 节点可访问的共享目录，默认从 `/data/deerflow/videos` 映射到 `/nfsdat2/home/xhuangslm/shared_videos`。
 
@@ -145,9 +145,9 @@ StreetModel 视频级向量接入使用 `Qwen3-VL-Embedding-2B`，默认写入 2
 统一事件分析准备：
 
 ```bash
-python skills/custom/single-video-event-analysis/scripts/run.py \
-  --input skills/custom/examples/single_video_analysis_input.json \
-  --config skills/custom/configs/deerflow_config.json \
+python skills/custom/video_surveillance/single-video-event-analysis/scripts/run.py \
+  --input skills/custom/video_surveillance/examples/single_video_analysis_input.example.json \
+  --config skills/custom/video_surveillance/configs/deerflow_config.json \
   --output /mnt/data/video-monitoring-runs/run_001/prepared_manifest.json
 ```
 
@@ -164,25 +164,28 @@ python skills/custom/object-detection/scripts/run.py \
   --output /mnt/data/video-monitoring-runs/run_001/detections.json
 ```
 
-生成 StreetModel 视频级向量并写入个人 ES 索引：
+生成 StreetModel 视频级向量并原位增强统一视频索引：
 
 ```bash
 python skills/custom/video-embedding-index/scripts/run.py \
   --source-index citybrain-video-library \
-  --target-index huangxiao-video-library-vector-v1 \
+  --target-index citybrain-video-library \
+  --storage-mode in_place \
   --owner huangxiao \
   --embedding-provider streetmodel \
   --config config.yaml \
   --output /tmp/video_embedding_index.json
 ```
 
-直接对一个 StreetModel 可访问的视频路径生成向量并写入个人 ES 索引：
+直接对一个 StreetModel 可访问的视频路径生成向量并写入统一索引：
 
 ```bash
 python skills/custom/video-embedding-index/scripts/run.py \
   --embedding-provider streetmodel \
   --video-id camera01_0001 \
   --video-uri /nfsdat2/home/xhuangslm/shared_videos/camera01/0001.mp4 \
+  --target-index citybrain-video-library \
+  --storage-mode in_place \
   --video-vector-output /tmp/camera01_0001_video_vector.json \
   --config config.yaml \
   --output /tmp/camera01_0001_video_embedding.json
@@ -199,11 +202,22 @@ python skills/custom/video-embedding-index/scripts/run.py \
   --output /tmp/video_query_embedding.json
 
 python skills/custom/video-search/scripts/run.py \
-  --index huangxiao-video-library-vector-v1 \
+  --index citybrain-video-library \
   --query "夜晚路口有很多车辆经过" \
-  --query-vector-json /tmp/video_query_vector.json \
+  --search-mode dual \
   --config config.yaml \
   --output /tmp/video_search.json
+```
+
+以图搜视频：
+
+```bash
+python skills/custom/video-search/scripts/run.py \
+  --index citybrain-video-library \
+  --image /mnt/user-data/uploads/query.jpg \
+  --copy-image-to-shared \
+  --config config.yaml \
+  --output /tmp/video_image_search.json
 ```
 
 ## Removed Event Rule Skills

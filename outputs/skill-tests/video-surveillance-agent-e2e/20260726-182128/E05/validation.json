@@ -1,0 +1,28 @@
+{
+  "id": "E05",
+  "covers": "4.1 失败契约：视频不存在时必须报错而不是编造事件",
+  "question": "请分析 /mnt/user-data/uploads/does-not-exist-camera-42.mp4 这段监控里有没有打架或摔倒，并给出时间线。",
+  "thread_id": "f20c0b3c-2bfb-4492-bc40-e03003ff3b6b",
+  "uploaded_file": null,
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 117.0,
+  "evidence": {
+    "tool_call_names": [
+      "ask_clarification",
+      "bash"
+    ],
+    "skills_touched": [],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 152,
+    "clarifications": [
+      "视频文件 does-not-exist-camera-42.mp4 在当前系统中不存在，uploads 目录也没有任何文件。请确认以下情况：\n1. 您是否已经上传了该视频文件？如果已上传，请提供正确的文件名。\n2. 或者您是否有其他路径的监控视频需要分析？\n3. 还是说这是一个测试场景，希望我使用内置的示例数据或合成数据进行演示？"
+    ]
+  }
+}

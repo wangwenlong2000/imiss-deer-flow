@@ -1,6 +1,6 @@
 ---
 name: city-video-intelligence
-description: Business orchestration for city video intelligence requests. Use when users ask for monitoring video search, semantic video retrieval, event review, object statistics, evidence packages, video ingestion, camera health operations, cross-camera analysis, or role-based scenarios such as traffic police, property security, urban management, emergency management, or legal evidence preparation. This skill maps business intent to existing custom video skills and prevents ad hoc code generation unless the user explicitly asks for development or testing.
+description: Business orchestration for city video intelligence requests. Use when users ask for monitoring video search, semantic video retrieval, event review, object statistics, evidence packages, video ingestion, camera health operations, cross-camera analysis, or role-based scenarios such as traffic police, property security, urban management, emergency management, or legal evidence preparation. Also use it when the user asks what the current data and skills can or cannot support (capability-boundary questions) — it answers with an explicit capability_gap instead of guessing. This skill maps business intent to existing custom video skills and prevents ad hoc code generation unless the user explicitly asks for development or testing.
 ---
 
 # City Video Intelligence Orchestration
@@ -17,7 +17,7 @@ This skill is not a replacement for `video-search`, `single-video-event-analysis
 2. Read `references/capability-map.md` only when the request is ambiguous, role-based, multi-step, or asks about available capabilities.
 3. Follow the returned `recommended_skill_chain` by loading each downstream skill's `SKILL.md` before running its script.
 4. Return business-facing results: matched capability, scenario, execution plan, deliverables, risks, and required confirmations.
-5. If the plan contains a non-empty `follow_up_question`, stop immediately and make the whole visible response exactly that question as plain assistant text. Do not inspect datasets, probe services, load downstream skills, or call `ask_clarification`.
+5. If the plan contains a non-empty `follow_up_question`, stop immediately and make the whole visible response exactly that question as plain assistant text. For ingestion requests, preserve the returned JSON template verbatim. Do not inspect datasets, probe services, load downstream skills, or call `ask_clarification`.
 
 ## Atomic CLI
 
@@ -38,8 +38,13 @@ Parameters: `--request`, `--role`, `--output`, `--format`.
 - Do not let object detection alone decide event semantics. Use it only as supporting context.
 - For evidence package requests, do not run event analysis merely to invent an event. If the user provides an event time or time range, package that range. If the event time is missing, ask for it or return a plan with the missing input.
 - For development or benchmark requests, use provided test videos, indexes, or query terms. If no test data is available, return `capability_gap` or ask for the missing dataset before running lower-level tools.
-- When asking for missing information, ask only one concrete question. Do not add preamble text, explanations, examples, option lists, `context`, alternatives such as "if you have...", or extra prompt text unless the user asks for guidance. Apply the same rule to final prose questions.
+- When asking for missing information, ask only one concrete question. The ingestion-format template returned by the router is the sole exception: show it verbatim. Do not add any text before or after the returned question.
 - If a downstream video skill returns `status: failed`, summarize that failure and stop. Do not debug services or probe ports unless the user explicitly asks for debugging.
+- Attempt StreetModel sampled-frame image embedding for every ingestion request. Always run `video-stream-ingestion`, then `batch-video-ingestion` in metadata-only mode, then `video-embedding-index` with `embedding_provider=streetmodel`, `video_preprocess=image_frames`, and in-place storage. Do not require a StreetModel-visible video mount for the default ingestion path.
+- Store source metadata and StreetModel vector fields in the same `citybrain-video-library` document. Use partial ES updates for embedding enrichment; never replace the full source document with a compact vector copy.
+- Allow video ingestion, search, statistics, evidence lookup, and embedding tools to access only `citybrain-video-library`. Reject every other video index before making an Elasticsearch request.
+- For video search, route image input to direct image-vector retrieval. Route text input to keyword retrieval plus an LLM-optimized text-to-video vector query, then use the search skill's fused ranking.
+- If source ingestion succeeds and vector generation fails, keep the source-index document and return partial success. Report `overall_status=partial_success`, `source_ingestion_status=success`, `vector_status=failed`, and the concrete embedding error. Never roll back or delete the source document.
 - Once the orchestration plan or requested downstream result is available, stop calling tools and summarize the result.
 
 ## Capability Families
@@ -71,6 +76,11 @@ Return or preserve JSON-compatible fields:
   "recommended_skill_chain": [],
   "execution_plan": [],
   "expected_deliverables": [],
+  "embedding_attempt_required": false,
+  "embedding_failure_policy": "keep_source_and_report_partial_success | null",
+  "source_index": "citybrain-video-library | null",
+  "embedding_target_index": "citybrain-video-library | null",
+  "embedding_storage_mode": "in_place | null",
   "missing_fields": [],
   "follow_up_question": null,
   "guardrails": [],
@@ -86,5 +96,6 @@ Return or preserve JSON-compatible fields:
 - Do not create new code to bypass an unsupported operation.
 - Do not perform destructive video-library management without explicit confirmation.
 - Do not produce legal, enforcement, or emergency conclusions without evidence references and review status.
-- If the plan includes `follow_up_question`, the whole visible response must be exactly that question. Do not append preamble, markdown, examples, alternatives, or extra guidance, and do not run downstream tools first.
+- For ingestion aggregation, use `success` when source and vector writes succeed, `partial_success` when the source write succeeds but vector generation fails, and `failed` when source ingestion fails.
+- If the plan includes `follow_up_question`, the whole visible response must be exactly that question. Preserve any ingestion JSON template already included in it, but do not append additional preamble, alternatives, or guidance, and do not run downstream tools first.
 - If a plan has `capability_gap`, do not implement new functionality. State the nearest supported workflow or ask the single `follow_up_question` when present.

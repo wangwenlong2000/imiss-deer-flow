@@ -3,7 +3,7 @@
   "identity": {
     "id": "batch-video-ingestion",
     "name": "batch-video-ingestion",
-    "description": "Batch ingest local monitoring videos into Elasticsearch with enriched metadata, optional object detection summaries, and searchable documents."
+    "description": "Batch ingest local monitoring videos into the unified Elasticsearch video library with metadata, pending embedding state, optional object summaries, and searchable documents."
   },
   "scope": {
     "scenes": ["video_surveillance"],
@@ -13,7 +13,7 @@
     "output_types": ["elasticsearch_documents", "ingestion_report"]
   },
   "routing": {
-    "routing_text": "名称：batch-video-ingestion\n描述：批量视频入库，将本地监控视频元数据、位置、标签、描述、路径词和可选抽帧目标摘要写入 Elasticsearch 视频库。支持 metadata_only 快速入库和 object_detection 内容检测入库；内容检测更耗时。\n适合使用：批量视频入库；建立视频索引；视频库初始化；目标摘要入库；只入元数据快速建库。\n不适合使用：视频检索；目标统计报表；事件判断；证据包生成。",
+    "routing_text": "名称：batch-video-ingestion\n描述：视频入库阶段，仅将本地监控视频元数据、位置、标签、描述、路径词、pending 嵌入状态和可选目标摘要写入 citybrain-video-library；拒绝其他索引。成功后由 video-embedding-index 原位补充 StreetModel 向量，失败不回滚源文档。\n适合使用：批量视频入库；建立统一视频索引；视频库初始化；目标摘要入库。\n不适合使用：视频检索；目标统计报表；事件判断；证据包生成。",
     "positive_triggers": ["批量视频入库", "视频入库", "建立视频索引", "导入视频库", "元数据入库", "内容检测入库"],
     "negative_triggers": ["只检索", "只统计", "生成证据包", "判断事件"],
     "keywords": ["batch", "ingestion", "video_dir", "manifest", "Elasticsearch", "analysis_mode", "metadata_only", "object_detection"],

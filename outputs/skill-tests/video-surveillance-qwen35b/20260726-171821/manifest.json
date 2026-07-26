@@ -1,0 +1,244 @@
+{
+  "started_at": "2026-07-26T17:18:21.476655+08:00",
+  "finished_at": "2026-07-26T17:28:32.368444+08:00",
+  "api": "http://127.0.0.1:3538/api/langgraph",
+  "model": "qwen3.6-35b-a3b",
+  "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+  "history_preserved": true,
+  "video_attachments_uploaded": 4,
+  "total": 5,
+  "passed": 2,
+  "route_mismatch": 2,
+  "model_mismatch": 0,
+  "errors": 1,
+  "results": [
+    {
+      "id": "C-001",
+      "mode": "video",
+      "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。",
+      "thread_id": "a2707282-6947-42fd-8dc3-1ebc4aa0f4b1",
+      "video_file": "Vedio-demo/Trafic.mp4",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "city-video-intelligence",
+        "single-video-event-analysis"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "BadRequestError",
+          "message": "An internal error occurred"
+        }
+      ],
+      "error": null,
+      "final_answer": "已成功从全时段均匀采样16帧（每60秒一帧）。现在让我查看这些帧的图片质量，并运行事件分析。\n\n",
+      "passed": false
+    },
+    {
+      "id": "C-002",
+      "mode": "video",
+      "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。",
+      "thread_id": "a08bff53-4e9f-40c1-a3ac-5f82d72af452",
+      "video_file": "Vedio-demo/Trafic.mp4",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "spatiotemporal_trajectory"
+      ],
+      "missing_expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "视频元数据提取完成。以下是标准化整理结果：\n\n## Trafic.mp4 视频元数据\n\n| 字段 | 值 |\n|------|-----|\n| **文件名** | Trafic.mp4 |\n| **文件大小** | 75,965,424 bytes (~72.4 MB) |\n| **时长** | 900.916 秒 (14分59秒) |\n| **分辨率** | 1280 × 674 像素 |\n| **帧率** | 12 fps (实际平均帧率 11.995 fps) |\n| **总帧数** | 10,811 帧 |\n| **视频编码** | H.264 / AVC High Profile |\n| **像素格式** | yuv420p |\n| **色彩空间** | BT.709 |\n| **颜色范围** | TV (Limited, 16-235) |\n| **比特率** | 674,561 bps (~658 kbps) |\n| **容器格式** | MP4 (isom) |\n| **编码器** | Lavf59.27.100 (Bilibili XCoder v2.0.2) |\n\n### 关键分析参数\n\n```json\n{\n  \"video_path\": \"/mnt/user-data/uploads/Trafic.mp4\",\n  \"duration_seconds\": 900.916,\n  \"resolution\": {\"width\": 1280, \"height\": 674},\n  \"frame_rate\": 12.0,\n  \"total_frames\": 10811,\n  \"codec\": \"h264\",\n  \"profile\": \"High\",\n  \"pix_fmt\": \"yuv420p\",\n  \"color_space\": \"bt709\",\n  \"bitrate_bps\": 674561,\n  \"file_size_bytes\": 75965424,\n  \"time_base\": \"1/16000\",\n  \"stream_count\": 1,\n  \"has_audio\": false\n}\n```\n\n### 备注\n\n1. **单视频流**：该视频仅包含视频轨道，无音频流。\n2. **低帧率**：12fps 属于监控类视频的常见帧率，适合目标检测与跟踪任务。\n3. **非标准分辨率**：1280×674 是自定义裁剪分辨率（非标准 720p），可能经过后期处理或截取。\n4. **TV Range**：色彩范围为 TV (Limited)，这是摄像头原始数据的典型特征，而非电影级的 Full Range (0-255)。",
+      "passed": false
+    },
+    {
+      "id": "C-011",
+      "mode": "video",
+      "question": "检测这段视频里的行人、轿车、公交车和卡车，输出每帧的位置框、类别和置信度。",
+      "thread_id": "fd992841-df55-49fc-a0c5-3bb562706215",
+      "video_file": "Vedio-demo/Trafic.mp4",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-object-analytics",
+        "object-detection"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "## 交通视频检测结果\n\n基于YOLOv8n模型对上传的视频进行逐帧目标检测分析，以下是详细结果：\n\n---\n\n### 📊 统计概览\n\n| 类别 | 检测总数 |\n|------|---------|\n| **公交车 (bus)** | 9 |\n| **轿车 (car)** | 46 |\n| **行人 (person)** | 0 |\n| **卡车 (truck)** | 0 |\n| **合计** | **55** |\n\n> 注意：本次检测未识别到行人(person)和卡车(truck)目标。\n\n---\n\n### 🔍 逐帧详细检测\n\n#### 第1帧 — 时间戳 2026-05-20 10:00:00（共11个目标）\n\n| # | 类别 | 置信度 | BBox (x_min, y_min, x_max, y_max) |\n|---|------|--------|----------------------------------|\n| 1 | bus | 0.8372 | [572.65, 178.51, 675.00, 318.94] |\n| 2 | car | 0.6346 | [421.48, 348.23, 522.50, 443.23] |\n| 3 | bus | 0.5573 | [426.48, 102.59, 471.02, 159.81] |\n| 4 | car | 0.5432 | [484.47, 168.80, 528.33, 208.64] |\n| 5 | car | 0.5426 | [29.59, 193.45, 98.04, 239.10] |\n| 6 | car | 0.5177 | [203.29, 160.09, 253.03, 192.85] |\n| 7 | car | 0.5052 | [715.58, 161.73, 779.93, 194.68] |\n| 8 | car | 0.4766 | [379.88, 217.86, 447.83, 269.97] |\n| 9 | car | 0.4444 | [773.71, 171.49, 804.52, 195.68] |\n| 10 | car | 0.3839 | [97.93, 194.64, 154.26, 246.22] |\n| 11 | car | 0.3660 | [1163.93, 205.42, 1279.08, 245.26] |\n\n#### 第2帧 — 时间戳 2026-05-20 10:00:01（共11个目标）\n\n| # | 类别 | 置信度 | BBox |\n|---|------|--------|------|\n| 1 | bus | 0.8416 | [572.20, 152.84, 652.45, 270.43] |\n| 2 | car | 0.8130 | [376.96, 468.77, 514.39, 605.85] |\n| 3 | car | 0.7756 | [447.39, 273.41, 527.35, 347.73] |\n| 4 | car | 0.7317 | [157.89, 178.36, 219.19, 221.19] |\n| 5 | car | 0.6794 | [20.30, 230.07, 96.99, 288.62] |\n| 6 | car | 0.5893 | [488.93, 149.29, 528.83, 177.71] |\n| 7 | car | 0.5195 | [421.36, 182.37, 476.34, 227.75] |\n| 8 | car | 0.4879 | [100.63, 173.43, 148.34, 207.07] |\n| 9 | bus | 0.4864 | [23.25, 132.60, 100.95, 204.32] |\n| 10 | car | 0.4230 | [1164.76, 205.90, 1279.10, 246.11] |\n| 11 | car | 0.4099 | [534.81, 114.88, 582.28, 164.66] |\n\n#### 第3帧 — 时间戳 2026-05-20 10:00:02（共10个目标）\n\n| # | 类别 | 置信度 | BBox |\n|---|------|--------|------|\n| 1 | car | 0.8301 | [468.51, 227.36, 530.95, 280.05] |\n| 2 | bus | 0.8039 | [575.26, 139.02, 643.50, 236.52] |\n| 3 | car | 0.7745 | [425.17, 350.90, 519.73, 442.75] |\n| 4 | car | 0.5964 | [22.91, 197.97, 92.08, 240.83] |\n| 5 | car | 0.5668 | [94.33, 197.16, 170.98, 251.04] |\n| 6 | car | 0.5411 | [642.46, 148.25, 677.17, 173.39] |\n| 7 | car | 0.5079 | [451.57, 159.67, 495.42, 194.42] |\n| 8 | car | 0.5007 | [94.61, 209.94, 149.35, 250.35] |\n| 9 | car | 0.4970 | [175.65, 168.91, 226.68, 209.11] |\n| 10 | car | 0.3638 | [1162.97, 205.52, 1279.09, 247.37] |\n\n#### 第4帧 — 时间戳 2026-05-20 10:00:03（共8个目标）\n\n| # | 类别 | 置信度 | BBox |\n|---|------|--------|------|\n| 1 | car | 0.8271 | [453.87, 272.90, 524.47, 346.82] |\n| 2 | car | 0.7306 | [20.88, 238.20, 95.54, 298.75] |\n| 3 | bus | 0.7259 | [579.52, 123.69, 641.45, 206.72] |\n| 4 | car | 0.6994 | [483.84, 193.70, 535.96, 238.75] |\n| 5 | car | 0.5059 | [199.67, 154.72, 249.75, 189.02] |\n| 6 | car | 0.4308 | [107.61, 192.75, 175.82, 242.31] |\n| 7 | car | 0.4236 | [20.41, 176.92, 86.71, 216.20] |\n| 8 | car | 0.3996 | [1163.04, 205.84, 1279.04, 244.18] |\n\n#### 第5帧 — 时间戳 2026-05-20 10:00:04（共8个目标）\n\n| # | 类别 | 置信度 | BBox |\n|---|------|--------|------|\n| 1 | car | 0.8337 | [468.62, 225.44, 524.09, 278.82] |\n| 2 | bus | 0.7440 | [586.23, 110.84, 638.69, 182.27] |\n| 3 | car | 0.5971 | [22.32, 228.63, 102.06, 282.58] |\n| 4 | bus | 0.4342 | [442.09, 76.28, 479.23, 143.40] |\n| 5 | car | 0.4211 | [96.59, 156.75, 143.35, 186.66] |\n| 6 | car | 0.3825 | [263.18, 201.53, 321.49, 250.99] |\n| 7 | car | 0.3771 | [133.49, 171.18, 207.92, 219.68] |\n| 8 | car | 0.3592 | [492.46, 170.86, 537.31, 210.44] |\n\n#### 第6帧 — 时间戳 2026-05-20 10:00:05（共7个目标）\n\n| # | 类别 | 置信度 | BBox |\n|---|------|--------|------|\n| 1 | car | 0.7820 | [478.27, 188.81, 525.12, 231.23] |\n| 2 | bus | 0.6853 | [588.42, 102.73, 636.77, 162.44] |\n| 3 | car | 0.5972 | [62.30, 200.09, 135.79, 254.81] |\n| 4 | car | 0.5255 | [499.40, 150.91, 542.27, 184.81] |\n| 5 | car | 0.4771 | [30.55, 176.63, 90.16, 212.02] |\n| 6 | car | 0.4571 | [488.07, 111.68, 518.33, 131.39] |\n| 7 | car | 0.4104 | [262.25, 205.56, 320.99, 250.94] |\n\n---\n\n### 📝 说明\n\n- **检测方法**：使用 YOLOv8n 目标检测模型，对视频前6秒按每秒1帧采样，共检测6帧。\n- **BBox格式**：`[x_min, y_min, x_max, y_max]`，单位为像素坐标。\n- **检测趋势**：从第1帧到第6帧，画面中车辆数量呈下降趋势（11→11→10→8→8→7），其中公交车在各帧间位置持续向前移动。\n- 完整结构化数据已保存至工作区，如需跨帧跟踪分析或导出为JSON/CSV格式请告知。",
+      "passed": true
+    },
+    {
+      "id": "C-038",
+      "mode": "boundary",
+      "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+      "thread_id": "037d0d43-77f8-48ba-b429-75e98d4df405",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "human-review-routing"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "根据 `human-review-routing` 技能的判定逻辑，以下四类情形的事件结果**必须进入人工复核**：\n\n---\n\n## 必须进入人工复核的触发条件\n\n| # | 触发条件 | 判定依据 | 路由队列 |\n|---|---------|---------|---------|\n| 1 | **置信度低于阈值** | `confidence < review_threshold`（默认基线 0.85；可针对事件类型配置独立阈值） | `manual_review` |\n| 2 | **高风险事件类型** | `event_type` 在配置的高风险列表中（如打架、摔倒、烟火、入侵等） | `manual_review` |\n| 3 | **摄像头健康状态降级** | `health_status == \"degraded\"`（含画面遮挡、模糊、冻结、损坏、偏移、离线等） | `manual_review` |\n| 4 | **涉及执法取证** | `affects_enforcement` 标志为真 | `manual_review` |\n\n满足**任一条件**即标记 `review_required: true`，路由至人工审核队列。\n\n---\n\n## 各条件的具体含义\n\n### ① 置信度低（confidence_below_threshold）\n- AI 检测模型输出的事件置信度分数低于系统设定的阈值时，自动转入人工复核。\n- 阈值可通过 `config.review_thresholds.<event_type>` 按事件类型差异化设置；未单独配置时采用全局默认值 **0.85**。\n\n### ② 摄像头画面有遮挡或信号异常（camera_health_degraded）\n- 前置的 `camera-health-check` 技能对帧采样质量评估后，若检测到以下任一状态则标记为 `degraded`：\n  - **黑屏 / 离线** — 画面完全不可见\n  - **模糊 / 失焦** — 关键目标轮廓不清\n  - **遮挡** — 物理遮挡物覆盖 ROI 区域\n  - **冻结 / 卡帧** — 画面长时间无变化\n  - **损坏 / 信号干扰** — 画面出现噪点、撕裂\n  - **偏移** — 摄像头视角发生非预期漂移\n- 此类条件下产生的任何事件均须人工二次确认，因为图像质量问题直接影响事件判定的可靠性。\n\n### ③ 事件涉及执法（affects_enforcement）\n- 当事件被标记为可能用于**执法取证**（如交通违法、违章停车、违规闯入禁区等），无论置信度高低，一律进入人工复核环节。\n- 这是出于合规性要求——执法证据链需要人工审核确保准确性和法律效力。\n\n---\n\n## 无需人工复核的情形\n\n仅当以上四个条件**全部不满足**时，事件才会走 `auto_pass` 通道，直接通过自动化流程处理。\n\n总结：**低置信度 + 画面异常 + 高风险类型 + 执法影响**，四项中触发任意一项即强制进入人工复核队列。",
+      "passed": true
+    },
+    {
+      "id": "C-040",
+      "mode": "boundary",
+      "question": "我想确认具体人员身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前数据只有本地视频和检测框。请说明哪些能力无法由现有数据支持，不要编造结果。",
+      "thread_id": "8d8f1f30-2904-4290-bbae-59dd05393613",
+      "video_file": "Vedio-demo/Trafic.mp4",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "city-video-intelligence"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "models"
+      ],
+      "missing_expected_skills": [
+        "city-video-intelligence"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "基于对视频的检测结果，以下是对你四项需求的逐项诚实评估：\n\n---\n\n## 1. 确认具体人员身份 — ❌ 无法支持\n\n本次检测在首5秒共6帧中**未检测到任何行人（person）**，仅识别出车辆（bus 9辆、car 46辆）。即便扩展全片搜索到行人，当前数据也无法确认其真实身份：\n\n- **缺少人脸识别基础设施**：没有人脸对齐、特征提取、比对库（如公安人口库或门禁系统数据库）\n- **缺少关联数据源**：无工牌信息、访客登记、手机MAC地址等交叉验证手段\n- **单摄像头视角局限**：即使拍到清晰人脸，也只能给出\"相似度最高的匹配候选人\"，而非确定性结论\n\n> **需要补充的能力**：人脸检测+特征提取模型 + 待比对的人员底库 + 合规的身份核验流程。\n\n---\n\n## 2. 读取模糊车牌 — ⚠️ 能力存疑，大概率不可靠\n\n即使视频中存在清晰可见的车牌，当前数据也存在以下限制：\n\n- **YOLOv8n 仅做目标检测**：它只能框出车牌位置，不具备OCR文字识别能力\n- **视频分辨率未知**：若车辆距离较远或运动模糊，车牌像素可能不足20×40，超出可读范围\n- **无牌照解析管线**：缺少专门的License Plate Recognition (LPR/ANPR) 模块和字符级后处理\n\n> **需要补充的能力**：车牌定位 → ROI裁剪 → OCR引擎（如PaddleOCR/CRNN）→ 字符置信度过滤。同时建议提供至少一段车辆近距离通过的片段以提高成功率。\n\n---\n\n## 3. 生成全市热力图 — ❌ 无法支持\n\n从当前数据出发，这一需求存在根本性的数据缺口：\n\n| 缺口 | 说明 |\n|------|------|\n| **空间覆盖** | 仅1个摄像头（CAM_DEERFLOW_001），代表单一地点，无法反映全市分布 |\n| **地理映射** | 缺少摄像头的经纬度坐标和视场角标定，无法将像素坐标映射到地图 |\n| **时间跨度** | 仅5秒采样，不足以支撑有意义的时空热力分析 |\n| **聚合维度** | 全市热力图需要多路摄像头数据的时空汇聚与插值 |\n\n> **需要补充的能力**：全市各路口/区域摄像头的实时检测输出 + GPS坐标 + 统一的地理坐标系转换 + GIS可视化工具（如Mapbox/Leaflet）。\n\n---\n\n## 4. 接入实时 RTSP — ❌ 无法由现有数据实现\n\n这是一个**系统架构层面**的需求，不是数据分析问题：\n\n- 当前文件是静态本地视频 `/mnt/user-data/uploads/Trafic.mp4`\n- RTSP接入需要：网络可达的RTSP流地址、流媒体服务器（如GStreamer/NVS）、持续推流管道、与检测引擎的实时对接\n- 这不是通过已有数据能\"算出来\"的结果，而是需要额外部署的基础设施\n\n> **需要补充的能力**：RTSP流URL列表 + 流媒体拉取服务 + 实时推理管道 + 低延迟解码器。\n\n---\n\n## 总结：当前数据实际能做什么\n\n基于这段视频和检测框架，**可靠可执行**的任务包括：\n\n✅ 统计视频中各类车辆的总数和时序分布  \n✅ 用 `track` 模式跨帧追踪同一车辆的运动轨迹  \n✅ 截取关键帧并标注检测框用于可视化展示  \n✅ 分析车流量随时间的变化趋势  \n\n以上四项能力均基于现有数据和已加载的YOLOv8n检测模型，不需要编造结果。",
+      "passed": false
+    }
+  ]
+}

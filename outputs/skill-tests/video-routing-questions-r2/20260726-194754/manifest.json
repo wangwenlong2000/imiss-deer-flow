@@ -1,0 +1,718 @@
+{
+  "started_at": "2026-07-26T19:47:54.389136+08:00",
+  "finished_at": "2026-07-26T20:59:01.264691+08:00",
+  "api": "http://127.0.0.1:3538/api/langgraph",
+  "model": "qwen3.6-35b-a3b",
+  "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+  "history_preserved": true,
+  "video_attachments_uploaded": 11,
+  "total": 14,
+  "passed": 6,
+  "route_mismatch": 3,
+  "model_mismatch": 0,
+  "errors": 7,
+  "results": [
+    {
+      "id": "Q01",
+      "mode": "video",
+      "question": "请分析这段监控视频，找出其中的关键场景和异常事件，按时间线还原事件经过，并生成一份复核报告。",
+      "thread_id": "8ed83a3a-8716-4add-ab5d-735a1d1ebb88",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "analyze-video"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "BadRequestError",
+          "message": "An internal error occurred"
+        }
+      ],
+      "error": null,
+      "final_answer": "分析脚本已生成8个关键审阅帧。现在逐帧检查这些图片以识别场景和异常事件。\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q02",
+      "mode": "video",
+      "question": "请检查这批摄像头最近的视频质量，找出黑屏、花屏、模糊、过曝、断流和时间戳异常的设备。",
+      "thread_id": "b1cc3bd0-1ecd-4f1e-af7a-803a42ec9c04",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "camera-health-check"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "检测报告已生成并展示。摄像头 **CAM_Traffic_001**（浙江宁波奉化大桥）的视频画面质量本身正常，但存在严重的**时间戳异常**问题——设备OSD时间与系统解析时间偏差约3.7年，需要优先校准时钟同步。",
+      "passed": false
+    },
+    {
+      "id": "Q03",
+      "mode": "boundary",
+      "question": "这批摄像头上报了很多相似告警，请根据时间、地点、目标和证据相似度合并重复事件，并保留合并依据。",
+      "thread_id": "3c2f2fe8-1561-4add-a36c-941415e3438d",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "duplicate-event-merge"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "技能已就绪，`duplicate-event-merge` 需要原始事件候选数据作为输入。但你目前只说了\"这批摄像头上报了很多相似告警\"，没有提供具体的告警数据文件。\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q04",
+      "mode": "video",
+      "question": "请从这段视频中截取能证明车辆闯入限制区域的关键画面，保留时间戳、摄像头编号和原始文件信息，导出证据图片。",
+      "thread_id": "ef925b1e-6a3b-431b-9f42-138aeef243e1",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "evidence-snapshot"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "现在生成完整的取证报告文件：\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q05",
+      "mode": "video",
+      "question": "请把这段视频转换成统一格式，提取关键帧，并截取 00:12 到 00:28 的片段保存下来。",
+      "thread_id": "42d3bcf2-5897-48b4-be58-fc6e946965ac",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "ffmpeg-utils"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "program_snippet"
+      ],
+      "missing_expected_skills": [
+        "ffmpeg-utils"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "视频处理已全部完成！以下是处理结果总结：\n\n**📹 截取片段**\n- **源视频**: Trafic-30s.mp4 (30秒, H.264, 1280×674)\n- **截取范围**: 00:12 ~ 00:28 (16秒)\n- **输出文件**: `traffic_12s_to_28s.mp4`\n- **格式**: H.264 + AAC (统一标准格式), 1280×674, yuv420p\n- **码率**: ~524 kbps\n\n**🖼️ 关键帧提取**\n共提取了 **6 张**均匀分布的关键帧，覆盖整个 16 秒片段：\n\n| 关键帧 | 时间戳 | 说明 |\n|--------|--------|------|\n| 1 | 00:12:00 | 起始画面 |\n| 2 | 00:12:03 | 早期变化 |\n| 3 | 00:12:05 | 中期过渡 |\n| 4 | 00:12:07 | 中期变化 |\n| 5 | 00:12:09 | 后期过渡 |\n| 6 | 00:12:15 | 结束画面 |\n\n所有文件已保存到 `/mnt/user-data/outputs/` 目录，需要我展示完整文件列表吗？",
+      "passed": false
+    },
+    {
+      "id": "Q06",
+      "mode": "video",
+      "question": "请按每 2 秒从视频中抽取一帧，并为每帧生成包含时间戳、来源和图像尺寸的结构化记录。",
+      "thread_id": "a2e79acb-c3a2-4d0d-8cc1-9566c31f3da3",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "frame-sampling"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "抽帧任务已完成。以下是结构化记录汇总：\n\n**视频信息：** `/mnt/user-data/uploads/Trafic-30s.mp4`，FPS: 12，分辨率: 1280×674\n\n| 序号 | 时间戳 | 来源(秒) | 尺寸 | 帧文件 |\n|------|--------|----------|------|--------|\n| 1 | 2026-05-20T10:00:00+08:00 | 0s | 1280×674 | CAM_DEERFLOW_001_...0001.jpg |\n| 2 | 2026-05-20T10:00:02+08:00 | 2s | 1280×674 | CAM_DEERFLOW_001_...0002.jpg |\n| 3 | 2026-05-20T10:00:04+08:00 | 4s | 1280×674 | CAM_DEERFLOW_001_...0003.jpg |\n| 4 | 2026-05-20T10:00:06+08:00 | 6s | 1280×674 | CAM_DEERFLOW_001_...0004.jpg |\n| 5 | 2026-05-20T10:00:08+08:00 | 8s | 1280×674 | CAM_DEERFLOW_001_...0005.jpg |\n| 6 | 2026-05-20T10:00:10+08:00 | 10s | 1280×674 | CAM_DEERFLOW_001_...0006.jpg |\n| 7 | 2026-05-20T10:00:12+08:00 | 12s | 1280×674 | CAM_DEERFLOW_001_...0007.jpg |\n| 8 | 2026-05-20T10:00:14+08:00 | 14s | 1280×674 | CAM_DEERFLOW_001_...0008.jpg |\n| 9 | 2026-05-20T10:00:16+08:00 | 16s | 1280×674 | CAM_DEERFLOW_001_...0009.jpg |\n| 10 | 2026-05-20T10:00:18+08:00 | 18s | 1280×674 | CAM_DEERFLOW_001_...0010.jpg |\n| 11 | 2026-05-20T10:00:20+08:00 | 20s | 1280×674 | CAM_DEERFLOW_001_...0011.jpg |\n| 12 | 2026-05-20T10:00:22+08:00 | 22s | 1280×674 | CAM_DEERFLOW_001_...0012.jpg |\n| 13 | 2026-05-20T10:00:24+08:00 | 24s | 1280×674 | CAM_DEERFLOW_001_...0013.jpg |\n| 14 | 2026-05-20T10:00:26+08:00 | 26s | 1280×674 | CAM_DEERFLOW_001_...0014.jpg |\n| 15 | 2026-05-20T10:00:28+08:00 | 28s | 1280×674 | CAM_DEERFLOW_001_...0015.jpg |\n\n共抽取 **15 帧**，覆盖 0~28 秒时段（每 2 秒一帧），所有帧图像和结构化 JSON 记录已保存至输出目录：\n\n- 📄 结构化记录：`/mnt/user-data/outputs/frames.json`\n- 🖼️ 帧图像：`/mnt/user-data/outputs/frames/` 目录下 15 张 JPG 文件",
+      "passed": true
+    },
+    {
+      "id": "Q07",
+      "mode": "boundary",
+      "question": "请根据告警置信度、证据完整性和潜在影响，把事件分成自动通过、需要人工复核和优先复核三类。",
+      "thread_id": "2e374cfc-9fcf-40cf-90e7-e408c3a6d1a4",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "human-review-routing"
+      ],
+      "actual_skills": [
+        "data-analysis"
+      ],
+      "missing_expected_skills": [
+        "human-review-routing"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要先了解您希望分析的数据源。让我检查一下可用的上传文件和内置数据集。\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q08",
+      "mode": "video",
+      "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
+      "thread_id": "a3d5a0df-1a34-4676-bb05-3367c588258c",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-object-analytics"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "spatiotemporal_trajectory",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "## 视频对象检测与轨迹追踪完成 ✅\n\n对 `Trafic-30s.mp4` 的30秒全时段分析已完成。以下是核心结果：\n\n### 📊 总体统计\n\n| 指标 | 数值 |\n|------|------|\n| 帧级检测总数 | **105次** |\n| 唯一跟踪轨迹数 | **16条** |\n| 移动中目标 | 6个 |\n| 静止目标 | 10个 |\n\n### 按类别分布\n\n| 类别 | 检测次数 | 独立轨迹 |\n|------|---------|---------|\n| 🚗 轿车 (car) | 83 | 10 |\n| 🚌 公交车 (bus) | 12 | 4 |\n| 🚶 人员 (person) | 10 | 2 |\n\n### 关键发现\n\n- **交通流量递减**: 前7秒为高峰期（最高同时11个目标），之后逐渐减少至仅1~2辆车\n- **行人活动**: 第10秒左右出现行人，集中在画面右侧区域徘徊；视频末尾(29秒)再次捕获到1名行人\n- **长时跟踪目标**: track_0005/0007/0008三条轨迹覆盖近全程，分别为横向行驶、中央停留、左向右穿越的车辆\n- **瞬时目标**: 6个轨迹仅被单帧捕获，多为边缘或低置信度检测\n\n### 📁 输出文件\n\n完整报告已保存至：\n- **分析报告**: `/mnt/user-data/outputs/video_object_tracking_report.md`\n- **原始轨迹数据**: `/mnt/user-data/workspace/video-object-analytics/feae6987beb2/tracks.json`\n\n报告中包含全部16条轨迹的逐条明细（类别、时间范围、运动状态、坐标序列及行为描述）。",
+      "passed": true
+    },
+    {
+      "id": "Q09",
+      "mode": "video",
+      "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
+      "thread_id": "ae409d2d-5b50-40d7-a882-4234cab543ba",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "object-detection"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "检测完成。以下是视频 **Trafic-30s.mp4** 的逐帧目标检测结果。\n\n## 检测概况\n\n- **检测模型**: YOLOv8n\n- **采样帧数**: 3帧（第0秒、第1秒、第2秒）\n- **总检测目标**: 26个\n- **检测到类别**: 仅 `car`（汽车）\n- **未检测到**: person（行人）、bicycle（自行车）、motorcycle（摩托车）\n\n---\n\n## 逐帧检测结果\n\n### 帧 1 — 时间戳：2026-05-20 10:00:00\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0001_002 | car | 0.7016 | (421, 349) → (522, 443) |\n| 2 | det_0001_004 | car | 0.5523 | (485, 168) → (528, 209) |\n| 3 | det_0001_005 | car | 0.5315 | (716, 162) → (781, 195) |\n| 4 | det_0001_006 | car | 0.5262 | (29, 193) → (98, 239) |\n| 5 | det_0001_007 | car | 0.5188 | (203, 160) → (253, 194) |\n| 6 | det_0001_008 | car | 0.4397 | (380, 218) → (448, 270) |\n| 7 | det_0001_009 | car | 0.4375 | (775, 172) → (804, 196) |\n| 8 | det_0001_010 | car | 0.3851 | (98, 194) → (157, 246) |\n| 9 | det_0001_011 | car | 0.3525 | (549, 143) → (588, 174) |\n\n**共检测到 9 辆汽车**\n\n---\n\n### 帧 2 — 时间戳：2026-05-20 10:00:01\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0002_002 | car | 0.8013 | (377, 469) → (514, 605) |\n| 2 | det_0002_003 | car | 0.7786 | (448, 274) → (527, 345) |\n| 3 | det_0002_004 | car | 0.7110 | (158, 178) → (219, 221) |\n| 4 | det_0002_005 | car | 0.6825 | (20, 230) → (97, 289) |\n| 5 | det_0002_006 | car | 0.6121 | (489, 149) → (529, 178) |\n| 6 | det_0002_007 | car | 0.5209 | (421, 183) → (476, 227) |\n| 7 | det_0002_008 | car | 0.4551 | (101, 172) → (149, 205) |\n| 8 | det_0002_009 | car | 0.4528 | (534, 116) → (583, 165) |\n\n**共检测到 8 辆汽车**\n\n---\n\n### 帧 3 — 时间戳：2026-05-20 10:00:02\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0003_001 | car | 0.8154 | (468, 227) → (531, 281) |\n| 2 | det_0003_003 | car | 0.7531 | (425, 351) → (519, 443) |\n| 3 | det_0003_004 | car | 0.6144 | (23, 198) → (91, 241) |\n| 4 | det_0003_005 | car | 0.5729 | (94, 198) → (171, 251) |\n| 5 | det_0003_006 | car | 0.5511 | (642, 147) → (678, 172) |\n| 6 | det_0003_007 | car | 0.5049 | (94, 210) → (150, 251) |\n| 7 | det_0003_008 | car | 0.4457 | (451, 160) → (496, 195) |\n| 8 | det_0003_009 | car | 0.3780 | (175, 169) → (226, 208) |\n| 9 | det_0003_010 | car | 0.3726 | (260, 212) → (323, 277) |\n\n**共检测到 9 辆汽车**\n\n---\n\n## 说明\n\n1. **边界框格式**：`(x1, y1)` 为左上角坐标，`(x2, y2)` 为右下角坐标，单位为像素。\n2. **置信度**：数值越高表示模型对该检测结果的确定性越强（≥0.5 为较高置信度）。\n3. **采样策略**：系统从视频开头按 1 秒间隔采样了 3 帧进行检测。如需分析全量帧或指定时间范围，可以调整参数重新执行。\n4. **未检测到行人/自行车/摩托车**：该视频片段中模型未发现这三类目标，可能因为画面以机动车为主，或这些目标尺寸过小未被当前模型捕获。",
+      "passed": true
+    },
+    {
+      "id": "Q10",
+      "mode": "video",
+      "question": "请持续跟踪画面中的每辆车，生成它们的进入时间、离开时间、运动轨迹和行驶方向。",
+      "thread_id": "48887571-2b3e-4278-ac7a-e117b53aab0b",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "object-tracking"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "spatiotemporal_trajectory",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "跟踪分析完成！共检测到 **14 条车辆轨迹**（10 辆轿车 + 4 辆公交车）。以下是完整的结构化结果：\n\n---\n\n## 🚗 车辆跟踪分析报告\n\n### 总体统计\n\n| 指标 | 数值 |\n|------|------|\n| 总追踪目标数 | 14 |\n| 轿车 (Car) | 10 |\n| 公交车 (Bus) | 4 |\n| 运动状态 — 行驶中 | 5 |\n| 运动状态 — 静止 | 9 |\n\n---\n\n### 各车辆详细轨迹信息\n\n#### 🔵 轿车 (Car)\n\n**Track_0002 — 轿车（快速驶离）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:03\n- **持续时间：** 3 秒\n- **运动状态：** 行驶中\n- **运动方向：** 自左下 → 右上（X: 471→489, Y: 396→310，向右上方移动）\n- **轨迹点：** `[471.8, 395.99] → [487.35, 309.39] → [499.62, 253.89] → [488.92, 309.73]`\n\n**Track_0004 — 轿车（区域内徘徊）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:07\n- **持续时间：** 7 秒\n- **运动状态：** 静止（多帧检测但坐标波动小）\n- **运动方向：** 区域中心附近小幅位移（约 X: 413~520, Y: 120~252）\n- **轨迹点：** 13 个采样点，围绕画面中部区域\n\n**Track_0005 — 轿车（长距离右行）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:28\n- **持续时间：** 28 秒\n- **运动状态：** 行驶中\n- **运动方向：** 自左 → 右（X: 748→838，水平向右稳定移动）\n- **轨迹点：** `[748.34, 178.42] → [789.32, 184.14] → [838.12, 181.6]`\n\n**Track_0006 — 轿车（左侧停留）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:09\n- **持续时间：** 9 秒\n- **运动状态：** 静止（画面左侧边缘区域）\n- **运动方向：** 无明显方向（坐标在 X: 53~200, Y: 179~269 间波动）\n\n**Track_0007 — 轿车（全程居中徘徊）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:29\n- **持续时间：** 29 秒\n- **运动状态：** 行驶中（但大部分时间在固定区域往复）\n- **运动方向：** 先向左上移动后在画面中央偏左区域反复徘徊\n- **轨迹点：** 38 个采样点，初期从 (227, 177) 移至 (120, 171)，之后在 X: 120~315, Y: 169~244 范围内大量驻留\n\n**Track_0008 — 轿车（长距离右行）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:29\n- **持续时间：** 29 秒\n- **运动状态：** 行驶中\n- **运动方向：** 自左 → 右（X: 568→787，水平向右穿越画面）\n- **轨迹点：** `[568.62, 158.44] → [508.64, 163.26] → [558.8, 140.4] → [660.17, 159.81] → [747.3, 174.97] → [786.76, 173.54]`\n\n**Track_0009 — 轿车（短暂出现）**\n- **进入时间：** 10:00:01\n- **离开时间：** 10:00:01\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（单点检测，位于画面底部 X: 445, Y: 536）\n\n**Track_0011 — 轿车（短暂出现）**\n- **进入时间：** 10:00:02\n- **离开时间：** 10:00:02\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（单点检测，位于画面底部 X: 472, Y: 396）\n\n**Track_0013 — 轿车（右侧短暂出现）**\n- **进入时间：** 10:00:24\n- **离开时间：** 10:00:24\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（位于画面最右侧 X: 1172, Y: 192）\n\n**Track_0014 — 轿车（顶部短暂出现）**\n- **进入时间：** 10:00:29\n- **离开时间：** 10:00:29\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（位于画面上部 X: 226, Y: 118）\n\n---\n\n#### 🟠 公交车 (Bus)\n\n**Track_0001 — 公交车（左上方向行驶）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:11\n- **持续时间：** 11 秒\n- **运动状态：** 行驶中\n- **运动方向：** 自右下 → 左上（X: 623→597, Y: 248→105，向左上方移动）\n- **轨迹点：** `[623.64, 248.49] → [612.32, 211.92] → [609.48, 188.06] → [610.76, 165.08] → [612.67, 146.66] → [613.07, 133.18] → [612.75, 123.42] → [596.96, 104.6]`\n\n**Track_0003 — 公交车（静止停放）**\n- **进入时间：** 10:00:00\n- **离开时间：** 10:00:04\n- **持续时间：** 4 秒\n- **运动状态：** 静止\n- **运动方向：** 无（坐标变化极小，X: 448→460, Y: 131→109）\n- **轨迹点：** `[448.6, 131.0] → [460.55, 109.36]`\n\n**Track_0010 — 公交车（短暂出现）**\n- **进入时间：** 10:00:01\n- **离开时间：** 10:00:01\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（位于画面左侧 X: 60, Y: 168）\n\n**Track_0012 — 公交车（右侧短暂出现）**\n- **进入时间：** 10:00:11\n- **离开时间：** 10:00:11\n- **持续时间：** 仅 1 帧\n- **运动状态：** 静止\n- **运动方向：** 无法判定（位于画面最右侧 X: 1010, Y: 168）\n\n---\n\n### 汇总一览\n\n| Track ID | 类型 | 进入时间 | 离开时间 | 持续(秒) | 运动状态 | 主要行驶方向 |\n|----------|------|----------|----------|----------|----------|-------------|\n| track_0001 | 公交车 | 10:00:00 | 10:00:11 | 11 | 行驶中 | ↖ 左上方向 |\n| track_0002 | 轿车 | 10:00:00 | 10:00:03 | 3 | 行驶中 | ↗ 右上方向 |\n| track_0003 | 公交车 | 10:00:00 | 10:00:04 | 4 | 静止 | — |\n| track_0004 | 轿车 | 10:00:00 | 10:00:07 | 7 | 静止 | 区域徘徊 |\n| track_0005 | 轿车 | 10:00:00 | 10:00:28 | 28 | 行驶中 | → 向右 |\n| track_0006 | 轿车 | 10:00:00 | 10:00:09 | 9 | 静止 | 左侧停留 |\n| track_0007 | 轿车 | 10:00:00 | 10:00:29 | 29 | 行驶中 | 中央往复 |\n| track_0008 | 轿车 | 10:00:00 | 10:00:29 | 29 | 行驶中 | → 向右 |\n| track_0009 | 轿车 | 10:00:01 | 10:00:01 | 1 | 静止 | — |\n| track_0010 | 公交车 | 10:00:01 | 10:00:01 | 1 | 静止 | — |\n| track_0011 | 轿车 | 10:00:02 | 10:00:02 | 1 | 静止 | — |\n| track_0012 | 公交车 | 10:00:11 | 10:00:11 | 1 | 静止 | — |\n| track_0013 | 轿车 | 10:00:24 | 10:00:24 | 1 | 静止 | — |\n| track_0014 | 轿车 | 10:00:29 | 10:00:29 | 1 | 静止 | — |\n\n> **注：** 坐标系基于视频帧像素坐标（X: 水平从左到右，Y: 垂直从上到下）。单帧检测的车辆因仅有1个时间点，无法计算有效运动方向和轨迹。\n\n原始数据已保存至工作目录：\n- 帧检测结果：`/mnt/user-data/workspace/video-object-analytics/e0077e927f92/frames.json`\n- 检测详情：`/mnt/user-data/workspace/video-object-analytics/e0077e927f92/detections.json`\n- 跨帧跟踪结果：`/mnt/user-data/workspace/video-object-analytics/e0077e927f92/tracks.json`",
+      "passed": true
+    },
+    {
+      "id": "Q11",
+      "mode": "video",
+      "question": "请对视频中的人脸、车牌和其他敏感区域进行模糊处理，输出一份可以公开使用的脱敏视频。",
+      "thread_id": "eb528dda-05a2-48ee-890e-eebf81f81580",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "privacy-masking"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "street_view_image"
+      ],
+      "missing_expected_skills": [
+        "privacy-masking"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "MediaPipe版本太新了，没有solutions模块。让我尝试其他方案：\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q12",
+      "mode": "video",
+      "question": "请在画面中标出门口和停车区两个区域，并分别统计进入、离开和停留的目标数量。",
+      "thread_id": "02db968e-f15a-42c3-a473-4ed68c07175b",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "roi-mapping"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "models",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "Let me take a simpler approach and execute the analysis directly in Python:\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q13",
+      "mode": "video",
+      "question": "请从 8 小时监控录像中提取包含异常行为的多个短视频片段，每段保留前后缓冲时间并附上事件说明。",
+      "thread_id": "55e6b183-d4a3-4bf7-abc5-73baef365fd6",
+      "video_file": "Vedio-demo/Trafic-30s.mp4",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-segment-extraction"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "single-video-event-analysis && python scripts",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "## 视频监控分析报告\n\n### 视频元数据\n- **文件名**: Trafic-30s.mp4\n- **时长**: 30秒\n- **分辨率**: 1280×674\n- **帧率**: 12fps\n- **编码**: H.264\n- **摄像头**: CAM_TRAFFIC_001\n- **地点**: 浙江宁波奉化大桥 大成路与斗门路西口\n- **时间**: 2022-09-29 15:59-16:00\n\n---\n\n### 审阅结果\n\n经过对8个关键帧（每4秒一帧）的视觉审阅，以下是时序观察：\n\n| 时间点 | 观察内容 |\n|--------|----------|\n| 0:00:00 | 正常交通流，多辆汽车和一辆公交车正在通过十字路口 |\n| 0:00:04 | 交通持续正常运行，红灯方向无车，绿灯方向车流顺畅 |\n| 0:00:08 | 右侧人行道有行人准备过街，交通秩序正常 |\n| 0:00:12 | 行人已在斑马线上行走，车辆在停止线前等候 |\n| 0:00:17 | 行人继续过马路，路口秩序良好 |\n| 0:00:21 | 行人接近对面，画面右侧出现一名身穿反光背心的交警 |\n| 0:00:25 | 交警站在路口右侧执勤 |\n| 0:00:29 | 一辆白色SUV从右侧路口驶入，交通恢复正常流动 |\n\n---\n\n### 异常事件检测结果\n\n**未检测到明确的异常行为事件。**\n\n在整个30秒的视频片段中，所有画面显示为正常的城市道路交通场景，包括：\n- ✅ 车辆按信号灯有序通行\n- ✅ 行人在斑马线上正常过街\n- ✅ 交警在路口执勤维持秩序\n- ❌ 未发现交通事故、打架、摔倒、烟火、非法入侵等异常行为\n\n---\n\n### 建议\n\n由于当前上传的视频文件 `Trafic-30s.mp4` 仅为30秒的短视频片段，且内容为正常交通场景，未包含可识别的异常行为事件。\n\n如需提取包含异常行为的短视频片段，请提供以下内容：\n\n1. **完整的8小时监控录像文件** — 当前上传的文件仅30秒\n2. **或者指定需要分析的具体视频文件路径**\n3. **或者明确关注的异常类型** — 例如：交通事故、行人违章、车辆违停等\n\n一旦获得完整的监控视频，系统将自动执行以下流程：\n1. 全视频扫描检测异常事件\n2. 锁定异常发生的时间窗口\n3. 截取前后缓冲的短视频片段\n4. 生成带事件说明的结构化交付包",
+      "passed": false
+    },
+    {
+      "id": "Q14",
+      "mode": "boundary",
+      "question": "请接入这组 RTSP 摄像头地址，规范化视频源信息，记录摄像头会话信息，并报告无法连接或频繁断开的源。",
+      "thread_id": "ce98745b-6507-406d-8e76-e86d9dfdb3ff",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我注意到您需要接入一组 RTSP 摄像头地址并进行连接性检测，但您尚未提供具体的 RTSP 地址列表。\n\n",
+      "passed": true
+    }
+  ]
+}

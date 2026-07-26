@@ -1,0 +1,57 @@
+{
+  "skill": "city-video-intelligence",
+  "version": "1.0.0",
+  "status": "success",
+  "request": "请把仓库事件的截图、前后 20 秒片段、哈希和打码副本整理成证据包。",
+  "role": null,
+  "mode": "business_operation",
+  "capability": "evidence_preservation",
+  "capability_label": "证据固化",
+  "business_scenario": "legal_evidence_package",
+  "business_scenario_label": "法庭证据准备",
+  "recommended_skill_chain": [
+    "video-segment-extraction",
+    "evidence-package-generation"
+  ],
+  "execution_plan": [
+    {
+      "step": "1",
+      "skill": "video-segment-extraction",
+      "action": "Load video-segment-extraction and follow its SKILL.md."
+    },
+    {
+      "step": "2",
+      "skill": "evidence-package-generation",
+      "action": "Load evidence-package-generation and run it once. For a local video path plus HH:MM:SS/MM:SS offset, pass --raw-segment-uri and --event-elapsed-seconds directly; summarize package_id, manifest_uri, manifest_hash, and artifact_summary, then stop."
+    }
+  ],
+  "expected_deliverables": [
+    "证据包",
+    "完整性哈希",
+    "manifest",
+    "隐私处理版本",
+    "证据快照",
+    "证据片段",
+    "证据包 manifest"
+  ],
+  "embedding_attempt_required": false,
+  "embedding_failure_policy": null,
+  "source_index": null,
+  "embedding_target_index": null,
+  "embedding_storage_mode": null,
+  "missing_fields": [
+    "视频文件路径",
+    "事件时间或片段范围"
+  ],
+  "follow_up_question": "请问视频文件路径和事件时间或片段范围是什么？",
+  "guardrails": [
+    "Do not write ad hoc code for this business request.",
+    "Load each downstream skill's SKILL.md before executing its script.",
+    "Return capability_gap instead of implementing missing functionality.",
+    "If follow_up_question is present, stop immediately and make the whole visible response exactly that question.",
+    "If a downstream video skill fails, summarize the concrete failure and stop instead of debugging services."
+  ],
+  "requires_confirmation": false,
+  "requires_human_review": false,
+  "capability_gap": null
+}

@@ -1,0 +1,34 @@
+{
+  "id": "C-002",
+  "mode": "video",
+  "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。",
+  "thread_id": "a08bff53-4e9f-40c1-a3ac-5f82d72af452",
+  "video_file": "Vedio-demo/Trafic.mp4",
+  "uploaded_file": {
+    "filename": "Trafic.mp4",
+    "size": 75965424,
+    "path": "/mnt/user-data/uploads/Trafic.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "actual_skills": [
+    "data-analysis",
+    "spatiotemporal_trajectory"
+  ],
+  "missing_expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "视频元数据提取完成。以下是标准化整理结果：\n\n## Trafic.mp4 视频元数据\n\n| 字段 | 值 |\n|------|-----|\n| **文件名** | Trafic.mp4 |\n| **文件大小** | 75,965,424 bytes (~72.4 MB) |\n| **时长** | 900.916 秒 (14分59秒) |\n| **分辨率** | 1280 × 674 像素 |\n| **帧率** | 12 fps (实际平均帧率 11.995 fps) |\n| **总帧数** | 10,811 帧 |\n| **视频编码** | H.264 / AVC High Profile |\n| **像素格式** | yuv420p |\n| **色彩空间** | BT.709 |\n| **颜色范围** | TV (Limited, 16-235) |\n| **比特率** | 674,561 bps (~658 kbps) |\n| **容器格式** | MP4 (isom) |\n| **编码器** | Lavf59.27.100 (Bilibili XCoder v2.0.2) |\n\n### 关键分析参数\n\n```json\n{\n  \"video_path\": \"/mnt/user-data/uploads/Trafic.mp4\",\n  \"duration_seconds\": 900.916,\n  \"resolution\": {\"width\": 1280, \"height\": 674},\n  \"frame_rate\": 12.0,\n  \"total_frames\": 10811,\n  \"codec\": \"h264\",\n  \"profile\": \"High\",\n  \"pix_fmt\": \"yuv420p\",\n  \"color_space\": \"bt709\",\n  \"bitrate_bps\": 674561,\n  \"file_size_bytes\": 75965424,\n  \"time_base\": \"1/16000\",\n  \"stream_count\": 1,\n  \"has_audio\": false\n}\n```\n\n### 备注\n\n1. **单视频流**：该视频仅包含视频轨道，无音频流。\n2. **低帧率**：12fps 属于监控类视频的常见帧率，适合目标检测与跟踪任务。\n3. **非标准分辨率**：1280×674 是自定义裁剪分辨率（非标准 720p），可能经过后期处理或截取。\n4. **TV Range**：色彩范围为 TV (Limited)，这是摄像头原始数据的典型特征，而非电影级的 Full Range (0-255)。",
+  "passed": false
+}

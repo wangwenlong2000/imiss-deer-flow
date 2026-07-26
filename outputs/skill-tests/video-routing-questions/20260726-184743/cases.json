@@ -1,0 +1,114 @@
+[
+  {
+    "id": "Q01",
+    "question": "请分析这段监控视频，找出其中的关键场景和异常事件，按时间线还原事件经过，并生成一份复核报告。",
+    "expected": [
+      "analyze-video"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q02",
+    "question": "请检查这批摄像头最近的视频质量，找出黑屏、花屏、模糊、过曝、断流和时间戳异常的设备。",
+    "expected": [
+      "camera-health-check"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q03",
+    "question": "这批摄像头上报了很多相似告警，请根据时间、地点、目标和证据相似度合并重复事件，并保留合并依据。",
+    "expected": [
+      "duplicate-event-merge"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q04",
+    "question": "请从这段视频中截取能证明车辆闯入限制区域的关键画面，保留时间戳、摄像头编号和原始文件信息，导出证据图片。",
+    "expected": [
+      "evidence-snapshot"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q05",
+    "question": "请把这段视频转换成统一格式，提取关键帧，并截取 00:12 到 00:28 的片段保存下来。",
+    "expected": [
+      "ffmpeg-utils"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q06",
+    "question": "请按每 2 秒从视频中抽取一帧，并为每帧生成包含时间戳、来源和图像尺寸的结构化记录。",
+    "expected": [
+      "frame-sampling"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q07",
+    "question": "请根据告警置信度、证据完整性和潜在影响，把事件分成自动通过、需要人工复核和优先复核三类。",
+    "expected": [
+      "human-review-routing"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q08",
+    "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
+    "expected": [
+      "video-object-analytics"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q09",
+    "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
+    "expected": [
+      "object-detection"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q10",
+    "question": "请持续跟踪画面中的每辆车，生成它们的进入时间、离开时间、运动轨迹和行驶方向。",
+    "expected": [
+      "object-tracking"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q11",
+    "question": "请对视频中的人脸、车牌和其他敏感区域进行模糊处理，输出一份可以公开使用的脱敏视频。",
+    "expected": [
+      "privacy-masking"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q12",
+    "question": "请在画面中标出门口和停车区两个区域，并分别统计进入、离开和停留的目标数量。",
+    "expected": [
+      "roi-mapping"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q13",
+    "question": "请从 8 小时监控录像中提取包含异常行为的多个短视频片段，每段保留前后缓冲时间并附上事件说明。",
+    "expected": [
+      "video-segment-extraction"
+    ],
+    "mode": "routing"
+  },
+  {
+    "id": "Q14",
+    "question": "请接入这组 RTSP 摄像头地址，规范化视频源信息，记录摄像头会话信息，并报告无法连接或频繁断开的源。",
+    "expected": [
+      "video-stream-ingestion"
+    ],
+    "mode": "routing"
+  }
+]

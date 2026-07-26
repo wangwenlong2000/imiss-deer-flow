@@ -1,0 +1,58 @@
+{
+  "id": "Q04",
+  "mode": "video",
+  "question": "请从这段视频中截取能证明车辆闯入限制区域的关键画面，保留时间戳、摄像头编号和原始文件信息，导出证据图片。",
+  "thread_id": "ef925b1e-6a3b-431b-9f42-138aeef243e1",
+  "video_file": "Vedio-demo/Trafic-30s.mp4",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "evidence-snapshot"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "models",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [
+    {
+      "error": "GraphRecursionError",
+      "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+    }
+  ],
+  "error": null,
+  "final_answer": "现在生成完整的取证报告文件：\n\n",
+  "passed": false
+}

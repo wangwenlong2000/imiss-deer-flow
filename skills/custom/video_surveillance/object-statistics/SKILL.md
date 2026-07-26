@@ -21,6 +21,8 @@ python object-statistics/scripts/run.py --index citybrain-video-library --camera
 
 Parameters: `--input`, `--index`, `--video-id`, `--camera-id`, `--start-time`, `--end-time`, `--detections-json`, `--tracks-json`, `--group-by`, `--config`, `--output`.
 
+Only `citybrain-video-library` is accepted for Elasticsearch-backed statistics. Other index values return `UNSUPPORTED_VIDEO_INDEX`.
+
 ## Workflow
 
 1. Load local detections/tracks if provided.

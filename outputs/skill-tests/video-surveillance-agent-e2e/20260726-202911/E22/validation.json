@@ -1,0 +1,38 @@
+{
+  "id": "E22",
+  "covers": "长录像按场景切章节并抽关键帧",
+  "skills": [
+    "analyze-video"
+  ],
+  "question": "请按画面场景变化，把这段录像切成若干章节，并为每个章节抽一张关键帧，只准备素材不下结论。",
+  "thread_id": "a55b4d46-4499-45e2-a08c-1a9e64fb371b",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 374.7,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "read_file",
+      "view_image"
+    ],
+    "skills_touched": [
+      "analyze-video"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 1,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 612,
+    "clarifications": []
+  }
+}

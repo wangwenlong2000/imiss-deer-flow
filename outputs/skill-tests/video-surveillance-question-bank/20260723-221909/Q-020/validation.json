@@ -1,0 +1,47 @@
+{
+  "id": "Q-020",
+  "mode": "text-only",
+  "question": "请接入这组 RTSP 摄像头地址，规范化视频源信息，记录摄像头会话信息，并报告无法连接或频繁断开的源。",
+  "thread_id": "ae6f8d2c-6736-4c3b-a2f7-395d0a30adbd",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我需要更多信息才能开始执行摄像头接入和连接测试任务。\n\n",
+  "passed": true
+}

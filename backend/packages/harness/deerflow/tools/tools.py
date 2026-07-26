@@ -4,7 +4,14 @@ from langchain.tools import BaseTool
 
 from deerflow.config import get_app_config
 from deerflow.reflection import resolve_variable
-from deerflow.tools.builtins import ask_clarification_tool, invoke_skill_tool, present_file_tool, task_tool, view_image_tool
+from deerflow.tools.builtins import (
+    ask_clarification_tool,
+    invoke_skill_tool,
+    present_file_tool,
+    task_tool,
+    video_object_analytics_tool,
+    view_image_tool,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +19,7 @@ BUILTIN_TOOLS = [
     invoke_skill_tool,
     present_file_tool,
     ask_clarification_tool,
+    video_object_analytics_tool,
 ]
 
 SUBAGENT_TOOLS = [

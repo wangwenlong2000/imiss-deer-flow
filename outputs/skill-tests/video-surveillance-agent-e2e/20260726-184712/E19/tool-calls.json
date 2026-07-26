@@ -1,0 +1,102 @@
+{
+  "calls": [
+    {
+      "name": "read_file",
+      "args": {
+        "description": "读取道路流量分析技能说明文件",
+        "path": "/mnt/skills/custom/road-traffic-analysis/SKILL.md"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "ls /mnt/datasets"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "ls /mnt/datasets/ 2>/dev/null || echo \"No datasets dir\"",
+        "description": "查看系统内置数据集目录"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "find /mnt/skills/custom/road-traffic-analysis/data/csv -maxdepth 2 -type f -name \"*.csv\" -printf \"%p\\n\" 2>/dev/null",
+        "description": "列出本地CSV交通数据文件"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "ls -la /mnt/datasets/Vedio-demo/",
+        "description": "查看视频库目录内容"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "find /mnt/datasets/Vedio-demo -type f | head -50",
+        "description": "列出视频库中的文件"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "file /mnt/datasets/Vedio-demo/Trafic.mp4 /mnt/datasets/Vedio-demo/Trafic-30s.mp4",
+        "description": "检查视频文件信息"
+      }
+    },
+    {
+      "name": "ask_clarification",
+      "args": {
+        "question": "我需要确认几个关键信息，以便为您提供准确的分析：\n\n1. **视频库范围**：您提到的\"整个视频库\"是指 `/mnt/datasets/Vedio-demo/` 目录下的这些视频文件吗？（Trafic.mp4、Trafic-30s.mp4），还是另有其他视频数据源？\n\n2. **时间范围定义**：\"上周\"具体是指哪一周？是 2026年7月13日-7月19日，还是您有特定的日期范围需要指定？当前可用视频文件中是否有对应的时间戳信息？\n\n3. **分析粒度**：时段划分您希望按每小时统计，还是更细的粒度（如每15分钟或每30分钟）？",
+        "clarification_type": "missing_info",
+        "context": "用户要求统计上周全量视频库的车流量趋势和峰值，需要先明确数据来源和视频库范围，以及具体时间范围和分析粒度。"
+      }
+    }
+  ],
+  "results": [
+    {
+      "name": "read_file",
+      "status": "success",
+      "content": "---\nname: road-traffic-analysis\ndescription: \"Use this skill for road traffic tasks, including Baidu realtime services, route planning, weather, geocoding, around-location traffic, local/uploaded CSV traffic data analysis, local/uploaded CSV traffic forecasting, local/uploaded CSV traffic anomaly detection, and Xi'an 2024 traffic annual-report RAG retrieval. Do not use for OSM graph parsing, legacy congestion reports, or generic non-road network traffic.\"\nmetadata:\n  short-description: Road traffic realtime query, forecasting, anomaly detection, and RAG.\n---\n\nNo need to check real-time traffic unless you ask for it.\n\nPrioritize local data and methodologies for data sourcing; web searching is not required.\n\n# Road Traffic Analysis\n\nThis is the single road-traffic skill. It covers realtime API tasks, CSV data analysis, forecasting, anomaly detection, RAG evidence retrieval, and one local CSV data source:\n\nFor queries involving multiple tasks, account for their logical dependencies and perform task chain decomposition.\n\nThe model should preferentially use the native skills included in this scope, such as traffic anomaly detection, prediction, and API querying.\n\nFor real-time traffic analysis queries, actively consider weather factors.\n\nIf the user requires chart plotting, refer to the chart-visualization skill.\n\n| Family | Use For | Script |\n| --- | --- | --- |\n| Realtime services | Baidu route, weather, geocode, single-road traffic, around-location traffic | `scripts/simple_baidu_services.py` |\n| CSV data analysis | Understand, summarize, compare, aggregate, and explain uploaded/local CSV traffic data | inspect with `scripts/forecast_runner.py`, then LLM-authored pandas analysis |\n| Forecasting | Predict future traffic flow from uploaded CSV or inline history | `scripts/forecast_runner.py` |\n| Anomaly detection | Detect abnormal traffic flow from uploaded CSV or inline history | `scripts/anomaly_runner.py` |\n| RAG knowledge retrieval | Retrieve cited background facts from the 2024 Xi'an traffic annual report | `scripts/rag_xian2024_min.py` |\n\nLocal CSV database:\n\n- Path: `/mnt/skills/custom/road-traffic-analysis/data/csv`\n- Use for built-in/sample/local road-traffic CSV data.\n- Choose a CSV by browsing directory and filenames, then handle it as uploaded CSV data for analysis, forecast, or anomaly detection.\n\nUse `/mnt/skills/custom/road-traffic-analysis/...` in the agent sandbox. In repo-local debugging, use `skills/custom/road-traffic-analysis/...`.\n\n`BAIDU_AK` must come from the environment for Baidu realtime services. Do not place API keys in prompts, examples, logs, or tracked files.\n\n## Prompt-Driven Document Routing\n\nThe LLM decides whether a request needs annual-report RAG. Do not build or call any script-level intent classifier for document routing.\n\nUse `rag_xian2024_min.py query` only when the user asks for at least one of these:\n\n- Recent years traffic report facts or indicators\n- Xi'an recent-years traffic congestion, traffic operation trends, congestion changes, bottleneck areas, or congestion governance context\n- citywide background, annual trend, benchmark, or planning context\n- comparison against annual-report metrics\n- source-backed wording for a governance, leadership, or decision-support report\n- explanation of realtime findings using annual-report context\n\nWhen citing, please list evidence sources in detail, including the specific file, line number, page, or section.\n\nDo not use RAG for direct current-status tasks unless the user also asks for background, benchmark, or cited report context:\n\n- current road congestion\n- today's weather\n- route planning\n- CSV forecasting\n- CSV anomaly detection\n\nFor mixed governance questions, decompose in this order:\n\n1. Get current measurements from realtime tools.\n2. Retrieve annual-report context with RAG.\n3. Synthesize the answer and keep the evidence types separate.\n\nFor broad Xi'an historical/background questions such as \"近年来西安市交通拥堵情况\",\n\"近几年西安交通运行趋势\", \"西安拥堵变化\", or \"西安拥堵治理情况\", prefer\n`rag_xian2024_min.py query` immediately. Do not first search `/mnt/user-data/workspace`,\nask for uploaded CSV data, or use web search unless the user explicitly asks for uploaded\ndata analysis, realtime status, or web search.\n\n## Prompt Guidance\n\nThe LLM decides the task family from the user's wording. Do not build script-level intent classifiers or rigid keyword rules.\n\n1. Realtime traffic, route, weather, geocoding, and nearby road-condition requests use `simple_baidu_services.py`.\n2. Descriptive CSV questions use CSV data analysis. This includes requests to analyze past days, summarize traffic conditions, compare roads/sensors/time periods, calculate averages/totals, describe peak/off-peak patterns, or explain historical trends.\n3. Future traffic-flow prediction uses `forecast_runner.py`.\n4. Abnormal flow, outlier, sudden jump, threshold breach, or anomaly detection uses `anomaly_runner.py`.\n5. Citywide Xi'an traffic background, recent-years congestion situation, traffic operation trends, annual-report facts, benchmark indicators, development context, and source-backed governance-report wording use `rag_xian2024_min.py query` after prompt-based intent judgment.\n6. If a user asks for realtime status plus policy/background explanation, run the realtime API first, then retrieve RAG evidence for context. Do not let RAG replace realtime measurements.\n7. If the user asks to use built-in, sample, local, existing, or database CSV data, list `/mnt/skills/custom/road-traffic-analysis/data/csv`, choose the best matching `.csv` by filename/path, then handle it like an uploaded CSV. If one local CSV clearly matches the user request, proceed with that file.\n8. If no local CSV matches or multiple files are equally plausible, ask the user to choose from candidate filenames.\n9. Uploaded/local CSV tasks must run `inspect` first, then perform semantic column mapping from actual columns.\n10. For CSV data analysis, the LLM decides the analysis plan after inspection:\n   - required: `timestamp_col` when time-window or trend analysis is requested\n   - common optional: traffic volume/count column, speed column, congestion column, road/sensor/location column, peak/off-peak column\n   - after mapping, write a small task-specific pandas analysis in bash; do not use a fixed summary script and do not read the whole CSV into model context\n11. For CSV forecasting/detection, mapping is LLM-decided after inspection:\n   - required: `timestamp_col`, `value_col`\n   - optional: `series_id_col`\n12. Ask only for missing required fields or necessary disambiguation. Do not guess city, file, timestamp/value mapping, frequency, horizon, threshold, or model/detector preference when unclear.\n13. If the user asks for CSV data analysis, forecasting, or anomaly detection without uploaded CSV, local CSV, or inline history data, ask for the data source. Do not infer trends from a single realtime Baidu response.\n14. Do not use web search for realtime weather or traffic unless the user explicitly asks to search the web.\n\n## Reference Loading\n\nLoad only the reference needed for the current task:\n\n- Realtime Baidu services: `references/realtime.md`\n- CSV data analysis: `references/data-analysis.md`\n- Forecasting: `references/forecasting.md`\n- Anomaly detection: `references/anomaly-detection.md`\n- Local CSV database selection: `references/local-csv-db.md`\n- RAG knowledge retrieval: `references/rag.md`\n- Examples and mixed workflows: `references/examples.md`\n\n## Quick Commands\n\nRealtime capabilities:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py --action capabilities\n```\n\nForecast model catalog:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/forecast_runner.py --action models\n```\n\nAnomaly detector catalog:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/anomaly_runner.py --action detectors\n```\n\nLocal CSV database listing:\n\n```bash\nfind /mnt/skills/custom/road-traffic-analysis/data/csv \\\n  -maxdepth 2 \\\n  -type f \\\n  -name \"*.csv\" \\\n  -printf \"%p\\n\"\n```\n\nCSV data analysis inspect:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/forecast_runner.py \\\n  --action inspect \\\n  --file /mnt/skills/custom/road-traffic-analysis/data/csv/traffic.csv \\\n  --head 100\n```\n\nRAG query for Xi'an 2024 annual-report evidence:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py \\\n  query \"西安市中心城区主干路高峰期平均速度是多少\" \\\n  --top-k 5\n```\n\nRAG uses the Elasticsearch index `xian_traffic_2024_min`. If the index is missing, import the prepared chunks first:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py build\n```\n\nThe RAG script defaults to `--retrieval-mode auto`: vector retrieval is used when embedding dependencies are installed; otherwise it uses Elasticsearch text search.\n\nCSV forecast inspect:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/forecast_runner.py \\\n  --action inspect \\\n  --file /mnt/user-data/uploads/traffic.csv \\\n  --head 100\n```\n\nCSV anomaly inspect:\n\n```bash\npython /mnt/skills/custom/road-traffic-analysis/scripts/anomaly_runner.py \\\n  --action inspect \\\n  --file /mnt/user-data/uploads/traffic.csv \\\n  --head 100\n```\n\n## Output Discipline\n\nAlways include:\n\n- selected task family and script/action used\n- input parameters or CSV mapping used\n- selected CSV path when local/uploaded CSV is used\n- key measured results first\n- assumptions and missing fields when applicable\n- output file path for forecast/anomaly exports\n- RAG citations as source, section path, and page range when RAG is used\n\nKeep interpretation conservative. For anomaly detection, describe results as abnormal, notable, suspicious, or investigation-worthy; do not claim incident cause or intent unless the data directly supports it.\n\n## Boundaries\n\n- Realtime Baidu APIs do not provide historical model training data.\n- Forecasting requires uploaded CSV, local CSV, or inline numeric history.\n- Anomaly detection requires uploaded CSV, local CSV, or inline numeric history.\n- CSV data analysis requires uploaded/local CSV data and must inspect schema before analysis.\n- Local CSV database currently supports `.csv` files only.\n- RAG currently covers the 2024 Xi'an traffic annual report only, stored in Elasticsearch index `xian_traffic_2024_min`. It provides background evidence and benchmark context, not realtime road conditions.\n- This skill no longer includes OSM graph parsing, graph retrieval, evidence building, or legacy congestion reports.\n"
+    },
+    {
+      "name": "bash",
+      "status": "error",
+      "content": "Error invoking tool 'bash' with kwargs {'command': 'ls /mnt/datasets'} with error:\n description: Field required\n Please fix the error and try again."
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "internal-data-employees  network-traffic  policy-demo  streetview-demo  trajectory-demo  Vedio-demo"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "/mnt/skills/custom/road-traffic-analysis/data/csv/三日小寨东路交通流量.csv"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "total 161712\ndrwxrwxr-x 2 1008 1009     4096 Jul 26 18:43 .\ndrwxrwxr-x 8 1008 1009     4096 Jul 24 11:22 ..\n-rw-rw-r-- 1 1008 1009 88071174 Jul 24 11:22 fight.mp4\n-rw-r--r-- 1 1008 1009  1533354 Jul 26 18:43 Trafic-30s.mp4\n-rw-rw-r-- 1 1008 1009 75965424 Jul 24 11:22 Trafic.mp4"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "/mnt/datasets/Vedio-demo/fight.mp4\n/mnt/datasets/Vedio-demo/Trafic-30s.mp4\n/mnt/datasets/Vedio-demo/Trafic.mp4"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "/mnt/datasets/Vedio-demo/Trafic.mp4:     ISO Media, MP4 Base Media v1 [ISO 14496-12:2003]\n/mnt/datasets/Vedio-demo/Trafic-30s.mp4: ISO Media, MP4 Base Media v1 [ISO 14496-12:2003]"
+    },
+    {
+      "name": "ask_clarification",
+      "status": "success",
+      "content": "❓ 用户要求统计上周全量视频库的车流量趋势和峰值，需要先明确数据来源和视频库范围，以及具体时间范围和分析粒度。\n\n我需要确认几个关键信息，以便为您提供准确的分析：\n\n1. **视频库范围**：您提到的\"整个视频库\"是指 `/mnt/datasets/Vedio-demo/` 目录下的这些视频文件吗？（Trafic.mp4、Trafic-30s.mp4），还是另有其他视频数据源？\n\n2. **时间范围定义**：\"上周\"具体是指哪一周？是 2026年7月13日-7月19日，还是您有特定的日期范围需要指定？当前可用视频文件中是否有对应的时间戳信息？\n\n3. **分析粒度**：时段划分您希望按每小时统计，还是更细的粒度（如每15分钟或每30分钟）？"
+    }
+  ]
+}

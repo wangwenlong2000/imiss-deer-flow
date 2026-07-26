@@ -36,6 +36,8 @@ python evidence-package-generation/scripts/run.py \
 
 Parameters: `--input`, `--index`, `--video-id`, `--event-json`, `--search-result-json`, `--raw-segment-uri`, `--event-id`, `--event-type`, `--event-time`, `--event-elapsed-seconds`, `--camera-id`, `--output-dir`, `--pre-seconds`, `--post-seconds`, `--config`, `--output`.
 
+Only `citybrain-video-library` is accepted for Elasticsearch video lookup. Other index values return `UNSUPPORTED_VIDEO_INDEX`.
+
 ## Workflow
 
 1. Resolve package items from event JSON, search results, or Elasticsearch video id lookup.
@@ -57,5 +59,7 @@ Returns `package_id`, `manifest_uri`, `manifest_hash`, `items`, `evidence`, and 
 ## Constraints
 
 Do not decide whether an event occurred and do not modify event confidence. This skill packages already available video/event evidence.
+
+Every field in the package must come from the actual inputs. Camera ID, location, and shooting time are external business records and cannot be recovered from a video file — when they are absent, record them as missing rather than supplying a plausible value. Never copy values from `skills/custom/video_surveillance/examples/` or from any file marked `"_example": true`; those are invented placeholders, and a package carrying them is a fabricated evidence record.
 
 Do not write custom FFmpeg, hashing, or JSON-packaging code for local video evidence requests unless this script returns a concrete unsupported failure. Do not run `ls`, `find`, `sha256sum`, `cat`, `read_file` on generated artifacts, or `present_files` after a successful result. Report the manifest path and key artifact paths from the script output in the final answer.

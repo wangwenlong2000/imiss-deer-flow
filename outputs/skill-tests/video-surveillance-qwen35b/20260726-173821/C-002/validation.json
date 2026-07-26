@@ -1,0 +1,52 @@
+{
+  "id": "C-002",
+  "mode": "video",
+  "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。",
+  "thread_id": "e5af4e2f-8981-46a4-9b29-a262c255b101",
+  "video_file": "Vedio-demo/Trafic.mp4",
+  "uploaded_file": {
+    "filename": "Trafic.mp4",
+    "size": 75965424,
+    "path": "/mnt/user-data/uploads/Trafic.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "0d21c76a-5e2d-49c9-baa2-5ce64793ed62",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "视频元数据已完整提取并整理为标准输入格式，保存至 `/mnt/user-data/workspace/traffic_video_metadata.json`。以下是关键信息汇总：\n\n**基础信息**\n| 字段 | 值 |\n|---|---|\n| 文件路径 | `/mnt/user-data/uploads/Trafic.mp4` |\n| 文件大小 | 72.4 MB（75,965,424 字节） |\n| 摄像头ID | CAM_DEERFLOW_001 |\n| 容器格式 | MP4 (isom) |\n\n**视频流参数**\n| 字段 | 值 |\n|---|---|\n| 编码格式 | H.264 |\n| 分辨率 | 1280 × 674（16:9） |\n| 帧率 | 12 fps |\n| 总帧数 | 10,811 帧 |\n| 像素格式 | yuv420p |\n\n**时长与时间**\n| 字段 | 值 |\n|---|---|\n| 总时长 | 900.9 秒（约14分59秒） |\n| 码率 | ~675 kbps |\n| 音频轨道 | 无 |\n\n标准输入文件已就绪，后续分析可直接读取该 JSON 作为统一输入源。",
+  "passed": true
+}

@@ -6,6 +6,7 @@ import json
 import math
 import shutil
 import subprocess
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from hashlib import sha1, sha256
@@ -20,16 +21,50 @@ except Exception:
 
 VERSION = "1.0.0"
 
+class SkillInputError(Exception):
+    """Input file could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def argv_output() -> str | None:
+    """Best-effort --output path so early input failures still honour it."""
+    argv = sys.argv
+    if "--output" in argv:
+        index = argv.index("--output")
+        if index + 1 < len(argv):
+            return argv[index + 1]
+    return None
+
+
 def load_structured(path: str | None) -> Any:
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
     if source.suffix.lower() in {".yaml", ".yml"}:
         if yaml is None:
-            raise RuntimeError("PyYAML is required to read YAML files")
-        return yaml.safe_load(text) or {}
-    return json.loads(text) if text.strip() else {}
+            raise SkillInputError("INPUT_INVALID_YAML", "PyYAML is required to read YAML files")
+        try:
+            return yaml.safe_load(text) or {}
+        except Exception as exc:  # noqa: BLE001 - yaml raises library specific errors
+            raise SkillInputError("INPUT_INVALID_YAML", f"Invalid YAML in {path}: {exc}") from exc
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 def load_config(path: str | None) -> dict[str, Any]:
     data = load_structured(path)
@@ -165,13 +200,20 @@ def iter_detection_objects(detections: list[dict[str, Any]]):
             yield enriched
 
 SKILL = "object-detection"
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "deerflow_config.json"
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "yolov8n.pt"
 
 def run_ultralytics(frames, labels, thresholds, model_config):
     try:
         from ultralytics import YOLO
     except ModuleNotFoundError:
         return failed(SKILL, "YOLO_DEPENDENCY_MISSING", "ultralytics is not installed")
-    model_path = model_config.get("model_path") or model_config.get("name", "yolov8n.pt")
+    model_path = model_config.get("model_path") or str(DEFAULT_MODEL_PATH)
+    if not str(model_path).startswith("/"):
+        local_model_path = DEFAULT_MODEL_PATH.parent / str(model_path)
+        model_path = str(local_model_path)
+    if not Path(str(model_path)).is_file():
+        return failed(SKILL, "YOLO_MODEL_NOT_FOUND", f"YOLO model file not found: {model_path}")
     try:
         model = YOLO(model_path)
     except Exception as exc:
@@ -213,7 +255,8 @@ def main() -> int:
     p.add_argument("--output")
     args = p.parse_args()
     input_data = load_input(args.input)
-    config = load_config(args.config)
+    config_path = args.config or (str(DEFAULT_CONFIG_PATH) if DEFAULT_CONFIG_PATH.is_file() else None)
+    config = load_config(config_path)
     frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
     precomputed = input_list(input_data, "detections")
     if precomputed and not frames:
@@ -236,4 +279,20 @@ def main() -> int:
     return emit(result, args.output)
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SkillInputError as exc:
+        raise SystemExit(
+            emit(
+                {
+                    "skill": SKILL,
+                    "version": VERSION,
+                    "status": "failed",
+                    "error_code": exc.code,
+                    "message": exc.message,
+                    "retryable": False,
+                    "detail": {},
+                },
+                argv_output(),
+            )
+        )

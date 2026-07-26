@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Any
 
 
+DEFAULT_VIDEO_LIBRARY_INDEX = "citybrain-video-library"
+DEFAULT_EMBEDDING_STORAGE_MODE = "in_place"
+
+
 CAPABILITIES: dict[str, dict[str, Any]] = {
     "video_asset_retrieval": {
         "label": "视频资产检索",
@@ -18,8 +22,8 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
     "semantic_video_retrieval": {
         "label": "语义视频检索",
         "skills": ["video-search"],
-        "deliverables": ["语义相似视频列表", "相似度或排序", "语义命中原因"],
-        "keywords": ["语义", "streetmodel", "相似", "画面里", "傍晚", "下雨", "行人过马路", "交通拥堵", "变道", "可疑行为"],
+        "deliverables": ["关键词命中列表", "语义相似视频列表", "融合排序", "语义命中原因"],
+        "keywords": ["语义", "streetmodel", "相似", "以图搜视频", "图片搜索视频", "这张图", "画面里", "傍晚", "下雨", "行人过马路", "交通拥堵", "变道", "可疑行为"],
     },
     "single_video_event_understanding": {
         "label": "单视频事件理解",
@@ -27,11 +31,32 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "deliverables": ["视觉时间线", "事件候选", "证据帧", "置信度", "人工复核状态"],
         "keywords": ["分析", "检测", "打架", "事故", "摔倒", "入侵", "烟雾", "火灾", "人群聚集", "发生了什么"],
     },
+    "video_metadata_normalization": {
+        "label": "视频元数据规范化",
+        "skills": ["video-stream-ingestion"],
+        "deliverables": ["video_session_id", "raw_segment_uri", "时长/分辨率/帧率", "编码信息", "标准输入 JSON"],
+        "keywords": [
+            "时长", "分辨率", "帧率", "fps", "编码", "码率", "元数据", "metadata",
+            "标准输入", "规范化", "标准化", "视频信息", "基本信息", "ffprobe",
+        ],
+    },
     "object_statistics": {
         "label": "对象统计与趋势分析",
         "skills": ["object-statistics"],
         "deliverables": ["统计表", "分布/比例", "趋势摘要", "报告结论"],
         "keywords": ["统计", "多少", "分布", "比例", "车流量", "人流量", "峰值", "平均停留", "每个时间段"],
+    },
+    "object_detection": {
+        "label": "视频目标检测",
+        "skills": ["video-object-analytics"],
+        "deliverables": ["逐帧目标数量", "目标类别", "检测结果"],
+        "keywords": ["目标检测", "检测目标", "检测画面", "几个人", "几辆车", "有哪些人", "有哪些车", "主要目标", "对象检测", "识别目标", "人车目标"],
+    },
+    "object_tracking": {
+        "label": "视频目标跟踪",
+        "skills": ["video-object-analytics"],
+        "deliverables": ["track_id", "目标轨迹", "持续时间", "移动/静止状态"],
+        "keywords": ["跟踪", "轨迹", "跨帧", "怎么移动", "移动路线", "目标运动", "追踪人员", "追踪车辆"],
     },
     "evidence_preservation": {
         "label": "证据固化",
@@ -103,6 +128,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
 CHAIN_EXPANSIONS: dict[str, list[str]] = {
     "semantic_video_retrieval": ["video-search"],
     "single_video_event_understanding": ["single-video-event-analysis"],
+    "video_metadata_normalization": ["video-stream-ingestion"],
     "evidence_preservation": ["evidence-package-generation"],
     "camera_health_operations": ["frame-sampling", "camera-health-check"],
 }
@@ -127,7 +153,10 @@ CAPABILITY_PRIORITY = [
     "development_test",
     "camera_health_operations",
     "cross_video_investigation",
+    "video_metadata_normalization",
     "single_video_event_understanding",
+    "object_tracking",
+    "object_detection",
     "object_statistics",
     "evidence_preservation",
     "video_library_governance",
@@ -143,6 +172,7 @@ CHAIN_ORDER = [
     "camera-health-check",
     "object-statistics",
     "object-tracking",
+    "video-object-analytics",
     "roi-mapping",
     "single-video-event-analysis",
     "evidence-snapshot",
@@ -158,17 +188,63 @@ def normalize(text: str) -> str:
 
 
 def score_keywords(request: str, keywords: list[str]) -> int:
-    req = normalize(request)
+    req = strip_ambiguous_keywords(request)
     return sum(1 for keyword in keywords if normalize(keyword) in req)
 
 
+# “模糊”“遮挡”既可能描述画面质量，也可能出现在“模糊车牌”“文字被遮挡”这类
+# OCR/身份类越界请求中。后者不应被算作摄像头健康信号，否则能力边界问题会被
+# 路由到 camera_health_operations。
+AMBIGUOUS_QUALITY_PHRASES = [
+    "模糊车牌",
+    "模糊的车牌",
+    "车牌模糊",
+    "模糊文字",
+    "文字模糊",
+]
+
+
+def strip_ambiguous_keywords(request: str) -> str:
+    req = normalize(request)
+    for phrase in AMBIGUOUS_QUALITY_PHRASES:
+        req = req.replace(normalize(phrase), "")
+    return req
+
+
+# “我上传了一段监控”只是在描述附件来源，不是要求把视频入库。
+# 只有“入库/导入/上传到视频库”这类动作才应进入 video_library_governance。
+UPLOAD_DESCRIPTION_PHRASES = [
+    "我上传了",
+    "我已上传",
+    "已上传",
+    "刚上传",
+    "上传了一段",
+    "上传了一个",
+    "上传的视频",
+    "上传的这段",
+    "上传的录像",
+]
+
+
 def select_capability(request: str) -> str:
+    request_without_existing_ingestion = request.replace("已入库", "")
+    for phrase in UPLOAD_DESCRIPTION_PHRASES:
+        request_without_existing_ingestion = request_without_existing_ingestion.replace(phrase, "")
+    if any(word in request_without_existing_ingestion for word in ["入库", "导入", "上传"]):
+        return "video_library_governance"
     if (
         any(word in request for word in ["测试", "benchmark", "准不准"])
         or ("效果" in request and any(word in request for word in ["StreetModel", "streetmodel", "嵌入", "检索", "搜索"]))
         or ("关键词搜索" in request and "向量搜索" in request)
     ):
         return "development_test"
+    # Explicit object analytics must win over generic video/search/event words.
+    # For example, “前两秒有几辆车” contains both “视频/画面” and “多少”;
+    # it must not be routed to semantic retrieval or a business event review.
+    if any(word in request for word in CAPABILITIES["object_tracking"]["keywords"]):
+        return "object_tracking"
+    if any(word in request for word in CAPABILITIES["object_detection"]["keywords"]):
+        return "object_detection"
     scores = {name: score_keywords(request, data["keywords"]) for name, data in CAPABILITIES.items()}
     if re.search(r"\.(mp4|mov|avi|mkv|webm)\b", request, flags=re.IGNORECASE) and scores["single_video_event_understanding"] > 0:
         scores["single_video_event_understanding"] += 2
@@ -179,7 +255,23 @@ def select_capability(request: str) -> str:
     if scores["cross_video_investigation"] > 0:
         scores["cross_video_investigation"] += 1
     winner, score = max(scores.items(), key=lambda item: (item[1], -CAPABILITY_PRIORITY.index(item[0])))
-    return winner if score > 0 else "video_asset_retrieval"
+    if score <= 0:
+        return "video_asset_retrieval"
+    # 单个本地视频的计数请求要走 video-object-analytics，而不是依赖视频库索引的
+    # object-statistics；否则在没有索引记录时只会拿到空统计或索引错误。
+    if winner == "object_statistics" and is_single_local_video_request(request):
+        return "object_detection"
+    return winner
+
+
+SINGLE_VIDEO_PATTERNS = ["这段视频", "这个视频", "本段视频", "本视频", "该视频", "上传的视频", "这段录像", "这个录像"]
+
+
+def is_single_local_video_request(request: str) -> bool:
+    req = normalize(request)
+    if not any(normalize(pattern) in req for pattern in SINGLE_VIDEO_PATTERNS) and not has_video_path(request):
+        return False
+    return not has_camera_id(request) and not has_time_range(request)
 
 
 def select_scenario(request: str, capability: str) -> str:
@@ -285,21 +377,61 @@ def missing_fields(request: str, capability: str, scenario: str) -> list[str]:
             fields.append("统计时间范围")
         if not video_source_known and not has_specific_place(request):
             fields.append("视频来源或检索条件")
+    elif capability in {"object_detection", "object_tracking"}:
+        if not has_video_path(request):
+            fields.append("视频文件路径")
     elif capability == "evidence_preservation":
         if not has_video_path(request):
             fields.append("视频文件路径")
         if not has_time_range(request):
             fields.append("事件时间或片段范围")
+    elif capability == "video_metadata_normalization":
+        if not video_source_known and not has_video_path(request):
+            fields.append("视频文件路径")
 
     return unique(fields)
 
 
-def follow_up_question(fields: list[str]) -> str | None:
+def ingestion_input_question() -> str:
+    return """请按以下格式提供视频入库信息；每次入库都会从视频抽取代表帧并自动生成图片向量，把 StreetModel 向量原位写入同一条源视频文档，不依赖视频共享挂载目录；向量失败时源文档仍会保留，不需要提供 vector 数组，只填写已知字段即可：
+{
+  "index": "citybrain-video-library",
+  "target_index": "citybrain-video-library",
+  "embedding_storage_mode": "in_place",
+  "videos": [
+    {
+      "file_path": "/path/to/video.mp4",
+      "video_id": "可选的唯一视频ID",
+      "camera_id": "可选的摄像头ID",
+      "started_at": "可选，ISO 8601 时间",
+      "location": {"city": "可选", "district": "可选", "address": "可选"},
+      "description": "可选的视频描述",
+      "tags": ["可选标签"]
+    }
+  ]
+}
+也可以只回复视频文件路径或目录。"""
+
+
+def follow_up_question(fields: list[str], request: str = "", capability: str = "") -> str | None:
     if not fields:
         return None
+    if capability == "video_library_governance" and "视频文件路径或目录" in fields:
+        return ingestion_input_question()
     if len(fields) == 1:
         return f"请问{fields[0]}是什么？".replace(" ID是什么", " ID 是什么")
     return f"请问{'、'.join(fields[:-1])}和{fields[-1]}是什么？".replace(" ID是什么", " ID 是什么")
+
+
+EVENT_INTENT_WORDS = [
+    "事故", "打架", "摔倒", "入侵", "烟雾", "火灾", "人群聚集", "拥堵",
+    "异常", "事件", "发生了什么", "可疑",
+]
+
+
+def has_event_intent(request: str) -> bool:
+    req = normalize(request)
+    return any(normalize(word) in req for word in EVENT_INTENT_WORDS)
 
 
 def recommended_chain(capability: str, scenario: str, request: str) -> list[str]:
@@ -311,8 +443,14 @@ def recommended_chain(capability: str, scenario: str, request: str) -> list[str]
 
     if capability == "semantic_video_retrieval":
         chain = ["video-search"]
+    if capability in {"object_detection", "object_tracking"}:
+        chain = ["video-object-analytics"]
     if capability == "evidence_preservation" and has_video_path(request) and has_time_range(request):
         chain = ["evidence-package-generation"]
+    # 复合请求：先看画面质量、再判断有没有事件。健康检查不能替代事件语义分析，
+    # 事件判断必须走唯一入口 single-video-event-analysis。
+    if capability == "camera_health_operations" and has_event_intent(request):
+        chain.append("single-video-event-analysis")
     if any(word in request for word in ["隐私", "车牌", "人脸", "遮蔽", "模糊人脸", "模糊车牌"]):
         chain.append("privacy-masking")
     if any(word in request for word in ["人工", "复核"]):
@@ -337,18 +475,19 @@ def recommended_chain(capability: str, scenario: str, request: str) -> list[str]
 
 def build_steps(chain: list[str]) -> list[dict[str, str]]:
     labels = {
-        "video-search": "Load video-search and query indexed videos with structured filters or semantic mode.",
+        "video-search": "Load video-search. Use image-vector retrieval for image input; for text input use keyword matching plus LLM-optimized text-to-video vector retrieval and fuse both result lists.",
         "single-video-event-analysis": "Load single-video-event-analysis and inspect frames for visible event evidence.",
         "evidence-package-generation": "Load evidence-package-generation and run it once. For a local video path plus HH:MM:SS/MM:SS offset, pass --raw-segment-uri and --event-elapsed-seconds directly; summarize package_id, manifest_uri, manifest_hash, and artifact_summary, then stop.",
         "privacy-masking": "Load privacy-masking when explicit sensitive regions or privacy config are available.",
         "object-statistics": "Load object-statistics and aggregate counts, distributions, or trends.",
         "video-stream-ingestion": "Load video-stream-ingestion to normalize local video files; do not pre-probe with ls or ffprobe.",
         "batch-video-ingestion": "Load batch-video-ingestion and run metadata-only ingestion, preserving user-provided camera, time, location, description, and tags; do not run object detection unless explicitly requested.",
-        "video-embedding-index": "Load video-embedding-index to create or update vector search fields; run once and report any StreetModel failure without probing service health.",
+        "video-embedding-index": "Load video-embedding-index, extract representative frames locally, submit them as inline images to StreetModel, aggregate the image vectors, and enrich the source video document in place. Do not require a shared video mount. Run once and report any StreetModel failure without probing service health.",
         "camera-health-check": "Load camera-health-check after frames are available.",
         "frame-sampling": "Load frame-sampling to create stable frame records from video.",
         "human-review-routing": "Load human-review-routing to decide manual review status.",
         "object-tracking": "Load object-tracking for track-level object analytics.",
+        "video-object-analytics": "Call the structured video_object_analytics tool. Do not call bash or compose downstream CLI commands. Use operation=detect for object counts and operation=track for cross-frame trajectories.",
     }
     if not chain:
         return [{"step": "1", "skill": "video-search", "action": "Start with indexed video retrieval, then refine using the result."}]
@@ -356,14 +495,15 @@ def build_steps(chain: list[str]) -> list[dict[str, str]]:
 
 
 def capability_gap(request: str, capability: str) -> dict[str, Any] | None:
+    lowered = normalize(request)
     gaps = []
-    if any(word in request for word in ["实时", "rtsp", "gb28181", "直播"]):
+    if any(word in lowered for word in ["实时", "rtsp", "gb28181", "直播", "实时流"]):
         gaps.append("Real-time stream connection is not covered by current local-video skills.")
-    if any(word in request for word in ["同一人", "人脸识别", "身份识别"]):
-        gaps.append("Cross-camera identity recognition requires a dedicated identity-matching capability.")
-    if "热力图" in request:
+    if any(word in lowered for word in ["同一人", "人脸", "身份", "认人", "是谁"]):
+        gaps.append("Person identity recognition is not provided by current skills; detection boxes carry no identity.")
+    if "热力图" in lowered:
         gaps.append("Heatmap visualization is only partially supported unless aggregated location bins already exist.")
-    if any(word in request for word in ["ocr", "文字识别", "车牌识别"]):
+    if any(word in lowered for word in ["ocr", "文字识别", "车牌"]):
         gaps.append("OCR or license-plate recognition is not provided by current skills.")
     if capability == "cross_video_investigation" and not gaps:
         gaps.append("Cross-video investigation is partially supported by retrieval, tracking, and statistics; reliable identity correlation may need additional business confirmation.")
@@ -375,6 +515,7 @@ def capability_gap(request: str, capability: str) -> dict[str, Any] | None:
 def build_plan(request: str, role: str | None = None) -> dict[str, Any]:
     combined_request = f"{role or ''} {request}".strip()
     capability = select_capability(combined_request)
+    embedding_attempt_required = capability == "video_library_governance"
     scenario = select_scenario(combined_request, capability)
     chain = recommended_chain(capability, scenario, combined_request)
     capability_data = CAPABILITIES.get(capability, CAPABILITIES["video_asset_retrieval"])
@@ -383,6 +524,8 @@ def build_plan(request: str, role: str | None = None) -> dict[str, Any]:
     requires_confirmation = any(normalize(pattern) in normalize(combined_request) for pattern in DESTRUCTIVE_PATTERNS)
     requires_human_review = any(pattern in combined_request for pattern in HUMAN_REVIEW_PATTERNS)
     deliverables = unique(list(scenario_data.get("deliverables", [])) + list(capability_data["deliverables"]))
+    if capability == "video_library_governance":
+        deliverables = ["入库状态", "video_id", "统一视频索引", "嵌入状态", "失败列表"]
     missing = missing_fields(combined_request, capability, scenario)
     guardrails = [
         "Do not write ad hoc code for this business request.",
@@ -398,7 +541,10 @@ def build_plan(request: str, role: str | None = None) -> dict[str, Any]:
     if capability == "evidence_preservation" and has_video_path(combined_request) and has_time_range(combined_request):
         guardrails.append("For local video evidence packages, call evidence-package-generation once with direct CLI fields and stop after summarizing the returned package. Do not list, read, hash, or present generated files after success.")
     if capability == "video_library_governance":
-        guardrails.append("For ordinary ingestion or ingest-and-embed, use metadata-only ingestion and preserve provided business metadata. Do not run object detection unless explicitly requested.")
+        guardrails.append("Use metadata-only source ingestion and preserve provided business metadata. Do not run object detection unless explicitly requested.")
+        guardrails.append("Every ingestion must attempt an in-place StreetModel sampled-frame image enrichment of the same source-index document after insertion, without requiring a shared video mount.")
+        guardrails.append("Use a partial Elasticsearch document update for in-place enrichment. Never replace the complete source document with a compact vector document.")
+        guardrails.append("If embedding fails after source ingestion succeeds, keep the source document, do not roll it back, and report overall_status=partial_success with source_ingestion_status=success, vector_status=failed, and the concrete vector failure.")
         guardrails.append("After embedding succeeds or returns a concrete StreetModel failure, summarize and stop. Do not probe Elasticsearch or StreetModel health unless debugging was requested.")
 
     return {
@@ -415,8 +561,13 @@ def build_plan(request: str, role: str | None = None) -> dict[str, Any]:
         "recommended_skill_chain": chain,
         "execution_plan": build_steps(chain),
         "expected_deliverables": deliverables,
+        "embedding_attempt_required": embedding_attempt_required,
+        "embedding_failure_policy": "keep_source_and_report_partial_success" if embedding_attempt_required else None,
+        "source_index": DEFAULT_VIDEO_LIBRARY_INDEX if embedding_attempt_required else None,
+        "embedding_target_index": DEFAULT_VIDEO_LIBRARY_INDEX if embedding_attempt_required else None,
+        "embedding_storage_mode": DEFAULT_EMBEDDING_STORAGE_MODE if embedding_attempt_required else None,
         "missing_fields": missing,
-        "follow_up_question": follow_up_question(missing),
+        "follow_up_question": follow_up_question(missing, combined_request, capability),
         "guardrails": guardrails,
         "requires_confirmation": requires_confirmation,
         "requires_human_review": requires_human_review,

@@ -1,0 +1,47 @@
+{
+  "skill": "city-video-intelligence",
+  "version": "1.0.0",
+  "status": "success",
+  "request": "请分析 /mnt/datasets/Vedio-demo/Trafic.mp4 是否存在打架、摔倒或交通事故，并给出可见证据时间线",
+  "role": null,
+  "mode": "business_operation",
+  "capability": "single_video_event_understanding",
+  "capability_label": "单视频事件理解",
+  "business_scenario": "generic_video_intelligence",
+  "business_scenario_label": "generic_video_intelligence",
+  "recommended_skill_chain": [
+    "single-video-event-analysis"
+  ],
+  "execution_plan": [
+    {
+      "step": "1",
+      "skill": "single-video-event-analysis",
+      "action": "Load single-video-event-analysis and inspect frames for visible event evidence."
+    }
+  ],
+  "expected_deliverables": [
+    "视觉时间线",
+    "事件候选",
+    "证据帧",
+    "置信度",
+    "人工复核状态"
+  ],
+  "embedding_attempt_required": false,
+  "embedding_failure_policy": null,
+  "source_index": null,
+  "embedding_target_index": null,
+  "embedding_storage_mode": null,
+  "missing_fields": [],
+  "follow_up_question": null,
+  "guardrails": [
+    "Do not write ad hoc code for this business request.",
+    "Load each downstream skill's SKILL.md before executing its script.",
+    "Return capability_gap instead of implementing missing functionality.",
+    "If follow_up_question is present, stop immediately and make the whole visible response exactly that question.",
+    "If a downstream video skill fails, summarize the concrete failure and stop instead of debugging services.",
+    "Include evidence references and human-review status for high-risk or enforcement-sensitive conclusions."
+  ],
+  "requires_confirmation": false,
+  "requires_human_review": true,
+  "capability_gap": null
+}

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import sys
 import os
 import urllib.error
 import urllib.request
@@ -22,16 +23,56 @@ VERSION = "1.0.0"
 DEFAULT_INDEX = "citybrain-video-library"
 
 
+def require_video_index(index: str) -> str:
+    if index != DEFAULT_INDEX:
+        raise ValueError(f"Only {DEFAULT_INDEX} is allowed for indexed video statistics; received {index}")
+    return index
+
+
+class SkillInputError(Exception):
+    """Input file could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def argv_output() -> str | None:
+    """Best-effort --output path so early input failures still honour it."""
+    argv = sys.argv
+    if "--output" in argv:
+        index = argv.index("--output")
+        if index + 1 < len(argv):
+            return argv[index + 1]
+    return None
+
+
 def load_structured(path: str | None) -> Any:
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
     if source.suffix.lower() in {".yaml", ".yml"}:
         if yaml is None:
-            raise RuntimeError("PyYAML is required to read YAML files")
-        return yaml.safe_load(text) or {}
-    return json.loads(text) if text.strip() else {}
+            raise SkillInputError("INPUT_INVALID_YAML", "PyYAML is required to read YAML files")
+        try:
+            return yaml.safe_load(text) or {}
+        except Exception as exc:  # noqa: BLE001 - yaml raises library specific errors
+            raise SkillInputError("INPUT_INVALID_YAML", f"Invalid YAML in {path}: {exc}") from exc
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 
 def load_config(path: str | None) -> dict[str, Any]:
@@ -231,6 +272,10 @@ def main() -> int:
     parser.add_argument("--config")
     parser.add_argument("--output")
     args = parser.parse_args()
+    try:
+        args.index = require_video_index(args.index)
+    except ValueError as exc:
+        return emit(failed("UNSUPPORTED_VIDEO_INDEX", str(exc), False, {"allowed_index": DEFAULT_INDEX, "received_index": args.index}), args.output)
     input_data = load_structured(args.input) if args.input else {}
     input_data = input_data if isinstance(input_data, dict) else {}
     detections = load_list(args.detections_json, "detections") if args.detections_json else input_value(input_data, "detections", default=[])
@@ -255,4 +300,20 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SkillInputError as exc:
+        raise SystemExit(
+            emit(
+                {
+                    "skill": SKILL,
+                    "version": VERSION,
+                    "status": "failed",
+                    "error_code": exc.code,
+                    "message": exc.message,
+                    "retryable": False,
+                    "detail": {},
+                },
+                argv_output(),
+            )
+        )

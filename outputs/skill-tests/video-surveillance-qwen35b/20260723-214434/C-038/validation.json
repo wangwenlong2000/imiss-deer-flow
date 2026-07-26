@@ -1,0 +1,31 @@
+{
+  "id": "C-038",
+  "mode": "boundary",
+  "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+  "thread_id": "a4f569f1-d142-4e9d-a1f2-e1ed54991fcb",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "9317788d-c933-4ff3-9288-a3b6c3f36f1e",
+  "models_observed": [],
+  "expected_skills": [
+    "human-review-routing"
+  ],
+  "actual_skills": [
+    "data-analysis"
+  ],
+  "missing_expected_skills": [
+    "human-review-routing"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [
+    {
+      "error": "AuthenticationError",
+      "message": "An internal error occurred"
+    }
+  ],
+  "error": null,
+  "final_answer": "<system_reminder>\nUse the following current-turn intent and routing guidance when deciding whether to create or update todos. Treat it as planning context, not as a user request.\n<hidden_step source=\"intent_recognition\" title=\"意图识别\">\n改写后的任务：场景：视频监控。场景ID：video_surveillance\n识别场景：视频监控 (video_surveillance)；场景模式：single；候选场景：video_surveillance\n场景任务：\n- video_surveillance: 事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？；参数：{'视频对象': '', '监控目标': '', '时间范围': '', '输出形式': ''}\n已提取参数：{'视频对象': '', '监控目标': '', '时间范围': '', '输出形式': ''}\n任务提示：\n- 提取必填参数：视频对象。需要分析的监控视频、摄像头、视频流、录像文件、实时画面、卡口视频或视频帧\n- 提取可选参数：监控目标。需要识别或分析的对象、行为或事件，如人员聚集、车辆违停、越界、烟火、异常停留、摔倒、入侵、打架、遗留物、通行计数等\n- 提取可选参数：时间范围。视频分析的起止时间、日期、时段、时刻或实时窗口\n- 提取可选参数：输出形式。用户期望的输出，如告警、截图、时间点清单、检测结果、表格、报告、标注说明或风险摘要\n</hidden_step>\n</system_reminder>",
+  "passed": false
+}

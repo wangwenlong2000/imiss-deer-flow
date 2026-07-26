@@ -1,0 +1,38 @@
+{
+  "id": "E09",
+  "covers": "抽帧：只准备审查素材，不下事件结论",
+  "skills": [
+    "frame-sampling"
+  ],
+  "question": "请从这段视频里每隔 5 秒抽一帧，只准备后续审查用的素材，不要判断有没有事件。",
+  "thread_id": "5ec42619-a103-4d00-a30c-824563dbadbb",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 227.4,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "present_files",
+      "read_file"
+    ],
+    "skills_touched": [
+      "frame-sampling"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 425,
+    "clarifications": []
+  }
+}

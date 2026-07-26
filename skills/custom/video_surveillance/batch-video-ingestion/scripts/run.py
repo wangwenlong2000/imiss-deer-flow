@@ -23,19 +23,62 @@ except Exception:
 SKILL = "batch-video-ingestion"
 VERSION = "1.0.0"
 DEFAULT_INDEX = "citybrain-video-library"
+DEFAULT_STREETMODEL_MODEL = "Qwen3-VL-Embedding-2B"
+DEFAULT_STREETMODEL_VECTOR_FIELD = "video_vector-Qwen3-VL-Embedding-2B_urban_governance"
+DEFAULT_STREETMODEL_DIMS = 2048
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
+
+
+def require_video_index(index: str) -> str:
+    if index != DEFAULT_INDEX:
+        raise ValueError(f"Only {DEFAULT_INDEX} is allowed for video ingestion; received {index}")
+    return index
+
+
+class SkillInputError(Exception):
+    """Input file could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def argv_output() -> str | None:
+    """Best-effort --output path so early input failures still honour it."""
+    argv = sys.argv
+    if "--output" in argv:
+        index = argv.index("--output")
+        if index + 1 < len(argv):
+            return argv[index + 1]
+    return None
 
 
 def load_structured(path: str | None) -> Any:
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
     if source.suffix.lower() in {".yaml", ".yml"}:
         if yaml is None:
-            raise RuntimeError("PyYAML is required to read YAML files")
-        return yaml.safe_load(text) or {}
-    return json.loads(text) if text.strip() else {}
+            raise SkillInputError("INPUT_INVALID_YAML", "PyYAML is required to read YAML files")
+        try:
+            return yaml.safe_load(text) or {}
+        except Exception as exc:  # noqa: BLE001 - yaml raises library specific errors
+            raise SkillInputError("INPUT_INVALID_YAML", f"Invalid YAML in {path}: {exc}") from exc
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 
 def load_config(path: str | None) -> dict[str, Any]:
@@ -91,6 +134,10 @@ class EsClient:
         self.username = os.getenv("ES_USERNAME") or nested_es.get("username") or es_config.get("username")
         self.password = os.getenv("ES_PASSWORD") or nested_es.get("password") or es_config.get("password")
         self.vector_dims = int(os.getenv("VIDEO_VECTOR_DIMS") or lib_config.get("vector_dims") or 384)
+        street_config = config.get("streetmodel_embedding", {}) if isinstance(config.get("streetmodel_embedding"), dict) else {}
+        self.streetmodel_model = str(street_config.get("model_name") or DEFAULT_STREETMODEL_MODEL)
+        self.streetmodel_vector_field = str(street_config.get("vector_field") or DEFAULT_STREETMODEL_VECTOR_FIELD)
+        self.streetmodel_dims = int(street_config.get("dimensions") or DEFAULT_STREETMODEL_DIMS)
 
     def request(self, method: str, path: str, body: Any | None = None, ok: set[int] | None = None) -> tuple[int, Any]:
         ok = ok or {200, 201}
@@ -122,6 +169,12 @@ class EsClient:
     def ensure_index(self, index: str) -> None:
         status, _ = self.request("HEAD", index, ok={200, 404})
         if status == 200:
+            self.request(
+                "PUT",
+                f"{index}/_mapping",
+                {"properties": self.embedding_properties()},
+                ok={200},
+            )
             return
         mapping = {
             "mappings": {
@@ -148,13 +201,47 @@ class EsClient:
                     "object_summary": {"type": "object", "enabled": True},
                     "tracks_summary": {"type": "object", "enabled": True},
                     "metadata": {"type": "object", "enabled": True},
+                    "tags": {"type": "keyword"},
                     "created_at": {"type": "date"},
                     "updated_at": {"type": "date"},
-                    "vector": {"type": "dense_vector", "dims": self.vector_dims, "index": True, "similarity": "cosine"}
+                    "vector": {"type": "dense_vector", "dims": self.vector_dims, "index": True, "similarity": "cosine"},
+                    **self.embedding_properties(),
                 }
             }
         }
         self.request("PUT", index, mapping, ok={200, 201})
+
+    def embedding_properties(self) -> dict[str, Any]:
+        return {
+            "embedding_owner": {"type": "keyword"},
+            "embedding_status": {"type": "keyword"},
+            "embedding_provider": {"type": "keyword"},
+            "embedding_model": {"type": "keyword"},
+            "embedding_vector_field": {"type": "keyword"},
+            "embedding_text": {"type": "text"},
+            "embedding_updated_at": {"type": "date"},
+            "embedding_error": {"type": "object", "enabled": False},
+            "deerflow_video_path": {"type": "keyword"},
+            "video_embedding_uri": {"type": "keyword"},
+            "video_embedding_source_uri": {"type": "keyword"},
+            "video_embedding_proxy_uri": {"type": "keyword"},
+            "video_embedding_proxy_path": {"type": "keyword"},
+            "video_embedding_preprocess_mode": {"type": "keyword"},
+            "video_embedding_input_type": {"type": "keyword"},
+            "video_embedding_frame_aggregation": {"type": "keyword"},
+            "video_embedding_frame_media_type": {"type": "keyword"},
+            "video_embedding_source_duration_seconds": {"type": "float"},
+            "video_embedding_sample_fps": {"type": "float"},
+            "video_embedding_effective_sample_fps": {"type": "float"},
+            "video_embedding_sampled_frames": {"type": "integer"},
+            "video_embedding_dimensions": {"type": "integer"},
+            self.streetmodel_vector_field: {
+                "type": "dense_vector",
+                "dims": self.streetmodel_dims,
+                "index": True,
+                "similarity": "cosine",
+            },
+        }
 
     def index_doc(self, index: str, doc_id: str, doc: dict[str, Any]) -> None:
         self.request("PUT", f"{index}/_doc/{doc_id}", doc, ok={200, 201})
@@ -405,6 +492,12 @@ def ingest_one(record: dict[str, Any], index: str, config: dict[str, Any], confi
         "object_summary": {"total_objects": total_objects, "by_label": label_counts, "analysis_status": detections_result.get("status"), "detections": detections[:50]},
         "tracks_summary": summarize_tracks(tracks),
         "metadata": metadata,
+        "tags": record.get("tags") or [],
+        "embedding_status": "pending",
+        "embedding_provider": "streetmodel",
+        "embedding_model": es.streetmodel_model,
+        "embedding_vector_field": es.streetmodel_vector_field,
+        "embedding_updated_at": now,
         "created_at": now,
         "updated_at": now,
     }
@@ -412,7 +505,17 @@ def ingest_one(record: dict[str, Any], index: str, config: dict[str, Any], confi
         doc["vector"] = record["vector"]
     doc["content_text"] = build_content_text(record, doc)
     es.index_doc(index, video_id, doc)
-    return {"video_id": video_id, "camera_id": camera_id, "filename": doc["filename"], "labels": labels, "analysis_status": doc["object_summary"]["analysis_status"], "ingestion_mode": analysis_mode, "content_detection_enabled": doc["content_detection_enabled"]}, None
+    return {
+        "video_id": video_id,
+        "camera_id": camera_id,
+        "filename": doc["filename"],
+        "labels": labels,
+        "analysis_status": doc["object_summary"]["analysis_status"],
+        "ingestion_mode": analysis_mode,
+        "content_detection_enabled": doc["content_detection_enabled"],
+        "embedding_status": doc["embedding_status"],
+        "embedding_vector_field": doc["embedding_vector_field"],
+    }, None
 
 
 def main() -> int:
@@ -420,7 +523,7 @@ def main() -> int:
     parser.add_argument("--input")
     parser.add_argument("--manifest-json")
     parser.add_argument("--video-dir")
-    parser.add_argument("--index", default=DEFAULT_INDEX)
+    parser.add_argument("--index")
     parser.add_argument("--config")
     parser.add_argument("--output")
     parser.add_argument("--refresh", action="store_true")
@@ -430,7 +533,12 @@ def main() -> int:
     input_data = load_structured(args.input) if args.input else {}
     input_data = input_data if isinstance(input_data, dict) else {}
     config = load_config(args.config)
-    index = args.index or input_value(input_data, "index", default=DEFAULT_INDEX)
+    library_config = config.get("video_library", {}) if isinstance(config.get("video_library"), dict) else {}
+    index = str(args.index or input_value(input_data, "index") or library_config.get("source_index") or DEFAULT_INDEX)
+    try:
+        index = require_video_index(index)
+    except ValueError as exc:
+        return emit(failed("UNSUPPORTED_VIDEO_INDEX", str(exc), False, {"allowed_index": DEFAULT_INDEX, "received_index": index}), args.output)
     analysis_mode = "metadata_only" if args.skip_content_detection else input_value(input_data, "analysis_mode", default=args.analysis_mode)
     records = resolve_records(input_data, args.manifest_json, args.video_dir)
     if not records:
@@ -463,4 +571,20 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SkillInputError as exc:
+        raise SystemExit(
+            emit(
+                {
+                    "skill": SKILL,
+                    "version": VERSION,
+                    "status": "failed",
+                    "error_code": exc.code,
+                    "message": exc.message,
+                    "retryable": False,
+                    "detail": {},
+                },
+                argv_output(),
+            )
+        )

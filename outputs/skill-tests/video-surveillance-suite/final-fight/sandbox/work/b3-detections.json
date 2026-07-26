@@ -1,0 +1,803 @@
+{
+  "skill": "object-detection",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 0.6183,
+  "data": {
+    "detections": [
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000000800_0001",
+        "timestamp": "2026-05-20T10:00:00+08:00",
+        "objects": [
+          {
+            "object_id": "det_0001_001",
+            "label": "person",
+            "confidence": 0.7766,
+            "bbox": [
+              758.31,
+              679.06,
+              1120.43,
+              1038.14
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_002",
+            "label": "person",
+            "confidence": 0.7166,
+            "bbox": [
+              195.35,
+              414.84,
+              383.61,
+              665.0
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_006",
+            "label": "person",
+            "confidence": 0.5854,
+            "bbox": [
+              254.29,
+              607.69,
+              505.24,
+              877.24
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_008",
+            "label": "person",
+            "confidence": 0.5782,
+            "bbox": [
+              531.31,
+              116.79,
+              628.94,
+              393.57
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_009",
+            "label": "person",
+            "confidence": 0.569,
+            "bbox": [
+              1465.97,
+              260.42,
+              1562.71,
+              489.95
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_010",
+            "label": "person",
+            "confidence": 0.5572,
+            "bbox": [
+              161.04,
+              299.17,
+              275.98,
+              447.6
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_012",
+            "label": "person",
+            "confidence": 0.4928,
+            "bbox": [
+              689.85,
+              595.38,
+              974.4,
+              964.97
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_013",
+            "label": "person",
+            "confidence": 0.447,
+            "bbox": [
+              1349.64,
+              209.06,
+              1464.9,
+              331.95
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_014",
+            "label": "person",
+            "confidence": 0.3915,
+            "bbox": [
+              287.79,
+              336.46,
+              400.74,
+              529.68
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_015",
+            "label": "person",
+            "confidence": 0.3823,
+            "bbox": [
+              1348.65,
+              210.04,
+              1479.36,
+              471.44
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_016",
+            "label": "person",
+            "confidence": 0.3803,
+            "bbox": [
+              1006.0,
+              114.09,
+              1120.98,
+              301.05
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0001_017",
+            "label": "person",
+            "confidence": 0.3604,
+            "bbox": [
+              461.2,
+              98.21,
+              539.6,
+              377.96
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000020800_0002",
+        "timestamp": "2026-05-20T10:00:02+08:00",
+        "objects": [
+          {
+            "object_id": "det_0002_001",
+            "label": "person",
+            "confidence": 0.8449,
+            "bbox": [
+              824.67,
+              676.49,
+              1117.93,
+              1029.97
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_002",
+            "label": "person",
+            "confidence": 0.7074,
+            "bbox": [
+              248.31,
+              617.1,
+              497.75,
+              882.87
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_003",
+            "label": "person",
+            "confidence": 0.7048,
+            "bbox": [
+              662.32,
+              594.55,
+              917.82,
+              981.03
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_004",
+            "label": "person",
+            "confidence": 0.7042,
+            "bbox": [
+              192.27,
+              406.16,
+              385.41,
+              652.68
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_005",
+            "label": "person",
+            "confidence": 0.6507,
+            "bbox": [
+              1004.85,
+              108.28,
+              1142.49,
+              299.94
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_008",
+            "label": "person",
+            "confidence": 0.5907,
+            "bbox": [
+              1435.21,
+              263.64,
+              1573.42,
+              494.2
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_011",
+            "label": "person",
+            "confidence": 0.5323,
+            "bbox": [
+              478.72,
+              93.57,
+              579.22,
+              396.06
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_014",
+            "label": "person",
+            "confidence": 0.407,
+            "bbox": [
+              306.93,
+              273.06,
+              464.33,
+              576.62
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_016",
+            "label": "person",
+            "confidence": 0.3924,
+            "bbox": [
+              1347.97,
+              210.96,
+              1476.57,
+              471.58
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0002_017",
+            "label": "person",
+            "confidence": 0.3848,
+            "bbox": [
+              171.02,
+              298.62,
+              275.91,
+              446.34
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000040800_0003",
+        "timestamp": "2026-05-20T10:00:04+08:00",
+        "objects": [
+          {
+            "object_id": "det_0003_001",
+            "label": "person",
+            "confidence": 0.8289,
+            "bbox": [
+              697.2,
+              500.51,
+              972.08,
+              989.21
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_002",
+            "label": "person",
+            "confidence": 0.8221,
+            "bbox": [
+              810.97,
+              676.39,
+              1115.22,
+              1038.25
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_003",
+            "label": "person",
+            "confidence": 0.726,
+            "bbox": [
+              199.01,
+              404.25,
+              386.69,
+              649.84
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_004",
+            "label": "person",
+            "confidence": 0.6876,
+            "bbox": [
+              1414.01,
+              262.31,
+              1565.65,
+              493.7
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_005",
+            "label": "person",
+            "confidence": 0.6692,
+            "bbox": [
+              251.73,
+              620.35,
+              500.81,
+              890.26
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_006",
+            "label": "person",
+            "confidence": 0.6407,
+            "bbox": [
+              464.35,
+              117.76,
+              597.12,
+              488.83
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_010",
+            "label": "person",
+            "confidence": 0.6021,
+            "bbox": [
+              1004.03,
+              109.51,
+              1141.72,
+              301.62
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_011",
+            "label": "person",
+            "confidence": 0.5819,
+            "bbox": [
+              1575.57,
+              760.29,
+              1727.15,
+              1038.29
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_015",
+            "label": "person",
+            "confidence": 0.4247,
+            "bbox": [
+              1347.56,
+              207.58,
+              1462.28,
+              324.74
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0003_017",
+            "label": "person",
+            "confidence": 0.3521,
+            "bbox": [
+              164.66,
+              317.12,
+              272.37,
+              453.45
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000060800_0004",
+        "timestamp": "2026-05-20T10:00:06+08:00",
+        "objects": [
+          {
+            "object_id": "det_0004_001",
+            "label": "person",
+            "confidence": 0.8557,
+            "bbox": [
+              789.82,
+              679.34,
+              1099.54,
+              1039.63
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_002",
+            "label": "person",
+            "confidence": 0.8409,
+            "bbox": [
+              387.25,
+              168.62,
+              513.46,
+              583.2
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_003",
+            "label": "person",
+            "confidence": 0.8264,
+            "bbox": [
+              200.19,
+              410.05,
+              383.22,
+              641.51
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_004",
+            "label": "person",
+            "confidence": 0.8052,
+            "bbox": [
+              637.61,
+              560.86,
+              935.34,
+              984.17
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_005",
+            "label": "person",
+            "confidence": 0.7406,
+            "bbox": [
+              1575.43,
+              760.68,
+              1727.27,
+              1039.9
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_006",
+            "label": "person",
+            "confidence": 0.7391,
+            "bbox": [
+              255.01,
+              617.94,
+              500.83,
+              865.99
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_010",
+            "label": "person",
+            "confidence": 0.6363,
+            "bbox": [
+              1004.28,
+              121.25,
+              1142.35,
+              299.56
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_011",
+            "label": "person",
+            "confidence": 0.6206,
+            "bbox": [
+              1394.64,
+              260.78,
+              1569.35,
+              494.7
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_014",
+            "label": "person",
+            "confidence": 0.52,
+            "bbox": [
+              1346.47,
+              208.54,
+              1462.43,
+              320.37
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_015",
+            "label": "person",
+            "confidence": 0.4602,
+            "bbox": [
+              162.3,
+              297.84,
+              282.04,
+              450.02
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_017",
+            "label": "person",
+            "confidence": 0.3778,
+            "bbox": [
+              592.72,
+              253.99,
+              729.05,
+              531.66
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0004_019",
+            "label": "person",
+            "confidence": 0.3501,
+            "bbox": [
+              837.89,
+              285.75,
+              979.74,
+              496.15
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000080800_0005",
+        "timestamp": "2026-05-20T10:00:08+08:00",
+        "objects": [
+          {
+            "object_id": "det_0005_001",
+            "label": "person",
+            "confidence": 0.8439,
+            "bbox": [
+              779.91,
+              676.65,
+              1099.25,
+              1039.85
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_002",
+            "label": "person",
+            "confidence": 0.8438,
+            "bbox": [
+              383.01,
+              216.97,
+              587.79,
+              680.64
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_003",
+            "label": "person",
+            "confidence": 0.8135,
+            "bbox": [
+              619.88,
+              528.23,
+              941.23,
+              968.78
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_004",
+            "label": "person",
+            "confidence": 0.7507,
+            "bbox": [
+              201.21,
+              409.98,
+              380.34,
+              660.04
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_006",
+            "label": "person",
+            "confidence": 0.698,
+            "bbox": [
+              1004.34,
+              122.21,
+              1140.9,
+              299.15
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_008",
+            "label": "person",
+            "confidence": 0.6664,
+            "bbox": [
+              1431.89,
+              262.62,
+              1577.46,
+              490.76
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_009",
+            "label": "person",
+            "confidence": 0.637,
+            "bbox": [
+              1564.57,
+              760.93,
+              1727.33,
+              1040.08
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_010",
+            "label": "person",
+            "confidence": 0.6165,
+            "bbox": [
+              255.78,
+              613.56,
+              508.72,
+              890.66
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0005_014",
+            "label": "person",
+            "confidence": 0.455,
+            "bbox": [
+              1346.52,
+              209.35,
+              1461.13,
+              320.33
+            ],
+            "model_label": "person"
+          }
+        ]
+      },
+      {
+        "frame_id": "CAM_DEERFLOW_001_202605201000100800_0006",
+        "timestamp": "2026-05-20T10:00:10+08:00",
+        "objects": [
+          {
+            "object_id": "det_0006_001",
+            "label": "person",
+            "confidence": 0.8278,
+            "bbox": [
+              778.78,
+              675.97,
+              1136.14,
+              1035.67
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_002",
+            "label": "person",
+            "confidence": 0.8052,
+            "bbox": [
+              206.7,
+              414.69,
+              383.36,
+              642.29
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_004",
+            "label": "person",
+            "confidence": 0.7566,
+            "bbox": [
+              509.54,
+              290.64,
+              751.98,
+              818.96
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_005",
+            "label": "person",
+            "confidence": 0.7454,
+            "bbox": [
+              656.22,
+              645.87,
+              1012.82,
+              1004.76
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_009",
+            "label": "person",
+            "confidence": 0.666,
+            "bbox": [
+              1004.56,
+              127.6,
+              1138.66,
+              299.24
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_010",
+            "label": "person",
+            "confidence": 0.6076,
+            "bbox": [
+              256.24,
+              614.02,
+              508.94,
+              878.68
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_011",
+            "label": "person",
+            "confidence": 0.5751,
+            "bbox": [
+              1455.51,
+              261.33,
+              1566.31,
+              494.89
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_012",
+            "label": "person",
+            "confidence": 0.4918,
+            "bbox": [
+              1342.34,
+              200.18,
+              1446.11,
+              311.27
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_013",
+            "label": "person",
+            "confidence": 0.4782,
+            "bbox": [
+              1115.66,
+              154.13,
+              1228.74,
+              312.74
+            ],
+            "model_label": "person"
+          },
+          {
+            "object_id": "det_0006_014",
+            "label": "person",
+            "confidence": 0.4118,
+            "bbox": [
+              1558.79,
+              750.46,
+              1727.34,
+              1040.65
+            ],
+            "model_label": "person"
+          }
+        ]
+      }
+    ],
+    "model": "/mnt/skills/custom/models/yolov8n.pt"
+  }
+}

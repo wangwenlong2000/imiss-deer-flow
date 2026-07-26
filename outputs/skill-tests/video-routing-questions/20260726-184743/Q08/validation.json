@@ -1,0 +1,48 @@
+{
+  "id": "Q08",
+  "mode": "routing",
+  "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
+  "thread_id": "0ccb2df0-f711-49b3-b6e6-2c6a8840cd43",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-object-analytics"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "spatiotemporal_trajectory",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我理解您需要对视频进行人员与车辆的目标检测和跨帧跟踪，输出类别、时间和轨迹数据。\n\n但我注意到您尚未提供需要分析的视频文件。请问：\n\n1. **视频文件路径是什么？** 例如 `/mnt/user-data/uploads/xxx.mp4` 或其他位置\n2. 或者您希望我从某个特定目录查找可用的视频文件？\n\n请提供视频文件的路径或名称，我将立即开始检测与跟踪分析。",
+  "passed": true
+}

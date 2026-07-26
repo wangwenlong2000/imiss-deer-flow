@@ -1,0 +1,46 @@
+{
+  "id": "Q-013",
+  "mode": "text-only",
+  "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
+  "thread_id": "0a814573-6e7d-4b7e-acee-f1c1a5ec366f",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "object-detection"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我注意到您的请求是关于视频目标检测的任务。根据系统路由，这属于视频监控场景，但我需要先确认几个关键信息：\n\n",
+  "passed": true
+}

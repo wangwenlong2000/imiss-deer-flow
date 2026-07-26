@@ -1,0 +1,628 @@
+{
+  "started_at": "2026-07-26T18:47:43.488518+08:00",
+  "finished_at": "2026-07-26T19:47:26.920688+08:00",
+  "api": "http://127.0.0.1:3538/api/langgraph",
+  "model": "qwen3.6-35b-a3b",
+  "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+  "history_preserved": true,
+  "video_attachments_uploaded": 0,
+  "total": 14,
+  "passed": 10,
+  "route_mismatch": 3,
+  "model_mismatch": 0,
+  "errors": 1,
+  "results": [
+    {
+      "id": "Q01",
+      "mode": "routing",
+      "question": "请分析这段监控视频，找出其中的关键场景和异常事件，按时间线还原事件经过，并生成一份复核报告。",
+      "thread_id": "9467f821-9a64-4f1d-a9bd-603bcf7e8ef8",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "analyze-video"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "❓ 您提到\"这段监控视频\"，但我需要确认具体是哪一段视频。请提供以下任一信息：1) 视频文件的路径（如 /mnt/user-data/uploads/video.mp4）；2) 视频文件名（如 surveillance_20260725.mp4）；3) 摄像头 ID 和所需分析的时间段。\n\n请提供要分析的监控视频文件路径或文件名。您可以直接上传视频文件，或告知我视频所在的完整路径。",
+      "passed": true
+    },
+    {
+      "id": "Q02",
+      "mode": "routing",
+      "question": "请检查这批摄像头最近的视频质量，找出黑屏、花屏、模糊、过曝、断流和时间戳异常的设备。",
+      "thread_id": "0028ebd7-3586-4cdc-b66d-1d5d8c0a31d7",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "camera-health-check"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "city-video-intelligence && python scripts",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "frame-sampling && python scripts",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "第一个视频采样成功！继续处理另外两个：\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q03",
+      "mode": "routing",
+      "question": "这批摄像头上报了很多相似告警，请根据时间、地点、目标和证据相似度合并重复事件，并保留合并依据。",
+      "thread_id": "497e9612-9bc5-4ab6-8632-6f5c31db9aa3",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "duplicate-event-merge"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我理解您需要合并重复告警事件，但当前缺少执行合并所需的**原始告警数据**。\n\n`duplicate-event-merge` Skill 需要一份包含以下字段的告警事件 JSON 文件：\n\n| 字段 | 说明 |\n|------|------|\n| `event_id` | 告警唯一标识 |\n| `camera_id` | 摄像头编号 |\n| `event_type` | 事件类型（如入侵、打架、违停等） |\n| `timestamp` | 告警时间戳 |\n| `location` / `roi` | 位置或区域信息（GPS坐标或ROI多边形） |\n| `targets` | 识别到的目标列表（类别、特征描述） |\n| `evidence_frames` | 证据帧路径或ID |\n| `confidence` | 告警置信度 |\n\n---\n\n**请提供告警数据，可通过以下方式之一：**\n\n1. **上传告警日志/JSON 文件** — 将告警数据文件上传到对话中\n2. **告知数据路径** — 如果数据已存放在服务器某个目录下，请告知具体路径和文件名\n3. **粘贴示例数据** — 如果数据量不大，可直接粘贴几条告警记录作为样例\n\n有了数据后，我将按以下步骤执行：\n- 构建多维相似度评分（时间差、地理距离、目标匹配、证据相似性）\n- 聚类聚合相似告警为独立事件簇\n- 输出合并结果报表，包含每个事件的合并依据溯源",
+      "passed": true
+    },
+    {
+      "id": "Q04",
+      "mode": "routing",
+      "question": "请从这段视频中截取能证明车辆闯入限制区域的关键画面，保留时间戳、摄像头编号和原始文件信息，导出证据图片。",
+      "thread_id": "cbbf0d3c-b8cf-4196-881b-215bf30e9c79",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "evidence-snapshot"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "❓ 用户要求从视频中截取车辆闯入限制区域的证据图片，需要确认具体视频源文件\n\n您提到\"这段视频\"，但未指明具体文件。当前系统中可用的视频文件如下：\n1. `/mnt/datasets/Vedio-demo/Trafic.mp4` - 交通视频\n2. `/mnt/datasets/Vedio-demo/Trafic-30s.mp4` - 30秒交通视频\n3. `/mnt/datasets/Vedio-demo/fight.mp4` - 冲突事件视频\n\n请问您需要分析哪一段视频？或者是否有您本地上传的视频文件？\n\n  1. Trafic.mp4\n  2. Trafic-30s.mp4\n  3. fight.mp4\n  4. 我有其他视频文件",
+      "passed": true
+    },
+    {
+      "id": "Q05",
+      "mode": "routing",
+      "question": "请把这段视频转换成统一格式，提取关键帧，并截取 00:12 到 00:28 的片段保存下来。",
+      "thread_id": "1e950f25-029c-4fcf-9b63-90170234bc57",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "ffmpeg-utils"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "program_snippet"
+      ],
+      "missing_expected_skills": [
+        "ffmpeg-utils"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要先确认一下您提到的视频文件在哪里。我没有看到已上传的视频文件，也没有在上下文中找到具体的视频路径。\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q06",
+      "mode": "routing",
+      "question": "请按每 2 秒从视频中抽取一帧，并为每帧生成包含时间戳、来源和图像尺寸的结构化记录。",
+      "thread_id": "5a72bc62-52be-452e-9d7c-73d7efc59c56",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "frame-sampling"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我来处理您的视频抽帧请求。首先需要确认视频源文件，然后加载对应的技能来执行。\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q07",
+      "mode": "routing",
+      "question": "请根据告警置信度、证据完整性和潜在影响，把事件分成自动通过、需要人工复核和优先复核三类。",
+      "thread_id": "f5ce54f4-55a1-4243-908c-0159cb75bbd4",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "human-review-routing"
+      ],
+      "actual_skills": [
+        "data-analysis"
+      ],
+      "missing_expected_skills": [
+        "human-review-routing"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要先确认您希望分类的数据来源。当前没有看到上传的事件数据文件或数据集。\n\n",
+      "passed": false
+    },
+    {
+      "id": "Q08",
+      "mode": "routing",
+      "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
+      "thread_id": "0ccb2df0-f711-49b3-b6e6-2c6a8840cd43",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-object-analytics"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "spatiotemporal_trajectory",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我理解您需要对视频进行人员与车辆的目标检测和跨帧跟踪，输出类别、时间和轨迹数据。\n\n但我注意到您尚未提供需要分析的视频文件。请问：\n\n1. **视频文件路径是什么？** 例如 `/mnt/user-data/uploads/xxx.mp4` 或其他位置\n2. 或者您希望我从某个特定目录查找可用的视频文件？\n\n请提供视频文件的路径或名称，我将立即开始检测与跟踪分析。",
+      "passed": true
+    },
+    {
+      "id": "Q09",
+      "mode": "routing",
+      "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
+      "thread_id": "0f0c9656-6ae0-453b-ad13-7e6bf8a5a9a6",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "object-detection"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要您提供要分析的视频文件路径。当前没有检测到已上传的视频文件。\n\n请提供以下信息：\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q10",
+      "mode": "routing",
+      "question": "请持续跟踪画面中的每辆车，生成它们的进入时间、离开时间、运动轨迹和行驶方向。",
+      "thread_id": "31d491b6-22cb-4931-891a-e72834780703",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "object-tracking"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "spatiotemporal_trajectory",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我理解您的需求：持续跟踪画面中的车辆，生成进入时间、离开时间、运动轨迹和行驶方向。\n\n这是一个视频目标检测与跨帧追踪任务。不过我注意到您还没有提供需要分析的视频文件。\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q11",
+      "mode": "routing",
+      "question": "请对视频中的人脸、车牌和其他敏感区域进行模糊处理，输出一份可以公开使用的脱敏视频。",
+      "thread_id": "e2a13e96-9885-4ab6-b104-53e1db835f78",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "privacy-masking"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "street_view_image"
+      ],
+      "missing_expected_skills": [
+        "privacy-masking"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "当前上传目录中还没有视频文件。请提供您需要脱敏处理的视频文件，您可以：\n\n1. **直接上传视频文件**到对话中\n2. **告诉我视频的完整路径**（如果已存放在服务器上的话）\n\n另外，为了给出更精准的处理方案，也想确认一下：\n- 您希望模糊处理的具体目标除了**人脸、车牌**外，还有哪些敏感区域？（例如：门牌号、条形码、水印等）\n- 对模糊效果有偏好吗？高斯模糊还是马赛克遮挡？",
+      "passed": false
+    },
+    {
+      "id": "Q12",
+      "mode": "routing",
+      "question": "请在画面中标出门口和停车区两个区域，并分别统计进入、离开和停留的目标数量。",
+      "thread_id": "5567db08-c7d7-4daf-80d0-19b850929e28",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "roi-mapping"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要先确认是否有上传的视频文件，然后加载相应的视频监控技能来处理您的需求。让我先检查一下当前上下文。\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q13",
+      "mode": "routing",
+      "question": "请从 8 小时监控录像中提取包含异常行为的多个短视频片段，每段保留前后缓冲时间并附上事件说明。",
+      "thread_id": "2ebe5a3e-3cb5-49a8-9270-85b6683c4115",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-segment-extraction"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "这是一个典型的视频监控异常行为检测与取证提取任务。根据场景路由，我将通过 `city-video-intelligence` 技能进行编排处理。\n\n不过在开始之前，我需要确认一个关键信息：\n\n",
+      "passed": true
+    },
+    {
+      "id": "Q14",
+      "mode": "routing",
+      "question": "请接入这组 RTSP 摄像头地址，规范化视频源信息，记录摄像头会话信息，并报告无法连接或频繁断开的源。",
+      "thread_id": "807ef30b-7816-4612-888b-9d063b52be2b",
+      "video_file": null,
+      "uploaded_file": null,
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "我需要您提供具体的 RTSP 摄像头地址列表才能执行健康检查。\n\n",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "Q-009",
+  "mode": "text-only",
+  "question": "请按每 2 秒从视频中抽取一帧，并为每帧生成包含时间戳、来源和图像尺寸的结构化记录。",
+  "thread_id": "c508afff-9e0a-449a-9d46-fab6200be8b8",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "frame-sampling"
+  ],
+  "actual_skills": [
+    "data-analysis"
+  ],
+  "missing_expected_skills": [
+    "frame-sampling"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我需要确认视频文件的位置才能执行抽取任务。请问：\n\n1. **视频文件路径**：您要分析的视频文件在哪里？是已上传到系统的文件，还是需要我搜索特定位置的视频？\n\n如果您有具体的视频文件路径，请直接提供，我将立即开始按每2秒抽取一帧并生成结构化记录。",
+  "passed": false
+}

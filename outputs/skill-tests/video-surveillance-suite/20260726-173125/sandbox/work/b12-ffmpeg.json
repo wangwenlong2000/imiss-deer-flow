@@ -1,0 +1,24 @@
+{
+  "skill": "ffmpeg-utils",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "command": [
+      "ffmpeg",
+      "-y",
+      "-ss",
+      "00:00:03",
+      "-i",
+      "/mnt/datasets/Vedio-demo/Trafic.mp4",
+      "-frames:v",
+      "1",
+      "-q:v",
+      "2",
+      "/mnt/out/work/b12-keyframe.jpg"
+    ],
+    "stdout": "",
+    "operation": "keyframe",
+    "output_path": "/mnt/out/work/b12-keyframe.jpg"
+  }
+}

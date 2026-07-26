@@ -1,0 +1,217 @@
+{
+  "started_at": "2026-07-23T17:18:19.108079+08:00",
+  "finished_at": "2026-07-23T17:30:56.854527+08:00",
+  "api": "http://127.0.0.1:3538/api/langgraph",
+  "model": "qwen3.6-35b-a3b",
+  "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+  "total": 5,
+  "passed": 1,
+  "route_mismatch": 2,
+  "model_mismatch": 0,
+  "errors": 2,
+  "results": [
+    {
+      "id": "C-001",
+      "mode": "video",
+      "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+      "thread_id": "94f594f7-40e2-4385-95a8-25e533a69658",
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "city-video-intelligence",
+        "single-video-event-analysis"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "camera-health-check && python scripts",
+        "city-video-intelligence",
+        "city-video-intelligence && python scripts",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "frame-sampling && python scripts",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "现在创建输入JSON文件并执行事件分析。\n\n",
+      "passed": false
+    },
+    {
+      "id": "C-002",
+      "mode": "video",
+      "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+      "thread_id": "a9b6d484-9691-4695-b551-38a91c5ec47f",
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "actual_skills": [
+        "data-analysis",
+        "spatiotemporal_trajectory"
+      ],
+      "missing_expected_skills": [
+        "video-stream-ingestion"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "视频元数据已成功提取并整理为标准输入格式，保存至 `/mnt/user-data/outputs/video_metadata.json`。核心信息汇总如下：\n\n**基本参数**\n- **时长**: 900.916秒（约15分钟）\n- **分辨率**: 1280 × 674（~16:9宽屏比例）\n- **帧率**: 12 FPS（恒定）\n- **总帧数**: 10,811 帧\n- **编码**: H.264 High Profile，YUV420P色彩空间\n- **码率**: 672.9 kbps\n- **文件大小**: 72.4 MB\n- **声道**: 纯视频流，无音频轨道\n- **时间范围**: 0.0s ~ 900.916s（单一段落，无分段中断）\n- **B帧数**: 4（存在B帧，解码时需注意顺序）\n\n该JSON文件可直接作为下游视频分析模块的标准化输入，所有数值字段均为浮点数或整数类型，便于程序直接解析调用。",
+      "passed": false
+    },
+    {
+      "id": "C-011",
+      "mode": "video",
+      "question": "检测这段视频里的行人、轿车、公交车和卡车，输出每帧的位置框、类别和置信度。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+      "thread_id": "72d12e7e-44a0-485f-af43-4c38c2789c3c",
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "video-object-analytics",
+        "object-detection"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [
+        {
+          "error": "GraphRecursionError",
+          "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+        }
+      ],
+      "error": null,
+      "final_answer": "安装没有生效。让我检查当前 Python 环境并重新安装：\n\n",
+      "passed": false
+    },
+    {
+      "id": "C-038",
+      "mode": "boundary",
+      "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+      "thread_id": "4b6e5beb-9ee4-4d30-b778-1ba650fd21f2",
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "human-review-routing"
+      ],
+      "actual_skills": [
+        "analyze-video",
+        "batch-video-ingestion",
+        "camera-health-check",
+        "city-video-intelligence",
+        "data-analysis",
+        "duplicate-event-merge",
+        "evidence-package-generation",
+        "evidence-snapshot",
+        "ffmpeg-utils",
+        "frame-sampling",
+        "human-review-routing",
+        "object-detection",
+        "object-statistics",
+        "object-tracking",
+        "privacy-masking",
+        "roi-mapping",
+        "single-video-event-analysis",
+        "video-embedding-index",
+        "video-object-analytics",
+        "video-search",
+        "video-segment-extraction",
+        "video-stream-ingestion"
+      ],
+      "missing_expected_skills": [],
+      "route_ok": true,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "根据 `human-review-routing` 技能的实际判定逻辑，以下四类事件结果**必须进入人工复核队列**：\n\n---\n\n## 一、置信度低于阈值\n\n当 `event.confidence < threshold` 时触发。\n\n- **默认阈值**：0.85（即 85%）\n- **可按事件类型自定义**，例如通过 `review_thresholds.fight` 为打架事件单独设定更高或更低的门槛\n- 涉及场景：摔倒检测、入侵识别、烟火检测等 AI 判断本身存在模糊性的事件\n\n## 二、高风险事件类型\n\n当 `event.event_type` 落入配置的高风险事件列表时强制进入复核。\n\n- 典型高风险类型包括：**打架、火灾/烟火、人员摔倒、非法入侵、重大交通事故**\n- 这类事件的误判代价高，即使置信度达标也需人工二次确认\n- 由 `high_risk_event_types` 配置项控制\n\n## 三、摄像头状态降级\n\n当 `camera_health.health_status == \"degraded\"` 时触发。\n\n- 涵盖的场景：画面遮挡、镜头模糊、离线、黑屏、画面冻结、画面偏移等\n- 摄像头质量下降会直接影响事件检测的可靠性，因此不论置信度高低都需人工复核\n- 这是基于物理环境因素而非算法判断的硬性规则\n\n## 四、涉及执法影响\n\n当 `event.affects_enforcement` 为真时强制进入复核。\n\n- 涉及场景：违停取证、闯红灯抓拍、占用应急车道、违规占道经营等\n- 无论置信度多高、摄像头状态多好，**只要可能作为执法依据就必须人工审核**\n- 这是法律合规层面的强制性要求\n\n---\n\n## 判定矩阵汇总\n\n| 触发条件 | 判定字段 | 阈值/条件 | 是否可豁免 |\n|---------|---------|----------|-----------|\n| 置信度不足 | `confidence < threshold` | 默认 0.85 | ❌ 不可豁免 |\n| 高风险类型 | `event_type ∈ high_risk` | 配置定义 | ❌ 不可豁免 |\n| 摄像头降级 | `health_status == degraded` | 枚举值匹配 | ❌ 不可豁免 |\n| 涉及执法 | `affects_enforcement == true` | 布尔标志 | ❌ 不可豁免 |\n\n## 路由结果\n\n满足任一条件即返回：\n\n```json\n{\n  \"review_required\": true,\n  \"reasons\": [\"confidence_below_threshold\", \"affects_enforcement\"],\n  \"queue\": \"manual_review\"\n}\n```\n\n不满足任何条件则自动放行至 `auto_pass` 队列。\n\n**核心原则**：置信度低看数字、遮挡看摄像头健康状态、执法类事件一律兜底——三者互不替代，满足任意一条即进入人工复核。",
+      "passed": true
+    },
+    {
+      "id": "C-040",
+      "mode": "boundary",
+      "question": "我想确认具体人员身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前数据只有本地视频和检测框。请说明哪些能力无法由现有数据支持，不要编造结果。",
+      "thread_id": "573ee94f-31a8-4e21-8b4f-1b6f03abf230",
+      "model_expected": "qwen3.6-35b-a3b",
+      "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+      "models_observed": [
+        "qwen3.6-35b-a3b"
+      ],
+      "expected_skills": [
+        "city-video-intelligence"
+      ],
+      "actual_skills": [
+        "data-analysis"
+      ],
+      "missing_expected_skills": [
+        "city-video-intelligence"
+      ],
+      "route_ok": false,
+      "final_answer_ok": true,
+      "errors": [],
+      "error": null,
+      "final_answer": "根据你描述的情况（当前只有本地视频文件和检测框数据），以下是对四项需求的能力边界分析：\n\n---\n\n## 1. 确认具体人员身份\n\n**❌ 无法由现有数据支持。**\n\n- **原因**：检测框仅提供目标的二维位置信息（x, y, w, h）和类别标签（如\"person\"），不包含人脸特征、身份信息或任何可关联到真实个体的数据。\n- **所需额外条件**：需要人脸识别模型 + 已知人员数据库（含照片/特征向量）进行比对；或者穿戴式设备/GPS等外部身份源。\n- **检测框的局限**：即使检测到\"人\"，也无法区分是谁。\n\n## 2. 读取模糊车牌\n\n**❌ 无法由现有数据支持。**\n\n- **原因**：常规目标检测框只能定位车辆位置，不能执行车牌字符识别。如果图像本身模糊（低分辨率、运动模糊、光照不足），即便使用专门的OCR（如PaddleOCR、EasyPR）也几乎无法恢复可读字符。\n- **所需额外条件**：高分辨率抓拍 + 车牌专用检测模型（如CRNN） + OCR引擎；且原始帧必须达到可辨识的清晰度阈值（通常车牌像素需≥30×80）。\n- **检测框的局限**：检测框 ≠ OCR结果，它只提供\"这里有辆车\"，不提供\"这是哪辆车\"。\n\n## 3. 生成全市热力图\n\n**❌ 无法由现有数据支持。**\n\n- **原因**：\n  - **空间覆盖不足**：单个或少量本地视频源的检测框仅覆盖摄像头视场范围，远不足以代表\"全市\"的空间分布。\n  - **缺少地理坐标映射**：检测框是图像坐标系中的像素位置，没有转换为经纬度或城市地图上的实际地理坐标，无法叠加到GIS底图上。\n  - **时间采样不足**：本地视频可能只覆盖特定时段，不具备全市范围的时空代表性。\n- **所需额外条件**：全市多路摄像头实时接入 + 每路摄像头的标定参数（内参+外参）用于像素-地理坐标转换 + GIS平台（如Mapbox、Leaflet、ArcGIS） + 聚合分析引擎。\n\n## 4. 接入实时 RTSP\n\n**❌ 无法由现有数据支持。**\n\n- **原因**：RTSP（Real Time Streaming Protocol）是**流媒体传输协议**，属于数据摄入层的能力，与\"已有数据\"无关——它需要你部署或连接一个能够推流/拉流的网络基础设施（如RTSP服务器、NVR、IP摄像头）。\n- **当前状态**：你手头的是\"已录制的本地视频文件\"，是静态存储，不是实时流。\n- **所需额外条件**：\n  - 硬件层面：支持RTSP输出的IP摄像头或流媒体网关\n  - 软件层面：FFmpeg/GStreamer等流处理管线 + WebSocket/HTTP-FLV等前端推送机制\n  - 网络层面：摄像头与平台的网络连接配置\n\n---\n\n## 总结对照表\n\n| 能力 | 现有数据是否支持 | 缺失的关键要素 |\n|------|-----------------|---------------|\n| 人员身份确认 | ❌ | 人脸识别模型 + 人员数据库 |\n| 模糊车牌读取 | ❌ | 高清帧 + OCR引擎 + 车牌检测模型 |\n| 全市热力图 | ❌ | 多路视频 + 相机标定 + GIS平台 |\n| 实时RTSP接入 | ❌ | RTSP摄像头/NVR + 流媒体管线 + 网络配置 |\n\n**核心结论**：当前\"本地视频 + 检测框\"的组合属于**离线后处理阶段**的数据形态，适合做已录制片段的目标统计、轨迹可视化（限于视场内）、行为模式分析等任务。但你提出的四项需求分别涉及**身份识别、字符OCR、地理空间聚合、实时流媒体**四个独立的能力维度，均超出当前数据基础所能支撑的范围。如需推进，需要明确补充对应的基础设施和数据源。",
+      "passed": false
+    }
+  ]
+}

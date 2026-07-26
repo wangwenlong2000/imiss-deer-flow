@@ -1,0 +1,38 @@
+{
+  "id": "E16",
+  "covers": "ROI 区域判定",
+  "skills": [
+    "roi-mapping"
+  ],
+  "question": "请判断画面中检测到的车辆有没有进入这个区域：多边形顶点是 (300,200)、(900,200)、(900,600)、(300,600)。",
+  "thread_id": "5d0a96fb-58a4-4c13-b8c3-116b539c85db",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 260.7,
+  "evidence": {
+    "tool_call_names": [
+      "read_file",
+      "video_object_analytics"
+    ],
+    "skills_touched": [
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "detect"
+    ],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1458,
+    "clarifications": []
+  }
+}

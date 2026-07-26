@@ -1,0 +1,46 @@
+{
+  "id": "E02",
+  "covers": "4.7 上传描述 + 画面质量 + 事件复合链路",
+  "skills": [
+    "city-video-intelligence",
+    "single-video-event-analysis",
+    "camera-health-check"
+  ],
+  "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。",
+  "thread_id": "9330a86b-d422-45cc-89ff-31c1f327895b",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 317.7,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "read_file",
+      "video_object_analytics",
+      "view_image",
+      "write_file"
+    ],
+    "skills_touched": [
+      "city-video-intelligence",
+      "single-video-event-analysis",
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "detect"
+    ],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1784,
+    "clarifications": []
+  }
+}

@@ -3,7 +3,7 @@
   "identity": {
     "id": "video-stream-ingestion",
     "name": "video-file-normalization",
-    "description": "Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams."
+    "description": "Normalize an existing local video file and return raw segment/session metadata (duration, resolution, frame rate, codec, session start/end). Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling, or when the user asks to read a video's duration/resolution/fps/codec/metadata or to build a standard analysis input; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams."
   },
   "scope": {
     "scenes": [
@@ -12,7 +12,9 @@
     "is_public": false,
     "task_types": [
       "video_file_normalization",
-      "camera_session_metadata"
+      "camera_session_metadata",
+      "video_metadata_extraction",
+      "video_input_standardization"
     ],
     "input_types": [
       "local_video",
@@ -21,15 +23,19 @@
     ],
     "output_types": [
       "raw_segment_uri",
-      "video_session_metadata"
+      "video_session_metadata",
+      "video_metadata"
     ]
   },
   "routing": {
-    "routing_text": "名称：video-file-normalization\n描述：Normalize an existing local video file and return raw segment/session metadata. Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams.\n适用场景：video_surveillance。\n适用任务：video_file_normalization, camera_session_metadata。\n输入类型：local_video, video_path, file_path。\n输出类型：raw_segment_uri, video_session_metadata。\n适合使用：规范化本地视频输入；读取本地视频元数据；生成 raw_segment_uri。\n不适合使用：接入实时视频流；分析视频内容；检测目标；生成事件；剪辑证据片段。",
+    "routing_text": "名称：video-file-normalization\n描述：Normalize an existing local video file and return raw segment/session metadata (duration, resolution, frame rate, codec, session start/end). Use when Codex has a local MP4/MOV/AVI/MKV file before frame sampling, or when the user asks to read a video's duration/resolution/fps/codec/metadata or to build a standard analysis input; especially when input includes camera_id, file_path, video_path, capture_seconds, or raw_segment_uri. This skill does not connect to live video streams.\n适用场景：video_surveillance。\n适用任务：video_file_normalization, camera_session_metadata, video_metadata_extraction, video_input_standardization。\n输入类型：local_video, video_path, file_path。\n输出类型：raw_segment_uri, video_session_metadata, video_metadata。\n适合使用：规范化本地视频输入；读取本地视频元数据；生成 raw_segment_uri；读取视频时长、分辨率、帧率；提取视频元数据；整理成标准分析输入。\n不适合使用：接入实时视频流；分析视频内容；检测目标；生成事件；剪辑证据片段。",
     "positive_triggers": [
       "规范化本地视频输入",
       "读取本地视频元数据",
-      "生成 raw_segment_uri"
+      "生成 raw_segment_uri",
+      "读取视频时长、分辨率、帧率",
+      "提取视频元数据",
+      "整理成标准分析输入"
     ],
     "negative_triggers": [
       "接入实时视频流",
@@ -44,7 +50,16 @@
       "camera_id",
       "raw_segment_uri",
       "capture_seconds",
-      "本地视频"
+      "本地视频",
+      "时长",
+      "分辨率",
+      "帧率",
+      "fps",
+      "编码",
+      "元数据",
+      "metadata",
+      "ffprobe",
+      "标准输入"
     ],
     "anti_keywords": [
       "RTSP",

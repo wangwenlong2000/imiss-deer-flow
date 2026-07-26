@@ -1,0 +1,39 @@
+{
+  "id": "E08",
+  "covers": "目标检测与跟踪走结构化工具，且不输出事件结论",
+  "skills": [
+    "video-object-analytics",
+    "object-tracking"
+  ],
+  "question": "检测这段视频前 10 秒里的行人和车辆，并跟踪它们是移动还是停留。",
+  "thread_id": "8310cf6f-1700-4412-96aa-32d694c1217b",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 254.1,
+  "evidence": {
+    "tool_call_names": [
+      "read_file",
+      "video_object_analytics"
+    ],
+    "skills_touched": [
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "track"
+    ],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1758,
+    "clarifications": []
+  }
+}

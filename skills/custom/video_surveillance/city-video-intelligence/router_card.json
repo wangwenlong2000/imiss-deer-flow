@@ -6,34 +6,100 @@
     "description": "Business orchestration layer for city video intelligence. It maps monitoring-video user intent to existing search, event-analysis, statistics, evidence, ingestion, and camera-health skills without ad hoc code generation."
   },
   "scope": {
-    "scenes": ["video_surveillance", "city_governance"],
+    "scenes": [
+      "video_surveillance",
+      "city_governance"
+    ],
     "is_public": false,
-    "task_types": ["business_orchestration", "video_capability_routing", "scenario_playbook_selection"],
-    "input_types": ["natural_language_request", "business_role", "video_task_goal"],
-    "output_types": ["orchestration_plan_json", "recommended_skill_chain", "business_deliverables"]
+    "task_types": [
+      "business_orchestration",
+      "video_capability_routing",
+      "scenario_playbook_selection",
+      "capability_boundary_assessment"
+    ],
+    "input_types": [
+      "natural_language_request",
+      "business_role",
+      "video_task_goal"
+    ],
+    "output_types": [
+      "orchestration_plan_json",
+      "recommended_skill_chain",
+      "business_deliverables",
+      "capability_gap"
+    ]
   },
   "routing": {
-    "routing_text": "名称：city-video-intelligence\n描述：城市视频智能业务编排层，用于把交警、物业、城管、应急、法庭证据等业务请求映射到现有视频检索、语义搜索、事件分析、统计、证据、入库、摄像头健康 skill。默认禁止临时写代码，能力不足时返回 capability_gap。\n适合使用：业务场景编排；复杂多步骤视频任务；能力分类；减少写代码；选择下游 skill。\n不适合使用：直接执行底层视频处理；单纯 FFmpeg 操作；明确要求开发代码。",
-    "positive_triggers": ["业务场景", "交警", "物业", "城管", "应急管理", "法庭证据", "多步骤视频任务", "能力抽象", "不要写代码"],
-    "negative_triggers": ["只剪辑视频", "只抽帧", "明确开发代码"],
-    "keywords": ["city video intelligence", "business orchestration", "视频业务编排", "交警", "物业", "城管", "应急", "证据包"],
-    "anti_keywords": ["ffmpeg only", "code implementation only"]
+    "routing_text": "名称：city-video-intelligence\n描述：城市视频智能业务编排层，用于把交警、物业、城管、应急、法庭证据等业务请求映射到现有视频检索、语义搜索、事件分析、统计、证据、入库、摄像头健康 skill。也用于回答“现有数据和技能能不能做到某件事”这类能力边界问题，并以 capability_gap 给出明确结论。视频入库默认把主档和 StreetModel 向量统一存入 citybrain-video-library。默认禁止临时写代码，能力不足时返回 capability_gap。\n适用任务：business_orchestration, video_capability_routing, scenario_playbook_selection, capability_boundary_assessment。\n适合使用：业务场景；交警；物业；城管；应急管理；法庭证据；多步骤视频任务；能力抽象；不要写代码；能力边界问题；现有数据能不能支持；哪些能力无法支持。\n不适合使用：只剪辑视频；只抽帧；明确开发代码。",
+    "positive_triggers": [
+      "业务场景",
+      "交警",
+      "物业",
+      "城管",
+      "应急管理",
+      "法庭证据",
+      "多步骤视频任务",
+      "能力抽象",
+      "不要写代码",
+      "能力边界问题",
+      "现有数据能不能支持",
+      "哪些能力无法支持"
+    ],
+    "negative_triggers": [
+      "只剪辑视频",
+      "只抽帧",
+      "明确开发代码"
+    ],
+    "keywords": [
+      "city video intelligence",
+      "business orchestration",
+      "视频业务编排",
+      "交警",
+      "物业",
+      "城管",
+      "应急",
+      "证据包",
+      "能力边界",
+      "能不能做到",
+      "哪些能力",
+      "是否支持",
+      "capability_gap"
+    ],
+    "anti_keywords": [
+      "ffmpeg only",
+      "code implementation only"
+    ]
   },
   "execution": {
-    "required_tools": ["bash", "read_file"],
-    "allowed_file_patterns": ["*.json", "*.md"],
+    "required_tools": [
+      "bash",
+      "read_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.md"
+    ],
     "can_run_standalone": true
   },
   "routing_policy": {
     "priority": 98,
     "conflict_group": "video-business-orchestration",
-    "prefer_when": ["业务角色请求", "多步骤视频分析", "需要选择下游 skill", "需要避免临时代码"],
-    "defer_when": ["已经明确指定一个底层 skill 且只需执行该 skill"]
+    "prefer_when": [
+      "业务角色请求",
+      "多步骤视频分析",
+      "需要选择下游 skill",
+      "需要避免临时代码"
+    ],
+    "defer_when": [
+      "已经明确指定一个底层 skill 且只需执行该 skill"
+    ]
   },
   "source": {
     "skill_dir": "skills/custom/city-video-intelligence",
     "skill_md_path": "skills/custom/city-video-intelligence/SKILL.md",
     "generator_version": "manual-business-orchestration-1.0.0"
   },
-  "embedding": {"es_doc_id": "city-video-intelligence"}
+  "embedding": {
+    "es_doc_id": "city-video-intelligence"
+  }
 }

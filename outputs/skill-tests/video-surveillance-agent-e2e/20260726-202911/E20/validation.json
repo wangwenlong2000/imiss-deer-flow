@@ -1,0 +1,42 @@
+{
+  "id": "E20",
+  "covers": "StreetModel 不可用时入库与向量索引如实报告",
+  "skills": [
+    "video-embedding-index",
+    "batch-video-ingestion"
+  ],
+  "question": "把我上传的这个视频登记入库，并建立可以语义搜索的向量索引。",
+  "thread_id": "5508a9f2-b713-4f51-8153-457c24ac067f",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "fail",
+  "failures": [
+    "期望至少调用其中之一 ['video-embedding-index', 'batch-video-ingestion', 'video-stream-ingestion', 'city-video-intelligence']，实际: ['video-object-analytics']",
+    "最终回答未命中任一关键词 ['无法', '不可用', '失败', '未启用', '连接', '服务']"
+  ],
+  "error": null,
+  "elapsed_seconds": 241.4,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "video_object_analytics"
+    ],
+    "skills_touched": [
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "detect"
+    ],
+    "raw_video_bash_count": 3,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1201,
+    "clarifications": []
+  }
+}

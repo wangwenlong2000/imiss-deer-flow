@@ -1,0 +1,55 @@
+{
+  "calls": [
+    {
+      "name": "invoke_skill",
+      "args": {
+        "mode": "prepare",
+        "skill_name": "video-stream-ingestion",
+        "input_envelope": "{\"video_path\": \"/mnt/user-data/uploads/Trafic-30s.mp4\"}"
+      }
+    },
+    {
+      "name": "ls",
+      "args": {
+        "description": "列出 video-stream-ingestion 技能的目录结构",
+        "path": "/mnt/skills/custom/video_surveillance/video-stream-ingestion"
+      }
+    },
+    {
+      "name": "read_file",
+      "args": {
+        "description": "读取 video-stream-ingestion 技能的说明文档",
+        "path": "/mnt/skills/custom/video_surveillance/video-stream-ingestion/SKILL.md"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "description": "执行视频流摄入脚本，提取时长、分辨率、帧率、编码等元数据",
+        "command": "python /mnt/skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py --video \"/mnt/user-data/uploads/Trafic-30s.mp4\" --camera-id CAM_DEERFLOW_001 --source-type local_file --capture-seconds 10 --output /mnt/user-data/workspace/traffic-video-metadata.json"
+      }
+    }
+  ],
+  "results": [
+    {
+      "name": "invoke_skill",
+      "status": "success",
+      "content": "{\n  \"status\": \"prepared\",\n  \"skill_name\": \"video-stream-ingestion\",\n  \"input_envelope\": {\n    \"schema_version\": \"1.0\",\n    \"request_id\": \"8972d952-9fc0-4f7f-b7ba-f9afb67be51d\",\n    \"skill_name\": \"video-stream-ingestion\",\n    \"scenario\": \"video_surveillance\",\n    \"capability\": \"skill_invocation\",\n    \"query\": {\n      \"raw\": \"<system_reminder>\\nUse the following current-turn intent and routing guidance when deciding whether to create or update todos. Treat it as planning context, not as a user request.\\n<hidden_step source=\\\"intent_recognition\\\" title=\\\"意图识别\\\">\\n改写后的任务：场景：视频监控。场景ID：video_surveillance\\n识别场景：视频监控 (video_surveillance)；场景模式：single；候选场景：video_surveillance\\n任务切分：\\n- 请读取我上传的这个视频的时长、分辨率、帧率和编码信息，整理成后续分析可以直接使用的标准输入。\\n任务规划：\\n1. 调用视频特征提取工具读取上传的监控视频文件，获取底层媒体流信息，重点抓取时长、分辨率、帧率和编码格式四项原始指标，输出未处理的元数据字典。\\n2. 基于视频监控场景的数据处理规范，对原始指标进行格式对齐与有效性校验，将时长转换为秒数、分辨率规范化为宽乘高像素值、帧率补充fps单位、编码名称映射为标准协议标识，剔除空值或异常记录，生成标准化参数表。\\n3. 按照下游分析流水线要求的输入协议，将标准化参数表序列化为固定结构的JSON配置对象，明确各字段的数据类型、取值范围及必填项标记，输出可直接注入目标检测或行为识别算法的标准输入载体。\\n场景任务：\\n- video_surveillance: 我将读取视频监控场景中上传视频的时长、分辨率、帧率和编码信息，并将其整理为后续分析可直接使用的标准输入格式。；参数：{'视频对象': '上传的视频', '输出形式': '标准输入格式'}\\n已提取参数：{'视频对象': '上传的视频', '输出形式': '标准输入格式'}\\n任务提示：\\n- 提取必填参数：视频对象。需要分析的监控视频、摄像头、视频流、录像文件、实时画面、卡口视频或视频帧\\n- 提取可选参数：监控目标。需要识别或分析的对象、行为或事件，如人员聚集、车辆违停、越界、烟火、异常停留、摔倒、入侵、打架、遗留物、通行计数等\\n- 提取可选参数：时间范围。视频分析的起止时间、日期、时段、时刻或实时窗口\\n- 提取可选参数：输出形式。用户期望的输出，如告警、截图、时间点清单、检测结果、表格、报告、标注说明或风险摘要\\n</hidden_step>\\n</system_reminder>\"\n    },\n    \"inputs\": {\n      \"parameters\": {}\n    },\n    \"routing\": {\n      \"selected_skill\": \"video-stream-ingestion\",\n      \"allowed_skills\": [\n        \"analyze-video\",\n        \"batch-video-ingestion\",\n        \"camera-health-check\",\n        \"city-video-intelligence\",\n        \"duplicate-event-merge\",\n        \"evidence-package-generation\",\n        \"evidence-snapshot\",\n        \"ffmpeg-utils\",\n        \"frame-sampling\",\n        \"human-review-routing\",\n        \"object-detection\",\n        \"object-statistics\",\n        \"object-tracking\",\n        \"privacy-masking\",\n        \"roi-mapping\",\n        \"single-video-event-analysis\",\n        \"video-embedding-index\",\n        \"video-object-analytics\",\n        \"video-search\",\n        \"video-segment-extraction\",\n        \"video-stream-ingestion\"\n      ],\n      \"selection_owner\": \"lead_agent\"\n    }\n  },\n  \"legacy_invocation\": {\n    \"skill_dir\": \"/app/skills/custom/video_surveillance/video-stream-ingestion\",\n    \"skill_file\": \"/app/skills/custom/video_surveillance/video-stream-ingestion/SKILL.md\",\n    \"container_skill_file\": \"/mnt/skills/custom/video_surveillance/video-stream-ingestion/SKILL.md\",\n    \"selected_data_sources\": [],\n    \"argv\": [],\n    \"env\": {},\n    \"parameters\": {},\n    \"working_directory\": \"/app/skills/custom/video_surveillance/video-stream-ingestion\",\n    \"adapter_note\": \"Load the returned container_skill_file, follow its SKILL.md workflow, and use selected_data_sources/parameters as the legacy inputs.\"\n  },\n  \"next_steps\": [\n    \"Read container_skill_file before executing the Skill workflow.\",\n    \"Use selected_data_sources and parameters as the legacy inputs.\",\n    \"After execution, call invoke_skill again with mode='wrap_output' to produce SkillResult.\"\n  ]\n}"
+    },
+    {
+      "name": "ls",
+      "status": "success",
+      "content": "/mnt/skills/custom/video_surveillance/video-stream-ingestion\n/mnt/skills/custom/video_surveillance/video-stream-ingestion/scripts\n/mnt/skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py\n/mnt/skills/custom/video_surveillance/video-stream-ingestion/scripts/__pycache__\n/mnt/skills/custom/video_surveillance/video-stream-ingestion/SKILL.md\n/mnt/skills/custom/video_surveillance/video-stream-ingestion/router_card.json"
+    },
+    {
+      "name": "read_file",
+      "status": "success",
+      "content": "---\nname: video-stream-ingestion\ndescription: Normalize an existing local video file after city-video-intelligence has routed a video-library or analysis request, returning raw segment/session metadata such as duration, resolution, frame rate, codec, and session times. Use it for any \"read this video's duration / resolution / fps / codec / metadata\" or \"turn this video into a standard analysis input\" request instead of running ffprobe by hand. For direct user ingestion, Elasticsearch, StreetModel, search, statistics, evidence, or camera-health requests, load city-video-intelligence first. Use this atomic skill when Codex already has a clear plan and a local MP4/MOV/AVI/MKV file before frame sampling.\n---\n\n# Video File Normalization\n\n## Execution Priority\n\nFor any direct user business request that combines video ingestion with search, embedding, statistics, evidence, or other city-video operations, load `city-video-intelligence` first and run its router script. Use this atomic skill only after the business route is clear.\n\nPrioritize calling this skill's `scripts/run.py` entrypoint first. Only write custom code after the script result is unsuitable or the script cannot cover the requested task.\n\nReading video duration, resolution, frame rate, codec, or timestamps is this skill's job. Do not answer such a request by calling `ffprobe`/`ffmpeg` from bash and formatting the output yourself — run this script and report its JSON `data`. If the script fails, report its `error_code` and stop; do not fall back to hand-written commands.\n\n## Input Resolution\n\nIf the user provides a local video path or uploaded video file, build the input JSON for this skill instead of writing normalization code. Use a stable default `camera_id` when the user does not provide one, infer `source_type=local_file`, and pass the path as `file_path`, `video_path`, or `raw_segment_uri`. Only ask the user for clarification when no usable video file can be inferred.\n\n\n## Atomic CLI\n\nRun this skill directly with its own script. The script does not call other skill scripts and does not depend on shared `src`, `tools`, or registry modules.\n\n```bash\npython video-stream-ingestion/scripts/run.py --video <video.mp4> --camera-id <camera_id> --source-type local_file --capture-seconds 10 --config <config.json> --output <result.json>\n```\n\nParameters: `--video`, `--raw-segment-uri`, `--camera-id`, `--source-type`, `--capture-seconds`, `--started-at`, `--config`, `--output`.\n\n## Workflow\n\n1. Read camera id, local video file path, and optional capture duration.\n2. Validate that the file exists and probe resolution, duration, frame rate, codec, bit rate, and frame count with ffprobe.\n3. Return normalized `raw_segment_uri` and session metadata for downstream frame sampling.\n\n## Available Implementation\n\nThis skill is implemented as an atomic standalone script in its own `scripts/run.py`. The script contains the executable logic for this skill and must not import shared `src`, `tools`, or registry modules.\n\n## Inputs\n\nRequired:\n- `camera_id`\n- `source_type`: `local_file`\n\nCommon fields:\n- `file_path`, `video_path`, or `raw_segment_uri`\n- `capture_seconds`\n- `started_at`\n\n## Outputs\n\nReturns `raw_segment_uri`, `video_session_id`, `started_at`, `ended_at`, `file_status`, and the probed video metadata:\n\n- `duration_seconds` — the capture window used by this ingestion run\n- `video_duration_seconds` — the full duration of the source file\n- `width`, `height`, `resolution`\n- `fps`, `frame_count`\n- `codec`, `codec_long_name`, `pixel_format`, `container_format`, `bit_rate`\n- `file_size_bytes`, `filename`\n\nThese cover the usual \"duration / resolution / frame rate / codec\" request, so there is no need to call `ffprobe` separately.\n\n## Failure Modes\n\n- `MISSING_CAMERA_ID`\n- `UNSUPPORTED_SOURCE`\n- `SOURCE_NOT_FOUND`\n\n## Constraints\n\nDo not detect objects, sample frames, create events, or generate evidence.\n"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "{\n  \"skill\": \"video-stream-ingestion\",\n  \"version\": \"1.0.0\",\n  \"status\": \"success\",\n  \"confidence\": 1.0,\n  \"data\": {\n    \"camera_id\": \"CAM_DEERFLOW_001\",\n    \"source_type\": \"local_file\",\n    \"file_status\": \"ok\",\n    \"video_session_id\": \"VS_bdfd29e7\",\n    \"started_at\": \"2026-05-20T10:00:00+08:00\",\n    \"ended_at\": \"2026-05-20T10:00:10+08:00\",\n    \"raw_segment_uri\": \"/mnt/user-data/uploads/Trafic-30s.mp4\",\n    \"duration_seconds\": 10,\n    \"video_duration_seconds\": 30.0,\n    \"width\": 1280,\n    \"height\": 674,\n    \"resolution\": \"1280x674\",\n    \"fps\": 12.0,\n    \"codec\": \"h264\",\n    \"codec_long_name\": \"H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10\",\n    \"pixel_format\": \"yuv420p\",\n    \"container_format\": \"mov,mp4,m4a,3gp,3g2,mj2\",\n    \"bit_rate\": 408894,\n    \"frame_count\": 360,\n    \"file_size_bytes\": 1533354,\n    \"filename\": \"Trafic-30s.mp4\"\n  }\n}"
+    }
+  ]
+}

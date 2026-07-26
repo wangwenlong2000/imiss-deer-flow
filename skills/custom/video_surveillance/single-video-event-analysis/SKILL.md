@@ -44,6 +44,22 @@ Useful fields in `input.json`:
 
 For ordinary business questions, omit `max_frames` so the script default samples across the whole video and exposes only 8 review frames. Do not use `max_frames` as the review-image limit. Do not rerun the script after a successful result.
 
+## Metadata Provenance
+
+Every metadata field you report must be traceable to this specific video. Do not fill gaps
+from memory, from other videos, or from files under `examples/`.
+
+- Duration, resolution, frame rate, codec, frame count, and file size come only from
+  `video-stream-ingestion` run against this video, or from the `video` block this skill emits.
+- Camera ID, place name, address, and shooting date/time are external business records. They are
+  **not** recoverable from a video file. If the request or an authoritative record does not supply
+  them, leave them empty and state that they are missing. Never substitute a plausible value.
+- Files under `skills/custom/video_surveillance/examples/` are placeholders. Each carries
+  `"_example": true`. Their camera IDs, locations, timestamps, ROIs, detections, and event
+  candidates are invented. Never copy any of their values into a timeline, report, or evidence package.
+- A report that states a camera ID, location, or shooting time not present in the actual input is a
+  fabricated evidence record, even when the rest of the analysis is correct.
+
 ## Review Rules
 
 - Only report events that are visible in the sampled frames.
@@ -93,3 +109,5 @@ Return a JSON-compatible result with:
 - Do not call legacy rule-based event skills. They have been removed from this bundle.
 - Do not infer off-camera causes.
 - Do not fabricate exact counts when the frame only supports a range.
+- Do not copy metadata, camera identity, location, or timestamps from `examples/` or from any file
+  marked `"_example": true`.

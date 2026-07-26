@@ -1,0 +1,23 @@
+{
+  "id": "C-028",
+  "mode": "boundary",
+  "question": "找出摄像头 CAM_008 昨天 18 点到 20 点出现公交车的所有录像，并按时间排序。",
+  "thread_id": "a4b3b6af-fb00-490e-b4ef-8f62a97479a6",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "city-video-intelligence",
+    "video-search"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "city-video-intelligence",
+    "video-search"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

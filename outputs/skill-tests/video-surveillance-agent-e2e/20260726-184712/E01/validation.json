@@ -1,0 +1,38 @@
+{
+  "id": "E01",
+  "covers": "4.3 + 4.6 视频元数据路由与字段补齐",
+  "skills": [
+    "video-stream-ingestion"
+  ],
+  "question": "请读取我上传的这个视频的时长、分辨率、帧率和编码信息，整理成后续分析可以直接使用的标准输入。",
+  "thread_id": "8123f778-8b62-466c-be94-810d2677a7cf",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 275.5,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "ls",
+      "read_file"
+    ],
+    "skills_touched": [
+      "video-stream-ingestion"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1218,
+    "clarifications": []
+  }
+}

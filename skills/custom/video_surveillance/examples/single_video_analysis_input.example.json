@@ -1,0 +1,30 @@
+{
+  "_example": true,
+  "_example_notice": "占位示例，仅用于说明该 skill 的输入字段结构。其中的摄像头编号、路径、时间戳均为占位值，与任何真实视频无关。禁止把本文件的任何取值写进分析报告、证据包或最终回答。",
+  "source_type": "local_file",
+  "video_path": "<替换为真实视频路径>",
+  "camera_id": "<替换为真实摄像头编号>",
+  "analysis_task": "分析这个视频中是否存在异常事件，并输出可见证据、时间段、置信度和是否需要人工复核。",
+  "target_events": [
+    "traffic_congestion",
+    "fight",
+    "fall_down",
+    "traffic_accident",
+    "pedestrian_intrusion",
+    "smoke_or_fire",
+    "crowd_gathering",
+    "illegal_occupation",
+    "other_abnormal_event"
+  ],
+  "output_dir": "/mnt/data/video-monitoring-runs/single_video_demo",
+  "coarse_fps": 1.0,
+  "dense_fps": 4.0,
+  "scene_threshold": 0.3,
+  "dense_window": 2.0,
+  "output_requirements": {
+    "include_timeline": true,
+    "include_key_frames": true,
+    "include_event_candidates": true,
+    "include_uncertainty": true
+  }
+}

@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # Default configuration
 DEFAULT_IMAGE = "enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest"
 DEFAULT_PORT = 8080
-DEFAULT_CONTAINER_PREFIX = "deer-flow-sandbox"
+DEFAULT_CONTAINER_PREFIX = "qwen36test-deer-flow-sandbox"
 DEFAULT_IDLE_TIMEOUT = 600  # 10 minutes in seconds
 DEFAULT_REPLICAS = 3  # Maximum concurrent sandbox containers
 IDLE_CHECK_INTERVAL = 60  # Check every 60 seconds

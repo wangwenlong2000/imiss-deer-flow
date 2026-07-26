@@ -56,9 +56,18 @@ def main():
         routing_text_hash = embedding.get("text_hash", "")
         es_doc_id = embedding.get("es_doc_id", skill_id)
 
-        # Compute relative paths from skills root
+        # Compute relative paths from the files that are actually being scanned.
+        # Router Cards can be copied into a category bundle (for example
+        # ``custom/video_surveillance/<skill>``), while their historical source
+        # metadata may still point to the old flat location.  The registry must
+        # point to the colocated SKILL.md, otherwise routing succeeds but the
+        # agent cannot load the selected skill instructions.
         rel_card = str(card_file.relative_to(skills_root.parent))
-        rel_md = skill_md_path if skill_md_path else rel_card.replace("router_card.json", "SKILL.md")
+        colocated_skill_md = card_file.parent / "SKILL.md"
+        if colocated_skill_md.is_file():
+            rel_md = str(colocated_skill_md.relative_to(skills_root.parent))
+        else:
+            rel_md = skill_md_path or rel_card.replace("router_card.json", "SKILL.md")
 
         skills_list.append({
             "id": skill_id,

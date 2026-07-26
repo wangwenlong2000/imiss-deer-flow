@@ -6,6 +6,7 @@ import json
 import math
 import shutil
 import subprocess
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from hashlib import sha1, sha256
@@ -20,16 +21,50 @@ except Exception:
 
 VERSION = "1.0.0"
 
+class SkillInputError(Exception):
+    """Input file could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def argv_output() -> str | None:
+    """Best-effort --output path so early input failures still honour it."""
+    argv = sys.argv
+    if "--output" in argv:
+        index = argv.index("--output")
+        if index + 1 < len(argv):
+            return argv[index + 1]
+    return None
+
+
 def load_structured(path: str | None) -> Any:
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
     if source.suffix.lower() in {".yaml", ".yml"}:
         if yaml is None:
-            raise RuntimeError("PyYAML is required to read YAML files")
-        return yaml.safe_load(text) or {}
-    return json.loads(text) if text.strip() else {}
+            raise SkillInputError("INPUT_INVALID_YAML", "PyYAML is required to read YAML files")
+        try:
+            return yaml.safe_load(text) or {}
+        except Exception as exc:  # noqa: BLE001 - yaml raises library specific errors
+            raise SkillInputError("INPUT_INVALID_YAML", f"Invalid YAML in {path}: {exc}") from exc
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 def load_config(path: str | None) -> dict[str, Any]:
     data = load_structured(path)
@@ -166,10 +201,32 @@ def iter_detection_objects(detections: list[dict[str, Any]]):
 
 SKILL = "video-stream-ingestion"
 
+def parse_frame_rate(value: str | None) -> float | None:
+    """ffprobe returns rates as "12/1"; normalize to float fps."""
+    if not value or value in {"0/0", "N/A"}:
+        return None
+    try:
+        if "/" in value:
+            numerator, denominator = value.split("/", 1)
+            denominator_value = float(denominator)
+            if denominator_value == 0:
+                return None
+            return round(float(numerator) / denominator_value, 3)
+        return round(float(value), 3)
+    except ValueError:
+        return None
+
+
 def probe_video(path: Path) -> dict[str, Any]:
     if not shutil.which("ffprobe"):
         raise FileNotFoundError("ffprobe")
-    cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:format=duration", "-of", "default=noprint_wrappers=1:nokey=0", str(path)]
+    cmd = [
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries",
+        "stream=width,height,r_frame_rate,avg_frame_rate,codec_name,codec_long_name,pix_fmt,nb_frames"
+        ":format=duration,size,bit_rate,format_name",
+        "-of", "default=noprint_wrappers=1:nokey=0", str(path),
+    ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     metadata: dict[str, Any] = {}
     if result.returncode == 0:
@@ -177,9 +234,12 @@ def probe_video(path: Path) -> dict[str, Any]:
             if "=" in line:
                 k, v = line.split("=", 1)
                 metadata[k] = v
-    for key in ("width", "height"):
-        if key in metadata:
-            metadata[key] = int(float(metadata[key]))
+    for key in ("width", "height", "nb_frames", "size", "bit_rate"):
+        if key in metadata and metadata[key] not in {"N/A", ""}:
+            try:
+                metadata[key] = int(float(metadata[key]))
+            except ValueError:
+                metadata.pop(key, None)
     return metadata
 
 def main() -> int:
@@ -214,13 +274,54 @@ def main() -> int:
         meta = probe_video(path)
     except FileNotFoundError:
         return emit(failed(SKILL, "FFPROBE_MISSING", "ffprobe is required but was not found in PATH", False), args.output)
-    if meta.get("duration"):
-        duration = min(duration, int(float(meta["duration"])))
+    video_duration = round(float(meta["duration"]), 3) if meta.get("duration") else None
+    if video_duration:
+        duration = min(duration, int(video_duration))
     width, height = meta.get("width"), meta.get("height")
     if not raw_uri:
         return emit(failed(SKILL, "SOURCE_NOT_FOUND", "A local video path is required"), args.output)
-    data = {"camera_id": camera_id, "source_type": source_type, "file_status": "ok", "video_session_id": session_id, "started_at": started_at, "ended_at": iso_add_seconds(started_at, duration), "raw_segment_uri": raw_uri, "duration_seconds": duration, "width": width, "height": height}
+    fps = parse_frame_rate(meta.get("avg_frame_rate")) or parse_frame_rate(meta.get("r_frame_rate"))
+    data = {
+        "camera_id": camera_id,
+        "source_type": source_type,
+        "file_status": "ok",
+        "video_session_id": session_id,
+        "started_at": started_at,
+        "ended_at": iso_add_seconds(started_at, duration),
+        "raw_segment_uri": raw_uri,
+        # duration_seconds 是本次接入的采集窗口，video_duration_seconds 是文件的完整时长
+        "duration_seconds": duration,
+        "video_duration_seconds": video_duration,
+        "width": width,
+        "height": height,
+        "resolution": f"{width}x{height}" if width and height else None,
+        "fps": fps,
+        "codec": meta.get("codec_name"),
+        "codec_long_name": meta.get("codec_long_name"),
+        "pixel_format": meta.get("pix_fmt"),
+        "container_format": meta.get("format_name"),
+        "bit_rate": meta.get("bit_rate"),
+        "frame_count": meta.get("nb_frames"),
+        "file_size_bytes": meta.get("size") or (path.stat().st_size if path.exists() else None),
+        "filename": path.name,
+    }
     return emit(success(SKILL, data), args.output)
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SkillInputError as exc:
+        raise SystemExit(
+            emit(
+                {
+                    "skill": SKILL,
+                    "version": VERSION,
+                    "status": "failed",
+                    "error_code": exc.code,
+                    "message": exc.message,
+                    "retryable": False,
+                    "detail": {},
+                },
+                argv_output(),
+            )
+        )

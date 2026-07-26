@@ -1,0 +1,54 @@
+{
+  "id": "Q02",
+  "mode": "routing",
+  "question": "请检查这批摄像头最近的视频质量，找出黑屏、花屏、模糊、过曝、断流和时间戳异常的设备。",
+  "thread_id": "0028ebd7-3586-4cdc-b66d-1d5d8c0a31d7",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "camera-health-check"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "city-video-intelligence && python scripts",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "frame-sampling && python scripts",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [
+    {
+      "error": "GraphRecursionError",
+      "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+    }
+  ],
+  "error": null,
+  "final_answer": "第一个视频采样成功！继续处理另外两个：\n\n",
+  "passed": false
+}

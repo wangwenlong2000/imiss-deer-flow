@@ -1,0 +1,21 @@
+{
+  "id": "C-038",
+  "mode": "boundary",
+  "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+  "thread_id": "590929ce-71ca-4663-a2da-dba6bbf89ad2",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "human-review-routing"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "human-review-routing"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

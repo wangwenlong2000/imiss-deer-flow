@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-object-analytics",
+    "name": "video-object-analytics",
+    "description": "Structured tool entrypoint for deterministic local-video object detection and cross-frame tracking."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "object_detection",
+      "object_tracking"
+    ],
+    "input_types": [
+      "video_path",
+      "operation",
+      "camera_id",
+      "capture_seconds",
+      "interval_seconds",
+      "labels"
+    ],
+    "output_types": [
+      "detections_json",
+      "tracks_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：video-object-analytics\n描述：通过结构化 video_object_analytics 工具固定执行抽帧、YOLO 目标检测和跨帧跟踪。禁止让 Agent 直接生成底层 shell 参数。\n适用场景：video_surveillance。\n适用任务：object_detection, object_tracking。\n适合使用：检测视频中人员、车辆和其他目标；跟踪人员和车辆轨迹。\n不适合使用：事件判断、身份识别、语义检索。",
+    "positive_triggers": [
+      "目标检测",
+      "检测目标",
+      "几个人",
+      "几辆车",
+      "主要目标",
+      "跟踪轨迹",
+      "怎么移动",
+      "跨帧跟踪"
+    ],
+    "negative_triggers": [
+      "打架",
+      "摔倒",
+      "事故",
+      "语义搜索",
+      "相似视频"
+    ],
+    "keywords": [
+      "video_object_analytics",
+      "目标检测",
+      "目标跟踪",
+      "YOLO",
+      "轨迹"
+    ],
+    "anti_keywords": [
+      "事件判断",
+      "身份识别",
+      "语义检索"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "这是本地视频目标检测与跨帧跟踪的结构化入口。必须调用 video_object_analytics 工具，不得直接调用 bash、frame-sampling、object-detection 或 object-tracking。工具内部固定执行抽帧、YOLO 检测和可选跟踪，并返回 summary、track_summary、artifacts、executed_skills。该技能只负责可见目标与目标级轨迹，不判断事件或身份。"
+  },
+  "execution": {
+    "required_tools": [
+      "video_object_analytics"
+    ],
+    "optional_tools": [],
+    "allowed_file_patterns": [
+      "*.mp4",
+      "*.mov",
+      "*.avi",
+      "*.mkv"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": []
+  },
+  "routing_policy": {
+    "priority": 95,
+    "conflict_group": "video_object_analytics",
+    "prefer_when": [
+      "用户直接要求统计视频中的人员、车辆或其他目标",
+      "用户要求跨帧跟踪人员或车辆轨迹"
+    ],
+    "defer_when": [
+      "用户要求判断打架、摔倒、事故等事件",
+      "用户要求语义检索或相似视频搜索"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video_surveillance/video-object-analytics",
+    "skill_md_path": "skills/custom/video_surveillance/video-object-analytics/SKILL.md",
+    "generated_at": "2026-07-23T00:00:00Z",
+    "generator_version": "manual-structured-video-tool-1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "video-object-analytics"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "C-040",
+  "mode": "boundary",
+  "question": "我想确认具体人员身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前数据只有本地视频和检测框。请说明哪些能力无法由现有数据支持，不要编造结果。",
+  "thread_id": "714c4b4f-f3d7-49b7-9081-645e6c2d1e90",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "city-video-intelligence"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "city-video-intelligence"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

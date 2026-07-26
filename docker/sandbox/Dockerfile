@@ -62,6 +62,10 @@ RUN apt-get update \
     && python3 -m venv --system-site-packages /opt/rs-venv \
     && /opt/rs-venv/bin/python -m pip install --no-cache-dir --upgrade pip setuptools wheel \
     && /opt/rs-venv/bin/python -m pip install --no-cache-dir \
+       --index-url https://download.pytorch.org/whl/cpu \
+       "torch==2.5.1+cpu" \
+       "torchvision==0.20.1+cpu" \
+    && /opt/rs-venv/bin/python -m pip install --no-cache-dir \
        dashscope \
        numpy \
        scipy \

@@ -1,0 +1,9 @@
+{
+  "skill": "video-segment-extraction",
+  "version": "1.0.0",
+  "status": "failed",
+  "error_code": "MISSING_EVENT",
+  "message": "--event-time or --start-time is required",
+  "retryable": false,
+  "detail": {}
+}

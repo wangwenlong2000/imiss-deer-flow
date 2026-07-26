@@ -1,0 +1,33 @@
+{
+  "id": "E05",
+  "covers": "4.1 失败契约：视频不存在时必须报错而不是编造事件",
+  "skills": [
+    "video-stream-ingestion"
+  ],
+  "question": "请分析 /mnt/user-data/uploads/does-not-exist-camera-42.mp4 这段监控里有没有打架或摔倒，并给出时间线。",
+  "thread_id": "eeda22b6-e72a-4ec4-922a-abab62a9f8fd",
+  "uploaded_file": null,
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 210.5,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "read_file"
+    ],
+    "skills_touched": [
+      "city-video-intelligence",
+      "single-video-event-analysis"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 204,
+    "clarifications": []
+  }
+}

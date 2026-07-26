@@ -1,0 +1,58 @@
+{
+  "id": "Q13",
+  "mode": "video",
+  "question": "请从 8 小时监控录像中提取包含异常行为的多个短视频片段，每段保留前后缓冲时间并附上事件说明。",
+  "thread_id": "55e6b183-d4a3-4bf7-abc5-73baef365fd6",
+  "video_file": "Vedio-demo/Trafic-30s.mp4",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-segment-extraction"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "single-video-event-analysis && python scripts",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [
+    {
+      "error": "GraphRecursionError",
+      "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+    }
+  ],
+  "error": null,
+  "final_answer": "## 视频监控分析报告\n\n### 视频元数据\n- **文件名**: Trafic-30s.mp4\n- **时长**: 30秒\n- **分辨率**: 1280×674\n- **帧率**: 12fps\n- **编码**: H.264\n- **摄像头**: CAM_TRAFFIC_001\n- **地点**: 浙江宁波奉化大桥 大成路与斗门路西口\n- **时间**: 2022-09-29 15:59-16:00\n\n---\n\n### 审阅结果\n\n经过对8个关键帧（每4秒一帧）的视觉审阅，以下是时序观察：\n\n| 时间点 | 观察内容 |\n|--------|----------|\n| 0:00:00 | 正常交通流，多辆汽车和一辆公交车正在通过十字路口 |\n| 0:00:04 | 交通持续正常运行，红灯方向无车，绿灯方向车流顺畅 |\n| 0:00:08 | 右侧人行道有行人准备过街，交通秩序正常 |\n| 0:00:12 | 行人已在斑马线上行走，车辆在停止线前等候 |\n| 0:00:17 | 行人继续过马路，路口秩序良好 |\n| 0:00:21 | 行人接近对面，画面右侧出现一名身穿反光背心的交警 |\n| 0:00:25 | 交警站在路口右侧执勤 |\n| 0:00:29 | 一辆白色SUV从右侧路口驶入，交通恢复正常流动 |\n\n---\n\n### 异常事件检测结果\n\n**未检测到明确的异常行为事件。**\n\n在整个30秒的视频片段中，所有画面显示为正常的城市道路交通场景，包括：\n- ✅ 车辆按信号灯有序通行\n- ✅ 行人在斑马线上正常过街\n- ✅ 交警在路口执勤维持秩序\n- ❌ 未发现交通事故、打架、摔倒、烟火、非法入侵等异常行为\n\n---\n\n### 建议\n\n由于当前上传的视频文件 `Trafic-30s.mp4` 仅为30秒的短视频片段，且内容为正常交通场景，未包含可识别的异常行为事件。\n\n如需提取包含异常行为的短视频片段，请提供以下内容：\n\n1. **完整的8小时监控录像文件** — 当前上传的文件仅30秒\n2. **或者指定需要分析的具体视频文件路径**\n3. **或者明确关注的异常类型** — 例如：交通事故、行人违章、车辆违停等\n\n一旦获得完整的监控视频，系统将自动执行以下流程：\n1. 全视频扫描检测异常事件\n2. 锁定异常发生的时间窗口\n3. 截取前后缓冲的短视频片段\n4. 生成带事件说明的结构化交付包",
+  "passed": false
+}

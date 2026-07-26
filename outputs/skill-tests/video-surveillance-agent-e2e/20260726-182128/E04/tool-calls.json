@@ -1,0 +1,21 @@
+{
+  "calls": [
+    {
+      "name": "video_object_analytics",
+      "args": {
+        "operation": "detect",
+        "video_path": "/mnt/user-data/uploads/Trafic.mp4",
+        "capture_seconds": 2,
+        "interval_seconds": 1,
+        "labels": "person,car,truck,bus"
+      }
+    }
+  ],
+  "results": [
+    {
+      "name": "video_object_analytics",
+      "status": "success",
+      "content": "{\"skill\": \"video-object-analytics\", \"status\": \"success\", \"operation\": \"detect\", \"executed_skills\": [\"video-object-analytics\", \"frame-sampling\", \"object-detection\"], \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\", \"artifacts\": {\"frames_json\": \"/mnt/user-data/workspace/video-object-analytics/baa6f31e8f5c/frames.json\", \"detections_json\": \"/mnt/user-data/workspace/video-object-analytics/baa6f31e8f5c/detections.json\"}, \"summary\": {\"frame_count\": 3, \"per_frame\": [{\"frame_id\": \"CAM_DEERFLOW_001_202605201000000800_0001\", \"timestamp\": \"2026-05-20T10:00:00+08:00\", \"counts\": {\"bus\": 2, \"car\": 9}, \"object_count\": 11}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000010800_0002\", \"timestamp\": \"2026-05-20T10:00:01+08:00\", \"counts\": {\"bus\": 2, \"car\": 9}, \"object_count\": 11}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000020800_0003\", \"timestamp\": \"2026-05-20T10:00:02+08:00\", \"counts\": {\"bus\": 1, \"car\": 9}, \"object_count\": 10}], \"frame_detection_totals\": {\"bus\": 5, \"car\": 27}, \"total_frame_detections\": 32, \"unique_object_count\": null, \"unique_object_count_note\": \"Detection frames are not deduplicated; use operation=track for cross-frame identities.\", \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\"}}"
+    }
+  ]
+}

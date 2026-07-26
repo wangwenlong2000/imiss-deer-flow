@@ -1,0 +1,47 @@
+{
+  "id": "Q12",
+  "mode": "routing",
+  "question": "请在画面中标出门口和停车区两个区域，并分别统计进入、离开和停留的目标数量。",
+  "thread_id": "5567db08-c7d7-4daf-80d0-19b850929e28",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "64192a7c-1ca2-41e0-8b7d-d998af5b9256",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "roi-mapping"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我需要先确认是否有上传的视频文件，然后加载相应的视频监控技能来处理您的需求。让我先检查一下当前上下文。\n\n",
+  "passed": true
+}

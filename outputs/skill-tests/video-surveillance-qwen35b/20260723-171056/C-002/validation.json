@@ -1,0 +1,21 @@
+{
+  "id": "C-002",
+  "mode": "video",
+  "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+  "thread_id": "74c19d1b-2276-410c-b228-f3e9c60f6ae0",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "video-stream-ingestion"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

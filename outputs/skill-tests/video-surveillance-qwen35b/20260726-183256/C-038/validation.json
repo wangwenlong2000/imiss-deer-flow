@@ -1,0 +1,47 @@
+{
+  "id": "C-038",
+  "mode": "boundary",
+  "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+  "thread_id": "719cc49f-9cda-4986-bb8a-e3b4b3f38e00",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "846afbe7-b07c-456e-a022-5740ab8013ce",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "human-review-routing"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "基于 `human-review-routing` 技能的路由逻辑和视频监控业务规范，以下是**必须进入人工复核的事件结果分类规则**：\n\n---\n\n## 一、四大强制触发条件\n\n| 触发条件 | 判定标准 | 路由原因标签 |\n|---------|---------|------------|\n| **置信度低于阈值** | `confidence < review_threshold`（默认 0.85） | `confidence_below_threshold` |\n| **高风险事件类型** | `event_type` 命中 `high_risk_event_types` 配置列表 | `high_risk_event_type` |\n| **摄像头画面降级/遮挡** | `camera_health_status == \"degraded\"`（含遮挡、模糊、冻结、离线等） | `camera_health_degraded` |\n| **涉及执法影响** | `affects_enforcement == true` | `affects_enforcement` |\n\n**任一条件成立即强制进入 `manual_review` 队列；全部不满足则走 `auto_pass`。**\n\n---\n\n## 二、各场景详细说明\n\n### 1. 事件置信度低\n\n- **量化阈值**：默认 `0.85`，可通过 `review_thresholds` 按事件类型自定义\n- **适用情况**：LLM 审帧后给出的事件置信度评分落在区间 `[threshold - 0.1, threshold)` 时，系统不会自动放行，而是送入人工复核队列等待确认\n- **典型场景**：烟雾/火焰识别中仅有局部疑似区域、摔倒检测中人物姿态不够典型\n\n### 2. 摄像头画面有遮挡或画质降级\n\n- **覆盖状态**：`degraded` 包括以下子状态——\n  - 画面被树叶、广告牌等物理遮挡\n  - 镜头模糊、结霜、污损\n  - 视频流冻结、卡顿\n  - 摄像头离线但仍有残留告警\n  - ROI 区域偏移导致监控目标不在视野内\n- **处理逻辑**：只要相机健康检查返回 `degraded`，无论事件置信度高低，一律进入人工复核\n\n### 3. 涉及执法类事件\n\n- **判定标志**：事件的 `affects_enforcement` 字段标记为 `true`\n- **典型执法关联类型**：\n  - 违章停车 / 占道经营\n  - 闯红灯 / 逆行 / 占用应急车道\n  - 非法入侵 / 破坏公物\n  - 交通肇事逃逸\n  - 其他可能作为行政处罚或诉讼证据的事件\n- **合规要求**：涉及执法证据的事件必须经过人工二次确认，确保电子证据链完整有效\n\n---\n\n## 三、路由决策流程图\n\n```mermaid\nflowchart TD\n    A[事件候选产生] --> B{置信度 < 阈值?}\n    B -- 是 --> C[标记: confidence_below_threshold]\n    B -- 否 --> D{事件类型在高风险列表中?}\n    D -- 是 --> E[标记: high_risk_event_type]\n    D -- 否 --> F{摄像头健康状态 degraded?}\n    F -- 是 --> G[标记: camera_health_degraded]\n    F -- 否 --> H{affects_enforcement = true?}\n    H -- 是 --> I[标记: affects_enforcement]\n    H -- 否 --> J[auto_pass 自动通过]\n    C --> K{有任一标记?}\n    E --> K\n    G --> K\n    I --> K\n    K -- 是 --> L[manual_review 人工复核队列]\n    K -- 否 --> J\n```\n\n---\n\n## 四、输出数据结构\n\n每个事件的复核路由结果包含：\n\n```json\n{\n  \"event_id\": \"evt_xxx\",\n  \"review_required\": true,\n  \"reasons\": [\"confidence_below_threshold\", \"camera_health_degraded\"],\n  \"review_threshold\": 0.85,\n  \"queue\": \"manual_review\"\n}\n```\n\n---\n\n**总结**：当且仅当事件同时满足「置信度达标 + 非高风险类型 + 摄像头健康正常 + 不涉及执法」四个条件时，才会走自动通过流程。其余所有情形都必须进入人工复核队列，这是视频监控系统中保障误报拦截率和证据合法性的核心策略。",
+  "passed": true
+}

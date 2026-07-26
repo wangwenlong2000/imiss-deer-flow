@@ -78,12 +78,13 @@ def load_all_cards(skills_root: Path) -> dict[str, dict]:
         cat_dir = skills_root / category
         if not cat_dir.is_dir():
             continue
-        for d in sorted(cat_dir.iterdir()):
-            card_path = d / "router_card.json"
-            if card_path.exists():
-                card = load_card(card_path)
-                if card:
-                    cards[card["identity"]["id"]] = card
+        # Skills may be grouped below a category directory, such as
+        # custom/video_surveillance/<skill>.  Keep validation traversal in
+        # sync with the runtime loader and registry builder.
+        for card_path in sorted(cat_dir.rglob("router_card.json")):
+            card = load_card(card_path)
+            if card and isinstance(card.get("identity"), dict) and card["identity"].get("id"):
+                cards[card["identity"]["id"]] = card
     return cards
 
 

@@ -1,0 +1,13 @@
+{
+  "compliant": [
+    "object-detection",
+    "object-tracking",
+    "roi-mapping",
+    "duplicate-event-merge",
+    "evidence-snapshot",
+    "human-review-routing",
+    "camera-health-check",
+    "privacy-masking"
+  ],
+  "violating": {}
+}

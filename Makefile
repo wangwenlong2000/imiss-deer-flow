@@ -248,11 +248,6 @@ docker-logs-frontend:
 docker-logs-gateway:
 	@./scripts/docker.sh logs --gateway
 
-sandbox-build:
-	@./scripts/docker.sh sandbox-build
-docker-build-all:
-	@./scripts/docker.sh build-all
-
 # ==========================================
 # Production Docker Commands
 # ==========================================

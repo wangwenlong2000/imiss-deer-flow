@@ -1,0 +1,27 @@
+{
+  "id": "E06",
+  "covers": "证据包缺少关键输入时只做一次合并追问，不编造 artifact",
+  "question": "请把仓库事件的截图、前后 20 秒片段、哈希和打码副本整理成证据包。",
+  "thread_id": "bf2352f6-8ad5-43fc-9a0e-3dda332eaac5",
+  "uploaded_file": null,
+  "status": "fail",
+  "failures": [
+    "最终回答未命中任一关键词 ['请问', '需要', '提供', '哪个', '路径']"
+  ],
+  "error": null,
+  "elapsed_seconds": 168.2,
+  "evidence": {
+    "tool_call_names": [
+      "ask_clarification",
+      "bash"
+    ],
+    "skills_touched": [],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 47
+  }
+}

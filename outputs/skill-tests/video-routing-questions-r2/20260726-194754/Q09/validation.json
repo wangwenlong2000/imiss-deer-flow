@@ -1,0 +1,53 @@
+{
+  "id": "Q09",
+  "mode": "video",
+  "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
+  "thread_id": "ae409d2d-5b50-40d7-a882-4234cab543ba",
+  "video_file": "Vedio-demo/Trafic-30s.mp4",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "object-detection"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "models",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "检测完成。以下是视频 **Trafic-30s.mp4** 的逐帧目标检测结果。\n\n## 检测概况\n\n- **检测模型**: YOLOv8n\n- **采样帧数**: 3帧（第0秒、第1秒、第2秒）\n- **总检测目标**: 26个\n- **检测到类别**: 仅 `car`（汽车）\n- **未检测到**: person（行人）、bicycle（自行车）、motorcycle（摩托车）\n\n---\n\n## 逐帧检测结果\n\n### 帧 1 — 时间戳：2026-05-20 10:00:00\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0001_002 | car | 0.7016 | (421, 349) → (522, 443) |\n| 2 | det_0001_004 | car | 0.5523 | (485, 168) → (528, 209) |\n| 3 | det_0001_005 | car | 0.5315 | (716, 162) → (781, 195) |\n| 4 | det_0001_006 | car | 0.5262 | (29, 193) → (98, 239) |\n| 5 | det_0001_007 | car | 0.5188 | (203, 160) → (253, 194) |\n| 6 | det_0001_008 | car | 0.4397 | (380, 218) → (448, 270) |\n| 7 | det_0001_009 | car | 0.4375 | (775, 172) → (804, 196) |\n| 8 | det_0001_010 | car | 0.3851 | (98, 194) → (157, 246) |\n| 9 | det_0001_011 | car | 0.3525 | (549, 143) → (588, 174) |\n\n**共检测到 9 辆汽车**\n\n---\n\n### 帧 2 — 时间戳：2026-05-20 10:00:01\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0002_002 | car | 0.8013 | (377, 469) → (514, 605) |\n| 2 | det_0002_003 | car | 0.7786 | (448, 274) → (527, 345) |\n| 3 | det_0002_004 | car | 0.7110 | (158, 178) → (219, 221) |\n| 4 | det_0002_005 | car | 0.6825 | (20, 230) → (97, 289) |\n| 5 | det_0002_006 | car | 0.6121 | (489, 149) → (529, 178) |\n| 6 | det_0002_007 | car | 0.5209 | (421, 183) → (476, 227) |\n| 7 | det_0002_008 | car | 0.4551 | (101, 172) → (149, 205) |\n| 8 | det_0002_009 | car | 0.4528 | (534, 116) → (583, 165) |\n\n**共检测到 8 辆汽车**\n\n---\n\n### 帧 3 — 时间戳：2026-05-20 10:00:02\n\n| # | 目标ID | 类别 | 置信度 | 边界框 (x1,y1,x2,y2) |\n|---|--------|------|--------|----------------------|\n| 1 | det_0003_001 | car | 0.8154 | (468, 227) → (531, 281) |\n| 2 | det_0003_003 | car | 0.7531 | (425, 351) → (519, 443) |\n| 3 | det_0003_004 | car | 0.6144 | (23, 198) → (91, 241) |\n| 4 | det_0003_005 | car | 0.5729 | (94, 198) → (171, 251) |\n| 5 | det_0003_006 | car | 0.5511 | (642, 147) → (678, 172) |\n| 6 | det_0003_007 | car | 0.5049 | (94, 210) → (150, 251) |\n| 7 | det_0003_008 | car | 0.4457 | (451, 160) → (496, 195) |\n| 8 | det_0003_009 | car | 0.3780 | (175, 169) → (226, 208) |\n| 9 | det_0003_010 | car | 0.3726 | (260, 212) → (323, 277) |\n\n**共检测到 9 辆汽车**\n\n---\n\n## 说明\n\n1. **边界框格式**：`(x1, y1)` 为左上角坐标，`(x2, y2)` 为右下角坐标，单位为像素。\n2. **置信度**：数值越高表示模型对该检测结果的确定性越强（≥0.5 为较高置信度）。\n3. **采样策略**：系统从视频开头按 1 秒间隔采样了 3 帧进行检测。如需分析全量帧或指定时间范围，可以调整参数重新执行。\n4. **未检测到行人/自行车/摩托车**：该视频片段中模型未发现这三类目标，可能因为画面以机动车为主，或这些目标尺寸过小未被当前模型捕获。",
+  "passed": true
+}

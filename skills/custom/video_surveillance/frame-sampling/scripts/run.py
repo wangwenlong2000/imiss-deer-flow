@@ -6,6 +6,7 @@ import json
 import math
 import shutil
 import subprocess
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from hashlib import sha1, sha256
@@ -20,16 +21,50 @@ except Exception:
 
 VERSION = "1.0.0"
 
+class SkillInputError(Exception):
+    """Input file could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def argv_output() -> str | None:
+    """Best-effort --output path so early input failures still honour it."""
+    argv = sys.argv
+    if "--output" in argv:
+        index = argv.index("--output")
+        if index + 1 < len(argv):
+            return argv[index + 1]
+    return None
+
+
 def load_structured(path: str | None) -> Any:
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
     if source.suffix.lower() in {".yaml", ".yml"}:
         if yaml is None:
-            raise RuntimeError("PyYAML is required to read YAML files")
-        return yaml.safe_load(text) or {}
-    return json.loads(text) if text.strip() else {}
+            raise SkillInputError("INPUT_INVALID_YAML", "PyYAML is required to read YAML files")
+        try:
+            return yaml.safe_load(text) or {}
+        except Exception as exc:  # noqa: BLE001 - yaml raises library specific errors
+            raise SkillInputError("INPUT_INVALID_YAML", f"Invalid YAML in {path}: {exc}") from exc
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 def load_config(path: str | None) -> dict[str, Any]:
     data = load_structured(path)
@@ -170,44 +205,60 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Sample image frames from a local video.")
     p.add_argument("--input", help="Optional JSON payload; CLI flags override matching fields.")
     p.add_argument("--video", required=False)
+    # Compatibility aliases for callers that map input field names directly
+    # to CLI flags. The structured video_object_analytics tool does not use
+    # these aliases, but standalone skill calls remain safe and deterministic.
+    p.add_argument("--video-path", dest="video_path_alias")
     p.add_argument("--frames-json")
     p.add_argument("--camera-id")
     p.add_argument("--capture-seconds", type=float)
+    p.add_argument("--start-time", type=float)
+    p.add_argument("--end-time", type=float)
     p.add_argument("--interval-seconds", type=float)
     p.add_argument("--fps", type=float)
     p.add_argument("--started-at")
     p.add_argument("--output-dir")
     p.add_argument("--config")
     p.add_argument("--output")
+    p.add_argument("--output-json", dest="output_json_alias")
     args = p.parse_args()
+    output_path = args.output or args.output_json_alias
     input_data = load_input(args.input)
     config = load_config(args.config)
     camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
     frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
     if frames:
-        return emit(success(SKILL, {"camera_id": camera_id, "frames": frames}), args.output)
-    video = args.video or input_value(input_data, "video", "video_path", "raw_segment_uri", "file_path")
+        return emit(success(SKILL, {"camera_id": camera_id, "frames": frames}), output_path)
+    video = args.video or args.video_path_alias or input_value(input_data, "video", "video_path", "raw_segment_uri", "file_path")
     if not video:
-        return emit(failed(SKILL, "MISSING_VIDEO", "--video or --frames-json is required"), args.output)
+        return emit(failed(SKILL, "MISSING_VIDEO", "--video or --frames-json is required"), output_path)
     sampling = input_dict(input_data, "sampling_strategy")
     interval_seconds = args.interval_seconds if args.interval_seconds is not None else float(sampling.get("interval_seconds", 1.0))
     fps = args.fps if args.fps is not None else sampling.get("fps")
     capture_seconds = args.capture_seconds if args.capture_seconds is not None else input_value(input_data, "capture_seconds")
+    start_offset = args.start_time if args.start_time is not None else float(input_value(input_data, "start_time", default=0.0) or 0.0)
+    end_offset = args.end_time if args.end_time is not None else input_value(input_data, "end_time")
+    if end_offset is not None:
+        end_offset = float(end_offset)
+        if end_offset <= start_offset:
+            return emit(failed(SKILL, "INVALID_TIME_RANGE", "end-time must be greater than start-time"), output_path)
+        capture_seconds = end_offset - start_offset
     started_at = args.started_at or input_value(input_data, "started_at")
     output_dir = args.output_dir or input_value(input_data, "output_dir")
     try:
         import cv2
     except ModuleNotFoundError:
-        return emit(failed(SKILL, "OPENCV_MISSING", "opencv-python-headless is required"), args.output)
+        return emit(failed(SKILL, "OPENCV_MISSING", "opencv-python-headless is required"), output_path)
     path = Path(str(video).removeprefix("file://"))
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
-        return emit(failed(SKILL, "VIDEO_OPEN_FAILED", f"Could not open video: {path}", True), args.output)
+        return emit(failed(SKILL, "VIDEO_OPEN_FAILED", f"Could not open video: {path}", True), output_path)
     video_fps = cap.get(cv2.CAP_PROP_FPS) or 25
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration = capture_seconds if capture_seconds is not None else (total / video_fps if total else config.get("default_capture_seconds", 10))
+    end_elapsed = float(start_offset) + float(duration)
     step = 1 / max(float(fps), 0.001) if fps else interval_seconds
     start = started_at or config.get("now") or "2026-05-20T10:00:00+08:00"
     out_dir = Path(output_dir or config.get("output_dir", "outputs")) / "frames" / camera_id
@@ -215,11 +266,11 @@ def main() -> int:
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        return emit(failed(SKILL, "OUTPUT_DIR_UNAVAILABLE", f"Could not create output directory: {out_dir}: {exc}", True), args.output)
+        return emit(failed(SKILL, "OUTPUT_DIR_UNAVAILABLE", f"Could not create output directory: {out_dir}: {exc}", True), output_path)
     frames = []
-    elapsed = 0.0
+    elapsed = float(start_offset)
     seq = 1
-    while elapsed <= float(duration) + 1e-9:
+    while elapsed <= end_elapsed + 1e-9:
         cap.set(cv2.CAP_PROP_POS_MSEC, elapsed * 1000)
         ok, frame = cap.read()
         if not ok:
@@ -232,7 +283,23 @@ def main() -> int:
         seq += 1
         elapsed += step
     cap.release()
-    return emit(success(SKILL, {"camera_id": camera_id, "frames": frames, "source_video_uri": str(path), "fps": video_fps}), args.output)
+    return emit(success(SKILL, {"camera_id": camera_id, "frames": frames, "source_video_uri": str(path), "fps": video_fps}), output_path)
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SkillInputError as exc:
+        raise SystemExit(
+            emit(
+                {
+                    "skill": SKILL,
+                    "version": VERSION,
+                    "status": "failed",
+                    "error_code": exc.code,
+                    "message": exc.message,
+                    "retryable": False,
+                    "detail": {},
+                },
+                argv_output(),
+            )
+        )

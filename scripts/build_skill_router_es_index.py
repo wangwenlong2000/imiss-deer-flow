@@ -97,40 +97,47 @@ def _scan_skills(root: str) -> dict:
         cat_dir = os.path.join(root, "skills", category)
         if not os.path.isdir(cat_dir):
             continue
-        for entry in sorted(os.listdir(cat_dir)):
-            if entry.startswith("."):
+        for dirpath, dirnames, filenames in os.walk(cat_dir):
+            dirnames[:] = sorted(name for name in dirnames if not name.startswith("."))
+            if "router_card.json" not in filenames:
                 continue
-            card_path = os.path.join(cat_dir, entry, "router_card.json")
-            skill_md_path = os.path.join(cat_dir, entry, "SKILL.md")
-            if os.path.exists(card_path):
-                with open(card_path, "r", encoding="utf-8") as f:
-                    card = json.load(f)
-                skill_hash = ""
-                if os.path.exists(skill_md_path):
-                    with open(skill_md_path, "rb") as f:
-                        skill_hash = "sha256:" + hashlib.sha256(f.read()).hexdigest()
-                skills.append(
-                    {
-                        "id": card["identity"]["id"],
-                        "name": card["identity"]["name"],
-                        "scenes": _normalize_scenes(card["scope"]),
-                        "is_public": card["scope"]["is_public"],
-                        "task_types": card["scope"]["task_types"],
-                        "input_types": card["scope"]["input_types"],
-                        "router_card_path": card_path.replace(root + "/", ""),
-                        "skill_md_path": os.path.join(category, entry, "SKILL.md"),
-                        "enabled": True,
-                        "routing_text_hash": "sha256:" + _sha256(card["routing"]["routing_text"]),
-                        "es_index": os.getenv("SKILL_ROUTER_ES_INDEX", "citybrain-skill-router-cards"),
-                        "es_doc_id": card["identity"]["id"],
-                        "es_indexed": False,
-                        "router_status": "pending_index",
-                    }
-                )
+            card_path = os.path.join(dirpath, "router_card.json")
+            skill_md_path = os.path.join(dirpath, "SKILL.md")
+            with open(card_path, "r", encoding="utf-8") as f:
+                card = json.load(f)
+            skill_hash = ""
+            if os.path.exists(skill_md_path):
+                with open(skill_md_path, "rb") as f:
+                    skill_hash = "sha256:" + hashlib.sha256(f.read()).hexdigest()
+            relative_dir = os.path.relpath(dirpath, os.path.join(root, "skills"))
+            skills.append(
+                {
+                    "id": card["identity"]["id"],
+                    "name": card["identity"]["name"],
+                    "scenes": _normalize_scenes(card["scope"]),
+                    "is_public": card["scope"]["is_public"],
+                    "task_types": card["scope"].get("task_types", []),
+                    "input_types": card["scope"].get("input_types", []),
+                    "router_card_path": os.path.relpath(card_path, root),
+                    "skill_md_path": os.path.join(relative_dir, "SKILL.md"),
+                    "enabled": True,
+                    "routing_text_hash": "sha256:" + _sha256(card["routing"]["routing_text"]),
+                    "es_index": os.getenv("SKILL_ROUTER_ES_INDEX", "citybrain-skill-router-cards"),
+                    "es_doc_id": card["identity"]["id"],
+                    "es_indexed": False,
+                    "router_status": "pending_index",
+                }
+            )
     return {"version": 1, "schema_version": "1.0.0", "skills": skills}
 
 
-def _build_es_document(card: dict, embedding: list[float]) -> dict:
+def _build_es_document(
+    card: dict,
+    embedding: list[float],
+    *,
+    card_path: str | None = None,
+    root: str | None = None,
+) -> dict:
     """Convert a Router Card + embedding into an ES document."""
     identity = card["identity"]
     scope = card["scope"]
@@ -140,6 +147,24 @@ def _build_es_document(card: dict, embedding: list[float]) -> dict:
     source = card["source"]
     embedding_info = card.get("embedding", {})
     embedding_text = _build_embedding_text(card)
+
+    # Prefer the paths of the card being indexed over historical metadata in
+    # the card.  This keeps ES documents correct when a skill is grouped under
+    # a nested bundle such as custom/video_surveillance/<skill>.
+    if card_path and root:
+        actual_skill_dir = os.path.dirname(os.path.relpath(card_path, root))
+        actual_skill_md_path = os.path.join(actual_skill_dir, "SKILL.md")
+        actual_skill_md_hash = ""
+        actual_md_absolute = os.path.join(root, actual_skill_md_path)
+        if os.path.isfile(actual_md_absolute):
+            with open(actual_md_absolute, "rb") as f:
+                actual_skill_md_hash = "sha256:" + hashlib.sha256(f.read()).hexdigest()
+        source = {
+            **source,
+            "skill_dir": actual_skill_dir,
+            "skill_md_path": actual_skill_md_path,
+            "skill_md_hash": actual_skill_md_hash or source.get("skill_md_hash", ""),
+        }
 
     return {
         "skill_id": identity["id"],
@@ -280,7 +305,7 @@ def main() -> None:
     # Upsert each document
     # ------------------------------------------------------------------
     for card, embedding in zip(cards, all_embeddings):
-        doc = _build_es_document(card, embedding)
+        doc = _build_es_document(card, embedding, card_path=card_path, root=root)
         es_store.upsert_card(doc)
         logger.info("  Indexed: %s", doc["skill_id"])
 

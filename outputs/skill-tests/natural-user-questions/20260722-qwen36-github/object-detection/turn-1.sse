@@ -1,0 +1,9 @@
+event: metadata
+data: {"run_id":"019f8928-0047-7430-88fd-9e34b740fa83","attempt":1}
+
+event: values
+data: {"messages":[{"content":"帮我看看 /mnt/datasets/Vedio-demo/Trafic.mp4 前两秒的画面里有几个人、几辆车和其他主要目标。","additional_kwargs":{},"response_metadata":{},"type":"human","name":null,"id":"a48841a3-f6ab-42a6-9abb-10e7dba2a517"}],"viewed_images":{},"artifacts":[],"raw_messages":[]}
+
+event: error
+data: {"error":"ValueError","message":"Thread ID is required in the context"}
+

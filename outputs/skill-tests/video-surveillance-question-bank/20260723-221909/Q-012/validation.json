@@ -1,0 +1,29 @@
+{
+  "id": "Q-012",
+  "mode": "text-only",
+  "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
+  "thread_id": "30f29ae5-9eae-480a-b1ac-6a9ecb1fae58",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "video-object-analytics"
+  ],
+  "actual_skills": [
+    "data-analysis",
+    "spatiotemporal_trajectory"
+  ],
+  "missing_expected_skills": [
+    "video-object-analytics"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "❓ 需要视频文件才能执行目标检测和轨迹跟踪分析\n\n请提供需要分析的视频文件路径或名称。您是希望我：(1) 在本地数据目录中查找视频文件，还是 (2) 您有特定的视频文件需要上传？另外，是否需要重点关注特定类型的目标（如仅行人、仅车辆，或全部类型）？\n\n  1. 在 /mnt/datasets 中查找视频文件\n  2. 我将上传视频文件\n  3. 其他路径",
+  "passed": false
+}

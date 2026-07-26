@@ -1,0 +1,23 @@
+{
+  "id": "C-011",
+  "mode": "video",
+  "question": "检测这段视频里的行人、轿车、公交车和卡车，输出每帧的位置框、类别和置信度。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+  "thread_id": "ce2a9893-c0c2-4a2d-b57d-d5ff769e5285",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "video-object-analytics",
+    "object-detection"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "video-object-analytics",
+    "object-detection"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

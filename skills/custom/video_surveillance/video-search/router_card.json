@@ -3,32 +3,32 @@
   "identity": {
     "id": "video-search",
     "name": "video-search",
-    "description": "Search indexed monitoring videos in Elasticsearch by keyword, structured filters, and optional precomputed vectors including StreetModel video-vector fields."
+    "description": "Search indexed monitoring videos from text or images using keyword matching, LLM-optimized text vectors, image vectors, structured filters, and reciprocal-rank fusion."
   },
   "scope": {
     "scenes": ["video_surveillance"],
     "is_public": false,
     "task_types": ["video_search", "video_library_retrieval"],
-    "input_types": ["query", "filters", "query_vector"],
-    "output_types": ["search_hits"]
+    "input_types": ["text_query", "query_image", "filters", "query_vector"],
+    "output_types": ["search_hits", "keyword_results", "vector_results", "fused_results"]
   },
   "routing": {
-    "routing_text": "名称：video-search\n描述：从 Elasticsearch 视频库中按关键词、摄像头、时间、目标类别、位置和可选 StreetModel/Qwen3-VL 向量检索视频。\n适合使用：视频检索；查找含某类目标的视频；按摄像头和时间查询；语义检索已入库视频。\n不适合使用：视频入库；重新检测目标；生成证据包。",
-    "positive_triggers": ["视频检索", "查找视频", "搜索视频库", "按目标类别检索", "语义检索视频", "向量检索"],
+    "routing_text": "名称：video-search\n描述：仅检索 citybrain-video-library。收到图片时生成图片向量并搜索相似视频；收到文字时提取视觉描述，同时执行关键词匹配和经 LLM 补全优化后的文字向量搜索，再融合结果。\n适合使用：以图搜视频；视频检索；关键词检索；自然语言语义检索；按摄像头、时间、目标类别和位置过滤。\n不适合使用：视频入库；重新检测目标；生成证据包。",
+    "positive_triggers": ["以图搜视频", "图片搜索视频", "视频检索", "查找视频", "搜索视频库", "关键词检索", "语义检索视频", "向量检索"],
     "negative_triggers": ["批量入库", "目标统计", "证据包"],
-    "keywords": ["search", "query", "camera_id", "labels", "vector", "StreetModel", "Qwen3-VL", "video_vector-Qwen3-VL-Embedding-2B_urban_governance"],
+    "keywords": ["search", "image query", "text query", "keyword", "LLM query optimization", "RRF", "camera_id", "labels", "vector", "StreetModel", "Qwen3-VL", "video_vector-Qwen3-VL-Embedding-2B_urban_governance"],
     "anti_keywords": ["ingest", "package"]
   },
   "execution": {
     "required_tools": ["bash"],
     "optional_tools": ["read_file"],
-    "allowed_file_patterns": ["*.json"],
+    "allowed_file_patterns": ["*.json", "*.jpg", "*.jpeg", "*.png", "*.webp", "*.bmp", "*.tif", "*.tiff"],
     "can_run_standalone": true
   },
   "routing_policy": {
     "priority": 77,
     "conflict_group": "video-library-search",
-    "prefer_when": ["视频检索", "搜索视频库"],
+    "prefer_when": ["以图搜视频", "视频检索", "搜索视频库", "关键词和向量联合检索"],
     "defer_when": ["批量入库", "证据包生成"]
   },
   "source": {

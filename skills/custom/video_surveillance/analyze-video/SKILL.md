@@ -29,12 +29,12 @@ Prioritize calling this skill's `scripts/extract_frames.py` entrypoint to produc
 - "视频抽帧", "场景检测", "关键帧提取", "取证准备", "视频回溯", "analyze-video", "metadata.json"
 
 ## 权限声明
-- `bash`: 用于执行 `python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py`。
+- `bash`: 用于执行 `python3 /mnt/skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py`。
 - `ffmpeg`: 核心依赖。
 
 ## 操作规范 (Guidelines)
 1. **工作流程**：
-   - 调用：`python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py <video_path> --output-dir /mnt/user-data/workspace/video_review`。
+   - 调用：`python3 /mnt/skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py <video_path> --output-dir /mnt/user-data/workspace/video_review`。
    - 读取产生的 `metadata.json` 了解视频章节、场景变化和帧分布。
    - 如需最终事件检测，交给 `single-video-event-analysis` 统一完成。
 2. **注意事项**：
@@ -44,6 +44,6 @@ Prioritize calling this skill's `scripts/extract_frames.py` entrypoint to produc
 ## 示例 (Example)
 **用户：** "把 `/mnt/datasets/surveillance/raw/test_video_01.mp4` 抽帧用于取证。"
 **Agent 动作：**
-- 执行：`python3 /mnt/skills/custom/analyze-video/scripts/extract_frames.py /mnt/datasets/surveillance/raw/test_video_01.mp4`
+- 执行：`python3 /mnt/skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py /mnt/datasets/surveillance/raw/test_video_01.mp4`
 - 根据输出的 `output_dir` 读取元数据。
 - 回复用户： "视频提取完成，共识别出 3 个关键场景，可交给 single-video-event-analysis 做事件审查。"

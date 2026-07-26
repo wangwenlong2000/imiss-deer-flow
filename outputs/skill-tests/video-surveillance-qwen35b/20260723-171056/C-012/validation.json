@@ -1,0 +1,23 @@
+{
+  "id": "C-012",
+  "mode": "video",
+  "question": "跟踪这辆白色轿车在视频中的轨迹，告诉我它何时出现、何时离开，以及是否移动或停留。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+  "thread_id": "fd666927-ef75-4de7-8f95-faf880df43d4",
+  "model_expected": "qwen3.6-35b-a3b",
+  "models_observed": [],
+  "expected_skills": [
+    "video-object-analytics",
+    "object-tracking"
+  ],
+  "actual_skills": [],
+  "missing_expected_skills": [
+    "video-object-analytics",
+    "object-tracking"
+  ],
+  "route_ok": false,
+  "final_answer_ok": false,
+  "errors": [],
+  "error": "<HTTPError 400: 'Bad Request'>",
+  "final_answer": "",
+  "passed": false
+}

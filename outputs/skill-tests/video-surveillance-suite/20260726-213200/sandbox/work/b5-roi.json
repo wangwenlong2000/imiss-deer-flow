@@ -1,0 +1,106 @@
+{
+  "skill": "roi-mapping",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "matches": [
+      {
+        "object_id": "track_0001",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.6871
+      },
+      {
+        "object_id": "track_0002",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.7046
+      },
+      {
+        "object_id": "track_0003",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.4958
+      },
+      {
+        "object_id": "track_0004",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.5514
+      },
+      {
+        "object_id": "track_0005",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.5087
+      },
+      {
+        "object_id": "track_0006",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.4672
+      },
+      {
+        "object_id": "track_0007",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.4748
+      },
+      {
+        "object_id": "track_0008",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.3649
+      },
+      {
+        "object_id": "track_0009",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.5411
+      },
+      {
+        "object_id": "track_0010",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.3855
+      },
+      {
+        "object_id": "track_0011",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.4095
+      },
+      {
+        "object_id": "track_0012",
+        "roi_id": "ROI_FULL_FRAME",
+        "roi_type": "public_area",
+        "overlap_ratio": 1.0,
+        "matched": true,
+        "confidence": 0.4396
+      }
+    ]
+  }
+}

@@ -119,15 +119,16 @@ def _load_all_cards(skills_root: Path) -> dict[str, dict]:
         cat_dir = skills_root / category
         if not cat_dir.is_dir():
             continue
-        for d in sorted(cat_dir.iterdir()):
-            card_path = d / "router_card.json"
-            if card_path.exists():
-                try:
-                    with open(card_path, "r", encoding="utf-8") as f:
-                        card = json.load(f)
-                    cards[card["identity"]["id"]] = card
-                except (OSError, json.JSONDecodeError, KeyError):
-                    pass
+        # The runtime loader supports nested skill bundles (for example
+        # custom/video_surveillance/<skill>), so offline/live evaluation must
+        # discover the same cards.
+        for card_path in sorted(cat_dir.rglob("router_card.json")):
+            try:
+                with open(card_path, "r", encoding="utf-8") as f:
+                    card = json.load(f)
+                cards[card["identity"]["id"]] = card
+            except (OSError, json.JSONDecodeError, KeyError):
+                pass
     return cards
 
 

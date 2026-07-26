@@ -1,0 +1,28 @@
+{
+  "id": "Q-005",
+  "mode": "text-only",
+  "question": "请根据“夜间有人进入禁区并连续停留超过 30 秒”这个条件，从检测结果中生成候选告警。",
+  "thread_id": "7fc42c8e-9eb9-4b78-8300-5fc3154c9d71",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "event-rule-engine"
+  ],
+  "actual_skills": [
+    "data-analysis"
+  ],
+  "missing_expected_skills": [
+    "event-rule-engine"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我检查了当前可用的数据文件，发现存在以下情况需要与您确认：\n\n**当前数据集情况：**\n\n| 数据集 | 内容 | 问题 |\n|--------|------|------|\n| `trajectory_points.csv` | 仅5条轨迹点记录（T001、T002），时间为白天08:00-09:06 | 非夜间时段；无禁区标识 |\n| `employees.csv` | 员工信息表 | 与视频监控检测无关 |\n| `metadata.csv` | 街景元数据 | 不相关 |\n\n**缺失的关键要素：**\n\n1. **夜间时段定义不明确** — 需要确认\"夜间\"的具体时间范围（如 22:00-06:00？20:00-07:00？）\n2. **禁区/电子围栏未定义** — 当前数据中的区域字段仅为城市名（Shanghai/Nanjing），没有禁区标注\n3. **检测结果来源不清** — 需要确认：\n   - 检测结果来自哪个视频流/摄像头？\n   - 检测结果是已生成的结构化数据（JSON/CSV）还是需要从视频文件中实时检测？\n   - 是否有具体的视频文件或检测输出文件？\n\n",
+  "passed": false
+}

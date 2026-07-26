@@ -1,0 +1,15 @@
+{
+  "skill": "evidence-snapshot",
+  "version": "1.0.0",
+  "status": "success",
+  "confidence": 1.0,
+  "data": {
+    "evidence_id": "EVD_383c56b4",
+    "event_id": "EVT_TEST_0001",
+    "type": "snapshot",
+    "uri": "/mnt/out/work/evidence/evidence/EVT_TEST_0001_snapshot.jpg",
+    "hash": "sha256:017c1b292f60c4e887738c3fbb3c79fbd06b9b44eab76e4c0eee7037dec9499a",
+    "created_at": "2026-07-26T09:19:22.490390+00:00",
+    "privacy_masked": false
+  }
+}

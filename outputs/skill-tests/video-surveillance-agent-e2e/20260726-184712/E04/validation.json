@@ -1,0 +1,38 @@
+{
+  "id": "E04",
+  "covers": "4.2 + 4.8 能力边界与 capability_gap",
+  "skills": [
+    "city-video-intelligence"
+  ],
+  "question": "我想确认视频里具体人员的身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前只有这段本地视频。请说明哪些能力无法由现有数据支持，不要编造结果。",
+  "thread_id": "bca705cb-6c61-4e0f-8107-2a6ec5108bbb",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 172.7,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "video_object_analytics"
+    ],
+    "skills_touched": [
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "detect"
+    ],
+    "raw_video_bash_count": 1,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 1307,
+    "clarifications": []
+  }
+}

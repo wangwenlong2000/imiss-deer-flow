@@ -1,0 +1,34 @@
+{
+  "calls": [
+    {
+      "name": "video_object_analytics",
+      "args": {
+        "video_path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "operation": "detect",
+        "camera_id": "CAM_DEERFLOW_001",
+        "capture_seconds": 2,
+        "interval_seconds": 5,
+        "labels": "car,truck,bus,motorcycle,bicycle"
+      }
+    },
+    {
+      "name": "read_file",
+      "args": {
+        "description": "读取车辆检测结果中的边界框坐标",
+        "path": "/mnt/user-data/workspace/video-object-analytics/847c05cae98d/detections.json"
+      }
+    }
+  ],
+  "results": [
+    {
+      "name": "video_object_analytics",
+      "status": "success",
+      "content": "{\"skill\": \"video-object-analytics\", \"status\": \"success\", \"operation\": \"detect\", \"executed_skills\": [\"video-object-analytics\", \"frame-sampling\", \"object-detection\"], \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\", \"artifacts\": {\"frames_json\": \"/mnt/user-data/workspace/video-object-analytics/847c05cae98d/frames.json\", \"detections_json\": \"/mnt/user-data/workspace/video-object-analytics/847c05cae98d/detections.json\"}, \"summary\": {\"frame_count\": 1, \"per_frame\": [{\"frame_id\": \"CAM_DEERFLOW_001_202605201000000800_0001\", \"timestamp\": \"2026-05-20T10:00:00+08:00\", \"counts\": {\"bus\": 2, \"car\": 9}, \"object_count\": 11}], \"frame_detection_totals\": {\"bus\": 2, \"car\": 9}, \"total_frame_detections\": 11, \"unique_object_count\": null, \"unique_object_count_note\": \"Detection frames are not deduplicated; use operation=track for cross-frame identities.\", \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\"}}"
+    },
+    {
+      "name": "read_file",
+      "status": "success",
+      "content": "{\n  \"skill\": \"object-detection\",\n  \"version\": \"1.0.0\",\n  \"status\": \"success\",\n  \"confidence\": 0.5303,\n  \"data\": {\n    \"detections\": [\n      {\n        \"frame_id\": \"CAM_DEERFLOW_001_202605201000000800_0001\",\n        \"timestamp\": \"2026-05-20T10:00:00+08:00\",\n        \"objects\": [\n          {\n            \"object_id\": \"det_0001_001\",\n            \"label\": \"bus\",\n            \"confidence\": 0.8274,\n            \"bbox\": [\n              572.35,\n              178.45,\n              674.93,\n              318.53\n            ],\n            \"model_label\": \"bus\"\n          },\n          {\n            \"object_id\": \"det_0001_002\",\n            \"label\": \"car\",\n            \"confidence\": 0.7016,\n            \"bbox\": [\n              421.24,\n              348.57,\n              522.36,\n              443.4\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_003\",\n            \"label\": \"bus\",\n            \"confidence\": 0.561,\n            \"bbox\": [\n              426.49,\n              102.52,\n              470.7,\n              159.48\n            ],\n            \"model_label\": \"bus\"\n          },\n          {\n            \"object_id\": \"det_0001_004\",\n            \"label\": \"car\",\n            \"confidence\": 0.5523,\n            \"bbox\": [\n              484.61,\n              168.49,\n              528.32,\n              208.89\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_005\",\n            \"label\": \"car\",\n            \"confidence\": 0.5315,\n            \"bbox\": [\n              715.78,\n              162.05,\n              780.89,\n              194.79\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_006\",\n            \"label\": \"car\",\n            \"confidence\": 0.5262,\n            \"bbox\": [\n              29.15,\n              193.45,\n              97.85,\n              239.07\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_007\",\n            \"label\": \"car\",\n            \"confidence\": 0.5188,\n            \"bbox\": [\n              202.63,\n              160.28,\n              253.15,\n              193.76\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_008\",\n            \"label\": \"car\",\n            \"confidence\": 0.4397,\n            \"bbox\": [\n              379.81,\n              217.99,\n              448.03,\n              269.86\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_009\",\n            \"label\": \"car\",\n            \"confidence\": 0.4375,\n            \"bbox\": [\n              774.57,\n              172.48,\n              804.06,\n              195.8\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_010\",\n            \"label\": \"car\",\n            \"confidence\": 0.3851,\n            \"bbox\": [\n              97.74,\n              194.24,\n              157.2,\n              246.29\n            ],\n            \"model_label\": \"car\"\n          },\n          {\n            \"object_id\": \"det_0001_011\",\n            \"label\": \"car\",\n            \"confidence\": 0.3525,\n            \"bbox\": [\n              548.85,\n              142.61,\n              588.4,\n              174.27\n            ],\n            \"model_label\": \"car\"\n          }\n        ]\n      }\n    ],\n    \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\"\n  }\n}\n"
+    }
+  ]
+}

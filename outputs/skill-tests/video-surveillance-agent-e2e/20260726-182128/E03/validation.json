@@ -1,0 +1,37 @@
+{
+  "id": "E03",
+  "covers": "4.4 单视频计数走 video-object-analytics 而非 ES 统计",
+  "question": "统计这段视频里出现了多少辆车、多少个行人。",
+  "thread_id": "62f9c2d4-6632-4e34-8273-bf37bbd06a51",
+  "uploaded_file": {
+    "filename": "Trafic.mp4",
+    "size": 75965424,
+    "path": "/mnt/user-data/uploads/Trafic.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 123.6,
+  "evidence": {
+    "tool_call_names": [
+      "invoke_skill",
+      "read_file",
+      "video_object_analytics"
+    ],
+    "skills_touched": [
+      "video-object-analytics"
+    ],
+    "analytics_ops": [
+      "detect",
+      "track"
+    ],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 562,
+    "clarifications": []
+  }
+}

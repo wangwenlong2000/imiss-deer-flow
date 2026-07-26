@@ -1,0 +1,45 @@
+{
+  "id": "C-038",
+  "mode": "boundary",
+  "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+  "thread_id": "4b6e5beb-9ee4-4d30-b778-1ba650fd21f2",
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "1146abe8-1c82-4035-9162-784756e6cf59",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "human-review-routing"
+  ],
+  "actual_skills": [
+    "analyze-video",
+    "batch-video-ingestion",
+    "camera-health-check",
+    "city-video-intelligence",
+    "data-analysis",
+    "duplicate-event-merge",
+    "evidence-package-generation",
+    "evidence-snapshot",
+    "ffmpeg-utils",
+    "frame-sampling",
+    "human-review-routing",
+    "object-detection",
+    "object-statistics",
+    "object-tracking",
+    "privacy-masking",
+    "roi-mapping",
+    "single-video-event-analysis",
+    "video-embedding-index",
+    "video-object-analytics",
+    "video-search",
+    "video-segment-extraction",
+    "video-stream-ingestion"
+  ],
+  "missing_expected_skills": [],
+  "route_ok": true,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "根据 `human-review-routing` 技能的实际判定逻辑，以下四类事件结果**必须进入人工复核队列**：\n\n---\n\n## 一、置信度低于阈值\n\n当 `event.confidence < threshold` 时触发。\n\n- **默认阈值**：0.85（即 85%）\n- **可按事件类型自定义**，例如通过 `review_thresholds.fight` 为打架事件单独设定更高或更低的门槛\n- 涉及场景：摔倒检测、入侵识别、烟火检测等 AI 判断本身存在模糊性的事件\n\n## 二、高风险事件类型\n\n当 `event.event_type` 落入配置的高风险事件列表时强制进入复核。\n\n- 典型高风险类型包括：**打架、火灾/烟火、人员摔倒、非法入侵、重大交通事故**\n- 这类事件的误判代价高，即使置信度达标也需人工二次确认\n- 由 `high_risk_event_types` 配置项控制\n\n## 三、摄像头状态降级\n\n当 `camera_health.health_status == \"degraded\"` 时触发。\n\n- 涵盖的场景：画面遮挡、镜头模糊、离线、黑屏、画面冻结、画面偏移等\n- 摄像头质量下降会直接影响事件检测的可靠性，因此不论置信度高低都需人工复核\n- 这是基于物理环境因素而非算法判断的硬性规则\n\n## 四、涉及执法影响\n\n当 `event.affects_enforcement` 为真时强制进入复核。\n\n- 涉及场景：违停取证、闯红灯抓拍、占用应急车道、违规占道经营等\n- 无论置信度多高、摄像头状态多好，**只要可能作为执法依据就必须人工审核**\n- 这是法律合规层面的强制性要求\n\n---\n\n## 判定矩阵汇总\n\n| 触发条件 | 判定字段 | 阈值/条件 | 是否可豁免 |\n|---------|---------|----------|-----------|\n| 置信度不足 | `confidence < threshold` | 默认 0.85 | ❌ 不可豁免 |\n| 高风险类型 | `event_type ∈ high_risk` | 配置定义 | ❌ 不可豁免 |\n| 摄像头降级 | `health_status == degraded` | 枚举值匹配 | ❌ 不可豁免 |\n| 涉及执法 | `affects_enforcement == true` | 布尔标志 | ❌ 不可豁免 |\n\n## 路由结果\n\n满足任一条件即返回：\n\n```json\n{\n  \"review_required\": true,\n  \"reasons\": [\"confidence_below_threshold\", \"affects_enforcement\"],\n  \"queue\": \"manual_review\"\n}\n```\n\n不满足任何条件则自动放行至 `auto_pass` 队列。\n\n**核心原则**：置信度低看数字、遮挡看摄像头健康状态、执法类事件一律兜底——三者互不替代，满足任意一条即进入人工复核。",
+  "passed": true
+}

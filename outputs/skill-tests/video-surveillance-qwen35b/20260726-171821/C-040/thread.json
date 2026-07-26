@@ -1,0 +1,13 @@
+{
+  "thread_id": "8d8f1f30-2904-4290-bbae-59dd05393613",
+  "assistant_id": "d198c5b8-ae60-4fae-83ec-021ae663a05c",
+  "case_id": "C-040",
+  "video_file": "Vedio-demo/Trafic.mp4",
+  "uploaded_file": {
+    "filename": "Trafic.mp4",
+    "size": 75965424,
+    "path": "/mnt/user-data/uploads/Trafic.mp4",
+    "status": "uploaded"
+  },
+  "history_preserved": true
+}

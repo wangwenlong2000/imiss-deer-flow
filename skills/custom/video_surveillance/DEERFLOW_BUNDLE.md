@@ -97,6 +97,6 @@ batch-video-ingestion
   -> evidence-package-generation
 ```
 
-The video library skills use `ES_URL`, `ES_USERNAME`, and `ES_PASSWORD` from the sandbox environment. The default index is `citybrain-video-library`; precomputed vectors may be stored in `vector`, but this bundle does not generate embeddings automatically.
+The video library skills use `ES_URL`, `ES_USERNAME`, and `ES_PASSWORD` from the sandbox environment. The unified index is `citybrain-video-library`; source metadata, embedding lifecycle fields, and the StreetModel video vector are stored in the same document.
 
-For personal semantic search, use `video-embedding-index` to write vectors into `huangxiao-video-library-vector-v1`. This keeps shared ES service access separate from per-user index ownership.
+Use `video-embedding-index --storage-mode in_place` to enrich indexed source documents through partial ES updates. All video Elasticsearch tools reject index names other than `citybrain-video-library`.

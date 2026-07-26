@@ -1,0 +1,45 @@
+{
+  "calls": [
+    {
+      "name": "video_object_analytics",
+      "args": {
+        "operation": "detect",
+        "capture_seconds": 2,
+        "video_path": "/mnt/user-data/uploads/Trafic-30s.mp4"
+      }
+    },
+    {
+      "name": "video_object_analytics",
+      "args": {
+        "capture_seconds": 5,
+        "labels": "person",
+        "operation": "detect",
+        "video_path": "/mnt/user-data/uploads/Trafic-30s.mp4"
+      }
+    },
+    {
+      "name": "bash",
+      "args": {
+        "command": "ffprobe -v quiet -print_format json -show_streams -show_format /mnt/user-data/uploads/Trafic-30s.mp4 | python3 -c \"import sys,json; d=json.load(sys.stdin); streams=d.get('streams',[]); print(f'Duration: {d.get(\\\"format\\\",{}).get(\\\"duration\\\",\\\"N/A\\\")}s'); [print(f'{s.get(\\\"codec_type\\\")}: {s.get(\\\"width\\\",\\\"?\\\")}x{s.get(\\\"height\\\",\\\"?\\\")}, fps={s.get(\\\"r_frame_rate\\\",\\\"?\\\")}, codec={s.get(\\\"codec_name\\\",\\\"?\\\")}') for s in streams]\"",
+        "description": "检查视频的分辨率、时长等元数据"
+      }
+    }
+  ],
+  "results": [
+    {
+      "name": "video_object_analytics",
+      "status": "success",
+      "content": "{\"skill\": \"video-object-analytics\", \"status\": \"success\", \"operation\": \"detect\", \"executed_skills\": [\"video-object-analytics\", \"frame-sampling\", \"object-detection\"], \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\", \"artifacts\": {\"frames_json\": \"/mnt/user-data/workspace/video-object-analytics/ff7ef33cb5df/frames.json\", \"detections_json\": \"/mnt/user-data/workspace/video-object-analytics/ff7ef33cb5df/detections.json\"}, \"summary\": {\"frame_count\": 3, \"per_frame\": [{\"frame_id\": \"CAM_DEERFLOW_001_202605201000000800_0001\", \"timestamp\": \"2026-05-20T10:00:00+08:00\", \"counts\": {\"bus\": 2, \"car\": 9}, \"object_count\": 11}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000010800_0002\", \"timestamp\": \"2026-05-20T10:00:01+08:00\", \"counts\": {\"bus\": 2, \"car\": 8}, \"object_count\": 10}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000020800_0003\", \"timestamp\": \"2026-05-20T10:00:02+08:00\", \"counts\": {\"bus\": 1, \"car\": 9}, \"object_count\": 10}], \"frame_detection_totals\": {\"bus\": 5, \"car\": 26}, \"total_frame_detections\": 31, \"unique_object_count\": null, \"unique_object_count_note\": \"Detection frames are not deduplicated; use operation=track for cross-frame identities.\", \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\"}}"
+    },
+    {
+      "name": "video_object_analytics",
+      "status": "success",
+      "content": "{\"skill\": \"video-object-analytics\", \"status\": \"success\", \"operation\": \"detect\", \"executed_skills\": [\"video-object-analytics\", \"frame-sampling\", \"object-detection\"], \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\", \"artifacts\": {\"frames_json\": \"/mnt/user-data/workspace/video-object-analytics/710b582c2aae/frames.json\", \"detections_json\": \"/mnt/user-data/workspace/video-object-analytics/710b582c2aae/detections.json\"}, \"summary\": {\"frame_count\": 6, \"per_frame\": [{\"frame_id\": \"CAM_DEERFLOW_001_202605201000000800_0001\", \"timestamp\": \"2026-05-20T10:00:00+08:00\", \"counts\": {}, \"object_count\": 0}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000010800_0002\", \"timestamp\": \"2026-05-20T10:00:01+08:00\", \"counts\": {}, \"object_count\": 0}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000020800_0003\", \"timestamp\": \"2026-05-20T10:00:02+08:00\", \"counts\": {}, \"object_count\": 0}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000030800_0004\", \"timestamp\": \"2026-05-20T10:00:03+08:00\", \"counts\": {}, \"object_count\": 0}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000040800_0005\", \"timestamp\": \"2026-05-20T10:00:04+08:00\", \"counts\": {}, \"object_count\": 0}, {\"frame_id\": \"CAM_DEERFLOW_001_202605201000050800_0006\", \"timestamp\": \"2026-05-20T10:00:05+08:00\", \"counts\": {}, \"object_count\": 0}], \"frame_detection_totals\": {}, \"total_frame_detections\": 0, \"unique_object_count\": null, \"unique_object_count_note\": \"Detection frames are not deduplicated; use operation=track for cross-frame identities.\", \"model\": \"/mnt/skills/custom/video_surveillance/models/yolov8n.pt\"}}"
+    },
+    {
+      "name": "bash",
+      "status": "success",
+      "content": "Duration: 30.000000s\nvideo: 1280x674, fps=12/1, codec=h264"
+    }
+  ]
+}

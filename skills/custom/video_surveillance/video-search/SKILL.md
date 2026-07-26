@@ -1,6 +1,6 @@
 ---
 name: video-search
-description: Search indexed monitoring videos in Elasticsearch by keyword, camera, time range, object labels, event type, location, and optional precomputed query vectors, including StreetModel video-vector fields. Use after videos have been ingested into the video library.
+description: Search indexed monitoring videos from text, images, structured filters, or precomputed vectors. Use for keyword retrieval, LLM-optimized text-to-video semantic retrieval, combined keyword/vector search, or image-to-video similarity search against StreetModel/Qwen3-VL video vectors.
 ---
 
 # Video Search
@@ -15,42 +15,62 @@ For monitoring-video business requests, StreetModel testing, retrieval benchmark
 
 ## Input Resolution
 
-Use structured filters when the user names a camera, time window, object class, event type, or video id. Use `--query` for natural-language or keyword search. Use `--embedding-provider streetmodel` when the query should be embedded by `Qwen3-VL-Embedding-2B` directly. Use `--query-vector-json` only when the user provides a precomputed vector. Use `--vector-field` for a non-default dense vector field such as `video_vector-Qwen3-VL-Embedding-2B_urban_governance`.
+Use `--image` when the user provides an image. Convert it directly to a Qwen3-VL image embedding and compare it with stored video vectors. Accept an HTTP(S) image URL or a StreetModel-visible path; use `--copy-image-to-shared` for a local/uploaded image outside the configured shared path.
+
+Use `--query` for text. The default `dual` mode:
+
+1. Remove command wording and extract the visual description.
+2. Ask the configured LLM for a concise `keyword_query` and a complete `semantic_query` without inventing facts.
+3. Run Elasticsearch keyword matching with `keyword_query`.
+4. Convert `semantic_query` to a StreetModel text vector and run video-vector similarity search.
+5. Merge both ranked lists with reciprocal rank fusion.
+
+Use `--search-mode keyword` for lexical matching only, `semantic` for pure vector retrieval, `dual` for separate keyword/vector retrieval plus fusion, or `hybrid` for vector scoring constrained by keyword matching. Use structured filters for camera, time, object class, or event type. Use `--query-vector-json` only for a precomputed vector.
 
 ## Atomic CLI
 
 ```bash
-python video-search/scripts/run.py --query "person near gate" --camera-id CAM_DEERFLOW_001 --top-k 10 --index huangxiao-video-library-vector-v1 --query-vector-json <query-vector.json> --config <config.json> --output <result.json>
+python video-search/scripts/run.py --query "请查找夜晚路口有很多车辆经过的视频" --search-mode dual --index citybrain-video-library --config <config.yaml> --output <result.json>
 ```
 
-StreetModel text-to-video semantic retrieval:
+Image-to-video similarity retrieval:
 
 ```bash
-python video-search/scripts/run.py --query "夜晚路口有很多车辆经过" --index huangxiao-video-library-vector-v1 --embedding-provider streetmodel --vector-query-mode semantic --config <config.json> --output <result.json>
+python video-search/scripts/run.py --image <query.jpg> --copy-image-to-shared --index citybrain-video-library --config <config.yaml> --output <result.json>
 ```
 
-Parameters: `--query`, `--index`, `--camera-id`, `--start-time`, `--end-time`, `--labels`, `--event-type`, `--query-vector-json`, `--embedding-provider`, `--embedding-model`, `--base-url`, `--dimensions`, `--timeout-seconds`, `--vector-field`, `--vector-query-mode`, `--top-k`, `--config`, `--output`.
+Parameters include `--query`, `--image`, `--search-mode`, `--index`, structured filters, `--query-vector-json`, StreetModel settings, LLM settings, shared-image path settings, `--top-k`, `--config`, and `--output`.
+
+When `--config` is omitted, the script checks `DEER_FLOW_CONFIG_PATH` and then `./config.yaml`. In an AIO sandbox, prefer injected `ES_URL`, `ES_USERNAME`, and `ES_PASSWORD`; `localhost` refers to the sandbox itself, not the Elasticsearch host.
 
 ## Workflow
 
 1. Connect to Elasticsearch using `ES_URL`, `ES_USERNAME`, and `ES_PASSWORD` or explicit config fallback.
 2. Build bool filters for camera, time, labels, and event type.
-3. Use keyword search over `content_text`, `filename`, location fields, and metadata.
-4. If `--embedding-provider streetmodel` is set and no `--query-vector-json` is provided, call StreetModel `/embed` with `items[].type=text` to create the query vector.
-5. If a query vector is available and the index has the configured vector field, use vector scoring. If that field is unavailable, fall back to the legacy `vector` field when present.
-6. Use `--vector-query-mode semantic` for pure vector retrieval over filters only, or `hybrid` to combine keyword matching and vector scoring.
-5. Return compact hits with scores and source metadata.
+3. For images, call StreetModel `/embed` with `items[].type=image` and search the stored video vector field.
+4. For text, extract the description and select keyword, semantic, dual, or hybrid mode.
+5. In dual mode, use the configured chat LLM to produce keyword and semantic queries, run both retrieval branches, and fuse results with RRF.
+6. Return compact hits, the query plan, branch-specific results, embedding metadata, and any partial-success reason.
 
 ## Outputs
 
-Returns `hits`, `total`, `query_mode`, and `index`.
+Returns `hits`, `total`, `query_mode`, `search_mode`, `input_type`, and `index`. Dual mode also returns `query_plan` and `retrievals.keyword`/`retrievals.vector`.
 
 ## Failure Modes
 
 - `ES_CONNECTION_FAILED`
+- `ES_NOT_CONFIGURED`
 - `ES_REQUEST_FAILED`
 - `INDEX_NOT_FOUND`
+- `LLM_QUERY_OPTIMIZER_NOT_CONFIGURED`
+- `LLM_QUERY_OPTIMIZATION_FAILED`
+- `IMAGE_SOURCE_NOT_FOUND`
+- `IMAGE_URI_NOT_MAPPABLE`
+- `IMAGE_COPY_TO_SHARED_FAILED`
+- `VECTOR_FIELD_UNAVAILABLE`
 
 ## Constraints
 
-This skill retrieves indexed video records. It does not ingest videos, run object detection, infer events, or generate evidence packages.
+Only `citybrain-video-library` is accepted. Do not combine `--image` with `--query` or `--query-vector-json`. If the LLM or vector branch fails in dual mode, preserve successful keyword results and return `overall_status=partial_success`.
+
+On Elasticsearch failure, preserve and report the script's `error_code`, `message`, and `detail` fields. Do not switch to `localhost:9200` or different credentials unless the configured target explicitly points there.

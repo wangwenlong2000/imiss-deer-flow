@@ -1,0 +1,45 @@
+{
+  "skill": "city-video-intelligence",
+  "version": "1.0.0",
+  "status": "success",
+  "request": "帮我找出画面里像是傍晚下雨天行人过马路的相似视频。",
+  "role": null,
+  "mode": "business_operation",
+  "capability": "semantic_video_retrieval",
+  "capability_label": "语义视频检索",
+  "business_scenario": "generic_video_intelligence",
+  "business_scenario_label": "generic_video_intelligence",
+  "recommended_skill_chain": [
+    "video-search"
+  ],
+  "execution_plan": [
+    {
+      "step": "1",
+      "skill": "video-search",
+      "action": "Load video-search. Use image-vector retrieval for image input; for text input use keyword matching plus LLM-optimized text-to-video vector retrieval and fuse both result lists."
+    }
+  ],
+  "expected_deliverables": [
+    "关键词命中列表",
+    "语义相似视频列表",
+    "融合排序",
+    "语义命中原因"
+  ],
+  "embedding_attempt_required": false,
+  "embedding_failure_policy": null,
+  "source_index": null,
+  "embedding_target_index": null,
+  "embedding_storage_mode": null,
+  "missing_fields": [],
+  "follow_up_question": null,
+  "guardrails": [
+    "Do not write ad hoc code for this business request.",
+    "Load each downstream skill's SKILL.md before executing its script.",
+    "Return capability_gap instead of implementing missing functionality.",
+    "If follow_up_question is present, stop immediately and make the whole visible response exactly that question.",
+    "If a downstream video skill fails, summarize the concrete failure and stop instead of debugging services."
+  ],
+  "requires_confirmation": false,
+  "requires_human_review": false,
+  "capability_gap": null
+}

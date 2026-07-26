@@ -1,0 +1,39 @@
+{
+  "id": "E02",
+  "covers": "4.7 上传描述 + 画面质量 + 事件复合链路",
+  "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。",
+  "thread_id": "973fcc66-126b-4dd0-92d3-c6bf8b0ff7c1",
+  "uploaded_file": {
+    "filename": "Trafic.mp4",
+    "size": 75965424,
+    "path": "/mnt/user-data/uploads/Trafic.mp4",
+    "status": "uploaded"
+  },
+  "status": "fail",
+  "failures": [
+    "运行出现错误事件: {\"error\": \"BadRequestError\", \"message\": \"An internal error occurred\"}",
+    "期望至少调用其中之一 ['single-video-event-analysis', 'camera-health-check']，实际: ['city-video-intelligence', 'frame-sampling']"
+  ],
+  "error": null,
+  "elapsed_seconds": 152.6,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "read_file",
+      "view_image"
+    ],
+    "skills_touched": [
+      "city-video-intelligence",
+      "frame-sampling"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 28,
+    "clarifications": []
+  }
+}

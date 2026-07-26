@@ -20,12 +20,12 @@ config_version: 1
 # Used by scripts/update-docker-ports.sh to update docker/nginx related files.
 # Priority when running the script: environment variables > docker_ports > built-in defaults.
 docker_ports:
-  nginx: 3328
-  langgraph: 3329
-  gateway: 3330
-  frontend: 3331
+  nginx: 3230
+  langgraph: 3231
+  gateway: 3232
+  frontend: 3233
 subnet:
-  dev: 192.168.201.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
+  dev: 192.168.203.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
   
 # ============================================================================
 # Models Configuration
@@ -117,7 +117,7 @@ elasticsearch:
     - $ES_URL
   index_name: $LAW_REGULATIONS_ES_INDEX
   api_key:
-  username: $ES_USER
+    username: $ES_USERNAME
   password: $ES_PASSWORD
   verify_certs: false
   request_timeout: 30
@@ -348,14 +348,14 @@ tools:
 sandbox:
   use: deerflow.community.aio_sandbox:AioSandboxProvider
   image: $DEER_FLOW_SANDBOX_IMAGE
-  port: 8181
+  port: 8281
   replicas: 3
-  container_prefix: deer-flow-sandbox
+  container_prefix: qwen36test-deer-flow-sandbox
   environment:
     BAIDU_AK: $BAIDU_AK
     ES_URL: $ES_URL
     LAW_REGULATIONS_ES_INDEX: $LAW_REGULATIONS_ES_INDEX
-    ES_USERNAME: $ES_USER
+    ES_USERNAME: $ES_USERNAME
     ES_PASSWORD: $ES_PASSWORD
     EMBEDDING_API_KEY: $EMBEDDING_API_KEY
     EMBEDDING_BASE_URL: $EMBEDDING_BASE_URL

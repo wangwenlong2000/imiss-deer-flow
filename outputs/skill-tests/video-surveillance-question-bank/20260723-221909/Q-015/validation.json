@@ -1,0 +1,29 @@
+{
+  "id": "Q-015",
+  "mode": "text-only",
+  "question": "请对视频中的人脸、车牌和其他敏感区域进行模糊处理，输出一份可以公开使用的脱敏视频。",
+  "thread_id": "6e555dad-b1a9-4f91-bcca-9b5eb0fd4beb",
+  "video_file": null,
+  "uploaded_file": null,
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "48889e67-dd6a-4539-b2ef-8a875bd43e46",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "privacy-masking"
+  ],
+  "actual_skills": [
+    "data-analysis",
+    "street_view_image"
+  ],
+  "missing_expected_skills": [
+    "privacy-masking"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [],
+  "error": null,
+  "final_answer": "我需要先确认一些信息才能开始处理。\n\n",
+  "passed": false
+}

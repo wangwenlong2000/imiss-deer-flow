@@ -48,13 +48,56 @@ def log(msg: str):
     print(msg, file=sys.stderr, flush=True)
 
 
+SKILL_NAME = "analyze-video"
+SKILL_VERSION = "1.0.0"
+
+
+class SkillInputError(Exception):
+    """Input could not be loaded; reported through the standard failure contract."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def fail(code: str, message: str, exit_code: int = 1, retryable: bool = False) -> None:
+    """Emit the bundle-standard failure JSON on stdout, then exit non-zero.
+
+    Callers previously exited with only a stderr log, which left the agent with a bare
+    non-zero exit and no way to tell whether to supply input or stop.
+    """
+    result = {
+        "skill": SKILL_NAME,
+        "version": SKILL_VERSION,
+        "status": "failed",
+        "error_code": code,
+        "message": message,
+        "retryable": retryable,
+        "detail": {},
+    }
+    print(json.dumps(result, ensure_ascii=False))
+    log(f"ERROR: {message}")
+    sys.exit(exit_code)
+
+
 def load_input(path: str | None) -> dict:
     """Load an optional JSON payload used by DeerFlow-style --input calls."""
     if not path:
         return {}
     source = Path(path)
-    text = source.read_text(encoding="utf-8")
-    return json.loads(text) if text.strip() else {}
+    if not source.exists():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input file not found: {path}")
+    if source.is_dir():
+        raise SkillInputError("INPUT_NOT_FOUND", f"Input path is a directory, not a file: {path}")
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SkillInputError("INPUT_UNREADABLE", f"Could not read input file {path}: {exc}") from exc
+    try:
+        return json.loads(text) if text.strip() else {}
+    except json.JSONDecodeError as exc:
+        raise SkillInputError("INPUT_INVALID_JSON", f"Invalid JSON in {path}: {exc}") from exc
 
 
 def format_timestamp(seconds: float) -> str:
@@ -79,12 +122,10 @@ def check_tools():
     """Verify ffmpeg and ffprobe are available."""
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
-            log(f"ERROR: {tool} is required but not found in PATH.")
-            if sys.platform == "darwin":
-                log(f"  Install with: brew install ffmpeg")
-            else:
-                log(f"  Install with: sudo apt-get install -y ffmpeg")
-            sys.exit(2)
+            hint = "brew install ffmpeg" if sys.platform == "darwin" else "sudo apt-get install -y ffmpeg"
+            fail("DEPENDENCY_MISSING",
+                 f"{tool} is required but not found in PATH. Install with: {hint}",
+                 exit_code=2)
 
 
 # ---------------------------------------------------------------------------
@@ -100,8 +141,7 @@ def get_video_metadata(video_path: str) -> dict:
     ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        log(f"ERROR: ffprobe failed: {result.stderr}")
-        sys.exit(1)
+        fail("PROBE_FAILED", f"ffprobe failed: {result.stderr.strip()}")
 
     probe = json.loads(result.stdout)
 
@@ -113,8 +153,7 @@ def get_video_metadata(video_path: str) -> dict:
             break
 
     if not video_stream:
-        log("ERROR: No video stream found in file.")
-        sys.exit(1)
+        fail("UNSUPPORTED_SOURCE", "No video stream found in file.")
 
     # Parse FPS from r_frame_rate (e.g., "30000/1001")
     fps_str = video_stream.get("r_frame_rate", "30/1")
@@ -622,7 +661,10 @@ def main():
     parser.add_argument("--offset-pass", action="store_true",
                         help="Enable Pass 3: extract at 0.5s offset for double coverage")
     args = parser.parse_args()
-    input_data = load_input(args.input)
+    try:
+        input_data = load_input(args.input)
+    except SkillInputError as exc:
+        fail(exc.code, exc.message)
     args.video_file = args.video_file or input_data.get("video_file") or input_data.get("video") or input_data.get("raw_segment_uri") or input_data.get("file_path")
     args.output_dir = args.output_dir or input_data.get("output_dir")
     args.coarse_fps = args.coarse_fps if args.coarse_fps is not None else float(input_data.get("coarse_fps", 1.0))
@@ -637,19 +679,17 @@ def main():
     check_tools()
 
     if not args.video_file:
-        log("ERROR: video_file is required, either as a positional argument or in --input JSON.")
-        sys.exit(1)
+        fail("MISSING_INPUT",
+             "video_file is required, either as a positional argument or in --input JSON.")
 
     video_path = os.path.abspath(str(args.video_file).removeprefix("file://"))
     if not os.path.isfile(video_path):
-        log(f"ERROR: File not found: {video_path}")
-        sys.exit(1)
+        fail("SOURCE_NOT_FOUND", f"File not found: {video_path}")
 
     ext = Path(video_path).suffix.lower()
     if ext not in VIDEO_EXTENSIONS:
-        log(f"ERROR: Unsupported video format '{ext}'")
-        log(f"Supported: {', '.join(sorted(VIDEO_EXTENSIONS))}")
-        sys.exit(1)
+        fail("UNSUPPORTED_SOURCE",
+             f"Unsupported video format '{ext}'. Supported: {', '.join(sorted(VIDEO_EXTENSIONS))}")
 
     # --- Set up output directory ---
     if args.output_dir:
@@ -670,8 +710,7 @@ def main():
 
     duration = video_meta["duration_seconds"]
     if duration <= 0:
-        log("ERROR: Could not determine video duration.")
-        sys.exit(1)
+        fail("PROBE_FAILED", "Could not determine video duration.")
 
     log(f"  Duration: {format_timestamp(duration)} ({duration:.1f}s)")
     log(f"  FPS: {video_meta['fps']}")
@@ -726,11 +765,9 @@ def main():
         log("\nInterrupted. Partial extraction may remain in output directory.")
         sys.exit(130)
     except Exception as e:
-        log(f"ERROR: Extraction failed: {e}")
-        # Clean up partial output
         import traceback
         traceback.print_exc(file=sys.stderr)
-        sys.exit(1)
+        fail("EXTRACTION_FAILED", f"Extraction failed: {e}")
 
     elapsed = time.time() - start_time
 

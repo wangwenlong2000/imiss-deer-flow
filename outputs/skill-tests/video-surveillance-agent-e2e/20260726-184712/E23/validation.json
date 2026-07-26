@@ -1,0 +1,38 @@
+{
+  "id": "E23",
+  "covers": "原子 ffmpeg 操作走 skill 而不是手写命令",
+  "skills": [
+    "ffmpeg-utils"
+  ],
+  "question": "请导出这段视频 00:00:08 位置的一张关键帧图片。",
+  "thread_id": "854de5cd-6543-4545-ae54-3f59cf75115a",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "status": "pass",
+  "failures": [],
+  "error": null,
+  "elapsed_seconds": 265.7,
+  "evidence": {
+    "tool_call_names": [
+      "bash",
+      "invoke_skill",
+      "read_file",
+      "view_image"
+    ],
+    "skills_touched": [
+      "ffmpeg-utils"
+    ],
+    "analytics_ops": [],
+    "raw_video_bash_count": 0,
+    "models": [
+      "qwen3.6-35b-a3b"
+    ],
+    "recursion_limit_hit": false,
+    "final_answer_chars": 160,
+    "clarifications": []
+  }
+}

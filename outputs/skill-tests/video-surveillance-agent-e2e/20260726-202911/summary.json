@@ -1,0 +1,221 @@
+{
+  "assistant_id": "c083dac2-93bc-4497-969a-c777808a2d27",
+  "model": "qwen3.6-35b-a3b",
+  "recursion_limit": 300,
+  "counts": {
+    "pass": 3,
+    "fail": 2,
+    "error": 0
+  },
+  "results": [
+    {
+      "id": "E10",
+      "covers": "单视频事件语义分析唯一入口",
+      "skills": [
+        "city-video-intelligence",
+        "single-video-event-analysis"
+      ],
+      "question": "请逐段审查这段监控画面，给出可见证据的时间线和事件候选；证据不足时明确标记需要人工复核。",
+      "thread_id": "19d98c21-bcda-41a7-959e-2cbb81e3dc7d",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 208.3,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "read_file",
+          "view_image",
+          "write_file"
+        ],
+        "skills_touched": [
+          "city-video-intelligence",
+          "single-video-event-analysis"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 2530,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E14",
+      "covers": "隐私打码",
+      "skills": [
+        "privacy-masking"
+      ],
+      "question": "这段视频要对外提供，请先把画面里的人脸和车牌做打码处理，再给我处理后的图片。",
+      "thread_id": "a5bca482-b5d9-4703-b69b-e9074a8c20ba",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 322.3,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "present_files",
+          "read_file",
+          "video_object_analytics"
+        ],
+        "skills_touched": [
+          "frame-sampling",
+          "privacy-masking",
+          "video-object-analytics"
+        ],
+        "analytics_ops": [
+          "detect"
+        ],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 264,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E15",
+      "covers": "输入齐全时生成证据包",
+      "skills": [
+        "evidence-package-generation"
+      ],
+      "question": "事件时间是第 12 秒，事件类型是交通拥堵。请基于我上传的这段视频生成完整证据包：包含证据截图、前后各 5 秒片段、完整性哈希和打码副本。",
+      "thread_id": "1c8204ce-55f3-4262-b505-24093f278c01",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "status": "fail",
+      "failures": [
+        "运行出现错误事件: {\"error\": \"BadRequestError\", \"message\": \"An internal error occurred\"}"
+      ],
+      "error": null,
+      "elapsed_seconds": 368.1,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "read_file",
+          "view_image"
+        ],
+        "skills_touched": [
+          "city-video-intelligence",
+          "evidence-package-generation",
+          "frame-sampling",
+          "privacy-masking",
+          "video-segment-extraction",
+          "video-stream-ingestion"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 29,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E20",
+      "covers": "StreetModel 不可用时入库与向量索引如实报告",
+      "skills": [
+        "video-embedding-index",
+        "batch-video-ingestion"
+      ],
+      "question": "把我上传的这个视频登记入库，并建立可以语义搜索的向量索引。",
+      "thread_id": "5508a9f2-b713-4f51-8153-457c24ac067f",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "status": "fail",
+      "failures": [
+        "期望至少调用其中之一 ['video-embedding-index', 'batch-video-ingestion', 'video-stream-ingestion', 'city-video-intelligence']，实际: ['video-object-analytics']",
+        "最终回答未命中任一关键词 ['无法', '不可用', '失败', '未启用', '连接', '服务']"
+      ],
+      "error": null,
+      "elapsed_seconds": 241.4,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "video_object_analytics"
+        ],
+        "skills_touched": [
+          "video-object-analytics"
+        ],
+        "analytics_ops": [
+          "detect"
+        ],
+        "raw_video_bash_count": 3,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 1201,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E22",
+      "covers": "长录像按场景切章节并抽关键帧",
+      "skills": [
+        "analyze-video"
+      ],
+      "question": "请按画面场景变化，把这段录像切成若干章节，并为每个章节抽一张关键帧，只准备素材不下结论。",
+      "thread_id": "a55b4d46-4499-45e2-a08c-1a9e64fb371b",
+      "uploaded_file": {
+        "filename": "Trafic-30s.mp4",
+        "size": 1533354,
+        "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 374.7,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "read_file",
+          "view_image"
+        ],
+        "skills_touched": [
+          "analyze-video"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 1,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 612,
+        "clarifications": []
+      }
+    }
+  ]
+}

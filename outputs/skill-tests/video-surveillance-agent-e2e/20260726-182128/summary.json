@@ -1,0 +1,275 @@
+{
+  "assistant_id": "3f01ecaa-340b-44d0-a35a-08dd83c89724",
+  "model": "qwen3.6-35b-a3b",
+  "recursion_limit": 100,
+  "counts": {
+    "pass": 7,
+    "fail": 1,
+    "error": 0
+  },
+  "results": [
+    {
+      "id": "E01",
+      "covers": "4.3 + 4.6 视频元数据路由与字段补齐",
+      "question": "请读取我上传的这个视频的时长、分辨率、帧率和编码信息，整理成后续分析可以直接使用的标准输入。",
+      "thread_id": "69f789db-75d2-4a94-ac56-4d894e63d090",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 139.2,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "read_file"
+        ],
+        "skills_touched": [
+          "video-stream-ingestion"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 472,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E02",
+      "covers": "4.7 上传描述 + 画面质量 + 事件复合链路",
+      "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。",
+      "thread_id": "973fcc66-126b-4dd0-92d3-c6bf8b0ff7c1",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "status": "fail",
+      "failures": [
+        "运行出现错误事件: {\"error\": \"BadRequestError\", \"message\": \"An internal error occurred\"}",
+        "期望至少调用其中之一 ['single-video-event-analysis', 'camera-health-check']，实际: ['city-video-intelligence', 'frame-sampling']"
+      ],
+      "error": null,
+      "elapsed_seconds": 152.6,
+      "evidence": {
+        "tool_call_names": [
+          "bash",
+          "invoke_skill",
+          "read_file",
+          "view_image"
+        ],
+        "skills_touched": [
+          "city-video-intelligence",
+          "frame-sampling"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 28,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E03",
+      "covers": "4.4 单视频计数走 video-object-analytics 而非 ES 统计",
+      "question": "统计这段视频里出现了多少辆车、多少个行人。",
+      "thread_id": "62f9c2d4-6632-4e34-8273-bf37bbd06a51",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 123.6,
+      "evidence": {
+        "tool_call_names": [
+          "invoke_skill",
+          "read_file",
+          "video_object_analytics"
+        ],
+        "skills_touched": [
+          "video-object-analytics"
+        ],
+        "analytics_ops": [
+          "detect",
+          "track"
+        ],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 562,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E04",
+      "covers": "4.2 + 4.8 能力边界与 capability_gap",
+      "question": "我想确认视频里具体人员的身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前只有这段本地视频。请说明哪些能力无法由现有数据支持，不要编造结果。",
+      "thread_id": "7648ec08-670b-4d0b-b88d-8c7a1a856f8c",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 49.6,
+      "evidence": {
+        "tool_call_names": [
+          "video_object_analytics"
+        ],
+        "skills_touched": [
+          "video-object-analytics"
+        ],
+        "analytics_ops": [
+          "detect"
+        ],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 1448,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E05",
+      "covers": "4.1 失败契约：视频不存在时必须报错而不是编造事件",
+      "question": "请分析 /mnt/user-data/uploads/does-not-exist-camera-42.mp4 这段监控里有没有打架或摔倒，并给出时间线。",
+      "thread_id": "f20c0b3c-2bfb-4492-bc40-e03003ff3b6b",
+      "uploaded_file": null,
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 117.0,
+      "evidence": {
+        "tool_call_names": [
+          "ask_clarification",
+          "bash"
+        ],
+        "skills_touched": [],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 152,
+        "clarifications": [
+          "视频文件 does-not-exist-camera-42.mp4 在当前系统中不存在，uploads 目录也没有任何文件。请确认以下情况：\n1. 您是否已经上传了该视频文件？如果已上传，请提供正确的文件名。\n2. 或者您是否有其他路径的监控视频需要分析？\n3. 还是说这是一个测试场景，希望我使用内置的示例数据或合成数据进行演示？"
+        ]
+      }
+    },
+    {
+      "id": "E06",
+      "covers": "证据包缺少关键输入时只做一次合并追问，不编造 artifact",
+      "question": "请把仓库事件的截图、前后 20 秒片段、哈希和打码副本整理成证据包。",
+      "thread_id": "15cecaf4-732f-4d0b-9004-3f1404db7747",
+      "uploaded_file": null,
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 160.0,
+      "evidence": {
+        "tool_call_names": [
+          "ask_clarification",
+          "ls"
+        ],
+        "skills_touched": [],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 31,
+        "clarifications": [
+          "我需要以下信息来整理证据包：\n\n1. **素材来源**：仓库事件的截图、视频片段（前后各20秒）、哈希文件和打码副本在哪里？它们是已上传的文件、存储在某个服务器路径，还是需要你提供文件路径？目前 `uploads` 目录为空。\n\n2. **具体事件**：是哪个仓库的什么事件？例如时间、地点、涉及对象等信息，以便正确标注证据包内容。\n\n3. **输出格式**：证据包希望以什么形式交付？例如 ZIP 压缩包、结构化文件夹、或带索引报告的归档？\n\n请提供文件路径或上传相关文件，我将立即开始整理。"
+        ]
+      }
+    },
+    {
+      "id": "E07",
+      "covers": "人工复核规则咨询走 human-review-routing",
+      "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+      "thread_id": "b7b06263-80c5-4c16-b8a2-43bfcae77e97",
+      "uploaded_file": null,
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 285.3,
+      "evidence": {
+        "tool_call_names": [
+          "invoke_skill",
+          "read_file"
+        ],
+        "skills_touched": [
+          "human-review-routing"
+        ],
+        "analytics_ops": [],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 1891,
+        "clarifications": []
+      }
+    },
+    {
+      "id": "E08",
+      "covers": "目标检测与跟踪走结构化工具，且不输出事件结论",
+      "question": "检测这段视频前 10 秒里的行人和车辆，并跟踪它们是移动还是停留。",
+      "thread_id": "4ab5dbfb-69d9-4814-8174-042dbc456315",
+      "uploaded_file": {
+        "filename": "Trafic.mp4",
+        "size": 75965424,
+        "path": "/mnt/user-data/uploads/Trafic.mp4",
+        "status": "uploaded"
+      },
+      "status": "pass",
+      "failures": [],
+      "error": null,
+      "elapsed_seconds": 217.4,
+      "evidence": {
+        "tool_call_names": [
+          "read_file",
+          "video_object_analytics"
+        ],
+        "skills_touched": [
+          "video-object-analytics"
+        ],
+        "analytics_ops": [
+          "track"
+        ],
+        "raw_video_bash_count": 0,
+        "models": [
+          "qwen3.6-35b-a3b"
+        ],
+        "recursion_limit_hit": false,
+        "final_answer_chars": 1347,
+        "clarifications": []
+      }
+    }
+  ]
+}

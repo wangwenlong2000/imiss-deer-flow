@@ -1,0 +1,44 @@
+[
+  {
+    "id": "C-001",
+    "question": "我上传了一段路口监控，请检查画面质量，判断有没有事故、拥堵或其他异常，并给出时间线和证据。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+    "expected": [
+      "city-video-intelligence",
+      "single-video-event-analysis"
+    ],
+    "mode": "video"
+  },
+  {
+    "id": "C-002",
+    "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+    "expected": [
+      "video-stream-ingestion"
+    ],
+    "mode": "video"
+  },
+  {
+    "id": "C-011",
+    "question": "检测这段视频里的行人、轿车、公交车和卡车，输出每帧的位置框、类别和置信度。测试视频路径是 /mnt/datasets/Vedio-demo/Trafic.mp4。",
+    "expected": [
+      "video-object-analytics",
+      "object-detection"
+    ],
+    "mode": "video"
+  },
+  {
+    "id": "C-038",
+    "question": "事件置信度低、摄像头画面有遮挡或事件涉及执法时，哪些结果必须进入人工复核？",
+    "expected": [
+      "human-review-routing"
+    ],
+    "mode": "boundary"
+  },
+  {
+    "id": "C-040",
+    "question": "我想确认具体人员身份、读取模糊车牌、生成全市热力图并接入实时 RTSP，但当前数据只有本地视频和检测框。请说明哪些能力无法由现有数据支持，不要编造结果。",
+    "expected": [
+      "city-video-intelligence"
+    ],
+    "mode": "boundary"
+  }
+]

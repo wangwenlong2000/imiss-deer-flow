@@ -1,0 +1,39 @@
+{
+  "id": "Q05",
+  "mode": "video",
+  "question": "请把这段视频转换成统一格式，提取关键帧，并截取 00:12 到 00:28 的片段保存下来。",
+  "thread_id": "42d3bcf2-5897-48b4-be58-fc6e946965ac",
+  "video_file": "Vedio-demo/Trafic-30s.mp4",
+  "uploaded_file": {
+    "filename": "Trafic-30s.mp4",
+    "size": 1533354,
+    "path": "/mnt/user-data/uploads/Trafic-30s.mp4",
+    "status": "uploaded"
+  },
+  "model_expected": "qwen3.6-35b-a3b",
+  "assistant_id": "9310e63a-c247-44d6-b166-bba71afae6bd",
+  "models_observed": [
+    "qwen3.6-35b-a3b"
+  ],
+  "expected_skills": [
+    "ffmpeg-utils"
+  ],
+  "actual_skills": [
+    "data-analysis",
+    "program_snippet"
+  ],
+  "missing_expected_skills": [
+    "ffmpeg-utils"
+  ],
+  "route_ok": false,
+  "final_answer_ok": true,
+  "errors": [
+    {
+      "error": "GraphRecursionError",
+      "message": "Recursion limit of 100 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT"
+    }
+  ],
+  "error": null,
+  "final_answer": "视频处理已全部完成！以下是处理结果总结：\n\n**📹 截取片段**\n- **源视频**: Trafic-30s.mp4 (30秒, H.264, 1280×674)\n- **截取范围**: 00:12 ~ 00:28 (16秒)\n- **输出文件**: `traffic_12s_to_28s.mp4`\n- **格式**: H.264 + AAC (统一标准格式), 1280×674, yuv420p\n- **码率**: ~524 kbps\n\n**🖼️ 关键帧提取**\n共提取了 **6 张**均匀分布的关键帧，覆盖整个 16 秒片段：\n\n| 关键帧 | 时间戳 | 说明 |\n|--------|--------|------|\n| 1 | 00:12:00 | 起始画面 |\n| 2 | 00:12:03 | 早期变化 |\n| 3 | 00:12:05 | 中期过渡 |\n| 4 | 00:12:07 | 中期变化 |\n| 5 | 00:12:09 | 后期过渡 |\n| 6 | 00:12:15 | 结束画面 |\n\n所有文件已保存到 `/mnt/user-data/outputs/` 目录，需要我展示完整文件列表吗？",
+  "passed": false
+}
