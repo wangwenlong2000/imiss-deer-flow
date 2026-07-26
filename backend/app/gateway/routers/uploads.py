@@ -143,11 +143,56 @@ async def upload_files(
                 detail=f"Failed to upload {file.filename}: {str(e)}",
             )
 
+    # Compliance InputGate: scan after the files land and any conversion has run,
+    # but BEFORE reporting success — a violating upload must never be acknowledged
+    # as accepted. App calls harness; the dependency direction stays legal.
+    warning = _scan_uploads_for_compliance(thread_id, uploaded_files)
+    if warning is not None:
+        return UploadResponse(success=False, files=[], message=warning)
+
     return UploadResponse(
         success=True,
         files=uploaded_files,
         message=f"Successfully uploaded {len(uploaded_files)} file(s)",
     )
+
+
+def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> str | None:
+    """Return a refusal message when an upload violates policy, else ``None``.
+
+    Failures here follow the input gate's ``fail_mode``: with the default
+    ``closed`` the upload is rejected, because an upload scanner that silently
+    stops scanning is worse than one that is switched off.
+    """
+    try:
+        from deerflow.agents.middlewares.compliance_input_gate_middleware import scan_upload_paths
+        from deerflow.compliance.runtime import gate_enabled, user_notice
+
+        if not gate_enabled("InputGate"):
+            return None
+
+        paths = [str(info["path"]) for info in uploaded_files if info.get("path")]
+        if not paths:
+            return None
+
+        decision = scan_upload_paths(paths, thread_id=thread_id)
+        if "refuse" in decision.actions:
+            logger.warning("compliance: rejected upload for thread %s: %s", thread_id, decision.actions)
+            return user_notice(decision)
+        if decision.hits:
+            logger.info("compliance: upload flagged for thread %s: %s", thread_id, decision.actions)
+        return None
+    except Exception:
+        logger.exception("compliance: upload scan failed for thread %s", thread_id)
+        try:
+            from deerflow.compliance.runtime import FAIL_CLOSED_NOTICE, gate_config
+
+            if getattr(gate_config("InputGate"), "fail_mode", "closed") == "closed":
+                return FAIL_CLOSED_NOTICE
+        except Exception:
+            logger.exception("compliance: could not resolve the input gate fail mode; rejecting the upload")
+            return "【合规检查失败】合规检测未能完成，为安全起见已拒绝本次上传。"
+        return None
 
 
 @router.get("/list", response_model=dict)

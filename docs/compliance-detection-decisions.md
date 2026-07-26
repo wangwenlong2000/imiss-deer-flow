@@ -287,3 +287,88 @@ Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也
 
 已把这段实测数据和复现方法写进 `config/compliance/detectors.yaml` 的注释里，
 避免后人凭感觉调这个旋钮。
+
+---
+
+## 2026-07-26 · D012 端到端准确率 0.9286 低于模型离线 0.9821，是预期的
+
+**问题**：`run_compliance_gate_eval.py` 跑出主指标 accuracy=0.9286，
+而 `run_compliance_model_eval.py` 是 0.9821。同一个模型、同一份测试集，为什么差 5 个点？
+
+**原因**：端到端链路多了一步**闸门过滤**。0624 测试集里有 4 条 InputGate 样本，
+其中 3 条 gold=`domain`。模型检测器的 manifest 没有声明 InputGate，
+引擎按 manifest 路由，这 3 条根本不会被送去检测 → 全部预测为 `none` → 3 个假阴性。
+
+`domain` 的召回因此从 1.0 掉到 0.7273（8/11），主指标随之下降。
+
+**决定**：**不改**。这是计划 §6.1 的明确范围决定："我的三个模型检测器不挂 InputGate"。
+
+**理由**：这不是 bug，是覆盖缺口，而且报告已经把它显式打出来了：
+
+```
+InputGate    covered: (none)
+             NOT covered: ...(全部 10 类)
+(uncovered types have no detector registered yet — those columns below
+ measure nothing, they do not mean 'no violations found')
+```
+
+指南第三章的矩阵确实给 `domain` 在 InputGate 配了处置动作，
+所以这是一个**真实存在的能力缺口**，只是不属于本次范围。
+硬把 InputGate 加进 manifest 会让模型在一个它没被训练过的闸门上做判断
+（训练集里 InputGate 样本只有 22 条），是拿指标换真实效果，不做。
+
+**建议后续**：要么补 InputGate 训练数据后重训并扩 manifest，
+要么由第 1-7 类负责人的规则类检测器覆盖 InputGate。
+
+---
+
+## 2026-07-26 · D013 矩阵与标注 expected_action 的一致率只有 52%（重要发现）
+
+**问题**：计划 §9.2 说标注样本自带 `expected_action`，可以拿来交叉校验矩阵录入，
+"不一致即为录入错误或标注争议，白捡的一致性测试"。实际跑出来一致率远低于预期。
+
+**实测**（`all_supported_deduplicated.jsonl` 282 条，473 个可比对格）：
+
+```
+domain           140/178   78.6%
+re_identify      107/265   40.4%
+video_meta_leak    0/30     0.0%
+OVERALL          247/473   52.2%
+去重后实际有分歧的矩阵格：15 个
+```
+
+用交付包全量标注数据（1610 个可比对格，覆盖 10 类）复算：
+
+```
+hardcoded_cred   100/100  100.0%   ← 底线类
+political         50/50   100.0%   ← 底线类
+illegal_content   72/74    97.3%   ← 底线类
+confidential      73/85    85.9%
+domain           155/195   79.5%
+struct_id        236/320   73.8%
+text_id           45/65    69.2%
+re_identify      107/265   40.4%
+geo_loc          146/416   35.1%
+video_meta_leak   10/40    25.0%
+OVERALL          994/1610  61.7%
+```
+
+**已排除是我抄错**：逐格回查 docx 原文核对过分歧最大的几类，转录无误。例如
+- `geo_loc.ContextGate.self_use`：docx"放行"，标注 `['role_check','warn']`
+- `domain.ContextGate.cross_org`：docx"拒答"，标注 `['desensitize','manual_review']`
+- `re_identify.OutputGate.self_use`：docx"告警"，标注 `['role_check','warn']`
+
+**决定**：矩阵**保持按 docx 7.23 第三章逐格照抄**，不按标注数据改。
+分歧作为**发现**报告出来，交由数据负责人裁决。
+
+**理由**：计划 §4.5 明确指定"录入以《合规评测标注指南7.23.docx》第三章为准"。
+标注数据是另一批人按自己的理解填的，两者不一致本身就是这个校验要发现的东西。
+我无权替业务方裁决哪边对 —— 每一格都要人工判断是"改指南 / 改标注 / 记为有意例外"。
+
+**重要的正面结论**：**底线三类（hardcoded_cred / illegal_content / political）
+一致率 100% / 100% / 97.3%** —— 最安全攸关的那部分，指南和标注是一致的，
+矩阵转录也是对的。`test_compliance_audit_eval.py` 里有一条测试持续断言这三类
+一致率 ≥ 0.95，防止后续回归。
+
+**建议解法**：把 `outputs/compliance-eval/{ts}/report.json` 里
+`matrix_cross_validation.discrepancies`（15 个去重后的格）发给标注负责人逐格确认。
