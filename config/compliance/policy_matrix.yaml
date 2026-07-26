@@ -1,0 +1,293 @@
+# 违规 × 场景 二维处置矩阵
+#
+# 数据来源：《合规评测标注指南 7.23.docx》第三章，逐格照抄，未做任何"优化"。
+# 处置代号使用指南 §6.4 的统一模板（与标注样本 expected_action 同一套词表）：
+#   allow / warn / report / role_check / manual_review /
+#   aggregate / desensitize / rewrite / block_storage / refuse
+#
+# 中文术语到代号的映射（docx 用中文，标注样本用代号）：
+#   放行→allow  告警→warn  角色校验→role_check  脱敏→desensitize
+#   模糊化→desensitize（降低精度也是脱敏的一种，标注样本即如此归并）
+#   聚合化→aggregate  改写→rewrite  人工复核→manual_review  拒答→refuse
+#   "A / B" 表示二选一 → 记为 [A, B]，引擎取其中最强的一个执行
+#
+# `null` = docx 表中的 "—"：该违规类型在该闸门不适用（不检测 / 无业务权限接触）。
+# 命中 null 格说明检测器路由错了或标注有缺口，引擎会记 warning 而不是静默放行。
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ `_unknown` 列是**临时状态**，不是正式场景。
+#
+# 一期系统没有"使用权限和公开程度"的信息源，五类场景无从判定（计划 §7.2），
+# 所有请求都落在这一列。填法遵循一条原则：**宁可漏处置，不可误伤**——
+#   · 底线三类（hardcoded_cred / illegal_content / political）：[refuse, warn]
+#     指南 §3 核心规则明写"不分场景……任何场景下都拒答"，场景未知也照拦。
+#   · 其余七类：[warn, manual_review]
+#     只告警 + 留痕 + 进人工队列，不自动脱敏、不自动拒答。理由：场景未知时
+#     自动脱敏会在 self_use（本该放行）下大面积误伤，可用性代价远大于收益；
+#     而告警 + 留痕保留了全部审计能力，等 scene 补全后直接切正式列即可。
+#
+# TODO(scene): SceneResolver 接上真实信息源后，删除所有 `_unknown` 列。
+# test_compliance_policy_matrix.py 会持续断言这一列存在且填法正确，
+# 删除时该测试会红，提醒同步更新——这是有意的提醒机制，不是失误。
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "7.23"
+source: "合规评测标注指南7.23.docx 第三章 二维处置矩阵：违规 × 场景"
+fallback_key: _unknown
+
+# 每类违规的默认合规依据条款。模型类检测器不产出条款依据（它只知道"像什么"，
+# 不知道"违反哪条"），由 policy 层按类型统一补齐 —— 指南要求 5：判定必须能回答
+# "依据哪条规则/制度"。
+basis:
+  struct_id: ["个人信息保护法 §28 敏感个人信息", "标注指南 7.23 §1.2.1(1)"]
+  geo_loc: ["个人信息保护法 §28 行踪轨迹", "标注指南 7.23 §1.2.1(2)"]
+  hardcoded_cred: ["网络安全法 §21 数据安全保护", "标注指南 7.23 §1.2.1(3) 底线类"]
+  illegal_content: ["网络安全法 §12 禁止性内容", "标注指南 7.23 §1.2.1(4) 底线类"]
+  political: ["网络信息内容生态治理规定 §6", "标注指南 7.23 §1.2.1(5) 底线类"]
+  text_id: ["个人信息保护法 §4 个人信息定义", "标注指南 7.23 §1.2.1(6)"]
+  confidential: ["反不正当竞争法 §9 商业秘密", "标注指南 7.23 §1.2.1(7)"]
+  video_meta_leak: ["数据安全法 §21 重要数据", "标注指南 7.23 §1.2.1(8)"]
+  re_identify: ["个人信息保护法 §73(4) 去标识化/匿名化", "标注指南 7.23 §1.2.1(9)"]
+  domain: ["数据安全法 §21 重要数据", "标注指南 7.23 §1.2.1(10)"]
+
+matrix:
+  # 1 结构化标识符泄露
+  struct_id:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check, warn]
+      cross_org: [desensitize]
+      public_release: [refuse, desensitize]
+      research_anon: [desensitize]
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [warn]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [warn]
+      cross_org: [desensitize]
+      public_release: [refuse, desensitize]
+      research_anon: [desensitize]
+
+  # 2 精确地理位置泄露（docx 的"模糊化"归并为 desensitize）
+  geo_loc:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [warn, desensitize]
+      cross_org: [desensitize]
+      public_release: [aggregate]
+      research_anon: [aggregate]
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [desensitize]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [aggregate]
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [warn, desensitize]
+      cross_org: [desensitize]
+      public_release: [aggregate]
+      research_anon: [aggregate]
+
+  # 3 硬编码凭证泄露 —— 底线类，不分场景
+  hardcoded_cred:
+    InputGate: # docx 标注为"输入闸(补齐)"
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse, warn]
+      research_anon: [refuse]
+    ContextGate:
+      _unknown: [refuse, warn]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    OutputGate:
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse, warn]
+      research_anon: [refuse]
+
+  # 4 违法有害内容 —— 底线类，不分场景
+  illegal_content:
+    InputGate:
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse, warn]
+      research_anon: [refuse]
+    ContextGate:
+      _unknown: [refuse, warn]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    OutputGate:
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse, warn]
+      research_anon: [refuse]
+
+  # 5 政治敏感内容 —— 底线类，不分场景
+  political:
+    InputGate:
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse]
+      research_anon: [refuse]
+    ContextGate:
+      _unknown: [refuse, warn]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    OutputGate:
+      _unknown: [refuse, warn]
+      self_use: [refuse, warn]
+      internal_org: [refuse, warn]
+      cross_org: [refuse, warn]
+      public_release: [refuse]
+      research_anon: [refuse]
+
+  # 6 自由文本标识符泄露
+  text_id:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [desensitize]
+      research_anon: [desensitize]
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [desensitize]
+      research_anon: [desensitize]
+
+  # 7 商业秘密与内部敏感
+  confidential:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check, warn]
+      cross_org: [manual_review, desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check]
+      cross_org: [manual_review, refuse]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: [allow]
+      internal_org: [role_check, warn]
+      cross_org: [refuse, desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+
+  # 8 视频监控点位元数据
+  video_meta_leak:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    OutputGate: # docx 标注为"输出闸(兜底)"
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+
+  # 9 模型输出再识别风险 —— 指南硬约束：只在输出闸检测
+  re_identify:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: null
+      cross_org: null
+      public_release: null
+      research_anon: null
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: [warn]
+      internal_org: [warn, rewrite]
+      cross_org: [rewrite]
+      public_release: [rewrite, refuse]
+      research_anon: [aggregate, rewrite]
+
+  # 10 城市治理领域专有敏感信息
+  # docx 核心规则：第 10 类在 self_use 下为 N/A —— 普通用户无业务权限接触此类信息
+  domain:
+    InputGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    ContextGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: [role_check]
+      cross_org: [refuse]
+      public_release: [refuse]
+      research_anon: [desensitize]
+    OutputGate:
+      _unknown: [warn, manual_review]
+      self_use: null
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [refuse]
+      research_anon: [desensitize]

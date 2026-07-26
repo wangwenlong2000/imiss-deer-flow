@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router
+.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-gates compliance-export-schema
 PYTHON ?= python
 
 help:
@@ -312,3 +312,33 @@ check-skill-router-health:
 # Run SkillCreator router update and conflict detection tests
 test-skill-router:
 	@PYTHONPATH=scripts:backend/packages/harness python3 -m pytest backend/tests/test_skill_creator_router_update.py backend/tests/test_skill_router_conflicts.py backend/tests/test_index_updater.py backend/tests/test_routing_metrics.py backend/tests/test_eval_skill_router.py backend/tests/test_skill_router_gateway.py -v
+
+# ==========================================
+# Compliance Detection
+# ==========================================
+
+# Unpack, verify (SHA256SUMS) and distribute the compliance model delivery package.
+# vendor code -> harness (committed), model weights -> models/compliance (gitignored),
+# 0624 split -> datasets/compliance (committed, used by the content_text regression).
+compliance-assets:
+	@$(PYTHON) scripts/prepare_compliance_assets.py $(ARGS)
+
+# Regression gate for the content_text concatenation rule (plan §5.1).
+# Asserts 282/282 exact string match and 100% model prediction agreement.
+compliance-verify-content-text:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/verify_content_text_rule.py
+
+# Reproduce the offline model baseline (accuracy 0.9821 / macro_f1 0.9859).
+compliance-eval-model:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/run_compliance_model_eval.py \
+		--input datasets/compliance/normalized/0624_supported_split/test.jsonl \
+		--model models/compliance/ml_detector_0624_fresh.json \
+		--min-accuracy 0.98
+
+# End-to-end gate evaluation through the full ComplianceEngine (four metric groups).
+compliance-eval-gates:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/run_compliance_gate_eval.py
+
+# Export the detector contract as JSON Schema (for cross-language detector authors).
+compliance-export-schema:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/export_detector_schema.py $(ARGS)

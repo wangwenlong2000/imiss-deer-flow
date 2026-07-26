@@ -131,6 +131,20 @@ __pycache__/
 *.pyo
 
 # local data / audit / archive
-datasets/
+# `datasets/*` (not `datasets/`) so specific subtrees can be re-included below;
+# git cannot re-include anything under a directory that is itself excluded.
+datasets/*
 env-audit/
 *.zip
+
+# Compliance detection assets (plan §8)
+# The 0624 split is the content_text regression baseline and MUST stay tracked.
+!datasets/compliance/
+datasets/compliance/*
+!datasets/compliance/normalized/
+datasets/compliance/normalized/*
+!datasets/compliance/normalized/0624_supported_split/
+
+# Compliance model weights: 6.7-11.7 MB each, rebuilt via `make compliance-assets`
+models/compliance/
+outputs/compliance-eval/

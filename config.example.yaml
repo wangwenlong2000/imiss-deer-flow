@@ -518,3 +518,61 @@ checkpointer:
 #           context:
 #             thinking_enabled: true
 #             subagent_enabled: true
+
+# ==============================================================================
+# Compliance Violation Detection
+# ==============================================================================
+# One engine, one detector set, one disposition matrix, three gates.
+# See docs/compliance-detector-integration-guide.md to add a detector.
+#
+# Disabled by default: a half-configured compliance gate that blocks real
+# traffic is worse than one that is switched off, so turning it on is deliberate.
+compliance:
+  enabled: false
+
+  gates:
+    # InputGate — user query + uploaded files, before anything else runs.
+    # A keyword hit alone is not a violation here: IntentGuard requires
+    # "sensitive entity + high-risk intent" together (guide §9.7).
+    input:
+      enabled: true
+      fail_mode: closed # closed = a detection error blocks; open = it passes through
+
+    # ContextGate — retrieval results, before they enter the LLM context.
+    # Performance-sensitive: rules / dictionaries / light models only, never a
+    # heavy LLM. A detector declaring cost_hint `heavy` here fails at startup.
+    context:
+      enabled: true
+      fail_mode: closed
+      budget_ms: 400 # wall-clock budget for the whole detection pass
+      max_units: 32 # evidence items inspected per tool call; the rest is reported, never dropped silently
+
+    # OutputGate — the model's answer. Streaming is preserved; a violation is
+    # retracted rather than buffered. Two layers, both required:
+    #   1. a `compliance_retract` custom stream event clears the screen
+    #   2. after_model rewrites the AIMessage so the checkpoint keeps no original
+    output:
+      enabled: true
+      fail_mode: closed
+      mode: stream_retract
+      incremental_scan:
+        enabled: true
+        # Directly trades leak window against CPU. Smaller = the retraction
+        # fires sooner but costs more detector calls.
+        interval_chars: 200
+
+  detectors_config_path: "config/compliance/detectors.yaml"
+  policy_matrix_path: "config/compliance/policy_matrix.yaml"
+
+  # Scene resolution. Phase 1 has no source of truth for "usage permission and
+  # publicity level", so every request falls back to the matrix `_unknown`
+  # column. Point `resolver` at a `module.path:ClassName` once one exists —
+  # no engine change required.
+  scene:
+    resolver: null
+    fallback_key: _unknown
+
+  audit:
+    enabled: true
+    path: "backend/.deer-flow/compliance/audit"
+    retain_days: 90
