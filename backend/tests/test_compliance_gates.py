@@ -1,9 +1,13 @@
 """Gate middlewares: mount order, fail-mode semantics, budget truncation.
 
-The ordering assertions here are the point of the file. Plan §6.3.3 says to pin
-the order with a test rather than guessing, because both orderings are subtle:
-``wrap_tool_call`` composes first-in-list-outermost while ``after_model`` runs in
-reverse list order, and getting either wrong silently defeats the gate.
+The ordering assertions here are the point of the file — pin the order with a
+test rather than guessing, because the orderings are subtle: ``wrap_tool_call``
+and ``wrap_model_call`` both compose first-in-list-outermost, while
+``after_model`` runs in reverse list order.
+
+Note these are *positional* assertions. The stronger, position-independent
+guarantee — that no downstream middleware can observe an unsanitized answer —
+lives in ``test_compliance_output_gate_isolation.py``.
 """
 
 from __future__ import annotations
@@ -149,7 +153,11 @@ def test_after_model_runs_in_reverse_list_order() -> None:
 
 
 def test_context_and_output_gates_are_first_in_the_runtime_chain(enabled_config) -> None:
-    """Outermost for wrap_tool_call, last to rewrite for after_model."""
+    """Both gates rely on first-in-list = outermost.
+
+    ContextGate for `wrap_tool_call` (outside ToolErrorHandling), OutputGate for
+    `wrap_model_call` (its result is the only version that reaches graph state).
+    """
     middlewares = build_lead_runtime_middlewares(lazy_init=True)
     names = [type(m).__name__ for m in middlewares]
 
@@ -170,7 +178,12 @@ def test_context_gate_is_outside_tool_error_handling(enabled_config) -> None:
 
 
 def test_output_gate_precedes_every_other_after_model_middleware(enabled_config) -> None:
-    """Reverse order means front-of-list rewrites the AIMessage last."""
+    """Front-of-list puts the gate LAST in after_model — correct for a backstop.
+
+    The authoritative rewrite is in `wrap_model_call` (see
+    test_compliance_output_gate_isolation.py); `after_model` only catches content
+    mutated after the model node, so running last is exactly what it wants.
+    """
     middlewares = build_lead_runtime_middlewares(lazy_init=True)
     after_model_owners = [
         type(m).__name__

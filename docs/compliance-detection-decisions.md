@@ -510,3 +510,63 @@ canary 真跑一条无害样本过每道启用的闸，把懒加载提前到启�
 **遗留**：生产 compose `docker/docker-compose.yaml` 有**同样的缺失**，
 且它不 bind-mount `backend/`（代码烤进镜像），gitignore 的模型权重需要独立的卷或构建步骤。
 本阶段不解决，记在此处。
+
+---
+
+## 2026-07-27 · R1/D017 撤回改在 `wrap_model_call` 做，`after_model` 降为兵底
+
+**问题（上阶段的真缺陷，已实测确认）**：LangChain 的 `after_model` **逆序执行**，
+OutputGate 挂在列表最前 → 它**最后**执行 → 其他 `after_model` 中间件都先看到未净化的违规原文。
+
+实测（把 `wrap_model_call` 停掉即还原旧设计）：
+
+```
+downstream after_model saw secret : True
+raw_messages contains secret      : True   ← 刷新页面违规原文重现
+messages contains secret          : False
+```
+
+**两条真实泄漏路径**（原以为有三条，核查后订正）：
+1. `RawTranscriptMiddleware` → `raw_messages`，而 `merge_raw_messages` 按 id 去重
+   **保留先到的**，永久锁死；前端 `displayMessagesOfThread` 优先读 `raw_messages`
+2. `TitleMiddleware` 把首条 assistant 回答截 500 字塞进 prompt 发给**外部模型**，
+   再把返回的 title 持久化 —— 这条是往外发，比留在本地更严重
+
+**订正**：`MemoryMiddleware` 和 `RunHistoryMiddleware` **不是**泄漏路径。
+两者用的是 `after_agent`（单一出口节点，在所有 `after_model` 提交之后才跑一次），
+拿到的已经是净化后的 `messages`。上阶段计划里把它们列为泄漏是错的。
+
+**决定**：不采用"把 OutputGate 挪到列表末尾"的顺序修法，改为
+**在 `wrap_model_call` 里净化**，`after_model` 保留为摘要门控的兵底。
+
+**理由**：
+- `_chain_model_call_handlers` 也是**第一个即最外层**，而 langchain 的
+  `_build_commands` 做的是 `{"messages": response.result}` ——
+  在 `wrap_model_call` 里净化意味着**违规原文从未进入 graph state**。
+  reducer、transcript、title、checkpoint、SSE 帧，谁都看不到。
+  保证从"依赖顺序"变成"结构性"。
+- 顺序修法只能挡住**排在它后面**的中间件；任何人以后在
+  `_build_middlewares` 末尾 `append` 一个新中间件就又把洞打开了。
+  上阶段的测试恰恰断言了一个位置不变式，而那个不变式本身是错的。
+- 两条规则合并成一条：`wrap_tool_call` 和 `wrap_model_call` 都是第一个即最外层，
+  "合规闸挂最前"从此只有一个、且符合直觉的理由。"after_model 逆序"这个坑
+  彻底离开设计。
+- 不用拆 builder、不用改 `agent.py`、不用改 `subagents/executor.py`，子代理免费获得。
+- 既有 412 项测试**一条都没破**。
+
+**为什么还要保留 `after_model` 兵底**：`LoopDetectionMiddleware` 在硬停时会
+`content + _HARD_STOP_MSG`，把一条带 tool_calls 的消息（OutputGate 按设计跳过）
+变成用户可见的回答。这是模型节点**之后**的内容变更，`wrap_model_call` 管不到。
+兵底按 `sha256(text)` 摘要门控：正常路径摘要命中 → 零额外检测；
+内容被改过 → 摘要不匹配 → 全量重扫。
+
+**新增测试** `test_compliance_output_gate_isolation.py`（9 项）断言的是
+**可观测性不变式**而非列表下标：
+- 起真 graph，跑真 middleware 链，断言 spy 中间件在 `after_model`/`after_agent`
+  都看不到违规原文，且 `messages` 和 `raw_messages` 都不含
+- **按 spy 位置参数化**（gate_first / spy_first / spy_between）——
+  顺序修法只能过其中一部分，结构性修法三种都过。这才是"任何位置都打不开洞"
+- 断言干净回答**只扫一次**（摘要门控生效），防止检测成本和审计记录悄悄翻倍
+- 断言模型节点后被改写的内容会被兵底抓住
+
+**已验证测试确实能抓 bug**：把 `wrap_model_call` 停掉重跑，断言如期失败（见上方实测输出）。

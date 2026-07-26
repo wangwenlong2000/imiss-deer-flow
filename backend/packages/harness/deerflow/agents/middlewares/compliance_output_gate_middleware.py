@@ -29,14 +29,37 @@ state**, so reloading the page, browsing history or exporting a report does not
 resurrect it. Layer 1 alone means a refresh brings the violation back; layer 2
 alone leaves it sitting on screen.
 
-Ordering
---------
-``after_model`` runs in **reverse** middleware order (verified against
-``langchain.agents.factory``: the edge from ``model`` goes to
-``middleware_w_after_model[-1]`` and walks down to index 0). To be the final
-component that rewrites the ``AIMessage``, this middleware must sit near the
-**front** of the list. ``test_compliance_gates.py`` asserts that rather than
-trusting the comment.
+Where the rewrite happens, and why not in ``after_model``
+---------------------------------------------------------
+The authoritative rewrite is in **``wrap_model_call``**, not ``after_model``.
+
+``after_model`` looked like the natural place and was wrong. It runs in
+**reverse** middleware order, so this gate — mounted first — ran *last*, and
+every other ``after_model`` middleware saw the violating text first. Two of them
+kept it:
+
+* ``RawTranscriptMiddleware`` snapshots into ``raw_messages``, whose reducer
+  dedups by id **keeping the first** — so the original was locked in permanently
+  and the frontend, which reads ``raw_messages`` first, showed it again after a
+  page reload.
+* ``TitleMiddleware`` feeds the first assistant answer into a prompt and sends it
+  to an **external model**, then persists the returned title.
+
+``wrap_model_call`` composes first-in-list = **outermost**, and langchain's
+``_build_commands`` does ``{"messages": response.result}``. Sanitizing there means
+the original never enters graph state at all — no reducer, no transcript, no
+title, no checkpoint, no SSE frame can observe it. The guarantee becomes
+structural instead of order-dependent, and it is the same
+"compliance gates go first" rule that ``wrap_tool_call`` already follows.
+
+``after_model`` is kept as a **backstop**, gated on a digest of the text already
+cleared. On the normal path it costs nothing. It earns its place when something
+mutates the message after the model node — ``LoopDetectionMiddleware`` appends a
+hard-stop notice to the content, turning a tool-calling message (which this gate
+skips by design) into a user-facing answer.
+
+``test_compliance_gates.py`` and ``test_compliance_output_gate_isolation.py``
+assert both properties rather than trusting this comment.
 
 Honest limitation
 -----------------
@@ -50,8 +73,11 @@ dial that trades window size against CPU.
 
 from __future__ import annotations
 
+import dataclasses
+import hashlib
 import logging
 import uuid
+from collections.abc import Awaitable, Callable
 from typing import Any, override
 
 from langchain.agents import AgentState
@@ -80,6 +106,11 @@ GATE = "OutputGate"
 RETRACT_EVENT = "compliance_retract"
 
 
+def _digest(text: str) -> str:
+    """Identify text already cleared, so the backstop can skip it."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
     """Check the model's answer, retract and rewrite it when it violates."""
 
@@ -91,8 +122,23 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         self._normalizer = LlmOutputNormalizer()
         #: message_id -> characters already scanned, for the incremental pass.
         self._scan_offsets: dict[str, int] = {}
+        #: message_id -> digest of text already cleared, so the after_model
+        #: backstop does not re-scan what wrap_model_call already handled.
+        self._checked: dict[str, str] = {}
 
     # ── hooks ───────────────────────────────────────────────────────────────
+
+    @override
+    def wrap_model_call(self, request: Any, handler: Callable[[Any], Any]) -> Any:
+        """Sanitize the response before it can enter graph state.
+
+        This is the authoritative rewrite. ``after_model`` is only a backstop.
+        """
+        return self._sanitize_response(handler(request))
+
+    @override
+    async def awrap_model_call(self, request: Any, handler: Callable[[Any], Awaitable[Any]]) -> Any:
+        return self._sanitize_response(await handler(request))
 
     @override
     def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -101,6 +147,32 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
     @override
     async def aafter_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         return self._process(state)
+
+    # ── authoritative sanitization ──────────────────────────────────────────
+
+    def _sanitize_response(self, response: Any) -> Any:
+        """Replace the model's answer inside the response, before it reaches state.
+
+        ``_build_commands`` in langchain's factory does ``{"messages": response.result}``,
+        so whatever is returned here is the *only* version any downstream component
+        — RawTranscript, Title, the SSE frames, the checkpoint — will ever observe.
+        """
+        result = getattr(response, "result", None)
+        if not isinstance(result, list) or not result:
+            return response
+
+        index = next((i for i in range(len(result) - 1, -1, -1) if isinstance(result[i], AIMessage)), None)
+        if index is None:
+            return response
+
+        update = self._process({"messages": list(result)})
+        if update is None:
+            return response
+
+        new_result = list(result)
+        new_result[index] = update["messages"][0]
+        # dataclasses.replace keeps structured_response and any sibling messages.
+        return dataclasses.replace(response, result=new_result)
 
     # ── core ────────────────────────────────────────────────────────────────
 
@@ -121,6 +193,12 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         if getattr(message, "tool_calls", None):
             return None
 
+        # Backstop short-circuit: wrap_model_call already cleared this exact text.
+        # Without it every answer would be scanned twice and audited twice.
+        message_id = str(message.id or "")
+        if message_id and self._checked.get(message_id) == _digest(text):
+            return None
+
         request_id = f"out-{uuid.uuid4().hex[:12]}"
         try:
             decision = self._check(text, message, request_id)
@@ -134,7 +212,9 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             return self._retract(message, FAIL_CLOSED_NOTICE, decision)
 
         if not decision.actions:
-            self._scan_offsets.pop(str(message.id or ""), None)
+            self._scan_offsets.pop(message_id, None)
+            if message_id:
+                self._checked[message_id] = _digest(text)
             return None
 
         replacement = apply_actions(text, decision.actions, decision.hits)
@@ -208,18 +288,27 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     def reset_scan_state(self, message_id: str) -> None:
         self._scan_offsets.pop(message_id, None)
+        self._checked.pop(message_id, None)
 
     # ── retraction (layer 1 event + layer 2 rewrite) ────────────────────────
 
     def _retract(self, message: AIMessage, replacement: str, decision: ComplianceDecision) -> dict[str, Any]:
         self.emit_retract_event(message, replacement, decision)
+        self._remember(message, replacement)
         return {"messages": [self._rewritten(message, replacement, decision)]}
+
+    def _remember(self, message: AIMessage, replacement: str) -> None:
+        """Record the sanitized text so the backstop treats it as already cleared."""
+        message_id = str(message.id or "")
+        if message_id:
+            self._checked[message_id] = _digest(replacement)
 
     def _notice_only(self, message: AIMessage, decision: ComplianceDecision) -> dict[str, Any] | None:
         """warn / manual_review: keep the answer, append the compliance notice."""
         text = extract_text(message.content)
         annotated = f"{text}\n\n{user_notice(decision)}"
         self.emit_retract_event(message, annotated, decision)
+        self._remember(message, annotated)
         return {"messages": [self._rewritten(message, annotated, decision)]}
 
     def emit_retract_event(self, message: AIMessage, replacement: str, decision: ComplianceDecision) -> bool:
