@@ -444,11 +444,16 @@ Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也
 | 真 OutputGate + 真 `re_identify` 样本 | ✅ 改写消息 + 发出 `compliance_retract` 事件 |
 | 审计落盘 | ✅ 记录含 `violation_type` 与 `basis` |
 
-**顺带发现的环境问题（非代码 bug）**：默认审计目录
-`backend/.deer-flow/compliance/` 写入失败 —— `backend/.deer-flow` 属主是 root
-（部署时容器以 root 跑），当前用户无权创建子目录。
+**顺带发现的环境问题（非代码 bug）**：在**宿主上**以普通用户跑测试时，
+默认审计目录 `backend/.deer-flow/compliance/` 写入失败 ——
+该目录属主是 root（容器以 root 跑，写出来的文件就是 root 的）。
 `Auditor` 按设计优雅降级了：记 warning、不中断请求、不吞掉错误。
-但**审计实际上没落盘**，属于部署配置问题。
+
+> **2026-07-27 订正**：这条只对**宿主侧**成立。运行中的服务里，容器**以 root 运行**
+> 且 `/app/backend/.deer-flow` 可写，**线上审计正常落盘** ——
+> 已实测 `compliance-20260726.jsonl` 内含完整判定记录（含 basis 与 top_similarity）。
+> 原文"审计实际上没落盘"的表述过宽，容易被读成线上也没留痕，特此更正。
+> 单测把审计目录指向 `tmp_path`，不依赖这个环境条件。
 
 **建议解法**：`sudo chown -R $USER backend/.deer-flow`，
 或把 `compliance.audit.path` 指向进程有写权限的目录。
@@ -570,3 +575,71 @@ messages contains secret          : False
 - 断言模型节点后被改写的内容会被兵底抓住
 
 **已验证测试确实能抓 bug**：把 `wrap_model_call` 停掉重跑，断言如期失败（见上方实测输出）。
+
+---
+
+## 2026-07-27 · R5/D018 端到端验证结果（真实模型、运行中的服务）
+
+在 `http://localhost:3538` 用真实 DashScope `qwen3.6-35b-a3b` 实测。
+
+| 验证项 | 结果 |
+|---|---|
+| 启动自检 | `compliance preflight OK — detectors: model_tfidf_knn` |
+| 无风险对话 | 回答正常，`compliance` metadata = None，**无误报** |
+| 真实违规命中 | `re_identify`，severity=high，最近邻相似度 **0.6112** |
+| 一期处置（`_unknown` 列） | `[warn, manual_review]` → 保留回答 + 追加【合规提示】 |
+| 强处置（临时 `public_release`） | `[rewrite, refuse]` → 正文完全替换为【合规拦截】，原文残留 = False |
+| **持久层（R1 关键验证）** | `messages` 与 `raw_messages` 同 id 内容一致，**都不含违规原文** |
+| 审计落盘 | `compliance-20260726.jsonl`，含 audit_ref/gate/scene/type/severity/actions/basis |
+| 前端类型检查 | `tsc --noEmit` EXIT=0，`eslint` EXIT=0 |
+| 前端数据层 | `node --test compliance.test.ts` **12/12**，用例数据取自真实链路 |
+
+**一个对前端设计有决定性影响的发现**：一期 `SceneResolver` 恒返回 `None`，
+矩阵走 `_unknown` 兜底列，而模型检测器覆盖的三类在该列**都是** `[warn, manual_review]` ——
+`apply_actions` 返回 `None`，走 `_notice_only()`。
+所以**主导场景是"保留回答 + 追加提示"，不是"替换正文"**。
+
+据此前端做了两个决定：
+1. 横幅色调按 `mutated`（是否真的改了正文）而非"是否命中"。
+   一律标红会让用户学会无视这个横幅，连真正的拒答一起无视。
+2. 渲染时剥掉正文里追加的【合规提示】段落，否则同样的信息用户要读两遍。
+   剥离要求前导空行，所以**独立**的拒答文案不会被剥成空白。
+
+**临时改 `scene.fallback_key: public_release` 验证强处置后已还原**，
+`git diff config.yaml` 与 HEAD 一致。
+
+**未验证项（如实记录）**：React 组件的**视觉渲染**没有自动化验证 ——
+本仓库无前端测试框架，本次也没有可用的浏览器自动化。
+数据层（解析/合并/剥离/跨 thread 隔离）有 12 项测试覆盖，
+但"横幅长什么样、展开收起是否正常"需要人工打开页面确认。
+
+---
+
+## 2026-07-27 · R4/D019 增量扫描：有可行方案，本阶段**主动不做**
+
+`ComplianceOutputGateMiddleware.scan_increment()` 仍然没有生产调用者。
+
+**调研已完成，结论明确（不要重走弯路）**：
+- ❌ 六个 `AgentMiddleware` 生命周期钩子**都看不到 token**，
+  `wrap_model_call` 拿到的是完整 `AIMessage`
+- ❌ `AgentMiddleware.transformers` / `StreamTransformer` 机制真实存在，
+  但只在 **beta v3 协议**（`Pregel._apregel_stream_v3`）下运行；
+  本项目走 LangGraph Server 的 `runs.stream` → `astream`，**不触发**，接了还是死代码
+- ✅ **唯一可行**：`BaseCallbackHandler.on_llm_new_token`，挂在
+  `models/factory.py` 第 73-88 行（现有 tracer 的挂载点）。
+  LangGraph 的 `StreamMessagesHandler` 会让模型内部流式化，per-token 回调确实触发；
+  回调运行在 graph 上下文内，`get_stream_writer()` 可用
+
+**决定**：本阶段**不实现**，保留为已记录的待办。
+
+**理由**（这是主动取舍，不是被阻塞）：
+1. 它只让撤回**更早**，不是"前端能展示合规处置"的必要条件 —— 本阶段目标已达成
+2. 挂载点在 `create_chat_model()`，影响**所有**模型调用（含记忆抽取、标题生成、
+   意图识别等所有内部 LLM 调用），而合规输出闸只关心面向用户的最终回答。
+   要正确区分需要额外的上下文判别逻辑，风险与收益不成比例
+3. 一期主导处置是 `[warn, manual_review]`（保留回答），
+   "更早撤回"在这个处置下几乎没有可感收益 —— 真正需要它的是 `refuse`/`rewrite`，
+   而那要等 `SceneResolver` 接上真实信息源之后才会成为常态
+
+**建议实施时机**：`SceneResolver` 接入、强处置成为常态之后再做，
+届时收益明确，也能顺带解决"只扫最终回答、不扫内部 LLM 调用"的判别问题。

@@ -462,8 +462,10 @@ three of them (video surveillance metadata, model-output re-identification risk,
 governance domain-specific sensitive information) at `accuracy=0.9821` / `macro_f1=0.9859`, using
 nothing but the Python standard library.
 
-Disabled by default. Enable under `compliance` in `config.yaml`, and see the
-[detector integration guide](docs/compliance-detector-integration-guide.md) to add your own.
+Disabled by default. Enable under `compliance` in `config.yaml`, see the
+[detector integration guide](docs/compliance-detector-integration-guide.md) to add your own, and
+[the end-to-end verification guide](docs/compliance-e2e-verification.md) to try it against a
+running instance.
 
 ## Recommended Models
 
@@ -509,6 +511,7 @@ All dict-returning methods are validated against Gateway Pydantic response model
 - [Compliance Detector Integration Guide](docs/compliance-detector-integration-guide.md) - How to add a compliance detector
 - [Compliance Detection Implementation Plan](docs/compliance-detection-implementation-plan.md) - Design rationale and phased plan
 - [Compliance Detection Decision Log](docs/compliance-detection-decisions.md) - Implementation decisions and open blockers
+- [Compliance E2E Verification](docs/compliance-e2e-verification.md) - Running, verifying and rolling back compliance detection on a live instance
 
 ## Contributing
 

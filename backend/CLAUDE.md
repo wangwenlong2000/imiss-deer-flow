@@ -105,6 +105,8 @@ Compliance detection regression tests:
 - `tests/test_compliance_row_builder.py` — the `content_text` rule reproduces all 282 annotated rows with zero prediction drift
 - `tests/test_compliance_policy_matrix.py` — matrix completeness; the three baseline violation types refuse in every scene
 - `tests/test_compliance_gates.py` — the three gate mount positions and `fail_mode` semantics
+- `tests/test_compliance_output_gate_isolation.py` — position-independent proof that no downstream middleware can observe an unsanitized answer
+- `tests/test_compliance_preflight.py` — a missing model/config must degrade to "gates off, logged CRITICAL", never to "refuse every request"
 
 CI runs these regression tests for every pull request via [.github/workflows/backend-unit-tests.yml](../.github/workflows/backend-unit-tests.yml).
 
@@ -172,7 +174,8 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
 
 **Compliance gates** (optional, only when `compliance.enabled: true` in `config.yaml`) are mounted outside this chain:
 
-- **ComplianceOutputGateMiddleware** and **ComplianceContextGateMiddleware** are inserted at the **front** of the list by `build_lead_runtime_middlewares()`. Position is load-bearing in two ways: `wrap_tool_call` composes first-in-list as outermost (so the context gate sits *outside* `ToolErrorHandlingMiddleware`, which would otherwise swallow detection failures into an error ToolMessage), and `after_model` executes in **reverse** list order (so the output gate is the last component to rewrite the `AIMessage`).
+- **ComplianceOutputGateMiddleware** and **ComplianceContextGateMiddleware** are inserted at the **front** of the list by `build_lead_runtime_middlewares()`. Both rely on the same rule: `wrap_tool_call` *and* `wrap_model_call` compose first-in-list as **outermost**. The context gate therefore sits *outside* `ToolErrorHandlingMiddleware` (which would otherwise swallow detection failures into an error ToolMessage), and the output gate's `wrap_model_call` result is the only version that reaches graph state.
+- The output gate sanitizes in **`wrap_model_call`**, not `after_model`. `after_model` runs in *reverse* list order, so a front-mounted gate runs *last* and every other `after_model` middleware sees the unsanitized answer first — `RawTranscriptMiddleware` then locks it into `raw_messages` permanently (its reducer dedups by id keeping the first), and `TitleMiddleware` sends it to an external model. Sanitizing in `wrap_model_call` means the original never enters state at all. `after_model` is retained as a digest-gated backstop for content mutated after the model node (e.g. `LoopDetectionMiddleware`'s hard-stop append).
 - **ComplianceInputGateMiddleware** is appended **after** `IntentRecognitionMiddleware` in `_build_middlewares()`, because `before_agent` runs in forward order and the input gate needs the recognized intent to apply the "sensitive entity + high-risk intent" rule.
 
 `tests/test_compliance_gates.py` asserts all three positions.
@@ -376,6 +379,8 @@ Violation detection across three gates, sharing one engine, one detector set and
 **Shipped detector**: `model_tfidf_knn` covers violation types 8/9/10 (`video_meta_leak` / `re_identify` / `domain`). Pure-standard-library TF-IDF + kNN; measured `accuracy=0.9821`, `macro_f1=0.9859` on the 0624 test split at ~12 ms/row.
 
 **Commands**:
+
+End-to-end verification against the running service (Docker, `http://localhost:3538`) is documented in [docs/compliance-e2e-verification.md](../docs/compliance-e2e-verification.md), including the container operations that are safe and the ones that would destroy the running stack.
 
 ```bash
 make compliance-assets                # unpack + SHA256 verify + distribute the delivery package

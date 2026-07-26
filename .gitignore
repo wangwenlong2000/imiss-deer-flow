@@ -148,3 +148,4 @@ datasets/compliance/normalized/*
 # Compliance model weights: 6.7-11.7 MB each, rebuilt via `make compliance-assets`
 models/compliance/
 outputs/compliance-eval/
+outputs/compliance-e2e/
