@@ -1,0 +1,358 @@
+{
+  "$defs": {
+    "DetectContext": {
+      "description": "Ambient information for a detection call.",
+      "properties": {
+        "budget_ms": {
+          "type": "integer"
+        },
+        "gate": {
+          "enum": [
+            "InputGate",
+            "ContextGate",
+            "OutputGate"
+          ]
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IntentInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scenes": {
+          "items": {
+            "enum": [
+              "self_use",
+              "internal_org",
+              "cross_org",
+              "public_release",
+              "research_anon"
+            ]
+          },
+          "type": "array"
+        },
+        "user": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "gate"
+      ],
+      "title": "DetectContext",
+      "type": "object"
+    },
+    "DetectionHit": {
+      "description": "The single output type of every detector.",
+      "properties": {
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "detector_id": {
+          "type": "string"
+        },
+        "evidence": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "reason_code": {
+          "type": "string"
+        },
+        "risk_locations": {
+          "items": {
+            "$ref": "#/$defs/RiskLocation"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "violation_type": {
+          "enum": [
+            "struct_id",
+            "geo_loc",
+            "hardcoded_cred",
+            "illegal_content",
+            "political",
+            "text_id",
+            "confidential",
+            "video_meta_leak",
+            "re_identify",
+            "domain"
+          ]
+        }
+      },
+      "required": [
+        "detector_id",
+        "violation_type",
+        "confidence",
+        "severity"
+      ],
+      "title": "DetectionHit",
+      "type": "object"
+    },
+    "DetectionUnit": {
+      "description": "One indivisible thing to check. Detectors get a read-only copy.",
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "field_items": {
+          "items": {
+            "$ref": "#/$defs/FieldItem"
+          },
+          "type": "array"
+        },
+        "gate": {
+          "enum": [
+            "InputGate",
+            "ContextGate",
+            "OutputGate"
+          ]
+        },
+        "raw": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "text_items": {
+          "items": {
+            "$ref": "#/$defs/TextItem"
+          },
+          "type": "array"
+        },
+        "unit_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit_id",
+        "gate"
+      ],
+      "title": "DetectionUnit",
+      "type": "object"
+    },
+    "FieldItem": {
+      "description": "A structured field to inspect, addressed by dotted path.",
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "value": {}
+      },
+      "required": [
+        "item_id",
+        "path",
+        "value",
+        "source"
+      ],
+      "title": "FieldItem",
+      "type": "object"
+    },
+    "IntentInfo": {
+      "description": "Recognized intent, supplied by IntentRecognitionMiddleware.",
+      "properties": {
+        "confidence": {
+          "type": "number"
+        },
+        "high_risk": {
+          "type": "boolean"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scene_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "title": "IntentInfo",
+      "type": "object"
+    },
+    "RiskLocation": {
+      "description": "Where in the unit the risk sits, so disposition can act surgically.",
+      "properties": {
+        "entity_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "enum": [
+            "field_path",
+            "char_span",
+            "frame",
+            "bbox",
+            "coordinate"
+          ]
+        },
+        "locator": {
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "locator"
+      ],
+      "title": "RiskLocation",
+      "type": "object"
+    },
+    "TextItem": {
+      "description": "A free-text span to inspect.",
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "text",
+        "source"
+      ],
+      "title": "TextItem",
+      "type": "object"
+    },
+    "UserContext": {
+      "description": "Who is asking. Phase 1 populates this only partially (risk 12).",
+      "properties": {
+        "org_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "roles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "title": "UserContext",
+      "type": "object"
+    }
+  },
+  "$id": "https://deerflow.dev/schemas/compliance/detector-contract.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "1.0",
+  "description": "Wire format for subprocess_cli and http_service detector adapters.",
+  "properties": {
+    "request": {
+      "properties": {
+        "ctx": {
+          "$ref": "#/$defs/DetectContext"
+        },
+        "params": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "unit": {
+          "$ref": "#/$defs/DetectionUnit"
+        }
+      },
+      "required": [
+        "unit",
+        "ctx"
+      ],
+      "type": "object"
+    },
+    "response": {
+      "properties": {
+        "hits": {
+          "items": {
+            "$ref": "#/$defs/DetectionHit"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "hits"
+      ],
+      "type": "object"
+    }
+  },
+  "title": "DeerFlow compliance detector contract",
+  "type": "object"
+}
