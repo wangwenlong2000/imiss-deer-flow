@@ -3,7 +3,10 @@ import type { BaseStream } from "@langchain/langgraph-sdk/react";
 
 import { isInternalMessage } from "../messages/utils";
 
-import { applyComplianceRetractions } from "./compliance";
+import {
+  applyComplianceRetractions,
+  complianceDispositionOf,
+} from "./compliance";
 import type { AgentThreadState } from "./types";
 
 type MessageMetadataLookup = {
@@ -145,7 +148,7 @@ function mergeDisplayMessages(
   streamMessages: Message[],
 ): Message[] {
   const merged: Message[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, number>();
 
   function messageKey(message: Message) {
     if (message.id) {
@@ -170,10 +173,22 @@ function mergeDisplayMessages(
 
   function add(message: Message) {
     const key = messageKey(message);
-    if (seen.has(key)) {
+    const at = seen.get(key);
+    if (at !== undefined) {
+      // `raw_messages` is append-only and first-write-wins on the backend, so
+      // for one message id it can hold a copy captured before a compliance
+      // rewrite. A copy carrying a compliance stamp is always the newer, safe
+      // one — prefer it. Defence in depth: the backend now sanitizes inside
+      // `wrap_model_call`, so the original should never reach either channel.
+      if (
+        complianceDispositionOf(message) &&
+        !complianceDispositionOf(merged[at]!)
+      ) {
+        merged[at] = message;
+      }
       return;
     }
-    seen.add(key);
+    seen.set(key, merged.length);
     merged.push(message);
   }
 

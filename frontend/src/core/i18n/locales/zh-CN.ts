@@ -300,6 +300,49 @@ export const zhCN: Translations = {
     failed: "子任务失败",
   },
 
+  // Compliance
+  compliance: {
+    title: "合规处置提示",
+    titleBlocked: "内容已按合规策略处置",
+    showDetails: "查看处置详情",
+    hideDetails: "收起",
+    violationTypesLabel: "风险类型",
+    actionsLabel: "处置动作",
+    basisLabel: "合规依据",
+    auditRefLabel: "审计编号",
+    gateLabel: "检查闸门",
+    noBasis: "本次判定未附带条款依据",
+    violationTypes: {
+      struct_id: "结构化标识符泄露",
+      geo_loc: "精确地理位置泄露",
+      hardcoded_cred: "硬编码凭证泄露",
+      illegal_content: "违法有害内容",
+      political: "政治敏感内容",
+      text_id: "自由文本标识符泄露",
+      confidential: "商业秘密与内部敏感",
+      video_meta_leak: "视频监控点位元数据",
+      re_identify: "模型输出再识别风险",
+      domain: "城市治理领域专有敏感信息",
+    },
+    actions: {
+      allow: "放行",
+      warn: "告警",
+      report: "上报留痕",
+      role_check: "角色校验",
+      manual_review: "人工复核",
+      aggregate: "聚合化",
+      desensitize: "脱敏",
+      rewrite: "改写",
+      block_storage: "禁止入库",
+      refuse: "拒答",
+    },
+    gates: {
+      InputGate: "输入闸",
+      ContextGate: "上下文闸",
+      OutputGate: "输出闸",
+    },
+  },
+
   // Settings
   settings: {
     title: "设置",

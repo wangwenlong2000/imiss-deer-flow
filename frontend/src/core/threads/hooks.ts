@@ -16,6 +16,7 @@ import type { UploadedFileInfo } from "../uploads";
 import { uploadFiles } from "../uploads";
 
 import {
+  bindComplianceThread,
   isComplianceRetractEvent,
   recordComplianceRetraction,
 } from "./compliance";
@@ -110,6 +111,13 @@ export function useThreadStream({
   // Retractions live in a module-level store (see ./compliance.ts); this counter
   // exists purely to trigger a re-render when one arrives.
   const [, setComplianceRetractionVersion] = useState(0);
+
+  // Message ids are only unique within a run, so a module-level store must be
+  // bound to a thread or a retraction from one conversation could match a
+  // message in another (and the map would grow for the lifetime of the tab).
+  useEffect(() => {
+    bindComplianceThread(threadId);
+  }, [threadId]);
 
   const thread = useStream<AgentThreadState>({
     client: getAPIClient(isMock),

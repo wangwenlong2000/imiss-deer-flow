@@ -47,6 +47,129 @@ export type ComplianceRetraction = {
 
 const retractions = new Map<string, ComplianceRetraction>();
 
+/** The ten violation types, mirroring backend `contract.VIOLATION_TYPES`. */
+export const COMPLIANCE_VIOLATION_TYPES = [
+  "struct_id",
+  "geo_loc",
+  "hardcoded_cred",
+  "illegal_content",
+  "political",
+  "text_id",
+  "confidential",
+  "video_meta_leak",
+  "re_identify",
+  "domain",
+] as const;
+export type ComplianceViolationType =
+  (typeof COMPLIANCE_VIOLATION_TYPES)[number];
+
+/** Disposition codes, weakest first — mirrors backend `contract.ACTIONS`. */
+export const COMPLIANCE_ACTIONS = [
+  "allow",
+  "warn",
+  "report",
+  "role_check",
+  "manual_review",
+  "aggregate",
+  "desensitize",
+  "rewrite",
+  "block_storage",
+  "refuse",
+] as const;
+export type ComplianceAction = (typeof COMPLIANCE_ACTIONS)[number];
+
+export const COMPLIANCE_GATES = [
+  "InputGate",
+  "ContextGate",
+  "OutputGate",
+] as const;
+export type ComplianceGate = (typeof COMPLIANCE_GATES)[number];
+
+/**
+ * Actions that changed or withheld the answer — mirrors backend
+ * `contract.MUTATING_ACTIONS`.
+ *
+ * This drives whether the banner reads as an alert or as a note. In phase 1 the
+ * scene is always `_unknown`, whose matrix column is `[warn, manual_review]` for
+ * every type the shipped detector covers — so the *common* case is "answer kept,
+ * flagged for review". Painting that red would cry wolf on every flagged answer.
+ */
+const MUTATING_ACTIONS = new Set<string>([
+  "aggregate",
+  "desensitize",
+  "rewrite",
+  "block_storage",
+  "refuse",
+]);
+
+/** What the UI needs to explain a compliance disposition. */
+export type ComplianceDisposition = {
+  gate: string | null;
+  violationTypes: string[];
+  actions: string[];
+  basis: string[];
+  auditRef: string | null;
+  notice: string | null;
+  /** True when the answer itself was altered or withheld. */
+  mutated: boolean;
+};
+
+function strings(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+/**
+ * Read the durable disposition off a message.
+ *
+ * The backend stamps `response_metadata.compliance` onto the rewritten
+ * AIMessage, so this survives a page reload — unlike the live retract event,
+ * which only exists for the lifetime of the stream. Components read this and
+ * nothing else, which keeps them pure and keeps `memo()` honest.
+ */
+export function complianceDispositionOf(
+  message: Message,
+): ComplianceDisposition | null {
+  const raw = (message as { response_metadata?: Record<string, unknown> })
+    .response_metadata?.compliance;
+  if (typeof raw !== "object" || raw === null) {
+    return null;
+  }
+  const meta = raw as Record<string, unknown>;
+  if (meta.retracted !== true) {
+    return null;
+  }
+
+  const actions = strings(meta.actions);
+  return {
+    gate: typeof meta.gate === "string" ? meta.gate : null,
+    violationTypes: strings(meta.violation_types),
+    actions,
+    basis: strings(meta.basis),
+    auditRef: typeof meta.audit_ref === "string" ? meta.audit_ref : null,
+    notice: typeof meta.notice === "string" ? meta.notice : null,
+    mutated: actions.some((action) => MUTATING_ACTIONS.has(action)),
+  };
+}
+
+/**
+ * The `【合规提示】` paragraph the backend appends on warn / manual_review.
+ *
+ * On those dispositions the answer is kept and a notice is glued to the bottom.
+ * The banner already shows that information, so rendering both means the user
+ * reads it twice. Stripped at render time only — `message.content` stays intact
+ * so Copy still yields the complete, compliant answer.
+ *
+ * Requires the leading blank line, so a *standalone* notice (a refusal, where
+ * the notice IS the body) is never stripped to nothing.
+ */
+const APPENDED_NOTICE = /\n{2,}【合规提示】[\s\S]*$/;
+
+export function stripAppendedComplianceNotice(text: string): string {
+  return text.replace(APPENDED_NOTICE, "").trimEnd();
+}
+
 export function isComplianceRetractEvent(
   event: unknown,
 ): event is ComplianceRetractEvent {
@@ -78,7 +201,7 @@ export function recordComplianceRetraction(event: ComplianceRetractEvent) {
   return retraction;
 }
 
-export function complianceRetractionOf(
+function complianceRetractionOf(
   messageId: string | undefined | null,
 ): ComplianceRetraction | undefined {
   if (!messageId) {
@@ -88,14 +211,69 @@ export function complianceRetractionOf(
 }
 
 /**
- * Replace the content of any message that has been retracted.
+ * Stable identity per input message, so `memo(MessageContent)` does not thrash.
+ * Keyed on the input object, so repeated passes return the same output object.
+ */
+const stamped = new WeakMap<object, Message>();
+
+/**
+ * Fold a live retraction into the message's durable compliance metadata.
  *
- * Matching is by message id, which the backend deliberately preserves when it
- * rewrites the message — that is what makes the LangGraph reducer replace the
- * original rather than append a second copy.
+ * The two sources are complementary: the event arrives first and carries
+ * `basis`/`notice`, the metadata arrives with the rewritten message and survives
+ * a reload. Stamping the event onto the metadata field means components read one
+ * shape and never touch the module store.
+ */
+function stamp(message: Message, retraction: ComplianceRetraction): Message {
+  const cached = stamped.get(message);
+  if (cached) {
+    return cached;
+  }
+
+  const previous =
+    ((message as { response_metadata?: Record<string, unknown> })
+      .response_metadata?.compliance as Record<string, unknown>) ?? {};
+
+  const next = {
+    ...message,
+    content: retraction.replacement,
+    response_metadata: {
+      ...((message as { response_metadata?: Record<string, unknown> })
+        .response_metadata ?? {}),
+      compliance: {
+        ...previous,
+        retracted: true,
+        gate: previous.gate ?? "OutputGate",
+        violation_types: retraction.violationTypes.length
+          ? retraction.violationTypes
+          : (previous.violation_types ?? []),
+        actions: retraction.actions.length
+          ? retraction.actions
+          : (previous.actions ?? []),
+        audit_ref: retraction.auditRef ?? previous.audit_ref ?? null,
+        basis: retraction.basis?.length
+          ? retraction.basis
+          : (previous.basis ?? []),
+        notice: retraction.notice ?? previous.notice ?? null,
+      },
+    },
+  } as Message;
+
+  stamped.set(message, next);
+  return next;
+}
+
+/**
+ * Apply live retractions on top of whatever the server has sent so far.
+ *
+ * Deliberately no "content already matches, skip" early return: once the
+ * rewritten server message arrives the content does match, but it may lack the
+ * `basis`/`notice` the event carried. The WeakMap provides identity stability
+ * instead.
  */
 export function applyComplianceRetractions(messages: Message[]): Message[] {
   if (retractions.size === 0) {
+    // Post-reload fast path: the durable metadata already stands on its own.
     return messages;
   }
 
@@ -105,17 +283,38 @@ export function applyComplianceRetractions(messages: Message[]): Message[] {
     if (!retraction) {
       return message;
     }
-    if (message.content === retraction.replacement) {
-      return message;
+    const next = stamp(message, retraction);
+    if (next !== message) {
+      changed = true;
     }
-    changed = true;
-    return { ...message, content: retraction.replacement };
+    return next;
   });
 
   return changed ? result : messages;
 }
 
-/** Clear stored retractions. Used when switching threads. */
+/** Clear stored retractions. */
 export function clearComplianceRetractions() {
   retractions.clear();
+}
+
+let ownerThreadId: string | null = null;
+
+/**
+ * Bind the retraction store to a thread.
+ *
+ * Message ids are only unique within a run and the store is module-level, so
+ * without this it grows for the lifetime of the tab and a retraction recorded in
+ * one thread could match a message in another.
+ *
+ * The falsy guard is load-bearing: a new conversation transitions
+ * `undefined -> uuid` mid-session, and clearing on that transition would discard
+ * a retraction belonging to the conversation in progress.
+ */
+export function bindComplianceThread(threadId: string | null | undefined) {
+  if (!threadId || threadId === ownerThreadId) {
+    return;
+  }
+  ownerThreadId = threadId;
+  clearComplianceRetractions();
 }

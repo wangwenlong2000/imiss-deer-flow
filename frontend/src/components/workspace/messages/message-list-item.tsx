@@ -28,10 +28,15 @@ import {
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { humanMessagePlugins } from "@/core/streamdown";
+import {
+  complianceDispositionOf,
+  stripAppendedComplianceNotice,
+} from "@/core/threads/compliance";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
 
+import { ComplianceNotice } from "./compliance-notice";
 import { MarkdownContent } from "./markdown-content";
 
 export function MessageListItem({
@@ -146,12 +151,21 @@ function MessageContent_({
     return files as FileInMessage[];
   }, [message.additional_kwargs?.files, rawContent]);
 
+  const disposition = useMemo(
+    () => complianceDispositionOf(message),
+    [message],
+  );
+
   const contentToDisplay = useMemo(() => {
     if (isHuman) {
       return rawContent ? stripUploadedFilesTag(rawContent) : "";
     }
-    return rawContent ?? "";
-  }, [rawContent, isHuman]);
+    const text = rawContent ?? "";
+    // On warn / manual_review the backend keeps the answer and appends a
+    // 【合规提示】 paragraph. The banner already says all of that, so rendering
+    // both shows the user the same thing twice.
+    return disposition ? stripAppendedComplianceNotice(text) : text;
+  }, [rawContent, isHuman, disposition]);
 
   const filesList =
     files && files.length > 0 && threadId ? (
@@ -210,6 +224,9 @@ function MessageContent_({
 
   return (
     <AIElementMessageContent className={className}>
+      {disposition && (
+        <ComplianceNotice disposition={disposition} className="mt-1 mb-2" />
+      )}
       {filesList}
       <MarkdownContent
         content={contentToDisplay}

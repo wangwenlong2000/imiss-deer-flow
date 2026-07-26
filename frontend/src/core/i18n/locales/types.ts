@@ -1,5 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 
+import type {
+  ComplianceAction,
+  ComplianceGate,
+  ComplianceViolationType,
+} from "../../threads/compliance";
+
+
 export interface Translations {
   // Locale meta
   locale: {
@@ -246,6 +253,26 @@ export interface Translations {
     in_progress: string;
     completed: string;
     failed: string;
+  };
+
+  // Compliance
+  // `Record<Union, string>` is deliberate: adding an 11th violation type to the
+  // union breaks `tsc` in BOTH locale files until they are filled in. With no
+  // frontend test framework, that compile error is the test.
+  compliance: {
+    title: string;
+    titleBlocked: string;
+    showDetails: string;
+    hideDetails: string;
+    violationTypesLabel: string;
+    actionsLabel: string;
+    basisLabel: string;
+    auditRefLabel: string;
+    gateLabel: string;
+    noBasis: string;
+    violationTypes: Record<ComplianceViolationType, string>;
+    actions: Record<ComplianceAction, string>;
+    gates: Record<ComplianceGate, string>;
   };
 
   // Settings

@@ -354,6 +354,11 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             "audit_ref": decision.audit_ref,
+            # `basis` and `notice` also ride the transient retract event, but that
+            # event is gone after a page reload. Guide requirement 5 ("on the basis
+            # of which rule") has to survive a refresh, so persist them here too.
+            "basis": list(decision.basis),
+            "notice": user_notice(decision),
             "retracted": True,
         }
         return AIMessage(

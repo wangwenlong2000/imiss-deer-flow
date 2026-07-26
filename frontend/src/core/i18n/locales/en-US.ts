@@ -316,6 +316,49 @@ export const enUS: Translations = {
     failed: "Subtask failed",
   },
 
+  // Compliance
+  compliance: {
+    title: "Compliance notice",
+    titleBlocked: "Content altered by compliance policy",
+    showDetails: "View disposition details",
+    hideDetails: "Hide",
+    violationTypesLabel: "Risk type",
+    actionsLabel: "Disposition",
+    basisLabel: "Compliance basis",
+    auditRefLabel: "Audit reference",
+    gateLabel: "Gate",
+    noBasis: "No clause was attached to this determination",
+    violationTypes: {
+      struct_id: "Structured identifier leak",
+      geo_loc: "Precise geolocation leak",
+      hardcoded_cred: "Hardcoded credential leak",
+      illegal_content: "Illegal or harmful content",
+      political: "Politically sensitive content",
+      text_id: "Free-text identifier leak",
+      confidential: "Trade secret or internal confidential",
+      video_meta_leak: "Surveillance camera metadata",
+      re_identify: "Model output re-identification risk",
+      domain: "City-governance sensitive information",
+    },
+    actions: {
+      allow: "Allow",
+      warn: "Warn",
+      report: "Report",
+      role_check: "Role check",
+      manual_review: "Manual review",
+      aggregate: "Aggregate",
+      desensitize: "Desensitize",
+      rewrite: "Rewrite",
+      block_storage: "Block storage",
+      refuse: "Refuse",
+    },
+    gates: {
+      InputGate: "Input gate",
+      ContextGate: "Context gate",
+      OutputGate: "Output gate",
+    },
+  },
+
   // Settings
   settings: {
     title: "Settings",
