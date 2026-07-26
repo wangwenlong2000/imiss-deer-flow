@@ -360,28 +360,42 @@ feature_extractor.py  holdout_split.py  io_utils.py  tfidf_knn.py
 
 ### B001 · 线上 `features` 键名与训练样本是否同构（计划 §11 风险 4）
 
-**状态**：未验证，非本次实施能解决。
+**状态**：⚠️ **已大幅收窄，但未完全消除**（2026-07-26 补测）。
 
-**原因**：需要跑一次真实的 skill 调用链路，拿到真实 `SkillResult`，
-人工核对其 `evidence[].metadata` 展开出来的字段路径是否与 0624 训练样本的
-`features` 键名同构。这需要：
-- 运行中的 LangGraph Server + Gateway（本机无 `uv`，无法 `make dev`）
-- 配好的模型服务（`config.yaml` 指向 `192.168.200.1` 的内网地址）
-- 至少一个会返回结构化 evidence 的真实 skill
+**补测做了什么**：把 282 条标注样本的 `raw_content` 按真实 skill 的形状重新包装成
+`SkillResult`（塞进 `evidence[].data`），走完整链路
+`SkillResultNormalizer → ModelTfidfKnnDetector`，逐条比对预测。
 
-**已做的缓解**：
-1. `SkillResultNormalizer` 的展开规则严格按指南 §1.2.3 实现，
-   并用构造的 SkillResult 做了单测（`test_compliance_normalizers.py`）
-2. `scripts/run_compliance_gate_eval.py` 支持 `--dump-features`，
-   上线前可以直接把线上 SkillResult 喂进去看展开结果
-3. 键名不匹配不会静默失效 —— 模型会给出低相似度，检测器降级为 `low` 严重度、
-   走人工复核，`evidence.top_similarity` 会明确记录相似度值
+**实测结果**：
 
-**建议解法**：上线前跑
-`python3 scripts/run_compliance_gate_eval.py --dump-features --input <真实SkillResult.jsonl>`，
-把输出的 feature 键名与 `datasets/compliance/normalized/0624_supported_split/train.jsonl`
-里的 `features` 键名做人工对照。若大面积不匹配，需要在
-`SkillResultNormalizer` 里加一层键名映射表。
+```
+domain          -> domain          47/47
+re_identify     -> re_identify     63/63
+video_meta_leak -> video_meta_leak 30/30
+                   合计 140/140 = 100.0%
+
+命中相似度中位数  domain 0.9456 | re_identify 0.9837 | video_meta_leak 0.9531
+```
+
+**关键发现：键名确实不一致，但不影响检测。**
+训练样本的 features 键是 `source_split`、`city_governance_context.lat_lng`；
+线上经 normalizer 展开后变成 `data.source_split`、`data.city_governance_context.lat_lng`
+—— **每个键都多了 `data.` 前缀，是模型没见过的**。
+但字符 n-gram 特征是建立在**值**上的，压过了路径特征，所以检测率没有损失。
+
+**为什么仍不算完全消除**：这次用的是模型训练时见过的**内容**，只是换了个外壳。
+它证明的是"normalizer→检测器这段管道不损失可检测性"，
+**没有**证明一个全新的、模型没见过的 skill 输出也能被检出（那是泛化问题，
+受限于训练集只有 226 条，见计划风险 9）。
+
+**已加的回归测试**（`test_compliance_integration.py`）：
+- `test_skill_result_field_paths_do_not_break_detection` —— 140 条全量断言
+- `test_detection_confidence_stays_high_on_the_live_shape` —— 断言中位相似度 >0.80，
+  防止 normalizer 改动把相似度压向 0.20 阈值导致全体降级为 `low` 而静默失去处置
+
+**剩余建议**：上线前仍应拿一次真实 skill 输出跑
+`python3 scripts/run_compliance_gate_eval.py --dump-features`，
+人工对照键名。若大面积不匹配再考虑加键名映射表。
 
 ### B002 · `make test` 无法在本机原样执行
 
@@ -409,3 +423,36 @@ Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也
 
 **建议解法**：配好任一 IM 渠道后，构造一条会触发 `re_identify` 的问题，
 确认最终卡片/消息里不含违规原文。
+
+---
+
+## 2026-07-26 · D015 补：中间件从未与真引擎接过（测试缺口，已补）
+
+**问题**：被质疑"是否真的集成了检测器"。复查发现一个真实缺口 ——
+`test_compliance_gates.py` 等文件里三道闸中间件注入的全是 `_StubEngine`，
+而 `middleware → get_engine() → build_engine() → registry → 真检测器 → 真模型`
+这条**生产装配路径一次都没被执行过**。集成 bug 恰恰住在那里。
+
+**补测结果**（新增 `backend/tests/test_compliance_integration.py`，全程无桩）：
+
+| 验证项 | 结果 |
+|---|---|
+| `build_engine()` 从真配置装配 | ✅ 装出 `model_tfidf_knn / inprocess / enabled` |
+| 引擎单例复用 | ✅ 不会每请求重载 6.7MB 模型 |
+| 真 ContextGate + 真模型 + 真阳性样本 | ✅ 命中 `domain`，相似度 0.9365，actions `[warn, manual_review]` |
+| 真 ContextGate + 真阴性样本 | ✅ 不误报，消息原样返回 |
+| 真 OutputGate + 真 `re_identify` 样本 | ✅ 改写消息 + 发出 `compliance_retract` 事件 |
+| 审计落盘 | ✅ 记录含 `violation_type` 与 `basis` |
+
+**顺带发现的环境问题（非代码 bug）**：默认审计目录
+`backend/.deer-flow/compliance/` 写入失败 —— `backend/.deer-flow` 属主是 root
+（部署时容器以 root 跑），当前用户无权创建子目录。
+`Auditor` 按设计优雅降级了：记 warning、不中断请求、不吞掉错误。
+但**审计实际上没落盘**，属于部署配置问题。
+
+**建议解法**：`sudo chown -R $USER backend/.deer-flow`，
+或把 `compliance.audit.path` 指向进程有写权限的目录。
+集成测试已把审计目录指向 `tmp_path`，不依赖这个环境条件。
+
+**教训**：单测隔离得越干净，越容易把"每块都对"误当成"接起来是对的"。
+桩测试和真集成测试是两种东西，两个都要有。
