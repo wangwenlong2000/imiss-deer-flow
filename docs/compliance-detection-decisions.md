@@ -92,16 +92,23 @@ docx 里的"模糊化"和"打码"不在这个代号表里 —— 标注员把"�
 
 ---
 
-## 2026-07-26 · D005 `datetime.UTC` 改用 `timezone.utc`
+## 2026-07-26 · D005 `datetime.UTC`（中途改过一次，最终与项目一致）
 
 **问题**：项目其他地方（如 `invoke_skill_tool.py`）用 `from datetime import UTC`，
-这是 Python 3.11+ 的别名。
+这是 Python 3.11+ 的别名。实施初期本机只有 Python 3.10 可用。
 
-**决定**：`audit.py` 用 `from datetime import timezone` + `timezone.utc`。
+**过程**：
+1. 最初写成 `timezone.utc`，理由是让模块在 3.10 也能导入（当时只有 3.10 环境）
+2. 后来按 D008 装好了真正的 Python 3.12，3.10 兼容性不再需要
+3. 跑 `ruff --fix`（`target-version = "py312"`）时 UP017 自动改回 `datetime.UTC`
 
-**理由**：两者运行期完全等价（`datetime.UTC is timezone.utc`）。
-用旧拼法让模块在 3.10 也能导入，本次实施的验证环境正是 3.10/3.12 双跑
-（见 D008）。风格差异极小，可验证性收益明确。
+**最终决定**：用 `from datetime import UTC`，与项目其他模块一致。
+
+**理由**：两者运行期完全等价（`datetime.UTC is timezone.utc`）。项目声明
+`requires-python = ">=3.12"`，ruff 也配了 `target-version = "py312"`，
+没有理由为一个已经不存在的约束保留旧拼法。
+
+**同一次 ruff --fix 也误伤了 vendor 代码，见 D014。**
 
 ---
 
@@ -204,62 +211,6 @@ CI 和其他开发者仍应使用 `make test`。本次报告的测试数字来�
 **理由**：与项目既有做法一致 —— `test_tool_error_handling_middleware.py`、
 `test_view_image_middleware.py` 都是这么写的（文件名里的 `core_logic` 就是这个意思）。
 起真实 graph 需要模型服务，不适合放进单测。
-
----
-
-## 已阻塞项汇总
-
-### B001 · 线上 `features` 键名与训练样本是否同构（计划 §11 风险 4）
-
-**状态**：未验证，非本次实施能解决。
-
-**原因**：需要跑一次真实的 skill 调用链路，拿到真实 `SkillResult`，
-人工核对其 `evidence[].metadata` 展开出来的字段路径是否与 0624 训练样本的
-`features` 键名同构。这需要：
-- 运行中的 LangGraph Server + Gateway（本机无 `uv`，无法 `make dev`）
-- 配好的模型服务（`config.yaml` 指向 `192.168.200.1` 的内网地址）
-- 至少一个会返回结构化 evidence 的真实 skill
-
-**已做的缓解**：
-1. `SkillResultNormalizer` 的展开规则严格按指南 §1.2.3 实现，
-   并用构造的 SkillResult 做了单测（`test_compliance_normalizers.py`）
-2. `scripts/run_compliance_gate_eval.py` 支持 `--dump-features`，
-   上线前可以直接把线上 SkillResult 喂进去看展开结果
-3. 键名不匹配不会静默失效 —— 模型会给出低相似度，检测器降级为 `low` 严重度、
-   走人工复核，`evidence.top_similarity` 会明确记录相似度值
-
-**建议解法**：上线前跑
-`python3 scripts/run_compliance_gate_eval.py --dump-features --input <真实SkillResult.jsonl>`，
-把输出的 feature 键名与 `datasets/compliance/normalized/0624_supported_split/train.jsonl`
-里的 `features` 键名做人工对照。若大面积不匹配，需要在
-`SkillResultNormalizer` 里加一层键名映射表。
-
-### B002 · `make test` 无法在本机原样执行
-
-**状态**：已绕过，但 `make test` 这条命令本身在本机跑不通。
-
-**原因**：见 D008 —— 无 `uv`、`.venv` 为空且属主 root、系统 Python 版本不符。
-
-**已做的缓解**：自建等价的 Python 3.12 环境跑全量测试，
-命令等价于 `PYTHONPATH=. pytest tests/`（`make test` 只是多了 `uv run` 和 `-v`）。
-
-**建议解法**：`curl -LsSf https://astral.sh/uv/install.sh | sh` 装 uv，
-然后 `cd backend && make install`。或者修复 `backend/.venv` 的属主
-（`sudo chown -R $USER backend/.venv`）。
-
-### B003 · IM 渠道撤回适配未做端到端验证（计划 §11 风险 7）
-
-**状态**：代码路径已分析并做了适配，但没有真实 IM 环境可验证。
-
-**原因**：需要真实的 Feishu / Slack / Telegram 应用凭证和可达的回调地址。
-
-**已做的缓解**：见 P3 小节的说明 —— Slack/Telegram 走 `runs.wait()`
-拿最终结果，`after_model` 改写后的 AIMessage 本身就是最终结果，天然不受影响；
-Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也是改写后的内容。
-两条路径都不依赖 `compliance_retract` 自定义事件。
-
-**建议解法**：配好任一 IM 渠道后，构造一条会触发 `re_identify` 的问题，
-确认最终卡片/消息里不含违规原文。
 
 ---
 
@@ -402,3 +353,59 @@ feature_extractor.py  holdout_split.py  io_utils.py  tfidf_knn.py
 
 **理由**：只加注释说"别改这个目录"是不够的 —— 事实证明工具会自己改。
 把不变式变成配置 + 测试，才拦得住。
+
+---
+
+## 已阻塞项汇总
+
+### B001 · 线上 `features` 键名与训练样本是否同构（计划 §11 风险 4）
+
+**状态**：未验证，非本次实施能解决。
+
+**原因**：需要跑一次真实的 skill 调用链路，拿到真实 `SkillResult`，
+人工核对其 `evidence[].metadata` 展开出来的字段路径是否与 0624 训练样本的
+`features` 键名同构。这需要：
+- 运行中的 LangGraph Server + Gateway（本机无 `uv`，无法 `make dev`）
+- 配好的模型服务（`config.yaml` 指向 `192.168.200.1` 的内网地址）
+- 至少一个会返回结构化 evidence 的真实 skill
+
+**已做的缓解**：
+1. `SkillResultNormalizer` 的展开规则严格按指南 §1.2.3 实现，
+   并用构造的 SkillResult 做了单测（`test_compliance_normalizers.py`）
+2. `scripts/run_compliance_gate_eval.py` 支持 `--dump-features`，
+   上线前可以直接把线上 SkillResult 喂进去看展开结果
+3. 键名不匹配不会静默失效 —— 模型会给出低相似度，检测器降级为 `low` 严重度、
+   走人工复核，`evidence.top_similarity` 会明确记录相似度值
+
+**建议解法**：上线前跑
+`python3 scripts/run_compliance_gate_eval.py --dump-features --input <真实SkillResult.jsonl>`，
+把输出的 feature 键名与 `datasets/compliance/normalized/0624_supported_split/train.jsonl`
+里的 `features` 键名做人工对照。若大面积不匹配，需要在
+`SkillResultNormalizer` 里加一层键名映射表。
+
+### B002 · `make test` 无法在本机原样执行
+
+**状态**：已绕过，但 `make test` 这条命令本身在本机跑不通。
+
+**原因**：见 D008 —— 无 `uv`、`.venv` 为空且属主 root、系统 Python 版本不符。
+
+**已做的缓解**：自建等价的 Python 3.12 环境跑全量测试，
+命令等价于 `PYTHONPATH=. pytest tests/`（`make test` 只是多了 `uv run` 和 `-v`）。
+
+**建议解法**：`curl -LsSf https://astral.sh/uv/install.sh | sh` 装 uv，
+然后 `cd backend && make install`。或者修复 `backend/.venv` 的属主
+（`sudo chown -R $USER backend/.venv`）。
+
+### B003 · IM 渠道撤回适配未做端到端验证（计划 §11 风险 7）
+
+**状态**：代码路径已分析并做了适配，但没有真实 IM 环境可验证。
+
+**原因**：需要真实的 Feishu / Slack / Telegram 应用凭证和可达的回调地址。
+
+**已做的缓解**：见 P3 小节的说明 —— Slack/Telegram 走 `runs.wait()`
+拿最终结果，`after_model` 改写后的 AIMessage 本身就是最终结果，天然不受影响；
+Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也是改写后的内容。
+两条路径都不依赖 `compliance_retract` 自定义事件。
+
+**建议解法**：配好任一 IM 渠道后，构造一条会触发 `re_identify` 的问题，
+确认最终卡片/消息里不含违规原文。
