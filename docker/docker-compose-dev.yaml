@@ -120,6 +120,13 @@ services:
       - ../extensions_config.json:/app/extensions_config.json
       - ../skills:/app/skills
       - ../logs:/app/logs
+      # Compliance detection assets. Without these the engine cannot build, and
+      # because it builds lazily on the request path with fail_mode=closed, the
+      # gates would refuse EVERY answer and every tool result — a full outage
+      # from a missing mount. `models/compliance/` is gitignored: run
+      # `make compliance-assets` on the host first or this mounts an empty dir.
+      - ../models:/app/models
+      - ../config:/app/config
       # Mount uv cache for faster dependency installation
       - ~/.cache/uv:/root/.cache/uv
       # DooD: same as gateway — AioSandboxProvider runs inside LangGraph process.
@@ -156,6 +163,13 @@ services:
       - ../extensions_config.json:/app/extensions_config.json
       - ../skills:/app/skills
       - ../logs:/app/logs
+      # Compliance detection assets. Without these the engine cannot build, and
+      # because it builds lazily on the request path with fail_mode=closed, the
+      # gates would refuse EVERY answer and every tool result — a full outage
+      # from a missing mount. `models/compliance/` is gitignored: run
+      # `make compliance-assets` on the host first or this mounts an empty dir.
+      - ../models:/app/models
+      - ../config:/app/config
       # Mount uv cache for faster dependency installation
       - ~/.cache/uv:/root/.cache/uv
       # DooD: same as gateway — AioSandboxProvider runs inside LangGraph process.

@@ -93,6 +93,15 @@ class ComplianceConfig(BaseModel):
     """Top-level compliance configuration."""
 
     enabled: bool = Field(default=False, description="Master switch. Off by default so an incomplete rollout cannot half-block traffic.")
+    strict_startup: bool = Field(
+        default=False,
+        description=(
+            "What to do when the startup canary fails (missing model weights, unreadable policy matrix, ...). "
+            "False: log CRITICAL and mount no gates, so the app keeps working with compliance visibly off. "
+            "True: refuse to start. Use True where running unprotected is worse than not running at all. "
+            "This is about *installation* failures; runtime detection failures still follow each gate's fail_mode."
+        ),
+    )
     gates: GatesConfig = Field(default_factory=GatesConfig)
     detectors_config_path: str = Field(default="config/compliance/detectors.yaml")
     policy_matrix_path: str = Field(default="config/compliance/policy_matrix.yaml")

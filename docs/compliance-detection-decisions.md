@@ -456,3 +456,57 @@ Feishu 走 `runs.stream()` 并原地 patch 卡片，最后一次 patch 用的也
 
 **教训**：单测隔离得越干净，越容易把"每块都对"误当成"接起来是对的"。
 桩测试和真集成测试是两种东西，两个都要有。
+
+---
+
+## 2026-07-27 · R0/D016 容器缺失合规资产挂载 —— 一个配置疏漏会导致全站故障
+
+**问题**：准备在运行中的服务上打开合规检测前，实测容器内 `/app` 只有
+`backend / config.yaml / extensions_config.json / logs / skills`，
+**`models/`、`config/`、`datasets/` 都没挂载**。容器内实测：
+
+```
+BUILD FAILED -> PolicyMatrixError policy matrix file not found: /app/config/compliance/policy_matrix.yaml
+```
+
+**为什么这是全站故障而不是"合规不生效"**：
+`get_engine()` 是在**请求路径上惰性构建**的。两道闸都会 catch 异常 →
+`failure_decision()` → `fail_mode: closed` → `refuse`。所以直接
+`enabled: true` 的后果是**每条回答和每条工具结果都被替换成【合规检查失败】**。
+一个 volume 少写两行，表现为整个产品停止回答，而且日志会把锅甩给"合规检测"。
+
+**决定**：三件事一起做。
+
+1. `docker/docker-compose-dev.yaml` 给 `langgraph` 和 `gateway` 补
+   `../models:/app/models` 和 `../config:/app/config`
+   （gateway 也需要 —— `uploads.py` 调 `scan_upload_paths`）
+2. 新增 `deerflow/compliance/preflight.py`：**启动期 canary 自检**
+3. 新增 `compliance.strict_startup` 配置项（默认 `false`）
+
+**为什么必须是 canary 而不是只 `build_engine()`**：模型权重是**懒加载**的，
+`_ensure_model()` 在第一次 `detect()` 才读文件。而 `config/compliance/*.yaml` 入库、
+`models/compliance/` 是 gitignore 的 —— 新克隆的环境会出现
+"引擎构建成功、第一次真实请求才 FileNotFoundError"。只构建不检测的自检抓不到它。
+canary 真跑一条无害样本过每道启用的闸，把懒加载提前到启动期。
+
+**语义边界**（这是本条的核心）：
+`fail_mode: closed` 的本意是"**这条内容**判不了，宁可拦住"，
+**不是**"系统没装好，所以拦住所有人"。当前把两者混为一谈了。
+所以自检失败时默认**不挂载闸门** + CRITICAL 日志（应用照常工作，问题在日志里嚷嚷），
+`strict_startup: true` 才改为拒绝启动。运行期的检测失败仍然 fail closed，语义不变。
+
+**测试写出来的一个真 bug**：`build_compliance_flow_middlewares()` 外层的
+`except Exception` 会把 `strict_startup` 抛出的异常吞掉，导致该选项**完全无效**。
+已引入专用异常 `ComplianceStartupError` 并在外层 `except` 之前重新抛出。
+这正是"写测试断言行为而不是断言实现"的价值。
+
+**顺带纠正一处环境认知**：运行中的 compose 项目名是 **`docker`**（取自目录名），
+不是 Makefile 暗示的 `qwen36test-deer-flow-dev`；网络是 `docker_deer-flow-dev`。
+用错项目名会触发新建网络，而这台机器上已有十几个别人的 deer-flow 网络，
+子网分配会冲突报错（幸好是在创建网络阶段失败，没有破坏运行中的容器）。
+正确命令：`cd docker && docker compose -p docker -f docker-compose-dev.yaml up -d --no-build <svc>`。
+操作前先加 `--dry-run` 确认只动预期的容器。
+
+**遗留**：生产 compose `docker/docker-compose.yaml` 有**同样的缺失**，
+且它不 bind-mount `backend/`（代码烤进镜像），gitignore 的模型权重需要独立的卷或构建步骤。
+本阶段不解决，记在此处。

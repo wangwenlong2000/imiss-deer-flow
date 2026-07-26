@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import Awaitable, Callable
-from typing import override
+from typing import Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -14,6 +14,15 @@ from langgraph.types import Command
 logger = logging.getLogger(__name__)
 
 _MISSING_TOOL_CALL_ID = "missing_tool_call_id"
+
+
+class ComplianceStartupError(RuntimeError):
+    """Raised when the compliance preflight fails and ``strict_startup`` is set.
+
+    Distinct from a generic exception so the guarded builder can let it through
+    instead of degrading to "run without gates" — which would make the option a
+    no-op.
+    """
 
 
 class ToolErrorHandlingMiddleware(AgentMiddleware[AgentState]):
@@ -129,6 +138,9 @@ def build_compliance_flow_middlewares() -> list[AgentMiddleware]:
         if not config.enabled:
             return []
 
+        if not _compliance_preflight_passed(config):
+            return []
+
         from deerflow.agents.middlewares.compliance_context_gate_middleware import ComplianceContextGateMiddleware
         from deerflow.agents.middlewares.compliance_output_gate_middleware import ComplianceOutputGateMiddleware
 
@@ -138,9 +150,59 @@ def build_compliance_flow_middlewares() -> list[AgentMiddleware]:
         if config.gates.context.enabled:
             gates.append(ComplianceContextGateMiddleware())
         return gates
+    except ComplianceStartupError:
+        # strict_startup was requested: the deployment has declared that running
+        # unprotected is worse than not running. Must not be swallowed below.
+        raise
     except Exception:
         logger.exception("compliance: failed to build gate middlewares; agent will run WITHOUT compliance context/output gates")
         return []
+
+
+#: Preflight runs once per process, not once per agent build.
+_preflight_ok: bool | None = None
+
+
+def _compliance_preflight_passed(config: Any) -> bool:
+    """Run the startup canary once; decide whether gates may mount.
+
+    An *installation* failure (missing model weights, unreadable policy matrix)
+    must not present as "refuse every request". Without this check it would:
+    the engine builds lazily on the request path, and with ``fail_mode: closed``
+    every raise becomes a refusal. See ``deerflow.compliance.preflight``.
+
+    Raises only when ``strict_startup`` is set — the deployment has then declared
+    that running unprotected is worse than not running.
+    """
+    global _preflight_ok
+    if _preflight_ok is not None:
+        return _preflight_ok
+
+    from deerflow.compliance.preflight import run_preflight
+
+    result = run_preflight()
+    if result.ok:
+        logger.info("compliance: %s", result.describe())
+        _preflight_ok = True
+        return True
+
+    logger.critical(
+        "compliance: %s\ncompliance gates will NOT be mounted — traffic is UNPROTECTED. "
+        "Most likely cause: `models/compliance/` or `config/compliance/` is not present "
+        "(model weights are gitignored; run `make compliance-assets`, and in Docker check "
+        "that both directories are mounted into the container).",
+        result.describe(),
+    )
+    _preflight_ok = False
+    if getattr(config, "strict_startup", False):
+        raise ComplianceStartupError(f"compliance strict_startup is set and the preflight failed: {result.describe()}")
+    return False
+
+
+def reset_compliance_preflight() -> None:
+    """Clear the cached preflight verdict (tests, config reload)."""
+    global _preflight_ok
+    _preflight_ok = None
 
 
 def build_compliance_input_gate_middlewares() -> list[AgentMiddleware]:
