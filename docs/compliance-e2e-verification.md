@@ -228,6 +228,21 @@ docker exec qwen36test-deer-flow-frontend sh -c "cd /app/frontend && node --test
 i18n 加了新违规类型会**编译失败**（`Record<Union,string>` 强制两个 locale 同步）——
 在没有前端测试框架的仓库里，这个编译错误就是测试。
 
+### 在**真实部署版本**上跑后端测试（重要）
+
+宿主上自建的测试环境版本可能与 `uv.lock` 不一致（实测差过好几个次版本）。
+凡是依赖 langchain 内部实现的改动，**必须在容器里验证**：
+
+```bash
+docker exec qwen36test-deer-flow-langgraph sh -c \
+  'cd /app/backend && LANGSMITH_TRACING=false PYTHONPATH=.:packages/harness \
+   /app/backend/.venv/bin/python -m pytest tests/test_compliance_*.py -q'
+```
+
+预期：`385 passed, 4 failed, 23 skipped`。
+4 个失败与 23 个跳过**都是文件未挂载**导致的（`scripts/`、`config.example.yaml`、
+`datasets/` 运行时不需要，故未挂载），不是逻辑失败。
+
 ### 还没验证的
 
 **React 组件的实际渲染效果没有自动化验证** —— 本仓库没有前端测试框架，

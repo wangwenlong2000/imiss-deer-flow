@@ -643,3 +643,57 @@ messages contains secret          : False
 
 **建议实施时机**：`SceneResolver` 接入、强处置成为常态之后再做，
 届时收益明确，也能顺带解决"只扫最终回答、不扫内部 LLM 调用"的判别问题。
+
+---
+
+## 2026-07-27 · D020 测试环境版本与 `uv.lock` 不一致（被追问后自查发现）
+
+**问题**：被追问"是不是真跑了测试"后自查，发现一个我此前**没有注意到**的问题 ——
+scratchpad 里自建的 Python 3.12 环境是用 `pip install` 装的，
+版本与 `uv.lock` 锁定的**不一致**：
+
+| 包 | scratchpad（我跑测试用的） | uv.lock / 容器（真实部署） |
+|---|---|---|
+| langchain | 1.3.14 | **1.2.3** |
+| langgraph | 1.2.9 | **1.0.10** |
+| langchain-core | 1.5.1 | **1.2.17** |
+| pydantic | 2.13.4 | **2.12.5** |
+
+**为什么这很要紧**：R1 的修复直接依赖 langchain 内部实现 ——
+`wrap_model_call` 的组合顺序、`_build_commands` 做 `{"messages": response.result}`、
+`ModelResponse` 的 dataclass 结构。这些我是读 **1.3.14** 的源码确认的，
+而线上跑的是 **1.2.3**。版本行为若有差异，修复可能在真实部署里根本不生效。
+
+**补做的验证**：直接在**运行中的容器**里（即 uv.lock 锁定的真实环境）跑测试。
+
+```
+容器内 (langchain 1.2.3)：385 passed, 4 failed, 23 skipped
+  4 failed  —— 全部是文件缺失，非逻辑失败：
+              /app/scripts/ 与 /app/config.example.yaml 未挂载
+              （运行时不需要，只有测试需要）
+  23 skipped —— datasets/ 未挂载（有意不挂，运行时不需要）
+
+R1 修复的核心测试单独跑：
+  test_compliance_output_gate_isolation.py  9 passed  ← 全部通过
+  含按 spy 位置参数化的三种排布，全部证明"任何中间件位置都打不开洞"
+```
+
+**结论**：R1 修复在**真实部署的 langchain 1.2.3 上确实生效**，不是只在新版本上成立。
+另外 R5 的端到端验证本来就是在容器里跑的（真实 DashScope 对话 + raw_messages 核查），
+那本身就是 1.2.3 上的经验证据。
+
+**教训与改进**：
+1. 自建测试环境时应当**按 `uv.lock` 装版本**，而不是 `pip install <pkg>` 拿最新的。
+   本次侥幸没出问题，但这是运气，不是方法。
+2. 凡是依赖第三方库**内部实现**的改动（本次的 `wrap_model_call` 组合顺序就是），
+   必须在**部署实际使用的版本**上验证，不能只读文档或读另一个版本的源码。
+3. 汇报测试结果时应当同时说明**跑在什么环境、什么版本**。
+   上一次汇报只给了数字（"1149 passed"），没有重复这个前提，是表述上的疏漏。
+
+**推荐的验证命令**（在真实环境里跑，写进 e2e 手册）：
+
+```bash
+docker exec qwen36test-deer-flow-langgraph sh -c \
+  'cd /app/backend && PYTHONPATH=.:packages/harness \
+   /app/backend/.venv/bin/python -m pytest tests/test_compliance_*.py -q'
+```
