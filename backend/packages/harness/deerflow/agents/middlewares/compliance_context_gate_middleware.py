@@ -32,12 +32,8 @@ import copy
 import json
 import logging
 import uuid
-from typing import Any, Awaitable, Callable
-
-try:
-    from typing import override
-except ImportError:  # pragma: no cover - Python < 3.12
-    from typing_extensions import override
+from collections.abc import Awaitable, Callable
+from typing import Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -82,8 +78,8 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
     def wrap_tool_call(
         self,
         request: ToolCallRequest,
-        handler: Callable[[ToolCallRequest], "ToolMessage | Any"],
-    ) -> "ToolMessage | Any":
+        handler: Callable[[ToolCallRequest], ToolMessage | Any],
+    ) -> ToolMessage | Any:
         message = handler(request)
         return self._inspect(message, request)
 
@@ -91,8 +87,8 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
     async def awrap_tool_call(
         self,
         request: ToolCallRequest,
-        handler: Callable[[ToolCallRequest], Awaitable["ToolMessage | Any"]],
-    ) -> "ToolMessage | Any":
+        handler: Callable[[ToolCallRequest], Awaitable[ToolMessage | Any]],
+    ) -> ToolMessage | Any:
         message = await handler(request)
         return self._inspect(message, request)
 
@@ -277,7 +273,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
         )
 
 
-def _mask_mapping(mapping: dict[str, Any], located: "set[str]", *, prefix: str) -> None:
+def _mask_mapping(mapping: dict[str, Any], located: set[str], *, prefix: str) -> None:
     """Star out mapping values whose dotted path was reported as risky."""
     for key, value in list(mapping.items()):
         path = f"{prefix}.{key}"

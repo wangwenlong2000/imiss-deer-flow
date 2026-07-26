@@ -13,7 +13,8 @@ from __future__ import annotations
 import json
 import logging
 import subprocess
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from deerflow.compliance.adapters.serde import hits_from_json, request_to_json
 from deerflow.compliance.contract import ContractError, DetectContext, DetectionHit, DetectionUnit
@@ -26,7 +27,7 @@ class SubprocessCliAdapter:
 
     adapter_name = "subprocess_cli"
 
-    def __init__(self, detector_id: str, command: "Sequence[str]", params: Mapping[str, Any], *, timeout_ms: int = 2000, cwd: str | None = None, env: Mapping[str, str] | None = None) -> None:
+    def __init__(self, detector_id: str, command: Sequence[str], params: Mapping[str, Any], *, timeout_ms: int = 2000, cwd: str | None = None, env: Mapping[str, str] | None = None) -> None:
         if not command:
             raise ValueError(f"detector {detector_id}: `command` is required for the subprocess_cli adapter")
         self.detector_id = detector_id

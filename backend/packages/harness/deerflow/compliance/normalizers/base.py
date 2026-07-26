@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import itertools
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Any
 
 from deerflow.compliance.contract import DetectionUnit, FieldItem, Gate, TextItem
 
@@ -50,7 +51,7 @@ def flatten_fields(
     *,
     prefix: str,
     source: str,
-    counter: "itertools.count[int] | None" = None,
+    counter: itertools.count[int] | None = None,
     max_depth: int = 6,
 ) -> list[FieldItem]:
     """Flatten a nested structure into dotted-path ``FieldItem`` objects.
@@ -87,7 +88,7 @@ def flatten_fields(
     return items
 
 
-def make_text_items(texts: Iterable[tuple[str, str]], *, counter: "itertools.count[int] | None" = None) -> tuple[TextItem, ...]:
+def make_text_items(texts: Iterable[tuple[str, str]], *, counter: itertools.count[int] | None = None) -> tuple[TextItem, ...]:
     """Build ``TextItem`` objects from ``(source, text)`` pairs, skipping blanks."""
     counter = counter if counter is not None else itertools.count(1)
     items: list[TextItem] = []
@@ -103,8 +104,8 @@ def build_unit(
     unit_id: str,
     gate: Gate,
     data_type: str | None,
-    text_items: "Sequence[TextItem]",
-    field_items: "Sequence[FieldItem]",
+    text_items: Sequence[TextItem],
+    field_items: Sequence[FieldItem],
     raw: Mapping[str, Any] | None = None,
 ) -> DetectionUnit:
     return DetectionUnit(

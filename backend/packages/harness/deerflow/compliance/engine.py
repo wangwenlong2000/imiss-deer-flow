@@ -27,9 +27,10 @@ import copy
 import logging
 import time
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Sequence
+from typing import Any
 
 from deerflow.compliance.audit import Auditor, NullAuditor
 from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, Gate
@@ -80,7 +81,7 @@ class ComplianceEngine:
 
     def check(
         self,
-        units: "Sequence[DetectionUnit]",
+        units: Sequence[DetectionUnit],
         *,
         gate: Gate,
         request_id: str | None = None,
@@ -176,7 +177,7 @@ class ComplianceEngine:
 
     def _detect_all(
         self,
-        units: "tuple[DetectionUnit, ...]",
+        units: tuple[DetectionUnit, ...],
         ctx: DetectContext,
         request: DetectionRequest,
         diagnostics: Diagnostics,

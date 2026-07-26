@@ -29,10 +29,10 @@ _COST_ORDER = {"light": 0, "medium": 1, "heavy": 2}
 class DetectorRouter:
     """Resolve the candidate detector set for a unit at a gate."""
 
-    def __init__(self, registry: "DetectorRegistry") -> None:
+    def __init__(self, registry: DetectorRegistry) -> None:
         self._registry = registry
 
-    def candidates(self, unit: DetectionUnit, gate: Gate) -> tuple["DetectorRegistration", ...]:
+    def candidates(self, unit: DetectionUnit, gate: Gate) -> tuple[DetectorRegistration, ...]:
         """Detectors that declare *gate* and accept the unit's data type."""
         selected = [
             registration
@@ -55,7 +55,7 @@ class DetectorRouter:
                     covered.add(violation_type)
         return tuple(sorted(covered))
 
-    def allows(self, registration: "DetectorRegistration", violation_type: str, gate: Gate) -> bool:
+    def allows(self, registration: DetectorRegistration, violation_type: str, gate: Gate) -> bool:
         """Whether *registration* may report *violation_type* at *gate*.
 
         Applied to results as well as to routing: the guide pins some violation

@@ -14,9 +14,9 @@ conservative.
 from __future__ import annotations
 
 import logging
-from typing import Iterable
+from collections.abc import Iterable
 
-from deerflow.compliance.contract import DetectionHit, RiskLocation
+from deerflow.compliance.contract import DetectionHit
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +142,7 @@ _TRANSFORMERS = {
 }
 
 
-def apply_actions(text: str, actions: "Iterable[str]", hits: Iterable[DetectionHit]) -> str | None:
+def apply_actions(text: str, actions: Iterable[str], hits: Iterable[DetectionHit]) -> str | None:
     """Apply the strongest payload-changing action in *actions*.
 
     Only one transformation runs: chaining ``desensitize`` into ``rewrite`` would

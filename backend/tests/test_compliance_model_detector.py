@@ -274,3 +274,44 @@ def test_detector_never_mutates_the_unit() -> None:
     before = (unit.unit_id, unit.gate, unit.data_type, unit.text_items, unit.field_items)
     _detector().detect(unit, _ctx())
     assert (unit.unit_id, unit.gate, unit.data_type, unit.text_items, unit.field_items) == before
+
+
+# ── vendor integrity ────────────────────────────────────────────────────────
+
+
+def test_vendor_code_is_unmodified() -> None:
+    """Vendored delivery code must stay byte-identical to what was shipped.
+
+    Not hypothetical: `ruff check --fix` silently rewrote four of these files
+    (UP035/UP037 modernizations in tfidf_knn.py, feature_extractor.py,
+    io_utils.py, holdout_split.py) during this feature's development. A
+    lint-mangled model implementation is exactly the kind of change nobody
+    notices until accuracy quietly drops.
+
+    `backend/ruff.toml` now excludes the vendor directory; this test is the
+    backstop. Regenerate with `make compliance-assets` after a package upgrade.
+    """
+    import hashlib
+
+    vendor_root = REPO_ROOT / "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor"
+    sums_file = vendor_root / "SHA256SUMS"
+    assert sums_file.is_file(), "vendor/SHA256SUMS missing; run `make compliance-assets`"
+
+    modified = []
+    for line in sums_file.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        expected, _, name = line.partition("  ")
+        target = vendor_root / "model_detectors" / name.strip()
+        assert target.is_file(), f"vendor file missing: {name}"
+        actual = hashlib.sha256(target.read_bytes()).hexdigest()
+        if actual != expected:
+            modified.append(name.strip())
+
+    assert not modified, f"vendor code was modified: {modified}. Restore with `make compliance-assets`; fixes belong upstream in the delivery package."
+
+
+def test_ruff_excludes_the_vendor_directory() -> None:
+    """The preventive half of the guard above."""
+    config = (REPO_ROOT / "backend/ruff.toml").read_text(encoding="utf-8")
+    assert "vendor/" in config, "backend/ruff.toml must exclude vendored code from linting"

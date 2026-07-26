@@ -14,7 +14,8 @@ from __future__ import annotations
 import itertools
 import json
 import logging
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from deerflow.compliance.contract import DetectionUnit, Gate
 from deerflow.compliance.normalizers.base import Normalizer, build_unit, flatten_fields, make_text_items

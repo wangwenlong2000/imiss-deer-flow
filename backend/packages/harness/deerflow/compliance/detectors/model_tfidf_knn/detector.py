@@ -31,8 +31,9 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from deerflow.compliance.contract import (
     DetectContext,
@@ -240,7 +241,7 @@ class ModelTfidfKnnDetector:
         return "low"
 
     @staticmethod
-    def _locate(unit: DetectionUnit, evidence_features: "Sequence[Mapping[str, Any]]") -> tuple[RiskLocation, ...]:
+    def _locate(unit: DetectionUnit, evidence_features: Sequence[Mapping[str, Any]]) -> tuple[RiskLocation, ...]:
         """Point at the fields that drove the decision.
 
         The classifier scores a whole row, so there is no exact span to report.

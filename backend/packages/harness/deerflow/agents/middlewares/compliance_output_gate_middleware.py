@@ -52,12 +52,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import Any
-
-try:
-    from typing import override
-except ImportError:  # pragma: no cover - Python < 3.12
-    from typing_extensions import override
+from typing import Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -100,16 +95,16 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
     # ── hooks ───────────────────────────────────────────────────────────────
 
     @override
-    def after_model(self, state: AgentState, runtime: Runtime) -> "dict[str, Any] | None":
+    def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         return self._process(state)
 
     @override
-    async def aafter_model(self, state: AgentState, runtime: Runtime) -> "dict[str, Any] | None":
+    async def aafter_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         return self._process(state)
 
     # ── core ────────────────────────────────────────────────────────────────
 
-    def _process(self, state: AgentState) -> "dict[str, Any] | None":
+    def _process(self, state: AgentState) -> dict[str, Any] | None:
         if not gate_enabled(GATE):
             return None
 
@@ -168,7 +163,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     # ── incremental scanning (layer 1) ──────────────────────────────────────
 
-    def scan_increment(self, message_id: str, accumulated_text: str) -> "ComplianceDecision | None":
+    def scan_increment(self, message_id: str, accumulated_text: str) -> ComplianceDecision | None:
         """Scan a partially generated answer; return a decision when it violates.
 
         Called by the streaming layer as tokens accumulate. Returns ``None`` until
@@ -220,7 +215,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         self.emit_retract_event(message, replacement, decision)
         return {"messages": [self._rewritten(message, replacement, decision)]}
 
-    def _notice_only(self, message: AIMessage, decision: ComplianceDecision) -> "dict[str, Any] | None":
+    def _notice_only(self, message: AIMessage, decision: ComplianceDecision) -> dict[str, Any] | None:
         """warn / manual_review: keep the answer, append the compliance notice."""
         text = extract_text(message.content)
         annotated = f"{text}\n\n{user_notice(decision)}"
@@ -281,7 +276,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         )
 
     @staticmethod
-    def _last_ai_message(state: AgentState) -> "AIMessage | None":
+    def _last_ai_message(state: AgentState) -> AIMessage | None:
         messages = (state or {}).get("messages") or []
         for message in reversed(messages):
             if isinstance(message, AIMessage):

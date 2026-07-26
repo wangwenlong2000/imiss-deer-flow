@@ -21,7 +21,6 @@ from deerflow.agents.middlewares.compliance_context_gate_middleware import Compl
 from deerflow.agents.middlewares.compliance_input_gate_middleware import ComplianceInputGateMiddleware
 from deerflow.agents.middlewares.compliance_output_gate_middleware import ComplianceOutputGateMiddleware
 from deerflow.agents.middlewares.tool_error_handling_middleware import (
-    ToolErrorHandlingMiddleware,
     build_compliance_flow_middlewares,
     build_compliance_input_gate_middlewares,
     build_lead_runtime_middlewares,

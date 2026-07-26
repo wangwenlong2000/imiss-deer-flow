@@ -100,6 +100,12 @@ Regression tests related to Docker/provisioner behavior:
 Boundary check (harness → app import firewall):
 - `tests/test_harness_boundary.py` — ensures `packages/harness/deerflow/` never imports from `app.*`
 
+Compliance detection regression tests:
+- `tests/test_compliance_decoupling.py` — AST scan: the engine core must never import a concrete detector
+- `tests/test_compliance_row_builder.py` — the `content_text` rule reproduces all 282 annotated rows with zero prediction drift
+- `tests/test_compliance_policy_matrix.py` — matrix completeness; the three baseline violation types refuse in every scene
+- `tests/test_compliance_gates.py` — the three gate mount positions and `fail_mode` semantics
+
 CI runs these regression tests for every pull request via [.github/workflows/backend-unit-tests.yml](../.github/workflows/backend-unit-tests.yml).
 
 ## Architecture
@@ -163,6 +169,13 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
 9. **ViewImageMiddleware** - Injects base64 image data before LLM call (conditional on vision support)
 10. **SubagentLimitMiddleware** - Truncates excess `task` tool calls from model response to enforce `MAX_CONCURRENT_SUBAGENTS` limit (optional, if subagent_enabled)
 11. **ClarificationMiddleware** - Intercepts `ask_clarification` tool calls, interrupts via `Command(goto=END)` (must be last)
+
+**Compliance gates** (optional, only when `compliance.enabled: true` in `config.yaml`) are mounted outside this chain:
+
+- **ComplianceOutputGateMiddleware** and **ComplianceContextGateMiddleware** are inserted at the **front** of the list by `build_lead_runtime_middlewares()`. Position is load-bearing in two ways: `wrap_tool_call` composes first-in-list as outermost (so the context gate sits *outside* `ToolErrorHandlingMiddleware`, which would otherwise swallow detection failures into an error ToolMessage), and `after_model` executes in **reverse** list order (so the output gate is the last component to rewrite the `AIMessage`).
+- **ComplianceInputGateMiddleware** is appended **after** `IntentRecognitionMiddleware` in `_build_middlewares()`, because `before_agent` runs in forward order and the input gate needs the recognized intent to apply the "sensitive entity + high-risk intent" rule.
+
+`tests/test_compliance_gates.py` asserts all three positions.
 
 ### Configuration System
 
@@ -337,6 +350,45 @@ Bridges external messaging platforms (Feishu, Slack, Telegram) to the DeerFlow a
 - `max_facts` / `fact_confidence_threshold` - Fact storage limits (100 / 0.7)
 - `max_injection_tokens` - Token limit for prompt injection (2000)
 
+### Compliance Detection (`packages/harness/deerflow/compliance/`)
+
+Violation detection across three gates, sharing one engine, one detector set and one disposition matrix. **Disabled by default** (`compliance.enabled: false`).
+
+**Layout**:
+
+| Module | Responsibility |
+|--------|----------------|
+| `contract.py` | The detector boundary — the *only* module detector authors import. Standard library only, frozen dataclasses, exports its own JSON Schema. |
+| `engine.py` | Orchestration: normalize → route → detect → intent → policy → audit |
+| `registry.py` | Discovers `detectors/*/manifest.yaml`; the only module that loads concrete detectors |
+| `router.py` | Candidate selection by `gate × data_type × cost` |
+| `policy.py` | `violation × gate × scene → actions`, loaded from `config/compliance/policy_matrix.yaml` |
+| `scene.py` | `SceneResolver` seam; phase 1 returns `None` and the matrix falls back to its `_unknown` column |
+| `intent.py` | Combines hits with recognized intent at the input gate (a keyword hit alone is not a violation) |
+| `actions.py` | Disposition executors (mask / rewrite / aggregate / refuse) |
+| `audit.py` | JSONL determination trail including the compliance basis |
+| `adapters/` | `inprocess` \| `subprocess_cli` \| `http_service` — identical to the engine |
+| `normalizers/` | Source payload → `DetectionUnit`, one per gate |
+| `detectors/` | Self-contained detector packages, each with its own `manifest.yaml` |
+
+**Decoupling is enforced, not just documented**: `tests/test_compliance_decoupling.py` AST-scans `engine.py` / `router.py` / `policy.py` and fails if any of them imports a concrete detector. Adding a detector requires no change to any file above `detectors/`.
+
+**Shipped detector**: `model_tfidf_knn` covers violation types 8/9/10 (`video_meta_leak` / `re_identify` / `domain`). Pure-standard-library TF-IDF + kNN; measured `accuracy=0.9821`, `macro_f1=0.9859` on the 0624 test split at ~12 ms/row.
+
+**Commands**:
+
+```bash
+make compliance-assets                # unpack + SHA256 verify + distribute the delivery package
+make compliance-verify-content-text   # CI gate: 282/282 content_text reproduction
+make compliance-eval-model            # reproduce the offline baseline
+make compliance-eval-gates            # end-to-end, four metric groups
+make compliance-export-schema         # export the detector contract as JSON Schema
+```
+
+Model weights (`models/compliance/*.json`, 6.7–11.7 MB) are gitignored and rebuilt by `make compliance-assets`.
+
+**Adding a detector**: see [docs/compliance-detector-integration-guide.md](../docs/compliance-detector-integration-guide.md).
+
 ### Reflection System (`packages/harness/deerflow/reflection/`)
 
 - `resolve_variable(path)` - Import module and return variable (e.g., `module.path:variable_name`)
@@ -354,6 +406,7 @@ Bridges external messaging platforms (Feishu, Slack, Telegram) to the DeerFlow a
 - `summarization` - Context summarization (enabled, trigger conditions, keep policy)
 - `subagents.enabled` - Master switch for subagent delegation
 - `memory` - Memory system (enabled, storage_path, debounce_seconds, model_name, max_facts, fact_confidence_threshold, injection_enabled, max_injection_tokens)
+- `compliance` - Violation detection (enabled, per-gate `fail_mode`/`budget_ms`/`max_units`, output-gate `incremental_scan`, detector and policy matrix paths, scene resolver, audit)
 
 **`extensions_config.json`**:
 - `mcpServers` - Map of server name → config (enabled, type, command, args, env, url, headers, oauth, description)

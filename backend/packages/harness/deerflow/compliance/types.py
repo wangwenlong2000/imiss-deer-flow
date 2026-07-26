@@ -7,8 +7,9 @@ it. Detector authors must not import this module.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 from deerflow.compliance.contract import (
     ACTIONS,
@@ -32,7 +33,7 @@ def rank_action(action: str) -> int:
     return _ACTION_RANK.get(action, len(_ACTION_RANK))
 
 
-def strongest_action(actions: "list[str] | tuple[str, ...]") -> str | None:
+def strongest_action(actions: list[str] | tuple[str, ...]) -> str | None:
     """Return the most disruptive action in *actions*."""
     return max(actions, key=rank_action) if actions else None
 

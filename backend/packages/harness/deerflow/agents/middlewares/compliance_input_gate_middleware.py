@@ -27,12 +27,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import Any
-
-try:
-    from typing import override
-except ImportError:  # pragma: no cover - Python < 3.12
-    from typing_extensions import override
+from typing import Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -57,7 +52,7 @@ logger = logging.getLogger(__name__)
 GATE = "InputGate"
 
 
-def _intent_from_state(state: AgentState) -> "IntentInfo | None":
+def _intent_from_state(state: AgentState) -> IntentInfo | None:
     """Read whatever ``IntentRecognitionMiddleware`` left in state.
 
     Tolerant by design: the intent schema belongs to the routing subsystem and
@@ -82,7 +77,7 @@ def _intent_from_state(state: AgentState) -> "IntentInfo | None":
     )
 
 
-def _user_from_state(state: AgentState) -> "UserContext | None":
+def _user_from_state(state: AgentState) -> UserContext | None:
     """Best-effort user context. Phase 1 rarely has one (plan risk 12)."""
     raw = (state or {}).get("user_context") or {}
     if not isinstance(raw, dict) or not raw:
@@ -106,14 +101,14 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
         self._normalizer = UserInputNormalizer()
 
     @override
-    def before_agent(self, state: AgentState, runtime: Runtime) -> "dict[str, Any] | None":
+    def before_agent(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         return self._process(state, runtime)
 
     @override
-    async def abefore_agent(self, state: AgentState, runtime: Runtime) -> "dict[str, Any] | None":
+    async def abefore_agent(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         return self._process(state, runtime)
 
-    def _process(self, state: AgentState, runtime: Runtime) -> "dict[str, Any] | None":
+    def _process(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         if not gate_enabled(GATE):
             return None
 
@@ -186,7 +181,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
         return None
 
 
-def scan_upload_paths(paths: "list[str]", *, thread_id: str | None = None, engine: Any = None) -> ComplianceDecision:
+def scan_upload_paths(paths: list[str], *, thread_id: str | None = None, engine: Any = None) -> ComplianceDecision:
     """Scan uploaded files at the input gate.
 
     Called from ``app/gateway/routers/uploads.py`` **after** the files land and

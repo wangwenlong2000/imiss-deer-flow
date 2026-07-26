@@ -32,7 +32,7 @@ import argparse
 import json
 import sys
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +90,7 @@ def prf(tp: int, fp: int, fn: int) -> dict[str, float]:
     return {"tp": tp, "fp": fp, "fn": fn, "support": tp + fn, "precision": round(precision, 4), "recall": round(recall, 4), "f1": round(f1, 4)}
 
 
-def score_group(pairs: "list[tuple[str, str]]") -> dict[str, Any]:
+def score_group(pairs: list[tuple[str, str]]) -> dict[str, Any]:
     """Score ``(gold, predicted)`` pairs. ``"none"`` means no violation."""
     per_type: dict[str, dict[str, Any]] = {}
     for violation_type in VIOLATION_TYPES:
@@ -116,7 +116,7 @@ def score_group(pairs: "list[tuple[str, str]]") -> dict[str, Any]:
 # ── matrix cross-validation (plan §9.2) ─────────────────────────────────────
 
 
-def cross_validate_matrix(samples: "list[dict[str, Any]]", matrix) -> dict[str, Any]:
+def cross_validate_matrix(samples: list[dict[str, Any]], matrix) -> dict[str, Any]:
     """Compare matrix output against each sample's annotated ``expected_action``.
 
     Only positive samples are meaningful here: a negative sample's
@@ -285,12 +285,12 @@ def main(argv: list[str] | None = None) -> int:
     matrix_check = cross_validate_matrix(matrix_samples, engine.policy)
     matrix_check["input"] = str(args.matrix_input if args.matrix_input.is_file() else args.input)
 
-    timestamp = args.timestamp or datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    timestamp = args.timestamp or datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     output_dir = args.output_root / timestamp
     output_dir.mkdir(parents=True, exist_ok=True)
 
     report = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "input": str(args.input),
         "samples": len(records),
         "enabled_detectors": enabled,

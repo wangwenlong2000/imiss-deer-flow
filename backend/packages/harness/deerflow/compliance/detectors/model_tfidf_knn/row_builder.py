@@ -36,7 +36,8 @@ concatenation elsewhere is how the two specs would drift apart again.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 #: The normalization spec this module implements.
 CONTENT_TEXT_SPEC = "0624"

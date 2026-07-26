@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -145,7 +145,7 @@ def test_write_failure_is_reported_and_never_raised(tmp_path: Path) -> None:
 def test_expired_files_are_purged(tmp_path: Path) -> None:
     audit_dir = tmp_path / "audit"
     audit_dir.mkdir()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     old = audit_dir / f"compliance-{(now - timedelta(days=200)).strftime('%Y%m%d')}.jsonl"
     fresh = audit_dir / f"compliance-{now.strftime('%Y%m%d')}.jsonl"
     old.write_text("{}\n", encoding="utf-8")

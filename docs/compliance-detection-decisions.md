@@ -372,3 +372,33 @@ OVERALL          994/1610  61.7%
 
 **建议解法**：把 `outputs/compliance-eval/{ts}/report.json` 里
 `matrix_cross_validation.discrepancies`（15 个去重后的格）发给标注负责人逐格确认。
+
+---
+
+## 2026-07-26 · D014 `ruff --fix` 会静默改写 vendor 代码（已加防护）
+
+**问题**：给自己的代码跑 `ruff check --fix` 时，路径里包含了
+`detectors/model_tfidf_knn/vendor/`，ruff 按 `target-version = "py312"` 把 4 个
+交付包文件改写了（UP035/UP037 现代化）：
+
+```
+feature_extractor.py  holdout_split.py  io_utils.py  tfidf_knn.py
+```
+
+计划 §5.2 明确要求"vendor 代码零改动平移，日后交付包升级直接覆盖目录"。
+被 lint 改过的模型实现，正是那种"没人会注意到、直到准确率悄悄下降"的改动。
+
+**决定**：三层防护。
+
+1. **`backend/ruff.toml` 加 `exclude`**：
+   `packages/harness/deerflow/compliance/detectors/*/vendor/`
+   —— 治本，`make lint` / `make format` 不再碰 vendor
+2. **`make compliance-assets` 生成 `vendor/SHA256SUMS`**（入库）
+   —— zip 是 gitignore 的，CI 没法跟 zip 比对，这个文件让哈希可离线校验
+3. **`test_compliance_model_detector.py::test_vendor_code_is_unmodified`**
+   —— 逐文件比对哈希，改了就红
+
+**已恢复**：重跑 `make compliance-assets`，11/11 文件与交付包字节一致。
+
+**理由**：只加注释说"别改这个目录"是不够的 —— 事实证明工具会自己改。
+把不变式变成配置 + 测试，才拦得住。

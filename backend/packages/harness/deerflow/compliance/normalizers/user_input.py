@@ -10,8 +10,9 @@ Note the guide's constraint (§9.7): a hit here is not on its own a violation.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from deerflow.compliance.contract import DetectionUnit, Gate
 from deerflow.compliance.normalizers.base import Normalizer, build_unit, make_text_items, stringify

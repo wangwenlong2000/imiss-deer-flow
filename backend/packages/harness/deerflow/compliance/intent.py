@@ -44,7 +44,7 @@ class IntentGuard:
 
     def apply(
         self,
-        hits: "tuple[DetectionHit, ...] | list[DetectionHit]",
+        hits: tuple[DetectionHit, ...] | list[DetectionHit],
         *,
         gate: Gate,
         intent: IntentInfo | None,

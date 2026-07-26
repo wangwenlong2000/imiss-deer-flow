@@ -49,6 +49,7 @@ UrbanBrain 聚焦以下能力建设：
     - [Sandbox \& File System](#sandbox--file-system)
     - [Context Engineering](#context-engineering)
     - [Long-Term Memory](#long-term-memory)
+    - [Compliance Violation Detection](#compliance-violation-detection)
   - [Recommended Models](#recommended-models)
   - [Embedded Python Client](#embedded-python-client)
   - [Documentation](#documentation)
@@ -427,6 +428,43 @@ Most agents forget everything the moment a conversation ends. DeerFlow remembers
 
 Across sessions, DeerFlow builds a persistent memory of your profile, preferences, and accumulated knowledge. The more you use it, the better it knows you — your writing style, your technical stack, your recurring workflows. Memory is stored locally and stays under your control.
 
+### Compliance Violation Detection
+
+City governance data carries real compliance risk — surveillance camera metadata, trajectory
+records, telecom identifiers. DeerFlow inspects it at three points in the agent loop, using
+one engine, one detector set and one disposition matrix.
+
+**Three gates**
+
+| Gate | When | What it inspects |
+|------|------|------------------|
+| **InputGate** | before the agent acts | the user query and uploaded files |
+| **ContextGate** | after retrieval, before the LLM sees it | tool/skill results |
+| **OutputGate** | after generation | the model's answer |
+
+**Identification and disposition are decoupled.** Detectors only report *what was hit, where,
+how confident, on what basis*. What happens next comes from a `violation × scene` matrix stored
+as YAML, transcribed verbatim from the annotation guide rather than hard-coded.
+
+**The output gate streams and retracts rather than buffering.** Answers stream token by token
+exactly as before; when a violation lands, a `compliance_retract` event clears it from the screen
+and the message is rewritten so the checkpoint never holds the original. This is after-the-fact
+recovery, not prevention — there is a visible window between a violating token being rendered and
+the retraction arriving, tunable via `incremental_scan.interval_chars`.
+
+**Detectors are pluggable and isolated.** A detector declares its capabilities in its own
+`manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an
+HTTP service — the engine cannot tell the difference, so heavy dependencies never enter the main
+virtualenv. One detector failing, timing out or returning nonsense affects only itself.
+
+Ten violation types are supported by the matrix. The shipped `model_tfidf_knn` detector covers
+three of them (video surveillance metadata, model-output re-identification risk, and city
+governance domain-specific sensitive information) at `accuracy=0.9821` / `macro_f1=0.9859`, using
+nothing but the Python standard library.
+
+Disabled by default. Enable under `compliance` in `config.yaml`, and see the
+[detector integration guide](docs/compliance-detector-integration-guide.md) to add your own.
+
 ## Recommended Models
 
 DeerFlow is model-agnostic — it works with any LLM that implements the OpenAI-compatible API. That said, it performs best with models that support:
@@ -468,6 +506,9 @@ All dict-returning methods are validated against Gateway Pydantic response model
 - [Configuration Guide](backend/docs/CONFIGURATION.md) - Setup and configuration instructions
 - [Architecture Overview](backend/CLAUDE.md) - Technical architecture details
 - [Backend Architecture](backend/README.md) - Backend architecture and API reference
+- [Compliance Detector Integration Guide](docs/compliance-detector-integration-guide.md) - How to add a compliance detector
+- [Compliance Detection Implementation Plan](docs/compliance-detection-implementation-plan.md) - Design rationale and phased plan
+- [Compliance Detection Decision Log](docs/compliance-detection-decisions.md) - Implementation decisions and open blockers
 
 ## Contributing
 

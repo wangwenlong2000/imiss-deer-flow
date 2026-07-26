@@ -134,7 +134,23 @@ def copy_vendor(root: Path) -> None:
         if not src.is_file():
             raise SystemExit(f"[compliance-assets] vendor file missing from package: {VENDOR_SOURCE}/{name}")
         shutil.copy2(src, VENDOR_DEST / name)
+    write_vendor_checksums()
     print(f"[compliance-assets] vendor  -> {VENDOR_DEST.relative_to(REPO_ROOT)} ({len(VENDOR_FILES)} files)")
+
+
+def write_vendor_checksums() -> None:
+    """Record vendor hashes so accidental edits are detectable without the zip.
+
+    The delivery zip is gitignored, so CI cannot diff against it. This file is
+    committed alongside the vendor code and checked by
+    ``test_compliance_model_detector.py`` — `make lint --fix` has silently
+    rewritten these files before, and a lint-mangled model implementation is
+    exactly the kind of change nobody notices until accuracy drops.
+    """
+    lines = []
+    for name in VENDOR_FILES:
+        lines.append(f"{sha256_file(VENDOR_DEST / name)}  {name}")
+    (VENDOR_DEST.parent / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def copy_models(root: Path, all_models: bool) -> None:

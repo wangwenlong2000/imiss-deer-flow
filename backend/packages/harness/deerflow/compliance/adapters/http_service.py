@@ -9,7 +9,8 @@ independently. Same JSON contract as the subprocess adapter.
 from __future__ import annotations
 
 import logging
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from deerflow.compliance.adapters.serde import hits_from_json, request_to_json
 from deerflow.compliance.contract import ContractError, DetectContext, DetectionHit, DetectionUnit

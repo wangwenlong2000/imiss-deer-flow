@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import importlib
 import logging
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, validate_hit
 

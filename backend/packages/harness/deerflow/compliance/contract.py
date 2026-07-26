@@ -30,8 +30,9 @@ import collections.abc
 import dataclasses
 import types
 import typing
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal, Mapping, Protocol, Sequence, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 CONTRACT_VERSION = "1.0"
 

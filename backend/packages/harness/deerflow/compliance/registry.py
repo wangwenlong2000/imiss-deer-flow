@@ -15,9 +15,10 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import yaml
 
@@ -197,7 +198,7 @@ def load_detectors_config(path: str | Path | None) -> dict[str, dict[str, Any]]:
 class DetectorRegistry:
     """Discovered detectors, keyed by id."""
 
-    def __init__(self, registrations: "list[DetectorRegistration]") -> None:
+    def __init__(self, registrations: list[DetectorRegistration]) -> None:
         self._registrations = {r.detector_id: r for r in registrations}
 
     def __len__(self) -> int:

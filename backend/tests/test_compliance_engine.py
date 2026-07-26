@@ -9,10 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import yaml
 
 from deerflow.compliance.audit import Auditor, NullAuditor
-from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, IntentInfo, TextItem
+from deerflow.compliance.contract import DetectionHit, DetectionUnit, IntentInfo, TextItem
 from deerflow.compliance.engine import ComplianceEngine
 from deerflow.compliance.policy import load_policy_matrix
 from deerflow.compliance.registry import DetectorRegistration, DetectorRegistry

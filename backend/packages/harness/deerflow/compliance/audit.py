@@ -17,9 +17,10 @@ import logging
 import os
 import threading
 import uuid
-from datetime import datetime, timedelta, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from deerflow.compliance.types import ComplianceDecision, DetectionRequest
 
@@ -56,7 +57,7 @@ class Auditor:
             return None
 
         audit_ref = f"audit-{uuid.uuid4().hex[:16]}"
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         record: dict[str, Any] = {
             "audit_ref": audit_ref,
             "timestamp": now.isoformat(),
@@ -110,12 +111,12 @@ class Auditor:
         """Delete audit files older than the retention window. Returns the count."""
         if not self._enabled or not self._retain_days or not self._dir.is_dir():
             return 0
-        cutoff = (now or datetime.now(timezone.utc)) - timedelta(days=self._retain_days)
+        cutoff = (now or datetime.now(UTC)) - timedelta(days=self._retain_days)
         removed = 0
         for candidate in self._dir.glob("compliance-*.jsonl"):
             stamp = candidate.stem.removeprefix("compliance-")
             try:
-                file_date = datetime.strptime(stamp, "%Y%m%d").replace(tzinfo=timezone.utc)
+                file_date = datetime.strptime(stamp, "%Y%m%d").replace(tzinfo=UTC)
             except ValueError:
                 continue
             if file_date < cutoff:
