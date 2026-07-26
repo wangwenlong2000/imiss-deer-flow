@@ -15,6 +15,10 @@ import { useUpdateSubtask } from "../tasks/context";
 import type { UploadedFileInfo } from "../uploads";
 import { uploadFiles } from "../uploads";
 
+import {
+  isComplianceRetractEvent,
+  recordComplianceRetraction,
+} from "./compliance";
 import type { AgentThread, AgentThreadState } from "./types";
 import { displayMessagesOfThread } from "./utils";
 
@@ -103,6 +107,10 @@ export function useThreadStream({
   const queryClient = useQueryClient();
   const updateSubtask = useUpdateSubtask();
 
+  // Retractions live in a module-level store (see ./compliance.ts); this counter
+  // exists purely to trigger a re-render when one arrives.
+  const [, setComplianceRetractionVersion] = useState(0);
+
   const thread = useStream<AgentThreadState>({
     client: getAPIClient(isMock),
     assistantId: "lead_agent",
@@ -151,6 +159,13 @@ export function useThreadStream({
       }
     },
     onCustomEvent(event: unknown) {
+      // Compliance OutputGate retraction: pull the violating text off the screen
+      // now, rather than waiting for the rewritten message to stream back.
+      if (isComplianceRetractEvent(event)) {
+        recordComplianceRetraction(event);
+        setComplianceRetractionVersion((version) => version + 1);
+        return;
+      }
       if (
         typeof event === "object" &&
         event !== null &&

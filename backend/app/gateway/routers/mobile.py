@@ -1628,7 +1628,8 @@ async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, 
         input=_build_langgraph_input(req.query, req.attachments),
         config=DEFAULT_RUN_CONFIG,
         context=run_context,
-        stream_mode=["updates", "values", "messages-tuple"],
+        # `custom` carries the compliance OutputGate retract event.
+        stream_mode=["updates", "values", "messages-tuple", "custom"],
     ):
         raw_events.append(
             {
@@ -1685,7 +1686,8 @@ async def _produce_langgraph_stream(
             input=_build_langgraph_input(chat_req.query, chat_req.attachments),
             config=DEFAULT_RUN_CONFIG,
             context=run_context,
-            stream_mode=["updates", "values", "messages-tuple"],
+            # `custom` carries the compliance OutputGate retract event.
+            stream_mode=["updates", "values", "messages-tuple", "custom"],
         ):
             await queue.put(
                 {

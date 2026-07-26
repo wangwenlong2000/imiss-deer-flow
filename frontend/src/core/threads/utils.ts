@@ -3,6 +3,7 @@ import type { BaseStream } from "@langchain/langgraph-sdk/react";
 
 import { isInternalMessage } from "../messages/utils";
 
+import { applyComplianceRetractions } from "./compliance";
 import type { AgentThreadState } from "./types";
 
 type MessageMetadataLookup = {
@@ -131,7 +132,12 @@ export function displayMessagesOfThread(thread: ThreadDisplaySource) {
   const rawMessages = visibleMessages(thread.values?.raw_messages ?? []);
   const streamMessages = visibleMessages(thread.messages ?? [], thread);
 
-  return mergeDisplayMessages(rawMessages, streamMessages);
+  // Compliance OutputGate retractions are applied last so a violation that is
+  // still in flight (rewritten message not yet streamed back) is already gone
+  // from what the user sees. See ./compliance.ts.
+  return applyComplianceRetractions(
+    mergeDisplayMessages(rawMessages, streamMessages),
+  );
 }
 
 function mergeDisplayMessages(

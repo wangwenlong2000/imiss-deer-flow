@@ -645,7 +645,10 @@ class ChannelManager:
                 input={"messages": [{"role": "human", "content": msg.text}]},
                 config=run_config,
                 context=run_context,
-                stream_mode=["messages-tuple", "values"],
+                # `custom` carries the compliance OutputGate retract event. Feishu
+                # patches the same card in place, so a retraction lands as an edit of
+                # what the user is already looking at.
+                stream_mode=["messages-tuple", "values", "custom"],
             ):
                 chunk_index += 1
                 event = getattr(chunk, "event", "")
@@ -660,6 +663,14 @@ class ChannelManager:
                     snapshot_text = _extract_response_text(data)
                     if snapshot_text:
                         latest_text = snapshot_text
+                elif event == "custom" and isinstance(data, dict) and data.get("type") == "compliance_retract":
+                    # Replace what has been streamed so far. The rewritten AIMessage
+                    # arrives via `values` too, so this is about retracting sooner,
+                    # not about correctness of the final card.
+                    replacement = data.get("replacement")
+                    if isinstance(replacement, str) and replacement:
+                        latest_text = replacement
+                        streamed_buffers.clear()
 
                 write_run_event_log(
                     thread_id,
