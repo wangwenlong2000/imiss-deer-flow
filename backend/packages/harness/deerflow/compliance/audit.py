@@ -70,6 +70,8 @@ class Auditor:
             "per_violation_actions": {k: list(v) for k, v in decision.per_violation_actions.items()},
             "basis": list(decision.basis),
             "origin": dict(request.origin),
+            "scene_resolution": dict(request.origin.get("scene_resolution") or {}),
+            "request_context": dict(request.origin.get("compliance_request") or {}),
             "user": {"user_id": request.user.user_id, "roles": list(request.user.roles), "org_id": request.user.org_id} if request.user else None,
             "intent": {
                 "intent": request.intent.intent,

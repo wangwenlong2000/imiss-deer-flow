@@ -38,7 +38,7 @@ from deerflow.compliance.intent import IntentGuard
 from deerflow.compliance.policy import PolicyMatrix, get_policy_matrix
 from deerflow.compliance.registry import DetectorRegistry, build_registry
 from deerflow.compliance.router import DetectorRouter
-from deerflow.compliance.scene import NullSceneResolver, SceneResolver, resolve_scene_key
+from deerflow.compliance.scene import NullSceneResolver, SceneResolver, TrustedSceneResolver, resolve_scene_key
 from deerflow.compliance.types import ComplianceDecision, DetectionRequest, Diagnostics
 
 logger = logging.getLogger(__name__)
@@ -289,7 +289,7 @@ def build_engine(config: Any = None) -> ComplianceEngine:
     else:
         auditor = NullAuditor()
 
-    scene_resolver: SceneResolver = NullSceneResolver()
+    scene_resolver: SceneResolver = TrustedSceneResolver()
     if config.scene.resolver:
         # Same reflective-load path as detectors: configured by data, not code.
         from deerflow.compliance.adapters.inprocess import _resolve_entry

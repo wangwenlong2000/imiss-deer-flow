@@ -55,6 +55,7 @@ from deerflow.compliance.runtime import (
     get_engine,
     user_notice,
 )
+from deerflow.compliance.scene import scene_origin_from_state
 from deerflow.compliance.types import ComplianceDecision
 
 logger = logging.getLogger(__name__)
@@ -109,7 +110,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
         request_id = f"ctx-{uuid.uuid4().hex[:12]}"
 
         try:
-            decision = self._check(payload, request_id, tool_name)
+            decision = self._check(payload, request_id, tool_name, state=getattr(request, "state", None))
         except GraphBubbleUp:
             raise  # never swallow LangGraph control-flow signals
         except Exception as exc:
@@ -124,7 +125,14 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         return self._rewrite(message, payload, decision, fail_closed=False)
 
-    def _check(self, payload: dict[str, Any], request_id: str, tool_name: str) -> ComplianceDecision:
+    def _check(
+        self,
+        payload: dict[str, Any],
+        request_id: str,
+        tool_name: str,
+        *,
+        state: Any = None,
+    ) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(payload, gate=GATE)
         if not units:
@@ -132,13 +140,14 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         units = self._prioritize(units, payload, config.max_units)
         engine = self._engine or get_engine()
+        scene_origin, _ = scene_origin_from_state(state)
         return engine.check(
             units,
             gate=GATE,
             request_id=request_id,
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"tool_name": tool_name, "skill_name": payload.get("skill_name")},
+            origin={"tool_name": tool_name, "skill_name": payload.get("skill_name"), **scene_origin},
         )
 
     @staticmethod
@@ -254,6 +263,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         diagnostics["compliance"] = {
             "gate": GATE,
+            "scene": decision.scene_key,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             "audit_ref": decision.audit_ref,

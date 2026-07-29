@@ -96,6 +96,7 @@ from deerflow.compliance.runtime import (
     get_engine,
     user_notice,
 )
+from deerflow.compliance.scene import scene_origin_from_state
 from deerflow.compliance.types import ComplianceDecision
 
 logger = logging.getLogger(__name__)
@@ -134,11 +135,11 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         This is the authoritative rewrite. ``after_model`` is only a backstop.
         """
-        return self._sanitize_response(handler(request))
+        return self._sanitize_response(handler(request), state=getattr(request, "state", None))
 
     @override
     async def awrap_model_call(self, request: Any, handler: Callable[[Any], Awaitable[Any]]) -> Any:
-        return self._sanitize_response(await handler(request))
+        return self._sanitize_response(await handler(request), state=getattr(request, "state", None))
 
     @override
     def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -150,7 +151,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     # ── authoritative sanitization ──────────────────────────────────────────
 
-    def _sanitize_response(self, response: Any) -> Any:
+    def _sanitize_response(self, response: Any, *, state: Any = None) -> Any:
         """Replace the model's answer inside the response, before it reaches state.
 
         ``_build_commands`` in langchain's factory does ``{"messages": response.result}``,
@@ -165,7 +166,9 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         if index is None:
             return response
 
-        update = self._process({"messages": list(result)})
+        check_state = dict(state or {})
+        check_state["messages"] = list(result)
+        update = self._process(check_state)
         if update is None:
             return response
 
@@ -201,7 +204,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         request_id = f"out-{uuid.uuid4().hex[:12]}"
         try:
-            decision = self._check(text, message, request_id)
+            decision = self._check(text, message, request_id, state=state)
         except GraphBubbleUp:
             raise
         except Exception as exc:
@@ -225,20 +228,28 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         return self._retract(message, replacement, decision)
 
-    def _check(self, text: str, message: AIMessage, request_id: str) -> ComplianceDecision:
+    def _check(
+        self,
+        text: str,
+        message: AIMessage,
+        request_id: str,
+        *,
+        state: Any = None,
+    ) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(message, gate=GATE, message_id=str(message.id or ""))
         if not units:
             return ComplianceDecision(request_id=request_id, gate=GATE, scene_key="_unknown")
 
         engine = self._engine or get_engine()
+        scene_origin, _ = scene_origin_from_state(state)
         return engine.check(
             units,
             gate=GATE,
             request_id=request_id,
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"message_id": str(message.id or ""), "chars": len(text)},
+            origin={"message_id": str(message.id or ""), "chars": len(text), **scene_origin},
         )
 
     # ── incremental scanning (layer 1) ──────────────────────────────────────
@@ -351,6 +362,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         metadata = dict(getattr(message, "response_metadata", None) or {})
         metadata["compliance"] = {
             "gate": GATE,
+            "scene": decision.scene_key,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             "audit_ref": decision.audit_ref,
@@ -387,6 +399,7 @@ def build_retract_event(message: AIMessage, replacement: str, decision: Complian
     return {
         "type": RETRACT_EVENT,
         "message_id": str(message.id or ""),
+        "scene": decision.scene_key,
         "violation_types": sorted({hit.violation_type for hit in decision.hits}),
         "action": list(decision.actions),
         "replacement": replacement,
