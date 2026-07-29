@@ -3108,6 +3108,64 @@
       "routing_text_hash": "sha256:ae08d2e251ddf5b9994ab5ad300356c034af39742135dc50378f06fb75194599",
       "es_index": "citybrain-skill-router-cards",
       "es_doc_id": "web-design-guidelines"
+    },
+    {
+      "id": "video-privacy-masking",
+      "name": "video-privacy-masking",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "video_privacy_masking",
+        "masked_video_export",
+        "sensitive_region_blur"
+      ],
+      "input_types": [
+        "video_uri",
+        "sensitive_regions",
+        "privacy_config"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/video-privacy-masking/router_card.json",
+      "skill_md_path": "skills/custom/video_surveillance/video-privacy-masking/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7773d334a8413da9f7cdcc60b0141cbd781fe42c083e314b41a8556eed2ef756",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "privacy-masking",
+      "output_types": [
+        "masked_video_uri",
+        "privacy_masking_status",
+        "evidence_hash"
+      ]
+    },
+    {
+      "id": "roi-transit-statistics",
+      "name": "roi-transit-statistics",
+      "scenes": [
+        "video_surveillance"
+      ],
+      "is_public": false,
+      "task_types": [
+        "roi_transit_statistics",
+        "zone_entry_exit_count",
+        "dwell_time_statistics"
+      ],
+      "input_types": [
+        "tracks_json",
+        "roi_polygons",
+        "camera_id"
+      ],
+      "router_card_path": "skills/custom/video_surveillance/roi-transit-statistics/router_card.json",
+      "skill_md_path": "skills/custom/video_surveillance/roi-transit-statistics/SKILL.md",
+      "enabled": true,
+      "routing_text_hash": "sha256:7773d334a8413da9f7cdcc60b0141cbd781fe42c083e314b41a8556eed2ef756",
+      "es_index": "citybrain-skill-router-cards",
+      "es_doc_id": "privacy-masking",
+      "output_types": [
+        "roi_counts",
+        "dwell_statistics",
+        "per_track_transit_detail"
+      ]
     }
   ]
 }

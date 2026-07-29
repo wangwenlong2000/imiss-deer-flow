@@ -14,6 +14,11 @@ from pathlib import Path
 from typing import Any
 
 
+# 与前端真实口径对齐：frontend/src/core/threads/hooks.ts 提交 run 时用的是
+# recursion_limit=1000。此前测试脚本硬编码 100，导致多步骤视频任务在测试里
+# 撞 GraphRecursionError，却被记成"模型步数预算不足"的产品结论。
+DEFAULT_RECURSION_LIMIT = 1000
+
 CASES: list[dict[str, Any]] = [
     {
         "id": "C-001",
@@ -245,17 +250,28 @@ def observe(events: list[dict[str, Any]]) -> dict[str, Any]:
                         if isinstance(call, dict):
                             tool_calls.append(call)
     combined = "\n".join(texts)
-    skill_paths = sorted(set(re.findall(r"/mnt/skills/(?:custom|public)/(?!video_surveillance/)([^/\s\"'`]+)", combined)))
-    nested_skill_paths = sorted(set(re.findall(r"/mnt/skills/custom/video_surveillance/([^/]+)", combined)))
+    # 判定只能基于真实的 tool_calls。消息正文里含有场景过滤器注入的
+    # <available_skills> 候选集（一次注入就列出 bundle 内全部 skill 路径），
+    # 拿正文做匹配会把"候选"误判成"调用过"，一次调用就假性命中 21 个 skill。
     all_call_text = json.dumps(tool_calls, ensure_ascii=False)
-    skill_paths.extend(re.findall(r"/mnt/skills/custom/video_surveillance/([^/]+)", all_call_text))
+    skills_touched = set(re.findall(r"/mnt/skills/custom/video_surveillance/([a-z0-9-]+)", all_call_text))
+    skills_touched.update(re.findall(r"\"skill_name\"\s*:\s*\"([a-z0-9-]+)\"", all_call_text))
+    # 结构化工具 video_object_analytics 是单视频对象分析的正式入口，
+    # 调用它等同于走通了 video-object-analytics 能力，不能因下划线命名漏计。
+    for call in tool_calls:
+        name = call.get("name") or (call.get("function") or {}).get("name")
+        if name == "video_object_analytics":
+            skills_touched.add("video-object-analytics")
+    # 正文里出现的 skill 路径只作诊断参考，不参与通过与否的判定。
+    mentioned = set(re.findall(r"/mnt/skills/custom/video_surveillance/([a-z0-9-]+)", combined))
+    mentioned |= set(re.findall(r"/mnt/skills/(?:custom|public)/(?!video_surveillance/)([^/\s\"'`]+)", combined))
     return {
         "texts": texts,
         "final": ai_texts[-1] if ai_texts else (texts[-1] if texts else ""),
         "tool_calls": tool_calls,
         "models": sorted(models),
-        "skill_paths": sorted(set(skill_paths)),
-        "video_bundle_skills": sorted(set(nested_skill_paths)),
+        "skills_touched": sorted(skills_touched),
+        "skills_mentioned_only": sorted(mentioned - skills_touched),
         "errors": errors,
         "messages_seen": messages_seen,
         "event_count": len(events),
@@ -270,6 +286,7 @@ def run_case(
     dataset_root: Path,
     case: dict[str, Any],
     timeout: int,
+    recursion_limit: int = DEFAULT_RECURSION_LIMIT,
 ) -> dict[str, Any]:
     case_dir = output_root / case["id"]
     case_dir.mkdir(parents=True, exist_ok=True)
@@ -363,7 +380,7 @@ def run_case(
         "input": {"messages": [message]},
         "context": {"thread_id": thread_id},
         "config": {
-            "recursion_limit": 100,
+            "recursion_limit": recursion_limit,
         },
         "stream_mode": ["values"],
     }
@@ -377,18 +394,53 @@ def run_case(
     raw = ""
     observation: dict[str, Any] = {}
     try:
+        # urlopen 的 timeout 只作用于单次 socket 读，不是总时长。Agent 一旦进入
+        # 工具调用循环就会持续吐 SSE，每次读都在超时窗口内，整个用例可以跑上几小时
+        # 而永远不触发超时——recursion_limit 提到 1000 之后尤其明显。这里按总墙钟
+        # 时间硬性截断，并把已收到的部分当作观测结果，至少能看出它循环在什么地方。
+        deadline = time.monotonic() + timeout
+        chunks: list[bytes] = []
+        truncated = False
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            raw = response.read().decode("utf-8", errors="replace")
+            while True:
+                if time.monotonic() > deadline:
+                    truncated = True
+                    break
+                chunk = response.read1(65536) if hasattr(response, "read1") else response.read(65536)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+        raw = b"".join(chunks).decode("utf-8", errors="replace")
         (case_dir / "turn-1.sse").write_text(raw, encoding="utf-8")
         observation = observe(parse_sse(raw))
+        if truncated:
+            error = f"WallClockTimeout: 超过 {timeout}s 仍未结束，已按总时长截断（通常意味着 Agent 陷入工具调用循环）"
     except Exception as exc:  # Keep one failed case from hiding the rest of the batch.
         error = repr(exc)
     (case_dir / "observation.json").write_text(json.dumps(observation, ensure_ascii=False, indent=2), encoding="utf-8")
     (case_dir / "agent_final.md").write_text(observation.get("final", ""), encoding="utf-8")
-    actual = set(observation.get("video_bundle_skills", [])) | set(observation.get("skill_paths", []))
-    missing = [skill for skill in case["expected"] if skill not in actual]
+    actual = set(observation.get("skills_touched", []))
+    # 路由判定采用"允许集合 + 禁止集合"，而不是要求命中某一个固定 skill：
+    #   expect_any —— 命中其中任意一个即算路由正确（容纳设计上等价的多条正确链路）
+    #   expect_all —— 必须全部命中（严格链路要求，旧 expected 字段等价于它）
+    #   forbid     —— 命中任意一个即算路由错误
+    expect_any = case.get("expect_any") or []
+    expect_all = case.get("expect_all") or case.get("expected") or []
+    forbid = case.get("forbid") or []
+    missing = [skill for skill in expect_all if skill not in actual]
+    unmet_any = bool(expect_any) and not (set(expect_any) & actual)
+    violated = sorted(set(forbid) & actual)
+    # 有些题目本身就没给必需输入（例如"把事件分成三类"却没有事件数据）。
+    # 这种情况下发起追问比硬凑一个 skill 跑出空结果更正确，不应判成路由失败。
+    # 只对显式标注 accept_clarification 的用例生效，避免把"该干活时偷懒追问"也放过。
+    asked_clarification = any(
+        (call.get("name") or (call.get("function") or {}).get("name")) == "ask_clarification"
+        for call in observation.get("tool_calls", [])
+    )
+    clarification_ok = bool(case.get("accept_clarification")) and asked_clarification
+    route_ok = clarification_ok or (not missing and not unmet_any and not violated)
     final = observation.get("final", "")
-    passed = not error and not observation.get("errors") and bool(final) and not missing
+    passed = not error and not observation.get("errors") and bool(final) and route_ok
     result = {
         "id": case["id"],
         "mode": case["mode"],
@@ -399,10 +451,15 @@ def run_case(
         "model_expected": "qwen3.6-35b-a3b",
         "assistant_id": assistant_id,
         "models_observed": observation.get("models", []),
-        "expected_skills": case["expected"],
+        "expect_any": expect_any,
+        "expect_all": expect_all,
+        "forbid": forbid,
         "actual_skills": sorted(actual),
+        "skills_mentioned_only": observation.get("skills_mentioned_only", []),
         "missing_expected_skills": missing,
-        "route_ok": not missing,
+        "unmet_expect_any": expect_any if unmet_any else [],
+        "forbidden_skills_used": violated,
+        "route_ok": route_ok,
         "final_answer_ok": bool(final),
         "errors": observation.get("errors", []),
         "error": error,
@@ -435,6 +492,12 @@ def main() -> int:
         default=None,
         help="JSON file holding the case list. Replaces the built-in CASES; --cases still filters by id.",
     )
+    parser.add_argument(
+        "--recursion-limit",
+        type=int,
+        default=DEFAULT_RECURSION_LIMIT,
+        help=f"LangGraph recursion limit per run (default {DEFAULT_RECURSION_LIMIT}, matching the frontend).",
+    )
     args = parser.parse_args()
     run_id = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     output_root = Path(args.output_root) / run_id
@@ -454,7 +517,9 @@ def main() -> int:
     try:
         for index, case in enumerate(selected, 1):
             print(f"[{index}/{len(selected)}] {case['id']}", flush=True)
-            result = run_case(args.api, args.gateway, assistant_id, output_root, Path(args.dataset_root), case, args.timeout)
+            result = run_case(
+                args.api, args.gateway, assistant_id, output_root, Path(args.dataset_root), case, args.timeout, args.recursion_limit
+            )
             results.append(result)
             print(json.dumps({key: result.get(key) for key in ("id", "passed", "models_observed", "actual_skills", "missing_expected_skills", "error")}, ensure_ascii=False), flush=True)
             time.sleep(1)

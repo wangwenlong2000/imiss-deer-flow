@@ -381,6 +381,14 @@ E15 最能说明问题：limit=100 时 Agent 已经正确串起
 **结论：qwen3.6-35b-a3b 在视频监控 skill 上的路由能力是够用的，当前 `recursion_limit=100`
 对多步骤视频任务偏紧，建议对视频场景提高到 250–300。**
 
+> **【2026-07-26 第二轮订正】这条结论的后半句是错的，不要照它去改配置。**
+> `recursion_limit=100` 是**本测试脚本自己硬编码**的值，不是产品的真实取值。实测各处：
+> 前端 [`frontend/src/core/threads/hooks.ts:348`](../frontend/src/core/threads/hooks.ts) 用的是 **1000**，
+> `client.py:181` 与 `app/channels/manager.py:23` 是 100，`mobile.py:50` 是 300。
+> 也就是说 Web 用户根本不会撞到 100 这条线，"把视频场景提到 250–300" 对 Web 路径反而是**降级**。
+> 上面这一节测到的是测试口径问题，不是产品缺陷。脚本默认值已改为 1000 并与前端对齐，
+> 详见 §7.3 与 [`video-surveillance-backend-followups.md`](video-surveillance-backend-followups.md) 第 3 条。
+
 ### 未触达的 4 个 skill
 
 | skill | 原因 | 是否算缺口 |
@@ -432,4 +440,199 @@ python3 scripts/test_video_surveillance_agent_e2e.py --recursion-limit 300 --tim
 
 # 只跑某几个用例
 python3 scripts/test_video_surveillance_agent_e2e.py --cases E01 E15 --list
+```
+
+---
+
+# 7. 第二轮审查（2026-07-26 晚）
+
+第一轮的问题都是**具体路由 bug**，逐个用加关键词的方式修掉了。第二轮换了个问法——
+"这些 skill 到底有没有实现我们的目的"——结果发现三类此前没被测到的问题。
+
+## 7.1 文档与实现脱节
+
+| 问题 | 实测证据 | 处理 |
+| --- | --- | --- |
+| README 技能表只列 19 条，实际 21 个 skill | 漏的恰好是 `city-video-intelligence`（唯一业务编排入口）和 `video-object-analytics`（结构化工具入口） | 已补齐，并新增 **A16** 断言技能表与 bundle 一一对应 |
+| README / DEERFLOW_BUNDLE 有 6 条失效路径 | `skills/custom/object-detection/...`、`skills/custom/configs/...` 等，都是加 `video_surveillance/` 子目录之前的旧路径 | 已修正，并新增 **A15** 扫描 bundle 内全部 Markdown 引用的路径 |
+
+值得记录的是：**这些坏路径只存在于 README/BUNDLE，没有污染任何 SKILL.md**——
+21 个 SKILL.md 引用的脚本路径全部有效，这也是 A13b 一直能通过的原因。
+但 Agent 一旦去读 README 就会照着跑不存在的命令，白白消耗步数预算。
+
+## 7.2 编排层的结构性缺陷（本轮最重要的发现）
+
+直接用 14 条用户题库打 `city-video-intelligence/scripts/run.py`，**14 题只有 3 题路由正确**。
+Agent 端到端测不出来，是因为场景过滤器把 21 个 skill 全注入了，模型可以绕过编排层自己挑一个用。
+
+两个根因：
+
+**（1）关键词等权计数，泛化词压过专用词。**
+`video_asset_retrieval` 的关键词里有 `"视频"`、`"找"`、`"录像"`、`"摄像头"`——
+这些词几乎出现在每一条视频请求里，于是它变成了兜底赢家：
+
+- "请**分析**这段监控**视频**，**找**出异常事件" → `视频`+`找` 给检索攒到 2 分，
+  事件理解只靠 `分析` 得 1 分 → 判成 `video_asset_retrieval` → `video-search`
+- "请按每 2 秒从**视频**中抽取一帧" → 同样被判成视频检索
+
+**（2）七类能力在编排层根本没有入口。**
+抽帧、格式转换、事件去重、证据截图、隐私脱敏、复核分流、区域统计——
+这些 skill 存在，但 `CAPABILITIES` 里没有对应条目，请求只能落到
+`video_asset_retrieval` / `evidence_preservation` 这两个宽口径能力上。
+
+**修复**（`city-video-intelligence/scripts/run.py`）：
+
+- `score_keywords()` 改为**按关键词长度加权**，"目标检测"(4) 的权重自然高于 "找"(1)；
+- 从 `video_asset_retrieval` 移除全部泛化词，检索类请求必须带明确的检索动作或视频库语境；
+- 新增 7 个能力：`frame_sampling`、`media_transcoding`、`event_deduplication`、
+  `evidence_snapshot`、`privacy_protection`、`review_triage`、`roi_zone_statistics`，
+  并把它们排在 `CAPABILITY_PRIORITY` 中宽口径能力之前；
+- `object_detection` 补充 `边界框`/`bbox`/`检测每一帧` 等专用词（刻意**不加**"置信度"——
+  人工复核请求同样含该词，会误判）。
+
+修复后 **14/14** 命中预期能力与链路，且 A1–A5d 的全部旧回归用例无一回退。
+固化为回归用例 **A17**。
+
+## 7.3 验收口径本身不可信
+
+| 问题 | 说明 |
+| --- | --- |
+| 题库期望与架构冲突 | Q01 期望 `analyze-video`，但架构规定事件分析统一走 `single-video-event-analysis`；Q09/Q10 期望 `object-detection`/`object-tracking`，但设计入口是 `video-object-analytics`。这些"失败"其实是正确行为 |
+| 判定口径把候选当调用 | `run_video_surveillance_qwen35b_test.py` 的 `observe()` 从**消息正文**里正则匹配 skill 路径，而正文含场景过滤器注入的 `<available_skills>`（一次列出全部 skill），导致一次调用假性命中 21 个 skill |
+| `recursion_limit` 用错值 | 见 §5.5 的订正块。测试脚本用 100，前端真实值是 1000 |
+
+**处理**：
+
+- 期望值改为 `expected_capability` + `expect_any`（命中其一即可）+ `forbid`（命中即错）三元组，
+  容纳设计上等价的多条链路；
+- `observe()` 改为**只从真实 `tool_calls` 提取** skill，正文匹配结果降级为 `skills_mentioned_only` 仅供诊断；
+- 脚本默认 `recursion_limit` 改为 1000，与前端对齐，并暴露 `--recursion-limit`。
+
+## 7.4 两个真实能力缺口（已补 skill）
+
+| 缺口 | 原状 | 新增 skill |
+| --- | --- | --- |
+| "输出一份可以公开使用的**脱敏视频**" | `privacy-masking` 只有 `--image-uri`，处理单张图片；bundle 内**没有任何 skill 能输出打码后的视频** | **`video-privacy-masking`** |
+| "统计各区域**进入、离开、停留**的目标数量" | `roi-mapping` 只做单点几何匹配，SKILL.md 明写不产出事件结论；计数无人承接 | **`roi-transit-statistics`** |
+
+`video-privacy-masking` 用 ffmpeg `filter_complex` 逐区域 crop→模糊→overlay，支持
+高斯模糊/马赛克/涂黑三种方式与按时间窗口生效，保留音轨。
+沙箱内实测三种方式均产出真实视频，并**逐像素**验证：常驻区域全程被遮蔽、
+带时间窗口的区域只在窗口内被遮蔽（t=0.5s 差异 1.56，t=4s 差异 92.83）、未申报区域保持原样。
+固化为 **B17**。
+
+`roi-transit-statistics` 消费 `object-tracking` 的轨迹，输出各 ROI 的
+`entered`/`left`/`dwelled`/`unique_objects` 与逐轨迹明细。**只做几何与时间聚合**，
+回归用例断言输出中不得出现"入侵/徘徊/拥堵/违停"等事件语义词。固化为 **A18**。
+
+一处诚实性说明：轨迹点没有逐点时间戳，停留时长按 `start_time..end_time` 均匀插值，
+因此输出恒带 `dwell_seconds_is_approximate: true`。
+
+## 7.5 顺带修掉的一个伪造契约
+
+`privacy-masking/scripts/run.py` 原本在**图片文件不存在**时返回
+`status=success` + `privacy_masked=true`——等于谎称已完成打码。
+下游会把一张根本不存在的图当作已脱敏证据对外发布。已改为 `IMAGE_NOT_FOUND` 失败契约。
+
+## 7.6 本轮回归结果
+
+| 层 | 结果 |
+| --- | --- |
+| Layer A | **23 通过 / 1 跳过**（新增 A15、A16、A17、A18） |
+| Layer B | **19 通过 / 0 失败**（新增 B17、B18；B15 横向扫描扩到 18 个 skill） |
+| Layer C | **9 / 14 通过**（14 条用户题库，`recursion_limit=1000`） |
+
+bundle 内 skill 数从 21 增至 23，`registry.json` 同步到 119 条，
+`check_skill_router_conflicts.py --no-embedding` 仍为 `conflicts=[]`。
+
+**B18 是一次覆盖盘点的产物**：逐 skill 核对时发现 `analyze-video` 有可执行脚本、
+没有任何外部服务依赖，却从来没有被 Layer A/B 执行过——bundle 里一直有一个
+"没人验证过能不能跑"的 skill。补测后通过。
+
+### Layer C 逐例结果
+
+| 用例 | 结果 | 实际触达 | 归属 |
+| --- | --- | --- | --- |
+| Q01 事件分析 | 失败 | `city-video-intelligence` → `single-video-event-analysis` | **路由正确**，被 §0 的 `BadRequestError` 打断 |
+| Q02 画面质量 | 通过 | `camera-health-check`、`frame-sampling` | |
+| Q03 事件去重 | 通过 | `duplicate-event-merge` | |
+| Q04 证据截图 | 失败 | 走到 `frame-sampling` 就停，未落 `evidence-snapshot` | Agent 侧（同上轮 E12） |
+| Q05 转码+剪辑 | 失败 | **零 skill**，201 次 `bash` 手写 ffmpeg | **Agent 侧，最严重** |
+| Q06 抽帧 | 通过 | `frame-sampling` | |
+| Q07 复核分流 | 通过 | 追问事件数据来源 | 判定已修正，见下 |
+| Q08 目标+轨迹 | 通过 | `video-object-analytics` | |
+| Q09 逐帧检测 | 通过 | `video-object-analytics` | |
+| Q10 车辆跟踪 | 通过 | `video-object-analytics` | |
+| Q11 脱敏视频 | 通过 | `city-video-intelligence` → `video-object-analytics` → **`video-privacy-masking`** | 新 skill 端到端打通 |
+| Q12 区域计数 | 通过 | `ffmpeg-utils` → **`roi-transit-statistics`** | 新 skill 端到端打通 |
+| Q13 提取片段 | 失败 | 走到 `single-video-event-analysis`，未续到 `video-segment-extraction` | Agent 侧 |
+| Q14 RTSP 接入 | 失败 | 零 skill，直接追问 RTSP 地址 | Agent 侧：应报能力缺口 |
+
+**两个新增 skill 都被 Agent 在真实自然语言请求下正确路由并执行**，
+说明 §7.4 补的不是"能跑但没人用"的死代码。
+
+### 5 个失败无一是 skill 侧缺陷
+
+- **1 个 backend bug**：Q01，见 §0 已定位的 `ViewImageMiddleware` 裸字符串问题；
+- **4 个 Agent 执行纪律问题**：Q04/Q05/Q13 是"绕过 skill 或链路没走完"，
+  Q14 是"该报能力缺口却去要输入"。skill 侧的声明已经做到位——
+  编排层对这 14 题是 **14/14** 命中（A17），Agent 只是没去问编排层。
+
+**Q05 最值得单独记录。** 它花了 **201 次 `bash`** 手写完整的 ffmpeg 转码/抽帧/剪辑流程，
+一个 skill 都没调，然后宣布"视频处理已完成"并给出格式完整的交付清单表格。
+复跑一次仍然如此（上一轮是 85 次 bash，本轮 201 次）。
+
+这和上一轮 E21"伪造入库完成"是同一个病根：提示词里有很完整的
+`Mandatory Skill Execution Discipline`（"不许用临时代码替代 skill 工作流"），
+但**没有任何一条约束"声称完成前必须有工具真正成功返回"**。
+前者管"该用什么工具"，后者管"能不能说做完了"——缺的是后者。
+
+### 一处判定口径修正
+
+Q07（"根据置信度把事件分成三类"）原判失败，复查后确认是**断言过严**：
+题干只描述分类规则，**没有提供待分类的事件数据**，此时发起追问比硬凑一个 skill
+跑出空结果更正确。已给判定加 `accept_clarification`，且只对显式标注的用例生效，
+避免把"该干活时偷懒追问"也一并放过。同类修正见 §5.5 的 E19/E06。
+
+Q14 保留判失败：编排层**确实会输出 RTSP 能力缺口**（A17 已验证），
+但 Agent 没去问编排层，而是直接索要地址——这等于暗示我们能接 RTSP，属于误导。
+
+## 7.7 未覆盖与遗留
+
+### 5 个 skill 至今零验证（最大未知风险）
+
+| skill | 阻塞原因 |
+| --- | --- |
+| `video-search`、`video-embedding-index`、`object-statistics` | StreetModel 连接被拒 / ES 502 |
+| `batch-video-ingestion`、`evidence-package-generation` | ES 502 |
+
+这不只是"没测"，是**我们不知道它们能不能跑**。这 5 个占 bundle 的 22%，
+而且构成视频库检索归档这条完整业务线。按本轮"ES/StreetModel 暂时旁路"的决定保留。
+
+### 1 个 skill 结构上测不到
+
+`video-object-analytics` 目录下没有任何脚本，能力由 backend 的 builtin 工具
+`video_object_analytics_tool.py` 实现。Layer A/B 是脚本级测试，够不着它，
+只能靠 Layer C 间接覆盖（Q08/Q09/Q10/Q11 均实际调用过，行为正常）。
+
+### backend 侧 6 项未改
+
+按本轮"只修 skill 侧"的约定只记录未修改，清单见
+[`video-surveillance-backend-followups.md`](video-surveillance-backend-followups.md)：
+
+- **第 0 条**：`ViewImageMiddleware` 在 content 列表里放裸字符串导致 dashscope 400 —— 本轮**新定位**，一行可修，是 Q01/C-001/E15 的真实死因；
+- **第 1 条**：缺少"未真正执行不得声称完成"的约束 —— 影响最大，Q05 与 E21 的共同病根；
+- 第 2–6 条：编排入口无优先级、`recursion_limit` 取值不一致、跨 bundle 路由泄漏、沙箱容器不回收导致端口耗尽、路由轮次间不稳定。
+
+复现命令：
+
+```bash
+# Layer A + Layer B（含本轮新增用例）
+DEER_FLOW_SANDBOX_IMAGE=huangxiao-deerflow-sandbox:network-tools \
+  python3 scripts/test_video_surveillance_skills.py --layer all --video Vedio-demo/Trafic-30s.mp4
+
+# 14 条题库的 Agent 端到端（口径已与前端对齐）
+python3 scripts/run_video_surveillance_qwen35b_test.py \
+  --cases-file scripts/video_routing_questions_cases.json \
+  --dataset-root "$PWD/datasets" --recursion-limit 1000 --timeout 600
 ```

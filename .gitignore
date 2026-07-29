@@ -149,3 +149,4 @@ datasets/compliance/normalized/*
 models/compliance/
 outputs/compliance-eval/
 outputs/compliance-e2e/
+outputs/skill-tests/

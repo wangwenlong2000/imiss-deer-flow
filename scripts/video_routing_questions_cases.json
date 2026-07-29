@@ -2,85 +2,182 @@
   {
     "id": "Q01",
     "question": "请分析这段监控视频，找出其中的关键场景和异常事件，按时间线还原事件经过，并生成一份复核报告。",
-    "expected": ["analyze-video"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "single_video_event_understanding",
+    "expect_any": [
+      "city-video-intelligence",
+      "single-video-event-analysis"
+    ],
+    "forbid": [
+      "video-search"
+    ],
+    "note": "事件语义分析的唯一入口是 single-video-event-analysis；旧题库期望的 analyze-video 只是抽帧取证工具，不产出事件结论。",
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q02",
     "question": "请检查这批摄像头最近的视频质量，找出黑屏、花屏、模糊、过曝、断流和时间戳异常的设备。",
-    "expected": ["camera-health-check"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "camera_health_operations",
+    "expect_any": [
+      "camera-health-check"
+    ],
+    "forbid": [],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q03",
     "question": "这批摄像头上报了很多相似告警，请根据时间、地点、目标和证据相似度合并重复事件，并保留合并依据。",
-    "expected": ["duplicate-event-merge"],
-    "mode": "routing"
+    "mode": "routing",
+    "expected_capability": "event_deduplication",
+    "expect_any": [
+      "duplicate-event-merge"
+    ],
+    "forbid": []
   },
   {
     "id": "Q04",
     "question": "请从这段视频中截取能证明车辆闯入限制区域的关键画面，保留时间戳、摄像头编号和原始文件信息，导出证据图片。",
-    "expected": ["evidence-snapshot"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "evidence_snapshot",
+    "expect_any": [
+      "evidence-snapshot"
+    ],
+    "forbid": [],
+    "note": "证据类请求必须落到 evidence-snapshot 的证据契约（evidence_id / 哈希 / privacy_masked），frame-sampling 不满足。",
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q05",
     "question": "请把这段视频转换成统一格式，提取关键帧，并截取 00:12 到 00:28 的片段保存下来。",
-    "expected": ["ffmpeg-utils"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "media_transcoding",
+    "expect_any": [
+      "ffmpeg-utils",
+      "video-segment-extraction"
+    ],
+    "forbid": [],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q06",
     "question": "请按每 2 秒从视频中抽取一帧，并为每帧生成包含时间戳、来源和图像尺寸的结构化记录。",
-    "expected": ["frame-sampling"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "frame_sampling",
+    "expect_any": [
+      "frame-sampling"
+    ],
+    "forbid": [
+      "video-search"
+    ],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q07",
     "question": "请根据告警置信度、证据完整性和潜在影响，把事件分成自动通过、需要人工复核和优先复核三类。",
-    "expected": ["human-review-routing"],
-    "mode": "routing"
+    "mode": "routing",
+    "expected_capability": "review_triage",
+    "expect_any": [
+      "human-review-routing"
+    ],
+    "forbid": [],
+    "accept_clarification": true,
+    "note": "题干只描述分类规则，没有提供待分类的事件/告警数据。此时发起追问比硬凑一个 skill 跑出空结果更正确，因此追问也算通过（与上一版报告 E19/E06 的判定修正同源）。"
   },
   {
     "id": "Q08",
     "question": "请识别视频里的人员和车辆，持续记录它们的位置和运动轨迹，并输出对象类别、时间和轨迹数据。",
-    "expected": ["video-object-analytics"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "object_tracking",
+    "expect_any": [
+      "video-object-analytics",
+      "object-detection",
+      "object-tracking"
+    ],
+    "forbid": [],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q09",
     "question": "请检测视频每一帧中的人、车、自行车和摩托车，返回每个目标的边界框、类别和置信度。",
-    "expected": ["object-detection"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "object_detection",
+    "expect_any": [
+      "video-object-analytics",
+      "object-detection"
+    ],
+    "forbid": [],
+    "note": "video-object-analytics 是单视频对象分析的结构化工具入口，直接调它与调 object-detection 等价，都算路由正确。",
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q10",
     "question": "请持续跟踪画面中的每辆车，生成它们的进入时间、离开时间、运动轨迹和行驶方向。",
-    "expected": ["object-tracking"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "object_tracking",
+    "expect_any": [
+      "video-object-analytics",
+      "object-tracking"
+    ],
+    "forbid": [],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q11",
     "question": "请对视频中的人脸、车牌和其他敏感区域进行模糊处理，输出一份可以公开使用的脱敏视频。",
-    "expected": ["privacy-masking"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "privacy_protection",
+    "expect_any": [
+      "video-privacy-masking",
+      "privacy-masking"
+    ],
+    "forbid": [],
+    "expect_no_gap": [
+      "identity",
+      "OCR"
+    ],
+    "note": "遮蔽人脸/车牌区域不需要识别身份或车牌号，不得因为出现「人脸/车牌」就报 OCR/身份识别能力缺口。输出脱敏视频由 video-privacy-masking 承担。",
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q12",
     "question": "请在画面中标出门口和停车区两个区域，并分别统计进入、离开和停留的目标数量。",
-    "expected": ["roi-mapping"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "roi_zone_statistics",
+    "expect_any": [
+      "roi-transit-statistics",
+      "roi-mapping"
+    ],
+    "forbid": [
+      "object-statistics"
+    ],
+    "note": "单视频的区域进出/停留计数不能走依赖 Elasticsearch 视频库索引的 object-statistics。",
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q13",
     "question": "请从 8 小时监控录像中提取包含异常行为的多个短视频片段，每段保留前后缓冲时间并附上事件说明。",
-    "expected": ["video-segment-extraction"],
-    "mode": "routing"
+    "mode": "video",
+    "expected_capability": "evidence_preservation",
+    "expect_any": [
+      "video-segment-extraction"
+    ],
+    "forbid": [],
+    "video_file": "Vedio-demo/Trafic-30s.mp4"
   },
   {
     "id": "Q14",
     "question": "请接入这组 RTSP 摄像头地址，规范化视频源信息，记录摄像头会话信息，并报告无法连接或频繁断开的源。",
-    "expected": ["video-stream-ingestion"],
-    "mode": "routing"
+    "mode": "routing",
+    "expected_capability": "video_metadata_normalization",
+    "expect_any": [
+      "video-stream-ingestion",
+      "city-video-intelligence"
+    ],
+    "forbid": [],
+    "expect_gap": [
+      "Real-time stream"
+    ],
+    "note": "RTSP 实时接流是明确的能力缺口：video-stream-ingestion 只支持 --source-type local_file。正确行为是照实报告 capability_gap，而不是假装能接流。"
   }
 ]

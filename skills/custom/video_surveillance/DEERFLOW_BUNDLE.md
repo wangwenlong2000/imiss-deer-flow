@@ -15,20 +15,22 @@ This folder is designed to be used as the DeerFlow custom skills root.
 
 ## Recommended DeerFlow Layout
 
-Mount or copy this folder so that its contents are available at:
+The repository `skills/` directory is mounted at `/mnt/skills`, so this bundle is discovered as a nested directory at:
 
 ```text
-/mnt/skills/custom
+/mnt/skills/custom/video_surveillance
 ```
 
-Do not place the whole folder under a nested bundle directory unless DeerFlow is configured to discover nested skills.
+Every skill in this bundle therefore lives at `/mnt/skills/custom/video_surveillance/<skill-id>/`. Use that full prefix in all commands; paths of the form `/mnt/skills/custom/<skill-id>/` do not exist.
+
+The one exception is the YOLO weight file: `configs/deerflow_config.json` points at `/mnt/skills/custom/models/yolov8n.pt` (a copy also exists inside this bundle at `models/yolov8n.pt`).
 
 ## Runtime Dependencies
 
 Install Python dependencies in the DeerFlow execution environment:
 
 ```bash
-pip install -r /mnt/skills/custom/requirements.txt
+pip install -r /mnt/skills/custom/video_surveillance/requirements.txt
 ```
 
 System tools required for video extraction and clipping:
@@ -51,9 +53,9 @@ YOLO is used only by `object-detection`; it must not be treated as an event dete
 ## Main Event Analysis Call
 
 ```bash
-python /mnt/skills/custom/single-video-event-analysis/scripts/run.py \
+python /mnt/skills/custom/video_surveillance/single-video-event-analysis/scripts/run.py \
   --input /mnt/data/video-monitoring-runs/run_001/single_video_analysis_input.json \
-  --config /mnt/skills/custom/configs/deerflow_config.json \
+  --config /mnt/skills/custom/video_surveillance/configs/deerflow_config.json \
   --output /mnt/data/video-monitoring-runs/run_001/prepared_manifest.json
 ```
 
@@ -62,9 +64,9 @@ The script extracts frames and creates `review_manifest.json`. The Agent must th
 ## Object Detection Call
 
 ```bash
-python /mnt/skills/custom/object-detection/scripts/run.py \
+python /mnt/skills/custom/video_surveillance/object-detection/scripts/run.py \
   --input /mnt/data/video-monitoring-runs/run_001/object_detection_input.json \
-  --config /mnt/skills/custom/configs/deerflow_config.json \
+  --config /mnt/skills/custom/video_surveillance/configs/deerflow_config.json \
   --output /mnt/data/video-monitoring-runs/run_001/object_detection_result.json
 ```
 

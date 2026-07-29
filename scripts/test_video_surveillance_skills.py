@@ -534,6 +534,158 @@ def layer_plan(out_dir: Path) -> dict[str, Any]:
 
     suite.case("A14", "在线检索类 skill 执行（依赖 StreetModel/ES）", a14)
 
+    # ---- A15 bundle 内所有 Markdown 引用的 skills/custom 路径必须存在
+    # A13b 只校验 SKILL.md 里的 scripts/*.py。README.md 与 DEERFLOW_BUNDLE.md 曾长期保留
+    # 重构前的 skills/custom/<skill-id>/ 旧路径（真实路径是 skills/custom/video_surveillance/<skill-id>/），
+    # Agent 读到这些文档就会照着跑不存在的命令，白白消耗步数预算。
+    def a15() -> dict[str, Any]:
+        pattern = re.compile(r"(?:/mnt/skills|skills)/custom/[A-Za-z0-9_./-]+")
+        broken: list[str] = []
+        checked = 0
+        md_files = sorted(bundle.glob("*.md")) + sorted(bundle.glob("*/SKILL.md"))
+        for md in md_files:
+            text = md.read_text(encoding="utf-8")
+            for raw in sorted(set(pattern.findall(text))):
+                ref = raw.rstrip(".,)：:；;")
+                # 文档里的 /mnt/skills 是容器内路径，对应仓库里的 skills/
+                rel = ref.replace("/mnt/skills/", "skills/", 1) if ref.startswith("/mnt/skills/") else ref
+                checked += 1
+                if not (REPO_ROOT / rel).exists():
+                    broken.append(f"{md.relative_to(REPO_ROOT)}: {raw}")
+        assert not broken, f"文档引用了不存在的路径: {broken[:6]}"
+        return {"markdown_files": len(md_files), "paths_checked": checked}
+
+    suite.case("A15", "bundle 内 Markdown 引用的 skills/custom 路径全部存在", a15)
+
+    # ---- A16 README 技能表必须覆盖 bundle 内全部 skill
+    # 曾出现技能表只列 19 条、而 bundle 有 21 个 skill 的情况，漏掉的恰好是
+    # city-video-intelligence（唯一业务编排入口）与 video-object-analytics（结构化工具入口）。
+    def a16() -> dict[str, Any]:
+        readme = bundle / "README.md"
+        assert readme.exists(), "缺少 README.md"
+        listed = set(re.findall(r"^\|\s*`([a-z0-9-]+)`\s*\|", readme.read_text(encoding="utf-8"), re.MULTILINE))
+        disk_ids = {p.parent.name for p in bundle.glob("*/router_card.json")}
+        missing = sorted(disk_ids - listed)
+        stale = sorted(listed - disk_ids)
+        assert not missing, f"README 技能表缺少 bundle 中的 skill: {missing}"
+        assert not stale, f"README 技能表列出了 bundle 中不存在的 skill: {stale}"
+        return {"listed": len(listed), "bundle_skills": len(disk_ids)}
+
+    suite.case("A16", "README 技能表与 bundle 内 skill 一一对应", a16)
+
+    # ---- A17 14 条用户题库在业务编排层的路由
+    # 此前 city-video-intelligence 的关键词是等权计数，"视频""找"这类泛化词能压过
+    # "目标检测"这类专用词，14 题里只有 3~4 题路由正确；抽帧、去重、证据截图、
+    # 格式转换等能力甚至没有任何 capability 入口，请求只能落到兜底能力上。
+    def a17() -> dict[str, Any]:
+        cases_path = REPO_ROOT / "scripts" / "video_routing_questions_cases.json"
+        if not cases_path.exists():
+            return {"_status": "skip", "_message": "video_routing_questions_cases.json 不存在"}
+        cases = json.loads(cases_path.read_text(encoding="utf-8"))
+        script = bundle / "city-video-intelligence" / "scripts" / "run.py"
+        problems: list[str] = []
+        for case in cases:
+            out_file = out_dir / f"A17-{case['id']}.json"
+            proc = run_cmd(
+                [sys.executable, str(script), "--request", case["question"], "--output", str(out_file)],
+                cwd=REPO_ROOT,
+            )
+            if proc["returncode"] != 0:
+                problems.append(f"{case['id']}: 退出码 {proc['returncode']}")
+                continue
+            payload = json.loads(out_file.read_text(encoding="utf-8"))
+            plan = payload.get("plan", payload)
+            capability = plan.get("capability")
+            chain = plan.get("recommended_skill_chain", [])
+            gaps = " ".join((plan.get("capability_gap") or {}).get("gaps", []))
+            if case.get("expected_capability") and capability != case["expected_capability"]:
+                problems.append(f"{case['id']}: capability={capability}，期望 {case['expected_capability']}")
+            if case.get("expect_any") and not (set(case["expect_any"]) & set(chain)):
+                problems.append(f"{case['id']}: 链路 {chain} 未命中 {case['expect_any']}")
+            forbidden = sorted(set(case.get("forbid", [])) & set(chain))
+            if forbidden:
+                problems.append(f"{case['id']}: 链路使用了禁止的 skill {forbidden}")
+            for token in case.get("expect_gap", []):
+                if token not in gaps:
+                    problems.append(f"{case['id']}: 缺少能力缺口声明 {token!r}")
+            for token in case.get("expect_no_gap", []):
+                if token.lower() in gaps.lower():
+                    problems.append(f"{case['id']}: 误报能力缺口 {token!r}")
+        assert not problems, "; ".join(problems[:6])
+        return {"cases": len(cases)}
+
+    suite.case("A17", "14 条用户题库在 city-video-intelligence 的能力与链路路由", a17)
+
+    # ---- A18 补缺口的两个新 skill 的执行契约
+    def a18() -> dict[str, Any]:
+        work = out_dir / "A18"
+        work.mkdir(parents=True, exist_ok=True)
+        tracks = {
+            "tracks": [
+                {
+                    "track_id": "track_0001", "camera_id": "CAM_T", "label": "car",
+                    "start_time": "2026-07-26T10:00:00+00:00", "end_time": "2026-07-26T10:00:10+00:00",
+                    "duration_seconds": 10, "trajectory": [[10, 10], [60, 60], [120, 120], [300, 300], [600, 600]],
+                },
+                {
+                    "track_id": "track_0002", "camera_id": "CAM_T", "label": "person",
+                    "start_time": "2026-07-26T10:00:00+00:00", "end_time": "2026-07-26T10:00:12+00:00",
+                    "duration_seconds": 12, "trajectory": [[120, 120], [125, 122], [128, 125], [130, 128]],
+                },
+            ]
+        }
+        rois = {
+            "rois": [
+                {"id": "ROI_GATE", "name": "门口", "type": "gate", "polygon": [[0, 0], [200, 0], [200, 200], [0, 200]]},
+                {"id": "ROI_PARK", "name": "停车区", "type": "parking", "polygon": [[400, 400], [900, 400], [900, 900], [400, 900]]},
+            ]
+        }
+        (work / "tracks.json").write_text(json.dumps(tracks, ensure_ascii=False), encoding="utf-8")
+        (work / "rois.json").write_text(json.dumps(rois, ensure_ascii=False), encoding="utf-8")
+        script = bundle / "roi-transit-statistics" / "scripts" / "run.py"
+        proc = run_cmd(
+            [
+                sys.executable, str(script), "--tracks-json", str(work / "tracks.json"),
+                "--rois-json", str(work / "rois.json"), "--camera-id", "CAM_T",
+                "--dwell-seconds", "3", "--output", str(work / "roi_stats.json"),
+            ],
+            cwd=REPO_ROOT,
+        )
+        assert proc["returncode"] == 0, proc["stderr"][-400:]
+        payload = json.loads((work / "roi_stats.json").read_text(encoding="utf-8"))
+        assert payload["status"] == "success", payload
+        by_id = {roi["roi_id"]: roi for roi in payload["data"]["rois"]}
+        # track_0001 起点在门口内，中途离开 -> left=1；随后进入停车区 -> entered=1。
+        assert by_id["ROI_GATE"]["left"] == 1, by_id["ROI_GATE"]
+        assert by_id["ROI_PARK"]["entered"] == 1, by_id["ROI_PARK"]
+        # track_0002 全程停在门口内，超过 3 秒阈值 -> dwelled 命中。
+        assert by_id["ROI_GATE"]["dwelled"] >= 1, by_id["ROI_GATE"]
+        assert payload["data"]["dwell_seconds_is_approximate"] is True
+        # 只做计数，不得输出事件语义结论。
+        blob = json.dumps(payload, ensure_ascii=False)
+        leaked = [word for word in ("入侵", "徘徊", "拥堵", "违停", "intrusion", "loitering") if word in blob]
+        assert not leaked, f"ROI 统计结果里出现了事件语义词: {leaked}"
+
+        # 缺输入必须走标准失败契约，而不是抛 traceback。
+        missing = run_cmd(
+            [sys.executable, str(script), "--rois-json", str(work / "rois.json"), "--output", str(work / "missing.json")],
+            cwd=REPO_ROOT,
+        )
+        assert missing["returncode"] == 1, missing
+        assert json.loads((work / "missing.json").read_text(encoding="utf-8"))["error_code"] == "MISSING_TRACKS"
+
+        # video-privacy-masking 只在宿主机做契约校验；真实转码在 Layer B 的沙箱内跑。
+        vpm = bundle / "video-privacy-masking" / "scripts" / "run.py"
+        no_video = run_cmd(
+            [sys.executable, str(vpm), "--video-uri", str(work / "nope.mp4"), "--output", str(work / "vpm.json")],
+            cwd=REPO_ROOT,
+        )
+        assert no_video["returncode"] == 1, no_video
+        assert json.loads((work / "vpm.json").read_text(encoding="utf-8"))["error_code"] == "VIDEO_NOT_FOUND"
+        return {"roi_rois": len(by_id), "checks": "counts+contract"}
+
+    suite.case("A18", "roi-transit-statistics 计数正确性与两个新 skill 的失败契约", a18)
+
     return suite.summary()
 
 
@@ -923,6 +1075,8 @@ def layer_exec_inner(out_dir: Path, video: str, skills_root: Path) -> dict[str, 
             ("human-review-routing", ["--event-json", missing]),
             ("camera-health-check", ["--frames-json", missing]),
             ("privacy-masking", ["--sensitive-regions-json", missing, "--image-uri", missing]),
+            ("roi-transit-statistics", ["--tracks-json", missing]),
+            ("video-privacy-masking", ["--sensitive-regions-json", missing, "--video-uri", missing]),
         ]
         compliant: list[str] = []
         violating: dict[str, str] = {}
@@ -970,6 +1124,101 @@ def layer_exec_inner(out_dir: Path, video: str, skills_root: Path) -> dict[str, 
         return {"error_code": result["error_code"]}
 
     suite.case("B16", "输入为非法 JSON -> INPUT_INVALID_JSON", b16)
+
+    # ---- B17 视频级隐私打码：真实转码并逐像素校验遮蔽区域
+    # 这是本轮新补的能力缺口。privacy-masking 只处理单张图片，
+    # “输出一份可以公开使用的脱敏视频”此前在 bundle 里无人承接。
+    def b17() -> dict[str, Any]:
+        # 先截 6 秒短片，避免对 900 秒原片整段转码。
+        clip = work / "b17-source.mp4"
+        cut = run_cmd(
+            ["ffmpeg", "-y", "-v", "error", "-i", video, "-t", "6", "-c", "copy", str(clip)],
+            cwd=root,
+            timeout=600,
+        )
+        assert cut["returncode"] == 0, cut["stderr"][-300:]
+        regions = write_json(work / "b17-regions.json", {
+            "sensitive_regions": [
+                {"type": "face", "bbox": [100, 100, 300, 260]},
+                {"type": "plate", "bbox": [500, 300, 760, 380], "start_seconds": 2, "end_seconds": 8},
+            ]
+        })
+        masked = work / "b17-masked.mp4"
+        result = skill("video-privacy-masking", [
+            "--video-uri", str(clip),
+            "--sensitive-regions-json", str(regions),
+            "--method", "solid",
+            "--output-video", str(masked),
+            "--output", str(work / "b17-result.json"),
+        ], timeout=900)
+        assert result["status"] == "success", result
+        data = result["data"]
+        assert masked.exists(), f"脱敏视频未生成: {masked}"
+        assert data["privacy_masked"] is True
+        assert str(data.get("sha256", "")).startswith("sha256:"), data
+        assert data.get("duration_seconds") and data["duration_seconds"] > 5, data
+
+        # 逐像素校验：常驻区域全程被遮蔽，带时间窗口的区域只在窗口内被遮蔽，
+        # 窗口外与未申报区域必须保持原样，否则就是遮错了地方。
+        import cv2  # noqa: PLC0415 - 仅沙箱内可用
+        import numpy as np  # noqa: PLC0415
+
+        def frame_at(path: str, ms: int):
+            cap = cv2.VideoCapture(path)
+            cap.set(cv2.CAP_PROP_POS_MSEC, ms)
+            ok, image = cap.read()
+            cap.release()
+            assert ok and image is not None, f"无法读取 {path} 在 {ms}ms 的帧"
+            return image
+
+        deltas: dict[str, dict[str, float]] = {}
+        for ms in (500, 4000):
+            before, after = frame_at(str(clip), ms), frame_at(str(masked), ms)
+
+            def mean_delta(y1: int, y2: int, x1: int, x2: int) -> float:
+                return float(np.mean(np.abs(before[y1:y2, x1:x2].astype(int) - after[y1:y2, x1:x2].astype(int))))
+
+            deltas[str(ms)] = {
+                "face": mean_delta(100, 260, 100, 300),
+                "plate": mean_delta(300, 380, 500, 760),
+                "untouched": mean_delta(0, 80, 0, 80),
+            }
+        assert deltas["500"]["face"] > 10, f"常驻遮蔽区域在 t=0.5s 未被遮蔽: {deltas['500']}"
+        assert deltas["4000"]["face"] > 10, f"常驻遮蔽区域在 t=4s 未被遮蔽: {deltas['4000']}"
+        assert deltas["4000"]["plate"] > 10, f"时间窗口内的区域未被遮蔽: {deltas['4000']}"
+        assert deltas["500"]["plate"] < 5, f"时间窗口外的区域被误遮蔽: {deltas['500']}"
+        assert deltas["4000"]["untouched"] < 5, f"未申报区域被误改: {deltas['4000']}"
+        return {"masked_uri": str(masked), "deltas": deltas}
+
+    suite.case("B17", "视频级隐私打码 -> 真实脱敏视频且遮蔽区域与时间窗口正确", b17)
+
+    # ---- B18 analyze-video 抽帧与 metadata
+    # 覆盖盘点时发现的漏网之鱼：analyze-video 有可执行脚本、没有任何外部服务依赖，
+    # 却从来没有被 Layer A/B 执行过，等于 bundle 里一直有一个"没人验证过能不能跑"的 skill。
+    def b18() -> dict[str, Any]:
+        out_root = work / "b18-frames"
+        script = bundle / "analyze-video" / "scripts" / "extract_frames.py"
+        assert script.exists(), f"analyze-video 脚本不存在: {script}"
+        proc = run_cmd(
+            [sys.executable, str(script), video, "--output-dir", str(out_root)],
+            cwd=root,
+            timeout=900,
+        )
+        assert proc["returncode"] == 0, f"analyze-video 退出码 {proc['returncode']}; stderr={proc['stderr'][-600:]}"
+        meta_files = list(out_root.rglob("metadata.json"))
+        assert meta_files, f"未生成 metadata.json；产物目录: {[str(p) for p in out_root.rglob('*')][:10]}"
+        meta = json.loads(meta_files[0].read_text(encoding="utf-8"))
+        images = [p for p in out_root.rglob("*") if p.suffix.lower() in {".jpg", ".jpeg", ".png"}]
+        assert images, "没有抽出任何帧图片"
+        for image in images[:5]:
+            assert image.stat().st_size > 0, f"帧图片为空文件: {image}"
+        # 该 skill 明确声明不产出事件结论，输出里不应出现事件语义词。
+        blob = json.dumps(meta, ensure_ascii=False)
+        leaked = [w for w in ("打架", "事故", "入侵", "拥堵", "摔倒", "fight", "accident") if w in blob]
+        assert not leaked, f"analyze-video 的 metadata 里出现了事件语义结论: {leaked}"
+        return {"metadata": str(meta_files[0]), "frames": len(images), "metadata_keys": sorted(meta)[:8]}
+
+    suite.case("B18", "analyze-video -> 抽帧产物与 metadata.json，且不输出事件结论", b18)
 
     return suite.summary()
 

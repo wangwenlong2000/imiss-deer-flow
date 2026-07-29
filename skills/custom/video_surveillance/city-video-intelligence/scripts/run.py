@@ -17,7 +17,10 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "label": "视频资产检索",
         "skills": ["video-search"],
         "deliverables": ["视频命中列表", "命中片段", "匹配字段", "下一步分析建议"],
-        "keywords": ["搜索", "检索", "找", "调取", "有没有", "录像", "视频", "数据库", "摄像头", "camera", "cam_", "包含"],
+        # 不要在这里放“视频”“录像”“摄像头”“找”这类泛化词。它们几乎出现在每一条
+        # 视频类请求里，会让本能力变成兜底赢家，把抽帧、目标检测、事件分析等请求
+        # 一并吸走。检索类请求必须带明确的检索动作或视频库语境。
+        "keywords": ["搜索", "检索", "调取", "查找", "有没有", "数据库", "视频库", "camera", "cam_"],
     },
     "semantic_video_retrieval": {
         "label": "语义视频检索",
@@ -50,7 +53,12 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "label": "视频目标检测",
         "skills": ["video-object-analytics"],
         "deliverables": ["逐帧目标数量", "目标类别", "检测结果"],
-        "keywords": ["目标检测", "检测目标", "检测画面", "几个人", "几辆车", "有哪些人", "有哪些车", "主要目标", "对象检测", "识别目标", "人车目标"],
+        # “边界框/bbox/逐帧检测”是目标检测独有的表述。不要加“置信度”——
+        # 人工复核请求（“根据告警置信度分类”）同样含该词，会被误判成目标检测。
+        "keywords": [
+            "目标检测", "检测目标", "检测画面", "几个人", "几辆车", "有哪些人", "有哪些车",
+            "主要目标", "对象检测", "识别目标", "人车目标", "边界框", "bbox", "检测每一帧", "逐帧检测",
+        ],
     },
     "object_tracking": {
         "label": "视频目标跟踪",
@@ -87,6 +95,50 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "skills": ["video-search", "video-embedding-index"],
         "deliverables": ["测试报告", "效果对比", "性能指标"],
         "keywords": ["测试", "benchmark", "准不准", "效果", "对比关键词", "开发", "调试"],
+    },
+    # 以下能力此前完全缺失，导致对应 skill 没有任何路由入口，请求只能落到
+    # video_asset_retrieval / evidence_preservation 这类兜底能力上。
+    "frame_sampling": {
+        "label": "视频抽帧",
+        "skills": ["frame-sampling"],
+        "deliverables": ["帧列表", "frame_id/时间戳/图像尺寸", "帧图片文件"],
+        "keywords": ["抽帧", "抽取一帧", "采样帧", "每隔", "每秒一帧", "提取帧", "帧序列", "结构化记录"],
+    },
+    "media_transcoding": {
+        "label": "视频格式转换与剪切",
+        "skills": ["ffmpeg-utils"],
+        "deliverables": ["转码后的视频", "关键帧图片", "指定时间区间的片段"],
+        "keywords": ["格式转换", "转换成统一格式", "转码", "关键帧", "统一格式"],
+    },
+    "event_deduplication": {
+        "label": "重复事件合并",
+        "skills": ["duplicate-event-merge"],
+        "deliverables": ["合并后的事件列表", "合并依据", "重复项分组"],
+        "keywords": ["合并重复", "重复事件", "去重", "相似告警", "重复告警", "合并依据", "相似度合并"],
+    },
+    "evidence_snapshot": {
+        "label": "证据截图",
+        "skills": ["evidence-snapshot"],
+        "deliverables": ["证据图片", "evidence_id", "完整性哈希", "时间戳与摄像头编号"],
+        "keywords": ["证据图片", "证据截图", "关键画面", "导出证据", "截取画面", "取证截图"],
+    },
+    "privacy_protection": {
+        "label": "隐私脱敏",
+        "skills": ["privacy-masking"],
+        "deliverables": ["脱敏后的图片或视频", "打码区域说明", "脱敏方式"],
+        "keywords": ["打码", "脱敏", "马赛克", "模糊处理", "隐私处理", "可以公开", "对外发布"],
+    },
+    "review_triage": {
+        "label": "人工复核分流",
+        "skills": ["human-review-routing"],
+        "deliverables": ["复核队列分类", "分流理由", "优先级"],
+        "keywords": ["人工复核", "自动通过", "优先复核", "复核分类", "分流", "复核队列"],
+    },
+    "roi_zone_statistics": {
+        "label": "区域进出与停留统计",
+        "skills": ["roi-transit-statistics"],
+        "deliverables": ["各区域进入/离开/停留计数", "区域定义", "目标明细"],
+        "keywords": ["进入", "离开", "停留", "区域统计", "划定区域", "标出区域", "roi"],
     },
 }
 
@@ -149,11 +201,20 @@ TIME_PATTERNS = [
     "本月",
 ]
 VIDEO_SOURCE_PATTERNS = ["视频库", "索引", "监控点", "摄像头", "录像", "视频文件", "目录"]
+# 越靠前 = 同分时越优先。专用能力必须排在 evidence_preservation /
+# video_asset_retrieval 这类宽口径能力之前，否则又会被兜底能力吃掉。
 CAPABILITY_PRIORITY = [
     "development_test",
     "camera_health_operations",
     "cross_video_investigation",
     "video_metadata_normalization",
+    "event_deduplication",
+    "review_triage",
+    "privacy_protection",
+    "media_transcoding",
+    "frame_sampling",
+    "roi_zone_statistics",
+    "evidence_snapshot",
     "single_video_event_understanding",
     "object_tracking",
     "object_detection",
@@ -174,11 +235,13 @@ CHAIN_ORDER = [
     "object-tracking",
     "video-object-analytics",
     "roi-mapping",
+    "roi-transit-statistics",
     "single-video-event-analysis",
     "evidence-snapshot",
     "video-segment-extraction",
     "evidence-package-generation",
     "privacy-masking",
+    "video-privacy-masking",
     "human-review-routing",
 ]
 
@@ -188,8 +251,16 @@ def normalize(text: str) -> str:
 
 
 def score_keywords(request: str, keywords: list[str]) -> int:
+    """按关键词的具体程度加权打分。
+
+    等权计数会让泛化词吃掉专用词：“请分析这段监控视频，找出异常事件”里，
+    “视频”“找”这类通用词能给 video_asset_retrieval 攒出 2 分，而
+    single_video_event_understanding 只靠“分析”得 1 分，结果事件分析被
+    判成视频检索。按关键词长度加权后，“目标检测”这类专用词的权重自然
+    高于“找”，泛化词不再能压过专用词。
+    """
     req = strip_ambiguous_keywords(request)
-    return sum(1 for keyword in keywords if normalize(keyword) in req)
+    return sum(len(normalize(keyword)) for keyword in keywords if normalize(keyword) in req)
 
 
 # “模糊”“遮挡”既可能描述画面质量，也可能出现在“模糊车牌”“文字被遮挡”这类
@@ -388,6 +459,15 @@ def missing_fields(request: str, capability: str, scenario: str) -> list[str]:
     elif capability == "video_metadata_normalization":
         if not video_source_known and not has_video_path(request):
             fields.append("视频文件路径")
+    elif capability in {"frame_sampling", "media_transcoding", "evidence_snapshot", "privacy_protection", "roi_zone_statistics"}:
+        if not video_source_known and not has_video_path(request):
+            fields.append("视频文件路径")
+        if capability == "roi_zone_statistics" and not has_specific_place(request):
+            fields.append("区域范围定义")
+    elif capability in {"event_deduplication", "review_triage"}:
+        # 这两类的输入是上游产出的事件/告警 JSON，不是视频文件本身。
+        if not re.search(r"\.json\b", request, flags=re.IGNORECASE):
+            fields.append("事件或告警列表 JSON")
 
     return unique(fields)
 
@@ -451,8 +531,17 @@ def recommended_chain(capability: str, scenario: str, request: str) -> list[str]
     # 事件判断必须走唯一入口 single-video-event-analysis。
     if capability == "camera_health_operations" and has_event_intent(request):
         chain.append("single-video-event-analysis")
-    if any(word in request for word in ["隐私", "车牌", "人脸", "遮蔽", "模糊人脸", "模糊车牌"]):
-        chain.append("privacy-masking")
+    if capability == "privacy_protection" or any(word in request for word in ["隐私", "车牌", "人脸", "遮蔽", "模糊人脸", "模糊车牌"]):
+        # 要"脱敏视频"就得输出视频：privacy-masking 只处理单张证据图片，
+        # 拿它交差会让用户拿到一张图而不是能对外发布的视频。
+        wants_video = any(word in normalize(request) for word in ["脱敏视频", "打码视频", "视频脱敏", "公开使用的视频", "整段视频", "视频打码"]) or (
+            capability == "privacy_protection" and "视频" in request and "图片" not in request
+        )
+        if wants_video:
+            chain = [skill for skill in chain if skill != "privacy-masking"]
+            chain.append("video-privacy-masking")
+        else:
+            chain.append("privacy-masking")
     if any(word in request for word in ["人工", "复核"]):
         chain.append("human-review-routing")
     if any(word in request for word in ["片段", "截取", "剪辑"]) and not (capability == "evidence_preservation" and has_video_path(request) and has_time_range(request)):
@@ -494,16 +583,28 @@ def build_steps(chain: list[str]) -> list[dict[str, str]]:
     return [{"step": str(index), "skill": skill, "action": labels.get(skill, f"Load {skill} and follow its SKILL.md.")} for index, skill in enumerate(chain, start=1)]
 
 
+MASKING_INTENT_WORDS = ["打码", "脱敏", "马赛克", "模糊处理", "遮蔽", "隐私处理", "可以公开", "对外发布"]
+
+
+def has_masking_intent(request: str) -> bool:
+    req = normalize(request)
+    return any(normalize(word) in req for word in MASKING_INTENT_WORDS)
+
+
 def capability_gap(request: str, capability: str) -> dict[str, Any] | None:
     lowered = normalize(request)
     gaps = []
+    # 打码请求里的“人脸”“车牌”指的是要遮蔽的区域，不是要识别的身份或文字。
+    # 遮蔽一个区域不需要认出这是谁、车牌号是多少，因此不能据此报能力缺口，
+    # 否则会对着一个明明支持的请求回答“做不到”。
+    masking = has_masking_intent(request) or capability == "privacy_protection"
     if any(word in lowered for word in ["实时", "rtsp", "gb28181", "直播", "实时流"]):
         gaps.append("Real-time stream connection is not covered by current local-video skills.")
-    if any(word in lowered for word in ["同一人", "人脸", "身份", "认人", "是谁"]):
+    if not masking and any(word in lowered for word in ["同一人", "人脸", "身份", "认人", "是谁"]):
         gaps.append("Person identity recognition is not provided by current skills; detection boxes carry no identity.")
     if "热力图" in lowered:
         gaps.append("Heatmap visualization is only partially supported unless aggregated location bins already exist.")
-    if any(word in lowered for word in ["ocr", "文字识别", "车牌"]):
+    if not masking and any(word in lowered for word in ["ocr", "文字识别", "车牌"]):
         gaps.append("OCR or license-plate recognition is not provided by current skills.")
     if capability == "cross_video_investigation" and not gaps:
         gaps.append("Cross-video investigation is partially supported by retrieval, tracking, and statistics; reliable identity correlation may need additional business confirmation.")

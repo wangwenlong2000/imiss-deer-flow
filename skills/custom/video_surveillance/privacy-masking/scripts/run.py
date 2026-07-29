@@ -260,7 +260,9 @@ def main() -> int:
         return emit(failed(SKILL, "MISSING_SENSITIVE_REGIONS", message), args.output)
     path = Path(str(uri).removeprefix("file://"))
     if not path.exists():
-        return emit(success(SKILL, {"uri": uri, "privacy_masked": True, "masked_regions": regions, "method": method}), args.output)
+        # 此前这里返回的是 success + privacy_masked=true，等于在文件根本不存在时
+        # 谎称已经完成打码。下游会把一张不存在的图当成已脱敏证据对外发布。
+        return emit(failed(SKILL, "IMAGE_NOT_FOUND", f"Evidence image not found: {path}"), args.output)
     return emit(mask_image(uri, regions, config.get("privacy_masking", {}).get("method", method)), args.output)
 
 if __name__ == "__main__":

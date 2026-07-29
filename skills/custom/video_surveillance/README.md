@@ -48,7 +48,9 @@ batch-video-ingestion
 
 | Skill | Role |
 | --- | --- |
+| `city-video-intelligence` | **唯一业务编排入口**。把用户的自然语言请求映射到能力、场景和推荐 skill 链路，并对越界请求返回 `capability_gap`。任何直接来自用户的视频请求都应先经过它。 |
 | `single-video-event-analysis` | 统一的视频事件分析入口。输入本地视频，抽帧并生成 LLM 审帧 manifest，最终输出视觉时间线和事件候选。 |
+| `video-object-analytics` | 单视频目标分析的结构化工具入口，一次调用完成抽帧、检测、跟踪与计数；日常"这段视频里有多少人/车"类请求走它，而不是分别调 `object-detection`/`object-tracking`。 |
 | `analyze-video` | 视频抽帧和取证准备工具，使用 FFmpeg 做场景检测、粗采样、密集采样和 `metadata.json`。 |
 | `video-stream-ingestion` | 规范化本地视频文件，输出 `raw_segment_uri` 和视频会话元数据。 |
 | `frame-sampling` | 从视频片段或已有帧记录中生成标准 Frame schema。 |
@@ -56,10 +58,12 @@ batch-video-ingestion
 | `object-detection` | YOLO 目标检测，只输出人车物等对象的 Detection schema。 |
 | `object-tracking` | 对检测结果做跨帧关联，输出 Track schema、轨迹和持续时间；不判断事件。 |
 | `roi-mapping` | 将检测目标或轨迹匹配到摄像头 ROI 多边形；只做几何匹配。 |
+| `roi-transit-statistics` | 基于轨迹和 ROI 多边形统计各区域的进入、离开和停留数量；只做几何与时间聚合，不下事件结论。单视频可用，不依赖 Elasticsearch。 |
 | `duplicate-event-merge` | 合并重复事件候选，适合单视频或批量视频分析后的去重。 |
 | `evidence-snapshot` | 为事件生成证据截图、哈希和 Evidence schema。 |
 | `video-segment-extraction` | 按事件时间从原始视频中截取证据短片段。 |
-| `privacy-masking` | 对证据图片中的人脸、车牌、手机号、门牌等敏感区域打码。 |
+| `privacy-masking` | 对证据**图片**中的人脸、车牌、手机号、门牌等敏感区域打码。 |
+| `video-privacy-masking` | 对整段**视频**的敏感区域打码并输出脱敏视频，支持高斯模糊/马赛克/涂黑与按时间窗口生效，保留音轨。 |
 | `human-review-routing` | 判断事件是否需要进入人工复核队列。 |
 | `ffmpeg-utils` | 提供底层视频剪辑、截帧等 FFmpeg 工具能力。 |
 | `batch-video-ingestion` | 批量视频入库，将本地视频元数据、目标摘要和可检索文档写入 Elasticsearch。 |
@@ -100,7 +104,7 @@ python_packages:
 
 ### Video Processing
 
-`single-video-event-analysis`、`analyze-video`、`video-segment-extraction`、`ffmpeg-utils` 需要：
+`single-video-event-analysis`、`analyze-video`、`video-segment-extraction`、`ffmpeg-utils`、`video-privacy-masking` 需要：
 
 ```yaml
 system_packages:
@@ -156,18 +160,18 @@ python skills/custom/video_surveillance/single-video-event-analysis/scripts/run.
 单独运行 YOLO 目标检测：
 
 ```bash
-python skills/custom/object-detection/scripts/run.py \
+python skills/custom/video_surveillance/object-detection/scripts/run.py \
   --frames-json /mnt/data/video-monitoring-runs/run_001/frames.json \
   --labels person,car,bus,truck,motorcycle,bicycle \
   --provider ultralytics \
-  --config skills/custom/configs/deerflow_config.json \
+  --config skills/custom/video_surveillance/configs/deerflow_config.json \
   --output /mnt/data/video-monitoring-runs/run_001/detections.json
 ```
 
 生成 StreetModel 视频级向量并原位增强统一视频索引：
 
 ```bash
-python skills/custom/video-embedding-index/scripts/run.py \
+python skills/custom/video_surveillance/video-embedding-index/scripts/run.py \
   --source-index citybrain-video-library \
   --target-index citybrain-video-library \
   --storage-mode in_place \
@@ -180,7 +184,7 @@ python skills/custom/video-embedding-index/scripts/run.py \
 直接对一个 StreetModel 可访问的视频路径生成向量并写入统一索引：
 
 ```bash
-python skills/custom/video-embedding-index/scripts/run.py \
+python skills/custom/video_surveillance/video-embedding-index/scripts/run.py \
   --embedding-provider streetmodel \
   --video-id camera01_0001 \
   --video-uri /nfsdat2/home/xhuangslm/shared_videos/camera01/0001.mp4 \
@@ -194,14 +198,14 @@ python skills/custom/video-embedding-index/scripts/run.py \
 生成文本 query 向量并检索已入库视频向量：
 
 ```bash
-python skills/custom/video-embedding-index/scripts/run.py \
+python skills/custom/video_surveillance/video-embedding-index/scripts/run.py \
   --embedding-provider streetmodel \
   --query "夜晚路口有很多车辆经过" \
   --query-vector-output /tmp/video_query_vector.json \
   --config config.yaml \
   --output /tmp/video_query_embedding.json
 
-python skills/custom/video-search/scripts/run.py \
+python skills/custom/video_surveillance/video-search/scripts/run.py \
   --index citybrain-video-library \
   --query "夜晚路口有很多车辆经过" \
   --search-mode dual \
@@ -212,7 +216,7 @@ python skills/custom/video-search/scripts/run.py \
 以图搜视频：
 
 ```bash
-python skills/custom/video-search/scripts/run.py \
+python skills/custom/video_surveillance/video-search/scripts/run.py \
   --index citybrain-video-library \
   --image /mnt/user-data/uploads/query.jpg \
   --copy-image-to-shared \
