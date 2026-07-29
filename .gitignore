@@ -141,6 +141,8 @@ env-audit/
 # The 0624 split is the content_text regression baseline and MUST stay tracked.
 !datasets/compliance/
 datasets/compliance/*
+!datasets/compliance/type12_frozen_test/
+!datasets/compliance/type12_frozen_test/*.jsonl
 !datasets/compliance/normalized/
 datasets/compliance/normalized/*
 !datasets/compliance/normalized/0624_supported_split/

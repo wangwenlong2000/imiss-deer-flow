@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type {
   ComplianceAction,
   ComplianceGate,
+  ComplianceScene,
   ComplianceViolationType,
 } from "../../threads/compliance";
 
@@ -269,10 +270,12 @@ export interface Translations {
     basisLabel: string;
     auditRefLabel: string;
     gateLabel: string;
+    sceneLabel: string;
     noBasis: string;
     violationTypes: Record<ComplianceViolationType, string>;
     actions: Record<ComplianceAction, string>;
     gates: Record<ComplianceGate, string>;
+    scenes: Record<ComplianceScene, string>;
   };
 
   // Settings

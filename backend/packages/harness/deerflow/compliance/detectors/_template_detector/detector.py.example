@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
+
+from deerflow.compliance.contract import (
+    DetectContext,
+    DetectionHit,
+    DetectionUnit,
+    RiskLocation,
+)
+
+
+class ExampleDetector:
+    """Rename the class and detector_id after copying this directory."""
+
+    detector_id = "replace_me"
+
+    def __init__(self) -> None:
+        self._params: dict[str, Any] = {}
+
+    def setup(self, params: Mapping[str, Any]) -> None:
+        self._params = dict(params or {})
+
+    def detect(self, unit: DetectionUnit, ctx: DetectContext) -> list[DetectionHit]:
+        del ctx
+        hits: list[DetectionHit] = []
+        for item in unit.text_items:
+            # Replace this example condition with rules defined independently of
+            # evaluation labels and the frozen regression set.
+            if "REPLACE_WITH_RULE" not in item.text:
+                continue
+            start = item.text.index("REPLACE_WITH_RULE")
+            hits.append(
+                DetectionHit(
+                    detector_id=self.detector_id,
+                    violation_type="replace_violation_type",
+                    confidence=0.9,
+                    severity="high",
+                    risk_locations=(
+                        RiskLocation(
+                            kind="char_span",
+                            locator=f"{start}:{start + len('REPLACE_WITH_RULE')}",
+                            text="REPLACE_WITH_RULE",
+                            entity_type="replace_entity_type",
+                        ),
+                    ),
+                    reason_code="replace_rule_match",
+                    evidence={"data_type": unit.data_type},
+                    basis=("replace policy basis",),
+                )
+            )
+        return hits

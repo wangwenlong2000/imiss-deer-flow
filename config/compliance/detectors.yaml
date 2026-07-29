@@ -43,8 +43,8 @@ detectors:
   # ── 待其他负责人填充 ──────────────────────────────────────────────────────
   # 第 1-7 类由各自数据负责人实现。骨架、路由和挂载点都已就位，
   # 实现完成后把 enabled 改成 true 即可，不需要改引擎任何代码。
-  - { id: regex_struct_id, enabled: false } # 1 结构化标识符泄露
-  - { id: regex_geo_loc, enabled: false } # 2 精确地理位置泄露
+  - { id: regex_struct_id, enabled: true } # 1 结构化标识符泄露
+  - { id: regex_geo_loc, enabled: true } # 2 精确地理位置泄露
   - { id: entropy_hardcoded_cred, enabled: false } # 3 硬编码凭证泄露（仅 InputGate）
   - { id: keyword_illegal_content, enabled: false } # 4 违法有害内容
   - { id: keyword_political, enabled: false } # 5 政治敏感内容

@@ -12,6 +12,7 @@ visible rather than silent.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -106,12 +107,17 @@ class Auditor:
             "severity": hit.severity,
             "reason_code": hit.reason_code,
             "risk_locations": [
-                {"kind": loc.kind, "locator": loc.locator, "entity_type": loc.entity_type, "text": _truncate(loc.text)} for loc in hit.risk_locations
+                {
+                    "kind": loc.kind,
+                    "locator": loc.locator,
+                    "entity_type": loc.entity_type,
+                    "text": _redacted_location_text(loc.text),
+                }
+                for loc in hit.risk_locations
             ],
             "basis": list(hit.basis),
             "evidence": _truncate_mapping(hit.evidence),
         }
-
     def _append(self, record: Mapping[str, Any], moment: datetime) -> None:
         target = self._file_for(moment)
         with self._lock:
@@ -149,6 +155,17 @@ class Auditor:
                 if line.strip():
                     records.append(json.loads(line))
         return records
+
+
+def _redacted_location_text(value: Any) -> str | None:
+    """Keep correlation value without making audit a second sensitive store."""
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    return f"[redacted sha256:{digest}]"
 
 
 def _truncate(value: str | None, limit: int = MAX_EVIDENCE_CHARS) -> str | None:

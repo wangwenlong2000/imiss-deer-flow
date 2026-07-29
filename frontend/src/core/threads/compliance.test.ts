@@ -18,6 +18,8 @@ const {
  */
 const REAL_METADATA = {
   gate: "OutputGate",
+  scene: "public_release",
+  streaming_mode: "strict_buffered",
   actions: ["warn", "manual_review"],
   violation_types: ["re_identify"],
   audit_ref: "audit-45e2ac94302e459a",
@@ -44,6 +46,7 @@ void test("parses a real retraction off response_metadata", () => {
   const d = complianceDispositionOf(realMessage());
   assert.ok(d);
   assert.equal(d.gate, "OutputGate");
+  assert.equal(d.scene, "public_release");
   assert.deepEqual(d.violationTypes, ["re_identify"]);
   assert.deepEqual(d.actions, ["warn", "manual_review"]);
   assert.equal(d.auditRef, "audit-45e2ac94302e459a");
@@ -54,6 +57,17 @@ void test("warn/manual_review is not treated as a mutation", () => {
   // The phase-1 common case. Marking it destructive would cry wolf on every
   // flagged-but-intact answer.
   assert.equal(complianceDispositionOf(realMessage()).mutated, false);
+});
+
+void test("preserves simultaneous struct_id and geo_loc findings", () => {
+  const message = realMessage();
+  message.response_metadata.compliance = {
+    ...REAL_METADATA,
+    violation_types: ["struct_id", "geo_loc"],
+  };
+  const disposition = complianceDispositionOf(message);
+  assert.ok(disposition);
+  assert.deepEqual(disposition.violationTypes, ["struct_id", "geo_loc"]);
 });
 
 void test("refuse/rewrite is treated as a mutation", () => {
@@ -99,6 +113,8 @@ void test("never strips a standalone refusal to nothing", () => {
 const EVENT = {
   type: "compliance_retract",
   message_id: "m-1",
+  scene: "public_release",
+  streaming_mode: "strict_buffered",
   violation_types: ["re_identify"],
   action: ["refuse"],
   replacement: "【合规拦截】内容已拦截。",
@@ -125,6 +141,7 @@ void test("a live event stamps durable metadata onto the message", () => {
   const d = complianceDispositionOf(out);
   assert.ok(d, "the component reads metadata, so the event must stamp it");
   assert.equal(d.auditRef, "audit-live");
+  assert.equal(d.scene, "public_release");
   assert.deepEqual(d.basis, ["个人信息保护法 §73(4)"]);
   assert.equal(d.mutated, true);
   clearComplianceRetractions();

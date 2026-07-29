@@ -311,6 +311,7 @@ export const zhCN: Translations = {
     basisLabel: "合规依据",
     auditRefLabel: "审计编号",
     gateLabel: "检查闸门",
+    sceneLabel: "权限场景",
     noBasis: "本次判定未附带条款依据",
     violationTypes: {
       struct_id: "结构化标识符泄露",
@@ -340,6 +341,14 @@ export const zhCN: Translations = {
       InputGate: "输入闸",
       ContextGate: "上下文闸",
       OutputGate: "输出闸",
+    },
+    scenes: {
+      self_use: "本人使用",
+      internal_org: "组织内部",
+      cross_org: "跨组织",
+      public_release: "公开发布",
+      research_anon: "匿名科研",
+      _unknown: "未知（保守策略）",
     },
   },
 

@@ -13,6 +13,7 @@ import type {
   ComplianceAction,
   ComplianceDisposition,
   ComplianceGate,
+  ComplianceScene,
   ComplianceViolationType,
 } from "@/core/threads/compliance";
 import { cn } from "@/lib/utils";
@@ -25,11 +26,9 @@ import { cn } from "@/lib/utils";
  * structured fields (violation type, disposition, legal basis, audit reference)
  * already reach the browser and were being thrown away.
  *
- * Tone follows `disposition.mutated`, not "was anything flagged". In phase 1 the
- * scene is always `_unknown`, whose matrix column is `[warn, manual_review]` for
- * every type the shipped detector covers — the common case is "answer kept,
- * flagged for review". Painting that red would cry wolf on every flagged answer,
- * and users would learn to ignore the banner that also marks real refusals.
+ * Tone follows `disposition.mutated`, not merely "was anything flagged".
+ * SceneResolver and the policy matrix can legitimately allow, warn, transform,
+ * or refuse; the structured action is the durable source of truth.
  */
 export function ComplianceNotice({
   className,
@@ -51,7 +50,8 @@ export function ComplianceNotice({
   const hasDetails =
     disposition.basis.length > 0 ||
     disposition.auditRef !== null ||
-    disposition.gate !== null;
+    disposition.gate !== null ||
+    disposition.scene !== null;
 
   return (
     <Alert
@@ -145,6 +145,18 @@ export function ComplianceNotice({
                     <dd>
                       {t.compliance.gates[disposition.gate as ComplianceGate] ??
                         disposition.gate}
+                    </dd>
+                  </>
+                )}
+                {disposition.scene && (
+                  <>
+                    <dt className="text-muted-foreground">
+                      {t.compliance.sceneLabel}
+                    </dt>
+                    <dd>
+                      {t.compliance.scenes[
+                        disposition.scene as ComplianceScene
+                      ] ?? disposition.scene}
                     </dd>
                   </>
                 )}

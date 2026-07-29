@@ -35,12 +35,12 @@ import uuid
 from collections.abc import Awaitable, Callable
 from typing import Any, override
 
-from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import ToolMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 
+from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.actions import REFUSAL_TEXT, mask_text
 from deerflow.compliance.normalizers.skill_result import (
     SkillResultNormalizer,
@@ -63,10 +63,10 @@ logger = logging.getLogger(__name__)
 GATE = "ContextGate"
 
 
-class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
+class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
     """Check tool results for compliance violations before the model sees them."""
 
-    state_schema = AgentState
+    state_schema = ThreadState
 
     def __init__(self, *, engine: Any = None) -> None:
         super().__init__()
