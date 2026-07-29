@@ -1,9 +1,0 @@
-{
-  "skill": "video-stream-ingestion",
-  "version": "1.0.0",
-  "status": "failed",
-  "error_code": "SOURCE_NOT_FOUND",
-  "message": "Local video not found: /tmp/city-brain-video-does-not-exist.mp4",
-  "retryable": false,
-  "detail": {}
-}

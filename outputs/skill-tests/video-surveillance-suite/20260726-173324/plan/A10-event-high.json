@@ -1,7 +1,0 @@
-{
-  "event": {
-    "event_id": "E_OK",
-    "event_type": "traffic_congestion",
-    "confidence": 0.99
-  }
-}

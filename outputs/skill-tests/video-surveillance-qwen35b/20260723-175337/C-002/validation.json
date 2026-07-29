@@ -1,8 +1,0 @@
-{
-  "id": "C-002",
-  "question": "请读取这个本地视频的时长、分辨率、帧率和时间信息，整理成后续分析可以使用的标准输入。",
-  "thread_id": "8e752c30-5feb-407d-bcfe-dee7235cb95c",
-  "video_file": "Vedio-demo/Trafic.mp4",
-  "passed": false,
-  "error": "video upload HTTP 413: <html>\r\n<head><title>413 Request Entity Too Large</title></head>\r\n<body>\r\n<center><h1>413 Request Entity Too Large</h1></center>\r\n<hr><center>nginx/1.29.8</center>\r\n</body>\r\n</html>\r\n"
-}
