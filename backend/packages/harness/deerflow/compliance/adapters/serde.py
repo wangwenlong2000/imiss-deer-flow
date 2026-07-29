@@ -49,6 +49,12 @@ def ctx_to_json(ctx: DetectContext) -> dict[str, Any]:
             "scene_hint": ctx.intent.scene_hint,
             "high_risk": ctx.intent.high_risk,
             "confidence": ctx.intent.confidence,
+            "intent_type": ctx.intent.intent_type,
+            "requested_operation": ctx.intent.requested_operation,
+            "risk_level": ctx.intent.risk_level,
+            "reason_codes": list(ctx.intent.reason_codes),
+            "reason": ctx.intent.reason,
+            "source": ctx.intent.source,
         }
     return {
         "gate": ctx.gate,
@@ -165,6 +171,12 @@ def ctx_from_json(data: Mapping[str, Any]) -> DetectContext:
             scene_hint=intent_data.get("scene_hint"),
             high_risk=bool(intent_data.get("high_risk")),
             confidence=float(intent_data.get("confidence") or 0.0),
+            intent_type=str(intent_data.get("intent_type") or "unknown"),
+            requested_operation=str(intent_data.get("requested_operation") or "unknown"),
+            risk_level=str(intent_data.get("risk_level") or "unknown"),
+            reason_codes=tuple(str(code) for code in (intent_data.get("reason_codes") or ())),
+            reason=str(intent_data.get("reason") or ""),
+            source=str(intent_data.get("source") or "legacy"),
         )
         if isinstance(intent_data, dict)
         else None,

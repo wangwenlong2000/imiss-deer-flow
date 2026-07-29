@@ -22,6 +22,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
+from deerflow.compliance.intent import classify_compliance_intent
 from deerflow.models import create_chat_model
 from deerflow.routing.dialogue_act import classify_dialogue_act
 from deerflow.routing.intent import (
@@ -54,6 +55,25 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         if self._same_source(previous_intent, source_message_key):
             logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
             return None
+
+        compliance_intent = classify_compliance_intent(query)
+        if compliance_intent["intent_type"] != "unknown":
+            intent = RoutingIntentResult(
+                intent="task",
+                original_query=query,
+                normalized_query=query.strip(),
+                routing_query=query.strip(),
+                confidence=float(compliance_intent["confidence"]),
+                reason="deterministic_compliance_intent",
+            )
+            return {
+                "intent_context": self._dump_intent_context(intent, source_message_key),
+                "dialogue_context": {
+                    "act": "new_task",
+                    "confidence": compliance_intent["confidence"],
+                    "reason": "deterministic_compliance_intent",
+                },
+            }
 
         llm = create_chat_model(name=self.model_name, thinking_enabled=False)
         previous_routing = state.get("routing_context")
@@ -107,6 +127,25 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         if self._same_source(previous_intent, source_message_key):
             logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
             return None
+
+        compliance_intent = classify_compliance_intent(query)
+        if compliance_intent["intent_type"] != "unknown":
+            intent = RoutingIntentResult(
+                intent="task",
+                original_query=query,
+                normalized_query=query.strip(),
+                routing_query=query.strip(),
+                confidence=float(compliance_intent["confidence"]),
+                reason="deterministic_compliance_intent",
+            )
+            return {
+                "intent_context": self._dump_intent_context(intent, source_message_key),
+                "dialogue_context": {
+                    "act": "new_task",
+                    "confidence": compliance_intent["confidence"],
+                    "reason": "deterministic_compliance_intent",
+                },
+            }
 
         llm = create_chat_model(name=self.model_name, thinking_enabled=False)
         previous_routing = state.get("routing_context")
@@ -247,6 +286,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         suppress_hidden_steps: bool = False,
     ) -> dict[str, Any]:
         data = intent.model_dump()
+        data["compliance_intent"] = classify_compliance_intent(intent.original_query)
         data["_source_message_key"] = source_message_key
         if suppress_hidden_steps:
             data["_suppress_hidden_steps"] = True

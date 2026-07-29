@@ -63,6 +63,9 @@ def _intent_from_state(state: AgentState) -> IntentInfo | None:
     if not isinstance(raw, dict):
         return None
 
+    compliance = raw.get("compliance_intent")
+    if not isinstance(compliance, dict):
+        compliance = raw
     intent = raw.get("intent") or raw.get("intent_name") or raw.get("dialogue_act")
     scenes = raw.get("scenes") or raw.get("scene")
     scene_hint = scenes[0] if isinstance(scenes, list) and scenes else (scenes if isinstance(scenes, str) else None)
@@ -72,8 +75,14 @@ def _intent_from_state(state: AgentState) -> IntentInfo | None:
     return IntentInfo(
         intent=str(intent) if intent else None,
         scene_hint=str(scene_hint) if scene_hint else None,
-        high_risk=bool(raw.get("high_risk") or raw.get("is_high_risk")),
-        confidence=float(raw.get("confidence") or 0.0),
+        high_risk=bool(compliance.get("is_high_risk") or compliance.get("high_risk")),
+        confidence=float(compliance.get("confidence") or raw.get("confidence") or 0.0),
+        intent_type=str(compliance.get("intent_type") or "unknown"),
+        requested_operation=str(compliance.get("requested_operation") or "unknown"),
+        risk_level=str(compliance.get("risk_level") or "unknown"),
+        reason_codes=tuple(str(code) for code in (compliance.get("reason_codes") or ())),
+        reason=str(compliance.get("reason") or ""),
+        source=str(compliance.get("source") or "legacy"),
     )
 
 

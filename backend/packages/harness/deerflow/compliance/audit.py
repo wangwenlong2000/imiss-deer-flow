@@ -71,7 +71,17 @@ class Auditor:
             "basis": list(decision.basis),
             "origin": dict(request.origin),
             "user": {"user_id": request.user.user_id, "roles": list(request.user.roles), "org_id": request.user.org_id} if request.user else None,
-            "intent": {"intent": request.intent.intent, "high_risk": request.intent.high_risk} if request.intent else None,
+            "intent": {
+                "intent": request.intent.intent,
+                "intent_type": request.intent.intent_type,
+                "requested_operation": request.intent.requested_operation,
+                "risk_level": request.intent.risk_level,
+                "is_high_risk": request.intent.high_risk,
+                "confidence": request.intent.confidence,
+                "reason_codes": list(request.intent.reason_codes),
+                "reason": request.intent.reason,
+                "source": request.intent.source,
+            } if request.intent else None,
             "hits": [self._hit_record(hit) for hit in decision.hits],
             "diagnostics": decision.diagnostics.to_dict(),
         }

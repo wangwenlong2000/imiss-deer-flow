@@ -1,0 +1,20 @@
+DeerFlow intent/InputGate real SSE smoke (redacted)
+Gateway health: HTTP 200
+LangGraph info: HTTP 200
+lead_agent assistant: discovered
+
+benign:
+  real thread/run SSE: completed through IntentRecognition and InputGate
+  intent_type=desensitize requested_operation=transform risk_level=low is_high_risk=false
+
+struct_id high-risk:
+  real thread/run SSE: completed through IntentRecognition and InputGate
+  intent_type=public_release requested_operation=publish risk_level=high is_high_risk=true
+  finding=struct_id actions=warn,manual_review audit_ref=present
+
+geo_loc high-risk:
+  real thread/run SSE: completed through IntentRecognition and InputGate
+  intent_type=public_release requested_operation=publish risk_level=high is_high_risk=true
+  finding=geo_loc actions=warn,manual_review audit_ref=present
+
+No raw identifier, exact coordinate, secret, or complete SSE response retained.
