@@ -127,6 +127,12 @@ services:
       # `make compliance-assets` on the host first or this mounts an empty dir.
       - ../models:/app/models
       - ../config:/app/config
+      # Repository-root compliance test inputs. Keep these read-only so tests
+      # resolve the same paths in containers as they do on the host.
+      - ../datasets:/app/datasets:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs:ro
+      - ../config.example.yaml:/app/config.example.yaml:ro
       # Mount uv cache for faster dependency installation
       - ~/.cache/uv:/root/.cache/uv
       # DooD: same as gateway — AioSandboxProvider runs inside LangGraph process.
@@ -170,6 +176,11 @@ services:
       # `make compliance-assets` on the host first or this mounts an empty dir.
       - ../models:/app/models
       - ../config:/app/config
+      # Match the Gateway repository view for graph-side smoke tests.
+      - ../datasets:/app/datasets:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs:ro
+      - ../config.example.yaml:/app/config.example.yaml:ro
       # Mount uv cache for faster dependency installation
       - ~/.cache/uv:/root/.cache/uv
       # DooD: same as gateway — AioSandboxProvider runs inside LangGraph process.
