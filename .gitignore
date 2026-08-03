@@ -152,3 +152,8 @@ models/compliance/
 outputs/compliance-eval/
 outputs/compliance-e2e/
 outputs/skill-tests/
+/baseline_compliance_tests_before_type12.log
+/type12_service_smoke_redacted.log
+/task1_intent_sse_redacted.log
+/task2_scene_sse_redacted.log
+/type12_outputgate_sse_redacted.log
