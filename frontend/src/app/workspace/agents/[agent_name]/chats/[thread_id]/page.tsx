@@ -69,8 +69,14 @@ export default function AgentChatPage() {
   });
 
   const handleSubmit = useCallback(
-    (message: PromptInputMessage) => {
-      void sendMessage(threadId, message, { agent_name });
+    (
+      message: PromptInputMessage,
+      options?: { extraContext?: Record<string, unknown> },
+    ) => {
+      void sendMessage(threadId, message, {
+        ...options?.extraContext,
+        agent_name,
+      });
     },
     [sendMessage, threadId, agent_name],
   );
@@ -156,6 +162,7 @@ export default function AgentChatPage() {
                   autoFocus={isNewThread}
                   status={thread.isLoading ? "streaming" : "ready"}
                   context={settings.context}
+                  complianceContext={settings.compliance}
                   extraHeader={
                     isNewThread && (
                       <AgentWelcome agent={agent} agentName={agent_name} />
@@ -163,6 +170,9 @@ export default function AgentChatPage() {
                   }
                   disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
                   onContextChange={(context) => setSettings("context", context)}
+                  onComplianceContextChange={(compliance) =>
+                    setSettings("compliance", compliance)
+                  }
                   onSubmit={handleSubmit}
                   onStop={handleStop}
                 />

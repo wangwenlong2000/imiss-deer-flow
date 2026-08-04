@@ -39,10 +39,12 @@ from deerflow.compliance.contract import IntentInfo, UserContext
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    compliance_context,
     failure_decision,
     gate_config,
     gate_enabled,
     get_engine,
+    user_context,
     user_notice,
 )
 from deerflow.compliance.types import ComplianceDecision
@@ -120,7 +122,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
         request_id = f"in-{uuid.uuid4().hex[:12]}"
 
         try:
-            decision = self._check(query, thread_id, state, request_id)
+            decision = self._check(query, thread_id, state, request_id, runtime)
         except GraphBubbleUp:
             raise
         except Exception as exc:
@@ -135,7 +137,14 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
             return self._block(user_notice(decision))
         return None
 
-    def _check(self, query: str, thread_id: str | None, state: AgentState, request_id: str) -> ComplianceDecision:
+    def _check(
+        self,
+        query: str,
+        thread_id: str | None,
+        state: AgentState,
+        request_id: str,
+        runtime: Runtime | None = None,
+    ) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(query, gate=GATE, thread_id=thread_id)
         if not units:
@@ -147,11 +156,11 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
             gate=GATE,
             request_id=request_id,
             thread_id=thread_id,
-            user=_user_from_state(state),
+            user=user_context(runtime) or _user_from_state(state),
             intent=_intent_from_state(state),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"kind": "user_query"},
+            origin={"kind": "user_query", "compliance_context": compliance_context(runtime)},
         )
 
     @staticmethod

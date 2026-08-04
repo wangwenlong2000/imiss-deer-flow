@@ -12,9 +12,10 @@ parameter, agent config) is a config change, not an engine change.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Protocol, runtime_checkable
 
-from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, Scene
+from deerflow.compliance.contract import SCENES, UNKNOWN_SCENE_KEY, Scene
 from deerflow.compliance.types import DetectionRequest
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,23 @@ class NullSceneResolver:
         return None
 
 
+class ManualSceneResolver:
+    """Resolve the temporary front-end-selected scene.
+
+    This is a development/test resolver. It enables policy-path verification,
+    but it is not an authentication or authorization decision.
+    """
+
+    def resolve(self, request: DetectionRequest) -> Scene | None:
+        raw = request.origin.get("compliance_context")
+        if not isinstance(raw, Mapping):
+            return None
+        if raw.get("enabled") is not True:
+            return None
+        scene = raw.get("scene")
+        return scene if scene in SCENES else None  # type: ignore[return-value]
+
+
 def resolve_scene_key(resolver: SceneResolver | None, request: DetectionRequest, fallback_key: str = UNKNOWN_SCENE_KEY) -> tuple[str, tuple[Scene, ...]]:
     """Return ``(matrix_column_key, scenes_tuple)`` for *request*.
 
@@ -57,4 +75,4 @@ def resolve_scene_key(resolver: SceneResolver | None, request: DetectionRequest,
     return scene, (scene,)
 
 
-__all__ = ["NullSceneResolver", "SceneResolver", "resolve_scene_key"]
+__all__ = ["ManualSceneResolver", "NullSceneResolver", "SceneResolver", "resolve_scene_key"]

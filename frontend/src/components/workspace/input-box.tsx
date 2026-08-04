@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   RocketIcon,
   SearchIcon,
+  ShieldCheckIcon,
   XIcon,
   ZapIcon,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import {
   useState,
   type ComponentProps,
 } from "react";
+import { toast } from "sonner";
 
 import {
   PromptInput,
@@ -57,19 +59,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  getManualIdentity,
+  getManualScene,
+  MANUAL_COMPLIANCE_IDENTITIES,
+  MANUAL_COMPLIANCE_SCENES,
+  type ManualComplianceContext,
+  withManualIdentity,
+} from "@/core/compliance/context";
 import { getBackendBaseURL } from "@/core/config";
 import {
   readSelectedDataSourceIds,
   useDataSources,
   writeSelectedDataSourceIds,
 } from "@/core/data-center";
-
-import {
-  useAttachDataSourcesToThread,
-  type UploadedFileInfo,
-} from "@/core/uploads";
-import { toast } from "sonner";
-
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractContentFromMessage,
@@ -77,10 +80,14 @@ import {
   isInternalMessage,
 } from "@/core/messages/utils";
 import { useModels } from "@/core/models/hooks";
-import type { ReasoningEffort } from "@/core/threads/reasoning";
 import { useSkills } from "@/core/skills/hooks";
 import type { AgentThreadContext } from "@/core/threads";
+import type { ReasoningEffort } from "@/core/threads/reasoning";
 import { displayMessagesOfThread } from "@/core/threads/utils";
+import {
+  useAttachDataSourcesToThread,
+  type UploadedFileInfo,
+} from "@/core/uploads";
 import { cn } from "@/lib/utils";
 
 import {
@@ -128,7 +135,9 @@ export function InputBox({
   isNewThread,
   threadId,
   initialValue,
+  complianceContext,
   onContextChange,
+  onComplianceContextChange,
   onSubmit,
   onStop,
   ...props
@@ -147,6 +156,7 @@ export function InputBox({
   isNewThread?: boolean;
   threadId: string;
   initialValue?: string;
+  complianceContext: ManualComplianceContext;
   onContextChange?: (
     context: Omit<
       AgentThreadContext,
@@ -156,6 +166,7 @@ export function InputBox({
       reasoning_effort?: ReasoningEffort;
     },
   ) => void;
+  onComplianceContextChange?: (context: ManualComplianceContext) => void;
   onSubmit?: (
     message: PromptInputMessage,
     options?: { extraContext?: Record<string, unknown> },
@@ -228,6 +239,18 @@ export function InputBox({
   );
   const [dataDialogQuery, setDataDialogQuery] = useState("");
   const [selectionAreaHeight, setSelectionAreaHeight] = useState(0);
+
+  const selectedComplianceIdentity = useMemo(
+    () => getManualIdentity(complianceContext.identity),
+    [complianceContext.identity],
+  );
+  const selectedComplianceScene = useMemo(
+    () => getManualScene(complianceContext.scene),
+    [complianceContext.scene],
+  );
+  const complianceButtonLabel = complianceContext.enabled
+    ? `${selectedComplianceIdentity.label} · ${selectedComplianceScene.label}`
+    : "未选择 · 未知场景";
 
   // Skill enabled state: synced from Settings → backend on every submit
   const enabledSkillIds = useMemo(() => {
@@ -432,6 +455,7 @@ export function InputBox({
           })),
           attached_data_center_files: attachedDataCenterFiles,
           frontend_enabled_skill_ids: enabledSkillIds,
+          compliance_context: complianceContext,
         },
       });
     },
@@ -442,6 +466,7 @@ export function InputBox({
       onStop,
       selectedDataSourceIds,
       selectedDataSources,
+      complianceContext,
       status,
     ],
   );
@@ -689,6 +714,66 @@ export function InputBox({
                 </span>
               </button>
             )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-8 gap-1.5 px-2 text-xs font-normal"
+                  disabled={disabled}
+                  title="人工合规身份与使用场景"
+                >
+                  <ShieldCheckIcon className="size-3.5" />
+                  <span className="max-w-36 truncate">{complianceButtonLabel}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-72">
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  人工选择身份（测试）
+                </DropdownMenuLabel>
+                {MANUAL_COMPLIANCE_IDENTITIES.map((identity) => (
+                  <DropdownMenuItem
+                    key={identity.value}
+                    onSelect={() =>
+                      onComplianceContextChange?.(
+                        withManualIdentity(complianceContext, identity.value),
+                      )
+                    }
+                  >
+                    <ShieldCheckIcon className="size-4" />
+                    <span>{identity.label}</span>
+                    {complianceContext.identity === identity.value && (
+                      <CheckIcon className="ml-auto size-4" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  使用范围（决定合规矩阵场景）
+                </DropdownMenuLabel>
+                {MANUAL_COMPLIANCE_SCENES.map((scene) => (
+                  <DropdownMenuItem
+                    key={scene.value}
+                    onSelect={() =>
+                      onComplianceContextChange?.({
+                        ...complianceContext,
+                        enabled: true,
+                        scene: scene.value,
+                      })
+                    }
+                  >
+                    <span>{scene.label}</span>
+                    {complianceContext.scene === scene.value && (
+                      <CheckIcon className="ml-auto size-4" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <div className="text-muted-foreground px-2 py-1 text-[11px] leading-4">
+                  当前为人工测试上下文，不代表真实 IAM 权限。
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <PromptInputActionMenu>
             <ModeHoverGuide
               mode={
@@ -1169,7 +1254,7 @@ export function InputBox({
                             {source.name}
                           </div>
                           <div className="text-muted-foreground mt-1 truncate text-xs">
-                            {source.description || source.path || "-"}
+                            {source.description ?? source.path ?? "-"}
                           </div>
                         </div>
                         <div className="text-muted-foreground text-sm">

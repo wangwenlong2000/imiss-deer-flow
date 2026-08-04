@@ -7,9 +7,10 @@ place so all three gates behave identically when things go wrong.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
-from deerflow.compliance.contract import Gate
+from deerflow.compliance.contract import Gate, UserContext
 from deerflow.compliance.types import ComplianceDecision, Diagnostics
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,36 @@ def get_engine() -> Any:
     from deerflow.compliance.engine import get_engine as _get
 
     return _get()
+
+
+def runtime_context(value: Any) -> Mapping[str, Any]:
+    """Extract LangGraph runtime context from a hook request or runtime."""
+    if isinstance(value, Mapping):
+        runtime = value.get("runtime", value)
+        context = runtime.get("context", runtime) if isinstance(runtime, Mapping) else runtime
+    else:
+        runtime = getattr(value, "runtime", value)
+        context = getattr(runtime, "context", runtime)
+    return context if isinstance(context, Mapping) else {}
+
+
+def compliance_context(value: Any) -> dict[str, Any]:
+    """Return the manually selected compliance context, if one was supplied."""
+    raw = runtime_context(value).get("compliance_context")
+    return dict(raw) if isinstance(raw, Mapping) else {}
+
+
+def user_context(value: Any) -> UserContext | None:
+    """Convert the request context's user profile into the detector contract."""
+    raw_user = compliance_context(value).get("user_context")
+    if not isinstance(raw_user, Mapping):
+        return None
+    roles = raw_user.get("roles")
+    return UserContext(
+        user_id=str(raw_user.get("user_id")) if raw_user.get("user_id") is not None else None,
+        roles=tuple(str(role) for role in roles) if isinstance(roles, (list, tuple)) else (),
+        org_id=str(raw_user.get("org_id")) if raw_user.get("org_id") is not None else None,
+    )
 
 
 def failure_decision(gate: Gate, request_id: str, error: Exception) -> ComplianceDecision:
@@ -88,5 +119,8 @@ __all__ = [
     "gate_enabled",
     "get_compliance_config",
     "get_engine",
+    "compliance_context",
+    "runtime_context",
+    "user_context",
     "user_notice",
 ]

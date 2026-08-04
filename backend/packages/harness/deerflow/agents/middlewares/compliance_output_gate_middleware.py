@@ -90,10 +90,12 @@ from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    compliance_context,
     failure_decision,
     gate_config,
     gate_enabled,
     get_engine,
+    user_context,
     user_notice,
 )
 from deerflow.compliance.types import ComplianceDecision
@@ -134,23 +136,23 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         This is the authoritative rewrite. ``after_model`` is only a backstop.
         """
-        return self._sanitize_response(handler(request))
+        return self._sanitize_response(handler(request), request)
 
     @override
     async def awrap_model_call(self, request: Any, handler: Callable[[Any], Awaitable[Any]]) -> Any:
-        return self._sanitize_response(await handler(request))
+        return self._sanitize_response(await handler(request), request)
 
     @override
     def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
-        return self._process(state)
+        return self._process(state, runtime)
 
     @override
     async def aafter_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
-        return self._process(state)
+        return self._process(state, runtime)
 
     # ── authoritative sanitization ──────────────────────────────────────────
 
-    def _sanitize_response(self, response: Any) -> Any:
+    def _sanitize_response(self, response: Any, request: Any = None) -> Any:
         """Replace the model's answer inside the response, before it reaches state.
 
         ``_build_commands`` in langchain's factory does ``{"messages": response.result}``,
@@ -165,7 +167,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         if index is None:
             return response
 
-        update = self._process({"messages": list(result)})
+        update = self._process({"messages": list(result)}, request)
         if update is None:
             return response
 
@@ -176,7 +178,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     # ── core ────────────────────────────────────────────────────────────────
 
-    def _process(self, state: AgentState) -> dict[str, Any] | None:
+    def _process(self, state: AgentState, runtime_or_request: Any = None) -> dict[str, Any] | None:
         if not gate_enabled(GATE):
             return None
 
@@ -201,7 +203,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         request_id = f"out-{uuid.uuid4().hex[:12]}"
         try:
-            decision = self._check(text, message, request_id)
+            decision = self._check(text, message, request_id, runtime_or_request)
         except GraphBubbleUp:
             raise
         except Exception as exc:
@@ -225,7 +227,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
         return self._retract(message, replacement, decision)
 
-    def _check(self, text: str, message: AIMessage, request_id: str) -> ComplianceDecision:
+    def _check(self, text: str, message: AIMessage, request_id: str, runtime_or_request: Any = None) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(message, gate=GATE, message_id=str(message.id or ""))
         if not units:
@@ -236,9 +238,14 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             units,
             gate=GATE,
             request_id=request_id,
+            user=user_context(runtime_or_request),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"message_id": str(message.id or ""), "chars": len(text)},
+            origin={
+                "message_id": str(message.id or ""),
+                "chars": len(text),
+                "compliance_context": compliance_context(runtime_or_request),
+            },
         )
 
     # ── incremental scanning (layer 1) ──────────────────────────────────────

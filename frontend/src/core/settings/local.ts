@@ -1,3 +1,4 @@
+import type { ManualComplianceContext } from "../compliance/context";
 import type { AgentThreadContext } from "../threads";
 import type { ReasoningEffort } from "../threads/reasoning";
 
@@ -9,6 +10,17 @@ export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
     model_name: undefined,
     mode: undefined,
     reasoning_effort: undefined,
+  },
+  compliance: {
+    source: "manual_ui",
+    enabled: false,
+    identity: "ordinary_user",
+    scene: "self_use",
+    user_context: {
+      user_id: "manual-user",
+      roles: ["user"],
+      org_id: "personal",
+    },
   },
   layout: {
     sidebar_collapsed: false,
@@ -28,6 +40,7 @@ export interface LocalSettings {
     mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
     reasoning_effort?: ReasoningEffort;
   };
+  compliance: ManualComplianceContext;
   layout: {
     sidebar_collapsed: boolean;
   };
@@ -46,6 +59,14 @@ export function getLocalSettings(): LocalSettings {
         context: {
           ...DEFAULT_LOCAL_SETTINGS.context,
           ...settings.context,
+        },
+        compliance: {
+          ...DEFAULT_LOCAL_SETTINGS.compliance,
+          ...settings.compliance,
+          user_context: {
+            ...DEFAULT_LOCAL_SETTINGS.compliance.user_context,
+            ...settings.compliance?.user_context,
+          },
         },
         layout: {
           ...DEFAULT_LOCAL_SETTINGS.layout,

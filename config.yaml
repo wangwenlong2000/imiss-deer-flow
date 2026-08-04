@@ -693,11 +693,11 @@ compliance:
   policy_matrix_path: "config/compliance/policy_matrix.yaml"
 
   # Scene resolution. Phase 1 has no source of truth for "usage permission and
-  # publicity level", so every request falls back to the matrix `_unknown`
-  # column. Point `resolver` at a `module.path:ClassName` once one exists —
-  # no engine change required.
+  # publicity level", so requests without a context fall back to the matrix
+  # `_unknown` column. The current resolver reads the manual test context from the
+  # front-end request; it is not a substitute for IAM.
   scene:
-    resolver: null
+    resolver: "deerflow.compliance.scene:ManualSceneResolver"
     fallback_key: _unknown
 
   audit:

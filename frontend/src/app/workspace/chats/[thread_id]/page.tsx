@@ -140,11 +140,15 @@ export default function ChatPage() {
                   autoFocus={isNewThread}
                   status={thread.isLoading ? "streaming" : "ready"}
                   context={settings.context}
+                  complianceContext={settings.compliance}
                   extraHeader={
                     isNewThread && <Welcome mode={settings.context.mode} />
                   }
                   disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
                   onContextChange={(context) => setSettings("context", context)}
+                  onComplianceContextChange={(compliance) =>
+                    setSettings("compliance", compliance)
+                  }
                   onSubmit={handleSubmit}
                   onStop={handleStop}
                 />

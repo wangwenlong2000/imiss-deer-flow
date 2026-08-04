@@ -49,10 +49,12 @@ from deerflow.compliance.normalizers.skill_result import (
 )
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    compliance_context,
     failure_decision,
     gate_config,
     gate_enabled,
     get_engine,
+    user_context,
     user_notice,
 )
 from deerflow.compliance.types import ComplianceDecision
@@ -109,7 +111,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
         request_id = f"ctx-{uuid.uuid4().hex[:12]}"
 
         try:
-            decision = self._check(payload, request_id, tool_name)
+            decision = self._check(payload, request_id, tool_name, request)
         except GraphBubbleUp:
             raise  # never swallow LangGraph control-flow signals
         except Exception as exc:
@@ -124,7 +126,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         return self._rewrite(message, payload, decision, fail_closed=False)
 
-    def _check(self, payload: dict[str, Any], request_id: str, tool_name: str) -> ComplianceDecision:
+    def _check(self, payload: dict[str, Any], request_id: str, tool_name: str, request: Any = None) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(payload, gate=GATE)
         if not units:
@@ -136,9 +138,14 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
             units,
             gate=GATE,
             request_id=request_id,
+            user=user_context(request),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"tool_name": tool_name, "skill_name": payload.get("skill_name")},
+            origin={
+                "tool_name": tool_name,
+                "skill_name": payload.get("skill_name"),
+                "compliance_context": compliance_context(request),
+            },
         )
 
     @staticmethod
