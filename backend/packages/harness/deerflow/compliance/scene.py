@@ -8,6 +8,8 @@ the canonical compliance intent.  Incomplete or contradictory context stays
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
@@ -72,6 +74,7 @@ class SceneResolution:
     permission_checked: bool = False
     scene_hint: str | None = None
     request_id: str | None = None
+    binding_hash: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -83,6 +86,7 @@ class SceneResolution:
             "permission_checked": self.permission_checked,
             "scene_hint": self.scene_hint,
             "request_id": self.request_id,
+            "binding_hash": self.binding_hash,
         }
 
 
@@ -159,6 +163,7 @@ def resolve_scene_from_state(
                 permission_checked=bool(existing.get("permission_checked")),
                 scene_hint=str(existing["scene_hint"]) if existing.get("scene_hint") else None,
                 request_id=str(existing["request_id"]) if existing.get("request_id") else None,
+                binding_hash=str(existing["binding_hash"]) if existing.get("binding_hash") else None,
             )
     if _trusted_scene_mode_enabled() and _trusted_upstream_context(parse_compliance_request(raw)):
         return raw, TrustedSceneResolver().resolve_context(raw)
@@ -184,7 +189,26 @@ def _can_reuse_trusted_scene(raw: Mapping[str, Any], existing: Mapping[str, Any]
         and ctx.trusted_source in {"onecity_iam", "trusted_upstream"}
         and ctx.permission_verified
         and str(existing.get("request_id") or "") == ctx.request_id
+        and str(existing.get("binding_hash") or "") == _request_binding_hash(ctx)
     )
+
+
+def _request_binding_hash(ctx: ComplianceRequestContext) -> str:
+    """Hash the complete request binding used to authorize a cached scene."""
+    binding = {
+        "request_id": ctx.request_id,
+        "thread_id": ctx.thread_id,
+        "turn_id": ctx.turn_id,
+        "trusted_source": ctx.trusted_source,
+        "permission_verified": ctx.permission_verified,
+        "actor": asdict(ctx.actor),
+        "operation": asdict(ctx.operation),
+        "resource": asdict(ctx.resource),
+        "scene_hint": ctx.scene_hint,
+        "intent": dict(ctx.intent),
+    }
+    encoded = json.dumps(binding, sort_keys=True, separators=(",", ":"), default=str).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _trusted_scene_mode_enabled() -> bool:
@@ -221,6 +245,7 @@ class TrustedSceneResolver:
             "source": "trusted_upstream" if trusted else "null_resolver",
             "scene_hint": ctx.scene_hint,
             "request_id": ctx.request_id,
+            "binding_hash": _request_binding_hash(ctx),
         }
 
         # A scene is an authorization result, not a client hint. Until a

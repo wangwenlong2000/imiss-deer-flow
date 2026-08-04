@@ -199,6 +199,20 @@ def test_server_resolver_marker_alone_cannot_reuse_cached_scene():
     assert resolution.source == "null_resolver"
 
 
+def test_cached_scene_requires_current_actor_resource_and_operation_binding():
+    original = _request()
+    cached = TrustedSceneResolver().resolve_context(original).to_dict()
+    changed = _request(operation="public_release", audience="public", intent_type="public_release")
+
+    _, resolution = resolve_scene_from_state(
+        {"compliance_request": changed, "scene_context": cached}
+    )
+
+    assert resolution.scene == "public_release"
+    assert resolution.source == "trusted_upstream"
+    assert resolution.binding_hash != cached["binding_hash"]
+
+
 @pytest.fixture()
 def scene_engine(tmp_path):
     registry = build_registry(config_path=REPO_ROOT / "config/compliance/detectors.yaml", strict=True)
