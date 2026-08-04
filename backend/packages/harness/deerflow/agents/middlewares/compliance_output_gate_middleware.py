@@ -1,4 +1,4 @@
-"""OutputGate — strict scenes buffer; compatible scenes retract on a hit.
+"""OutputGate — streaming with retract-on-hit. Never buffered.
 
 The answer keeps streaming token by token, exactly as before. When a violation
 lands, it is *retracted* rather than having been withheld.
@@ -61,13 +61,10 @@ skips by design) into a user-facing answer.
 ``test_compliance_gates.py`` and ``test_compliance_output_gate_isolation.py``
 assert both properties rather than trusting this comment.
 
-Strict scenes (cross-org, public release, anonymized research, and the
-conservative unknown fallback) clone the chat model with LangGraph's
-``nostream`` tag and ``disable_streaming=True``. The model response is therefore
-held behind this outer wrapper, checked as a complete answer, and only the
-sanitized message enters the graph/SSE stream. Self-use, internal-org, and the
-explicitly conservative/manual-review unknown fallback retain compatibility
-behavior.
+Retraction is intentionally the existing public transport protocol. A violating
+chunk may be visible briefly before the ``compliance_retract`` event arrives;
+``interval_chars`` controls that bounded window. Buffered generation is a
+separate framework change and is not enabled by this detector integration.
 """
 
 from __future__ import annotations
@@ -85,7 +82,6 @@ from langchain_core.messages import AIMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.runtime import (
@@ -102,7 +98,6 @@ from deerflow.compliance.types import ComplianceDecision
 logger = logging.getLogger(__name__)
 
 GATE = "OutputGate"
-STRICT_SCENES = frozenset({"cross_org", "public_release", "research_anon"})
 
 #: Custom stream event type the frontend listens for.
 RETRACT_EVENT = "compliance_retract"
@@ -113,10 +108,10 @@ def _digest(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
+class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
     """Check the model's answer, retract and rewrite it when it violates."""
 
-    state_schema = ThreadState
+    state_schema = AgentState
 
     def __init__(self, *, engine: Any = None) -> None:
         super().__init__()
@@ -136,17 +131,11 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
 
         This is the authoritative rewrite. ``after_model`` is only a backstop.
         """
-        state = getattr(request, "state", None)
-        if self._is_strict_state(state):
-            request = request.override(model=self._buffered_model(request.model))
-        return self._sanitize_response(handler(request), state=state)
+        return self._sanitize_response(handler(request), state=getattr(request, "state", None))
 
     @override
     async def awrap_model_call(self, request: Any, handler: Callable[[Any], Awaitable[Any]]) -> Any:
-        state = getattr(request, "state", None)
-        if self._is_strict_state(state):
-            request = request.override(model=self._buffered_model(request.model))
-        return self._sanitize_response(await handler(request), state=state)
+        return self._sanitize_response(await handler(request), state=getattr(request, "state", None))
 
     @override
     def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -157,19 +146,6 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
         return self._process(state)
 
     # ── authoritative sanitization ──────────────────────────────────────────
-
-    @staticmethod
-    def _buffered_model(model: Any) -> Any:
-        """Clone a model so LangGraph emits no raw ``messages`` stream chunks."""
-        tags = list(getattr(model, "tags", None) or [])
-        if "nostream" not in tags:
-            tags.append("nostream")
-        return model.model_copy(update={"disable_streaming": True, "tags": tags})
-
-    @staticmethod
-    def _is_strict_state(state: Any) -> bool:
-        _, resolution = scene_origin_from_state(state)
-        return resolution.scene in STRICT_SCENES
 
     def _sanitize_response(self, response: Any, *, state: Any = None) -> Any:
         """Replace the model's answer inside the response, before it reaches state.
@@ -242,12 +218,6 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
 
         replacement = apply_actions(text, decision.actions, decision.hits)
         if replacement is None:
-            if decision.scene_key in STRICT_SCENES and decision.hits:
-                # A strict transport guarantee cannot release the original just
-                # because a conservative fallback cell only says warn/review.
-                # Keep the matrix actions unchanged in metadata/audit, but use a
-                # safe fail-closed payload at the delivery boundary.
-                return self._retract(message, REFUSAL_TEXT, decision)
             # warn / manual_review only: nothing to rewrite, but the user should
             # still be told the answer was flagged.
             return self._notice_only(message, decision)
@@ -268,8 +238,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
             return ComplianceDecision(request_id=request_id, gate=GATE, scene_key="_unknown")
 
         engine = self._engine or get_engine()
-        scene_origin, resolution = scene_origin_from_state(state)
-        strict = resolution.scene in STRICT_SCENES
+        scene_origin, _ = scene_origin_from_state(state)
         return engine.check(
             units,
             gate=GATE,
@@ -279,8 +248,8 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
             origin={
                 "message_id": str(message.id or ""),
                 "chars": len(text),
-                "streaming_mode": "strict_buffered" if strict else "compatible_retract",
-                "transient_exposure_possible": not strict,
+                "streaming_mode": "compatible_retract",
+                "transient_exposure_possible": True,
                 **scene_origin,
             },
         )
@@ -396,8 +365,8 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
         metadata["compliance"] = {
             "gate": GATE,
             "scene": decision.scene_key,
-            "streaming_mode": "strict_buffered" if decision.scene_key in STRICT_SCENES else "compatible_retract",
-            "transient_exposure_possible": decision.scene_key not in STRICT_SCENES,
+            "streaming_mode": "compatible_retract",
+            "transient_exposure_possible": True,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             "audit_ref": decision.audit_ref,
@@ -435,7 +404,7 @@ def build_retract_event(message: AIMessage, replacement: str, decision: Complian
         "type": RETRACT_EVENT,
         "message_id": str(message.id or ""),
         "scene": decision.scene_key,
-        "streaming_mode": "strict_buffered" if decision.scene_key in STRICT_SCENES else "compatible_retract",
+        "streaming_mode": "compatible_retract",
         "violation_types": sorted({hit.violation_type for hit in decision.hits}),
         "action": list(decision.actions),
         "replacement": replacement,

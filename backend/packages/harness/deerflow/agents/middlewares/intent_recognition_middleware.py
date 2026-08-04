@@ -10,12 +10,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any
-
-try:
-    from typing import override
-except ImportError:
-    from typing_extensions import override
+from typing import Any, override
 
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import HumanMessage
@@ -23,6 +18,7 @@ from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.intent import classify_compliance_intent
+from deerflow.config.compliance_config import get_compliance_config
 from deerflow.models import create_chat_model
 from deerflow.routing.dialogue_act import classify_dialogue_act
 from deerflow.routing.intent import (
@@ -56,26 +52,15 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
             return None
 
-        compliance_intent = classify_compliance_intent(query)
-        if compliance_intent["intent_type"] != "unknown":
-            intent = RoutingIntentResult(
-                intent="task",
-                original_query=query,
-                normalized_query=query.strip(),
-                routing_query=query.strip(),
-                confidence=float(compliance_intent["confidence"]),
-                reason="deterministic_compliance_intent",
-            )
-            return {
-                "intent_context": self._dump_intent_context(intent, source_message_key),
-                "dialogue_context": {
-                    "act": "new_task",
-                    "confidence": compliance_intent["confidence"],
-                    "reason": "deterministic_compliance_intent",
-                },
-            }
+        compliance_intent = self._compliance_intent(query)
 
-        llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        try:
+            llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        except Exception:
+            # Keep the original dialogue and deterministic/LLM routing flow;
+            # the compliance classifier is additive and never a replacement.
+            logger.debug("IntentRecognition: routing model unavailable; using deterministic classifier", exc_info=True)
+            llm = None
         previous_routing = state.get("routing_context")
         if not isinstance(previous_routing, dict):
             previous_routing = None
@@ -91,7 +76,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             self._log_intent(intent, query)
             return {
                 "dialogue_context": dialogue.__dict__,
-                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True),
+                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True, compliance_intent=compliance_intent),
                 "pending_action": None,
             }
         if dialogue.act == "chitchat":
@@ -104,7 +89,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
                 reason=dialogue.reason,
             )
             self._log_intent(intent, query)
-            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key, compliance_intent=compliance_intent)}
 
         intent = classify_routing_intent_with_llm(
             query,
@@ -115,7 +100,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             previous_intent=previous_intent,
         )
         self._log_intent(intent, query)
-        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key, compliance_intent=compliance_intent)}
 
     @override
     async def abefore_agent(self, state: ThreadState, runtime: Runtime) -> dict[str, Any] | None:
@@ -128,26 +113,13 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             logger.debug("IntentRecognition: reuse existing intent_context for source=%s", source_message_key)
             return None
 
-        compliance_intent = classify_compliance_intent(query)
-        if compliance_intent["intent_type"] != "unknown":
-            intent = RoutingIntentResult(
-                intent="task",
-                original_query=query,
-                normalized_query=query.strip(),
-                routing_query=query.strip(),
-                confidence=float(compliance_intent["confidence"]),
-                reason="deterministic_compliance_intent",
-            )
-            return {
-                "intent_context": self._dump_intent_context(intent, source_message_key),
-                "dialogue_context": {
-                    "act": "new_task",
-                    "confidence": compliance_intent["confidence"],
-                    "reason": "deterministic_compliance_intent",
-                },
-            }
+        compliance_intent = self._compliance_intent(query)
 
-        llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        try:
+            llm = create_chat_model(name=self.model_name, thinking_enabled=False)
+        except Exception:
+            logger.debug("IntentRecognition: routing model unavailable; using deterministic classifier", exc_info=True)
+            llm = None
         previous_routing = state.get("routing_context")
         if not isinstance(previous_routing, dict):
             previous_routing = None
@@ -163,7 +135,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             self._log_intent(intent, query)
             return {
                 "dialogue_context": dialogue.__dict__,
-                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True),
+                "intent_context": self._dump_intent_context(intent, source_message_key, suppress_hidden_steps=True, compliance_intent=compliance_intent),
                 "pending_action": None,
             }
         if dialogue.act == "chitchat":
@@ -176,7 +148,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
                 reason=dialogue.reason,
             )
             self._log_intent(intent, query)
-            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+            return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key, compliance_intent=compliance_intent)}
 
         intent = await aclassify_routing_intent_with_llm(
             query,
@@ -187,7 +159,7 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
             previous_intent=previous_intent,
         )
         self._log_intent(intent, query)
-        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key)}
+        return {"dialogue_context": dialogue.__dict__, "intent_context": self._dump_intent_context(intent, source_message_key, compliance_intent=compliance_intent)}
 
     def _prepare_input(
         self,
@@ -284,13 +256,21 @@ class IntentRecognitionMiddleware(AgentMiddleware[ThreadState]):
         source_message_key: str,
         *,
         suppress_hidden_steps: bool = False,
+        compliance_intent: dict[str, object] | None = None,
     ) -> dict[str, Any]:
         data = intent.model_dump()
-        data["compliance_intent"] = classify_compliance_intent(intent.original_query)
+        if compliance_intent is not None:
+            data["compliance_intent"] = compliance_intent
         data["_source_message_key"] = source_message_key
         if suppress_hidden_steps:
             data["_suppress_hidden_steps"] = True
         return data
+
+    @staticmethod
+    def _compliance_intent(query: str) -> dict[str, object] | None:
+        if not get_compliance_config().enabled:
+            return None
+        return classify_compliance_intent(query)
 
     @staticmethod
     def _resume_intent_from_dialogue(query: str, previous_intent: dict[str, Any] | None) -> RoutingIntentResult:

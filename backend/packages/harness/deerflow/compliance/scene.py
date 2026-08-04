@@ -51,6 +51,10 @@ class ResourceContext:
 @dataclass(frozen=True)
 class ComplianceRequestContext:
     request_id: str | None = None
+    thread_id: str | None = None
+    turn_id: str | None = None
+    trusted_source: str | None = None
+    permission_verified: bool = False
     actor: ActorContext = field(default_factory=ActorContext)
     operation: OperationContext = field(default_factory=OperationContext)
     resource: ResourceContext = field(default_factory=ResourceContext)
@@ -62,7 +66,7 @@ class ComplianceRequestContext:
 class SceneResolution:
     scene: str = UNKNOWN_SCENE_KEY
     confidence: float = 0.0
-    source: str = "server_resolver"
+    source: str = "null_resolver"
     reason_codes: tuple[str, ...] = ()
     fallback: bool = True
     permission_checked: bool = False
@@ -96,6 +100,10 @@ def parse_compliance_request(raw: Any) -> ComplianceRequestContext:
     permissions = actor.get("permissions") if isinstance(actor.get("permissions"), (list, tuple)) else ()
     return ComplianceRequestContext(
         request_id=str(data["request_id"]) if data.get("request_id") else None,
+        thread_id=str(data["thread_id"]) if data.get("thread_id") else None,
+        turn_id=str(data["turn_id"]) if data.get("turn_id") else None,
+        trusted_source=str(data["trusted_source"]) if data.get("trusted_source") else None,
+        permission_verified=data.get("permission_verified") is True,
         actor=ActorContext(
             user_id=str(actor["user_id"]) if actor.get("user_id") else None,
             org_id=str(actor["org_id"]) if actor.get("org_id") else None,
@@ -139,20 +147,54 @@ def resolve_scene_from_state(
     """Resolve once at InputGate and reuse that result at downstream gates."""
     raw = compliance_request_from_state(state)
     existing = _mapping((state or {}).get(SCENE_CONTEXT_KEY))
-    if not force and existing.get("source") == "server_resolver":
+    if not force and _can_reuse_trusted_scene(raw, existing):
         scene = str(existing.get("scene") or UNKNOWN_SCENE_KEY)
         if scene in (*SCENES, UNKNOWN_SCENE_KEY):
             return raw, SceneResolution(
                 scene=scene,
                 confidence=float(existing.get("confidence") or 0.0),
-                source="server_resolver",
+                source="trusted_upstream",
                 reason_codes=tuple(str(item) for item in (existing.get("reason_codes") or ())),
                 fallback=bool(existing.get("fallback", scene == UNKNOWN_SCENE_KEY)),
                 permission_checked=bool(existing.get("permission_checked")),
                 scene_hint=str(existing["scene_hint"]) if existing.get("scene_hint") else None,
                 request_id=str(existing["request_id"]) if existing.get("request_id") else None,
             )
-    return raw, TrustedSceneResolver().resolve_context(raw)
+    if _trusted_scene_mode_enabled() and _trusted_upstream_context(parse_compliance_request(raw)):
+        return raw, TrustedSceneResolver().resolve_context(raw)
+    return raw, NullSceneResolver().resolve_context(raw)
+
+
+def _can_reuse_trusted_scene(raw: Mapping[str, Any], existing: Mapping[str, Any]) -> bool:
+    """Only reuse a scene bound to the exact authenticated upstream request."""
+    if existing.get("source") != "trusted_upstream" or existing.get("permission_checked") is not True:
+        return False
+    ctx = parse_compliance_request(raw)
+    required = (
+        ctx.request_id,
+        ctx.thread_id,
+        ctx.turn_id,
+        ctx.actor.user_id,
+        ctx.actor.org_id,
+        ctx.operation.type,
+        ctx.resource.resource_id,
+    )
+    return (
+        all(required)
+        and ctx.trusted_source in {"onecity_iam", "trusted_upstream"}
+        and ctx.permission_verified
+        and str(existing.get("request_id") or "") == ctx.request_id
+    )
+
+
+def _trusted_scene_mode_enabled() -> bool:
+    """Read the explicit opt-in without importing config at module load time."""
+    try:
+        from deerflow.config.compliance_config import get_compliance_config
+
+        return (getattr(get_compliance_config(), "scene_resolver_mode", None) or "null") == "trusted_upstream"
+    except Exception:
+        return False
 
 
 def scene_origin_from_state(
@@ -173,13 +215,28 @@ class TrustedSceneResolver:
     def resolve_context(self, raw: Any) -> SceneResolution:
         ctx = parse_compliance_request(raw)
         actor, operation, resource = ctx.actor, ctx.operation, ctx.resource
+        trusted = _trusted_upstream_context(ctx)
         intent_type = str(ctx.intent.get("intent_type") or "unknown")
-        permissions_present = bool(actor.permissions)
         base = {
-            "source": "server_resolver",
+            "source": "trusted_upstream" if trusted else "null_resolver",
             "scene_hint": ctx.scene_hint,
             "request_id": ctx.request_id,
         }
+
+        # A scene is an authorization result, not a client hint. Until a
+        # server-side IAM decision is explicitly bound to this request, all
+        # real requests remain in the conservative _unknown matrix column.
+        if not trusted:
+            missing = ["trusted_upstream_context_missing"]
+            if not ctx.request_id:
+                missing.append("request_id_missing")
+            if not ctx.thread_id:
+                missing.append("thread_id_missing")
+            if not ctx.turn_id:
+                missing.append("turn_id_missing")
+            if not ctx.permission_verified:
+                missing.append("permission_verification_missing")
+            return SceneResolution(reason_codes=tuple(missing), **base)
 
         # Public disclosure is deliberately first: no claimed private scene can
         # soften it.  It is safe to resolve this strict scene even when identity
@@ -193,7 +250,7 @@ class TrustedSceneResolver:
                 confidence=0.99,
                 reason_codes=tuple(reasons),
                 fallback=False,
-                permission_checked=permissions_present,
+                permission_checked=True,
                 **base,
             )
 
@@ -214,7 +271,7 @@ class TrustedSceneResolver:
                 confidence=0.97,
                 reason_codes=tuple(reasons),
                 fallback=False,
-                permission_checked=permissions_present,
+                permission_checked=True,
                 **base,
             )
 
@@ -225,8 +282,6 @@ class TrustedSceneResolver:
             missing.append("resource_ownership_or_classification_missing")
         if operation.type == "unknown" or operation.target_audience == "unknown":
             missing.append("operation_missing")
-        if not permissions_present:
-            missing.append("permissions_missing")
         if resource.classification not in self._KNOWN_CLASSIFICATIONS:
             missing.append("classification_invalid")
         if missing:
@@ -262,7 +317,7 @@ class TrustedSceneResolver:
             and operation.type not in {"public_release", "share", "export"}
             and resource.classification != "restricted"
         ):
-            reasons = ["owner_user_match", "permission_present"]
+            reasons = ["owner_user_match", "permission_verified"]
             if ctx.scene_hint and ctx.scene_hint != "self_use":
                 reasons.append("scene_hint_conflict")
             return SceneResolution(
@@ -277,7 +332,7 @@ class TrustedSceneResolver:
         same_org = actor.org_id == resource.owner_org_id
         internal_audience = operation.target_audience in {"department", "organization"}
         if same_org and internal_audience and operation.type in self._INTERNAL_OPERATIONS:
-            reasons = ["organization_match", "permission_present"]
+            reasons = ["organization_match", "permission_verified"]
             if actor.department_id and resource.owner_department_id and actor.department_id != resource.owner_department_id:
                 reasons.append("cross_department_same_org")
             if ctx.scene_hint and ctx.scene_hint != "internal_org":
@@ -298,10 +353,17 @@ class TrustedSceneResolver:
 
     def resolve(self, request: DetectionRequest) -> Scene | None:
         existing = _mapping(request.origin.get("scene_resolution"))
+        raw = _mapping(request.origin.get(COMPLIANCE_REQUEST_KEY))
+        parsed = parse_compliance_request(raw)
         scene = str(existing.get("scene") or "")
-        if scene in SCENES:
+        if (
+            scene in SCENES
+            and _trusted_scene_mode_enabled()
+            and _can_reuse_trusted_scene(raw, existing)
+            and request.thread_id == parsed.thread_id
+        ):
             return scene  # type: ignore[return-value]
-        result = self.resolve_context(request.origin.get(COMPLIANCE_REQUEST_KEY))
+        result = self.resolve_context(raw)
         return result.scene if result.scene in SCENES else None  # type: ignore[return-value]
 
 
@@ -317,6 +379,25 @@ class NullSceneResolver:
 
     def resolve(self, request: DetectionRequest) -> Scene | None:  # noqa: ARG002
         return None
+
+    def resolve_context(self, raw: Any) -> SceneResolution:  # noqa: ARG002
+        return SceneResolution(source="null_resolver", reason_codes=("null_resolver",))
+
+
+def _trusted_upstream_context(ctx: ComplianceRequestContext) -> bool:
+    """Check the minimum server/IAM binding required for scene trust."""
+    return bool(
+        ctx.trusted_source in {"onecity_iam", "trusted_upstream"}
+        and ctx.permission_verified
+        and ctx.request_id
+        and ctx.thread_id
+        and ctx.turn_id
+        and ctx.actor.user_id
+        and ctx.actor.org_id
+        and ctx.operation.type != "unknown"
+        and ctx.resource.resource_id
+        and ctx.resource.owner_org_id
+    )
 
 
 def resolve_scene_key(
@@ -343,6 +424,10 @@ def scene_audit_context(raw: Any, resolution: SceneResolution) -> dict[str, Any]
     return {
         COMPLIANCE_REQUEST_KEY: {
             "request_id": ctx.request_id,
+            "thread_id": ctx.thread_id,
+            "turn_id": ctx.turn_id,
+            "trusted_source": ctx.trusted_source,
+            "permission_verified": ctx.permission_verified,
             "actor": asdict(ctx.actor),
             "operation": asdict(ctx.operation),
             "resource": asdict(ctx.resource),

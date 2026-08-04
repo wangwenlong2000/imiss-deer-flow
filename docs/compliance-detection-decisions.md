@@ -646,7 +646,11 @@ messages contains secret          : False
 
 ---
 
-## 2026-07-30 · D021 严格 scene 在模型流之前缓冲
+## 2026-07-30 · D021（已由PR Review撤回）严格 scene 在模型流之前缓冲
+
+> 历史记录：本次类型1/2接入不采用该公共框架方案。当前正式协议统一为
+> `OutputGate=stream_retract`；下述 `strict_buffered`、`nostream` 和
+> `disable_streaming` 仅记录被撤回的方案，不代表当前实现或配置。
 
 前述 R5 关于 graph state、`raw_messages`、title 和 checkpoint 的结论仍然成立，
 但“`wrap_model_call` 能保证原文不进入 SSE 帧”并不完整。LangGraph 的
@@ -660,10 +664,9 @@ raw model chunk -> user-visible messages SSE -> OutputGate complete scan
 -> compliance_retract -> safe authoritative state
 ```
 
-严格 scene 现在使用模型副本上的 `nostream` tag 和
-`disable_streaming=True`。完整模型结果先返回到最外层 OutputGate，执行真实
-Engine/Policy，再把安全结果交给 graph。严格集合为 `cross_org`、
-`public_release`、`research_anon`。
+该方案不再启用。所有 scene 均使用现有 `stream_retract`，由
+`compliance_retract` 事件和最终安全状态完成处置；缓冲式传输应作为后续
+独立公共框架PR实现。
 
 `self_use`、`internal_org` 与 `_unknown` 保留兼容模式；`_unknown` 仍明确使用
 保守的 warn/manual_review cell，不会降成 self_use。Audit 明确记录
@@ -671,8 +674,9 @@ Engine/Policy，再把安全结果交给 graph。严格集合为 `cross_org`、
 `scan_increment()` 仍无生产调用者，但严格模式不再依赖它来防止首次泄漏。
 
 确定性主链路和 HTTP/SSE 测试使用 `GenericFakeChatModel`，不改变生产模型行为，
-稳定覆盖 struct_id、geo_loc、组合风险、负样本和六类 scene。严格 SSE、最终
-messages/raw_messages 与审计中均断言不存在测试用完整标识符或精确坐标。
+稳定覆盖 struct_id、geo_loc、组合风险、负样本和六类 scene。当前回归断言
+`stream_retract` 元数据、撤回事件、最终状态和审计脱敏，而不声称原始
+token 在事件到达前绝不短暂出现。
 
 ---
 

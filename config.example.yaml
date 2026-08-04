@@ -563,11 +563,12 @@ compliance:
 
   detectors_config_path: "config/compliance/detectors.yaml"
   policy_matrix_path: "config/compliance/policy_matrix.yaml"
+  scene_resolver_mode: null
 
-  # Scene resolution. Phase 1 has no source of truth for "usage permission and
-  # publicity level", so every request falls back to the matrix `_unknown`
-  # column. Point `resolver` at a `module.path:ClassName` once one exists —
-  # no engine change required.
+  # Scene resolution is an authorization boundary. The null mode is the safe
+  # default: without a request-bound OneCity/IAM decision every request uses
+  # the matrix `_unknown` column. Only a future trusted_upstream integration
+  # may opt in to a configured resolver.
   scene:
     resolver: null
     fallback_key: _unknown

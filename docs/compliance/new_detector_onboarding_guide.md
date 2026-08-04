@@ -159,19 +159,19 @@ Durable response metadata and `compliance_retract` events must preserve:
 - gate and final scene;
 - all violation badges (never overwrite a sibling type);
 - actions, basis, notice, and audit reference;
-- strict/compatible streaming mode.
+- the existing `stream_retract` streaming mode and its honest transient window.
 
-For `cross_org`, `public_release`, and `research_anon`,
-the original risky value must never appear in a user-visible SSE event. Final
-`messages`, `raw_messages`, checkpoint/history, title input, and refresh state
-must contain only policy-safe content.
+All scenes use the existing `stream_retract` protocol. A raw chunk may precede
+the retract event; final state must contain the policy result and the frontend
+must handle `compliance_retract`. Do not clone models or assume
+`disable_streaming`, `model_copy`, or a `nostream` tag is available.
 
 ## 16. Performance
 
 Measure at least 30 repetitions for positive single-type, multi-type, and
-negative inputs. Report detector P50/P95/max and strict first-safe-event
-P50/P95/max. Stay within the configured gate budget and declare any model
-asset/startup cost separately.
+negative inputs. Report detector P50/P95/max and retract-event latency. Stay
+within the configured gate budget and declare any model asset/startup cost
+separately.
 
 ## 17. Non-negotiable prohibitions
 

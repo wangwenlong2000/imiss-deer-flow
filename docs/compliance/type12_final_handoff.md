@@ -4,7 +4,7 @@
 
 Type 1 structured identifiers (`struct_id`) and type 2 precise geolocation
 (`geo_loc`) are enabled lightweight DeerFlow plugins. They run through Registry,
-Router, Compliance Engine, IntentGuard, trusted SceneResolver, Policy Matrix,
+Router, Compliance Engine, IntentGuard, the default NullSceneResolver, Policy Matrix,
 Audit, all three gates, durable SSE metadata, safe OutputGate delivery, and the
 frontend compliance parser.
 
@@ -12,13 +12,13 @@ frontend compliance parser.
 
 ```text
 IntentRecognition ─┐
-OneCity request  ──┴─> trusted SceneResolver
+OneCity request  ──┴─> NullSceneResolver (_unknown by default)
                          │
 normalized unit -> Registry/Router -> detector -> finding
                          │
                          ├─ InputGate (intent join)
                          ├─ ContextGate (evidence)
-                         └─ OutputGate (strict buffer / compatible retract)
+                         └─ OutputGate (stream_retract)
                                       │
                          Policy Matrix + Audit + SSE metadata
 ```
@@ -110,13 +110,14 @@ review rather than becoming low risk.
 
 ## SceneResolver protocol
 
-`compliance_request` carries authenticated actor/org/department,
-server-issued roles/permissions, operation/audience, resource ownership,
-classification, target org, anonymization, and an untrusted `scene_hint`.
-InputGate writes `scene_context`; ContextGate and OutputGate reuse it. Public
-release has highest priority, organisation crossings are strict, research
-requires permission plus anonymization, and missing/conflicting facts are
-`_unknown`. See `onecity_deerflow_compliance_contract.md`.
+`compliance_request` is an integration seam for authenticated actor/org/
+department, operation/audience and resource facts. The default
+`scene_resolver_mode: null` deliberately sends every real request to `_unknown`;
+`TrustedSceneResolver` is not enabled until OneCity/IAM supplies a bound
+request ID, thread ID, turn ID, actor/resource/operation context and a genuine
+server-side permission decision. A non-empty permissions array is not a
+permission check, and `scene_context.source` alone is never reusable. See
+`onecity_deerflow_compliance_contract.md`.
 
 ## Three gates and policy
 
@@ -124,39 +125,24 @@ requires permission plus anonymization, and missing/conflicting facts are
   the resolved scene's matrix cell.
 - ContextGate normalizes skill evidence and safely rewrites/withholds risky
   evidence according to the same scene.
-- OutputGate checks the complete answer inside the outer model wrapper.
+- OutputGate checks the complete answer using the existing `stream_retract`
+  protocol; it does not clone models or force `disable_streaming`.
 
 Actions come only from
 `config/compliance/policy_matrix.yaml`. Findings do not embed actions.
 `self_use` may allow owner-visible data; internal scenes follow their cells;
 cross-org/public/research use stricter transformation/refusal; `_unknown`
-retains conservative review and uses fail-closed delivery for risky output.
+retains conservative warn/manual-review handling.
 
 ## Safe streaming and authoritative state
 
-`cross_org`, `public_release`, and `research_anon` use
-strict buffering:
-
-```text
-model (nostream + disable_streaming)
-  -> complete response inside OutputGate wrapper
-  -> detect + matrix actions
-  -> safe replacement
-  -> messages/custom/updates SSE
-```
-
-The original risky value is absent from user-visible SSE, `messages`,
-`raw_messages`, graph state/checkpoints, thread history, refresh state, and title
-input. The `nostream` tag prevents pre-wrapper model chunks from entering
-LangGraph's messages stream.
-
-`self_use`, `internal_org`, and `_unknown` retain compatibility streaming. A raw
-model chunk can precede the retract event, but the authoritative state is
-replaced when policy requires mutation. `_unknown` selects its conservative
-warn/manual-review matrix cell rather than silently becoming self-use. Audit records
-`streaming_mode=compatible_retract` and
-`transient_exposure_possible=true`. An explicit self-use `allow` remains
-visible because it is policy-safe for its verified owner.
+All scenes use the existing `stream_retract` protocol. A raw model chunk can
+precede the `compliance_retract` event, but the authoritative state is replaced
+when policy requires mutation. `_unknown` selects its conservative
+warn/manual-review matrix cell rather than silently becoming self-use. Audit
+records `streaming_mode=compatible_retract` and
+`transient_exposure_possible=true`. Buffered generation is a separate future
+framework change, not part of this type 1/2 integration.
 
 ## Audit and SSE
 
@@ -172,8 +158,8 @@ Durable assistant metadata:
   "compliance": {
     "gate": "OutputGate",
     "scene": "public_release",
-    "streaming_mode": "strict_buffered",
-    "transient_exposure_possible": false,
+    "streaming_mode": "compatible_retract",
+    "transient_exposure_possible": true,
     "actions": ["desensitize", "refuse"],
     "violation_types": ["geo_loc", "struct_id"],
     "basis": ["..."],
@@ -201,7 +187,7 @@ remote model:
 | public_release first safe SSE event | 5.978 | 6.972 | 68.956 |
 | internal_org first compatibility event | 5.932 | 8.800 | 14.288 |
 
-The first strict outlier includes graph/model setup. Remote-model generation
+The first outlier includes graph/model setup. Remote-model generation
 latency is intentionally excluded so detector/transport cost stays repeatable.
 
 ## Frontend
@@ -218,7 +204,8 @@ executes the manual steps below:
 
 1. Send one public-release struct, geo, and combined deterministic test.
 2. Confirm one/two badges and the expected Chinese labels.
-3. Confirm the body never flashes the raw fixture in strict scenes.
+3. Confirm the retract event replaces the answer and the UI shows the
+   compliance notice/badges.
 4. Refresh and confirm only safe history remains.
 5. Check the browser console for new React errors.
 
@@ -256,9 +243,9 @@ TypeScript check, compliance test, and compliance-file ESLint.
 - Direct LangGraph development access must not be a production trust boundary.
 - Type 8/9/10 model assets are separate; a missing asset must not be “fixed” by
   changing type 1/2 rules.
-- Compatibility scenes retain an honest pre-retract transport window.
+- `stream_retract` retains an honest pre-retract transport window.
 - Browser visual acceptance remains a human step when no browser is available.
-- Strict buffering delays the first visible answer until model completion.
+- Buffered streaming is intentionally not enabled by this PR.
 
 ## Next detector owner
 

@@ -1,4 +1,4 @@
-"""Deterministic HTTP/SSE proof for strict OutputGate buffering."""
+"""Deterministic HTTP/SSE regression for the existing retract protocol."""
 
 from __future__ import annotations
 
@@ -66,6 +66,10 @@ def _context(scene: str) -> dict:
     }
     result = {
         "request_id": f"req-stream-{scene}",
+        "thread_id": f"thread-{scene}",
+        "turn_id": "turn-001",
+        "trusted_source": "onecity_iam",
+        "permission_verified": True,
         "actor": actor,
         "operation": {"type": operation_type, "target_audience": audience},
         "resource": resource,
@@ -98,7 +102,7 @@ def _fake_model(text: str) -> GenericFakeChatModel:
 @pytest.fixture()
 def strict_runtime(tmp_path):
     original = get_compliance_config()
-    set_compliance_config(ComplianceConfig(enabled=True))
+    set_compliance_config(ComplianceConfig(enabled=True, scene_resolver_mode="trusted_upstream"))
     registry = build_registry(config_path=REPO_ROOT / "config/compliance/detectors.yaml", strict=True)
     model = registry.get("model_tfidf_knn")
     if model is not None:
@@ -152,29 +156,24 @@ def _dump(value: object) -> str:
 
 @pytest.mark.parametrize("scene", ["public_release", "cross_org", "research_anon"])
 @pytest.mark.parametrize("kind", ["struct_id", "geo_loc", "combined"])
-def test_strict_scenes_never_emit_raw_sensitive_output(strict_runtime, scene, kind):
+def test_all_scenes_use_retract_protocol(strict_runtime, scene, kind):
     engine, auditor = strict_runtime
     events, final = asyncio.run(_stream(_agent(engine, OUTPUTS[kind]), scene))
     rendered = _dump(events)
-    final_rendered = _dump(final)
-
-    assert PHONE not in rendered
-    assert LATITUDE not in rendered
-    assert LONGITUDE not in rendered
-    assert PHONE not in final_rendered
-    assert LATITUDE not in final_rendered
-    assert LONGITUDE not in final_rendered
+    # stream_retract deliberately permits a bounded transient exposure. The
+    # compliance_retract event and final rewritten state are the contract.
+    assert PHONE in rendered or LATITUDE in rendered or LONGITUDE in rendered
 
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
     compliance = assistant.response_metadata["compliance"]
     expected = {"struct_id"} if kind == "struct_id" else {"geo_loc"} if kind == "geo_loc" else {"struct_id", "geo_loc"}
     assert set(compliance["violation_types"]) == expected
     assert compliance["scene"] == scene
-    assert compliance["streaming_mode"] == "strict_buffered"
-    assert compliance["transient_exposure_possible"] is False
+    assert compliance["streaming_mode"] == "compatible_retract"
+    assert compliance["transient_exposure_possible"] is True
     assert assistant in final["raw_messages"]
     audit = auditor.read_all()[-1]
-    assert audit["origin"]["streaming_mode"] == "strict_buffered"
+    assert audit["origin"]["streaming_mode"] == "compatible_retract"
     assert PHONE not in _dump(audit)
     assert LATITUDE not in _dump(audit)
     assert LONGITUDE not in _dump(audit)
@@ -189,7 +188,7 @@ def test_compatible_scene_documents_retract_window_but_persists_safe_state(stric
     final_rendered = _dump(final)
 
     # Compatibility mode intentionally permits the original model chunk before
-    # the authoritative replacement. This is the behavior strict mode removes.
+    # the authoritative replacement. This is the existing retract behavior.
     assert PHONE in messages_stream
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
     metadata = assistant.response_metadata["compliance"]
@@ -215,12 +214,11 @@ def test_conceptual_negative_is_not_flagged(strict_runtime):
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
     assert "compliance" not in assistant.response_metadata
     assert auditor.read_all() == []
-    # The strict model may emit the completed clean message, but never partial
-    # pre-gate chunks. This negative is safe and therefore remains unchanged.
+    # A clean answer remains unchanged under stream_retract.
     assert OUTPUTS["negative"] in _dump([data for mode, data in events if mode == "messages"])
 
 
-def test_real_http_sse_endpoint_never_contains_combined_raw_values(strict_runtime):
+def test_real_http_sse_endpoint_exposes_retract_contract(strict_runtime):
     engine, _ = strict_runtime
     agent = _agent(engine, OUTPUTS["combined"])
     app = FastAPI()
@@ -252,9 +250,7 @@ def test_real_http_sse_endpoint_never_contains_combined_raw_values(strict_runtim
         )
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
-    assert PHONE not in response.text
-    assert LATITUDE not in response.text
-    assert LONGITUDE not in response.text
-    assert "strict_buffered" in response.text
+    assert PHONE in response.text or LATITUDE in response.text or LONGITUDE in response.text
+    assert "compatible_retract" in response.text
     assert "struct_id" in response.text
     assert "geo_loc" in response.text

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from langchain_core.messages import HumanMessage
@@ -18,8 +19,19 @@ from deerflow.compliance.intent import classify_compliance_intent
 from deerflow.compliance.policy import load_policy_matrix
 from deerflow.compliance.registry import build_registry
 from deerflow.compliance.scene import NullSceneResolver
+from deerflow.config.compliance_config import ComplianceConfig, get_compliance_config, set_compliance_config
+from deerflow.routing.intent import RoutingIntentResult
+from deerflow.routing.intent.classifier import SubTask, TaskSpan
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(autouse=True)
+def compliance_enabled_for_this_module():
+    original = get_compliance_config()
+    set_compliance_config(ComplianceConfig(enabled=True))
+    yield
+    set_compliance_config(original)
 
 
 @pytest.mark.parametrize(
@@ -52,6 +64,99 @@ def test_intent_recognition_writes_unified_structure_without_llm():
     assert compliance["requested_operation"] == "publish"
     assert compliance["risk_level"] == "high"
     assert compliance["is_high_risk"] is True
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "分析视频中的事件",
+        "分析城市治理数据",
+        "继续分析刚才的视频",
+        "同时分析视频和交通流量",
+        "解释什么是视频元数据泄露",
+        "请把手机号脱敏后内部分析",
+        "请公开导出原始手机号",
+    ],
+)
+def test_compliance_intent_is_additive_to_complete_routing(monkeypatch, query):
+    """Compliance classification must not truncate the routing pipeline."""
+    expected = RoutingIntentResult(
+        intent="task",
+        original_query=query,
+        normalized_query="normalized",
+        routing_query="route-preserved",
+        scene="video_surveillance",
+        scenes=["video_surveillance", "traffic_analysis"],
+        scene_tasks=[SubTask(scene="video_surveillance", text=query)],
+        task_spans=[TaskSpan(text=query)],
+        params={"keep": "value"},
+        confidence=0.88,
+        reason="full_routing_pipeline",
+    )
+    monkeypatch.setattr(
+        "deerflow.agents.middlewares.intent_recognition_middleware.create_chat_model",
+        lambda **_: object(),
+    )
+    monkeypatch.setattr(
+        "deerflow.agents.middlewares.intent_recognition_middleware.classify_dialogue_act",
+        lambda *args, **kwargs: SimpleNamespace(act="new_task", confidence=0.8, reason="new"),
+    )
+    monkeypatch.setattr(
+        "deerflow.agents.middlewares.intent_recognition_middleware.classify_routing_intent_with_llm",
+        lambda *args, **kwargs: expected,
+    )
+
+    update = IntentRecognitionMiddleware(model_name="unused").before_agent(
+        {"messages": [HumanMessage(content=query, id=f"route-{abs(hash(query))}")]}, runtime=None
+    )
+    assert update is not None
+    routed = update["intent_context"]
+    assert routed["routing_query"] == expected.routing_query
+    assert routed["scene"] == expected.scene
+    assert routed["scenes"] == expected.scenes
+    assert routed["scene_tasks"]
+    assert routed["task_spans"]
+    assert routed["params"] == expected.params
+    assert routed["compliance_intent"]["source"] == "intent_recognition"
+
+
+def test_compliance_disabled_preserves_baseline_routing(monkeypatch):
+    original = get_compliance_config()
+    set_compliance_config(ComplianceConfig(enabled=False))
+    try:
+        expected = RoutingIntentResult(
+            intent="task",
+            original_query="分析视频中的事件",
+            normalized_query="normalized",
+            routing_query="route-preserved",
+            scene="video_surveillance",
+            scenes=["video_surveillance"],
+            params={"x": 1},
+        )
+        monkeypatch.setattr(
+            "deerflow.agents.middlewares.intent_recognition_middleware.create_chat_model",
+            lambda **_: object(),
+        )
+        monkeypatch.setattr(
+            "deerflow.agents.middlewares.intent_recognition_middleware.classify_dialogue_act",
+            lambda *args, **kwargs: SimpleNamespace(act="new_task", confidence=0.8, reason="new"),
+        )
+        monkeypatch.setattr(
+            "deerflow.agents.middlewares.intent_recognition_middleware.classify_routing_intent_with_llm",
+            lambda *args, **kwargs: expected,
+        )
+        update = IntentRecognitionMiddleware(model_name="unused").before_agent(
+            {"messages": [HumanMessage(content="分析视频中的事件", id="baseline-1")]}, runtime=None
+        )
+        assert update is not None
+        routed = update["intent_context"]
+        assert routed["routing_query"] == expected.routing_query
+        assert routed["scene"] == expected.scene
+        assert routed["scenes"] == expected.scenes
+        assert routed["params"] == expected.params
+        assert "compliance_intent" not in routed
+    finally:
+        set_compliance_config(original)
 
 
 @pytest.fixture()

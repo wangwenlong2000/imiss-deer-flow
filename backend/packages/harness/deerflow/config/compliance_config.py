@@ -105,6 +105,13 @@ class ComplianceConfig(BaseModel):
     gates: GatesConfig = Field(default_factory=GatesConfig)
     detectors_config_path: str = Field(default="config/compliance/detectors.yaml")
     policy_matrix_path: str = Field(default="config/compliance/policy_matrix.yaml")
+    scene_resolver_mode: Literal["null", "trusted_upstream"] | None = Field(
+        default=None,
+        description=(
+            "Scene authorization mode. `null` is the safe default; use "
+            "`trusted_upstream` only with a server-side IAM-bound resolver."
+        ),
+    )
     scene: SceneConfig = Field(default_factory=SceneConfig)
     audit: AuditConfig = Field(default_factory=AuditConfig)
 

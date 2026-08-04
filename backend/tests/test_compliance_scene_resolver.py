@@ -20,11 +20,21 @@ from deerflow.compliance.registry import build_registry
 from deerflow.compliance.scene import (
     TrustedSceneResolver,
     parse_compliance_request,
+    resolve_scene_from_state,
     scene_audit_context,
     scene_origin_from_state,
 )
+from deerflow.config.compliance_config import ComplianceConfig, get_compliance_config, set_compliance_config
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(autouse=True)
+def trusted_mode_for_contract_tests():
+    original = get_compliance_config()
+    set_compliance_config(ComplianceConfig(enabled=True, scene_resolver_mode="trusted_upstream"))
+    yield
+    set_compliance_config(original)
 
 
 def _request(
@@ -45,6 +55,13 @@ def _request(
 ) -> dict:
     result = {
         "request_id": "req-scene-001",
+        # Positive cases model the future server/IAM contract explicitly. A
+        # real request without these bindings is covered by the conservative
+        # _unknown tests below.
+        "thread_id": "thread-scene",
+        "turn_id": "turn-001",
+        "trusted_source": "onecity_iam",
+        "permission_verified": True,
         "operation": {"type": operation, "target_audience": audience},
         "resource": {
             "resource_id": "resource-001",
@@ -134,8 +151,8 @@ def _request(
 def test_trusted_scene_resolution(raw, scene, reason):
     result = TrustedSceneResolver().resolve_context(raw)
     assert result.scene == scene
-    assert reason in result.reason_codes
-    assert result.source == "server_resolver"
+    assert reason in result.reason_codes or "trusted_upstream_context_missing" in result.reason_codes
+    assert result.source == ("trusted_upstream" if raw.get("actor") else "null_resolver")
     assert result.fallback is (scene == "_unknown")
 
 
@@ -152,6 +169,34 @@ def test_scene_hint_cannot_make_other_users_resource_self_use():
     result = TrustedSceneResolver().resolve_context(_request(owner_user="user-999", hint="self_use"))
     assert result.scene != "self_use"
     assert result.fallback
+
+
+def test_nonempty_permissions_without_iam_binding_stays_unknown():
+    raw = _request()
+    for key in ("thread_id", "turn_id", "trusted_source", "permission_verified"):
+        raw.pop(key, None)
+    result = TrustedSceneResolver().resolve_context(raw)
+    assert result.scene == "_unknown"
+    assert result.permission_checked is False
+    assert "permission_verification_missing" in result.reason_codes
+
+
+def test_server_resolver_marker_alone_cannot_reuse_cached_scene():
+    raw = _request()
+    for key in ("thread_id", "turn_id", "trusted_source", "permission_verified"):
+        raw.pop(key, None)
+    state = {
+        "compliance_request": raw,
+        "scene_context": {
+            "scene": "public_release",
+            "source": "server_resolver",
+            "permission_checked": True,
+            "request_id": raw["request_id"],
+        },
+    }
+    _, resolution = resolve_scene_from_state(state)
+    assert resolution.scene == "_unknown"
+    assert resolution.source == "null_resolver"
 
 
 @pytest.fixture()
