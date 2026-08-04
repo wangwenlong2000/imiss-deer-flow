@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 geo_loc_detector.py
 
@@ -22,8 +21,9 @@ import json
 import math
 import re
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
 TARGET = "geo_loc"
 DETECTOR_VERSION = "geo_loc_detector_rule_final_v2.0"
@@ -110,8 +110,8 @@ ADDRESS_FALSE_POSITIVE_HINTS = ["号码", "编号", "节点", "字段", "数据�
 PLACEHOLDER_VALUES = {"", "none", "null", "nan", "n/a", "na", "unknown", "未知", "空", "masked", "脱敏", "***", "******"}
 
 
-def read_jsonl(path: str | Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+def read_jsonl(path: str | Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     with Path(path).open("r", encoding="utf-8") as f:
         for line_no, line in enumerate(f, 1):
             line = line.strip()
@@ -124,7 +124,7 @@ def read_jsonl(path: str | Path) -> List[Dict[str, Any]]:
     return rows
 
 
-def write_jsonl(path: str | Path, rows: Iterable[Dict[str, Any]]) -> None:
+def write_jsonl(path: str | Path, rows: Iterable[dict[str, Any]]) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("w", encoding="utf-8") as f:
@@ -132,8 +132,8 @@ def write_jsonl(path: str | Path, rows: Iterable[Dict[str, Any]]) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def flatten(obj: Any, prefix: str = "") -> List[Tuple[str, Any]]:
-    out: List[Tuple[str, Any]] = []
+def flatten(obj: Any, prefix: str = "") -> list[tuple[str, Any]]:
+    out: list[tuple[str, Any]] = []
     if isinstance(obj, dict):
         for k, v in obj.items():
             key = f"{prefix}.{k}" if prefix else str(k)
@@ -195,7 +195,7 @@ def decimal_places(num_text: str) -> int:
     return len(num_text.split(".")[-1]) if "." in num_text else 0
 
 
-def build_risk(field_path: str, text: str, risk_type: str, method: str, score: float, reason: str) -> Dict[str, Any]:
+def build_risk(field_path: str, text: str, risk_type: str, method: str, score: float, reason: str) -> dict[str, Any]:
     return {
         "field_path": field_path,
         "text": text,
@@ -210,7 +210,7 @@ class OptionalPresidio:
     def __init__(self, mode: str = "never") -> None:
         self.mode = mode
         self.enabled = False
-        self.init_error: Optional[str] = None
+        self.init_error: str | None = None
         self.analyzer = None
         if mode == "never":
             return
@@ -223,14 +223,14 @@ class OptionalPresidio:
             if mode == "require":
                 raise
 
-    def analyze_locations(self, text: str, field_path: str) -> List[Dict[str, Any]]:
+    def analyze_locations(self, text: str, field_path: str) -> list[dict[str, Any]]:
         if not self.enabled or not self.analyzer or not text:
             return []
         try:
             results = self.analyzer.analyze(text=text, language="en")
         except Exception:
             return []
-        risks: List[Dict[str, Any]] = []
+        risks: list[dict[str, Any]] = []
         for r in results:
             if getattr(r, "entity_type", "") != "LOCATION":
                 continue
@@ -242,10 +242,10 @@ class OptionalPresidio:
         return risks
 
 
-def collect_items(sample: Dict[str, Any]) -> Tuple[List[Tuple[str, Any]], List[Tuple[str, str]]]:
+def collect_items(sample: dict[str, Any]) -> tuple[list[tuple[str, Any]], list[tuple[str, str]]]:
     """Return field/value items and text blobs. Supports normalized and original samples."""
-    items: List[Tuple[str, Any]] = []
-    text_blobs: List[Tuple[str, str]] = []
+    items: list[tuple[str, Any]] = []
+    text_blobs: list[tuple[str, str]] = []
 
     # normalized fields
     if sample.get("content_text"):
@@ -271,10 +271,10 @@ def collect_items(sample: Dict[str, Any]) -> Tuple[List[Tuple[str, Any]], List[T
     return items, text_blobs
 
 
-def detect_coordinate_fields(items: List[Tuple[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str], List[str]]:
-    risks: List[Dict[str, Any]] = []
-    lat_paths: List[str] = []
-    lon_paths: List[str] = []
+def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[str, Any]], list[str], list[str]]:
+    risks: list[dict[str, Any]] = []
+    lat_paths: list[str] = []
+    lon_paths: list[str] = []
     for path, value in items:
         base = field_basename(path)
         if not has_meaningful_value(value):
@@ -295,7 +295,8 @@ def detect_coordinate_fields(items: List[Tuple[str, Any]]) -> Tuple[List[Dict[st
             # coordinate field with GPS-like pair in value, including LAT=... LON=... text.
             for m in GPS_PAIR_RE.finditer(text):
                 try:
-                    lat = float(m.group(1)); lon = float(m.group(2))
+                    lat = float(m.group(1))
+                    lon = float(m.group(2))
                 except Exception:
                     continue
                 if is_plausible_lat(lat) and is_plausible_lon(lon):
@@ -308,9 +309,9 @@ def detect_coordinate_fields(items: List[Tuple[str, Any]]) -> Tuple[List[Dict[st
     return risks, lat_paths, lon_paths
 
 
-def detect_address_fields(items: List[Tuple[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
-    risks: List[Dict[str, Any]] = []
-    address_paths: List[str] = []
+def detect_address_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:
+    risks: list[dict[str, Any]] = []
+    address_paths: list[str] = []
     for path, value in items:
         base = field_basename(path)
         if base not in ADDRESS_FIELDS:
@@ -327,11 +328,11 @@ def detect_address_fields(items: List[Tuple[str, Any]]) -> Tuple[List[Dict[str, 
     return risks, address_paths
 
 
-def detect_telecom_fields(data_type: str, items: List[Tuple[str, Any]], text_blobs: List[Tuple[str, str]]) -> Tuple[List[Dict[str, Any]], List[str], List[str], List[str]]:
-    risks: List[Dict[str, Any]] = []
-    object_paths: List[str] = []
-    time_paths: List[str] = []
-    telecom_geo_paths: List[str] = []
+def detect_telecom_fields(data_type: str, items: list[tuple[str, Any]], text_blobs: list[tuple[str, str]]) -> tuple[list[dict[str, Any]], list[str], list[str], list[str]]:
+    risks: list[dict[str, Any]] = []
+    object_paths: list[str] = []
+    time_paths: list[str] = []
+    telecom_geo_paths: list[str] = []
 
     for path, value in items:
         base = field_basename(path)
@@ -376,7 +377,7 @@ def is_public_non_sensitive_address_context(text: str) -> bool:
     )
 
 
-def detect_single_object_route(path: str, text: str) -> List[Dict[str, Any]]:
+def detect_single_object_route(path: str, text: str) -> list[dict[str, Any]]:
     """Detect a single trajectory object's multi-stop route with explicit times."""
     if not TRAJECTORY_OBJECT_RE.search(text):
         return []
@@ -394,15 +395,16 @@ def detect_single_object_route(path: str, text: str) -> List[Dict[str, Any]]:
                        "single trajectory object is linked to multiple explicit times and route locations")]
 
 
-def detect_text_geo(text_blobs: List[Tuple[str, str]], data_type: str) -> List[Dict[str, Any]]:
-    risks: List[Dict[str, Any]] = []
+def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[dict[str, Any]]:
+    risks: list[dict[str, Any]] = []
     for path, text in text_blobs:
         if not text or is_safe_or_negated_text(text):
             # 对负向/泛化文本，不做正则坐标和地址触发。
             continue
         for m in GPS_PAIR_RE.finditer(text):
             try:
-                lat = float(m.group(1)); lon = float(m.group(2))
+                lat = float(m.group(1))
+                lon = float(m.group(2))
             except Exception:
                 continue
             if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
@@ -446,7 +448,7 @@ def detect_text_geo(text_blobs: List[Tuple[str, str]], data_type: str) -> List[D
     return risks
 
 
-def apply_data_type_policy(sample: Dict[str, Any], exclude_data_types: set[str]) -> Optional[Dict[str, Any]]:
+def apply_data_type_policy(sample: dict[str, Any], exclude_data_types: set[str]) -> dict[str, Any] | None:
     dt = canonical_data_type(sample.get("data_type") or sample.get("original_data_type") or "")
     if dt in exclude_data_types:
         return {
@@ -465,14 +467,14 @@ def apply_data_type_policy(sample: Dict[str, Any], exclude_data_types: set[str])
     return None
 
 
-def detect_geo_loc(sample: Dict[str, Any], presidio: OptionalPresidio, exclude_data_types: set[str]) -> Dict[str, Any]:
+def detect_geo_loc(sample: dict[str, Any], presidio: OptionalPresidio, exclude_data_types: set[str]) -> dict[str, Any]:
     pre = apply_data_type_policy(sample, exclude_data_types)
     if pre is not None:
         return pre
 
     data_type = canonical_data_type(sample.get("data_type") or sample.get("original_data_type") or "")
     items, text_blobs = collect_items(sample)
-    risks: List[Dict[str, Any]] = []
+    risks: list[dict[str, Any]] = []
 
     # 通用经纬度字段/文本规则。
     coord_risks, lat_paths, lon_paths = detect_coordinate_fields(items)
@@ -488,14 +490,14 @@ def detect_geo_loc(sample: Dict[str, Any], presidio: OptionalPresidio, exclude_d
     risks.extend(telecom_risks)
 
     # Presidio LOCATION 只作为辅助证据，不作为正式触发，避免城市/州名误报。
-    aux_risks: List[Dict[str, Any]] = []
+    aux_risks: list[dict[str, Any]] = []
     if presidio.enabled:
         for path, text in text_blobs:
             if not is_safe_or_negated_text(text):
                 aux_risks.extend(presidio.analyze_locations(text, path))
 
     # 去重。
-    uniq: List[Dict[str, Any]] = []
+    uniq: list[dict[str, Any]] = []
     seen = set()
     for r in risks:
         key = (r.get("field_path"), r.get("text"), r.get("risk_type"), r.get("method"))
@@ -544,7 +546,7 @@ def detect_geo_loc(sample: Dict[str, Any], presidio: OptionalPresidio, exclude_d
     }
 
 
-def metric_bucket(pairs: List[Tuple[Dict[str, Any], Dict[str, Any]]]) -> Dict[str, Any]:
+def metric_bucket(pairs: list[tuple[dict[str, Any], dict[str, Any]]]) -> dict[str, Any]:
     tp = fp = fn = tn = 0
     for gold, pred in pairs:
         g = bool(gold.get("is_positive"))
@@ -565,9 +567,9 @@ def metric_bucket(pairs: List[Tuple[Dict[str, Any], Dict[str, Any]]]) -> Dict[st
     return {"TP": tp, "FP": fp, "FN": fn, "TN": tn, "accuracy": acc, "precision": prec, "recall": rec, "f1": f1, "samples": total}
 
 
-def calc_report(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]], excluded: set[str]) -> Dict[str, Any]:
+def calc_report(samples: list[dict[str, Any]], preds: list[dict[str, Any]], excluded: set[str]) -> dict[str, Any]:
     pairs = list(zip(samples, preds))
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "target": TARGET,
         "detector_version": DETECTOR_VERSION,
         "excluded_data_types": sorted(excluded),
@@ -578,7 +580,7 @@ def calc_report(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]], excl
         ("by_gate", lambda s: s.get("gate") or s.get("trigger_gate") or "unknown"),
         ("by_sample_kind", lambda s: s.get("sample_kind", "unknown")),
     ]:
-        d: Dict[str, List[Tuple[Dict[str, Any], Dict[str, Any]]]] = defaultdict(list)
+        d: dict[str, list[tuple[dict[str, Any], dict[str, Any]]]] = defaultdict(list)
         for s, p in pairs:
             d[str(getter(s))].append((s, p))
         report[group_name] = {k: metric_bucket(v) for k, v in sorted(d.items())}
@@ -596,8 +598,8 @@ def calc_report(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]], excl
     return report
 
 
-def enriched_error_rows(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]], error_type: str) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def enriched_error_rows(samples: list[dict[str, Any]], preds: list[dict[str, Any]], error_type: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     for s, p in zip(samples, preds):
         g = bool(s.get("is_positive"))
         pred = bool(p.get("is_positive_pred"))
@@ -632,7 +634,7 @@ def parse_csv_set(text: str) -> set[str]:
     return {x.strip() for x in text.split(",") if x.strip()}
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Geo location leak detector: final rule version")
     ap.add_argument("--input", required=True)
     ap.add_argument("--output", required=True)

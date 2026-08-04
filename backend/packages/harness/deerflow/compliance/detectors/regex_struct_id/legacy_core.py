@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 struct_id_detector.py v2
 
@@ -32,8 +31,9 @@ import json
 import os
 import re
 from collections import Counter, defaultdict
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
+from typing import Any
 
 STRUCT_ID_VIOLATION = "struct_id"
 DETECTOR_VERSION = "struct_id_detector_presidio_rule_v2.0"
@@ -42,7 +42,7 @@ DETECTOR_VERSION = "struct_id_detector_presidio_rule_v2.0"
 # Regex rules
 # -----------------------------
 
-REGEX_RULES: List[Tuple[str, re.Pattern[str], float]] = [
+REGEX_RULES: list[tuple[str, re.Pattern[str], float]] = [
     ("CN_PHONE_NUMBER", re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)"), 0.95),
     ("EMAIL_ADDRESS", re.compile(r"(?<![\w.%-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?![\w.%-])"), 0.90),
     ("IP_ADDRESS", re.compile(r"(?<!\d)(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)(?!\d)"), 0.86),
@@ -115,9 +115,9 @@ class Hit:
 # IO helpers
 # -----------------------------
 
-def read_jsonl(path: str) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as f:
+def read_jsonl(path: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    with open(path, encoding="utf-8") as f:
         for i, line in enumerate(f, 1):
             line = line.strip()
             if not line:
@@ -129,14 +129,14 @@ def read_jsonl(path: str) -> List[Dict[str, Any]]:
     return rows
 
 
-def write_jsonl(path: str, rows: Iterable[Dict[str, Any]]) -> None:
+def write_jsonl(path: str, rows: Iterable[dict[str, Any]]) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def write_json(path: str, obj: Dict[str, Any]) -> None:
+def write_json(path: str, obj: dict[str, Any]) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
@@ -182,7 +182,7 @@ def is_sensitive_field(key: str) -> bool:
     return any(tok in str(key) for tok in chinese_tokens)
 
 
-def iter_items(obj: Any, path: str = "content") -> Iterable[Tuple[str, Optional[str], Any]]:
+def iter_items(obj: Any, path: str = "content") -> Iterable[tuple[str, str | None, Any]]:
     if isinstance(obj, dict):
         for k, v in obj.items():
             next_path = f"{path}.{k}" if path else str(k)
@@ -206,7 +206,7 @@ def stringify_for_text(obj: Any) -> str:
     if isinstance(obj, (int, float, bool)):
         return str(obj)
     if isinstance(obj, dict):
-        parts: List[str] = []
+        parts: list[str] = []
         for path, key, value in iter_items(obj, "content"):
             if isinstance(value, (str, int, float, bool)):
                 parts.append(str(value))
@@ -216,8 +216,8 @@ def stringify_for_text(obj: Any) -> str:
     return str(obj)
 
 
-def flatten_dict(obj: Any, prefix: str = "") -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+def flatten_dict(obj: Any, prefix: str = "") -> dict[str, Any]:
+    out: dict[str, Any] = {}
     if isinstance(obj, dict):
         for k, v in obj.items():
             path = f"{prefix}.{k}" if prefix else str(k)
@@ -236,10 +236,10 @@ def flatten_dict(obj: Any, prefix: str = "") -> Dict[str, Any]:
     return out
 
 
-def extract_detection_input(sample: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+def extract_detection_input(sample: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     """Return (content_text, features) for normalized or original annotations."""
-    text_parts: List[str] = []
-    features: Dict[str, Any] = {}
+    text_parts: list[str] = []
+    features: dict[str, Any] = {}
 
     if isinstance(sample.get("content_text"), str):
         text_parts.append(sample["content_text"])
@@ -404,8 +404,8 @@ def make_hit(field: str, text: str, entity_type: str, method: str, score: float,
     return Hit(field=field, text=str(text)[:180], entity_type=entity_type, method=method, score=score, reason=reason, reason_code=reason_code)
 
 
-def text_scan(text: str, field: str, context: Optional[str] = None) -> List[Hit]:
-    hits: List[Hit] = []
+def text_scan(text: str, field: str, context: str | None = None) -> list[Hit]:
+    hits: list[Hit] = []
     if not isinstance(text, str) or not text.strip():
         return hits
     scan_context = text if context is None else context
@@ -424,8 +424,8 @@ def text_scan(text: str, field: str, context: Optional[str] = None) -> List[Hit]
     return hits
 
 
-def field_scan(path: str, key: Optional[str], value: Any, data_type: str, global_context: str) -> List[Hit]:
-    hits: List[Hit] = []
+def field_scan(path: str, key: str | None, value: Any, data_type: str, global_context: str) -> list[Hit]:
+    hits: list[Hit] = []
     if value is None:
         return hits
     value_text = str(value)
@@ -503,7 +503,7 @@ class OptionalPresidioAnalyzer:
     def __init__(self, mode: str = "auto") -> None:
         self.mode = mode
         self.enabled = False
-        self.error: Optional[str] = None
+        self.error: str | None = None
         self.analyzer = None
         if mode == "never":
             return
@@ -528,14 +528,14 @@ class OptionalPresidioAnalyzer:
                     "or run with --use-presidio auto/never. Original error: " + self.error
                 ) from e
 
-    def scan(self, text: str, field: str) -> List[Hit]:
+    def scan(self, text: str, field: str) -> list[Hit]:
         if not self.enabled or not self.analyzer or not isinstance(text, str) or not text.strip():
             return []
         try:
             results = self.analyzer.analyze(text=text, language="en")
         except Exception:
             return []
-        hits: List[Hit] = []
+        hits: list[Hit] = []
         for r in results:
             span = text[r.start:r.end]
             entity = getattr(r, "entity_type", "PRESIDIO_ENTITY")
@@ -549,10 +549,10 @@ class OptionalPresidioAnalyzer:
         return hits
 
 
-def detect_struct_id(sample: Dict[str, Any], presidio: OptionalPresidioAnalyzer) -> Dict[str, Any]:
+def detect_struct_id(sample: dict[str, Any], presidio: OptionalPresidioAnalyzer) -> dict[str, Any]:
     data_type = str(sample.get("data_type") or sample.get("original_data_type") or "unknown")
     content_text, features = extract_detection_input(sample)
-    hits: List[Hit] = []
+    hits: list[Hit] = []
 
     # 1. Scan normalized/free text.
     hits.extend(text_scan(content_text, "content_text"))
@@ -574,7 +574,7 @@ def detect_struct_id(sample: Dict[str, Any], presidio: OptionalPresidioAnalyzer)
 
     # De-duplicate and remove obviously unsupported placeholder hits.
     seen = set()
-    deduped: List[Hit] = []
+    deduped: list[Hit] = []
     for h in hits:
         sig = (h.field, h.text, h.entity_type, h.method)
         if sig in seen:
@@ -601,7 +601,7 @@ def detect_struct_id(sample: Dict[str, Any], presidio: OptionalPresidioAnalyzer)
 # Evaluation
 # -----------------------------
 
-def gold_is_struct_id(sample: Dict[str, Any]) -> bool:
+def gold_is_struct_id(sample: dict[str, Any]) -> bool:
     target = sample.get("target_violation_type") or sample.get("original_target_violation_type")
     final = sample.get("final_violation_type") or sample.get("original_final_violation_type")
     is_pos = bool(sample.get("is_positive"))
@@ -609,7 +609,7 @@ def gold_is_struct_id(sample: Dict[str, Any]) -> bool:
     return is_pos and (final == STRUCT_ID_VIOLATION or target == STRUCT_ID_VIOLATION)
 
 
-def metric_from_counter(c: Counter) -> Dict[str, Any]:
+def metric_from_counter(c: Counter) -> dict[str, Any]:
     TP, FP, FN, TN = c["TP"], c["FP"], c["FN"], c["TN"]
     total = TP + FP + FN + TN
     precision = TP / (TP + FP) if TP + FP else 0.0
@@ -619,14 +619,14 @@ def metric_from_counter(c: Counter) -> Dict[str, Any]:
     return {"TP": TP, "FP": FP, "FN": FN, "TN": TN, "accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1, "samples": total}
 
 
-def evaluate(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]]) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]]]:
+def evaluate(samples: list[dict[str, Any]], preds: list[dict[str, Any]]) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     overall = Counter()
-    by_gate: Dict[str, Counter] = defaultdict(Counter)
-    by_data_type: Dict[str, Counter] = defaultdict(Counter)
-    by_sample_kind: Dict[str, Counter] = defaultdict(Counter)
-    by_target: Dict[str, Counter] = defaultdict(Counter)
-    false_positives: List[Dict[str, Any]] = []
-    false_negatives: List[Dict[str, Any]] = []
+    by_gate: dict[str, Counter] = defaultdict(Counter)
+    by_data_type: dict[str, Counter] = defaultdict(Counter)
+    by_sample_kind: dict[str, Counter] = defaultdict(Counter)
+    by_target: dict[str, Counter] = defaultdict(Counter)
+    false_positives: list[dict[str, Any]] = []
+    false_negatives: list[dict[str, Any]] = []
 
     for s, p in zip(samples, preds):
         gold = gold_is_struct_id(s)
@@ -678,7 +678,7 @@ def evaluate(samples: List[Dict[str, Any]], preds: List[Dict[str, Any]]) -> Tupl
 # CLI
 # -----------------------------
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Detect structured identifier leakage in compliance JSONL samples.")
     parser.add_argument("--input", required=True, help="Input JSONL annotation file, original or normalized")
     parser.add_argument("--output", default="outputs/struct_id_predictions.jsonl", help="Prediction JSONL output path")
