@@ -327,6 +327,7 @@ export const enUS: Translations = {
     basisLabel: "Compliance basis",
     auditRefLabel: "Audit reference",
     gateLabel: "Gate",
+    sceneLabel: "Permission scene",
     noBasis: "No clause was attached to this determination",
     violationTypes: {
       struct_id: "Structured identifier leak",
@@ -356,6 +357,14 @@ export const enUS: Translations = {
       InputGate: "Input gate",
       ContextGate: "Context gate",
       OutputGate: "Output gate",
+    },
+    scenes: {
+      self_use: "Self use",
+      internal_org: "Internal organization",
+      cross_org: "Cross organization",
+      public_release: "Public release",
+      research_anon: "Anonymized research",
+      _unknown: "Unknown (conservative)",
     },
   },
 

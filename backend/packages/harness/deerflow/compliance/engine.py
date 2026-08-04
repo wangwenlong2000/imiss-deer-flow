@@ -289,8 +289,12 @@ def build_engine(config: Any = None) -> ComplianceEngine:
     else:
         auditor = NullAuditor()
 
+    # Scene resolution is an authorization boundary.  Keep the null resolver
+    # as the production default until a trusted upstream/IAM contract is
+    # explicitly enabled and configured.
     scene_resolver: SceneResolver = NullSceneResolver()
-    if config.scene.resolver:
+    resolver_mode = getattr(config, "scene_resolver_mode", None) or "null"
+    if resolver_mode == "trusted_upstream" and config.scene.resolver:
         # Same reflective-load path as detectors: configured by data, not code.
         from deerflow.compliance.adapters.inprocess import _resolve_entry
 

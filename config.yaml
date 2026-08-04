@@ -691,13 +691,14 @@ compliance:
 
   detectors_config_path: "config/compliance/detectors.yaml"
   policy_matrix_path: "config/compliance/policy_matrix.yaml"
+  scene_resolver_mode: null
 
-  # Scene resolution. Phase 1 has no source of truth for "usage permission and
-  # publicity level", so requests without a context fall back to the matrix
-  # `_unknown` column. The current resolver reads the manual test context from the
-  # front-end request; it is not a substitute for IAM.
+  # Scene resolution is an authorization boundary. The null mode is the safe
+  # default: without a request-bound OneCity/IAM decision every request uses
+  # the matrix `_unknown` column. Only a future trusted_upstream integration
+  # may opt in to a configured resolver.
   scene:
-    resolver: "deerflow.compliance.scene:ManualSceneResolver"
+    resolver: null
     fallback_key: _unknown
 
   audit:

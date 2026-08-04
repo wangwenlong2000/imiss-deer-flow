@@ -3,8 +3,8 @@ import type { Message } from "@langchain/langgraph-sdk";
 /**
  * Compliance OutputGate retraction.
  *
- * The backend keeps streaming and retracts on a hit rather than buffering the
- * whole answer. When a violation lands it does two things:
+ * Strict scenes buffer and inspect before delivery. Compatibility scenes keep
+ * streaming and retract on a hit. When a violation lands the backend:
  *
  *   1. emits a `compliance_retract` custom stream event — handled here, so the
  *      offending text leaves the screen immediately;
@@ -19,14 +19,15 @@ import type { Message } from "@langchain/langgraph-sdk";
  * Routing the replacement through the store means every caller sees the
  * retracted content without threading extra props through the tree.
  *
- * Honest limitation: this is after-the-fact. Between a violating token being
- * rendered and this event arriving there is a visible window — anything the user
- * screenshots or reads inside it cannot be recalled. Narrowing the window is
- * what `compliance.gates.output.incremental_scan.interval_chars` controls.
+ * The after-the-fact window applies only to compatibility scenes. Strict
+ * `cross_org`, `public_release`, and `research_anon` suppress original model
+ * chunks before this parser can observe them.
  */
 export type ComplianceRetractEvent = {
   type: "compliance_retract";
   message_id: string;
+  scene?: string;
+  streaming_mode?: string;
   violation_types: string[];
   action: string[];
   replacement: string;
@@ -37,6 +38,8 @@ export type ComplianceRetractEvent = {
 
 export type ComplianceRetraction = {
   messageId: string;
+  scene?: string;
+  streamingMode?: string;
   violationTypes: string[];
   actions: string[];
   replacement: string;
@@ -85,14 +88,23 @@ export const COMPLIANCE_GATES = [
 ] as const;
 export type ComplianceGate = (typeof COMPLIANCE_GATES)[number];
 
+export const COMPLIANCE_SCENES = [
+  "self_use",
+  "internal_org",
+  "cross_org",
+  "public_release",
+  "research_anon",
+  "_unknown",
+] as const;
+export type ComplianceScene = (typeof COMPLIANCE_SCENES)[number];
+
 /**
  * Actions that changed or withheld the answer — mirrors backend
  * `contract.MUTATING_ACTIONS`.
  *
- * This drives whether the banner reads as an alert or as a note. In phase 1 the
- * scene is always `_unknown`, whose matrix column is `[warn, manual_review]` for
- * every type the shipped detector covers — so the *common* case is "answer kept,
- * flagged for review". Painting that red would cry wolf on every flagged answer.
+ * This drives whether the banner reads as an alert or as a note. The trusted
+ * scene now comes from response metadata; the banner reflects the matrix action,
+ * while `_unknown` is delivered conservatively by the backend.
  */
 const MUTATING_ACTIONS = new Set<string>([
   "aggregate",
@@ -105,6 +117,7 @@ const MUTATING_ACTIONS = new Set<string>([
 /** What the UI needs to explain a compliance disposition. */
 export type ComplianceDisposition = {
   gate: string | null;
+  scene: string | null;
   violationTypes: string[];
   actions: string[];
   basis: string[];
@@ -144,6 +157,7 @@ export function complianceDispositionOf(
   const actions = strings(meta.actions);
   return {
     gate: typeof meta.gate === "string" ? meta.gate : null,
+    scene: typeof meta.scene === "string" ? meta.scene : null,
     violationTypes: strings(meta.violation_types),
     actions,
     basis: strings(meta.basis),
@@ -188,6 +202,8 @@ export function isComplianceRetractEvent(
 export function recordComplianceRetraction(event: ComplianceRetractEvent) {
   const retraction: ComplianceRetraction = {
     messageId: event.message_id,
+    scene: event.scene,
+    streamingMode: event.streaming_mode,
     violationTypes: Array.isArray(event.violation_types)
       ? event.violation_types
       : [],
@@ -244,6 +260,9 @@ function stamp(message: Message, retraction: ComplianceRetraction): Message {
         ...previous,
         retracted: true,
         gate: previous.gate ?? "OutputGate",
+        scene: retraction.scene ?? previous.scene ?? null,
+        streaming_mode:
+          retraction.streamingMode ?? previous.streaming_mode ?? null,
         violation_types: retraction.violationTypes.length
           ? retraction.violationTypes
           : (previous.violation_types ?? []),

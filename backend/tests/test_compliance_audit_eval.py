@@ -130,6 +130,34 @@ def test_long_evidence_is_truncated(tmp_path: Path) -> None:
     assert "truncated" in stored
 
 
+def test_nested_model_evidence_never_persists_sensitive_tokens(tmp_path: Path) -> None:
+    """Type 8/9/10-style nested evidence is bounded recursively."""
+    secret = "raw phone 13800138000 and token SECRET-TOKEN"
+    auditor = Auditor(path=tmp_path / "audit", enabled=True)
+    decision = _decision(
+        hits=(
+            DetectionHit(
+                detector_id="model_tfidf_knn",
+                violation_type="re_identify",
+                confidence=0.91,
+                severity="high",
+                evidence={
+                    "probabilities": {"re_identify": 0.91},
+                    "nearest_neighbors": [{"raw_content": secret, "score": 0.8}],
+                    "evidence_features": {"tokens": [secret], "hash": "abc123"},
+                    "nested": ({"ngram": secret, "count": 2},),
+                },
+            ),
+        )
+    )
+    auditor.record(_request(), decision)
+    rendered = json.dumps(auditor.read_all(), ensure_ascii=False)
+    assert secret not in rendered
+    assert "13800138000" not in rendered
+    assert "SECRET-TOKEN" not in rendered
+    assert "abc123" in rendered
+
+
 def test_write_failure_is_reported_and_never_raised(tmp_path: Path) -> None:
     """Losing the log must not take a request down — but must not be silent."""
     blocker = tmp_path / "audit"
@@ -259,7 +287,7 @@ def test_gate_eval_reports_coverage_gaps_explicitly(tmp_path: Path) -> None:
     result = _run("run_compliance_gate_eval.py", "--output-root", str(tmp_path), "--timestamp", "testrun")
     report = json.loads((tmp_path / "testrun" / "report.json").read_text(encoding="utf-8"))
 
-    assert report["gate_coverage"]["InputGate"] == [], "phase 1 registers no InputGate detector"
+    assert set(report["gate_coverage"]["InputGate"]) >= {"struct_id", "geo_loc"}
     assert "re_identify" in report["gate_coverage"]["OutputGate"]
     assert "re_identify" not in report["gate_coverage"]["ContextGate"], "guide hard constraint"
     assert "NOT covered" in result.stdout

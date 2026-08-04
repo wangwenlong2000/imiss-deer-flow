@@ -175,6 +175,12 @@ class IntentInfo:
     scene_hint: str | None = None
     high_risk: bool = False
     confidence: float = 0.0
+    intent_type: str = "unknown"
+    requested_operation: str = "unknown"
+    risk_level: str = "unknown"
+    reason_codes: tuple[str, ...] = ()
+    reason: str = ""
+    source: str = "unknown"
 
 
 @dataclass(frozen=True)

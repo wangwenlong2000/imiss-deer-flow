@@ -1,0 +1,24 @@
+contract_version: "1.0"
+detector_id: regex_struct_id
+adapter: inprocess
+entry: deerflow.compliance.detectors.regex_struct_id.detector:StructIdDetector
+
+violation_types:
+  - struct_id
+
+gates:
+  struct_id:
+    - InputGate
+    - ContextGate
+    - OutputGate
+
+data_types: null
+cost_hint: light
+
+description: >-
+  第1类结构化标识符泄露轻量规则检测器。覆盖手机号、邮箱、IP、MAC、
+  身份证、车牌、IMEI、用户ID、设备ID、交通卡和字段型稳定标识符。
+  Presidio增强能力不在本插件内加载。
+
+default_params:
+  presidio_mode: never

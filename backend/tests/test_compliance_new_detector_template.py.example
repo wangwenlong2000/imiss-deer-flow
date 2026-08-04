@@ -1,0 +1,42 @@
+"""Copy this file and remove `.example` for a new detector."""
+
+from __future__ import annotations
+
+from deerflow.compliance.contract import DetectContext, DetectionUnit, TextItem
+from deerflow.compliance.detectors.replace_me.detector import ExampleDetector
+
+
+def _unit(text: str, gate: str = "InputGate") -> DetectionUnit:
+    return DetectionUnit(
+        unit_id="new-detector-test",
+        gate=gate,
+        data_type="text",
+        text_items=(TextItem(item_id="text-1", text=text, source="query"),),
+    )
+
+
+def test_positive_has_bounded_risk_location():
+    detector = ExampleDetector()
+    detector.setup({})
+    hits = detector.detect(
+        _unit("REPLACE_WITH_RULE"),
+        DetectContext(gate="InputGate"),
+    )
+    assert hits
+    assert all(hit.detector_id == detector.detector_id for hit in hits)
+    assert all(hit.risk_locations for hit in hits)
+
+
+def test_near_negative_does_not_match():
+    detector = ExampleDetector()
+    detector.setup({})
+    assert detector.detect(
+        _unit("benign conceptual discussion"),
+        DetectContext(gate="InputGate"),
+    ) == []
+
+
+def test_malformed_input_does_not_crash():
+    detector = ExampleDetector()
+    detector.setup({})
+    assert isinstance(detector.detect(_unit(""), DetectContext(gate="InputGate")), list)

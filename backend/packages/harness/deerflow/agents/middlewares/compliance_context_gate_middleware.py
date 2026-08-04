@@ -35,12 +35,12 @@ import uuid
 from collections.abc import Awaitable, Callable
 from typing import Any, override
 
-from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import ToolMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 
+from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.actions import REFUSAL_TEXT, mask_text
 from deerflow.compliance.normalizers.skill_result import (
     SkillResultNormalizer,
@@ -57,6 +57,7 @@ from deerflow.compliance.runtime import (
     user_context,
     user_notice,
 )
+from deerflow.compliance.scene import scene_origin_from_state
 from deerflow.compliance.types import ComplianceDecision
 
 logger = logging.getLogger(__name__)
@@ -64,10 +65,10 @@ logger = logging.getLogger(__name__)
 GATE = "ContextGate"
 
 
-class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
+class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
     """Check tool results for compliance violations before the model sees them."""
 
-    state_schema = AgentState
+    state_schema = ThreadState
 
     def __init__(self, *, engine: Any = None) -> None:
         super().__init__()
@@ -126,7 +127,15 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         return self._rewrite(message, payload, decision, fail_closed=False)
 
-    def _check(self, payload: dict[str, Any], request_id: str, tool_name: str, request: Any = None) -> ComplianceDecision:
+    def _check(
+        self,
+        payload: dict[str, Any],
+        request_id: str,
+        tool_name: str,
+        request: Any = None,
+        *,
+        state: Any = None,
+    ) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(payload, gate=GATE)
         if not units:
@@ -134,6 +143,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         units = self._prioritize(units, payload, config.max_units)
         engine = self._engine or get_engine()
+        scene_origin, _ = scene_origin_from_state(state if state is not None else getattr(request, "state", None))
         return engine.check(
             units,
             gate=GATE,
@@ -145,6 +155,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
                 "tool_name": tool_name,
                 "skill_name": payload.get("skill_name"),
                 "compliance_context": compliance_context(request),
+                **scene_origin,
             },
         )
 
@@ -261,6 +272,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[AgentState]):
 
         diagnostics["compliance"] = {
             "gate": GATE,
+            "scene": decision.scene_key,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             "audit_ref": decision.audit_ref,

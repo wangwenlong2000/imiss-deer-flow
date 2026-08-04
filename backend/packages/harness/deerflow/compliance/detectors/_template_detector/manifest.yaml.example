@@ -1,0 +1,22 @@
+contract_version: "1.0"
+detector_id: replace_me
+adapter: inprocess
+entry: deerflow.compliance.detectors.replace_me.detector:ExampleDetector
+
+violation_types:
+  - replace_violation_type
+
+gates:
+  replace_violation_type:
+    - InputGate
+    - ContextGate
+    - OutputGate
+
+data_types: null
+cost_hint: light
+
+description: >-
+  Replace with a bounded detector description. Keep policy actions out of the
+  detector and manifest.
+
+default_params: {}

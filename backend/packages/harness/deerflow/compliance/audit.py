@@ -12,6 +12,7 @@ visible rather than silent.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -29,6 +30,25 @@ logger = logging.getLogger(__name__)
 #: Evidence values longer than this are truncated in the audit record. The audit
 #: log is a compliance artifact, not a second copy of the violating content.
 MAX_EVIDENCE_CHARS = 2000
+MAX_AUDIT_STRING_CHARS = 256
+MAX_AUDIT_DEPTH = 5
+MAX_AUDIT_LIST_ITEMS = 32
+_SENSITIVE_EVIDENCE_KEYS = frozenset(
+    {
+        "text",
+        "raw_text",
+        "raw_content",
+        "content",
+        "data",
+        "payload",
+        "token",
+        "tokens",
+        "ngram",
+        "ngrams",
+        "query",
+        "prompt",
+    }
+)
 
 
 class Auditor:
@@ -69,9 +89,21 @@ class Auditor:
             "actions": list(decision.actions),
             "per_violation_actions": {k: list(v) for k, v in decision.per_violation_actions.items()},
             "basis": list(decision.basis),
-            "origin": dict(request.origin),
+            "origin": _sanitize_value(dict(request.origin)),
+            "scene_resolution": _sanitize_value(dict(request.origin.get("scene_resolution") or {})),
+            "request_context": _sanitize_value(dict(request.origin.get("compliance_request") or {})),
             "user": {"user_id": request.user.user_id, "roles": list(request.user.roles), "org_id": request.user.org_id} if request.user else None,
-            "intent": {"intent": request.intent.intent, "high_risk": request.intent.high_risk} if request.intent else None,
+            "intent": {
+                "intent": request.intent.intent,
+                "intent_type": request.intent.intent_type,
+                "requested_operation": request.intent.requested_operation,
+                "risk_level": request.intent.risk_level,
+                "is_high_risk": request.intent.high_risk,
+                "confidence": request.intent.confidence,
+                "reason_codes": list(request.intent.reason_codes),
+                "reason": request.intent.reason,
+                "source": request.intent.source,
+            } if request.intent else None,
             "hits": [self._hit_record(hit) for hit in decision.hits],
             "diagnostics": decision.diagnostics.to_dict(),
         }
@@ -94,12 +126,17 @@ class Auditor:
             "severity": hit.severity,
             "reason_code": hit.reason_code,
             "risk_locations": [
-                {"kind": loc.kind, "locator": loc.locator, "entity_type": loc.entity_type, "text": _truncate(loc.text)} for loc in hit.risk_locations
+                {
+                    "kind": loc.kind,
+                    "locator": loc.locator,
+                    "entity_type": loc.entity_type,
+                    "text": _redacted_location_text(loc.text),
+                }
+                for loc in hit.risk_locations
             ],
             "basis": list(hit.basis),
             "evidence": _truncate_mapping(hit.evidence),
         }
-
     def _append(self, record: Mapping[str, Any], moment: datetime) -> None:
         target = self._file_for(moment)
         with self._lock:
@@ -139,6 +176,17 @@ class Auditor:
         return records
 
 
+def _redacted_location_text(value: Any) -> str | None:
+    """Keep correlation value without making audit a second sensitive store."""
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    return f"[redacted sha256:{digest}]"
+
+
 def _truncate(value: str | None, limit: int = MAX_EVIDENCE_CHARS) -> str | None:
     if value is None:
         return None
@@ -147,10 +195,49 @@ def _truncate(value: str | None, limit: int = MAX_EVIDENCE_CHARS) -> str | None:
 
 
 def _truncate_mapping(mapping: Mapping[str, Any]) -> dict[str, Any]:
-    result: dict[str, Any] = {}
-    for key, value in dict(mapping).items():
-        result[key] = _truncate(value) if isinstance(value, str) else value
-    return result
+    """Recursively bound evidence without retaining raw content.
+
+    Detector evidence is intentionally treated as untrusted data.  Nested
+    dictionaries/lists are traversed, sensitive field names are removed, and
+    all remaining strings are bounded so an 8/9/10 model cannot turn the audit
+    file into a second transcript.
+    """
+    value = _sanitize_value(mapping)
+    return value if isinstance(value, dict) else {}
+
+
+def _sanitize_value(value: Any, *, key: str | None = None, depth: int = 0) -> Any:
+    if key is not None and _is_sensitive_key(key):
+        if isinstance(value, str) and value:
+            return _redacted_location_text(value)
+        return "[redacted]"
+    if depth >= MAX_AUDIT_DEPTH:
+        return "[truncated depth]"
+    if isinstance(value, Mapping):
+        result: dict[str, Any] = {}
+        for raw_key, item in list(value.items())[:MAX_AUDIT_LIST_ITEMS]:
+            item_key = str(raw_key)
+            result[item_key] = _sanitize_value(item, key=item_key, depth=depth + 1)
+        if len(value) > MAX_AUDIT_LIST_ITEMS:
+            result["_truncated_items"] = len(value) - MAX_AUDIT_LIST_ITEMS
+        return result
+    if isinstance(value, (list, tuple)):
+        items = [_sanitize_value(item, depth=depth + 1) for item in value[:MAX_AUDIT_LIST_ITEMS]]
+        if len(value) > MAX_AUDIT_LIST_ITEMS:
+            items.append(f"[truncated {len(value) - MAX_AUDIT_LIST_ITEMS} items]")
+        return items
+    if isinstance(value, str):
+        return _truncate(value, MAX_AUDIT_STRING_CHARS)
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    return _truncate(str(value), MAX_AUDIT_STRING_CHARS)
+
+
+def _is_sensitive_key(key: str) -> bool:
+    normalized = key.strip().lower().replace("-", "_")
+    return normalized in _SENSITIVE_EVIDENCE_KEYS or any(
+        marker in normalized for marker in ("raw", "raw_content", "raw_text", "token", "ngram")
+    )
 
 
 class NullAuditor(Auditor):

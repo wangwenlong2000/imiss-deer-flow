@@ -128,6 +128,8 @@ class ThreadState(AgentState):
     intent_context: NotRequired[dict | None]
     routing_context: NotRequired[dict | None]
     dialogue_context: NotRequired[dict | None]
+    compliance_request: NotRequired[dict | None]
+    scene_context: NotRequired[dict | None]
     pending_action: NotRequired[dict | None]
 
     # SkillRouter scope tracking — per-turn

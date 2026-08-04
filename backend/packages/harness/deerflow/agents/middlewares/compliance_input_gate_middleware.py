@@ -35,6 +35,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
+from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.contract import IntentInfo, UserContext
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
@@ -47,6 +48,7 @@ from deerflow.compliance.runtime import (
     user_context,
     user_notice,
 )
+from deerflow.compliance.scene import COMPLIANCE_REQUEST_KEY, SCENE_CONTEXT_KEY, scene_origin_from_state
 from deerflow.compliance.types import ComplianceDecision
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,9 @@ def _intent_from_state(state: AgentState) -> IntentInfo | None:
     if not isinstance(raw, dict):
         return None
 
+    compliance = raw.get("compliance_intent")
+    if not isinstance(compliance, dict):
+        compliance = raw
     intent = raw.get("intent") or raw.get("intent_name") or raw.get("dialogue_act")
     scenes = raw.get("scenes") or raw.get("scene")
     scene_hint = scenes[0] if isinstance(scenes, list) and scenes else (scenes if isinstance(scenes, str) else None)
@@ -74,14 +79,22 @@ def _intent_from_state(state: AgentState) -> IntentInfo | None:
     return IntentInfo(
         intent=str(intent) if intent else None,
         scene_hint=str(scene_hint) if scene_hint else None,
-        high_risk=bool(raw.get("high_risk") or raw.get("is_high_risk")),
-        confidence=float(raw.get("confidence") or 0.0),
+        high_risk=bool(compliance.get("is_high_risk") or compliance.get("high_risk")),
+        confidence=float(compliance.get("confidence") or raw.get("confidence") or 0.0),
+        intent_type=str(compliance.get("intent_type") or "unknown"),
+        requested_operation=str(compliance.get("requested_operation") or "unknown"),
+        risk_level=str(compliance.get("risk_level") or "unknown"),
+        reason_codes=tuple(str(code) for code in (compliance.get("reason_codes") or ())),
+        reason=str(compliance.get("reason") or ""),
+        source=str(compliance.get("source") or "legacy"),
     )
 
 
 def _user_from_state(state: AgentState) -> UserContext | None:
     """Best-effort user context. Phase 1 rarely has one (plan risk 12)."""
-    raw = (state or {}).get("user_context") or {}
+    contract = (state or {}).get(COMPLIANCE_REQUEST_KEY) or {}
+    actor = contract.get("actor") if isinstance(contract, dict) else {}
+    raw = actor if isinstance(actor, dict) and actor else ((state or {}).get("user_context") or {})
     if not isinstance(raw, dict) or not raw:
         return None
     roles = raw.get("roles")
@@ -92,10 +105,10 @@ def _user_from_state(state: AgentState) -> UserContext | None:
     )
 
 
-class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
+class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
     """Check the latest user query before the agent acts on it."""
 
-    state_schema = AgentState
+    state_schema = ThreadState
 
     def __init__(self, *, engine: Any = None) -> None:
         super().__init__()
@@ -120,22 +133,24 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
 
         thread_id = self._thread_id(runtime)
         request_id = f"in-{uuid.uuid4().hex[:12]}"
+        scene_origin, scene_resolution = scene_origin_from_state(state, force=True)
+        has_contract = bool((state or {}).get(COMPLIANCE_REQUEST_KEY))
 
         try:
-            decision = self._check(query, thread_id, state, request_id, runtime)
+            decision = self._check(query, thread_id, state, request_id, runtime, scene_origin=scene_origin)
         except GraphBubbleUp:
             raise
         except Exception as exc:
             logger.exception("compliance: InputGate detection failed")
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
-                return None
-            return self._block(FAIL_CLOSED_NOTICE)
+                return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_contract else None
+            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_contract else None)
 
         if "refuse" in decision.actions:
             # Guide action 10: terminate the request and return a standard notice.
-            return self._block(user_notice(decision))
-        return None
+            return self._block(user_notice(decision), scene_resolution.to_dict() if has_contract else None)
+        return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_contract else None
 
     def _check(
         self,
@@ -144,6 +159,8 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
         state: AgentState,
         request_id: str,
         runtime: Runtime | None = None,
+        *,
+        scene_origin: dict[str, Any] | None = None,
     ) -> ComplianceDecision:
         config = gate_config(GATE)
         units = self._normalizer.to_units(query, gate=GATE, thread_id=thread_id)
@@ -160,13 +177,20 @@ class ComplianceInputGateMiddleware(AgentMiddleware[AgentState]):
             intent=_intent_from_state(state),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
-            origin={"kind": "user_query", "compliance_context": compliance_context(runtime)},
+            origin={
+                "kind": "user_query",
+                "compliance_context": compliance_context(runtime),
+                **(scene_origin or {}),
+            },
         )
 
     @staticmethod
-    def _block(notice: str) -> dict[str, Any]:
+    def _block(notice: str, scene_context: dict[str, Any] | None = None) -> dict[str, Any]:
         """Refuse the request by answering directly instead of running the agent."""
-        return {"messages": [AIMessage(content=notice)], "jump_to": "end"}
+        update: dict[str, Any] = {"messages": [AIMessage(content=notice)], "jump_to": "end"}
+        if scene_context is not None:
+            update[SCENE_CONTEXT_KEY] = scene_context
+        return update
 
     @staticmethod
     def _thread_id(runtime: Runtime) -> str | None:

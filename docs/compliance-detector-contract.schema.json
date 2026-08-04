@@ -202,6 +202,24 @@
             }
           ]
         },
+        "intent_type": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requested_operation": {
+          "type": "string"
+        },
+        "risk_level": {
+          "type": "string"
+        },
         "scene_hint": {
           "anyOf": [
             {
@@ -211,6 +229,9 @@
               "type": "null"
             }
           ]
+        },
+        "source": {
+          "type": "string"
         }
       },
       "title": "IntentInfo",
