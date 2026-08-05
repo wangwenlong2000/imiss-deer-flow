@@ -91,6 +91,7 @@ from deerflow.compliance.runtime import (
     gate_config,
     gate_enabled,
     get_engine,
+    runtime_context,
     user_context,
     user_notice,
 )
@@ -241,11 +242,13 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             return ComplianceDecision(request_id=request_id, gate=GATE, scene_key="_unknown")
 
         engine = self._engine or get_engine()
-        scene_origin, _ = scene_origin_from_state(state)
+        manual_context = compliance_context(runtime_or_request)
+        scene_origin, _ = scene_origin_from_state(state, manual_context=manual_context)
         return engine.check(
             units,
             gate=GATE,
             request_id=request_id,
+            thread_id=self._thread_id(runtime_or_request),
             user=user_context(runtime_or_request),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
@@ -258,6 +261,20 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
                 **scene_origin,
             },
         )
+
+    @staticmethod
+    def _thread_id(runtime_or_request: Any) -> str | None:
+        try:
+            context = runtime_context(runtime_or_request)
+            if context.get("thread_id"):
+                return str(context["thread_id"])
+
+            # ModelRequest exposes the LangGraph Runtime as ``request.runtime``;
+            # keep the direct fallbacks for plain Runtime and test doubles.
+            runtime = getattr(runtime_or_request, "runtime", runtime_or_request)
+            return getattr(runtime, "thread_id", None) or getattr(runtime_or_request, "thread_id", None)
+        except Exception:
+            return None
 
     # ── incremental scanning (layer 1) ──────────────────────────────────────
 

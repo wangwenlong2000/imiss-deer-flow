@@ -563,12 +563,12 @@ compliance:
 
   detectors_config_path: "config/compliance/detectors.yaml"
   policy_matrix_path: "config/compliance/policy_matrix.yaml"
+  # null is the safe default. Local/test deployments may use manual_ui to
+  # exercise policy scenes from the front-end; it is not production auth.
   scene_resolver_mode: null
 
-  # Scene resolution is an authorization boundary. The null mode is the safe
-  # default: without a request-bound OneCity/IAM decision every request uses
-  # the matrix `_unknown` column. Only a future trusted_upstream integration
-  # may opt in to a configured resolver.
+  # Scene resolution is an authorization boundary. `manual_ui` is only a
+  # local/test resolver; `trusted_upstream` requires a server-side IAM binding.
   scene:
     resolver: null
     fallback_key: _unknown

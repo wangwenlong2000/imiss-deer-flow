@@ -38,7 +38,7 @@ from deerflow.compliance.intent import IntentGuard
 from deerflow.compliance.policy import PolicyMatrix, get_policy_matrix
 from deerflow.compliance.registry import DetectorRegistry, build_registry
 from deerflow.compliance.router import DetectorRouter
-from deerflow.compliance.scene import NullSceneResolver, SceneResolver, resolve_scene_key
+from deerflow.compliance.scene import ManualSceneResolver, NullSceneResolver, SceneResolver, resolve_scene_key
 from deerflow.compliance.types import ComplianceDecision, DetectionRequest, Diagnostics
 
 logger = logging.getLogger(__name__)
@@ -294,7 +294,9 @@ def build_engine(config: Any = None) -> ComplianceEngine:
     # explicitly enabled and configured.
     scene_resolver: SceneResolver = NullSceneResolver()
     resolver_mode = getattr(config, "scene_resolver_mode", None) or "null"
-    if resolver_mode == "trusted_upstream" and config.scene.resolver:
+    if resolver_mode == "manual_ui":
+        scene_resolver = ManualSceneResolver()
+    elif resolver_mode == "trusted_upstream" and config.scene.resolver:
         # Same reflective-load path as detectors: configured by data, not code.
         from deerflow.compliance.adapters.inprocess import _resolve_entry
 

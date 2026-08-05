@@ -74,7 +74,11 @@ class SceneConfig(BaseModel):
 
     resolver: str | None = Field(
         default=None,
-        description="Entry point (`module.path:ClassName`) of a SceneResolver. null = NullSceneResolver, everything falls back to `_unknown`.",
+        description=(
+            "Entry point (`module.path:ClassName`) of a trusted SceneResolver. "
+            "`manual_ui` uses the built-in front-end resolver and does not require this field; "
+            "null = NullSceneResolver, everything falls back to `_unknown`."
+        ),
     )
     fallback_key: str = Field(default="_unknown", description="Matrix column used when the scene cannot be resolved.")
 
@@ -105,10 +109,11 @@ class ComplianceConfig(BaseModel):
     gates: GatesConfig = Field(default_factory=GatesConfig)
     detectors_config_path: str = Field(default="config/compliance/detectors.yaml")
     policy_matrix_path: str = Field(default="config/compliance/policy_matrix.yaml")
-    scene_resolver_mode: Literal["null", "trusted_upstream"] | None = Field(
+    scene_resolver_mode: Literal["null", "manual_ui", "trusted_upstream"] | None = Field(
         default=None,
         description=(
             "Scene authorization mode. `null` is the safe default; use "
+            "`manual_ui` only for explicitly enabled local/test deployments; use "
             "`trusted_upstream` only with a server-side IAM-bound resolver."
         ),
     )

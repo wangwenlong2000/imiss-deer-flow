@@ -65,6 +65,11 @@ def test_scene_resolver_is_unset_in_phase_one() -> None:
     assert config.scene.fallback_key == "_unknown"
 
 
+def test_manual_ui_scene_resolver_mode_is_explicitly_supported() -> None:
+    config = ComplianceConfig(enabled=True, scene_resolver_mode="manual_ui")
+    assert config.scene_resolver_mode == "manual_ui"
+
+
 def test_audit_is_on_by_default() -> None:
     """Guide requirement 5 — losing the trail is not an acceptable default."""
     assert ComplianceConfig().audit.enabled is True

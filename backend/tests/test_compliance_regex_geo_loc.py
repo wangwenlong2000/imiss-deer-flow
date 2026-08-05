@@ -44,6 +44,52 @@ def test_detects_precise_coordinate_and_points_to_span():
     )
 
 
+def test_detects_labelled_chinese_coordinate_pair():
+    text = "地理坐标：纬度 39.9219，经度 116.4436"
+    hits = new_detector().detect(
+        make_text_unit(text),
+        DetectContext(gate="OutputGate"),
+    )
+
+    assert hits
+    assert any(
+        loc.kind == "char_span" and "纬度 39.9219" in (loc.text or "")
+        for loc in hits[0].risk_locations
+    )
+
+
+def test_detects_labelled_coordinate_pair_in_markdown_table():
+    text = "| 字段 | 原始值 | 处置方式 | 处置后值 |\n| **纬度** | 39.9219 | 无需处置 | 39.9219 |\n| **经度** | 116.4436 | 无需处置 | 116.4436 |"
+    hits = new_detector().detect(
+        make_text_unit(text),
+        DetectContext(gate="OutputGate"),
+    )
+
+    assert hits
+    assert any("39.9219" in (loc.text or "") for loc in hits[0].risk_locations)
+
+
+def test_detects_lat_lng_slash_table_format():
+    text = "| lat / lng | 39.9219 / 116.4436 |"
+    hits = new_detector().detect(
+        make_text_unit(text),
+        DetectContext(gate="OutputGate"),
+    )
+
+    assert hits
+    assert any("39.9219" in (loc.text or "") for loc in hits[0].risk_locations)
+
+
+def test_detects_raw_coordinate_inside_a_redaction_disclaimer():
+    text = "原始坐标已泛化说明，但报告仍包含 39.9219, 116.4436。"
+    hits = new_detector().detect(
+        make_text_unit(text),
+        DetectContext(gate="OutputGate"),
+    )
+
+    assert hits
+
+
 def test_ignores_city_level_location():
     hits = new_detector().detect(
         make_text_unit("设备位于上海市"),

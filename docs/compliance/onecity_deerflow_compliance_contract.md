@@ -14,6 +14,12 @@ Gateway must accept these facts only from an authenticated OneCity integration.
 Until that integration exists, `scene_resolver_mode: null` is the default and
 all real requests resolve to `_unknown`.
 
+For local policy-matrix verification, `scene_resolver_mode: manual_ui` enables
+the front-end's explicit `compliance_context` selection. This mode is marked
+`source: manual_ui` in the resolver and audit metadata, but it is not an
+authorization decision: a client can forge it. Production must use
+`trusted_upstream` with the IAM-bound contract below.
+
 ## Request
 
 ```json

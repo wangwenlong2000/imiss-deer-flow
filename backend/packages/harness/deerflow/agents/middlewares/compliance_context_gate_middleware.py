@@ -143,7 +143,11 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
 
         units = self._prioritize(units, payload, config.max_units)
         engine = self._engine or get_engine()
-        scene_origin, _ = scene_origin_from_state(state if state is not None else getattr(request, "state", None))
+        manual_context = compliance_context(request)
+        scene_origin, _ = scene_origin_from_state(
+            state if state is not None else getattr(request, "state", None),
+            manual_context=manual_context,
+        )
         return engine.check(
             units,
             gate=GATE,

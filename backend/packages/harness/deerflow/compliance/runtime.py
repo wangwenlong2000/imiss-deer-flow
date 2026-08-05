@@ -48,7 +48,10 @@ def runtime_context(value: Any) -> Mapping[str, Any]:
     """Extract LangGraph runtime context from a hook request or runtime."""
     if isinstance(value, Mapping):
         runtime = value.get("runtime", value)
-        context = runtime.get("context", runtime) if isinstance(runtime, Mapping) else runtime
+        if isinstance(runtime, Mapping):
+            context = runtime.get("context", runtime)
+        else:
+            context = getattr(runtime, "context", runtime)
     else:
         runtime = getattr(value, "runtime", value)
         context = getattr(runtime, "context", runtime)

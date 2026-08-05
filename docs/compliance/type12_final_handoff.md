@@ -111,12 +111,15 @@ review rather than becoming low risk.
 ## SceneResolver protocol
 
 `compliance_request` is an integration seam for authenticated actor/org/
-department, operation/audience and resource facts. The default
-`scene_resolver_mode: null` deliberately sends every real request to `_unknown`;
-`TrustedSceneResolver` is not enabled until OneCity/IAM supplies a bound
-request ID, thread ID, turn ID, actor/resource/operation context and a genuine
-server-side permission decision. A non-empty permissions array is not a
-permission check, and `scene_context.source` alone is never reusable. See
+department, operation/audience and resource facts. The local development
+`config.yaml` uses `scene_resolver_mode: manual_ui` so the front end can select
+a policy scene for manual verification. This selection is explicitly marked
+`source: manual_ui` and `permission_checked: false`; it is not authorization.
+The example configuration and production deployments should keep
+`scene_resolver_mode: null` until OneCity/IAM supplies a bound request ID,
+thread ID, turn ID, actor/resource/operation context and a genuine server-side
+permission decision. A non-empty permissions array is not a permission check,
+and `scene_context.source` alone is never reusable. See
 `onecity_deerflow_compliance_contract.md`.
 
 ## Three gates and policy

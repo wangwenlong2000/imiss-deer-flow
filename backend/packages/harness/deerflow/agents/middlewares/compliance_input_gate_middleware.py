@@ -36,7 +36,7 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
-from deerflow.compliance.contract import IntentInfo, UserContext
+from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, IntentInfo, UserContext
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
@@ -133,8 +133,14 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
 
         thread_id = self._thread_id(runtime)
         request_id = f"in-{uuid.uuid4().hex[:12]}"
-        scene_origin, scene_resolution = scene_origin_from_state(state, force=True)
+        manual_context = compliance_context(runtime)
+        scene_origin, scene_resolution = scene_origin_from_state(
+            state,
+            force=True,
+            manual_context=manual_context,
+        )
         has_contract = bool((state or {}).get(COMPLIANCE_REQUEST_KEY))
+        has_scene_context = has_contract or scene_resolution.scene != UNKNOWN_SCENE_KEY
 
         try:
             decision = self._check(query, thread_id, state, request_id, runtime, scene_origin=scene_origin)
@@ -144,13 +150,13 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             logger.exception("compliance: InputGate detection failed")
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
-                return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_contract else None
-            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_contract else None)
+                return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
+            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_scene_context else None)
 
         if "refuse" in decision.actions:
             # Guide action 10: terminate the request and return a standard notice.
-            return self._block(user_notice(decision), scene_resolution.to_dict() if has_contract else None)
-        return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_contract else None
+            return self._block(user_notice(decision), scene_resolution.to_dict() if has_scene_context else None)
+        return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
 
     def _check(
         self,

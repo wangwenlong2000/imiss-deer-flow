@@ -76,6 +76,33 @@ GPS_PAIR_RE = re.compile(r"(?<!\d)([-+]?\d{1,2}\.\d{4,})\s*[,，]\s*([-+]?\d{1,3
 LAT_ASSIGN_RE = re.compile(r"(?i)(?<![A-Za-z0-9_])(?:lat|latitude)\b\s*[:=：]\s*([-+]?\d{1,2}\.\d{4,})")
 LON_ASSIGN_RE = re.compile(r"(?i)(?<![A-Za-z0-9_])(?:lon|lng|longitude)\b\s*[:=：]\s*([-+]?\d{1,3}\.\d{4,})")
 
+# Models often render the same fact as prose instead of assignments, for
+# example ``纬度 39.9219，经度 116.4436``.  Keep this bounded to labelled,
+# high-precision values so an arbitrary pair of decimals is not treated as a
+# location merely because it appears in a report.
+LABELED_GPS_PAIR_RES = (
+    re.compile(
+        r"(?i)(?:纬度|latitude)(?:[\s|*`:=：])+([-+]?\d{1,2}\.\d{4,})"
+        r"(?:[\s|*`，,;；:=：])+(?:经度|longitude)(?:[\s|*`:=：])+([-+]?\d{1,3}\.\d{4,})"
+    ),
+    re.compile(
+        r"(?i)(?:经度|longitude)(?:[\s|*`:=：])+([-+]?\d{1,3}\.\d{4,})"
+        r"(?:[\s|*`，,;；:=：])+(?:纬度|latitude)(?:[\s|*`:=：])+([-+]?\d{1,2}\.\d{4,})"
+    ),
+)
+LABELED_LAT_RE = re.compile(
+    r"(?i)(?:纬度|latitude)(?:[\s|*`:=：])+([-+]?\d{1,2}\.\d{4,})"
+)
+LABELED_LON_RE = re.compile(
+    r"(?i)(?:经度|longitude)(?:[\s|*`:=：])+([-+]?\d{1,3}\.\d{4,})"
+)
+LABELED_LAT_LON_PAIR_RE = re.compile(
+    r"(?i)(?<![A-Za-z0-9_])(?:lat|latitude)\b"
+    r"(?:[\s|*`/／,，;；:=：]+(?:lon|lng|longitude)\b)?"
+    r"[\s|*`:=：]+([-+]?\d{1,2}\.\d{4,})"
+    r"[\s|*`/／,，;；:=：]+([-+]?\d{1,3}\.\d{4,})"
+)
+
 # 电话网络字段式表达：station=xxx、cell=xxx、roaming_place=xxx。
 TELECOM_FIELD_ASSIGN_RE = re.compile(
     r"(?i)\b(station|cell|cell_id|base_station|roaming_place|lac|ci)\b\s*[:=：]\s*([A-Za-z0-9_\-\.]{6,})"
@@ -398,9 +425,14 @@ def detect_single_object_route(path: str, text: str) -> list[dict[str, Any]]:
 def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[dict[str, Any]]:
     risks: list[dict[str, Any]] = []
     for path, text in text_blobs:
-        if not text or is_safe_or_negated_text(text):
-            # 对负向/泛化文本，不做正则坐标和地址触发。
+        if not text:
             continue
+
+        # High-precision numeric coordinates are sensitive evidence even when
+        # the surrounding model prose claims they were "泛化" or "脱敏".
+        # Defer the broad safe/negation guard until after numeric rules; this
+        # prevents mixed reports from hiding a raw coordinate behind a safety
+        # disclaimer.
         for m in GPS_PAIR_RE.finditer(text):
             try:
                 lat = float(m.group(1))
@@ -412,6 +444,68 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
             # 至少 4 位小数，已由正则保证。虚构/示意在 safe hints 里已过滤。
             risks.append(build_risk(path, m.group(0), "gps_coordinate", "regex_gps_pair", 0.95, "text contains high precision latitude/longitude pair"))
 
+        for pattern_index, pattern in enumerate(LABELED_GPS_PAIR_RES):
+            for m in pattern.finditer(text):
+                first = float(m.group(1))
+                second = float(m.group(2))
+                # The second expression accepts longitude first, so normalize
+                # the pair before applying geographic bounds.
+                if pattern_index == 1:
+                    lat, lon = second, first
+                else:
+                    lat, lon = first, second
+                if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
+                    continue
+                risks.append(
+                    build_risk(
+                        path,
+                        m.group(0),
+                        "gps_coordinate",
+                        "regex_labeled_gps_pair",
+                        0.95,
+                        "text contains labelled high precision latitude/longitude pair",
+                    )
+                )
+
+        for m in LABELED_LAT_LON_PAIR_RE.finditer(text):
+            lat = float(m.group(1))
+            lon = float(m.group(2))
+            if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
+                continue
+            risks.append(
+                build_risk(
+                    path,
+                    m.group(0),
+                    "gps_coordinate",
+                    "regex_labelled_lat_lon_pair",
+                    0.95,
+                    "text contains labelled high precision lat/lon pair",
+                )
+            )
+
+        # A Markdown table or a model-generated report may put latitude and
+        # longitude on separate rows, with unrelated columns between them.
+        # Detect each labelled high-precision field independently as well.
+        for pattern, field_name, method in (
+            (LABELED_LAT_RE, "latitude", "regex_labelled_latitude"),
+            (LABELED_LON_RE, "longitude", "regex_labelled_longitude"),
+        ):
+            for m in pattern.finditer(text):
+                value = float(m.group(1))
+                valid = is_plausible_lat(value) if field_name == "latitude" else is_plausible_lon(value)
+                if not valid:
+                    continue
+                risks.append(
+                    build_risk(
+                        path,
+                        m.group(0),
+                        field_name,
+                        method,
+                        0.93,
+                        f"text contains labelled high precision {field_name}",
+                    )
+                )
+
         # LAT=... LON=... 这种形式。当前非遥感数据通常少见，但保留给时空文本。
         lat_hits = list(LAT_ASSIGN_RE.finditer(text))
         lon_hits = list(LON_ASSIGN_RE.finditer(text))
@@ -420,6 +514,11 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
                 risks.append(build_risk(path, lm.group(0), "latitude", "regex_lat_assignment", 0.93, "text contains explicit latitude assignment"))
             for lm in lon_hits[:2]:
                 risks.append(build_risk(path, lm.group(0), "longitude", "regex_lon_assignment", 0.93, "text contains explicit longitude assignment"))
+
+        # 对详细地址、路线等语义规则，仍保留负向/泛化保护，避免仅因
+        # “已脱敏/聚合/示意”说明文字触发地址类风险。
+        if is_safe_or_negated_text(text):
+            continue
 
         # 中文详细地址。对 telecom 文本中“station/cell”这类不走地址规则；主要用于轨迹。
         if data_type == "spatiotemporal_trajectory":
@@ -514,7 +613,7 @@ def detect_geo_loc(sample: dict[str, Any], presidio: OptionalPresidio, exclude_d
         strong_risks = [r for r in risks if str(r.get("method")) in {"telecom_object_time_geo_field", "telecom_text_combo"}]
     else:
         strong_risks = [r for r in risks if str(r.get("method")) in {
-            "field_coordinate", "field_coordinate_pair", "field_address", "regex_gps_pair", "regex_lat_assignment", "regex_lon_assignment", "regex_detail_address", "trajectory_route_combo"
+            "field_coordinate", "field_coordinate_pair", "field_address", "regex_gps_pair", "regex_labeled_gps_pair", "regex_labelled_lat_lon_pair", "regex_labelled_latitude", "regex_labelled_longitude", "regex_lat_assignment", "regex_lon_assignment", "regex_detail_address", "trajectory_route_combo"
         }]
 
     pred_positive = bool(strong_risks)

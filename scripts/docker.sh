@@ -15,7 +15,7 @@ DOCKER_DIR="$PROJECT_ROOT/docker"
 # Docker Compose command with project name
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
-COMPOSE_CMD="docker compose -p qwen36test-deer-flow-dev -f docker-compose-dev.yaml"
+COMPOSE_CMD="docker compose -p qwen36test -f docker-compose-dev.yaml"
 
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"

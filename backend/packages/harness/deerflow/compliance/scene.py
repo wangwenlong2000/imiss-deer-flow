@@ -147,6 +147,7 @@ def resolve_scene_from_state(
     state: Mapping[str, Any] | None,
     *,
     force: bool = False,
+    manual_context: Any = None,
 ) -> tuple[dict[str, Any], SceneResolution]:
     """Resolve once at InputGate and reuse that result at downstream gates."""
     raw = compliance_request_from_state(state)
@@ -167,6 +168,8 @@ def resolve_scene_from_state(
             )
     if _trusted_scene_mode_enabled() and _trusted_upstream_context(parse_compliance_request(raw)):
         return raw, TrustedSceneResolver().resolve_context(raw)
+    if _manual_scene_mode_enabled():
+        return raw, ManualSceneResolver().resolve_context(manual_context)
     return raw, NullSceneResolver().resolve_context(raw)
 
 
@@ -221,12 +224,23 @@ def _trusted_scene_mode_enabled() -> bool:
         return False
 
 
+def _manual_scene_mode_enabled() -> bool:
+    """Return whether the explicitly opt-in front-end scene mode is enabled."""
+    try:
+        from deerflow.config.compliance_config import get_compliance_config
+
+        return (getattr(get_compliance_config(), "scene_resolver_mode", None) or "null") == "manual_ui"
+    except Exception:
+        return False
+
+
 def scene_origin_from_state(
     state: Mapping[str, Any] | None,
     *,
     force: bool = False,
+    manual_context: Any = None,
 ) -> tuple[dict[str, Any], SceneResolution]:
-    raw, resolution = resolve_scene_from_state(state, force=force)
+    raw, resolution = resolve_scene_from_state(state, force=force, manual_context=manual_context)
     return scene_audit_context(raw, resolution), resolution
 
 
@@ -416,13 +430,34 @@ class ManualSceneResolver:
     """
 
     def resolve(self, request: DetectionRequest) -> Scene | None:
-        raw = request.origin.get("compliance_context")
-        if not isinstance(raw, Mapping):
+        return self._selected_scene(request.origin.get("compliance_context"))
+
+    @classmethod
+    def _selected_scene(cls, raw: Any) -> Scene | None:
+        data = _mapping(raw)
+        if data.get("source") != "manual_ui" or data.get("enabled") is not True:
             return None
-        if raw.get("enabled") is not True:
-            return None
-        scene = raw.get("scene")
+        scene = data.get("scene")
         return scene if scene in SCENES else None  # type: ignore[return-value]
+
+    def resolve_context(self, raw: Any) -> SceneResolution:
+        data = _mapping(raw)
+        scene = self._selected_scene(data)
+        if scene is None:
+            return SceneResolution(
+                source="manual_ui",
+                reason_codes=("manual_context_missing_or_invalid",),
+                scene_hint=str(data["scene"]) if data.get("scene") else None,
+            )
+        return SceneResolution(
+            scene=scene,
+            confidence=0.5,
+            source="manual_ui",
+            reason_codes=("manual_scene_selected", "not_authoritative"),
+            fallback=False,
+            permission_checked=False,
+            scene_hint=scene,
+        )
 
 
 def _trusted_upstream_context(ctx: ComplianceRequestContext) -> bool:
