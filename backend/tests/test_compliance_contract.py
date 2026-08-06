@@ -59,6 +59,13 @@ def test_collections_are_tuples_not_lists() -> None:
     assert isinstance(unit.field_items, tuple)
     ctx = DetectContext(gate="OutputGate")
     assert isinstance(ctx.scenes, tuple)
+    assert ctx.model_name is None
+
+
+def test_model_name_extension_preserves_legacy_detect_context_positions() -> None:
+    ctx = DetectContext("OutputGate", (), None, None, 321)
+    assert ctx.budget_ms == 321
+    assert ctx.model_name is None
 
 
 # ── enumerations ────────────────────────────────────────────────────────────

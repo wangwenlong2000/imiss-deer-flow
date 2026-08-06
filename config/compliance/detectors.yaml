@@ -42,13 +42,26 @@ detectors:
     # 并重新统计上面的相似度分布，不要凭感觉调。
     params: {}
 
-  # ── 待其他负责人填充 ──────────────────────────────────────────────────────
-  # 第 1-7 类由各自数据负责人实现。骨架、路由和挂载点都已就位，
-  # 实现完成后把 enabled 改成 true 即可，不需要改引擎任何代码。
+  # ── 第 1-7 类规则检测器 ──────────────────────────────────────────────────
   - { id: regex_struct_id, enabled: true } # 1 结构化标识符泄露
   - { id: regex_geo_loc, enabled: true } # 2 精确地理位置泄露
-  - { id: entropy_hardcoded_cred, enabled: false } # 3 硬编码凭证泄露（仅 InputGate）
+  # 第 3/6/7 类来自 workspace 顶层 compliance_detectors 交付包；适配说明见
+  # docs/compliance-delivered-detectors-integration.md。第 6/7 类的边界样本
+  # 复核使用当前对话实际选择的模型，由三道合规闸随请求传入。
+  - { id: entropy_hardcoded_cred, enabled: true } # 3 硬编码凭证泄露（仅 InputGate）
   - { id: keyword_illegal_content, enabled: false } # 4 违法有害内容
   - { id: keyword_political, enabled: false } # 5 政治敏感内容
-  - { id: ner_text_id, enabled: false } # 6 自由文本标识符泄露
-  - { id: llm_confidential, enabled: false } # 7 商业秘密与内部敏感
+  - id: ner_text_id # 6 自由文本标识符泄露
+    enabled: true
+    params:
+      use_llm: true
+      llm_max_content_chars: 2500
+      llm_max_output_tokens: 512
+      llm_timeout_seconds: 7
+  - id: llm_confidential # 7 商业秘密与内部敏感（规则优先 + LLM 边界复核）
+    enabled: true
+    params:
+      use_llm: true
+      llm_max_content_chars: 2500
+      llm_max_output_tokens: 512
+      llm_timeout_seconds: 7

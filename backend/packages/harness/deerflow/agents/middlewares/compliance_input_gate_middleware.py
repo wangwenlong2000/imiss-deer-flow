@@ -110,9 +110,10 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
 
     state_schema = ThreadState
 
-    def __init__(self, *, engine: Any = None) -> None:
+    def __init__(self, *, engine: Any = None, model_name: str | None = None) -> None:
         super().__init__()
         self._engine = engine
+        self._model_name = model_name
         self._normalizer = UserInputNormalizer()
 
     @override
@@ -159,11 +160,19 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
                 return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
-            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_scene_context else None)
+            return self._block(
+                FAIL_CLOSED_NOTICE,
+                decision,
+                scene_resolution.to_dict() if has_scene_context else None,
+            )
 
         if "refuse" in decision.actions:
             # Guide action 10: terminate the request and return a standard notice.
-            return self._block(user_notice(decision), scene_resolution.to_dict() if has_scene_context else None)
+            return self._block(
+                user_notice(decision),
+                decision,
+                scene_resolution.to_dict() if has_scene_context else None,
+            )
         return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
 
     def _check(
@@ -189,6 +198,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             thread_id=thread_id,
             user=user_context(runtime) or _user_from_state(state),
             intent=_intent_from_state(state),
+            model_name=self._model_name,
             budget_ms=config.budget_ms,
             max_units=config.max_units,
             origin={
@@ -199,9 +209,32 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
         )
 
     @staticmethod
-    def _block(notice: str, scene_context: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Refuse the request by answering directly instead of running the agent."""
-        update: dict[str, Any] = {"messages": [AIMessage(content=notice)], "jump_to": "end"}
+    def _block(
+        notice: str,
+        decision: ComplianceDecision,
+        scene_context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Refuse the request with durable metadata for the compliance UI."""
+        compliance_metadata = {
+            "gate": GATE,
+            "scene": decision.scene_key,
+            "streaming_mode": "input_block",
+            "transient_exposure_possible": False,
+            "actions": list(decision.actions),
+            "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            "audit_ref": decision.audit_ref,
+            "basis": list(decision.basis),
+            "notice": notice,
+            # The frontend's durable disposition contract uses this marker for
+            # content replaced by a compliance-safe response. At InputGate the
+            # blocked request never reaches the model, so there is no exposure.
+            "retracted": True,
+        }
+        message = AIMessage(
+            content=notice,
+            response_metadata={"compliance": compliance_metadata},
+        )
+        update: dict[str, Any] = {"messages": [message], "jump_to": "end"}
         if scene_context is not None:
             update[SCENE_CONTEXT_KEY] = scene_context
         return update

@@ -34,7 +34,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol, runtime_checkable
 
-CONTRACT_VERSION = "1.0"
+CONTRACT_VERSION = "1.1"
 
 # ── Enumerations ─────────────────────────────────────────────────────────────
 
@@ -192,6 +192,9 @@ class DetectContext:
     user: UserContext | None = None
     intent: IntentInfo | None = None
     budget_ms: int = 400
+    #: Exact chat model selected for the current conversation. Optional for
+    #: detectors that do not use an LLM and for legacy/standalone callers.
+    model_name: str | None = None
 
 
 # ── A detector's only output ─────────────────────────────────────────────────

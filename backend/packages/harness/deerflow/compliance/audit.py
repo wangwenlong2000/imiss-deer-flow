@@ -83,6 +83,7 @@ class Auditor:
             "timestamp": now.isoformat(),
             "request_id": request.request_id,
             "thread_id": request.thread_id,
+            "model_name": request.model_name,
             "gate": decision.gate,
             "scene_key": decision.scene_key,
             "scenes": list(decision.scenes),

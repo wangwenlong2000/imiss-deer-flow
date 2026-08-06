@@ -116,9 +116,10 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     state_schema = AgentState
 
-    def __init__(self, *, engine: Any = None) -> None:
+    def __init__(self, *, engine: Any = None, model_name: str | None = None) -> None:
         super().__init__()
         self._engine = engine
+        self._model_name = model_name
         self._normalizer = LlmOutputNormalizer()
         #: message_id -> characters already scanned, for the incremental pass.
         self._scan_offsets: dict[str, int] = {}
@@ -250,6 +251,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             request_id=request_id,
             thread_id=self._thread_id(runtime_or_request),
             user=user_context(runtime_or_request),
+            model_name=self._model_name,
             budget_ms=config.budget_ms,
             max_units=config.max_units,
             origin={
@@ -311,6 +313,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
                 units,
                 gate=GATE,
                 request_id=request_id,
+                model_name=self._model_name,
                 budget_ms=config.budget_ms,
                 max_units=config.max_units,
                 origin={"message_id": message_id, "incremental": True, "chars": len(accumulated_text)},

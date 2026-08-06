@@ -452,6 +452,12 @@ one engine, one detector set and one disposition matrix.
 | **ContextGate** | after retrieval, before the LLM sees it | tool/skill results |
 | **OutputGate** | after generation | the model's answer |
 
+An InputGate refusal is returned as a durable assistant message carrying the
+same `response_metadata.compliance` disposition contract used by OutputGate.
+The web UI therefore renders the structured compliance notice immediately and
+continues to render it after a page refresh; the blocked input never reaches the
+model and has no transient exposure window.
+
 **Identification and disposition are decoupled.** Detectors only report *what was hit, where,
 how confident, on what basis*. What happens next comes from a `violation × scene` matrix stored
 as YAML, transcribed verbatim from the annotation guide rather than hard-coded.

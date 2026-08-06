@@ -16,7 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 DOCKER_DIR="$REPO_ROOT/docker"
-COMPOSE_CMD=(docker compose -p huangyuzhe-merged-compliance-deer-flow -f "$DOCKER_DIR/docker-compose.yaml")
+COMPOSE_CMD=(docker compose -p yflin-deer-flow -f "$DOCKER_DIR/docker-compose.yaml")
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 
@@ -202,9 +202,9 @@ echo "=========================================="
 echo "  DeerFlow is running!"
 echo "=========================================="
 echo ""
-echo "  🌐 Application: http://localhost:${PORT:-3214}"
-echo "  📡 API Gateway: http://localhost:${PORT:-3214}/api/*"
-echo "  🤖 LangGraph:   http://localhost:${PORT:-3214}/api/langgraph/*"
+echo "  🌐 Application: http://localhost:${PORT:-3501}"
+echo "  📡 API Gateway: http://localhost:${PORT:-3501}/api/*"
+echo "  🤖 LangGraph:   http://localhost:${PORT:-3501}/api/langgraph/*"
 echo ""
 echo "  Manage:"
 echo "    make down        — stop and remove containers"

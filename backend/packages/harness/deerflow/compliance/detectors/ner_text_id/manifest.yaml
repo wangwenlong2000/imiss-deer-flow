@@ -1,0 +1,27 @@
+contract_version: "1.0"
+detector_id: ner_text_id
+adapter: inprocess
+entry: deerflow.compliance.detectors.ner_text_id.detector:NerTextIdDetector
+
+violation_types:
+  - text_id
+
+gates:
+  text_id:
+    - InputGate
+    - ContextGate
+    - OutputGate
+
+data_types: null
+cost_hint: medium
+
+description: >-
+  compliance_detectors 交付的自由文本标识符规则检测器，通过姓名、手机号、
+  身份证、详细住址、组织、岗位和案件语境的实体关系识别可定位个人的组合；
+  边界样本使用当前对话实际选择的聊天模型进行主进程内复核。
+
+default_params:
+  use_llm: false
+  llm_max_content_chars: 2500
+  llm_max_output_tokens: 512
+  llm_timeout_seconds: 7

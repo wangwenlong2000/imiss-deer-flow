@@ -537,14 +537,16 @@ compliance:
     input:
       enabled: true
       fail_mode: closed # closed = a detection error blocks; open = it passes through
+      budget_ms: 15000 # covers at most two configured-LLM reviews (7 s timeout each)
 
     # ContextGate — retrieval results, before they enter the LLM context.
-    # Performance-sensitive: rules / dictionaries / light models only, never a
-    # heavy LLM. A detector declaring cost_hint `heavy` here fails at startup.
+    # Performance-sensitive: rules run first; enabled medium-cost detectors may
+    # invoke the configured LLM only for boundary samples. Heavy detectors are
+    # still forbidden on ContextGate.
     context:
       enabled: true
       fail_mode: closed
-      budget_ms: 400 # wall-clock budget for the whole detection pass
+      budget_ms: 15000 # covers at most two configured-LLM reviews
       max_units: 32 # evidence items inspected per tool call; the rest is reported, never dropped silently
 
     # OutputGate — the model's answer. Streaming is preserved; a violation is
@@ -554,6 +556,7 @@ compliance:
     output:
       enabled: true
       fail_mode: closed
+      budget_ms: 15000 # covers at most two configured-LLM reviews
       mode: stream_retract
       incremental_scan:
         enabled: true

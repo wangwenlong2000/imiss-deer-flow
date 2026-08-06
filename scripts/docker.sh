@@ -15,7 +15,7 @@ DOCKER_DIR="$PROJECT_ROOT/docker"
 # Docker Compose command with project name
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
-COMPOSE_CMD="docker compose -p huangyuzhe-merged-compliance-deer-flow-dev -f docker-compose-dev.yaml"
+COMPOSE_CMD="docker compose -p yflin-deer-flow-dev -f docker-compose-dev.yaml"
 
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"
@@ -166,7 +166,7 @@ start() {
     # The frontend and gateway may be recreated with new bridge-network IPs
     # during `up --build`, while an unchanged nginx container keeps its old
     # resolved upstream addresses. Restart nginx so it resolves the current
-    # service IPs before users access port 3214.
+    # service IPs before users access port 3501.
     $COMPOSE_CMD restart nginx
 
     # Compose reports a service as started when its process has been spawned,
@@ -175,25 +175,25 @@ start() {
     # frontend is actually reachable through nginx.
     local ui_ready=false
     for _ in $(seq 1 30); do
-        if curl --fail --silent --max-time 2 http://127.0.0.1:3214/ >/dev/null; then
+        if curl --fail --silent --max-time 2 http://127.0.0.1:3501/ >/dev/null; then
             ui_ready=true
             break
         fi
         sleep 1
     done
     if [ "$ui_ready" != "true" ]; then
-        echo -e "${YELLOW}Frontend did not become ready on port 3214 within 30 seconds.${NC}"
+        echo -e "${YELLOW}Frontend did not become ready on port 3501 within 30 seconds.${NC}"
         return 1
     fi
-    echo -e "${GREEN}✓ Frontend is ready on port 3214${NC}"
+    echo -e "${GREEN}✓ Frontend is ready on port 3501${NC}"
     echo ""
     echo "=========================================="
     echo "  DeerFlow Docker is starting!"
     echo "=========================================="
     echo ""
-    echo "  🌐 Application: http://localhost:3214"
-    echo "  📡 API Gateway: http://localhost:3214/api/*"
-    echo "  🤖 LangGraph:   http://localhost:3214/api/langgraph/*"
+    echo "  🌐 Application: http://localhost:3501"
+    echo "  📡 API Gateway: http://localhost:3501/api/*"
+    echo "  🤖 LangGraph:   http://localhost:3501/api/langgraph/*"
     echo ""
     echo "  📋 View logs: make docker-logs"
     echo "  🛑 Stop:      make docker-stop"
@@ -259,7 +259,7 @@ restart() {
     echo ""
     echo -e "${GREEN}✓ Docker services restarted${NC}"
     echo ""
-    echo "  🌐 Application: http://localhost:3214"
+    echo "  🌐 Application: http://localhost:3501"
     echo "  📋 View logs: make docker-dev-logs"
     echo ""
 }

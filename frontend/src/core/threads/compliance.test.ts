@@ -53,6 +53,36 @@ void test("parses a real retraction off response_metadata", () => {
   assert.equal(d.basis.length, 2, "guide requirement 5: the basis must survive");
 });
 
+void test("parses an InputGate block for the durable compliance UI", () => {
+  const message = {
+    type: "ai",
+    id: "input-blocked",
+    content: "【合规提示】 检测到合规风险类型：hardcoded_cred。",
+    response_metadata: {
+      compliance: {
+        gate: "InputGate",
+        scene: "public_release",
+        streaming_mode: "input_block",
+        transient_exposure_possible: false,
+        actions: ["refuse", "warn"],
+        violation_types: ["hardcoded_cred"],
+        audit_ref: "audit-input",
+        basis: ["网络安全法 §21 数据安全保护"],
+        notice: "【合规提示】 检测到合规风险类型：hardcoded_cred。",
+        retracted: true,
+      },
+    },
+  };
+
+  const disposition = complianceDispositionOf(message);
+  assert.ok(disposition);
+  assert.equal(disposition.gate, "InputGate");
+  assert.equal(disposition.scene, "public_release");
+  assert.deepEqual(disposition.actions, ["refuse", "warn"]);
+  assert.deepEqual(disposition.violationTypes, ["hardcoded_cred"]);
+  assert.equal(disposition.auditRef, "audit-input");
+});
+
 void test("warn/manual_review is not treated as a mutation", () => {
   // The phase-1 common case. Marking it destructive would cry wolf on every
   // flagged-but-intact answer.
