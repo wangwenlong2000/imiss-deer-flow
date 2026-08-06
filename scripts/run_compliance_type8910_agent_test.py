@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run real lead_agent requests for synthetic compliance type 8/9/10 cases."""
+"""Run real lead_agent requests for realistic compliance type 8/9/10 cases."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_CASES = REPO_ROOT / "tests/fixtures/compliance_type8910_agent_cases.json"
+DEFAULT_CASES = REPO_ROOT / "tests/fixtures/compliance_type8910_realistic_cases.json"
 
 
 def post_json(url: str, payload: dict[str, Any], timeout: int) -> tuple[int, str]:
@@ -233,39 +233,49 @@ def run_case(api: str, assistant_id: str, case: dict[str, Any], scene: str, outp
         "thread_id": thread_id,
         "compliance_context": {"source": "manual_ui", "enabled": True, "scene": scene},
     }
-    payload = {
-        "assistant_id": assistant_id,
-        "input": {"messages": [{"role": "user", "content": case["question"]}]},
-        "context": context,
-        "config": {"recursion_limit": recursion_limit},
-        "stream_mode": ["values", "custom", "updates"],
-    }
-    request = urllib.request.Request(
-        f"{api.rstrip('/')}/threads/{thread_id}/runs/stream",
-        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Accept": "text/event-stream"},
-        method="POST",
-    )
-    started = time.monotonic()
-    raw = ""
+    questions = [case["question"]]
+    follow_up = case.get("follow_up_question")
+    if isinstance(follow_up, str) and follow_up.strip():
+        questions.append(follow_up)
+    raw_parts: list[str] = []
     error: str | None = None
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            chunks: list[bytes] = []
-            while True:
-                if time.monotonic() - started > timeout:
-                    error = f"wall-clock timeout after {timeout}s"
-                    break
-                chunk = response.read1(65536) if hasattr(response, "read1") else response.read(65536)
-                if not chunk:
-                    break
-                chunks.append(chunk)
-            raw = b"".join(chunks).decode("utf-8", errors="replace")
-    except Exception as exc:
-        error = repr(exc)
-    (case_dir / "turn-1.sse").write_text(raw, encoding="utf-8")
-    observation = observe(parse_sse(raw))
+    for turn_index, question in enumerate(questions, start=1):
+        payload = {
+            "assistant_id": assistant_id,
+            "input": {"messages": [{"role": "user", "content": question}]},
+            "context": context,
+            "config": {"recursion_limit": recursion_limit},
+            "stream_mode": ["values", "custom", "updates"],
+        }
+        request = urllib.request.Request(
+            f"{api.rstrip('/')}/threads/{thread_id}/runs/stream",
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={"Content-Type": "application/json", "Accept": "text/event-stream"},
+            method="POST",
+        )
+        started = time.monotonic()
+        raw = ""
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                chunks: list[bytes] = []
+                while True:
+                    if time.monotonic() - started > timeout:
+                        error = f"wall-clock timeout after {timeout}s on turn {turn_index}"
+                        break
+                    chunk = response.read1(65536) if hasattr(response, "read1") else response.read(65536)
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                raw = b"".join(chunks).decode("utf-8", errors="replace")
+        except Exception as exc:
+            error = f"turn {turn_index}: {exc!r}"
+        (case_dir / f"turn-{turn_index}.sse").write_text(raw, encoding="utf-8")
+        raw_parts.append(raw)
+        if error:
+            break
+    observation = observe(parse_sse("\n".join(raw_parts)))
     audit_records = read_audit_records(thread_id)
+    target_type = str(case.get("target_violation_type") or case.get("violation_type") or "none")
     audit_actions = sorted({action for item in audit_records for action in item.get("actions", [])})
     audit_violation_types = sorted(
         {
@@ -280,13 +290,18 @@ def run_case(api: str, assistant_id: str, case: dict[str, Any], scene: str, outp
     result = {
         "case_id": case["id"],
         "type_no": case["type_no"],
-        "violation_type": case["violation_type"],
+        "violation_type": target_type,
+        "label": case.get("label", "detected"),
+        "scenario": case.get("scenario", ""),
         "scene": scene,
         "thread_id": thread_id,
         "title": case["title"],
         "expected_skills": case.get("expected_skills", []),
+        "expected_detector_label": case.get("expected_detector_label", target_type),
+        "expected_gate": case.get("expected_gate"),
         "actual_skills": observation["skills_touched"],
         "expected_action": case.get("expected_scene_action", {}).get(scene),
+        "turn_count": len(raw_parts),
         "compliance": observation["compliance"],
         "actual_actions": audit_actions,
         "detected_violation_types": audit_violation_types,
@@ -335,9 +350,11 @@ def main() -> int:
     parser.add_argument("--list", action="store_true")
     args = parser.parse_args()
     cases = json.loads(args.cases_file.read_text(encoding="utf-8"))
+    case_by_id = {case["id"]: case for case in cases}
     if args.list:
         for case in cases:
-            print(f"{case['id']} type={case['type_no']} {case['violation_type']} {case['skill']}")
+            target_type = case.get("target_violation_type") or case.get("violation_type") or "none"
+            print(f"{case['id']} type={case['type_no']} label={case.get('label', 'detected')} {target_type} {case['skill']}")
         return 0
     selected = [case for case in cases if not args.cases or case["id"] in args.cases]
     if not selected:
@@ -356,14 +373,16 @@ def main() -> int:
             print(json.dumps({k: result.get(k) for k in ("case_id", "scene", "actual_skills", "compliance", "error")}, ensure_ascii=False), flush=True)
     summary = {"assistant_id": assistant_id, "model": args.model, "scenes": args.scenes, "results": results}
     (output_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    lines = ["# 第 8/9/10 类真实 Agent 合规测试", "", f"assistant: `{assistant_id}`", "", "| 用例 | 场景 | 类型 | Skill | 审计闸门/命中/动作 | 最终回答字符数 | 错误 |", "|---|---|---|---|---|---:|---|"]
+    lines = ["# 第 8/9/10 类真实场景 Agent 合规测试", "", f"assistant: `{assistant_id}`", "", "| 用例 | 标注 | 场景 | 目标类型/闸门 | 预期动作 | Skill | 实际命中/动作 | 最终回答字符数 | 错误 |", "|---|---|---|---|---|---|---|---:|---|"]
     for result in results:
         audit = "; ".join(
             f"{item.get('gate')}: {','.join(item.get('hits') and sorted({hit.get('violation_type') for hit in item['hits']} - {None}) or []) or '未命中'} / {','.join(item.get('actions') or []) or '无动作'}"
             for item in result.get("audit", [])
         ) or "未落盘"
         audit = audit.replace("|", "/")[:240]
-        lines.append(f"| {result['case_id']} | {result['scene']} | {result['violation_type']} | {', '.join(result.get('actual_skills') or []) or '无'} | {audit} | {result.get('final_chars', 0)} | {result.get('error') or ''} |")
+        expected_action = case_by_id[result["case_id"]].get("expected_scene_action", {}).get(result["scene"], "")
+        target = f"{result['violation_type']} / {result.get('expected_gate') or '-'}"
+        lines.append(f"| {result['case_id']} | {result.get('label', 'detected')} | {result['scene']} | {target} | {expected_action} | {', '.join(result.get('actual_skills') or []) or '无'} | {audit} | {result.get('final_chars', 0)} | {result.get('error') or ''} |")
     (output_dir / "REPORT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return 0 if all(not item.get("error") and not item.get("agent_errors") for item in results) else 1
 
