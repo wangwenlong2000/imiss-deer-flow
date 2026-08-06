@@ -1,0 +1,8 @@
+{
+  "_example": true,
+  "_example_notice": "占位示例，仅用于说明该 skill 的输入字段结构。其中的摄像头编号、路径、时间戳均为占位值，与任何真实视频无关。禁止把本文件的任何取值写进分析报告、证据包或最终回答。",
+  "camera_id": "<替换为真实摄像头编号>",
+  "source_type": "local_file",
+  "file_path": "<替换为真实视频路径>",
+  "capture_seconds": 10
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "risk-evidence-pack",
+    "name": "risk-evidence-pack",
+    "description": "为单个电话号码生成结构化风险证据包，汇总号码画像、风险结论、通话证据、共享设备证据、共同对端证据、证据评分和后续下钻建议。适用于“为什么高风险”“整理证据包”“生成可交付材料”等问题；不用于全局 TopN 发现或群体团伙识别。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "risk_evidence_pack",
+      "evidence_export",
+      "case_report",
+      "single_number_evidence"
+    ],
+    "input_types": [
+      "user_id",
+      "dataset_root",
+      "analysis_result",
+      "csv",
+      "parquet"
+    ],
+    "output_types": [
+      "evidence_pack",
+      "markdown_report",
+      "xlsx",
+      "json",
+      "csv"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：risk-evidence-pack\n描述：为单个电话号码生成结构化风险证据包，汇总号码画像、风险结论、通话证据、共享设备证据、共同对端证据、证据评分和后续下钻建议。适用于“为什么高风险”“整理证据包”“生成可交付材料”等问题；不用于全局 TopN 发现或群体团伙识别。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：risk_evidence_pack, evidence_export, case_report, single_number_evidence。\n输入类型：user_id, dataset_root, analysis_result, csv, parquet。\n输出类型：evidence_pack, markdown_report, xlsx, json, csv。\n适合使用：请把这个号码整理成风险证据包；给出这个号码的风险结论、关键证据和后续建议；为什么这个号码风险高并生成可交付报告；整理风险依据。\n不适合使用：只要简单单号画像；找TopN高风险号码；只做数据概览；上传原始CSV建图。\n关键词：证据包，风险依据，关键证据，交付报告，后续建议，工作簿，risk evidence。\n反关键词：简单画像，TopN，概览，建图。",
+    "positive_triggers": [
+      "请把这个号码整理成风险证据包",
+      "给出这个号码的风险结论、关键证据和后续建议",
+      "为什么这个号码风险高并生成可交付报告",
+      "整理风险依据"
+    ],
+    "negative_triggers": [
+      "只要简单单号画像",
+      "找TopN高风险号码",
+      "筛选重点号码",
+      "按条件筛选夜间通话异常、联系人广度高、共享设备数量多的号码",
+      "从全量数据找重点对象",
+      "只做数据概览",
+      "上传原始CSV建图"
+    ],
+    "keywords": [
+      "证据包",
+      "风险依据",
+      "关键证据",
+      "交付报告",
+      "后续建议",
+      "工作簿",
+      "risk evidence"
+    ],
+    "anti_keywords": [
+      "筛选",
+      "筛出",
+      "重点号码",
+      "条件筛选",
+      "夜间通话异常",
+      "联系人广度高",
+      "简单画像",
+      "TopN",
+      "概览",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: risk-evidence-pack\ndescription: 为单个电话号码生成结构化风险证据包，汇总号码画像、风险结论、通话证据、共享设备证据、共同对端证据、证据评分和后续下钻建议。适用于“为什么高风险”“整理证据包”“生成可交付材料”等问题；不用于全局 TopN 发现或群体团伙识别。\n---\n\n# risk-evidence-pack\n\n## 这个 skill 是干什么的\n\n这个 skill 用来回答这类问题：\n\n- “这个号码为什么值得重点关注？”\n- “请把这个号码的风险证据整理成一套证据包。”\n- “请输出这个号码的共享设备、同圈重叠、共同对端证据。”\n- “请生成 markdown 报告和附件，方便下载和后续研判。”\n\n它和 `topn-high-risk-discovery` 的分工不同：\n\n- `topn-high-risk-discovery` 负责 **找出谁最值得优先看**\n- `risk-evidence-pack` 负责 **解释为什么这个对象值得看**\n\n所以这个 skill 的重点是：\n\n1. 给出风险证据分和证据强度\n2. 拆开证据来源\n3. 形成结构化附件\n4. 帮助继续下钻到别的 skill\n\n---\n\n## 它依赖什么数据\n\n这个 skill **优先使用已经预处理好的电话网络图数据**，默认分析 `unified` 数据集。\n\n默认会优先寻找下面这些数据根目录：\n\n1. `PHONE_NETWORK_DATASET_ROOT` 环境变量\n2. `/mnt/datasets/phone-network`\n3. `/workspace/imiss-deer-flow-main/datasets/phone-network`\n4. skill 自带的测试数据目录\n\n它期望数据已经整理成这种结构：\n\n- `processed/unified/user_nodes.csv`\n- `processed/unified/call_edges.csv`\n- `processed/graph_views/unified/edges_phone_imei.parquet` 或 `edges_phone_imei.csv`\n\n### 统一数据集选择规则\n\n- **如果用户明确给了 `--dataset-root`，就用用户指定的数据集根目录。**\n- **如果用户没有明确给数据根目录，就优先用现成的 `unified` 预处理图数据。**\n- **如果用户只是上传了原始 Excel / CSV，而没有先整理成图结构，这个 skill 不能直接对原始数据开箱即用。**\n- **只有真实数据集根目录确实找不到时，才允许退回测试样例。**\n\n也就是说：\n\n- 它能处理 **新的图数据**，前提是新数据已经被预处理成和 `unified` 一样的图结构。\n- 它**不能直接把任意原始上传文件自动变成图**，这一层需要单独的数据接入 / 预处理流程。\n\n---\n\n## 它是怎么实现的\n\n这个 skill 是由基础图分析算子组合出来的，不是孤立写死的逻辑。\n\n对应关系如下：\n\n- 号码画像 = `node_lookup`\n- 直接联系对端 / 通话广度 = `neighbor_query + aggregation_query`\n- 共享设备证据 = `query_shared_device + aggregation_query`\n- 同圈重叠证据 = `common_neighbor + aggregation_query`\n- 风险证据评分与解释打包 = `aggregation_query + scoring_layer`\n\n所以它本质上是一个 **证据组织与解释层 skill**。\n\n---\n\n## 输入参数\n\n### 必填\n\n- `--phone-id`：目标号码 ID\n\n### 可选\n\n- `--dataset-root`：明确指定数据根目录\n- `--dataset`：默认 `unified`\n- `--top-k`：控制 markdown 报告中展示多少条主要证据，默认 `10`\n- `--evidence-limit`：控制 csv / xlsx 附件保留多少行证据，默认 `50`\n\n---\n\n## 标准命令\n\n### 命令行 / 前端统一推荐写法\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/risk-evidence-pack/scripts && python3 risk_evidence_pack_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --dataset unified \\\n  --top-k 10\n```\n\n### 如果你明确知道数据根目录\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/risk-evidence-pack/scripts && python3 risk_evidence_pack_wrapper.py \\\n  --phone-id \"<PHONE_ID>\" \\\n  --dataset-root \"/workspace/imiss-deer-flow-main/datasets/phone-network\" \\\n  --dataset unified \\\n  --top-k 10\n```\n\n---\n\n## 前端提问模板\n\n### 模板 1：标准风险证据包\n\n请使用 `risk-evidence-pack` skill，对这个号码生成完整风险证据包。要求：\n\n1. 输出号码画像\n2. 输出风险证据强度和证据分\n3. 输出 Top 直接联系对端\n4. 输出 Top 共享设备证据\n5. 输出 Top 共享设备关联号码\n6. 输出 Top 共同对端证据\n7. 输出 Top 同圈重叠号码\n8. 生成 markdown 报告和 csv/xlsx/json 附件并展示下载入口\n\n号码ID：`<PHONE_ID>`\n参数：`dataset=unified, top_k=10`\n\n### 模板 2：解释为什么值得看\n\n请使用 `risk-evidence-pack` skill，解释这个号码为什么值得重点关注，并把关键证据整理成完整证据包。\n\n号码ID：`<PHONE_ID>`\n参数：`dataset=unified`\n\n### 模板 3：如果号码不存在，也要明确说明\n\n请使用 `risk-evidence-pack` skill，核查这个号码是否能生成风险证据包；如果当前数据集中不存在该号码，请明确说明原因，不要输出空洞结论。\n\n号码ID：`<PHONE_ID>`\n参数：`dataset=unified`\n\n---\n\n## 预期输出\n\n这个 skill 正常会产出：\n\n1. `markdown` 完整报告\n2. `direct_counterparties.csv`：直接联系对端明细\n3. `devices.csv`：共享设备证据\n4. `shared_peers.csv`：共享设备关联号码证据\n5. `counterparties.csv`：共同对端证据\n6. `overlap_peers.csv`：同圈号码证据\n7. `summary.json`：结构化摘要\n8. `evidence.xlsx`：证据工作簿\n\n前端应优先展示 markdown 报告，同时把附件挂出来供下载。\n\n---\n\n## 当前版本专门修了什么问题\n\n这个版本重点修了下面几类问题：\n\n1. **DuckDB 的 DISTINCT + ORDER BY 聚合报错问题**\n2. **`top_k` 参数之前没有真正影响 markdown 展示的问题**\n3. **共同对端和设备预览过长，导致 markdown 报告非常臃肿的问题**\n4. **号码不存在时，之前会生成“看起来成功、但实际空洞”的低质量证据包问题**\n5. **测试脚本里“未标注号码”样例可能根本不存在，导致测试没意义的问题**\n\n---\n\n## 测试方法\n\n### 一键回归\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/risk-evidence-pack/scripts && bash test_risk_evidence_pack.sh\n```\n\n这个测试脚本会：\n\n- 自动跑 1 个经典高风险号码\n- 自动找 1 个真实存在的非风险号码\n- 自动跑 1 个故意不存在的号码，验证“找不到目标时是否能正确解释”\n- 自动把日志写入 `logs/` 目录\n\n### 单独跑一个真实号码\n\n```bash\ncd /mnt/skills/custom/phone-network-analysis/risk-evidence-pack/scripts && python3 risk_evidence_pack_wrapper.py \\\n  --phone-id \"141ab86b0a1277138c664368f30bfd93878754a968ca4f0f6f9f4d1b2279328985781d0740742e523f43e705753c5b9fd2bec9752624c1b79cf2b1132f1915be\" \\\n  --dataset-root \"/workspace/imiss-deer-flow-main/datasets/phone-network\" \\\n  --dataset unified \\\n  --top-k 10\n```\n\n---\n\n## 适用边界\n\n### 适合\n\n- 给单个重点号码做结构化证据说明\n- 给高风险发现结果补“为什么”的解释层\n- 给后续 `single-number-analysis` / `shared-device-analysis` / `overlap-analysis` / `association-path-analysis` 提供入口\n\n### 不适合\n\n- 直接处理未预处理的原始上传表格\n- 直接替代法律结论或人工终审\n- 直接做整群体筛选（那是 `group-risk-analysis` / `condition-based-screening` 的任务）\n\n---\n\n## 后面还能继续扩展什么\n\n后续还可以继续加：\n\n- 时间维异常证据（昼夜切换、突增突降）\n- 跟 Top 高风险对象的路径证据自动补充\n- 设备池 / 团伙簇归属判断\n- “简版证据包”和“完整版证据包”两种输出模板\n\n### 特别说明：目标不存在时\n\n如果当前数据集中不存在该号码：\n\n- 应明确返回 `status=target_not_found`\n- markdown 报告里要直接写清楚“当前数据集中未找到该号码”\n- 附件只保留：\n  - `markdown_report`\n  - `summary.json`\n- 不应继续把空的 csv/xlsx 当成有效证据附件挂出来\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 94,
+    "conflict_group": "phone_network_evidence_pack",
+    "prefer_when": [
+      "用户强调证据包、风险依据、可交付报告或后续建议",
+      "用户需要单号风险证据整理"
+    ],
+    "defer_when": [
+      "用户只是探索性分析单号时可先 single-number-analysis",
+      "用户没有给定号码而要全局排名时优先 topn-high-risk-discovery"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/risk-evidence-pack",
+    "skill_md_path": "skills/custom/phone-network-analysis/risk-evidence-pack/SKILL.md",
+    "skill_md_hash": "sha256:c25e77ee250f0828006a5e6d85d6c5fa22ee6326c9884e9867a0a1d7241ca1e8",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:c44d82116879bf9da0cc396f5d91d30657872cd3d28522364ee3f63bba76d9e3",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "risk-evidence-pack"
+  }
+}

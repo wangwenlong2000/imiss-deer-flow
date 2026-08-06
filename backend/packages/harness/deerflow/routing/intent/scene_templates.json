@@ -1,0 +1,176 @@
+{
+  "fire_alarm": {
+  "name": "消防告警",
+  "description": "消防告警信息接收与处理服务",
+  "example": "JSON：[{'name': '告警类型', 'desc': '消防告警的具体类型，如火灾、烟雾、温度异常', 'value': ''}, {'name': '告警地点', 'desc': '消防告警发生的具体地点', 'value': ''}, {'name': '告警时间', 'desc': '消防告警发生的时间，时间格式：yyyy-MM-dd', 'value': ''}]\n输入：阳光小区3号楼2单元发生火灾告警\n答：{'name': '告警类型', 'value': '火灾'}, {'name': '告警地点', 'value': '阳光小区3号楼2单元'}, {'name': '告警时间', 'value': '当前时间'}",
+  "parameters": [
+    {
+      "name": "告警类型",
+      "desc": "消防告警的具体类型，如火灾、烟雾、温度异常等",
+      "type": "string",
+      "required": true,
+      "options": ["火灾", "烟雾", "温度异常", "可燃气体泄漏", "手动报警按钮触发", "其他"]
+    },
+    {
+      "name": "告警地点",
+      "desc": "消防告警发生的具体地点，包括小区名称、楼号、单元号、房间号等",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "时间",
+      "desc": "消防告警发生的时间，时间格式：yyyy-MM-dd",
+      "type": "string",
+      "required": true
+    }
+  ]
+},
+  "street_order": {
+    "name": "街面秩序告警",
+    "description": "城管类街面秩序场景的告警信息接收与处理服务",
+    "example": "JSON：[{'name': '告警类型', 'desc': '街面秩序告警的具体类型，如占道经营、乱堆物料、违规广告、非机动车乱停放等', 'value': ''}, {'name': '告警地点', 'desc': '告警发生的具体地点，包括道路名称、门牌号、标志性建筑等', 'value': ''}, {'name': '告警时间', 'desc': '告警发生的时间，时间格式：yyyy-MM-dd', 'value': ''}]\n输入：东大街与解放路交叉口东北角存在占道经营现象\n答：{'name': '告警类型', 'value': '占道经营'}, {'name': '告警地点', 'value': '东大街与解放路交叉口东北角'}, {'name': '告警时间', 'value': '当前时间'}",
+    "parameters": [
+      {
+        "name": "告警类型",
+        "desc": "街面秩序告警的具体类型，如占道经营、乱堆物料、违规广告、非机动车乱停放等",
+        "type": "string",
+        "required": true,
+        "options": [
+          "占道经营",
+          "乱堆物料",
+          "违规广告",
+          "非机动车乱停放",
+          "店外经营",
+          "游商摊贩",
+          "道路不洁",
+          "绿地脏乱",
+          "违规施工",
+          "其他"
+        ]
+      },
+      {
+        "name": "告警地点",
+        "desc": "告警发生的具体地点，包括道路名称、门牌号、标志性建筑等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "时间",
+        "desc": "告警发生的时间，时间格式：yyyy-MM-dd",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "public_security_alarm": {
+    "name": "危害公共安全告警",
+    "description": "危害公共安全类（刑事类）事件的告警信息接收与处理服务",
+    "example": "JSON：[{'name': '告警类型', 'desc': '危害公共安全事件的具体类型，如爆炸、纵火、持械行凶、驾车冲撞、投放危险物质等', 'value': ''}, {'name': '告警地点', 'desc': '事件发生的具体地点，包括街道名称、门牌号、建筑或场所名称、楼层/房间号等', 'value': ''}, {'name': '告警时间', 'desc': '事件发生的具体时间，时间格式：yyyy-MM-dd HH:mm:ss', 'value': ''}]\n输入：万达广场1号门附近发生持刀伤人事件\n答：{'name': '告警类型', 'value': '持械行凶'}, {'name': '告警地点', 'value': '万达广场1号门附近'}, {'name': '告警时间', 'value': '当前时间'}",
+    "parameters": [
+      {
+        "name": "告警类型",
+        "desc": "危害公共安全事件的具体类型，如爆炸、纵火、持械行凶、驾车冲撞、投放危险物质等",
+        "type": "string",
+        "required": true,
+        "options": [
+          "爆炸",
+          "纵火",
+          "持械行凶",
+          "驾车冲撞",
+          "投放危险物质",
+          "劫持人质",
+          "非法持枪",
+          "暴力恐怖袭击",
+          "其他"
+        ]
+      },
+      {
+        "name": "告警地点",
+        "desc": "事件发生的具体地点，包括街道名称、门牌号、建筑或场所名称、楼层/房间号等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "时间",
+        "desc": "事件发生的具体时间，时间格式：yyyy-MM-dd HH:mm:ss",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "flooding_alarm": {
+  "name": "洪涝灾害告警",
+  "description": "洪涝灾害告警信息接收与处理服务",
+  "example": "JSON：[{'name': '告警类型', 'desc': '洪涝灾害的具体类型，如暴雨、内涝、河流泛滥等', 'value': ''}, {'name': '告警地点', 'desc': '洪涝灾害发生的具体地点', 'value': ''}, {'name': '告警时间', 'desc': '洪涝灾害发生的时间，时间格式：yyyy-MM-dd HH:mm:ss', 'value': ''}]\n输入：长江流域某段发生河流泛滥告警\n答：{'name': '告警类型', 'value': '河流泛滥'}, {'name': '告警地点', 'value': '长江流域某段'}, {'name': '告警时间', 'value': '当前时间'}",
+  "parameters": [
+    {
+      "name": "告警地点",
+      "desc": "洪涝灾害发生的具体地点，包括地区名称、街道、河流名称等",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "时间",
+      "desc": "洪涝灾害发生的时间，时间格式：yyyy-MM-dd HH:mm:ss",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "告警描述",
+      "desc": "对洪涝灾害的详细描述,根据用户输入进行整理",
+      "type": "string",
+      "required": false
+    }
+  ]
+},
+  "construction_management": {
+  "name": "施工管理",
+  "description": "施工管理告警信息接收与处理服务",
+  "example": "JSON：[{'name': '地点', 'desc': '施工管理事件的具体地点', 'value': ''}, {'name': '时间', 'desc': '时间，时间格式：yyyy-MM-dd', 'value': ''}, {'name': '施工管理事件描述', 'desc': '对施工管理事件的详细描述,根据用户输入进行整理', 'value': ''}]\n输入：2023-10-11，陕西西安市未央区永祥路项目因围挡高度不足2.5 m被城管立案查处。\n答：{'name': '地点', 'value': '陕西西安市未央区永祥路项目'}, {'name': '时间', 'value': '2023-10-11'}, {'name': '施工管理事件描述', 'value': '2023-10-11，陕西西安市未央区永祥路项目因围挡高度不足2.5 m被城管立案查处。'}",
+  "parameters": [
+    {
+      "name": "地点",
+      "desc": "施工管理事件的具体地点",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "时间",
+      "desc": "时间，时间格式：yyyy-MM-dd",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "施工管理事件描述",
+      "desc": "对施工管理事件的详细描述,根据用户输入进行整理",
+      "type": "string",
+      "required": false
+    }
+  ]
+},
+    "safety_of_food_and_pharmaceuticals": {
+      "name": "食品药品安全",
+      "description": "食品药品安全告警信息接收与处理服务",
+      "example": "JSON：[{'name': '地点', 'desc': '食品药品安全事件的具体地点', 'value': ''}, {'name': '时间', 'desc': '时间，时间格式：yyyy-MM-dd', 'value': ''}, {'name': '食品药品安全事件描述', 'desc': '对食品药品安全事件的详细描述,根据用户输入进行整理', 'value': ''}]\n输入：2023-10-11，陕西西安市未央区永祥路某餐馆因使用过期食材被立案查处。\n答：{'name': '地点', 'value': '陕西西安市未央区永祥路某餐馆'}, {'name': '时间', 'value': '2023-10-11'}, {'name': '食品药品安全事件描述', 'value': '2023-10-11，陕西西安市未央区永祥路某餐馆因使用过期食材被立案查处。'}",
+      "parameters": [
+        {
+          "name": "地点",
+          "desc": "食品药品安全事件的具体地点",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "时间",
+          "desc": "时间，时间格式：yyyy-MM",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "食品药品安全事件描述",
+          "desc": "对食品药品安全事件的详细描述,根据用户输入进行整理",
+          "type": "string",
+          "required": false
+        }
+      ]
+    }
+}

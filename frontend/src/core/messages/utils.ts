@@ -1,0 +1,546 @@
+import type { AIMessage, Message } from "@langchain/langgraph-sdk";
+
+interface GenericMessageGroup<T = string> {
+  type: T;
+  id: string | undefined;
+  messages: Message[];
+}
+
+interface HumanMessageGroup extends GenericMessageGroup<"human"> {}
+
+interface AssistantProcessingGroup extends GenericMessageGroup<"assistant:processing"> {}
+
+interface AssistantMessageGroup extends GenericMessageGroup<"assistant"> {}
+
+interface AssistantPresentFilesGroup extends GenericMessageGroup<"assistant:present-files"> {}
+
+interface AssistantClarificationGroup extends GenericMessageGroup<"assistant:clarification"> {}
+
+interface AssistantSubagentGroup extends GenericMessageGroup<"assistant:subagent"> {}
+
+type MessageGroup =
+  | HumanMessageGroup
+  | AssistantProcessingGroup
+  | AssistantMessageGroup
+  | AssistantPresentFilesGroup
+  | AssistantClarificationGroup
+  | AssistantSubagentGroup;
+
+export function groupMessages<T>(
+  messages: Message[],
+  mapper: (group: MessageGroup) => T,
+): T[] {
+  if (messages.length === 0) {
+    return [];
+  }
+
+  const groups: MessageGroup[] = [];
+
+  // Returns the last group if it can still accept tool messages
+  // (i.e. it's an in-flight processing group, not a terminal human/assistant group).
+  function lastOpenGroup() {
+    const last = groups[groups.length - 1];
+    if (
+      last &&
+      last.type !== "human" &&
+      last.type !== "assistant" &&
+      last.type !== "assistant:clarification"
+    ) {
+      return last;
+    }
+    return null;
+  }
+
+  for (const message of messages) {
+    if (isHiddenStepMessage(message)) {
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup?.type !== "assistant:processing") {
+        groups.push({
+          id: message.id,
+          type: "assistant:processing",
+          messages: [message],
+        });
+      } else {
+        lastGroup.messages.push(message);
+      }
+      continue;
+    }
+
+    if (isInternalMessage(message)) {
+      continue;
+    }
+
+    if (message.type === "human") {
+      groups.push({ id: message.id, type: "human", messages: [message] });
+      continue;
+    }
+
+    if (message.type === "tool") {
+      if (isClarificationToolMessage(message)) {
+        // Add to the preceding processing group to preserve tool-call association,
+        // then also open a standalone clarification group for prominent display.
+        lastOpenGroup()?.messages.push(message);
+        groups.push({
+          id: message.id,
+          type: "assistant:clarification",
+          messages: [message],
+        });
+      } else {
+        const open = lastOpenGroup();
+        if (open) {
+          open.messages.push(message);
+        }
+      }
+      continue;
+    }
+
+    if (message.type === "ai") {
+      if (hasPresentFiles(message)) {
+        groups.push({
+          id: message.id,
+          type: "assistant:present-files",
+          messages: [message],
+        });
+      } else if (hasSubagent(message)) {
+        groups.push({
+          id: message.id,
+          type: "assistant:subagent",
+          messages: [message],
+        });
+      } else if (hasReasoning(message) || hasToolCalls(message)) {
+        const lastGroup = groups[groups.length - 1];
+        // Accumulate consecutive intermediate AI messages into one processing group.
+        if (lastGroup?.type !== "assistant:processing") {
+          groups.push({
+            id: message.id,
+            type: "assistant:processing",
+            messages: [message],
+          });
+        } else {
+          lastGroup.messages.push(message);
+        }
+      }
+
+      // Keep intermediate agent/tool orchestration in processing only.
+      // Show assistant bubble only for user-facing content.
+      if (shouldRenderAssistantBubble(message)) {
+        groups.push({ id: message.id, type: "assistant", messages: [message] });
+      }
+    }
+  }
+
+  const lastUserMessageIndex = findLastUserMessageIndex(messages);
+  if (
+    lastUserMessageIndex >= 0 &&
+    !hasVisibleAssistantAfterIndex(messages, lastUserMessageIndex)
+  ) {
+    const fallbackMessage =
+      findLastAssistantFallbackCandidate(messages, lastUserMessageIndex) ??
+      findLastInvokeSkillFallbackCandidate(messages, lastUserMessageIndex);
+    if (fallbackMessage) {
+      groups.push({
+        id: fallbackMessage.id,
+        type: "assistant",
+        messages: [fallbackMessage],
+      });
+    }
+  }
+
+  return groups
+    .map(mapper)
+    .filter((result) => result !== undefined && result !== null) as T[];
+}
+
+function isExplicitlyInternalAssistantMessage(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  if (message.additional_kwargs?.element === "task") {
+    return true;
+  }
+  if (hasPresentFiles(message)) {
+    return true;
+  }
+  if (hasSubagent(message)) {
+    return true;
+  }
+  return false;
+}
+
+function shouldRenderAssistantBubble(message: Message) {
+  if (!hasDisplayableContent(message)) {
+    return false;
+  }
+  if (message.type !== "ai") {
+    return true;
+  }
+  if (isExplicitlyInternalAssistantMessage(message)) {
+    return false;
+  }
+
+  // Keep tool orchestration in hidden steps. Final answers may still carry
+  // reasoning metadata, so reasoning alone must not hide displayable content.
+  if (hasToolCalls(message)) {
+    return false;
+  }
+  return true;
+}
+
+function hasDisplayableContent(message: Message) {
+  return extractContentFromMessage(message).trim().length > 0;
+}
+
+function findLastUserMessageIndex(messages: Message[]) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (
+      message &&
+      message.type === "human" &&
+      !isInternalMessage(message) &&
+      !isHiddenStepMessage(message)
+    ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function hasVisibleAssistantAfterIndex(messages: Message[], index: number) {
+  for (let i = index + 1; i < messages.length; i += 1) {
+    const message = messages[i];
+    if (message && message.type === "ai" && shouldRenderAssistantBubble(message)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function findLastAssistantFallbackCandidate(messages: Message[], afterIndex: number) {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "ai") {
+      continue;
+    }
+    if (!hasDisplayableContent(message)) {
+      continue;
+    }
+    if (isExplicitlyInternalAssistantMessage(message)) {
+      continue;
+    }
+    if (hasToolCalls(message)) {
+      continue;
+    }
+    return message;
+  }
+  return null;
+}
+
+function findLastInvokeSkillFallbackCandidate(
+  messages: Message[],
+  afterIndex: number,
+): Message | null {
+  for (let i = messages.length - 1; i > afterIndex; i -= 1) {
+    const message = messages[i];
+    if (!message || message.type !== "tool") {
+      continue;
+    }
+
+    const summary = extractInvokeSkillSummary(message);
+    if (!summary) {
+      continue;
+    }
+
+    return {
+      type: "ai",
+      id: `${message.id ?? "invoke-skill"}:fallback`,
+      content: summary,
+    } as Message;
+  }
+  return null;
+}
+
+export function isInternalMessage(message: Message) {
+  return (
+    message.name === "todo_reminder" ||
+    message.additional_kwargs?.message_type === "routed_skill_prompt" ||
+    message.additional_kwargs?.message_type === "view_image_context" ||
+    message.additional_kwargs?.internal === true
+  );
+}
+
+export function isHiddenStepMessage(message: Message) {
+  return message.name === "todo_routing_guidance";
+}
+
+export function extractTextFromMessage(message: Message) {
+  if (typeof message.content === "string") {
+    return message.content.trim();
+  }
+  if (Array.isArray(message.content)) {
+    return message.content
+      .map((content) => (content.type === "text" ? content.text : ""))
+      .join("\n")
+      .trim();
+  }
+  return "";
+}
+
+export function extractInvokeSkillSummary(message: Message) {
+  if (message.type !== "tool" || message.name !== "invoke_skill") {
+    return "";
+  }
+
+  const raw = extractTextFromMessage(message);
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    const payload = JSON.parse(raw) as {
+      status?: string;
+      skill_result?: {
+        result?: {
+          display_text?: string;
+          summary?: {
+            overview?: string;
+            title?: string;
+          };
+          findings?: Array<{
+            summary?: string;
+            title?: string;
+            description?: string;
+          }>;
+        };
+      };
+    };
+
+    if (payload.status !== "wrapped") {
+      return "";
+    }
+
+    const displayText = payload.skill_result?.result?.display_text?.trim();
+    if (displayText) {
+      return displayText;
+    }
+
+    const overview = payload.skill_result?.result?.summary?.overview?.trim();
+    if (overview) {
+      return overview;
+    }
+
+    const title = payload.skill_result?.result?.summary?.title?.trim();
+    if (title) {
+      return title;
+    }
+
+    const findings = payload.skill_result?.result?.findings ?? [];
+    const rendered = findings
+      .map((item) => item.summary?.trim() || item.title?.trim() || item.description?.trim() || "")
+      .filter(Boolean)
+      .slice(0, 5);
+    return rendered.join("\n");
+  } catch {
+    return "";
+  }
+}
+
+export function extractContentFromMessage(message: Message) {
+  if (typeof message.content === "string") {
+    return message.content.trim();
+  }
+  if (Array.isArray(message.content)) {
+    return message.content
+      .map((content) => {
+        switch (content.type) {
+          case "text":
+            return content.text;
+          case "image_url":
+            const imageURL = extractURLFromImageURLContent(content.image_url);
+            return `![image](${imageURL})`;
+          default:
+            return "";
+        }
+      })
+      .join("\n")
+      .trim();
+  }
+  return "";
+}
+
+export function extractReasoningContentFromMessage(message: Message) {
+  if (message.type !== "ai") {
+    return null;
+  }
+  if (
+    message.additional_kwargs &&
+    "reasoning_content" in message.additional_kwargs
+  ) {
+    return message.additional_kwargs.reasoning_content as string | null;
+  }
+  if (Array.isArray(message.content)) {
+    const part = message.content[0];
+    if (part && "thinking" in part) {
+      return part.thinking as string;
+    }
+  }
+  return null;
+}
+
+export function removeReasoningContentFromMessage(message: Message) {
+  if (message.type !== "ai" || !message.additional_kwargs) {
+    return;
+  }
+  delete message.additional_kwargs.reasoning_content;
+}
+
+export function extractURLFromImageURLContent(
+  content:
+    | string
+    | {
+        url: string;
+      },
+) {
+  if (typeof content === "string") {
+    return content;
+  }
+  return content.url;
+}
+
+export function hasContent(message: Message) {
+  if (typeof message.content === "string") {
+    return message.content.trim().length > 0;
+  }
+  if (Array.isArray(message.content)) {
+    return message.content.length > 0;
+  }
+  return false;
+}
+
+export function hasReasoning(message: Message) {
+  if (message.type !== "ai") {
+    return false;
+  }
+  if (typeof message.additional_kwargs?.reasoning_content === "string") {
+    return true;
+  }
+  if (Array.isArray(message.content)) {
+    const part = message.content[0];
+    // Compatible with the Anthropic gateway
+    return (part as unknown as { type: "thinking" })?.type === "thinking";
+  }
+  return false;
+}
+
+export function hasToolCalls(message: Message) {
+  return (
+    message.type === "ai" && message.tool_calls && message.tool_calls.length > 0
+  );
+}
+
+export function hasPresentFiles(message: Message) {
+  return (
+    message.type === "ai" &&
+    message.tool_calls?.some((toolCall) => toolCall.name === "present_files")
+  );
+}
+
+export function isClarificationToolMessage(message: Message) {
+  return message.type === "tool" && message.name === "ask_clarification";
+}
+
+export function extractPresentFilesFromMessage(message: Message) {
+  if (message.type !== "ai" || !hasPresentFiles(message)) {
+    return [];
+  }
+  const files: string[] = [];
+  for (const toolCall of message.tool_calls ?? []) {
+    if (
+      toolCall.name === "present_files" &&
+      Array.isArray(toolCall.args.filepaths)
+    ) {
+      files.push(...(toolCall.args.filepaths as string[]));
+    }
+  }
+  return files;
+}
+
+export function hasSubagent(message: AIMessage) {
+  for (const toolCall of message.tool_calls ?? []) {
+    if (toolCall.name === "task") {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function findToolCallResult(toolCallId: string, messages: Message[]) {
+  for (const message of messages) {
+    if (message.type === "tool" && message.tool_call_id === toolCallId) {
+      const content = extractTextFromMessage(message);
+      if (content) {
+        return content;
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Represents a file stored in message additional_kwargs.files.
+ * Used for optimistic UI (uploading state) and structured file metadata.
+ */
+export interface FileInMessage {
+  filename: string;
+  size: number; // bytes
+  path?: string; // virtual path, may not be set during upload
+  status?: "uploading" | "uploaded";
+}
+
+/**
+ * Strip <uploaded_files> tag from message content.
+ * Returns the content with the tag removed.
+ */
+export function stripUploadedFilesTag(content: string): string {
+  return content
+    .replace(/<uploaded_files>[\s\S]*?<\/uploaded_files>/g, "")
+    .trim();
+}
+
+export function parseUploadedFiles(content: string): FileInMessage[] {
+  // Match <uploaded_files>...</uploaded_files> tag
+  const uploadedFilesRegex = /<uploaded_files>([\s\S]*?)<\/uploaded_files>/;
+  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+  const match = content.match(uploadedFilesRegex);
+
+  if (!match) {
+    return [];
+  }
+
+  const uploadedFilesContent = match[1];
+
+  // Check if it's "No files have been uploaded yet."
+  if (uploadedFilesContent?.includes("No files have been uploaded yet.")) {
+    return [];
+  }
+
+  // Check if the backend reported no new files were uploaded in this message
+  if (uploadedFilesContent?.includes("(empty)")) {
+    return [];
+  }
+
+  // Parse file list
+  // Format: - filename (size)\n  Path: /path/to/file
+  const fileRegex = /- ([^\n(]+)\s*\(([^)]+)\)\s*\n\s*Path:\s*([^\n]+)/g;
+  const files: FileInMessage[] = [];
+  let fileMatch;
+
+  while ((fileMatch = fileRegex.exec(uploadedFilesContent ?? "")) !== null) {
+    files.push({
+      filename: fileMatch[1].trim(),
+      size: parseInt(fileMatch[2].trim(), 10) ?? 0,
+      path: fileMatch[3].trim(),
+    });
+  }
+
+  return files;
+}

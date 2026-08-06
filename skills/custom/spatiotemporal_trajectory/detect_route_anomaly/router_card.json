@@ -1,0 +1,116 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "detect_route_anomaly",
+                     "name":  "detect_route_anomaly",
+                     "description":  "Use this skill when the user wants to detect individual trip or route anomalies, such as unusually long distance, unusually long/short duration, abnormal average speed, detours, or trips that deviate from a user\u0027s usual behavior."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "detect_route_anomaly",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "trips_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "route_anomalies.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：detect_route_anomaly\n描述：Use this skill when the user wants to detect individual trip or route anomalies, such as unusually long distance, unusually long/short duration, abnormal average speed, detours, or trips that deviate from a user\u0027s usual behavior.\n适用场景：spatiotemporal_trajectory。\n适用任务：detect_route_anomaly, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, trips_jsonl。\n输出类型：route_anomalies.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to detect individual trip or route anomalies, such as unusually long distance, unusually long/short duration, abnormal average speed, detours, or trips that deviate from a user\u0027s usual behavior.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "detect",
+                                     "route",
+                                     "anomaly",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: detect_route_anomaly\ndescription: Use this skill when the user wants to detect individual trip or route anomalies, such as unusually long distance, unusually long/short duration, abnormal average speed, detours, or trips that deviate from a user\u0027s usual behavior.\nmetadata:\n  short-description: Detect route-level trip anomalies.\n---\n\n# detect_route_anomaly\n\nUse this Skill for micro-level trajectory anomaly detection over trip records.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/detect_route_anomaly\npython3 scripts/detect_route_anomaly.py \\\n  --input /path/to/trips.jsonl \\\n  --output-dir /path/to/output \\\n  --group-col user_id \\\n  --threshold 3.5\n```\n\n## Outputs\n\n- `route_anomalies.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Per-user or global grouping\n- Distance anomaly detection\n- Duration anomaly detection\n- Average-speed anomaly detection\n- Robust MAD/z-score fallback scoring\n\n## Next Skills\n\nCombine with `$search_similar_trajectory` to explain whether an anomalous trip has comparable historical trips.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "search_similar_trajectory"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/detect_route_anomaly",
+                   "skill_md_path":  "skills/custom/detect_route_anomaly/SKILL.md",
+                   "skill_md_hash":  "sha256:eb6b0820fb0c46f31ca4409f7c8a63b21a142385a9f674f5e99e5dc752742183",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:72c210ff4684fbef29f9db968e24bc31afa6d44413654b17781c0ac27f3b7da2",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "detect_route_anomaly"
+                  }
+}

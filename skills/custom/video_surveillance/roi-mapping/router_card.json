@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "roi-mapping",
+    "name": "roi-mapping",
+    "description": "Match objects or tracks to configured ROI polygons for geometric analytics only."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["roi_mapping", "geometry_matching"],
+    "input_types": ["tracks_json", "objects_json", "rois_json"],
+    "output_types": ["roi_matches_json"]
+  },
+  "routing": {
+    "routing_text": "名称：roi-mapping\n描述：将目标或轨迹与摄像头 ROI 多边形做几何匹配，输出 matched、roi_id、overlap_ratio。不能直接生成事件类型。\n适合使用：ROI命中；区域几何匹配；目标是否在某个多边形内。\n不适合使用：事件检测；违停/入侵等语义判断。",
+    "positive_triggers": ["ROI匹配", "区域匹配", "多边形命中", "roi"],
+    "negative_triggers": ["事件检测", "违停判断", "入侵事件"],
+    "keywords": ["roi", "polygon", "overlap", "geometry"],
+    "anti_keywords": ["event"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 70,
+    "conflict_group": "roi-mapping",
+    "prefer_when": ["需要ROI几何匹配"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/roi-mapping",
+    "skill_md_path": "skills/custom/roi-mapping/SKILL.md",
+    "generator_version": "manual-object-only-1.0.0"
+  },
+  "embedding": {"es_doc_id": "roi-mapping"}
+}

@@ -1,0 +1,14 @@
+# Skill: impervious-surface-mapping
+skill:
+  name: impervious-surface-mapping
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+io:
+  outputs_dir: ./outputs
+  subdir: impervious-surface-mapping
+
+logging:
+  level: INFO

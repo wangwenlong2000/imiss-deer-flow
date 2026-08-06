@@ -1,0 +1,47 @@
+# 能力声明 —— 单一事实来源
+#
+# 引擎不认识这个检测器，只认识这份声明。registry.py 启动时扫描
+# detectors/*/manifest.yaml 自动发现并校验；目录搬走或删掉，声明跟着走。
+#
+# config/compliance/detectors.yaml 只管"开不开 + 参数覆盖"，不重复这里的内容。
+
+contract_version: "1.0"
+detector_id: model_tfidf_knn
+adapter: inprocess
+entry: deerflow.compliance.detectors.model_tfidf_knn.detector:ModelTfidfKnnDetector
+
+# 第 8/9/10 类违规
+violation_types: [video_meta_leak, re_identify, domain]
+
+gates:
+  video_meta_leak: [ContextGate, OutputGate]
+  re_identify: [OutputGate] # 指南硬约束：第 9 类只在输出闸检测
+  domain: [ContextGate, OutputGate]
+
+data_types: null # null = 不限数据类型
+cost_hint: light # 纯 Python 标准库，单条约 13ms，可以挂 ContextGate
+
+# ⚠️ 与模型文件绑定的归一化规范版本。
+# 0624 规范 = features 的 "key: value" 逐行拼接（见 row_builder.py）。
+# all_normalized_800.jsonl 训练出的 ml_detector.json 用的是另一套规范，混用会
+# 让特征分布错位、离线 98% 的准确率线上静默失效。检测器 setup() 时校验，不匹配直接报错。
+content_text_spec: "0624"
+
+description: >-
+  TF-IDF + kNN（k=1, cosine）四分类检测器，纯 Python 标准库实现，无第三方 ML 依赖。
+  0624 测试集实测 accuracy=0.9821 / macro_f1=0.9859（56 条，1 处误判）。
+
+default_params:
+  # 权重文件已 gitignore，用 `make compliance-assets` 从交付包解压
+  model_path: models/compliance/ml_detector_0624_fresh.json
+
+  # 低于此置信度的非 none 预测直接归为 none
+  min_confidence: 0.35
+
+  # 最近邻相似度低于此值时降级为 low 严重度（只进人工复核，不拒答/改写）。
+  # 交付包 README 明写 k=1 对否定语境敏感；0624 唯一误判就是一条否定表达，
+  # 最近邻相似度只有 0.1316。
+  min_similarity: 0.20
+
+  max_units_per_call: 32
+  timeout_ms: 400

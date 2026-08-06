@@ -1,0 +1,262 @@
+"""Upload router for handling file uploads."""
+
+import logging
+from pathlib import Path
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from pydantic import BaseModel
+
+from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
+from deerflow.sandbox.sandbox_provider import get_sandbox_provider
+from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/api/threads/{thread_id}/uploads", tags=["uploads"])
+
+_CROSS_USER_WRITABLE_FILE_MODE = 0o666
+
+
+class UploadResponse(BaseModel):
+    """Response model for file upload."""
+
+    success: bool
+    files: list[dict[str, str]]
+    message: str
+
+
+def get_uploads_dir(thread_id: str) -> Path:
+    """Get the uploads directory for a thread.
+
+    Args:
+        thread_id: The thread ID.
+
+    Returns:
+        Path to the uploads directory.
+    """
+    base_dir = get_paths().sandbox_uploads_dir(thread_id)
+    base_dir.mkdir(parents=True, exist_ok=True)
+    return base_dir
+
+
+def _set_cross_user_writable(path: Path) -> None:
+    """Make uploaded artifacts writable across container users.
+
+    This prevents overwrite failures when the initial write and sandbox sync
+    happen under different users in shared bind mounts.
+    """
+    try:
+        path.chmod(_CROSS_USER_WRITABLE_FILE_MODE)
+    except OSError as exc:
+        logger.warning(f"Failed to chmod {path} to 0o666: {exc}")
+
+async def save_thread_upload_from_bytes(
+    thread_id: str,
+    filename: str,
+    content: bytes,
+) -> dict[str, str]:
+    """Save bytes as a thread upload and run the same conversion/sandbox sync logic as manual upload."""
+    safe_filename = Path(filename).name
+    if (
+        not safe_filename
+        or safe_filename in {".", ".."}
+        or "/" in safe_filename
+        or "\\" in safe_filename
+    ):
+        raise HTTPException(status_code=400, detail=f"Invalid filename: {filename}")
+
+    uploads_dir = get_uploads_dir(thread_id)
+    paths = get_paths()
+
+    sandbox_provider = get_sandbox_provider()
+    sandbox_id = sandbox_provider.acquire(thread_id)
+    sandbox = sandbox_provider.get(sandbox_id)
+
+    file_path = uploads_dir / safe_filename
+    file_path.write_bytes(content)
+    _set_cross_user_writable(file_path)
+
+    relative_path = str(paths.sandbox_uploads_dir(thread_id) / safe_filename)
+    virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"
+
+    if sandbox_id != "local":
+        sandbox.update_file(virtual_path, content)
+
+    file_info = {
+        "filename": safe_filename,
+        "size": str(len(content)),
+        "path": relative_path,
+        "virtual_path": virtual_path,
+        "artifact_url": f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{safe_filename}",
+    }
+
+    logger.info(f"Saved file: {safe_filename} ({len(content)} bytes) to {relative_path}")
+
+    file_ext = file_path.suffix.lower()
+    if file_ext in CONVERTIBLE_EXTENSIONS:
+        md_path = await convert_file_to_markdown(file_path)
+        if md_path:
+            _set_cross_user_writable(md_path)
+            md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
+            md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
+
+            if sandbox_id != "local":
+                sandbox.update_file(md_virtual_path, md_path.read_bytes())
+
+            file_info["markdown_file"] = md_path.name
+            file_info["markdown_path"] = md_relative_path
+            file_info["markdown_virtual_path"] = md_virtual_path
+            file_info["markdown_artifact_url"] = (
+                f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{md_path.name}"
+            )
+
+    return file_info
+
+
+@router.post("", response_model=UploadResponse)
+async def upload_files(
+    thread_id: str,
+    files: list[UploadFile] = File(...),
+) -> UploadResponse:
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided")
+
+    uploaded_files = []
+
+    for file in files:
+        if not file.filename:
+            continue
+
+        try:
+            content = await file.read()
+            file_info = await save_thread_upload_from_bytes(
+                thread_id=thread_id,
+                filename=file.filename,
+                content=content,
+            )
+            uploaded_files.append(file_info)
+
+        except Exception as e:
+            logger.error(f"Failed to upload {file.filename}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to upload {file.filename}: {str(e)}",
+            )
+
+    # Compliance InputGate: scan after the files land and any conversion has run,
+    # but BEFORE reporting success — a violating upload must never be acknowledged
+    # as accepted. App calls harness; the dependency direction stays legal.
+    warning = _scan_uploads_for_compliance(thread_id, uploaded_files)
+    if warning is not None:
+        return UploadResponse(success=False, files=[], message=warning)
+
+    return UploadResponse(
+        success=True,
+        files=uploaded_files,
+        message=f"Successfully uploaded {len(uploaded_files)} file(s)",
+    )
+
+
+def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> str | None:
+    """Return a refusal message when an upload violates policy, else ``None``.
+
+    Failures here follow the input gate's ``fail_mode``: with the default
+    ``closed`` the upload is rejected, because an upload scanner that silently
+    stops scanning is worse than one that is switched off.
+    """
+    try:
+        from deerflow.agents.middlewares.compliance_input_gate_middleware import scan_upload_paths
+        from deerflow.compliance.runtime import gate_enabled, user_notice
+
+        if not gate_enabled("InputGate"):
+            return None
+
+        paths = [str(info["path"]) for info in uploaded_files if info.get("path")]
+        if not paths:
+            return None
+
+        decision = scan_upload_paths(paths, thread_id=thread_id)
+        if "refuse" in decision.actions:
+            logger.warning("compliance: rejected upload for thread %s: %s", thread_id, decision.actions)
+            return user_notice(decision)
+        if decision.hits:
+            logger.info("compliance: upload flagged for thread %s: %s", thread_id, decision.actions)
+        return None
+    except Exception:
+        logger.exception("compliance: upload scan failed for thread %s", thread_id)
+        try:
+            from deerflow.compliance.runtime import FAIL_CLOSED_NOTICE, gate_config
+
+            if getattr(gate_config("InputGate"), "fail_mode", "closed") == "closed":
+                return FAIL_CLOSED_NOTICE
+        except Exception:
+            logger.exception("compliance: could not resolve the input gate fail mode; rejecting the upload")
+            return "【合规检查失败】合规检测未能完成，为安全起见已拒绝本次上传。"
+        return None
+
+
+@router.get("/list", response_model=dict)
+async def list_uploaded_files(thread_id: str) -> dict:
+    """List all files in a thread's uploads directory.
+
+    Args:
+        thread_id: The thread ID to list files for.
+
+    Returns:
+        Dictionary containing list of files with their metadata.
+    """
+    uploads_dir = get_uploads_dir(thread_id)
+
+    if not uploads_dir.exists():
+        return {"files": [], "count": 0}
+
+    files = []
+    for file_path in sorted(uploads_dir.iterdir()):
+        if file_path.is_file():
+            stat = file_path.stat()
+            relative_path = str(get_paths().sandbox_uploads_dir(thread_id) / file_path.name)
+            files.append(
+                {
+                    "filename": file_path.name,
+                    "size": stat.st_size,
+                    "path": relative_path,  # Actual filesystem path
+                    "virtual_path": f"{VIRTUAL_PATH_PREFIX}/uploads/{file_path.name}",  # Path for Agent in sandbox
+                    "artifact_url": f"/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/{file_path.name}",  # HTTP URL
+                    "extension": file_path.suffix,
+                    "modified": stat.st_mtime,
+                }
+            )
+
+    return {"files": files, "count": len(files)}
+
+
+@router.delete("/{filename}")
+async def delete_uploaded_file(thread_id: str, filename: str) -> dict:
+    """Delete a file from a thread's uploads directory.
+
+    Args:
+        thread_id: The thread ID.
+        filename: The filename to delete.
+
+    Returns:
+        Success message.
+    """
+    uploads_dir = get_uploads_dir(thread_id)
+    file_path = uploads_dir / filename
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {filename}")
+
+    # Security check: ensure the path is within the uploads directory
+    try:
+        file_path.resolve().relative_to(uploads_dir.resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    try:
+        file_path.unlink()
+        logger.info(f"Deleted file: {filename}")
+        return {"success": True, "message": f"Deleted {filename}"}
+    except Exception as e:
+        logger.error(f"Failed to delete {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete {filename}: {str(e)}")

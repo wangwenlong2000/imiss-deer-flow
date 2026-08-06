@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "illegal-dumping-detection",
+    "name": "illegal-dumping-detection",
+    "description": "Identifies suspected illegal dumping sites (bare soil, construction waste) from high-resolution optical imagery using the Bare Soil Index (BSI). Generates suspect site lists with priority levels for enforcement. Invoke when the user mentions \"非法倾倒\", \"渣土\", \"建筑垃圾\", \"裸土\", \"illegal dumping\", \"BSI\", \"垃圾堆放\", \"偷倒\" or similar triggers."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "illegal_dumping_detection",
+      "bare_soil_index",
+      "suspect_site_extraction",
+      "priority_ranking",
+      "enforcement_report"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "bsi_map_tif",
+      "suspect_sites_geojson",
+      "suspect_sites_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：illegal-dumping-detection\n描述：Identifies suspected illegal dumping sites (bare soil, construction waste) from high-resolution optical imagery using the Bare Soil Index (BSI). Generates suspect site lists with priority levels for enforcement. Invoke when the user mentions \"非法倾倒\", \"渣土\", \"建筑垃圾\", \"裸土\", \"illegal dumping\", \"BSI\", \"垃圾堆放\", \"偷倒\" or similar triggers.\n适用场景：remote_sensing, urban_governance, law_enforcement。\n适用任务：illegal_dumping_detection, bare_soil_index, suspect_site_extraction, priority_ranking, enforcement_report。\n输入类型：geotiff, geojson, shapefile。\n输出类型：bsi_map_tif, suspect_sites_geojson, suspect_sites_csv, report_md。\n适合使用：识别疑似渣土或建筑垃圾偷倒点；使用 BSI 检测裸土和堆放异常区域；生成疑似倾倒点位清单和执法优先级。\n不适合使用：检测道路坑洼或裂缝；构建土地利用转移矩阵；反演水质污染参数；撰写项目投标方案。",
+    "positive_triggers": [
+      "识别疑似渣土或建筑垃圾偷倒点",
+      "使用 BSI 检测裸土和堆放异常区域",
+      "生成疑似倾倒点位清单和执法优先级"
+    ],
+    "negative_triggers": [
+      "检测道路坑洼或裂缝",
+      "构建土地利用转移矩阵",
+      "反演水质污染参数",
+      "撰写项目投标方案"
+    ],
+    "keywords": [
+      "非法倾倒",
+      "渣土",
+      "建筑垃圾",
+      "裸土",
+      "illegal dumping",
+      "BSI",
+      "垃圾堆放",
+      "偷倒"
+    ],
+    "anti_keywords": [
+      "道路破损",
+      "转移矩阵",
+      "水质",
+      "方案",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: illegal-dumping-detection\ndescription: >\n  Identifies suspected illegal dumping sites (bare soil, construction waste) from high-resolution optical imagery using the Bare Soil Index (BSI). Generates suspect site lists with priority levels for enforcement. Invoke when the user mentions \"非法倾倒\", \"渣土\", \"建筑垃圾\", \"裸土\", \"illegal dumping\", \"BSI\", \"垃圾堆放\", \"偷倒\" or similar triggers.\nlicense: MIT\n---\n\n# 非法倾倒监测技能（illegal-dumping-detection）\n\n## 1. 技能概述\n\n本技能基于高分辨率光学遥感影像，利用裸土指数（BSI）识别疑似非法倾倒渣土、建筑垃圾的区域，生成可疑点位清单与优先级排序，辅助城市管理执法。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_optical` | file (GeoTIFF) | 是 | 高分辨率光学影像（建议 GF-2/Pleiades，≥ 4 波段，已完成正射校正） |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界 |\n| `bare_soil_threshold` | float | 否 | BSI 判定阈值，默认 0.15 |\n| `min_area_m2` | float | 否 | 最小可疑倾倒面积（平方米），默认 50 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **BSI 计算**：`BSI = ((SWIR + Red) - (NIR + Blue)) / ((SWIR + Red) + (NIR + Blue))`\n3. **阈值提取**：识别高 BSI 裸土区域\n4. **小图斑过滤**：滤除低于最小面积的噪声图斑\n5. **优先级排序**：按面积大小分配处置优先级\n6. **成果输出**：bsi_map.tif、suspect_sites.geojson、suspect_sites.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/illegal-dumping-detection/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_optical\":\"/path/to/gf2.tif\",\"bare_soil_threshold\":0.15}' \\\n  --output-dir /tmp/outputs/idd\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `bsi_map.tif` | 裸土指数栅格 |\n| `suspect_sites.geojson` | 疑似倾倒点位矢量（Point 类型） |\n| `suspect_sites.csv` | 点位清单（含坐标、面积、BSI 值、优先级） |\n| `report.md` | 非法倾倒统计与执法建议 |\n\n## 6. 治理场景\n\n- **渣土偷倒巡查**：定期扫描重点区域，发现新增裸土点位\n- **建筑垃圾监管**：识别未经批准的建筑垃圾堆放点\n- **城乡结合部治理**：重点监控城乡结合部的非法倾倒行为\n- **执法证据支撑**：遥感影像可作为行政执法的辅助证据\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户要求从高分辨率光学影像中识别渣土偷倒、建筑垃圾或裸土堆放点",
+      "用户提到 BSI、疑似倾倒点位清单或执法巡查"
+    ],
+    "defer_when": [
+      "任务是两期影像综合变化检测，应优先使用 urban-change-detection",
+      "任务是道路病害，应优先使用 road-damage-assessment"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/illegal-dumping-detection",
+    "skill_md_path": "5-21remote-sensing/illegal-dumping-detection/SKILL.md",
+    "skill_md_hash": "sha256:37795990640c140f89d5f57ea2def68d9b1f698b8b862e00c49a4dc7cc521211",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:b99a3aef97ebe41d420dd9bd683fe0c5093d5b4eacea8125e5d397ab19d4bbdc",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "illegal-dumping-detection"
+  }
+}

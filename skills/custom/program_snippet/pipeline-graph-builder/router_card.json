@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "pipeline-graph-builder",
+    "name": "pipeline-graph-builder",
+    "description": "使用 DeerFlow 已实现的 Python PipelineGraphBuilder 和 DeerFlowOrchestrator，将 code-to-ast-new、code-splitter-adapter、dataflow-extractor、code-semantic-labeler 等前置技能输出的 calls、dataflow、labeled_nodes 融合为业务级有向无环图 DAG。用于需要生成、调试、演示或接入业务 pipeline JSON 的场景，尤其是从原始代码分析结果构建 pipeline nodes/edges 输出时。"
+  },
+  "scope": {
+    "scenes": [
+      "business_dag",
+      "graph_building",
+      "code_analysis"
+    ],
+    "is_public": true,
+    "task_types": [
+      "business_dag_build",
+      "pipeline_nodes_edges_generation",
+      "call_dataflow_semantic_fusion"
+    ],
+    "input_types": [
+      "calls_json",
+      "dataflow_json",
+      "labeled_nodes_json"
+    ],
+    "output_types": [
+      "business_dag_json",
+      "pipeline_nodes_edges"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：pipeline-graph-builder\n描述：使用 DeerFlow 已实现的 Python PipelineGraphBuilder 和 DeerFlowOrchestrator，将 code-to-ast-new、code-splitter-adapter、dataflow-extractor、code-semantic-labeler 等前置技能输出的 calls、dataflow、labeled_nodes 融合为业务级有向无环图 DAG。用于需要生成、调试、演示或接入业务 pipeline JSON 的场景，尤其是从原始代码分析结果构建 pipeline nodes/edges 输出时。\n适用场景：business_dag、graph_building、code_analysis。\n适用任务：business_dag_build, pipeline_nodes_edges_generation, call_dataflow_semantic_fusion。\n输入类型：calls_json, dataflow_json, labeled_nodes_json。\n输出类型：business_dag_json, pipeline_nodes_edges。\n适合使用：从 calls、dataflow、labeled_nodes 构建业务 DAG；生成 pipeline nodes 和 edges；融合调用图、数据流和语义标签；去重并生成 DAG 拓扑顺序。\n不适合使用：从原始代码完整跑流水线；扫描安全漏洞；只做 AST 解析；只推理缺失模块。",
+    "positive_triggers": [
+      "从 calls、dataflow、labeled_nodes 构建业务 DAG",
+      "生成 pipeline nodes 和 edges",
+      "融合调用图、数据流和语义标签",
+      "去重并生成 DAG 拓扑顺序"
+    ],
+    "negative_triggers": [
+      "从原始代码完整跑流水线",
+      "扫描安全漏洞",
+      "只做 AST 解析",
+      "只推理缺失模块"
+    ],
+    "keywords": [
+      "PipelineGraphBuilder",
+      "build_dag",
+      "业务DAG",
+      "pipeline nodes",
+      "pipeline edges",
+      "DAG 构图"
+    ],
+    "anti_keywords": [
+      "OpenGrep",
+      "SAST",
+      "reason only",
+      "AST only"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: pipeline-graph-builder\ndescription: >-\n  使用 DeerFlow 已实现的 Python PipelineGraphBuilder 和 DeerFlowOrchestrator，将 code-to-ast-new、code-splitter-adapter、dataflow-extractor、code-semantic-labeler 等前置技能输出的 calls、dataflow、labeled_nodes 融合为业务级有向无环图 DAG。用于需要生成、调试、演示或接入业务 pipeline JSON 的场景，尤其是从原始代码分析结果构建 pipeline nodes/edges 输出时。\n---\n\n# Pipeline Graph Builder\n\n## 目标\n\n使用 `deerflow.pipeline.PipelineGraphBuilder` 把结构化代码关系和语义标签合成为业务 DAG，并在需要全链路时使用 `deerflow.pipeline.DeerFlowOrchestrator` 串联四个步骤：\n\n1. `CodeSplitter`：切分原始代码。\n2. `ASTExtractor`：提取 Call Graph 与 Dataflow。\n3. `SemanticLabelingPipeline`：生成代码节点到业务类型的语义映射。\n4. `PipelineGraphBuilder`：生成最终业务 DAG。\n\n## 模块位置\n\n生产模块位于：\n\n```text\nskills/public/deerflow-pipeline-runtime/deerflow/pipeline/\n```\n\n核心导入：\n\n```python\nfrom deerflow.pipeline import DeerFlowOrchestrator, PipelineGraphBuilder\n```\n\n## 快速使用\n\n当已经拿到前置技能的联合输出时，直接调用 `PipelineGraphBuilder.build_dag`：\n\n```python\nfrom deerflow.pipeline import PipelineGraphBuilder\n\ncalls = [\n    {\"caller\": \"main\", \"callee\": \"cv2.VideoCapture\"},\n    {\"caller\": \"main\", \"callee\": \"model.predict\"},\n]\ndataflow = [[\"frame\", \"model.predict\"], [\"results\", \"tracker.update\"]]\nlabeled_nodes = [\n    {\"name\": \"cv2.VideoCapture\", \"type\": \"Camera\"},\n    {\"name\": \"model.predict\", \"type\": \"Detection\"},\n    {\"name\": \"tracker.update\", \"type\": \"Tracking\"},\n]\n\npipeline = PipelineGraphBuilder().build_dag(calls, dataflow, labeled_nodes)\n```\n\n期望输出：\n\n```python\n{\n    \"pipeline\": {\n        \"nodes\": [\"Camera\", \"Detection\", \"Tracking\"],\n        \"edges\": [[\"Camera\", \"Detection\"], [\"Detection\", \"Tracking\"]],\n    }\n}\n```\n\n## 输入约定\n\n`calls` 表示调用图边，优先支持：\n\n```python\n{\"caller\": \"main\", \"callee\": \"model.predict\"}\n```\n\n也兼容二元序列：\n\n```python\n[\"camera.open\", \"model.predict\"]\n```\n\n`dataflow` 表示数据流边，优先支持：\n\n```python\n[\"frame\", \"model.predict\"]\n```\n\n也兼容包含 `source`/`target`、`from`/`to`、`src`/`dst` 的字典。\n\n`labeled_nodes` 必须是代码名称到业务类型的映射列表：\n\n```python\n{\"name\": \"model.predict\", \"type\": \"Detection\"}\n```\n\n## 构图规则\n\n先把 `labeled_nodes` 转成查找表：\n\n```text\n代码名称 -> 业务 Type\n```\n\n再遍历 `calls` 和 `dataflow` 中的边，把边两端的代码名称转换为业务 Type。\n\n默认策略是 `unknown_policy=\"drop\"`：如果边的任一端无法映射到业务 Type，则丢弃该严格语义边。模块还会基于已识别业务节点的出现顺序补齐常见的变量中转链路，避免 `frame`、`results` 这类未标注变量破坏业务 pipeline 展示。\n\n可选策略是：\n\n```python\nPipelineGraphBuilder(unknown_policy=\"unknown\")\n```\n\n此时未标注节点会被归入 `\"Unknown\"`。\n\n## NetworkX 行为\n\n构建器使用 `nx.DiGraph()`：\n\n- 重复边会由 `DiGraph` 自动去重。\n- 自环通过 `nx.selfloop_edges(graph)` 查找并删除。\n- 如果图中存在环，默认记录 warning，并删除检测到的环路末端边，直到满足 `nx.is_directed_acyclic_graph(graph)`。\n- 节点导出优先使用 `nx.topological_sort(graph)`，保证业务节点按 DAG 拓扑顺序展示。\n\n## 全链路编排\n\n当需要从原始代码运行到业务 DAG 时，使用 `DeerFlowOrchestrator`，并注入前置技能适配器：\n\n```python\nfrom deerflow.pipeline import DeerFlowOrchestrator\n\norchestrator = DeerFlowOrchestrator(\n    code_splitter=code_splitter,\n    ast_extractor=ast_extractor,\n    semantic_labeler=semantic_labeler,\n)\n\nresult = orchestrator.process_raw_code(raw_code)\npipeline = result[\"pipeline\"]\n```\n\n适配器最低要求：\n\n```python\nclass CodeSplitter:\n    def split(self, raw_code: str) -> list: ...\n\nclass ASTExtractor:\n    def extract(self, chunks: list) -> dict: ...\n\nclass SemanticLabelingPipeline:\n    def label(self, *args, **kwargs) -> list[dict]: ...\n```\n\n`process_raw_code` 返回中间产物和最终 DAG：\n\n```python\n{\n    \"chunks\": [...],\n    \"calls\": [...],\n    \"dataflow\": [...],\n    \"labeled_nodes\": [...],\n    \"pipeline\": {\n        \"nodes\": [...],\n        \"edges\": [...],\n    },\n}\n```\n\n## 展示建议\n\n对外展示时优先展示 `result[\"pipeline\"]`，不要把未标注变量节点作为业务节点展示。\n\n推荐说明口径：\n\n```text\n该 DAG 表示业务组件之间的依赖关系，而不是逐行代码调用关系。\n节点来自 Semantic Labels 的 type 字段，边来自 Call Graph 与 Dataflow 的融合结果。\n```\n\n当用户要求可视化时，可以把输出转换为 Mermaid：\n\n```mermaid\ngraph TD\n  Camera --> Detection\n  Detection --> Tracking\n```\n\n## 验证\n\n修改模块后至少运行：\n\n```powershell\npytest backend\\tests\\test_pipeline_graph_builder.py\n```\n\n如果环境安装了 `ruff`，再运行：\n\n```powershell\nruff check skills\\public\\deerflow-pipeline-runtime\\deerflow\\pipeline backend\\tests\\test_pipeline_graph_builder.py\n```\n"
+  },
+  "execution": {
+    "required_tools": [
+      "python",
+      "networkx"
+    ],
+    "optional_tools": [],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "pipeline-reasoner",
+      "code-business-dag-analysis-pipeline"
+    ]
+  },
+  "routing_policy": {
+    "priority": 86,
+    "conflict_group": "pipeline_graph_building",
+    "prefer_when": [
+      "用户已有 calls、dataflow、labeled_nodes 并只要求构建业务 DAG",
+      "需要调试或演示 PipelineGraphBuilder 输出"
+    ],
+    "defer_when": [
+      "用户从原始 Python 代码开始并要求完整报告时，使用 code-business-dag-analysis-pipeline"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/public/pipeline-graph-builder",
+    "skill_md_path": "skills/public/pipeline-graph-builder/SKILL.md",
+    "skill_md_hash": "sha256:2cb6ba625ab8ddf99932e05b29ba3285531561b329867268a37ed79fdb414448",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:09cdfa2761d5e7d06c38d92490c0324ad5bfb0293d64a43a462bb4d186e0852b",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "pipeline-graph-builder"
+  }
+}

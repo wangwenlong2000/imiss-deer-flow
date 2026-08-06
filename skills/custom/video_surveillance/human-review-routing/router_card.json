@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "human-review-routing",
+    "name": "human-review-routing",
+    "description": "Decide whether video event candidates require manual review based on confidence, event type, camera health, and enforcement impact."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["human_review_routing"],
+    "input_types": ["event_json", "camera_health_json"],
+    "output_types": ["review_json"]
+  },
+  "routing": {
+    "routing_text": "名称：human-review-routing\n描述：对 single-video-event-analysis 产生的事件候选做人工复核分流，依据置信度、高风险事件、摄像头健康和执法影响决定 manual_review 或 auto_pass。\n适合使用：人工复核；低置信度分流；高风险事件分流。\n不适合使用：生成事件；证据截图。",
+    "positive_triggers": ["人工复核", "review routing", "复核队列", "低置信度"],
+    "negative_triggers": ["事件检测", "证据截图"],
+    "keywords": ["review", "manual_review", "confidence"],
+    "anti_keywords": ["detect"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 72,
+    "conflict_group": "human-review-routing",
+    "prefer_when": ["需要人工复核分流"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/human-review-routing",
+    "skill_md_path": "skills/custom/human-review-routing/SKILL.md",
+    "generator_version": "manual-llm-event-review-1.0.0"
+  },
+  "embedding": {"es_doc_id": "human-review-routing"}
+}

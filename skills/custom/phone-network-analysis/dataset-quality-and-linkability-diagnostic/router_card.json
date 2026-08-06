@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "dataset-quality-and-linkability-diagnostic",
+    "name": "dataset-quality-and-linkability-diagnostic",
+    "description": "诊断电话网络数据集是否具备标准图结构、数据质量是否满足后续分析条件、各下游 skill 是否可用，并检查多省份数据的 ID 命名空间与跨省可联动性前提。适用于数据体检、能力矩阵、unified 是否支持跨省实体联动等问题；诊断结论不得被夸大为业务事实。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "data_quality",
+      "linkability_diagnostic",
+      "capability_matrix",
+      "dataset_health_check"
+    ],
+    "input_types": [
+      "dataset_root",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "quality_report",
+      "linkability_report",
+      "capability_matrix",
+      "command_templates",
+      "markdown_report"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：dataset-quality-and-linkability-diagnostic\n描述：诊断电话网络数据集是否具备标准图结构、数据质量是否满足后续分析条件、各下游 skill 是否可用，并检查多省份数据的 ID 命名空间与跨省可联动性前提。适用于数据体检、能力矩阵、unified 是否支持跨省实体联动等问题；诊断结论不得被夸大为业务事实。\n适用场景：phone_network, graph_analysis, telecom_fraud_risk。\n适用任务：data_quality, linkability_diagnostic, capability_matrix, dataset_health_check。\n输入类型：dataset_root, user_nodes.csv, call_edges.csv, edges_phone_imei.parquet。\n输出类型：quality_report, linkability_report, capability_matrix, command_templates, markdown_report。\n适合使用：这个数据能不能分析；这个数据支持哪些分析；数据质量怎么样；unified 数据能不能做跨省实体联动；新建图数据是否完整。\n不适合使用：直接找最可疑号码；分析某个号码；生成证据包；政策法规问答。\n关键词：数据质量，可分析性，可联动性，graph_ready，能力矩阵，跨省，命名空间，体检。\n反关键词：TopN，单号，证据包，法规。",
+    "positive_triggers": [
+      "这个数据能不能分析",
+      "这个数据支持哪些分析",
+      "数据质量怎么样",
+      "unified 数据能不能做跨省实体联动",
+      "新建图数据是否完整"
+    ],
+    "negative_triggers": [
+      "直接找最可疑号码",
+      "分析某个号码",
+      "生成证据包",
+      "政策法规问答"
+    ],
+    "keywords": [
+      "数据质量",
+      "可分析性",
+      "可联动性",
+      "graph_ready",
+      "能力矩阵",
+      "跨省",
+      "命名空间",
+      "体检"
+    ],
+    "anti_keywords": [
+      "TopN",
+      "单号",
+      "证据包",
+      "法规"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: dataset-quality-and-linkability-diagnostic\ndescription: 诊断电话网络数据集是否具备标准图结构、数据质量是否满足后续分析条件、各下游 skill 是否可用，并检查多省份数据的 ID 命名空间与跨省可联动性前提。适用于数据体检、能力矩阵、unified 是否支持跨省实体联动等问题；诊断结论不得被夸大为业务事实。\n---\n\n# dataset-quality-and-linkability-diagnostic\n\n## 一、定位\n\n`dataset-quality-and-linkability-diagnostic` 是电话网络数据分析体系中的**数据质量与可分析能力诊断 skill**。\n\n它不负责发现风险对象，也不负责生成业务研判结论，更不能把“数据不支持某类分析”解释成“现实中一定不存在该类关系”。它的作用是先判断一个已经处理好的电话网络图数据集是否具备后续分析条件，尤其用于回答：\n\n- 这个数据集是否已经形成标准图结构？\n- 是否存在 `user_nodes.csv`、`call_edges.csv`、`edges_phone_imei.parquet/csv`？\n- 号码节点、通话边、设备边是否可用？\n- 是否支持时间序列分析、共享设备分析、单号分析、群体分析、团伙分析等下游 skill？\n- 如果是多省份/多来源数据，是否能做跨省同实体联动分析？\n- 哪些 skill 可以用，哪些不能用，原因是什么？\n\n该 skill 适合放在两个位置：\n\n1. `dataset-onboarding-graph-preprocess` 建图完成之后，用于验证新数据是否可被后续 skill 使用。\n2. 对现有 `unified` 或其他 processed 数据集做体检，防止前端误调用不适合的数据分析能力。\n\n---\n\n## 二、输入数据要求\n\n本 skill 面向**已经预处理成标准图结构的数据集**，默认读取：\n\n```text\n<dataset_root>/processed/<dataset>/user_nodes.csv\n<dataset_root>/processed/<dataset>/call_edges.csv\n<dataset_root>/processed/graph_views/<dataset>/edges_phone_imei.parquet\n```\n\n如果设备边不是 parquet，也支持：\n\n```text\n<dataset_root>/processed/graph_views/<dataset>/edges_phone_imei.csv\n```\n\n如果用户上传的是原始 CSV / Excel / JSON 明细表，不应直接使用本 skill，应先调用：\n\n```text\ndataset-onboarding-graph-preprocess\n```\n\n将其转换成标准图结构。\n\n---\n\n## 三、必须调用的脚本\n\n前端或命令行必须运行：\n\n```bash\npython3 dataset_quality_linkability_diagnostic_wrapper.py\n```\n\n不要临时重写脚本。不要用 `dataset-overview-analysis`、`condition-based-screening` 或其他 skill 代替本 skill。\n\n---\n\n## 四、核心参数\n\n| 参数 | 含义 | 默认值 |\n|---|---|---|\n| `--dataset-root` | 电话网络数据根目录 | `/workspace/imiss-deer-flow-main/datasets/phone-network` |\n| `--dataset` | 要诊断的数据集名称 | `unified` |\n| `--province-a` | 跨省可联动性诊断中的省份 A | 自动选择或用户指定 |\n| `--province-b` | 跨省可联动性诊断中的省份 B | 自动选择或用户指定 |\n| `--top-k` | 样例输出数量 | `10` |\n| `--artifact-mode` | 附件展示模式：`full` / `essential` / `markdown_only` | `essential` |\n\n---\n\n## 五、输出内容\n\n运行后会输出：\n\n1. Markdown 诊断报告\n2. summary JSON\n3. capability matrix CSV\n4. quality checks CSV\n5. linkability diagnostics CSV\n\n核心报告包括：\n\n- 数据构成：节点、通话边、设备边、省份、时间字段等；\n- 标准图结构是否可用；\n- 数据质量检查；\n- 下游 skill 能力矩阵；\n- 跨省/跨来源实体可联动性诊断；\n- 不支持分析时的原因和修复建议。\n\n---\n\n## 六、能力矩阵说明\n\n本 skill 会给下游 skill 输出 `supported / partial / not_supported / not_applicable` 判断。\n\n常见判断逻辑：\n\n- 有用户节点 + 通话边/设备边：支持单号、TopN、群体、证据包等分析；\n- 有设备边：支持共享设备分析；\n- 有通话时间字段：支持时间序列异常分析；\n- 有省份字段且至少两个省份：支持地域对比；\n- 存在跨省 ID 相等证据：才支持跨省联动分析；\n- 如果跨省 ID 格式明显不同且没有交集，只能说明当前脱敏数据前提不支持可靠跨省同实体分析，不应推断为真实世界没有跨省联动。\n\n---\n\n## 七、跨省可联动性诊断规则\n\n如果数据中存在两个及以上省份，本 skill 会检查：\n\n- `user_id` 跨省交集；\n- `imei` 跨省交集；\n- `dst_counterparty_id` 跨省交集；\n- 可由 ID 相等识别出的跨省直接通话；\n- 各省 `user_id / imei / dst_counterparty_id` 的长度和格式是否一致。\n\n输出等级包括：\n\n| 等级 | 含义 |\n|---|---|\n| `linkable_with_multiple_cross_province_signals` | 多类跨省 ID 相等证据，支持跨省联动线索分析 |\n| `partially_linkable_with_one_cross_province_signal` | 只有一类跨省证据，只能做有限分析 |\n| `no_cross_province_overlap_found_namespace_unknown` | 未检出跨省交集，但无法确认命名空间是否一致 |\n| `not_linkable_due_to_visible_namespace_difference` | ID 格式明显不同，不支持可靠跨省同实体分析 |\n| `not_applicable_single_or_unknown_province` | 单省或缺少省份字段，不适用跨省诊断 |\n\n---\n\n## 八、前端调用规则\n\n当前端用户提出以下需求时，应调用本 skill：\n\n- “检查这个数据集能不能分析”\n- “判断这个数据支持哪些 skill”\n- “为什么这个数据不能做共享设备/时间序列/跨省联动”\n- “建图后帮我检查一下能不能继续分析”\n- “unified 是不是实体统一索引”\n- “两个省份能不能做跨省联动”\n\n前端回答要求：\n\n- 最终解释必须使用中文；\n- 不要把 `not_supported` 解释为业务事实不存在；\n- 如果跨省可联动性不支持，应明确说明是“数据前提不满足”，不是“真实没有跨省联动”；\n- 不要把诊断结论夸大为案件事实；\n- 如用户只要报告，使用 `artifact_mode=markdown_only`；\n- 如用户要完整证据，使用 `artifact_mode=full`。\n\n---\n\n## 九、命令行示例\n\n### 1. 诊断 unified 数据集\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts\n\npython3 dataset_quality_linkability_diagnostic_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --province-a sichuan \\\n  --province-b shaanxi \\\n  --top-k 10 \\\n  --artifact-mode essential\n```\n\n### 2. 诊断新建图的数据集\n\n```bash\npython3 dataset_quality_linkability_diagnostic_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset onboarded_clean_demo \\\n  --top-k 10 \\\n  --artifact-mode essential\n```\n\n### 3. 只输出 markdown 附件\n\n```bash\npython3 dataset_quality_linkability_diagnostic_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset onboarded_clean_demo \\\n  --artifact-mode markdown_only\n```\n\n---\n\n## 十、一键测试\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts\nchmod +x *.py *.sh\nbash test_dataset_quality_linkability_diagnostic.sh\n```\n\n正常结尾应看到：\n\n```text\n[OK] dataset-quality-and-linkability-diagnostic tests finished\n```\n\n---\n\n## 十一、边界说明\n\n本 skill 只做数据可用性诊断，不做业务风险结论。\n\n它不能在没有原始 ID、统一哈希规则或实体映射表的情况下，自动解决跨来源实体对齐问题。若诊断结果显示跨省 ID 命名空间不一致，应暂停跨省同实体联动分析，改做地域对比或补充映射数据。\n\n---\n\n## 十二、V1.2 新增：下游命令模板与调用方式说明\n\n本版本会在 summary JSON、Markdown 报告和 `*_downstream_command_templates.csv` 中输出下游命令模板。\n\n需要特别注意：能力矩阵里的 `supported` 表示**数据层面支持该分析**，不代表所有旧版 wrapper 都支持 `--dataset-root` / `--dataset` 参数。部分早期 skill 仍需要显式路径调用。\n\n因此报告会把下游 skill 分成两种调用方式：\n\n| 调用方式 | 含义 | 示例 |\n|---|---|---|\n| `dataset 模式` | wrapper 支持 `--dataset-root` 和 `--dataset` | `dataset-overview-analysis`、`time-series-anomaly-analysis` |\n| `显式路径模式` | wrapper 需要直接传入 `user_nodes.csv`、`call_edges.csv`、`edges_phone_imei.parquet` | `single-number-analysis`、`topn-high-risk-discovery` 等早期 skill |\n\n如果用户问“下一步怎么跑下游分析”，优先读取本 skill 生成的 `downstream_command_templates`，不要凭经验自行拼旧参数。\n\n### 示例：TopN 对新建图数据的正确调用方式\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/topn-high-risk-discovery/scripts\npython3 topn_high_risk_discovery_wrapper.py \\\n  --top-n 10 \\\n  --analysis-mode mixed \\\n  --candidate-scope all \\\n  --user-node-path /workspace/imiss-deer-flow-main/datasets/phone-network/processed/<dataset>/user_nodes.csv \\\n  --call-graph-path /workspace/imiss-deer-flow-main/datasets/phone-network/processed/<dataset>/call_edges.csv \\\n  --device-graph-path /workspace/imiss-deer-flow-main/datasets/phone-network/processed/graph_views/<dataset>/edges_phone_imei.parquet\n```\n\n不要给旧版 `topn-high-risk-discovery` wrapper 传 `--dataset-root`、`--dataset` 或 `--artifact-mode`，否则会出现 `unrecognized arguments`。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 92,
+    "conflict_group": "phone_network_quality_diagnostic",
+    "prefer_when": [
+      "用户不确定数据是否可用或哪些分析可用",
+      "用户问 unified 是否支持跨省实体联动"
+    ],
+    "defer_when": [
+      "用户已经明确要概览时优先 dataset-overview-analysis",
+      "用户明确要业务下钻时优先对应分析 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic",
+    "skill_md_path": "skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/SKILL.md",
+    "skill_md_hash": "sha256:71d5798703f1ca59b46c4d045112698885b9c090ee6ef7f11eefc6d5100b3f44",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:cd4dc89482e00638297110067c2053379e8c1c0fd6b9c461d841c88842de81c8",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "dataset-quality-and-linkability-diagnostic"
+  }
+}

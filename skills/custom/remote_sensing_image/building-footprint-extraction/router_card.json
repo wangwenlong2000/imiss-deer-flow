@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "building-footprint-extraction",
+    "name": "building-footprint-extraction",
+    "description": "Extracts building footprints from high-resolution optical remote sensing imagery using morphological analysis. Generates building polygon GeoJSON with area statistics and category classification. Invoke when the user mentions \"建筑轮廓\", \"建筑提取\", \"建筑面积\", \"building footprint\", \"建筑普查\", \"违建识别\", \"建筑覆盖\" or similar triggers."
+  },
+  "scope": {
+    "is_public": false,
+    "task_types": [
+      "building_footprint_extraction",
+      "building_area_statistics",
+      "illegal_construction_screening",
+      "geojson_export"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile"
+    ],
+    "output_types": [
+      "building_mask_tif",
+      "building_footprints_geojson",
+      "building_stats_csv",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：building-footprint-extraction\n描述：Extracts building footprints from high-resolution optical remote sensing imagery using morphological analysis. Generates building polygon GeoJSON with area statistics and category classification. Invoke when the user mentions \"建筑轮廓\", \"建筑提取\", \"建筑面积\", \"building footprint\", \"建筑普查\", \"违建识别\", \"建筑覆盖\" or similar triggers.\n适用场景：remote_sensing, urban_governance, building_survey。\n适用任务：building_footprint_extraction, building_area_statistics, illegal_construction_screening, geojson_export。\n输入类型：geotiff, geojson, shapefile。\n输出类型：building_mask_tif, building_footprints_geojson, building_stats_csv, report_md。\n适合使用：提取高分辨率遥感影像中的建筑轮廓；统计建筑面积并导出建筑 GeoJSON；辅助建筑普查、违建识别或建筑覆盖核查。\n不适合使用：分析洪涝风险或内涝风险；反演水质参数；撰写遥感监测技术方案；分析网络流量或 pcap 文件。",
+    "positive_triggers": [
+      "提取高分辨率遥感影像中的建筑轮廓",
+      "统计建筑面积并导出建筑 GeoJSON",
+      "辅助建筑普查、违建识别或建筑覆盖核查"
+    ],
+    "negative_triggers": [
+      "分析洪涝风险或内涝风险",
+      "反演水质参数",
+      "撰写遥感监测技术方案",
+      "分析网络流量或 pcap 文件"
+    ],
+    "keywords": [
+      "建筑轮廓",
+      "建筑提取",
+      "建筑面积",
+      "building footprint",
+      "建筑普查",
+      "违建识别",
+      "建筑覆盖",
+      "GeoTIFF",
+      "GeoJSON",
+      "建筑物",
+      "提取",
+      "轮廓",
+      "建筑矢量",
+      "建筑分布",
+      "建筑密度",
+      "高分辨率遥感"
+    ],
+    "anti_keywords": [
+      "洪涝",
+      "水质",
+      "热岛",
+      "方案撰写",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: building-footprint-extraction\ndescription: >\n  Extracts building footprints from high-resolution optical remote sensing imagery using morphological analysis. Generates building polygon GeoJSON with area statistics and category classification. Invoke when the user mentions \"建筑轮廓\", \"建筑提取\", \"建筑面积\", \"building footprint\", \"建筑普查\", \"违建识别\", \"建筑覆盖\" or similar triggers.\nlicense: MIT\n---\n\n# 建筑轮廓提取技能（building-footprint-extraction）\n\n## 1. 技能概述\n\n本技能基于高分辨率光学遥感影像，利用亮度阈值与形态学分析提取建筑轮廓，生成建筑面积统计与 GeoJSON 矢量，支持建筑普查、违建识别与城市更新规划。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 是否必需 | 说明 |\n|--------|------|---------|------|\n| `image_optical` | file (GeoTIFF) | 是 | 高分辨率光学影像（建议分辨率 ≤ 2m，已完成正射校正） |\n| `aoi` | file (GeoJSON / Shapefile) | 否 | 关注区域边界 |\n| `method` | string | 否 | `threshold`（阈值法）/ `morphology`（形态学），默认 `morphology` |\n| `min_building_area_m2` | float | 否 | 最小建筑面积（平方米），默认 20 |\n\n## 3. 处理流程\n\n1. **输入校验**：`--action check-inputs`\n2. **建筑提取**：基于亮度特征提取建筑候选区域\n3. **形态学优化**：开运算去噪 + 闭运算填充空洞\n4. **轮廓提取**：连通域分析，生成建筑多边形\n5. **面积过滤**：滤除小于最小面积阈值的图斑\n6. **成果输出**：building_mask.tif、building_footprints.geojson、building_stats.csv、report.md\n\n## 4. 调用示例\n\n```bash\npython /home/ubuntu/skills/building-footprint-extraction/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"image_optical\":\"/path/to/hr_image.tif\",\"method\":\"morphology\"}' \\\n  --output-dir /tmp/outputs/bfe\n```\n\n## 5. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `building_mask.tif` | 建筑二值掩膜 |\n| `building_footprints.geojson` | 建筑轮廓矢量，属性含 area_m2、category |\n| `building_stats.csv` | 建筑统计（ID、坐标、面积、类别） |\n| `report.md` | 建筑提取统计与应用建议 |\n\n## 6. 治理场景\n\n- **违法建设识别**：与规划许可数据叠加，识别未批先建建筑\n- **建筑普查核验**：辅助不动产登记与建筑普查数据核实\n- **城市更新规划**：量化待改造区域建筑密度与分布\n- **应急救援支持**：灾后快速评估建筑分布，辅助救援调度\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户上传高分辨率光学遥感影像并要求提取建筑轮廓",
+      "用户要求统计建筑面积、建筑覆盖或辅助违建筛查"
+    ],
+    "defer_when": [
+      "任务是洪涝、水质、热岛等专题分析，应优先使用对应专题 skill",
+      "任务只是查看文件 CRS/范围/波段，应优先使用 inspect-geo"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/building-footprint-extraction",
+    "skill_md_path": "5-21remote-sensing/building-footprint-extraction/SKILL.md",
+    "skill_md_hash": "sha256:9f5a2aed3a39a34e80b0ce8c1779f809f68b446951f1634cd20d3619349a3b42",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:7701d734dd66a330d5afcad66f2c473812828aabae0f9748c219eeec6523c1e8",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "building-footprint-extraction"
+  }
+}

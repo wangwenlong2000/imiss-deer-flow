@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "duplicate-event-merge",
+    "name": "duplicate-event-merge",
+    "description": "Merge duplicate event candidates from single-video or batch video analysis."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["event_deduplication"],
+    "input_types": ["events_json"],
+    "output_types": ["canonical_events_json", "duplicate_mappings_json"]
+  },
+  "routing": {
+    "routing_text": "名称：duplicate-event-merge\n描述：合并 single-video-event-analysis 或批量视频分析产生的重复事件候选，按摄像头、事件类型、ROI、证据帧或时间窗口去重。\n适合使用：合并重复事件；批量结果去重。\n不适合使用：生成事件；目标检测；证据截图。",
+    "positive_triggers": ["事件去重", "合并重复事件", "duplicate event"],
+    "negative_triggers": ["事件检测", "目标检测"],
+    "keywords": ["dedupe", "duplicate", "merge", "events"],
+    "anti_keywords": ["detect"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 70,
+    "conflict_group": "duplicate-event-merge",
+    "prefer_when": ["需要事件去重"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/duplicate-event-merge",
+    "skill_md_path": "skills/custom/duplicate-event-merge/SKILL.md",
+    "generator_version": "manual-llm-event-review-1.0.0"
+  },
+  "embedding": {"es_doc_id": "duplicate-event-merge"}
+}

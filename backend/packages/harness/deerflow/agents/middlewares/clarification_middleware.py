@@ -1,0 +1,290 @@
+"""Middleware for intercepting clarification requests and presenting them to the user."""
+
+from collections.abc import Callable
+from uuid import uuid4
+
+try:
+    from typing import override
+except ImportError:
+    from typing_extensions import override
+
+from langchain.agents import AgentState
+from langchain.agents.middleware import AgentMiddleware
+from langchain_core.messages import ToolMessage
+from langgraph.graph import END
+from langgraph.prebuilt.tool_node import ToolCallRequest
+from langgraph.types import Command
+
+
+class ClarificationMiddlewareState(AgentState):
+    """Compatible with the `ThreadState` schema."""
+
+    pass
+
+
+class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
+    """Intercepts clarification tool calls and interrupts execution to present questions to the user.
+
+    When the model calls the `ask_clarification` tool, this middleware:
+    1. Intercepts the tool call before execution
+    2. Extracts the clarification question and metadata
+    3. Formats a user-friendly message
+    4. Returns a Command that interrupts execution and presents the question
+    5. Waits for user response before continuing
+
+    This replaces the tool-based approach where clarification continued the conversation flow.
+    """
+
+    state_schema = ClarificationMiddlewareState
+
+    def _is_chinese(self, text: str) -> bool:
+        """Check if text contains Chinese characters.
+
+        Args:
+            text: Text to check
+
+        Returns:
+            True if text contains Chinese characters
+        """
+        return any("\u4e00" <= char <= "\u9fff" for char in text)
+
+    @staticmethod
+    def _normalize_options(options: object) -> list[str]:
+        """Normalize clarification options to a clean list of strings.
+
+        The LLM may pass options as:
+        - list[str]
+        - list[dict]
+        - JSON string like '["A", "B"]'
+        - comma-separated string
+        """
+        import json
+
+        if options is None:
+            return []
+
+        if isinstance(options, str):
+            text = options.strip()
+            if not text:
+                return []
+
+            # First try JSON list string.
+            try:
+                parsed = json.loads(text)
+                return ClarificationMiddleware._normalize_options(parsed)
+            except Exception:
+                pass
+
+            # Fallback: split common separators.
+            for sep in ("，", ",", "；", ";", "\n"):
+                if sep in text:
+                    return [
+                        item.strip().strip('"').strip("'")
+                        for item in text.split(sep)
+                        if item.strip().strip('"').strip("'")
+                    ]
+
+            return [text]
+
+        if isinstance(options, list):
+            normalized: list[str] = []
+            for item in options:
+                if isinstance(item, str):
+                    label = item.strip()
+                elif isinstance(item, dict):
+                    label = str(
+                        item.get("label")
+                        or item.get("value")
+                        or item.get("text")
+                        or item.get("name")
+                        or ""
+                    ).strip()
+                else:
+                    label = str(item).strip()
+
+                if label:
+                    normalized.append(label)
+
+            return normalized
+
+        return []
+    
+    def _format_clarification_message(self, args: dict) -> str:
+        """Format the clarification arguments into a user-friendly message.
+
+        Args:
+            args: The tool call arguments containing clarification details
+
+        Returns:
+            Formatted message string
+        """
+        question = args.get("question", "")
+        clarification_type = args.get("clarification_type", "missing_info")
+        context = args.get("context")
+        options = self._normalize_options(args.get("options"))
+
+        # Type-specific icons
+        type_icons = {
+            "missing_info": "❓",
+            "ambiguous_requirement": "🤔",
+            "approach_choice": "🔀",
+            "risk_confirmation": "⚠️",
+            "suggestion": "💡",
+        }
+
+        icon = type_icons.get(clarification_type, "❓")
+
+        # Build the message naturally
+        message_parts = []
+
+        # Add icon and question together for a more natural flow
+        if context:
+            # If there's context, present it first as background
+            message_parts.append(f"{icon} {context}")
+            message_parts.append(f"\n{question}")
+        else:
+            # Just the question with icon
+            message_parts.append(f"{icon} {question}")
+
+        # Add options in a cleaner format
+        if options and len(options) > 0:
+            message_parts.append("")  # blank line for spacing
+            for i, option in enumerate(options, 1):
+                message_parts.append(f"  {i}. {option}")
+
+        return "\n".join(message_parts)
+
+    def _handle_clarification(self, request: ToolCallRequest) -> Command:
+        """Handle clarification request and return command to interrupt execution.
+
+        Args:
+            request: Tool call request
+
+        Returns:
+            Command that interrupts execution with the formatted clarification message
+        """
+        # Extract clarification arguments
+        args = request.tool_call.get("args", {})
+        question = args.get("question", "")
+
+        print("[ClarificationMiddleware] Intercepted clarification request")
+        print(f"[ClarificationMiddleware] Question: {question}")
+
+        # Format the clarification message
+        formatted_message = self._format_clarification_message(args)
+
+        # Get the tool call ID
+        tool_call_id = request.tool_call.get("id", "")
+
+        # Create a ToolMessage with the formatted question
+        # This will be added to the message history
+        tool_message = ToolMessage(
+            content=formatted_message,
+            tool_call_id=tool_call_id,
+            name="ask_clarification",
+        )
+        pending_action = self._build_pending_action(args, request.state)
+
+        # Return a Command that:
+        # 1. Adds the formatted tool message
+        # 2. Interrupts execution by going to __end__
+        # Note: We don't add an extra AIMessage here - the frontend will detect
+        # and display ask_clarification tool messages directly
+        return Command(
+            update={
+                "messages": [tool_message],
+                "raw_messages": [tool_message],
+                "pending_action": pending_action,
+            },
+            goto=END,
+        )
+
+    @staticmethod
+    def _build_pending_action(args: dict, state: dict | None) -> dict:
+        options = ClarificationMiddleware._normalize_options(args.get("options"))
+
+
+        clarification_type = args.get("clarification_type", "missing_info")
+        expected_answer_type = "single_choice" if options else (
+            "confirmation" if clarification_type in {"risk_confirmation", "suggestion"} else "free_text"
+        )
+        normalized_options = []
+        for index, option in enumerate(options, 1):
+            label = str(option).strip()
+            if not label:
+                continue
+            normalized_options.append({
+                "id": str(index),
+                "label": label,
+                "value": label,
+                "index": index,
+            })
+
+        state = state if isinstance(state, dict) else {}
+        return {
+            "id": f"clarify_{uuid4().hex[:8]}",
+            "type": "clarification",
+            "question": args.get("question", ""),
+            "clarification_type": clarification_type,
+            "expected_answer_type": expected_answer_type,
+            "options": normalized_options,
+            "parameter_schema": args.get("parameter_schema") if isinstance(args.get("parameter_schema"), dict) else ClarificationMiddleware._default_parameter_schema(),
+            "resume_intent_context": state.get("intent_context"),
+            "resume_routing_context": state.get("routing_context"),
+        }
+
+    @staticmethod
+    def _default_parameter_schema() -> dict:
+        return {
+            "threshold_mode": {"type": "enum", "values": ["auto", "manual", "inspect_distribution"]},
+            "min_night_ratio": {"type": "float", "min": 0.0, "max": 1.0},
+            "min_night_count": {"type": "int", "min": 0},
+            "min_counterparties": {"type": "int", "min": 0},
+            "min_shared_device_count": {"type": "int", "min": 0},
+            "min_shared_peer_total": {"type": "int", "min": 0},
+            "top_k": {"type": "int", "min": 1, "max": 500},
+        }
+
+    @override
+    def wrap_tool_call(
+        self,
+        request: ToolCallRequest,
+        handler: Callable[[ToolCallRequest], ToolMessage | Command],
+    ) -> ToolMessage | Command:
+        """Intercept ask_clarification tool calls and interrupt execution (sync version).
+
+        Args:
+            request: Tool call request
+            handler: Original tool execution handler
+
+        Returns:
+            Command that interrupts execution with the formatted clarification message
+        """
+        # Check if this is an ask_clarification tool call
+        if request.tool_call.get("name") != "ask_clarification":
+            # Not a clarification call, execute normally
+            return handler(request)
+
+        return self._handle_clarification(request)
+
+    @override
+    async def awrap_tool_call(
+        self,
+        request: ToolCallRequest,
+        handler: Callable[[ToolCallRequest], ToolMessage | Command],
+    ) -> ToolMessage | Command:
+        """Intercept ask_clarification tool calls and interrupt execution (async version).
+
+        Args:
+            request: Tool call request
+            handler: Original tool execution handler (async)
+
+        Returns:
+            Command that interrupts execution with the formatted clarification message
+        """
+        # Check if this is an ask_clarification tool call
+        if request.tool_call.get("name") != "ask_clarification":
+            # Not a clarification call, execute normally
+            return await handler(request)
+
+        return self._handle_clarification(request)

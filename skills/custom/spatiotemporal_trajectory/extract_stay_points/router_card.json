@@ -1,0 +1,116 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "extract_stay_points",
+                     "name":  "extract_stay_points",
+                     "description":  "Use this skill when the user wants to extract stay points, dwell events, OD endpoints, or meaningful stops from GPS, check-in, signaling, taxi, or cleaned trajectory data."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "extract_stay_points",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "staypoints_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "staypoints.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：extract_stay_points\n描述：Use this skill when the user wants to extract stay points, dwell events, OD endpoints, or meaningful stops from GPS, check-in, signaling, taxi, or cleaned trajectory data.\n适用场景：spatiotemporal_trajectory。\n适用任务：extract_stay_points, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, staypoints_jsonl。\n输出类型：staypoints.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to extract stay points, dwell events, OD endpoints, or meaningful stops from GPS, check-in, signaling, taxi, or cleaned trajectory data.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "extract",
+                                     "stay",
+                                     "points",
+                                     "spatiotemporal",
+                                     "trajectory",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: extract_stay_points\ndescription: Use this skill when the user wants to extract stay points, dwell events, OD endpoints, or meaningful stops from GPS, check-in, signaling, taxi, or cleaned trajectory data.\nmetadata:\n  short-description: Extract stay points from trajectory records.\n---\n\n# extract_stay_points\n\nUse this Skill to detect places where a user stayed within a spatial radius for a minimum dwell time.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/extract_stay_points\npython3 scripts/extract_stay_points.py --input /path/to/raw_or_cleaned.csv --output-dir /path/to/output\n```\n\nUseful flags:\n\n```bash\n--stay-radius-m 200 --stay-min-minutes 20 --max-speed-kmh 200 --geohash-precision 6\n```\n\n## Outputs\n\n- `staypoints.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Reuses trajectory cleaning\n- Sliding distance-radius stay detection\n- Dwell-time threshold filtering\n- Stay centroid calculation\n- Geohash encoding\n\n## Next Skills\n\nUse `staypoints.jsonl` for OD endpoint reasoning, stay-duration anomaly checks, or urban region profiling.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/extract_stay_points",
+                   "skill_md_path":  "skills/custom/extract_stay_points/SKILL.md",
+                   "skill_md_hash":  "sha256:91e68e65d055d1840905826267f6442135453caea32ff63671cb4f14d119cc6e",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:624d753cb3a2d8cb1bf5e23c119e73ee3006b2512fee17b74b8a4d7f6da9576d",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "extract_stay_points"
+                  }
+}

@@ -1,0 +1,192 @@
+{
+  "input": "违规测试-0624修改版/数据汇总.jsonl",
+  "supported_violation_types": [
+    "domain",
+    "re_identify",
+    "video_meta_leak"
+  ],
+  "fresh_training_required": true,
+  "deduplication": {
+    "key": "SHA-256 of canonical raw_content",
+    "physical_supported_rows": 441,
+    "deduplicated_supported_rows": 282,
+    "removed_duplicate_rows": 159,
+    "duplicate_groups": 109,
+    "label_conflict_groups": 0
+  },
+  "split": {
+    "strategy": "stratified by target_violation_type × final_violation_type",
+    "seed": 20260624,
+    "requested_train_ratio": 0.8,
+    "requested_test_ratio": 0.2,
+    "actual_train_ratio": 0.801418,
+    "actual_test_ratio": 0.198582,
+    "strata": {
+      "domain|domain": {
+        "all": 56,
+        "train": 45,
+        "test": 11
+      },
+      "domain|none": {
+        "all": 52,
+        "train": 42,
+        "test": 10
+      },
+      "re_identify|none": {
+        "all": 61,
+        "train": 49,
+        "test": 12
+      },
+      "re_identify|re_identify": {
+        "all": 63,
+        "train": 50,
+        "test": 13
+      },
+      "video_meta_leak|none": {
+        "all": 20,
+        "train": 16,
+        "test": 4
+      },
+      "video_meta_leak|video_meta_leak": {
+        "all": 30,
+        "train": 24,
+        "test": 6
+      }
+    }
+  },
+  "all": {
+    "rows": 282,
+    "by_target_violation_type": {
+      "domain": 108,
+      "re_identify": 124,
+      "video_meta_leak": 50
+    },
+    "by_target_and_final": {
+      "domain": {
+        "domain": 56,
+        "none": 52
+      },
+      "re_identify": {
+        "none": 61,
+        "re_identify": 63
+      },
+      "video_meta_leak": {
+        "none": 20,
+        "video_meta_leak": 30
+      }
+    },
+    "by_model_label": {
+      "domain": 56,
+      "none": 133,
+      "re_identify": 63,
+      "video_meta_leak": 30
+    },
+    "by_data_type": {
+      "netflow": 33,
+      "policy": 25,
+      "spatiotemporal_trajectory": 50,
+      "surveillance": 75,
+      "telecom": 50,
+      "traffic_flow": 49
+    },
+    "by_gate": {
+      "ContextGate": 115,
+      "InputGate": 26,
+      "OutputGate": 141
+    }
+  },
+  "train": {
+    "rows": 226,
+    "by_target_violation_type": {
+      "domain": 87,
+      "re_identify": 99,
+      "video_meta_leak": 40
+    },
+    "by_target_and_final": {
+      "domain": {
+        "domain": 45,
+        "none": 42
+      },
+      "re_identify": {
+        "none": 49,
+        "re_identify": 50
+      },
+      "video_meta_leak": {
+        "none": 16,
+        "video_meta_leak": 24
+      }
+    },
+    "by_model_label": {
+      "domain": 45,
+      "none": 107,
+      "re_identify": 50,
+      "video_meta_leak": 24
+    },
+    "by_data_type": {
+      "netflow": 28,
+      "policy": 20,
+      "spatiotemporal_trajectory": 38,
+      "surveillance": 59,
+      "telecom": 41,
+      "traffic_flow": 40
+    },
+    "by_gate": {
+      "ContextGate": 91,
+      "InputGate": 22,
+      "OutputGate": 113
+    }
+  },
+  "test": {
+    "rows": 56,
+    "by_target_violation_type": {
+      "domain": 21,
+      "re_identify": 25,
+      "video_meta_leak": 10
+    },
+    "by_target_and_final": {
+      "domain": {
+        "domain": 11,
+        "none": 10
+      },
+      "re_identify": {
+        "none": 12,
+        "re_identify": 13
+      },
+      "video_meta_leak": {
+        "none": 4,
+        "video_meta_leak": 6
+      }
+    },
+    "by_model_label": {
+      "domain": 11,
+      "none": 26,
+      "re_identify": 13,
+      "video_meta_leak": 6
+    },
+    "by_data_type": {
+      "netflow": 5,
+      "policy": 5,
+      "spatiotemporal_trajectory": 12,
+      "surveillance": 16,
+      "telecom": 9,
+      "traffic_flow": 9
+    },
+    "by_gate": {
+      "ContextGate": 24,
+      "InputGate": 4,
+      "OutputGate": 28
+    }
+  },
+  "overlap_validation": {
+    "data_id": 0,
+    "original_data_id": 0,
+    "sample_id": 0,
+    "exact_raw_content_sha256": 0
+  },
+  "outputs": {
+    "all": "normalized/0624_supported_split/all_supported_deduplicated.jsonl",
+    "train": "normalized/0624_supported_split/train.jsonl",
+    "test": "normalized/0624_supported_split/test.jsonl",
+    "dedup_removed": "normalized/0624_supported_split/dedup_removed.jsonl"
+  }
+}

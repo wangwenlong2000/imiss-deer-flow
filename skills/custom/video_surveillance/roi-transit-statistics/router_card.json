@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "roi-transit-statistics",
+    "name": "roi-transit-statistics",
+    "description": "Count how many objects entered, left, and dwelled in each camera ROI, based on tracks and ROI polygons. Works on a single local video's tracks without Elasticsearch, unlike object-statistics. Only counts geometry over time; never decides whether an event such as intrusion, loitering, or congestion occurred."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "roi_transit_statistics",
+      "zone_entry_exit_count",
+      "dwell_time_statistics"
+    ],
+    "input_types": [
+      "tracks_json",
+      "roi_polygons",
+      "camera_id"
+    ],
+    "output_types": [
+      "roi_counts",
+      "dwell_statistics",
+      "per_track_transit_detail"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：roi-transit-statistics\n描述：Count how many objects entered, left, and dwelled in each camera ROI, based on tracks and ROI polygons. Works on a single local video's tracks without Elasticsearch, unlike object-statistics. Only counts geometry over time; never decides whether an event such as intrusion, loitering, or congestion occurred.\n适用场景：video_surveillance。\n适用任务：roi_transit_statistics, zone_entry_exit_count, dwell_time_statistics。\n输入类型：tracks_json, roi_polygons, camera_id。\n输出类型：roi_counts, dwell_statistics, per_track_transit_detail。\n适合使用：单个视频里按区域统计进入/离开/停留数量；统计区域停留时长；门口、停车区等多区域分别计数。\n不适合使用：判断入侵、徘徊、拥堵等事件结论；依赖视频库索引的跨摄像头统计；目标检测与跟踪本身。",
+    "positive_triggers": [
+      "统计各区域进入离开的目标数量",
+      "统计区域内停留时间",
+      "标出门口和停车区分别计数",
+      "统计有多少人在该区域停留超过阈值"
+    ],
+    "negative_triggers": [
+      "判断是否发生入侵事件",
+      "视频库跨摄像头统计",
+      "目标检测",
+      "生成证据截图"
+    ],
+    "keywords": [
+      "roi statistics",
+      "zone counting",
+      "dwell time",
+      "进入",
+      "离开",
+      "停留",
+      "区域统计"
+    ],
+    "anti_keywords": [
+      "event detection",
+      "intrusion judgement",
+      "elasticsearch statistics",
+      "cross camera"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: roi-transit-statistics\ndescription: Count how many objects entered, left, and dwelled in each camera ROI, based on tracks and ROI polygons. Use when the user asks to mark areas and count traffic through them — for example \"标出门口和停车区，分别统计进入、离开和停留的目标数量\" or \"统计这个区域有多少人停留超过 30 秒\". Works on a single local video's tracks and does not need Elasticsearch, unlike object-statistics. This skill only counts geometry over time; it never decides whether an event such as intrusion, loitering, or congestion occurred.\n---\n\n# ROI Transit Statistics\n\n## Purpose\n\nTurn tracks plus ROI polygons into per-area counts: how many objects entered, how\nmany left, and how many stayed longer than a dwell threshold.\n\n`roi-mapping` answers \"is this object inside the polygon\" for a single moment.\nThis skill aggregates that over time into enter/leave/dwell counts.\n\n## Boundary\n\nThis skill is object analytics, not event detection. It reports counts and dwell\nseconds. It must not label a result as intrusion, loitering, congestion, illegal\noccupation, or any other business event — that judgment belongs to\n`single-video-event-analysis`, which reviews visible frame evidence.\n\n## Choosing between this and object-statistics\n\n| Request | Skill |\n| --- | --- |\n| Single local video, count by area | `roi-transit-statistics` |\n| Video library / cross-camera / time-range trend | `object-statistics` (needs Elasticsearch) |\n\n## Execution Priority\n\nRun this skill's `scripts/run.py` first. Only write custom code if the script\ncannot cover the request.\n\nDo not edit this skill's files during business execution. If the script fails,\nreport the concrete failure and stop unless the user explicitly asked for debugging.\n\n## Input Resolution\n\nThis skill consumes `tracks`, not raw video. If tracks are not available yet:\n\n1. Run `video-object-analytics` (or `frame-sampling` → `object-detection` →\n   `object-tracking`) to produce tracks.\n2. Then run this skill on the resulting tracks JSON.\n\nROI polygons are resolved in this order: `--rois-json`, then `input.rois`, then\n`config.cameras.<camera_id>.rois`.\n\n## Atomic CLI\n\n```bash\npython roi-transit-statistics/scripts/run.py \\\n  --tracks-json <tracks.json> \\\n  --rois-json <rois.json> \\\n  --camera-id CAM_001 \\\n  --dwell-seconds 3 \\\n  --output <roi_stats.json>\n```\n\n`<rois.json>`:\n\n```json\n{\n  \"rois\": [\n    {\"id\": \"ROI_GATE\", \"name\": \"门口\", \"type\": \"gate\", \"polygon\": [[0, 0], [200, 0], [200, 200], [0, 200]]},\n    {\"id\": \"ROI_PARK\", \"name\": \"停车区\", \"type\": \"parking\", \"polygon\": [[400, 400], [900, 400], [900, 900], [400, 900]]}\n  ]\n}\n```\n\nParameters: `--tracks-json`, `--rois-json`, `--camera-id`, `--dwell-seconds`,\n`--input`, `--config`, `--output`.\n\n## Workflow\n\n1. Load tracks and ROI polygons.\n2. For every track, walk its trajectory and test each point against each polygon.\n3. Count outside→inside transitions as `entered` and inside→outside as `left`.\n4. Accumulate time inside; a track counts as `dwelled` when its longest continuous\n   time inside reaches the dwell threshold.\n5. Return per-ROI counts, per-label breakdown, and per-track detail.\n\n## Outputs\n\nPer ROI: `roi_id`, `roi_name`, `roi_type`, `entered`, `left`, `dwelled`,\n`unique_objects`, `by_label`, and a `tracks` list with `track_id`, `label`,\n`entered`, `left`, `dwell_seconds`, `longest_continuous_dwell_seconds`,\n`first_enter_time`, `last_leave_time`, `started_inside`, `ended_inside`.\n\nTop level also returns `camera_id`, `dwell_threshold_seconds`, `tracks_analyzed`,\n`totals`, and `dwell_seconds_is_approximate`.\n\n## Accuracy Note\n\n`object-tracking` emits `trajectory` as bare `[[x, y], ...]` points with no\nper-point timestamps, so elapsed time is interpolated evenly between `start_time`\nand `end_time`. Dwell seconds are therefore approximate at the resolution of the\nframe-sampling interval, and the output always carries\n`dwell_seconds_is_approximate: true`. Report dwell numbers as approximate; do not\npresent them as exact timing.\n\n## Failure Modes\n\n- `MISSING_TRACKS` — no tracks supplied; run object tracking first\n- `MISSING_ROIS` — no ROI polygons for the camera\n- `INVALID_ROI_POLYGON` — a polygon has fewer than 3 points\n- `INPUT_NOT_FOUND` / `INPUT_UNREADABLE` / `INPUT_INVALID_JSON` / `INPUT_INVALID_YAML`\n\n## Constraints\n\nKeep the output explainable: counts and geometry only, no event conclusions.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.json"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 78,
+    "conflict_group": "roi-transit-statistics",
+    "prefer_when": [
+      "统计各区域进入离开的目标数量",
+      "统计区域内停留时间",
+      "标出门口和停车区分别计数",
+      "统计有多少人在该区域停留超过阈值"
+    ],
+    "defer_when": [
+      "判断是否发生入侵事件",
+      "视频库跨摄像头统计",
+      "目标检测",
+      "生成证据截图"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video_surveillance/roi-transit-statistics",
+    "skill_md_path": "skills/custom/video_surveillance/roi-transit-statistics/SKILL.md",
+    "skill_md_hash": "sha256:1abe2c7fbf06ee56b7dc00ba8f087940b08021712edfaa38f2287074231d24fd",
+    "generated_at": "2026-07-26T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:2fc600037009db4964c60a6429430a8a888e531cdc2fe575dcffc0634a7c1c47",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "roi-transit-statistics"
+  }
+}

@@ -1,0 +1,54 @@
+DeerFlow no-sudo / no-docker deployment requirements
+
+Scope
+- Target: Linux server deployment without sudo and without Docker.
+- Runtime mode: local multi-process (LangGraph + Gateway + Frontend), no nginx.
+
+Hard requirements
+- git
+- bash
+- Python 3.12+
+- Node.js 22+
+- pnpm 10+
+- uv (Astral) 0.7+
+- At least one of: lsof or ss (used by startup script for port checks)
+
+Recommended resources
+- CPU: 4 vCPU+
+- RAM: 8 GB+
+- Free disk: 10 GB+
+
+Network egress requirements
+- Code fetch: github.com
+- Python packages: pypi.org, files.pythonhosted.org
+- Node packages: registry.npmjs.org
+- Model API endpoint(s), for current config:
+  - dashscope.aliyuncs.com
+
+Required local files
+- config.yaml
+- .env
+
+Required environment variables (current config)
+- DASHSCOPE_API_KEY
+
+Optional environment variables (feature-dependent)
+- TAVILY_API_KEY (web_search tool)
+- JINA_API_KEY (web_fetch tool, optional but recommended)
+- INFOQUEST_API_KEY (only if switching tools to InfoQuest)
+
+Required ports
+- 2024 (LangGraph)
+- 8001 (Gateway)
+- 3000 (Frontend preferred)
+- 3001 (Frontend fallback if 3000 is occupied)
+
+Operational commands
+- Start: make dev-no-nginx
+- Stop: make stop-no-nginx
+- Status: make status-no-nginx
+- Logs: ./scripts/dev-no-nginx.sh logs
+
+Notes
+- make check validates nginx too; in no-nginx mode, nginx is not required.
+- Keep secrets only in .env. Do not commit .env.

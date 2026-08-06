@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "object-detection",
+    "name": "object-detection",
+    "description": "Detect visible objects in sampled video frames and return YOLO labels, confidences, and bounding boxes only."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "object_detection",
+      "bbox_detection"
+    ],
+    "input_types": [
+      "frames_json",
+      "image_frames",
+      "labels"
+    ],
+    "output_types": [
+      "detections_json"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：object-detection\n描述：仅做 YOLO 目标检测，输出人车物等目标的 label、confidence、bbox。不能用于判断打架、摔倒、车祸、拥堵、入侵、烟火等事件语义。\n适合使用：检测视频帧中的人车物；输出检测框；识别 COCO 目标类别。\n不适合使用：事件检测；异常行为判断；证据生成；人工复核。",
+    "positive_triggers": [
+      "YOLO目标检测",
+      "检测框",
+      "检测人车物",
+      "object detection"
+    ],
+    "negative_triggers": [
+      "事件检测",
+      "异常行为",
+      "打架",
+      "摔倒",
+      "车祸",
+      "拥堵"
+    ],
+    "keywords": [
+      "object detection",
+      "YOLO",
+      "bbox",
+      "detections",
+      "confidence"
+    ],
+    "anti_keywords": [
+      "event detection",
+      "incident",
+      "abnormal behavior"
+    ]
+  },
+  "execution": {
+    "required_tools": [
+      "bash",
+      "read_file"
+    ],
+    "optional_tools": [
+      "ultralytics",
+      "opencv"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.jpg",
+      "*.jpeg",
+      "*.png"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 82,
+    "conflict_group": "object-detection",
+    "prefer_when": [
+      "只需要目标检测",
+      "只需要检测框"
+    ],
+    "defer_when": [
+      "需要判断视频事件",
+      "需要异常分析"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/object-detection",
+    "skill_md_path": "skills/custom/object-detection/SKILL.md",
+    "generator_version": "manual-object-only-1.0.0"
+  },
+  "embedding": {
+    "es_doc_id": "object-detection"
+  }
+}

@@ -1,0 +1,971 @@
+"use client";
+
+import {
+  CirclePlusIcon,
+  DatabaseIcon,
+  FolderArchiveIcon,
+  HardDriveDownloadIcon,
+  RefreshCwIcon,
+  SearchIcon,
+  Trash2Icon,
+} from "lucide-react";
+
+import {
+  deleteDataSource,
+  readSelectedDataSourceIds,
+  uploadDataSourceFiles,
+  useDataSourceDetail,
+  useDataSources,
+  useEsIndexDetail,
+  useEsIndexSamples,
+  useEsIndices,
+  type DataSourceRecord,
+  type EsIndexDetailResponse,
+  type EsIndexItem,
+  type EsSamplesResponse,
+  writeSelectedDataSourceIds,
+} from "@/core/data-center";
+
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useI18n } from "@/core/i18n/hooks";
+import { cn } from "@/lib/utils";
+import {
+  WorkspaceBody,
+  WorkspaceContainer,
+  WorkspaceHeader,
+} from "@/components/workspace/workspace-container";
+
+function labelOfType(
+  type: DataSourceRecord["type"],
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  if (type === "local_dataset") return t.dataCenter.localDataset;
+  if (type === "uploaded_file") return t.dataCenter.uploadedFile;
+  if (type === "database") return t.dataCenter.database;
+  return t.dataCenter.vectorStore;
+}
+
+function labelOfStatus(
+  status: DataSourceRecord["status"],
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  if (status === "ready") return t.dataCenter.ready;
+  if (status === "syncing") return t.dataCenter.syncing;
+  if (status === "error") return t.dataCenter.error;
+  return t.dataCenter.disabled;
+}
+
+function iconOfSource(source: DataSourceRecord) {
+  if (source.type === "uploaded_file") return HardDriveDownloadIcon;
+  if (source.type === "database") return DatabaseIcon;
+  return FolderArchiveIcon;
+}
+
+function getDataSourceDownloadUrl(sourceId: string) {
+  return `/api/data-center/sources/${encodeURIComponent(sourceId)}/download`;
+}
+
+function getMetadataString(source: DataSourceRecord, key: string) {
+  const value = source.metadata?.[key];
+  return typeof value === "string" ? value : "";
+}
+
+function getMetadataNumber(source: DataSourceRecord, key: string) {
+  const value = source.metadata?.[key];
+  return typeof value === "number" ? value : null;
+}
+
+function getDisplayFilename(source: DataSourceRecord) {
+  return getMetadataString(source, "filename") || source.name;
+}
+
+function isEsSource(source: DataSourceRecord | null | undefined) {
+  return source?.metadata?.source_kind === "elasticsearch_index";
+}
+
+function getEsIndexName(source: DataSourceRecord | null | undefined) {
+  const value = source?.metadata?.index_name;
+  return typeof value === "string" ? value : "";
+}
+
+function esIndexToDataSource(index: EsIndexItem): DataSourceRecord {
+  return {
+    id: `es-${index.name}`,
+    name: index.display_name || index.name,
+    type: "database",
+    status: "ready",
+    description: `Elasticsearch 索引：${index.name}，文档数：${index.docs_count.toLocaleString("zh-CN")}`,
+    path: index.name,
+    virtual_path: null,
+    updated_at: null,
+    owner_scope: "global",
+    selectable_in_chat: false,
+    thread_id: null,
+    metadata: {
+      source_kind: "elasticsearch_index",
+      index_name: index.name,
+      health: index.health,
+      es_status: index.status,
+      docs_count: index.docs_count,
+      docs_deleted: index.docs_deleted,
+      store_size_bytes: index.store_size_bytes,
+      pri: index.pri,
+      rep: index.rep,
+    },
+  };
+}
+
+function formatFileSize(value: number | null | undefined) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  let size = value;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${new Intl.NumberFormat("zh-CN", {
+    maximumFractionDigits: unitIndex === 0 ? 0 : 1,
+  }).format(size)} ${units[unitIndex]}`;
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "-";
+
+  const normalized = value.replace(/(\.\d{3})\d+/, "$1");
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+export function DataCenterPage() {
+  const { t } = useI18n();
+  const { data, isLoading, error, refetch } = useDataSources();
+
+  const {
+    data: esIndicesData,
+    isLoading: isEsLoading,
+    error: esError,
+    refetch: refetchEsIndices,
+  } = useEsIndices();
+
+  const [query, setQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"sources" | "uploads">("sources");
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [chatSelection, setChatSelection] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [databaseDialogOpen, setDatabaseDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    document.title = `${t.dataCenter.title} - ${t.pages.appName}`;
+  }, [t.dataCenter.title, t.pages.appName]);
+
+  useEffect(() => {
+    const selectedIds = readSelectedDataSourceIds().filter(
+      (id) => !id.startsWith("es-"),
+    );
+    setChatSelection(selectedIds);
+    writeSelectedDataSourceIds(selectedIds);
+  }, []);
+
+  const registeredSources = data?.sources ?? [];
+
+  const esSources = useMemo(() => {
+    return (esIndicesData?.items ?? []).map(esIndexToDataSource);
+  }, [esIndicesData?.items]);
+
+  const sources = useMemo(() => {
+    return [...esSources, ...registeredSources];
+  }, [esSources, registeredSources]);
+
+  const visibleSources = useMemo(() => {
+    return sources
+      .filter((source) =>
+        activeTab === "uploads"
+          ? source.type === "uploaded_file"
+          : source.type !== "uploaded_file",
+      )
+      .filter((source) => {
+        const haystack = `${source.name} ${source.description} ${source.path ?? ""}`;
+        return haystack.toLowerCase().includes(query.toLowerCase());
+      });
+  }, [activeTab, query, sources]);
+
+  useEffect(() => {
+    if (
+      (!selectedId || !visibleSources.some((source) => source.id === selectedId)) &&
+      visibleSources[0]?.id
+    ) {
+      setSelectedId(visibleSources[0].id);
+    }
+  }, [selectedId, visibleSources]);
+
+  const selectedSource = useMemo(() => {
+    return (
+      visibleSources.find((source) => source.id === selectedId) ??
+      visibleSources[0] ??
+      null
+    );
+  }, [selectedId, visibleSources]);
+
+  const { data: selectedSourceDetail } = useDataSourceDetail(
+    isEsSource(selectedSource) ? null : selectedSource?.id,
+  );
+
+  const selectedEsIndexName = isEsSource(selectedSource)
+    ? getEsIndexName(selectedSource)
+    : "";
+
+  const {
+    data: selectedEsIndexDetail,
+    isLoading: isEsIndexDetailLoading,
+  } = useEsIndexDetail(selectedEsIndexName);
+
+  const {
+    data: selectedEsSamples,
+    isLoading: isEsSamplesLoading,
+  } = useEsIndexSamples(selectedEsIndexName, 3);
+
+  const selectedChatSources = useMemo(() => {
+    return sources.filter((source) => chatSelection.includes(source.id));
+  }, [chatSelection, sources]);
+
+  const handleUseForChat = () => {
+    if (!selectedSource) {
+      return;
+    }
+
+    if (isEsSource(selectedSource)) {
+      toast.info("Elasticsearch 索引用于 RAG 检索展示，不需要添加到对话文件系统");
+      return;
+    }
+
+    const nextSelection = chatSelection.includes(selectedSource.id)
+      ? chatSelection.filter((id) => id !== selectedSource.id)
+      : Array.from(new Set([...chatSelection, selectedSource.id]));
+
+    setChatSelection(nextSelection);
+    writeSelectedDataSourceIds(nextSelection);
+    if (!chatSelection.includes(selectedSource.id)) {
+      toast.success(t.dataCenter.useForChatSuccess);
+    }
+  };
+
+  const handleDeleteSelectedSource = async () => {
+    if (!selectedSource) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const response = await deleteDataSource(selectedSource.id);
+
+      const nextSelection = chatSelection.filter((id) => id !== selectedSource.id);
+      setChatSelection(nextSelection);
+      writeSelectedDataSourceIds(nextSelection);
+
+      setSelectedId("");
+      await refetch();
+
+      setDeleteDialogOpen(false);
+      toast.success(response.message || "数据源已删除");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete data source",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSelectFiles = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) {
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const response = await uploadDataSourceFiles(files);
+      await refetch();
+      setActiveTab("uploads");
+      if (response.sources[0]?.id) {
+        setSelectedId(response.sources[0].id);
+      }
+      toast.success(response.message);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload data sources",
+      );
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  return (
+    <WorkspaceContainer>
+      <WorkspaceHeader />
+      <WorkspaceBody className="bg-muted/20">
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          multiple
+          onChange={(event) => void handleSelectFiles(event)}
+        />
+        <div className="flex size-full gap-0 overflow-hidden rounded-none xl:p-4">
+          <section className="bg-background flex h-full w-full min-w-0 flex-col overflow-hidden border xl:rounded-3xl">
+            <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[430px_minmax(0,1fr)]">
+              <aside className="flex h-full min-h-0 flex-col overflow-hidden border-r">
+                <div className="flex h-20 shrink-0 items-center justify-between border-b px-6">
+                  <div>
+                    <h1 className="text-lg font-semibold">{t.dataCenter.title}</h1>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {t.dataCenter.subtitle}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t.dataCenter.refresh}
+                      onClick={() => {
+                        void refetch();
+                        void refetchEsIndices();
+                      }}
+                    >
+                      <RefreshCwIcon className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t.dataCenter.addData}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <CirclePlusIcon className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="shrink-0 space-y-4 border-b p-6">
+                  <div className="relative">
+                    <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                    <Input
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder={t.dataCenter.searchPlaceholder}
+                      className="pl-9"
+                    />
+                  </div>
+                  <div className="bg-muted inline-flex rounded-xl p-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("sources")}
+                      className={cn(
+                        "rounded-lg px-4 py-2 text-sm transition",
+                        activeTab === "sources"
+                          ? "bg-background shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {t.dataCenter.allSources}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("uploads")}
+                      className={cn(
+                        "rounded-lg px-4 py-2 text-sm transition",
+                        activeTab === "uploads"
+                          ? "bg-background shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {t.dataCenter.uploadedData}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                  <div className="space-y-2 p-4 pb-20">
+                    {(error || esError) && (
+                      <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
+                        {error instanceof Error
+                          ? error.message
+                          : esError instanceof Error
+                            ? esError.message
+                            : "Failed to load data sources"}
+                      </div>
+                    )}
+                    {(isLoading || isEsLoading) && (
+                      <div className="text-muted-foreground rounded-2xl border px-4 py-6 text-sm">
+                        {t.common.loading}
+                      </div>
+                    )}
+                    {visibleSources.map((source) => {
+                      const Icon = iconOfSource(source);
+                      const selected = selectedSource?.id === source.id;
+                      return (
+                        <button
+                          key={source.id}
+                          type="button"
+                          onClick={() => setSelectedId(source.id)}
+                          className={cn(
+                            "w-full rounded-2xl border px-4 py-4 text-left transition",
+                            selected
+                              ? "border-primary/40 bg-primary/5 shadow-sm"
+                              : "hover:bg-muted/60 bg-background",
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="bg-muted mt-0.5 rounded-xl p-2">
+                              <Icon className="size-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <div
+                                  className="min-w-0 flex-1 text-sm font-medium leading-5 line-clamp-2 break-all"
+                                  title={source.name}
+                                >
+                                  {source.name}
+                                </div>
+                                <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
+                                  {labelOfType(source.type, t)}
+                                </span>
+                              </div>
+
+                              <p
+                                className="text-muted-foreground mt-1 line-clamp-2 text-xs break-words"
+                                title={source.description ?? ""}
+                              >
+                                {source.description || t.dataCenter.noDescription}
+                              </p>
+
+                              <div className="text-muted-foreground mt-2 space-y-1 text-[11px]">
+                                {source.type === "uploaded_file" && (
+                                  <div className="inline-flex rounded-full bg-muted px-2 py-0.5">
+                                    {formatFileSize(getMetadataNumber(source, "size_bytes"))}
+                                  </div>
+                                )}
+
+                                {isEsSource(source) && (
+                                  <div className="flex flex-wrap gap-1">
+                                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5">
+                                      {Number(getMetadataNumber(source, "docs_count") ?? 0).toLocaleString("zh-CN")} 条
+                                    </span>
+                                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5">
+                                      {formatFileSize(getMetadataNumber(source, "store_size_bytes"))}
+                                    </span>
+                                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5">
+                                      {getMetadataString(source, "health") || "unknown"}
+                                    </span>
+                                  </div>
+                                )}
+
+                                <div
+                                  className="line-clamp-2 max-w-full rounded-lg bg-muted px-2 py-1 break-all"
+                                  title={isEsSource(source) ? getEsIndexName(source) : getDisplayFilename(source)}
+                                >
+                                  {isEsSource(source) ? getEsIndexName(source) : getDisplayFilename(source)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </aside>
+
+              <div className="grid h-full min-h-0 overflow-hidden grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px]">
+                <div className="relative flex min-h-[32rem] flex-col items-center justify-center border-r px-8 py-10"> 
+                  {selectedSource ? (
+                    isEsSource(selectedSource) ? (
+                      <EsIndexMainPanel
+                        source={selectedSource}
+                        indexName={selectedEsIndexName}
+                        detail={selectedEsIndexDetail}
+                        samples={selectedEsSamples}
+                        detailLoading={isEsIndexDetailLoading}
+                        samplesLoading={isEsSamplesLoading}
+                      />
+                    ) : (
+                      <div className="mx-auto flex w-full max-w-xl flex-col items-center text-center">
+                        <div className="bg-primary/8 mb-6 rounded-[2rem] border border-dashed px-10 py-12">
+                          <HardDriveDownloadIcon className="text-primary mx-auto size-12" />
+                        </div>
+                        <h2
+                          className="max-w-full break-words text-2xl font-semibold"
+                          title={selectedSource.name}
+                        >
+                          {selectedSource.name}
+                        </h2>
+                        <p
+                          className="text-muted-foreground mt-3 max-w-md break-words text-sm leading-6"
+                          title={selectedSource.description ?? ""}
+                        >
+                          {selectedSource.description}
+                        </p>
+                        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                          <span className="bg-muted rounded-full px-3 py-1 text-xs">
+                            {labelOfType(selectedSource.type, t)}
+                          </span>
+                          <span className="bg-muted rounded-full px-3 py-1 text-xs">
+                            {labelOfStatus(selectedSource.status, t)}
+                          </span>
+                          <span className="bg-muted rounded-full px-3 py-1 text-xs">
+                            {selectedSource.owner_scope}
+                          </span>
+                        </div>
+                        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                          {selectedSource.type === "uploaded_file" && (
+                            <Button asChild variant="outline">
+                              <a href={getDataSourceDownloadUrl(selectedSource.id)}>
+                                <HardDriveDownloadIcon className="mr-2 size-4" />
+                                下载原始文件
+                              </a>
+                            </Button>
+                          )}
+                          {selectedSource.type === "uploaded_file" && (
+                            <Button
+                              variant="destructive"
+                              onClick={() => setDeleteDialogOpen(true)}
+                              disabled={isDeleting}
+                            >
+                              <Trash2Icon className="mr-2 size-4" />
+                              删除数据源
+                            </Button>
+                          )}
+                          <Button
+                            variant={
+                              chatSelection.includes(selectedSource.id)
+                                ? "secondary"
+                                : "default"
+                            }
+                            onClick={handleUseForChat}
+                          >
+                            {chatSelection.includes(selectedSource.id)
+                              ? t.dataCenter.selectedForChat
+                              : t.dataCenter.selectForChat}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setDatabaseDialogOpen(true)}
+                          >
+                            {t.dataCenter.addDatabase}
+                          </Button>
+                        </div>
+                        <p className="text-muted-foreground mt-6 text-xs">
+                          {t.dataCenter.chatHint}
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="mx-auto flex max-w-md flex-col items-center text-center">
+                      <div className="bg-primary/8 mb-6 rounded-[2rem] border border-dashed px-10 py-12">
+                        <DatabaseIcon className="text-primary mx-auto size-12" />
+                      </div>
+                      <h2 className="text-2xl font-semibold">{t.dataCenter.emptyTitle}</h2>
+                      <p className="text-muted-foreground mt-3 text-sm leading-6">
+                        {t.dataCenter.emptyDescription}
+                      </p>
+                      <Button
+                        className="mt-8"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                      >
+                        {isUploading ? t.uploads.uploading : t.dataCenter.emptyAction}
+                      </Button>
+                    </div>
+                  )}
+                </div> 
+
+                <aside className="bg-background/60 flex h-full min-h-0 flex-col overflow-hidden">
+                  <div className="shrink-0 border-b px-6 py-5">
+                    <div className="font-medium">{t.dataCenter.sourceDetail}</div>
+                    <div className="text-muted-foreground mt-1 text-xs">
+                      {t.dataCenter.mockHint}
+                    </div>
+                  </div>
+
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                    <div className="space-y-5 p-6 pb-10">
+                      <div>
+                        <div className="text-muted-foreground text-xs uppercase">
+                          {t.dataCenter.selectedDataset}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedChatSources.map((source) => (
+                            <span
+                              key={source.id}
+                              className="bg-primary/8 text-primary rounded-full px-3 py-1 text-xs"
+                            >
+                              {source.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div> 
+
+                      {selectedSource && isEsSource(selectedSource) && (
+                        <>
+                          <DetailItem
+                            label="数据源名称"
+                            value={selectedSource.name}
+                          />
+                          <DetailItem
+                            label="索引名称"
+                            value={selectedEsIndexName}
+                          />
+                          <DetailItem
+                            label="类型"
+                            value="Elasticsearch 索引"
+                          />
+                          <DetailItem
+                            label="用途"
+                            value="作为 RAG 检索的数据来源，用于后续政策法规、城市治理或业务数据检索。"
+                          />
+                          <DetailItem
+                            label="健康状态"
+                            value={getMetadataString(selectedSource, "health") || "-"}
+                          />
+                          <DetailItem
+                            label="索引状态"
+                            value={getMetadataString(selectedSource, "es_status") || "-"}
+                          />
+                          <DetailItem
+                            label="文档数量"
+                            value={String(getMetadataNumber(selectedSource, "docs_count") ?? "-")}
+                          />
+                          <DetailItem
+                            label="存储大小"
+                            value={formatFileSize(getMetadataNumber(selectedSource, "store_size_bytes"))}
+                          />
+                        </>
+                      )}
+
+                      {selectedSource && !isEsSource(selectedSource) && (
+                        <>
+                          <DetailItem
+                            label={t.dataCenter.sourceType}
+                            value={labelOfType(selectedSourceDetail?.type ?? selectedSource.type, t)}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceStatus}
+                            value={labelOfStatus(selectedSourceDetail?.status ?? selectedSource.status, t)}
+                          />
+
+                          {selectedSource.type === "uploaded_file" && (
+                            <>
+                              <DetailItem
+                                label="文件名"
+                                value={getDisplayFilename(selectedSourceDetail ?? selectedSource)}
+                              />
+                              <DetailItem
+                                label="文件大小"
+                                value={formatFileSize(
+                                  getMetadataNumber(selectedSourceDetail ?? selectedSource, "size_bytes"),
+                                )}
+                              />
+                            </>
+                          )}
+
+                          <DetailItem
+                            label={t.dataCenter.sourceLocation}
+                            value={selectedSourceDetail?.path ?? selectedSource.path ?? "-"}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceUpdatedAt}
+                            value={formatDateTime(
+                              selectedSourceDetail?.updated_at ?? selectedSource.updated_at,
+                            )}
+                          />
+                          <DetailItem
+                            label={t.dataCenter.sourceDescription}
+                            value={
+                              selectedSourceDetail?.description ||
+                              selectedSource.description ||
+                              t.dataCenter.noDescription
+                            }
+                          />
+
+                          {selectedSource.type === "uploaded_file" && (
+                            <Button asChild className="w-full" variant="outline">
+                              <a href={getDataSourceDownloadUrl(selectedSource.id)}>
+                                <HardDriveDownloadIcon className="mr-2 size-4" />
+                                下载原始文件
+                              </a>
+                            </Button>
+                          )}
+                        </>
+                      )}  
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </section>
+        </div>
+        <Dialog open={databaseDialogOpen} onOpenChange={setDatabaseDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t.dataCenter.databaseComingSoonTitle}</DialogTitle>
+              <DialogDescription>
+                {t.dataCenter.databaseComingSoonDescription}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setDatabaseDialogOpen(false)}>
+                {t.dataCenter.databaseComingSoonAction}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>删除数据源</DialogTitle>
+              <DialogDescription>
+                确定要删除
+                {selectedSource ? `「${selectedSource.name}」` : "这个数据源"}
+                吗？此操作会从数据中心移除记录，并删除后端保存的原始文件，无法撤销。
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={isDeleting}
+              >
+                取消
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => void handleDeleteSelectedSource()}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "删除中..." : "确认删除"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </WorkspaceBody>
+    </WorkspaceContainer>
+  );
+}
+
+function DetailItem({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | null;
+}) {
+  return (
+    <div className="min-w-0 space-y-2">
+      <div className="text-muted-foreground text-xs uppercase">{label}</div>
+      <div
+        className="min-w-0 max-w-full rounded-2xl border bg-white/80 px-4 py-3 text-sm leading-6 whitespace-pre-wrap break-all"
+        title={value ?? ""}
+      >
+        {value || "-"}
+      </div>
+    </div>
+  );
+}
+
+function EsIndexMainPanel({
+  source,
+  indexName,
+  detail,
+  samples,
+  detailLoading,
+  samplesLoading,
+}: {
+  source: DataSourceRecord;
+  indexName: string;
+  detail?: EsIndexDetailResponse;
+  samples?: EsSamplesResponse;
+  detailLoading: boolean;
+  samplesLoading: boolean;
+}) {
+  const docsCount = getMetadataNumber(source, "docs_count") ?? detail?.docs_count ?? 0;
+  const storeSize =
+    getMetadataNumber(source, "store_size_bytes") ?? detail?.store_size_bytes ?? 0;
+  const health = getMetadataString(source, "health") || "-";
+
+  return (
+    <div className="flex h-full w-full flex-col overflow-hidden px-8 py-8">
+      <div className="shrink-0">
+        <div className="flex items-start justify-between gap-6">
+          <div className="min-w-0">
+            <div className="text-muted-foreground text-sm">Elasticsearch 索引</div>
+            <h2
+              className="mt-2 max-w-full break-all text-2xl font-semibold"
+              title={indexName}
+            >
+              {source.name}
+            </h2>
+            <p className="text-muted-foreground mt-2 break-all text-sm">
+              {indexName}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <span className="bg-muted rounded-full px-3 py-1 text-xs">
+              {health}
+            </span>
+            <span className="bg-muted rounded-full px-3 py-1 text-xs">
+              数据库
+            </span>
+            <span className="bg-muted rounded-full px-3 py-1 text-xs">
+              RAG 检索数据
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+          <EsMetricCard
+            label="文档数量"
+            value={docsCount.toLocaleString("zh-CN")}
+          />
+          <EsMetricCard
+            label="存储大小"
+            value={formatFileSize(storeSize)}
+          />
+          <EsMetricCard
+            label="字段数量"
+            value={
+              detailLoading
+                ? "加载中"
+                : String(detail?.field_count ?? "-")
+            }
+          />
+          <EsMetricCard
+            label="健康状态"
+            value={health}
+          />
+        </div>
+      </div>
+
+      <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 gap-5 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <section className="flex min-h-0 flex-col rounded-2xl border bg-background/70">
+          <div className="shrink-0 border-b px-5 py-4">
+            <div className="font-medium">字段结构</div>
+            <div className="text-muted-foreground mt-1 text-xs">
+              当前索引 mapping 中的字段列表
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            {detailLoading ? (
+              <div className="text-muted-foreground text-sm">字段加载中...</div>
+            ) : detail?.fields?.length ? (
+              <div className="space-y-2">
+                {detail.fields.map((field) => (
+                  <div
+                    key={field.name}
+                    className="flex items-center justify-between gap-3 rounded-xl bg-muted px-3 py-2 text-xs"
+                  >
+                    <span className="min-w-0 flex-1 break-all font-mono">
+                      {field.name}
+                    </span>
+                    <span className="text-muted-foreground shrink-0 rounded-full bg-background px-2 py-0.5">
+                      {field.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-muted-foreground text-sm">暂无字段信息</div>
+            )}
+          </div>
+        </section>
+
+        <section className="flex min-h-0 flex-col rounded-2xl border bg-background/70">
+          <div className="shrink-0 border-b px-5 py-4">
+            <div className="font-medium">样例数据</div>
+            <div className="text-muted-foreground mt-1 text-xs">
+              从当前索引中读取的预览文档，已自动隐藏向量字段
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            {samplesLoading ? (
+              <div className="text-muted-foreground text-sm">样例加载中...</div>
+            ) : samples?.items?.length ? (
+              <div className="space-y-4">
+                {samples.items.map((item) => (
+                  <div
+                    key={item.id ?? JSON.stringify(item.source)}
+                    className="rounded-2xl border bg-white/80 p-4"
+                  >
+                    <div className="text-muted-foreground mb-3 line-clamp-1 text-xs break-all">
+                      ID：{item.id ?? "-"}
+                    </div>
+                    <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap break-words text-xs leading-5">
+                      {JSON.stringify(item.source, null, 2)}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-muted-foreground text-sm">暂无样例数据</div>
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function EsMetricCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border bg-background/70 px-4 py-3">
+      <div className="text-muted-foreground text-xs">{label}</div>
+      <div className="mt-2 break-all text-lg font-semibold">{value}</div>
+    </div>
+  );
+}

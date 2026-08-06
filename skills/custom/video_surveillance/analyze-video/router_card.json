@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "analyze-video",
+    "name": "analyze-video",
+    "description": "Prepare monitoring video evidence by extracting timestamped frames and metadata. Use as frame-extraction support, not as the final event-detection entrypoint."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["scene_detection", "frame_extraction", "forensic_preparation"],
+    "input_types": ["mp4", "mov", "avi", "mkv", "video_path"],
+    "output_types": ["frame_metadata", "scene_segments", "metadata_json"]
+  },
+  "routing": {
+    "routing_text": "名称：analyze-video\n描述：视频抽帧和取证准备工具，使用 FFmpeg 做场景检测、粗采样、密集采样并生成 metadata.json。最终事件检测请使用 single-video-event-analysis。\n适合使用：视频抽帧；关键帧提取；场景变化检测；生成审帧素材。\n不适合使用：最终事件检测；YOLO目标检测；人工复核。",
+    "positive_triggers": ["视频抽帧", "关键帧提取", "场景检测", "metadata.json", "取证准备"],
+    "negative_triggers": ["判断事件", "检测异常事件", "只做YOLO"],
+    "keywords": ["ffmpeg", "frame extraction", "scene detection", "metadata"],
+    "anti_keywords": ["event candidate", "bbox"]
+  },
+  "execution": {
+    "required_tools": ["bash", "ffmpeg"],
+    "optional_tools": ["ffprobe", "read_file"],
+    "allowed_file_patterns": ["*.mp4", "*.mov", "*.avi", "*.mkv", "*.webm"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 70,
+    "conflict_group": "video-frame-extraction",
+    "prefer_when": ["只需要抽帧", "需要场景切分"],
+    "defer_when": ["需要事件检测", "需要异常分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/analyze-video",
+    "skill_md_path": "skills/custom/analyze-video/SKILL.md",
+    "generator_version": "manual-frame-prep-1.0.0"
+  },
+  "embedding": {"es_doc_id": "analyze-video"}
+}

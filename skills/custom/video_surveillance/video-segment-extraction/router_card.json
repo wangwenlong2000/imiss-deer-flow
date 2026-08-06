@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-segment-extraction",
+    "name": "video-segment-extraction",
+    "description": "Extract playable short video evidence clips around event times using FFmpeg."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["video_clip", "evidence_clip"],
+    "input_types": ["video_path", "event_json"],
+    "output_types": ["clip_json", "mp4"]
+  },
+  "routing": {
+    "routing_text": "名称：video-segment-extraction\n描述：根据事件时间从原始视频截取证据短片段，输出 clip_uri 和片段时间范围。事件时间通常来自 single-video-event-analysis。\n适合使用：截取事件视频片段；生成证据短视频。\n不适合使用：判断事件；目标检测。",
+    "positive_triggers": ["截取事件片段", "证据短视频", "clip", "视频片段"],
+    "negative_triggers": ["事件检测", "目标检测"],
+    "keywords": ["ffmpeg", "clip", "segment", "evidence"],
+    "anti_keywords": ["detect"]
+  },
+  "execution": {
+    "required_tools": ["bash", "ffmpeg"],
+    "optional_tools": ["ffprobe"],
+    "allowed_file_patterns": ["*.json", "*.mp4", "*.mov", "*.avi", "*.mkv"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 74,
+    "conflict_group": "video-segment-extraction",
+    "prefer_when": ["需要截取证据短视频"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video-segment-extraction",
+    "skill_md_path": "skills/custom/video-segment-extraction/SKILL.md",
+    "generator_version": "manual-llm-event-review-1.0.0"
+  },
+  "embedding": {"es_doc_id": "video-segment-extraction"}
+}

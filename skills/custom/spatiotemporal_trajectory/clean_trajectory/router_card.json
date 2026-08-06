@@ -1,0 +1,117 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "clean_trajectory",
+                     "name":  "clean_trajectory",
+                     "description":  "Use this skill when the user wants to clean raw GPS, check-in, signaling, taxi, or user mobility trajectory files by validating coordinates and timestamps, removing duplicates, filtering abnormal speed jumps, and exporting standardized cleaned trajectory points."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "clean_trajectory",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "region_heat_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "cleaned_points.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：clean_trajectory\n描述：Use this skill when the user wants to clean raw GPS, check-in, signaling, taxi, or user mobility trajectory files by validating coordinates and timestamps, removing duplicates, filtering abnormal speed jumps, and exporting standardized cleaned trajectory points.\n适用场景：spatiotemporal_trajectory。\n适用任务：clean_trajectory, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, region_heat_jsonl。\n输出类型：cleaned_points.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to clean raw GPS, check-in, signaling, taxi, or user mobility trajectory files by validating coordinates and timestamps, removing duplicates, filtering abnormal speed jumps, and exporting standardized cleaned trajectory points.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "clean",
+                                     "trajectory",
+                                     "spatiotemporal",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: clean_trajectory\ndescription: Use this skill when the user wants to clean raw GPS, check-in, signaling, taxi, or user mobility trajectory files by validating coordinates and timestamps, removing duplicates, filtering abnormal speed jumps, and exporting standardized cleaned trajectory points.\nmetadata:\n  short-description: Clean raw trajectory data into standardized points.\n---\n\n# clean_trajectory\n\nUse this Skill for the first step of the trajectory pipeline: raw trajectory points -\u003e cleaned trajectory points.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/clean_trajectory\npython3 scripts/clean_trajectory.py --input /path/to/raw.csv --output-dir /path/to/output\n```\n\nOptional flags:\n\n```bash\n--user-col user_id --trajectory-col trajectory_id --time-col timestamp --lat-col lat --lon-col lon\n--max-speed-kmh 200 --geohash-precision 6\n```\n\n## Outputs\n\n- `cleaned_points.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Coordinate validation\n- Timestamp normalization\n- Duplicate removal\n- Haversine distance\n- Speed-threshold filtering\n- Geohash encoding\n\n## Next Skills\n\nUse `cleaned_points.jsonl` with:\n\n- `$map_spatial_grid`\n- `$search_spatiotemporal`\n- `$analyze_region_heat`\n- `$mine_trajectory_patterns`\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "map_spatial_grid",
+                                               "search_spatiotemporal",
+                                               "analyze_region_heat",
+                                               "mine_trajectory_patterns"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/clean_trajectory",
+                   "skill_md_path":  "skills/custom/clean_trajectory/SKILL.md",
+                   "skill_md_hash":  "sha256:ef28e4cc22bb8ada2c6debc474b059751f64dbcf9f40f0c60de1ba2cbe27c534",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:8ab53822786567044e55104c0a2284f5abdaacb991e2867671ab938eac08b8ba",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "clean_trajectory"
+                  }
+}

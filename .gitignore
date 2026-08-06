@@ -1,0 +1,165 @@
+# DeerFlow docker image cache
+docker/.cache/
+# OS generated files
+.DS_Store
+*.local
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv
+venv/
+backend/.venv/
+frontend/.venv/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Configuration files
+mcp_config.json
+extensions_config.json
+
+# IDE
+.idea/
+.vscode/
+
+# Coverage report
+coverage.xml
+coverage/
+
+# DeerFlow local files
+/.deer-flow/
+.deerflow-no-nginx/
+.claude/
+backend/.deer-flow/
+
+# Custom skills
+skills/custom/*
+!skills/custom/.gitkeep
+
+!skills/custom/network-traffic-analysis/
+!skills/custom/network-traffic-analysis/**
+!skills/custom/models
+!skills/custom/phone-network-analysis
+!skills/custom/phone-network-analysis/**
+!skills/custom/spatiotemporal_trajectory
+!skills/custom/spatiotemporal_trajectory/**
+!skills/custom/program_snippet
+!skills/custom/program_snippet/**
+
+# Allow policy regulation custom skills
+!skills/custom/policies-regulations/
+!skills/custom/policies-regulations/**
+!skills/custom/remote_sensing_image
+!skills/custom/remote_sensing_image/**
+!skills/custom/road-traffic-analysis
+!skills/custom/road-traffic-analysis/**
+!skills/custom/street_view_image
+!skills/custom/street_view_image/**
+!skills/custom/video_surveillance
+!skills/custom/video_surveillance/**
+# Do not track local Playwright browser binaries
+skills/custom/policies-regulations/**/node_modules/
+skills/custom/policies-regulations/**/node_modules/**
+skills/custom/policies-regulations/**/.playwright-browsers/
+skills/custom/policies-regulations/**/.playwright-browsers/**
+
+# Logs
+skills/custom/network-traffic-analysis/scripts/**/__pycache__/
+skills/custom/network-traffic-analysis/scripts/**/*.pyc
+logs/
+log/
+backend/log/
+backend/logs/
+
+# Local git hooks (keep only on this machine, do not push)
+.githooks/
+
+# pnpm
+.pnpm-store
+sandbox_image_cache.tar
+frontend/node_modules/
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
+
+# ignore the legacy `web` folder
+web/
+
+# Deployment artifacts
+backend/Dockerfile.langgraph
+config.yaml.bak
+backend/.langgraph_api/
+config.yaml
+
+# Local network traffic datasets
+datasets/network-traffic/raw/**
+datasets/network-traffic/processed/**
+datasets/network-traffic/outputs/**
+!datasets/network-traffic/raw/.gitkeep
+!datasets/network-traffic/processed/.gitkeep
+!datasets/network-traffic/outputs/.gitkeep
+
+.github/agents/
+.github/hooks/
+.github/skills/
+**/.env
+intent_files_backup/
+
+# Local credentials and machine-specific service configuration.
+# Do not publish .env templates either: this workspace previously contained
+# real provider credentials in files named .env.example.
+.env
+.env.*
+**/.env
+**/.env.*
+/config.yaml
+/config.local.yaml
+/config.*.local.yaml
+
+# backup files
+*.bak
+*.bak-*
+*.bak.*
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# local data / audit / archive
+# `datasets/*` (not `datasets/`) so specific subtrees can be re-included below;
+# git cannot re-include anything under a directory that is itself excluded.
+datasets/*
+env-audit/
+*.zip
+
+# Compliance detection assets (plan §8)
+# The 0624 split is the content_text regression baseline and MUST stay tracked.
+!datasets/compliance/
+datasets/compliance/*
+!datasets/compliance/type12_frozen_test/
+!datasets/compliance/type12_frozen_test/*.jsonl
+!datasets/compliance/normalized/
+datasets/compliance/normalized/*
+!datasets/compliance/normalized/0624_supported_split/
+
+# Compliance model weights: 6.7-11.7 MB each, rebuilt via `make compliance-assets`
+models/compliance/
+outputs/compliance-eval/
+outputs/compliance-e2e/
+outputs/skill-tests/
+/baseline_compliance_tests_before_type12.log
+/type12_service_smoke_redacted.log
+/task1_intent_sse_redacted.log
+/task2_scene_sse_redacted.log
+/type12_outputgate_sse_redacted.log

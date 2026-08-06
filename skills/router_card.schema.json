@@ -1,0 +1,259 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Router Card",
+  "description": "Routing profile for a single Skill, used by SkillRouter to decide applicability.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "identity",
+    "scope",
+    "routing",
+    "body",
+    "execution",
+    "routing_policy",
+    "source",
+    "embedding"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Version of this schema, e.g. 1.0.0"
+    },
+    "identity": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Skill"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable Skill name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Routing-friendly one-sentence functional description"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["scenes", "is_public"],
+      "additionalProperties": false,
+      "properties": {
+        "scenes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Applicable scenes; public Skills should include 'public'"
+        },
+        "is_public": {
+          "type": "boolean",
+          "description": "Whether this is a public/shared Skill"
+        },
+        "task_types": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Task types this Skill can handle"
+        },
+        "input_types": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Input types, e.g. pcap, xlsx, docx, text"
+        },
+        "output_types": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Output types, e.g. report, chart, risk_findings"
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "required": ["routing_text"],
+      "additionalProperties": false,
+      "properties": {
+        "routing_text": {
+          "type": "string",
+          "description": "Standardized text for embedding-based coarse retrieval"
+        },
+        "positive_triggers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Typical positive trigger descriptions"
+        },
+        "negative_triggers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Negative triggers for distinguishing similar Skills"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Fallback keywords for retrieval"
+        },
+        "anti_keywords": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Keywords that explicitly should NOT trigger this Skill"
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "required": ["content"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Source file reference, e.g. SKILL.md"
+        },
+        "content": {
+          "type": "string",
+          "description": "Cleaned SKILL.md body text for Reranker fine-grained scoring"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": ["can_run_standalone"],
+      "additionalProperties": false,
+      "properties": {
+        "required_tools": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Required tools"
+        },
+        "optional_tools": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Optional tools"
+        },
+        "allowed_file_patterns": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Processable file patterns"
+        },
+        "can_run_standalone": {
+          "type": "boolean",
+          "description": "Whether this Skill can run independently"
+        },
+        "can_compose_with": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Skills that can be composed together"
+        }
+      }
+    },
+    "routing_policy": {
+      "type": "object",
+      "required": ["priority"],
+      "additionalProperties": false,
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "description": "Priority during conflict resolution; higher wins"
+        },
+        "conflict_group": {
+          "type": "string",
+          "description": "Similar Skills grouping identifier"
+        },
+        "prefer_when": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Conditions when this Skill should be preferred"
+        },
+        "defer_when": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Conditions when this Skill should defer to others"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["generated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "skill_dir": {
+          "type": "string",
+          "description": "Skill directory path"
+        },
+        "skill_md_path": {
+          "type": "string",
+          "description": "Path to SKILL.md"
+        },
+        "skill_md_hash": {
+          "type": "string",
+          "description": "Hash of SKILL.md content"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Generation timestamp (ISO 8601)"
+        },
+        "generator_version": {
+          "type": "string",
+          "description": "Version of the Router Card generator"
+        }
+      }
+    },
+    "embedding": {
+      "type": "object",
+      "required": ["model", "es_index"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Embedding model used, e.g. SkillRouter-Embedding-0.6B"
+        },
+        "text_hash": {
+          "type": "string",
+          "description": "Hash of routing_text"
+        },
+        "es_index": {
+          "type": "string",
+          "description": "ES index name, corresponds to SKILL_ROUTER_ES_INDEX"
+        },
+        "es_doc_id": {
+          "type": "string",
+          "description": "ES document ID, typically the Skill id"
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "golden_queries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "description": "Golden query examples for routing testing"
+        },
+        "last_eval": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Most recent evaluation results"
+        }
+      }
+    }
+  }
+}

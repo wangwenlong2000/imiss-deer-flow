@@ -1,0 +1,4 @@
+name: map_spatial_grid
+display_name: 空间网格映射
+short_description: 将经纬度轨迹记录映射为 Geohash 网格并输出聚合摘要。
+default_prompt: "Use $map_spatial_grid when the user asks to map coordinates to geohash/grid cells or prepare spatial aggregation. Run python3 scripts/map_spatial_grid.py directly and summarize summary.json."

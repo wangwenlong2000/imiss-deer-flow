@@ -1,0 +1,151 @@
+{
+  "chitchat": {
+    "exact_keywords": [
+      "你好",
+      "在吗",
+      "谢谢",
+      "你是谁",
+      "介绍一下自己"
+    ],
+    "regex_patterns": [
+      "^ok\\s*$",
+      "^thanks?\\s*$",
+      "^嗯\\s*$",
+      "^好的\\s*$"
+    ]
+  },
+  "should_route": {
+    "file_refs": [
+      "这个文件",
+      "这个表",
+      "这个数据",
+      "这份文件",
+      "这份数据",
+      "这份表"
+    ],
+    "task_intents": [
+      "分析",
+      "判断",
+      "生成",
+      "统计",
+      "检索",
+      "处理",
+      "识别",
+      "解析",
+      "预测",
+      "评估",
+      "对比",
+      "提取",
+      "计算",
+      "画图",
+      "制图",
+      "汇总",
+      "总结",
+      "查询",
+      "查找",
+      "合规",
+      "风险",
+      "异常",
+      "安全"
+    ]
+  },
+  "capability_inventory": {
+    "phrase_patterns": [
+      "列出你的全部skill",
+      "列出全部skill",
+      "全部skill",
+      "所有skill",
+      "可用skill",
+      "技能列表",
+      "列出你的全部技能",
+      "列出全部技能",
+      "全部技能",
+      "所有技能",
+      "可用技能",
+      "你具备哪些能力",
+      "你有哪些能力",
+      "你有什么能力",
+      "你能做什么",
+      "你会什么",
+      "有哪些能力",
+      "能力列表",
+      "当前能力",
+      "可用能力"
+    ],
+    "english_patterns": [
+      "list all skills",
+      "show all skills",
+      "available skills",
+      "what can you do",
+      "what are your capabilities",
+      "your capabilities"
+    ],
+    "chinese_subject_terms": [
+      "能力",
+      "功能"
+    ],
+    "chinese_question_terms": [
+      "哪些",
+      "什么",
+      "所有",
+      "全部",
+      "介绍"
+    ],
+    "exact_match_confidence": 1.0,
+    "broad_match_confidence": 0.85
+  },
+  "thresholds": {
+    "related_previous_scene": 0.72,
+    "scene_match_min_score": 0.62,
+    "scene_match_base_score": 0.45,
+    "scene_match_score_divisor": 10.0,
+    "scene_match_max_score": 0.95,
+    "multi_scene_min_score": 0.65,
+    "multi_scene_score_gap": 0.15,
+    "multi_scene_max_count": 2
+  },
+  "term_extraction": {
+    "cjk_stop_terms": [
+      "场景",
+      "分析",
+      "用户",
+      "输入",
+      "输出",
+      "需要",
+      "处理",
+      "识别",
+      "生成",
+      "查询",
+      "统计",
+      "具体",
+      "信息",
+      "对象",
+      "目标",
+      "时间",
+      "地点",
+      "范围",
+      "结果",
+      "服务",
+      "告警",
+      "异常",
+      "流量",
+      "上传",
+      "帮我"
+    ],
+    "cjk_min_sequence_length": 4,
+    "cjk_min_ngram": 2,
+    "cjk_max_ngram": 6,
+    "english_min_length": 3
+  },
+  "prompts": {
+    "related_scene": "判断当前用户输入内容与上一轮业务场景的关联性。只输出 0.0 到 1.0 的小数，不要输出解释。\n\n上一轮业务场景：{scene_name}\n场景说明：{scene_description}\n当前用户输入：{query}",
+    "recognize_scene": "有下面多种场景，需要你根据用户输入进行判断，只答选项序号，不要解释。\n{options}\n0. 其他场景 - 请回复0\n\n规则匹配建议：{baseline_scene}（得分：{baseline_confidence}）\n如果得分 >= 0.85，请优先考虑这个建议。\n\n用户输入：{query}\n请回复序号：",
+    "recognize_scenes": "有下面多种场景，需要你根据用户输入进行判断。可以输出一个或多个场景编号，按相关性从高到低排序。只输出 JSON 数组，不要输出解释，不要输出 Markdown。\n\n{options}\n0. 其他场景 - 请返回 []\n\n基线建议：{baseline_scene}（得分：{baseline_confidence}）\n如果需要，可以返回最多 {max_scenes} 个场景编号。\n\n用户输入：{query}\n请返回 JSON 数组：",
+    "extract_task_spans": "你是一个任务切分器。根据用户输入，把原文切分成一到多个互相独立的任务片段。只输出 JSON 数组，不要输出解释，不要输出 Markdown。\n\n规则：\n#01 每个数组元素只表示一个任务片段。\n#02 每个元素必须包含 text。\n#03 text 应尽量保留原文中的连续片段，不要过度改写。\n#04 不要做场景判断，不要抽取参数，不要把背景材料、约束条件、材料来源单独拆成任务，除非它们本身就是独立任务。\n#05 不要把报告、方案、意见、材料的章节要求或输出格式拆成独立任务；这些内容应保留在同一个主任务中。\n#06 “报告需包含/包括/要求包含/需包含”后面的条目不是独立任务。\n#07 “给出图表/可视化图表/表格/结论中保留来源/可回溯数据来源/行动建议”等通常是输出要求，不是新的业务场景任务。\n#08 只有当分析对象、业务领域或用户目标明显切换时才切分，例如 pcap 分析切到合同审查；同一报告内的指标、依据、图表、来源要求不切分。\n#09 如果只有一个任务，返回一个元素即可。\n\n基线建议：{baseline_scene}（得分：{baseline_confidence}）\n用户输入：{query}\n请返回 JSON 数组：",
+    "generate_planning_steps": "你是一个面向多智能体协同执行的任务规划智能体。请根据用户输入、改写后的任务、已识别场景、原始任务切分和场景任务，生成后续智能体可以执行的任务规划步骤。只输出 JSON 数组，不要输出解释，不要输出 Markdown。\n\n输出格式：\n[\n  {{\"text\": \"第一个规划步骤\"}},\n  {{\"text\": \"第二个规划步骤\"}}\n]\n\n规则：\n#01 每个数组元素必须包含 text。\n#02 text 不能简单复述用户原话，必须改写成可执行的规划步骤。\n#03 每个步骤要尽量体现：处理对象、使用场景或能力、关键指标或依据、预期产出。\n#04 必须覆盖所有已识别场景，不得遗漏任何一个 scene。\n#05 多场景任务必须体现执行顺序和依赖关系，例如先读取数据，再完成专业场景分析，再检索依据，再交叉研判，最后汇总输出。\n#06 不要把任务规划写成最终答案，不要声称已经完成分析。\n#07 不要编造具体数据结果、法规条文、风险等级、排名或结论。\n#08 如果涉及文件、表格、图片、视频或数据库，应先规划数据读取、字段理解、结构化解析或样本检查。\n#09 如果涉及检索、RAG、政策法规或外部资料，应说明检索方向、依据类型和与分析结果的对应关系。\n#10 如果涉及统计、筛选、预测、评估、识别、异常检测或风险研判，应说明关键指标、判断口径和阶段性产出。\n#11 如果涉及报告、图表、表格、可视化、可回溯来源或行动建议，应放在最后的汇总交付步骤中。\n#12 简单任务输出 2-3 步；复杂任务、多场景任务或报告类任务输出 4-7 步。\n#13 步骤表达要具体，避免只写“分析数据”“检索资料”“生成报告”这类空泛表述。\n\n用户输入：{query}\n改写后的任务：{routing_query}\n已识别场景：{scene_ids}\n原始任务切分：{task_spans_json}\n场景任务：{scene_tasks_json}\n请返回 JSON 数组：",
+    "recognize_scene_tasks": "你是一个多场景任务拆分器。根据用户输入和已识别场景，按场景拆成若干任务。只输出 JSON 数组，不要输出解释，不要输出 Markdown。\n\n已识别场景：{scene_ids}\n{options}\n\n规则：\n#01 每个数组元素只表示一个场景任务。\n#02 每个元素必须包含 scene、scene_name、task_text、params。\n#03 scene 必须从已识别场景中选择。\n#04 task_text 只写这个场景对应的任务描述，不要把别的场景内容混进来。\n#05 params 只抽取这个场景自己的参数；如果没有明确参数，返回空对象。\n#06 如果用户只是在并列提到场景但没有明确任务，也要为每个场景生成一个空参数任务，task_text 尽量保留原句中与该场景相关的部分。\n\n基线建议：{baseline_scene}（得分：{baseline_confidence}）\n用户输入：{query}\n请返回 JSON 数组：",
+    "slot_update": "你是一个信息抽取机器人。\n当前问答场景是：【{scene_name}】\n当前日期是：{current_date}\n\nJSON中每个元素代表一个参数信息：\nname是参数名称；desc是参数注释；required代表参数是否必须。\n\n需求：\n#01 根据用户输入内容提取有用的信息到 value 值，严格提取，没有提及就丢弃该元素。\n#02 返回 JSON 数组，数组元素只包含 name 和 value。\n#03 如果涉及日期，用户提及今天，则使用当前日期补全；没有提及日期，则不补全。\n#04 不要输出解释，不要使用 Markdown。\n\n返回样例：\n{dynamic_example}\n\nJSON：{slot_template_json}\n输入：{query}\n答：",
+    "rewrite_question": "请根据以下内容，以第一人称总结为一句可执行任务描述。不要遗漏信息，不要扩展，不要解释，不要使用 Markdown。\n\n场景：{scene_name}\n已提取参数：{params_json}\n用户输入：{query}",
+    "rewrite_non_builtin": "请将用户输入改写为一句清晰、完整、可执行的任务描述。不要扩展，不要解释。"
+  }
+}

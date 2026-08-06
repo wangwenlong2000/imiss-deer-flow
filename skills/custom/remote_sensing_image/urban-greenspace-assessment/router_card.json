@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "V1+urban-greenspace-assessment",
+    "name": "V1+urban-greenspace-assessment",
+    "description": "面向城市绿地生态系统评估的遥感 Skill。仅在现有脚本可完整处理时使用：基于含红光与近红外波段的单期多光谱 GeoTIFF，或已有可读绿地二值掩膜，提取绿地斑块并计算绿地覆盖率、景观格局、生态连通性、潜在生态廊道、人均绿地和 15 分钟公园服务薄弱区，输出可回溯的指标、矢量结果和综合报告。RGB-only 影像、需要 ExG/深度学习/自定义脚本的任务不得路由到本 skill。"
+  },
+  "scope": {
+    "scenes": [
+      "remote_sensing_image",
+      "urban_governance",
+      "greenspace_ecosystem"
+    ],
+    "is_public": false,
+    "task_types": [
+      "urban_greenspace_assessment",
+      "greenspace_coverage_assessment",
+      "ndvi_greenspace_extraction",
+      "landscape_metrics",
+      "ecological_corridor_detection",
+      "service_accessibility",
+      "per_capita_green_analysis",
+      "greenspace_equity_analysis",
+      "park_city_assessment",
+      "weak_area_identification"
+    ],
+    "input_types": [
+      "geotiff",
+      "tif",
+      "tiff",
+      "green_mask",
+      "geojson",
+      "shapefile",
+      "gpkg",
+      "csv",
+      "population_raster",
+      "aoi_boundary"
+    ],
+    "output_types": [
+      "green_mask_tif",
+      "green_patches_geojson",
+      "corridors_geojson",
+      "weak_areas_geojson",
+      "metrics_json",
+      "greenspace_assessment_report_md"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：V1+urban-greenspace-assessment。描述：城市绿地生态系统评估 Skill，适用于现有 scripts/main.py 可完整解决的单期城市绿地现状评估、NDVI 绿地提取、绿地斑块格局评估、生态廊道初筛、人均绿地和 15 分钟公园服务公平性分析。典型输入是含红光与近红外波段的多光谱 GeoTIFF 或已有可读绿地二值掩膜、行政区边界和可选人口数据。典型输出是绿地掩膜、绿地斑块、潜在廊道、服务薄弱区、metrics.json 和 report.md。不适用于 RGB-only 影像直接绿地提取、需要 ExG/可见光指数/深度学习/自定义脚本的绿地识别、两期或多时相变化检测、城市热岛、水质反演、违建/渣土识别或纯影像下载。",
+    "positive_triggers": [
+      "用户要求评估城市绿地覆盖率、绿地面积或绿地斑块格局",
+      "用户提到公园城市、生态廊道、人均绿地、15 分钟公园圈、绿地服务公平性",
+      "用户提供含红光与近红外波段的单期多光谱遥感影像或已有绿地掩膜，希望输出绿地现状评估报告",
+      "用户要求计算 PLAND、平均斑块面积、最大斑块占比、绿地连通性等指标",
+      "用户希望融合人口数据识别绿地服务不足区域或口袋公园优先补点区域",
+      "用户要求基于 NDVI 提取城市绿地并给出优化建议"
+    ],
+    "negative_triggers": [
+      "用户主要要求两期或多时相绿地变化检测",
+      "用户要求城市热岛、地表温度或热风险评估",
+      "用户要求水体识别、水质参数反演或蓝绿空间水环境分析",
+      "用户要求识别新增建设、违建、渣土、土地用途变更点位",
+      "用户只是要求下载或筛选遥感影像",
+      "用户只提供 RGB-only 影像且没有 NIR 波段或已有 green_mask",
+      "用户需要 AI 编写自定义脚本、ExG 可见光绿地指数脚本、深度学习分割脚本或道路网络可达性脚本才能完成",
+      "用户只是询问 NDVI 或绿地规划概念，不需要处理数据"
+    ],
+    "keywords": [
+      "绿地",
+      "城市绿地",
+      "绿地覆盖率",
+      "绿地生态评估",
+      "公园城市",
+      "生态廊道",
+      "人均绿地",
+      "15分钟公园",
+      "15 分钟公园圈",
+      "绿地服务公平性",
+      "服务薄弱区",
+      "口袋公园",
+      "NDVI",
+      "绿地斑块",
+      "景观指数",
+      "景观格局",
+      "最大斑块占比",
+      "平均斑块面积",
+      "生态连通性",
+      "green space",
+      "green coverage",
+      "park city",
+      "ecological corridor",
+      "per-capita green",
+      "landscape metrics"
+    ],
+    "anti_keywords": [
+      "两期变化",
+      "多时相变化",
+      "绿地增减",
+      "占绿毁绿变化",
+      "热岛",
+      "地表温度",
+      "水质",
+      "违建",
+      "渣土",
+      "新增建设",
+      "影像下载"
+      ,
+      "RGB-only",
+      "RGB影像",
+      "ExG",
+      "可见光绿地指数",
+      "自定义脚本",
+      "custom_analysis"
+    ]
+  },
+  "execution": {
+    "required_tools": [
+      "filesystem",
+      "python",
+      "local_scripts",
+      "scripts/main.py"
+    ],
+    "optional_tools": [
+      "rasterio",
+      "scipy",
+      "numpy",
+      "shapely",
+      "local_references",
+      "markdown_writer",
+      "geojson_export"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "remote-sensing-data-search",
+      "remote-sensing-preprocessing",
+      "green-space-monitoring",
+      "urban-change-detection",
+      "chart-visualization",
+      "geospatial-report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 92,
+    "conflict_group": "remote_sensing_greenspace_assessment",
+    "prefer_when": [
+      "用户目标是单期城市绿地生态现状评估，而不是变化检测",
+      "用户关注绿地覆盖、斑块格局、生态廊道、人均绿地或 15 分钟公园服务覆盖",
+      "用户已经提供含红光与近红外波段的多光谱遥感影像、可读绿地掩膜、边界或人口数据，希望生成可交付评估结果",
+      "用户要求输出绿地优化建议、口袋公园补点或生态廊道初筛"
+    ],
+    "defer_when": [
+      "用户主要目标是两期或多时相变化检测时，转给 green-space-monitoring 或 urban-change-detection",
+      "用户主要目标是热岛评估时，转给 urban-heat-assessment",
+      "用户主要目标是水体或水质分析时，转给 water remote sensing skill",
+      "用户主要目标是下载影像时，转给 remote-sensing-data-search"
+      ,
+      "用户只提供 RGB-only 影像，且需要通过新写 ExG 或可见光阈值脚本才能完成时，要求补充 NIR 多光谱影像或 green_mask，不使用本 skill 执行",
+      "用户任务需要本 skill 现有脚本以外的新算法或新脚本时，不路由到本 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "更新遥感skill/V1+urban-greenspace-assessment",
+    "skill_md_path": "更新遥感skill/V1+urban-greenspace-assessment/SKILL.md",
+    "base_skill": "urban-greenspace-assessment",
+    "generated_at": "2026-06-22",
+    "generator_version": "manual-v1-from-skill-development-spec"
+  },
+  "evaluation": {
+    "golden_queries": [
+      {
+        "query": "用这张 Sentinel-2 影像和街道边界评估一下绿地覆盖率、斑块数量和人均绿地",
+        "should_route": true,
+        "reason": "单期城市绿地覆盖、景观指标和人均绿地评估"
+      },
+      {
+        "query": "帮我识别 15 分钟公园圈覆盖不足的社区，最好给出口袋公园补点建议",
+        "should_route": true,
+        "reason": "绿地服务公平性和薄弱区识别"
+      },
+      {
+        "query": "根据已有绿地掩膜算绿地斑块和生态廊道",
+        "should_route": true,
+        "reason": "已有绿地掩膜下的景观格局和廊道初筛"
+      },
+      {
+        "query": "比较 2020 和 2025 年绿地减少了多少",
+        "should_route": false,
+        "prefer_skill": "green-space-monitoring",
+        "reason": "两期绿地变化检测，不是单期绿地生态系统评估"
+      },
+      {
+        "query": "分析城区地表温度和热岛强度",
+        "should_route": false,
+        "prefer_skill": "urban-heat-assessment",
+        "reason": "城市热岛任务"
+      },
+      {
+        "query": "我只有 landsat7_rgb_byte_sample.tif 三波段 RGB 影像，请直接评估绿地覆盖率和斑块数量",
+        "should_route": false,
+        "reason": "RGB-only 影像不满足现有脚本的 NDVI 输入要求，需要补充 NIR 多光谱影像或 green_mask"
+      }
+    ]
+  }
+}

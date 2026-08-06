@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-privacy-masking",
+    "name": "video-privacy-masking",
+    "description": "Blur, pixelate, or black out sensitive regions across an entire video and write a redacted video file for external release. Regions must be supplied as bbox coordinates; this skill does not detect faces or plates and never recognizes identity or reads plate numbers. For a single evidence image use privacy-masking."
+  },
+  "scope": {
+    "scenes": [
+      "video_surveillance"
+    ],
+    "is_public": false,
+    "task_types": [
+      "video_privacy_masking",
+      "masked_video_export",
+      "sensitive_region_blur"
+    ],
+    "input_types": [
+      "video_uri",
+      "sensitive_regions",
+      "privacy_config"
+    ],
+    "output_types": [
+      "masked_video_uri",
+      "privacy_masking_status",
+      "evidence_hash"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：video-privacy-masking\n描述：Blur, pixelate, or black out sensitive regions across an entire video and write a redacted video file for external release. Regions must be supplied as bbox coordinates; this skill does not detect faces or plates and never recognizes identity or reads plate numbers. For a single evidence image use privacy-masking.\n适用场景：video_surveillance。\n适用任务：video_privacy_masking, masked_video_export, sensitive_region_blur。\n输入类型：video_uri, sensitive_regions, privacy_config。\n输出类型：masked_video_uri, privacy_masking_status, evidence_hash。\n适合使用：给整段视频的人脸车牌打码；导出可公开发布的脱敏视频；按时间窗口遮蔽敏感区域。\n不适合使用：单张证据图片打码；自动检测人脸或车牌位置；识别身份或车牌号；视频事件判断。",
+    "positive_triggers": [
+      "把视频里的人脸车牌打码",
+      "导出可以公开的脱敏视频",
+      "对整段视频做马赛克处理",
+      "发布前给视频敏感区域打码"
+    ],
+    "negative_triggers": [
+      "给单张证据图片打码",
+      "检测人脸位置",
+      "识别车牌号码",
+      "视频事件分析"
+    ],
+    "keywords": [
+      "video privacy masking",
+      "masked video",
+      "脱敏视频",
+      "视频打码",
+      "马赛克",
+      "模糊处理",
+      "对外发布"
+    ],
+    "anti_keywords": [
+      "image masking only",
+      "face detection",
+      "license plate recognition",
+      "object detection"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: video-privacy-masking\ndescription: Blur, pixelate, or black out sensitive regions across an entire video and write a redacted video file that can be released externally. Use when the user asks for a 脱敏视频 / masked video / 打码后的视频 rather than a single masked image — for example \"把人脸和车牌打码后导出一份可以公开的视频\". Regions must be supplied by the caller as bbox coordinates, optionally with a start/end time window. For masking one evidence still image, use privacy-masking instead. This skill does not detect faces or plates, and never recognizes identity or reads plate numbers.\n---\n\n# Video Privacy Masking\n\n## Purpose\n\nProduce a redacted **video** for external release. `privacy-masking` covers a single\nevidence image; this skill covers the video itself and preserves the audio track.\n\nMasking a region does not require recognizing what is inside it. This skill blurs\ncoordinates it is given — it does not perform face recognition, identity matching,\nor license-plate OCR, and it must not be described as doing so.\n\n## Execution Priority\n\nRun this skill's `scripts/run.py` first. Only write custom ffmpeg or OpenCV code if\nthe script cannot cover the request.\n\nDo not edit this skill's files during business execution. If the script fails,\nreport the concrete failure and stop unless the user explicitly asked for debugging.\n\n## Input Resolution\n\nThis skill requires explicit `sensitive_regions`. It has no detector. If the user\nhas not supplied coordinates:\n\n1. Run `video-object-analytics` or `object-detection` to obtain bounding boxes for\n   the objects to be masked, then pass those boxes here.\n2. If no coordinates can be obtained, ask the user for the regions instead of\n   guessing. Do not mask the whole frame as a substitute.\n\n## Atomic CLI\n\n```bash\npython video-privacy-masking/scripts/run.py \\\n  --video-uri <input.mp4> \\\n  --sensitive-regions-json <regions.json> \\\n  --method gaussian_blur \\\n  --output-video <masked.mp4> \\\n  --output <result.json>\n```\n\n`<regions.json>`:\n\n```json\n{\n  \"sensitive_regions\": [\n    {\"type\": \"face\", \"bbox\": [100, 100, 300, 260]},\n    {\"type\": \"plate\", \"bbox\": [500, 300, 760, 380], \"start_seconds\": 2, \"end_seconds\": 8}\n  ]\n}\n```\n\nA region without `start_seconds`/`end_seconds` is masked for the whole clip. A region\nwith a time window is masked only inside that window.\n\nParameters: `--video-uri`, `--sensitive-regions-json`, `--method`, `--strength`,\n`--output-video`, `--disabled`, `--config`, `--output`.\n\n## Methods\n\n| method | Effect |\n| --- | --- |\n| `gaussian_blur` (default) | Gaussian blur, `--strength` is the sigma (default 20) |\n| `pixelate` | Mosaic; `--strength` controls block size |\n| `solid` | Fill the region with solid black |\n\n## Workflow\n\n1. Validate the video path and the caller-supplied region coordinates.\n2. Build an ffmpeg `filter_complex` that crops each region, applies the effect, and\n   overlays it back at the same position.\n3. Write the masked video, copying the audio stream unchanged.\n4. Return the masked video URI, regions, method, duration, size, and SHA-256 hash.\n\n## Outputs\n\nReturns `video_uri`, `source_video_uri`, `privacy_masked`, `masked_regions`,\n`method`, `strength`, `duration_seconds`, `file_size_bytes`, `sha256`, and\n`audio_preserved`.\n\n## Failure Modes\n\n- `MISSING_URI` — no input video given\n- `VIDEO_NOT_FOUND` — the input video path does not exist\n- `MISSING_SENSITIVE_REGIONS` — no valid bbox coordinates supplied\n- `UNSUPPORTED_METHOD` — method is not one of gaussian_blur/pixelate/solid\n- `FFMPEG_MISSING` — ffmpeg is not installed in the runtime\n- `MASKING_FAILED` — ffmpeg could not write the masked video\n- `INPUT_NOT_FOUND` / `INPUT_UNREADABLE` / `INPUT_INVALID_JSON` / `INPUT_INVALID_YAML`\n\n## Constraints\n\n- Never delete or overwrite the original video; the masked file is written alongside it.\n- Do not claim a video was masked unless this script returned `status=success`.\n- Do not present this skill as identity recognition or plate recognition.\n\n## Dependencies\n\n```yaml\nsystem_packages:\n  - ffmpeg\n```\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "ffmpeg"
+    ],
+    "allowed_file_patterns": [
+      "*.json",
+      "*.mp4",
+      "*.mov",
+      "*.mkv"
+    ],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 80,
+    "conflict_group": "video-privacy-masking",
+    "prefer_when": [
+      "把视频里的人脸车牌打码",
+      "导出可以公开的脱敏视频",
+      "对整段视频做马赛克处理",
+      "发布前给视频敏感区域打码"
+    ],
+    "defer_when": [
+      "给单张证据图片打码",
+      "检测人脸位置",
+      "识别车牌号码",
+      "视频事件分析"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video_surveillance/video-privacy-masking",
+    "skill_md_path": "skills/custom/video_surveillance/video-privacy-masking/SKILL.md",
+    "skill_md_hash": "sha256:baf252627b738d50ed6d57b56bd6fee6c6e03b554c43e27e32bc19d2242144f4",
+    "generated_at": "2026-07-26T00:00:00Z",
+    "generator_version": "manual-independent-0.2.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:87551a7a5e3408af478564a24d51a2c07722652079bedc440f65d4a6e9e4ca04",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "video-privacy-masking"
+  }
+}

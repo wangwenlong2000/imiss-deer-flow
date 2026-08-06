@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "video-embedding-index",
+    "name": "video-embedding-index",
+    "description": "Generate StreetModel sampled-frame image embeddings or legacy text embeddings and enrich only citybrain-video-library in place."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["video_embedding", "vector_indexing", "semantic_video_search_preparation"],
+    "input_types": ["elasticsearch_video_documents", "video_paths", "query_text"],
+    "output_types": ["vector_index_documents", "query_vector_json"]
+  },
+  "routing": {
+    "routing_text": "名称：video-embedding-index\n描述：从视频本地抽取代表帧，以 Base64 图片调用 StreetModel/Qwen3-VL，聚合为视频文档向量，并通过局部更新写回 citybrain-video-library；默认不依赖共享挂载目录，拒绝其他索引。向量失败时保留源文档并报告部分成功。\n适合使用：补全视频向量；原位增强视频主档；视频语义检索准备；生成 query vector。\n不适合使用：其他索引写入；视频入库原始检测；删除/重建索引；事件判断。",
+    "positive_triggers": ["视频向量索引", "视频语义检索", "embedding", "生成向量", "query vector", "StreetModel", "Qwen3-VL"],
+    "negative_triggers": ["删除索引", "重建共享索引", "目标检测", "事件判断"],
+    "keywords": ["embedding", "video embedding", "StreetModel", "Qwen3-VL-Embedding-2B", "video_vector-Qwen3-VL-Embedding-2B_urban_governance", "dense_vector", "semantic search", "citybrain-video-library"],
+    "anti_keywords": ["delete index", "shared index"]
+  },
+  "execution": {
+    "required_tools": ["bash"],
+    "optional_tools": ["sentence-transformers", "read_file", "http"],
+    "allowed_file_patterns": ["*.json", "*.yaml", "*.yml"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 75,
+    "conflict_group": "video-vector-indexing",
+    "prefer_when": ["需要视频语义检索", "需要生成视频文档向量"],
+    "defer_when": ["只做普通关键词检索"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/video-embedding-index",
+    "skill_md_path": "skills/custom/video-embedding-index/SKILL.md",
+    "generator_version": "manual-video-vector-1.0.0"
+  },
+  "embedding": {"es_doc_id": "video-embedding-index"}
+}

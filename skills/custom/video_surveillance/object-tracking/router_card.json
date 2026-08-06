@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "object-tracking",
+    "name": "object-tracking",
+    "description": "Associate detections across frames into object tracks for object analytics only."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["object_tracking", "trajectory_analysis"],
+    "input_types": ["detections_json"],
+    "output_types": ["tracks_json"]
+  },
+  "routing": {
+    "routing_text": "名称：object-tracking\n描述：把检测框按时间关联成轨迹，输出 track_id、轨迹、持续时间、运动状态。不能用于判断事件语义。\n适合使用：目标轨迹；跨帧关联；移动/静止状态。\n不适合使用：事件检测；异常行为判断。",
+    "positive_triggers": ["目标跟踪", "轨迹", "跨帧关联", "track"],
+    "negative_triggers": ["事件检测", "异常事件", "打架", "摔倒"],
+    "keywords": ["tracking", "trajectory", "track_id"],
+    "anti_keywords": ["event"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "allowed_file_patterns": ["*.json"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 72,
+    "conflict_group": "object-tracking",
+    "prefer_when": ["需要目标轨迹"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/object-tracking",
+    "skill_md_path": "skills/custom/object-tracking/SKILL.md",
+    "generator_version": "manual-object-only-1.0.0"
+  },
+  "embedding": {"es_doc_id": "object-tracking"}
+}

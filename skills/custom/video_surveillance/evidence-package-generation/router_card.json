@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "evidence-package-generation",
+    "name": "evidence-package-generation",
+    "description": "Generate evidence package manifests for indexed monitoring videos, events, or search hits."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["evidence_package_generation", "video_evidence_archiving"],
+    "input_types": ["video_id", "event_json", "search_result_json"],
+    "output_types": ["evidence_package_manifest", "evidence_artifacts"]
+  },
+  "routing": {
+    "routing_text": "名称：evidence-package-generation\n描述：根据视频库记录、事件或检索结果生成证据包 manifest，包含截图、短视频片段和哈希信息。\n适合使用：证据包生成；事件证据归档；检索结果取证；生成 package_id。\n不适合使用：视频入库；视频检索；目标统计；判断事件是否发生。",
+    "positive_triggers": ["证据包生成", "证据归档", "生成证据包", "取证包"],
+    "negative_triggers": ["视频入库", "视频检索", "目标统计", "事件判断"],
+    "keywords": ["evidence package", "manifest", "snapshot", "clip", "hash"],
+    "anti_keywords": ["ingest", "search only", "statistics"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "optional_tools": ["ffmpeg", "opencv"],
+    "allowed_file_patterns": ["*.json", "*.jpg", "*.jpeg", "*.png", "*.mp4"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 77,
+    "conflict_group": "video-evidence-package",
+    "prefer_when": ["证据包生成", "取证归档"],
+    "defer_when": ["视频入库", "视频检索", "目标统计"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/evidence-package-generation",
+    "skill_md_path": "skills/custom/evidence-package-generation/SKILL.md",
+    "generator_version": "manual-video-library-1.0.0"
+  },
+  "embedding": {"es_doc_id": "evidence-package-generation"}
+}

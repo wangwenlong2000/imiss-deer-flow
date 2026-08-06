@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "opengrep-compliance",
+    "name": "opengrep-compliance",
+    "description": "Run a hybrid code compliance workflow: local OpenGrep rule scanning first, then LLM analysis for attack chains, concrete fixes, false-positive review, and risk prioritization."
+  },
+  "scope": {
+    "scenes": [
+      "program_snippet",
+      "code_security",
+      "compliance_audit",
+      "sast",
+      "static_analysis"
+    ],
+    "is_public": true,
+    "task_types": [
+      "opengrep_scan",
+      "sast_scan",
+      "code_compliance_audit",
+      "policy_violation_check",
+      "attack_chain_analysis",
+      "remediation_review"
+    ],
+    "input_types": [
+      "source_code",
+      "repository",
+      "directory",
+      "python",
+      "javascript",
+      "typescript",
+      "java",
+      "go",
+      "yaml"
+    ],
+    "output_types": [
+      "opengrep_json",
+      "sarif_report",
+      "summary_json",
+      "rule_report_md",
+      "compliance_report_md",
+      "llm_analysis_template"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：opengrep-compliance\n描述：Run a hybrid code compliance workflow: local OpenGrep rule scanning first, then LLM analysis for attack chains, concrete fixes, false-positive review, and risk prioritization.\n适用场景：program_snippet、code_security、compliance_audit、sast、static_analysis。\n适用任务：opengrep_scan, sast_scan, code_compliance_audit, policy_violation_check, attack_chain_analysis, remediation_review。\n输入类型：source_code, repository, directory, python, javascript, typescript, java, go, yaml。\n输出类型：opengrep_json, sarif_report, summary_json, rule_report_md, compliance_report_md, llm_analysis_template。\n适合使用：扫描代码安全风险；运行 OpenGrep 或 SAST 检查；检查硬编码密钥、危险 API、策略违规；生成代码合规审计报告；分析规则命中后的攻击链和修复建议。\n不适合使用：生成业务 DAG；分析业务流水线缺失模块；只做通用代码切分；只把代码转 AST；网络流量 pcap 分析。",
+    "positive_triggers": [
+      "扫描代码安全风险",
+      "运行 OpenGrep 或 SAST 检查",
+      "检查硬编码密钥、危险 API、策略违规",
+      "生成代码合规审计报告",
+      "分析规则命中后的攻击链和修复建议"
+    ],
+    "negative_triggers": [
+      "生成业务 DAG",
+      "分析业务流水线缺失模块",
+      "只做通用代码切分",
+      "只把代码转 AST",
+      "网络流量 pcap 分析"
+    ],
+    "keywords": [
+      "opengrep",
+      "OpenGrep",
+      "SAST",
+      "静态扫描",
+      "合规",
+      "安全审计",
+      "漏洞",
+      "SARIF",
+      "硬编码密钥",
+      "规则扫描"
+    ],
+    "anti_keywords": [
+      "业务DAG",
+      "pipeline graph",
+      "Mermaid DAG",
+      "pcap",
+      "网络流量"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: opengrep-compliance\ndescription: Run a hybrid code compliance workflow: local OpenGrep rule scanning first, then LLM analysis for attack chains, concrete fixes, false-positive review, and risk prioritization.\n---\n\n# OpenGrep Compliance\n\nUse this skill when the user asks for code compliance analysis, security scanning, SAST, static code audit, unsafe API checks, policy violation checks, OpenGrep scanning, attack-chain analysis, remediation suggestions, or a Markdown compliance analysis report.\n\n## Purpose\n\nThis skill runs a hybrid scan:\n\n```text\nHybrid scan: OpenGrep rules + LLM analysis\n├── Layer 1: OpenGrep rules\n│   ├── Fast\n│   ├── Deterministic\n│   └── No hallucinated findings\n├── Layer 2: LLM analysis\n│   ├── Slower\n│   ├── Cross-rule reasoning\n│   └── Concrete remediation guidance\n├── Layer 2 handles what rules cannot:\n│   ├── Connect attack chains\n│   ├── Recommend specific fix code\n│   └── Assess false positives and priority\n└── Layer 1 + Layer 2 are complementary:\n    ├── Rule layer protects accuracy\n    └── LLM layer adds depth\n```\n\nOpenGrep runs from the local skill directory. It is designed for environments where build-time network access is allowed, but runtime scanning must be offline.\n\n## Runtime Rules\n\n- Do not access the network while scanning.\n- Do not use `--config auto`.\n- Do not use remote rule URLs.\n- Use only the local OpenGrep binary under this skill.\n- Use only local rules under this skill's `rules/` directory.\n- Before invoking OpenGrep, filter the local rules directory to runtime rule configs only: `.yaml`/`.yml` files with a top-level `rules:` key. Do not pass repository metadata files such as `.pre-commit-config.yaml` directly to OpenGrep.\n- Write reports to the workspace, usually under `reports/opengrep/`.\n\n## Standard Invocation\n\nFrom the project workspace, run:\n\n```bash\npython /mnt/skills/custom/program_snippet/opengrep-compliance/scripts/run_scan.py \\\n  --target . \\\n  --output-dir reports/opengrep\n```\n\nFor a narrower scan:\n\n```bash\npython /mnt/skills/custom/program_snippet/opengrep-compliance/scripts/run_scan.py \\\n  --target backend \\\n  --output-dir reports/opengrep-backend\n```\n\n## Outputs\n\nThe script writes:\n\n```text\nreports/opengrep/opengrep.json\nreports/opengrep/opengrep.sarif\nreports/opengrep/summary.json\nreports/opengrep/report.md\nreports/opengrep/rule-report.md\nreports/opengrep/llm-analysis-template.md\n```\n\nAfter the scan, read `rule-report.md` and `summary.json` first. If issues are found, inspect `opengrep.json` for full file paths, line numbers, messages, and rule IDs. Then perform Layer 2 LLM analysis using the source code context and `llm-analysis-template.md`.\n\nThe runner creates a filtered runtime rule directory under the output directory:\n\n```text\nreports/opengrep/.opengrep-runtime-rules/\n```\n\nThis directory exists only to prevent non-rule YAML files from being loaded by OpenGrep.\n\n## Required Workflow\n\n1. Run the OpenGrep scan with the local runner.\n2. Read `summary.json` and `rule-report.md`.\n3. For important findings, read the relevant source files referenced by `opengrep.json`.\n4. Perform LLM analysis:\n   - Connect related findings into possible attack chains.\n   - Recommend concrete remediation steps and code snippets when safe.\n   - Evaluate false positives and confidence.\n   - Prioritize by exploitability, blast radius, data sensitivity, and fix cost.\n5. Present the final response as a hybrid analysis, clearly separating rule evidence from LLM inference.\n\n## Response Guidance\n\nWhen reporting results to the user, include:\n\n- Total finding count.\n- Finding count by severity.\n- Layer 1 OpenGrep findings with file and line.\n- Layer 2 LLM analysis, including attack chains, remediation guidance, false-positive assessment, and priority.\n- The local report paths.\n- Markdown report paths, especially `reports/opengrep/report.md` and `reports/opengrep/rule-report.md`.\n\nWhen making an inference that is not directly reported by OpenGrep, say it is an LLM inference from code context.\n\nIf the scan cannot run because the binary or rules are missing, explain which local asset is missing and ask the user to rerun the download/preparation step.\n\n## Local Assets\n\nExpected Linux binary:\n\n```text\nvendor/opengrep/linux/opengrep\n```\n\nExpected local rules:\n\n```text\nrules/\n```\n\nThe rule set contains bundled baseline rules and may include the official OpenGrep rules under:\n\n```text\nrules/official/opengrep-rules/\n```\n\nIt may also include community security-audit rules from Trail of Bits under:\n\n```text\nrules/community/trailofbits-semgrep-rules/\n```\n\nIt may also include malicious-code and supply-chain risk rules from Apiiro under:\n\n```text\nrules/community/apiiro-malicious-code-ruleset/\n```\n\nUse the whole `rules/` directory as the scan config so local baseline rules, imported official rules, imported community audit rules, and imported malicious-code rules are loaded.\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "python",
+      "local_opengrep_binary"
+    ],
+    "optional_tools": [
+      "bash",
+      "llm_analysis"
+    ],
+    "allowed_file_patterns": [
+      "*.py",
+      "*.js",
+      "*.ts",
+      "*.java",
+      "*.go",
+      "*.yaml",
+      "*.yml",
+      "*.json",
+      "*.tf"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "code-rag",
+      "data-analysis"
+    ]
+  },
+  "routing_policy": {
+    "priority": 91,
+    "conflict_group": "code_compliance_analysis",
+    "prefer_when": [
+      "用户明确要求 OpenGrep、SAST、代码合规、安全扫描或静态审计",
+      "任务需要先用规则层给出确定性发现，再做 LLM 复核和修复建议"
+    ],
+    "defer_when": [
+      "任务目标是代码到业务 DAG 的流水线诊断，应优先使用 code-business-dag-analysis-pipeline",
+      "任务只是 AST 生成、代码切分或数据流抽取，应优先使用对应单步 skill"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/program_snippet/opengrep-compliance",
+    "skill_md_path": "skills/custom/program_snippet/opengrep-compliance/SKILL.md",
+    "skill_md_hash": "sha256:922d92bb368ff27ce06f60161eb202adb24c36f8c4ae8e51cf7ffaa532edd1e8",
+    "generated_at": "2026-05-21T00:00:00Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:a66c7d8246fe47766761f4888fc7b567c506bbbb152764ca0c3d39d69385ba3c",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "opengrep-compliance"
+  }
+}

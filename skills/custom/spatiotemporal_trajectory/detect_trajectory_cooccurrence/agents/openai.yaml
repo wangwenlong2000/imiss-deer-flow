@@ -1,0 +1,4 @@
+name: detect_trajectory_cooccurrence
+display_name: 多目标伴行检测
+short_description: 检测用户轨迹在同一空间网格和时间窗口内的交汇、伴行或聚集。
+default_prompt: "Use $detect_trajectory_cooccurrence when the user asks for co-occurrence, companion trajectory, contact tracing, gathering, or multi-user spatial overlap. Run scripts/detect_trajectory_cooccurrence.py and summarize cooccurrence_pairs.jsonl."

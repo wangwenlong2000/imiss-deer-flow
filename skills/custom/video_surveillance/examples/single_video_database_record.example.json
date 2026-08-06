@@ -1,0 +1,37 @@
+{
+  "_example": true,
+  "_example_notice": "占位示例，仅用于说明视频库记录的字段结构。其中的摄像头编号、地点、拍摄时间、时长、分辨率全部是编造的占位值，与任何真实视频无关。禁止把本文件的任何取值写进分析报告、证据包或最终回答。真实视频的元数据只能来自 video-stream-ingestion 对该视频的实测输出。",
+  "id": "EXAMPLE_VIDEO_RECORD_ID",
+  "name": "EXAMPLE_VIDEO_NAME",
+  "type": "uploaded_file",
+  "status": "example_only",
+  "description": "示例记录（占位数据，禁止引用）：某路口交通监控视频",
+  "path": "<替换为真实视频的宿主机路径>",
+  "virtual_path": "<替换为真实视频在沙箱内的路径>",
+  "updated_at": "<替换为真实更新时间>",
+  "owner_scope": "workspace",
+  "selectable_in_chat": true,
+  "thread_id": null,
+  "metadata": {
+    "filename": "<替换为真实文件名>",
+    "file_ext": ".mp4",
+    "mime_type": "video/mp4",
+    "source_kind": "video_file",
+    "size_bytes": null,
+    "shooting_started_at": "<替换为真实拍摄开始时间，不得沿用本示例>",
+    "shooting_ended_at": "<替换为真实拍摄结束时间，不得沿用本示例>",
+    "duration_seconds": "<替换为 ffprobe 实测时长>",
+    "duration_text": "<替换为实测时长的可读形式>",
+    "location": {
+      "province": "<替换为真实省份，缺失时留空而不是编造>",
+      "city": "<替换为真实城市，缺失时留空而不是编造>",
+      "district": "<替换为真实区县，缺失时留空而不是编造>",
+      "address": "<替换为真实地址，缺失时留空而不是编造>"
+    },
+    "width": "<替换为 ffprobe 实测宽度>",
+    "height": "<替换为 ffprobe 实测高度>",
+    "resolution": "<替换为 ffprobe 实测分辨率>",
+    "fps": "<替换为 ffprobe 实测帧率>",
+    "sha256": null
+  }
+}

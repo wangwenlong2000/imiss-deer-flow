@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "urban-heat-assessment",
+    "name": "urban-heat-assessment",
+    "description": "Quantifies urban heat island (UHI) intensity from thermal-infrared remote sensing, identifies high-temperature risk zones and cooling-potential spaces. Invoke when the user mentions \"urban heat island\", \"LST\", \"land surface temperature\", \"热红外\", \"城市热岛\", \"高温风险\", \"降温规划\", \"极端高温\", \"热环境\" or similar. The skill retrieves LST, combines NDVI and building density to grade heat risk, and outputs a UHI intensity map, risk-level map, cooling recommendations and multi-year trend analysis."
+  },
+  "scope": {
+    "scene": [
+      "remote_sensing_image"
+    ],
+    "is_public": false,
+    "task_types": [
+      "lst_retrieval",
+      "urban_heat_island_assessment",
+      "heat_risk_zoning",
+      "cooling_potential_identification",
+      "trend_analysis"
+    ],
+    "input_types": [
+      "geotiff",
+      "geojson",
+      "shapefile",
+      "csv"
+    ],
+    "output_types": [
+      "uhi_intensity_map",
+      "risk_level_map",
+      "cooling_recommendations",
+      "trend_report",
+      "report_md"
+    ],
+    "scenes": [
+      "remote_sensing_image"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：urban-heat-assessment\n描述：Quantifies urban heat island (UHI) intensity from thermal-infrared remote sensing, identifies high-temperature risk zones and cooling-potential spaces. Invoke when the user mentions \"urban heat island\", \"LST\", \"land surface temperature\", \"热红外\", \"城市热岛\", \"高温风险\", \"降温规划\", \"极端高温\", \"热环境\" or similar. The skill retrieves LST, combines NDVI and building density to grade heat risk, and outputs a UHI intensity map, risk-level map, cooling recommendations and multi-year trend analysis.\n适用场景：remote_sensing, urban_governance, urban_heat。\n适用任务：lst_retrieval, urban_heat_island_assessment, heat_risk_zoning, cooling_potential_identification, trend_analysis。\n输入类型：geotiff, geojson, shapefile, csv。\n输出类型：uhi_intensity_map, risk_level_map, cooling_recommendations, trend_report, report_md。\n适合使用：从热红外遥感影像反演 LST 并评估城市热岛；识别高温风险区和降温潜力空间；结合 NDVI 和建筑密度进行热环境分级和趋势分析。\n不适合使用：提取不透水面或 NDBI；监测绿地变化；反演水质；撰写项目方案。",
+    "positive_triggers": [
+      "从热红外遥感影像反演 LST 并评估城市热岛",
+      "识别高温风险区和降温潜力空间",
+      "结合 NDVI 和建筑密度进行热环境分级和趋势分析"
+    ],
+    "negative_triggers": [
+      "提取不透水面或 NDBI",
+      "监测绿地变化",
+      "反演水质",
+      "撰写项目方案"
+    ],
+    "keywords": [
+      "urban heat island",
+      "LST",
+      "land surface temperature",
+      "热红外",
+      "城市热岛",
+      "高温风险",
+      "降温规划",
+      "极端高温",
+      "热环境"
+    ],
+    "anti_keywords": [
+      "NDBI",
+      "绿地变化",
+      "水质",
+      "方案",
+      "pcap"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: urban-heat-assessment\ndescription: >\n  Quantifies urban heat island (UHI) intensity from thermal-infrared remote sensing,\n  identifies high-temperature risk zones and cooling-potential spaces. Invoke when\n  the user mentions \"urban heat island\", \"LST\", \"land surface temperature\",\n  \"热红外\", \"城市热岛\", \"高温风险\", \"降温规划\", \"极端高温\", \"热环境\" or similar.\n  The skill retrieves LST, combines NDVI and building density to grade heat risk,\n  and outputs a UHI intensity map, risk-level map, cooling recommendations and\n  multi-year trend analysis.\nversion: 0.1.0\ncategory: urban-governance\ndomain: remote-sensing\nlanguage:\n  metadata: en\n  report: zh-CN\nentrypoint: scripts/main.py\nlicense: MIT\ntags: [heat-island, LST, thermal, public-health, cooling]\n---\n\n# 城市热环境评估技能（urban-heat-assessment）\n\n## 1. 技能概述\n\n基于热红外遥感影像（TIRS）量化评估城市热岛强度（UHI），识别高温风险区域与降温潜力空间。\n支持 Landsat 8/9 TIRS、ECOSTRESS、GF-5 热红外等常见数据源。\n\n## 2. 输入要求\n\n| 变量名 | 类型 | 必需 | 说明 |\n|--------|------|:--:|------|\n| `thermal_image` | file (GeoTIFF) | 是 | 热红外影像，DN 或辐亮度；若已是 LST（开尔文/摄氏度）请设置 `is_lst=true` |\n| `boundary` | file (GeoJSON/Shapefile) | 是 | 城市行政边界（用于计算郊区-城区对比） |\n| `ndvi_image` | file (GeoTIFF) | 否 | NDVI 影像，用于辅助热环境分级 |\n| `building_density` | file (GeoTIFF) | 否 | 建筑密度栅格（0-1） |\n| `is_lst` | bool | 否 | 若输入已经是地表温度则为 true，默认 false |\n| `reference_t_c` | number | 否 | 参考阈值（摄氏度），不提供则使用郊区均值 |\n| `year` | int | 否 | 数据年份，用于跨年趋势对比 |\n\n## 3. 用户输入引导\n\n> 为完成热环境评估，请提供：\n> 1. **热红外影像**（`thermal_image`）：GeoTIFF 格式。Landsat 8/9 的 Band10 即可；如已反演为地表温度，请标注 `is_lst: true`。\n> 2. **城市边界**（`boundary`）：GeoJSON 或 Shapefile，用于圈定分析范围并计算城-郊对比。\n> 3. （可选）**NDVI 影像**、**建筑密度** 以获得更精准的分级；如无，可仅用 LST。\n\n## 4. 处理流程\n\n1. 校验输入 → `check-inputs`\n2. 若输入为 TIRS DN，按 Landsat 公式反演亮温再估算 LST（单窗算法简化版）\n3. 提取城市边界内像元；将边界外缓冲区视为\"郊区参考\"\n4. 计算 UHI 强度 = `LST_city - mean(LST_suburb)`\n5. 基于 LST 百分位（p50/p75/p90）进行风险分级（低/中/高/极端）\n6. 识别\"降温潜力斑块\"：高 LST + 低 NDVI + 高建筑密度交集\n7. 输出成果\n\n## 5. 参数说明（`config.yaml`）\n\n```yaml\nalgorithm:\n  sensor: landsat8            # landsat8 | landsat9 | custom\n  band10_K1: 774.8853\n  band10_K2: 1321.0789\n  emissivity: 0.97\n  risk_percentiles: [50, 75, 90]\n  suburb_buffer_m: 5000\n```\n\n## 6. 调用示例\n\n```bash\npython /mnt/skills/custom/remote-sensing/urban-heat-assessment/scripts/main.py \\\n  --action run \\\n  --inputs-json '{\"thermal_image\":\"/mnt/user-data/uploads/tirs.tif\",\"boundary\":\"/mnt/user-data/uploads/city.geojson\"}' \\\n  --output-dir /mnt/user-data/outputs/heat_20260417\n```\n\n## 7. 输出文件\n\n| 文件 | 含义 |\n|------|------|\n| `lst.tif` | 反演后的地表温度（摄氏度） |\n| `uhi_intensity.tif` | 热岛强度图（相对郊区均值） |\n| `risk_levels.tif` | 风险等级图（1=低，2=中，3=高，4=极端） |\n| `cooling_priority.geojson` | 降温潜力重点区域矢量 |\n| `report.md` | 评估报告 + 降温建议 + 年际趋势（若有） |\n\n## 8. 治理场景\n\n- 城市降温规划、公园绿地布局优化\n- 极端高温公共健康风险预警\n- 街区更新热环境改善评估\n- \"公园城市\"热环境指标监测\n\n## 9. 注意事项\n\n- 单幅热红外影像反映**瞬时**热环境，建议使用同一月份多年序列评估趋势\n- 降级模式下使用合成 LST，仅用于流程演示\n- 单窗算法为简化实现，生产环境建议使用 Jiménez-Muñoz 或 SC 算法\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash",
+      "python"
+    ],
+    "optional_tools": [
+      "chart_generator",
+      "write_file"
+    ],
+    "allowed_file_patterns": [
+      "*.tif",
+      "*.tiff",
+      "*.geotiff",
+      "*.geojson",
+      "*.json",
+      "*.shp",
+      "*.gpkg",
+      "*.csv",
+      "*.xlsx",
+      "*.xls",
+      "*.nc",
+      "*.hdf",
+      "*.jp2"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "inspect-geo",
+      "space-data-processing",
+      "satellite-remote-sensing",
+      "data-analysis",
+      "chart-visualization"
+    ]
+  },
+  "routing_policy": {
+    "priority": 85,
+    "conflict_group": "remote_sensing_analysis",
+    "prefer_when": [
+      "用户提供热红外影像并要求地表温度、热岛强度或高温风险评估",
+      "用户关注降温空间、极端高温、热环境治理或多年热岛趋势"
+    ],
+    "defer_when": [
+      "用户只要求不透水面支撑指标，应优先使用 impervious-surface-mapping",
+      "用户主要关注绿地生态服务，应优先使用 urban-greenspace-assessment"
+    ]
+  },
+  "source": {
+    "skill_dir": "5-21remote-sensing/urban-heat-assessment",
+    "skill_md_path": "5-21remote-sensing/urban-heat-assessment/SKILL.md",
+    "skill_md_hash": "sha256:30feeeef478e519fa18b003a35ed1d6c067968ba8c2490e079c2e3fa841d671a",
+    "generated_at": "2026-05-21T11:40:49Z",
+    "generator_version": "0.1.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:f11dda0bf14d63ce8dcbad4b14fef85fd250eba8a62e99bbd67c7337a3dd213b",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "urban-heat-assessment"
+  }
+}

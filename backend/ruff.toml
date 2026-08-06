@@ -1,0 +1,19 @@
+line-length = 320
+target-version = "py312"
+
+# Vendored third-party deliveries are a verbatim lift and must stay byte-identical
+# so a package upgrade is a straight overwrite. `make lint --fix` / `make format`
+# would otherwise silently rewrite them (it has: UP035/UP037 rewrites in
+# tfidf_knn.py, feature_extractor.py, io_utils.py, holdout_split.py).
+exclude = ["packages/harness/deerflow/compliance/detectors/*/vendor/"]
+
+[lint]
+select = ["E", "F", "I", "UP"]
+ignore = []
+
+[lint.isort]
+known-first-party = ["deerflow", "app"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

@@ -1,0 +1,79 @@
+{
+  "now": "2026-05-20T10:00:00+08:00",
+  "output_dir": "/mnt/data/video-monitoring-runs/default",
+  "default_capture_seconds": 10,
+  "cameras": {
+    "CAM_DEERFLOW_001": {
+      "name": "deerflow-video-monitoring",
+      "source_type": "local_file",
+      "file_path": "/mnt/data/videos/Trafic.mp4",
+      "rois": [
+        {
+          "id": "ROI_FULL_FRAME",
+          "type": "public_area",
+          "polygon": [[0, 0], [10000, 0], [10000, 10000], [0, 10000]]
+        }
+      ]
+    }
+  },
+  "models": {
+    "object_detection": {
+      "provider": "ultralytics",
+      "model_path": "/mnt/skills/custom/models/yolov8n.pt",
+      "device": null,
+      "default_threshold": 0.25,
+      "thresholds": {
+        "person": 0.35,
+        "car": 0.35,
+        "bus": 0.35,
+        "truck": 0.35,
+        "motorcycle": 0.35,
+        "bicycle": 0.35
+      }
+    }
+  },
+  "tracking": {
+    "association_distance_pixels": 120,
+    "stationary_distance_pixels": 80
+  },
+  "video_event_review": {
+    "default_target_events": [
+      "traffic_congestion",
+      "fight",
+      "fall_down",
+      "traffic_accident",
+      "pedestrian_intrusion",
+      "smoke_or_fire",
+      "crowd_gathering",
+      "illegal_occupation",
+      "other_abnormal_event"
+    ],
+    "coarse_fps": 1.0,
+    "dense_fps": 4.0,
+    "scene_threshold": 0.3,
+    "dense_window": 2.0,
+    "max_frames": 2000
+  },
+  "default_review_threshold": 0.75,
+  "review_thresholds": {
+    "traffic_congestion": 0.7,
+    "fight": 0.85,
+    "fall_down": 0.85,
+    "traffic_accident": 0.85,
+    "pedestrian_intrusion": 0.8,
+    "smoke_or_fire": 0.85,
+    "crowd_gathering": 0.75,
+    "illegal_occupation": 0.75,
+    "other_abnormal_event": 0.75
+  },
+  "high_risk_event_types": [
+    "fight",
+    "fall_down",
+    "traffic_accident",
+    "smoke_or_fire"
+  ],
+  "privacy_masking": {
+    "enabled": true,
+    "method": "gaussian_blur"
+  }
+}

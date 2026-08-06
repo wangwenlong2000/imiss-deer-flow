@@ -1,0 +1,39 @@
+# Skill: urban-change-detection
+# English metadata + Chinese report mode.
+# Configuration for change detection algorithms and output priorities.
+
+skill:
+  name: urban-change-detection
+  version: 0.1.0
+  language:
+    metadata: en
+    report: zh-CN
+
+algorithm:
+  # Method: cva (change vector analysis) | pca | deep
+  method: cva
+  # Normalized change magnitude threshold in [0,1]
+  threshold: 0.15
+  # Minimum connected-component size (pixels) to keep
+  min_patch_size: 30
+  # Filter natural (vegetation/phenology) changes using NDVI delta
+  filter_natural_change: true
+  ndvi_delta_threshold: 0.25
+
+priority:
+  # Patches are ranked from top to bottom; first match wins.
+  levels:
+    - name: high
+      min_area: 500       # m^2
+    - name: medium
+      min_area: 100
+    - name: low
+      min_area: 0
+
+io:
+  outputs_dir: ./outputs
+  # Sub-directory name under outputs_dir (keep in sync with main.py)
+  subdir: urban-change-detection
+
+logging:
+  level: INFO

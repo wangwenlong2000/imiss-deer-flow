@@ -1,0 +1,4 @@
+name: analyze_event_impact
+display_name: 事件影响分析
+short_description: 量化评估节假日、活动或极端天气对区域客流变化和恢复情况的影响。
+default_prompt: "Use $analyze_event_impact when the user asks how an event, holiday, disruption, or weather period changed regional flow before, during, and after the event."

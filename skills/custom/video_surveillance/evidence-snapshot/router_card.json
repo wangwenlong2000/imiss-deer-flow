@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "evidence-snapshot",
+    "name": "evidence-snapshot",
+    "description": "Generate snapshot evidence for video event candidates with URI, SHA-256 hash, timestamp, and privacy masking status."
+  },
+  "scope": {
+    "scenes": ["video_surveillance"],
+    "is_public": false,
+    "task_types": ["evidence_snapshot"],
+    "input_types": ["event_json", "frames_json"],
+    "output_types": ["evidence_json"]
+  },
+  "routing": {
+    "routing_text": "名称：evidence-snapshot\n描述：根据 single-video-event-analysis 产生的事件候选和 evidence_frame_ids 生成证据截图、hash 和隐私处理状态。\n适合使用：事件截图；证据hash；证据图片归档。\n不适合使用：判断事件是否发生；目标检测。",
+    "positive_triggers": ["证据截图", "snapshot", "证据hash", "事件截图"],
+    "negative_triggers": ["事件检测", "目标检测"],
+    "keywords": ["evidence", "snapshot", "sha256"],
+    "anti_keywords": ["detect"]
+  },
+  "execution": {
+    "required_tools": ["bash", "read_file"],
+    "optional_tools": ["opencv"],
+    "allowed_file_patterns": ["*.json", "*.jpg", "*.jpeg", "*.png"],
+    "can_run_standalone": true
+  },
+  "routing_policy": {
+    "priority": 74,
+    "conflict_group": "evidence-snapshot",
+    "prefer_when": ["需要证据截图"],
+    "defer_when": ["需要事件分析"]
+  },
+  "source": {
+    "skill_dir": "skills/custom/evidence-snapshot",
+    "skill_md_path": "skills/custom/evidence-snapshot/SKILL.md",
+    "generator_version": "manual-llm-event-review-1.0.0"
+  },
+  "embedding": {"es_doc_id": "evidence-snapshot"}
+}

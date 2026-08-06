@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0.0",
+  "identity": {
+    "id": "condition-based-screening",
+    "name": "condition-based-screening",
+    "description": "根据用户已经明确给出的筛选条件，在电话网络号码集合中执行规则过滤，找出“满足这些条件”的对象，并输出筛选链路、命中号码、命中原因和证据附件。核心任务是条件命中，不是风险排行榜；适用于用户明确提出“筛选/过滤/满足条件/按省份/按标签/按阈值/同时满足”等规则约束的场景，例如筛选夜间通话占比超过阈值、联系人广度高于阈值、共享设备数量达到阈值的号码。不用于系统自动发现最可疑号码、不生成全量 TopN 风险榜、不做综合风险排名、不承担单号码证据包、原始数据建图或地域对比。"
+  },
+  "scope": {
+    "scenes": [
+      "phone_network"
+    ],
+    "is_public": false,
+    "task_types": [
+      "condition_screening",
+      "rule_filter",
+      "target_selection",
+      "risk_filter"
+    ],
+    "input_types": [
+      "dataset_root",
+      "filter_conditions",
+      "user_nodes.csv",
+      "call_edges.csv",
+      "edges_phone_imei.parquet"
+    ],
+    "output_types": [
+      "screening_result",
+      "matched_objects",
+      "evidence_summary",
+      "markdown_report",
+      "csv",
+      "xlsx"
+    ]
+  },
+  "routing": {
+    "routing_text": "名称：condition-based-screening\n描述：根据用户已经明确给出的筛选条件，在电话网络号码集合中执行规则过滤，找出“满足这些条件”的对象，并输出筛选链路、命中号码、命中原因和证据附件。核心任务是条件命中，不是风险排行榜；适用于用户明确提出“筛选/过滤/满足条件/按省份/按标签/按阈值/同时满足”等规则约束的场景，例如筛选夜间通话占比超过阈值、联系人广度高于阈值、共享设备数量达到阈值的号码。不用于系统自动发现最可疑号码、不生成全量 TopN 风险榜、不做综合风险排名、不承担单号码证据包、原始数据建图或地域对比。\n适用场景：phone_network\n适用任务：condition_screening，rule_filter，target_selection，risk_filter\n输入类型：dataset_root，filter_conditions，user_nodes.csv，call_edges.csv，edges_phone_imei.parquet\n输出类型：screening_result，matched_objects，evidence_summary，markdown_report，csv，xlsx\n适合使用：筛选夜间行为明显异常的号码；筛选夜间通话异常的号码；筛选夜间通话明显异常的号码；筛选出夜间通话异常、联系人广度高、共享设备数量多的重点号码；请筛选出夜间通话明显异常、联系人广度高、共享设备比较多的重点号码；筛出同时满足夜间通话异常、联系人广度高、共享设备多的号码；按夜间通话、对端数量、共享设备数量这些条件圈定重点号码；找共享设备数量多的号码；找共享设备较多的号码；筛选四川省风险标签号码；按省份、标签、联系人广度筛选\n不适合使用：自动找TopN高风险号码；没有明确条件只要求找最可疑号码；比较两个号码的共同联系人或共享设备；查两个号码之间的关联路径；只分析一个号码；生成证据包；上传原始数据建图\n关键词：筛选，筛出，找出，圈定，条件，同时满足，夜间，夜间通话，夜间通话异常，联系人广度，联系人广度高，共享设备，共享设备数量，共享设备数量多，共享设备多，共享设备较多，共享设备比较多，重点号码，标签，省份，通话次数，风险分\n反关键词：TopN，两个号码，关联路径，重叠，单号，证据包，建图。",
+    "positive_triggers": [
+      "筛选夜间行为明显异常的号码",
+      "筛选夜间通话异常的号码",
+      "筛选夜间通话明显异常的号码",
+      "筛选出夜间通话异常、联系人广度高、共享设备数量多的重点号码",
+      "请筛选出夜间通话明显异常、联系人广度高、共享设备比较多的重点号码",
+      "筛出同时满足夜间通话异常、联系人广度高、共享设备多的号码",
+      "按夜间通话、对端数量、共享设备数量这些条件圈定重点号码",
+      "找共享设备数量多的号码",
+      "找共享设备较多的号码",
+      "筛选四川省风险标签号码",
+      "按省份、标签、联系人广度筛选"
+    ],
+    "negative_triggers": [
+      "自动找TopN高风险号码",
+      "没有明确条件只要求找最可疑号码",
+      "比较两个号码的共同联系人或共享设备",
+      "查两个号码之间的关联路径",
+      "只分析一个号码",
+      "生成证据包",
+      "上传原始数据建图"
+    ],
+    "keywords": [
+      "筛选",
+      "筛出",
+      "找出",
+      "圈定",
+      "条件",
+      "同时满足",
+      "夜间",
+      "夜间通话",
+      "夜间通话异常",
+      "联系人广度",
+      "联系人广度高",
+      "共享设备",
+      "共享设备数量",
+      "共享设备数量多",
+      "共享设备多",
+      "共享设备较多",
+      "共享设备比较多",
+      "重点号码",
+      "标签",
+      "省份",
+      "通话次数",
+      "风险分"
+    ],
+    "anti_keywords": [
+      "TopN",
+      "两个号码",
+      "关联路径",
+      "重叠",
+      "单号",
+      "证据包",
+      "建图"
+    ]
+  },
+  "body": {
+    "source": "SKILL.md",
+    "content": "---\nname: condition-based-screening\ndescription: 根据用户已经明确给出的筛选条件，在电话网络号码集合中执行规则过滤，找出“满足这些条件”的对象，并输出筛选链路、命中号码、命中原因和证据附件。核心任务是条件命中，不是风险排行榜；适用于用户明确提出“筛选/过滤/满足条件/按省份/按标签/按阈值/同时满足”等规则约束的场景，例如筛选夜间通话占比超过阈值、联系人广度高于阈值、共享设备数量达到阈值的号码。不用于系统自动发现最可疑号码、不生成全量 TopN 风险榜、不做综合风险排名、不承担单号码证据包、原始数据建图或地域对比。\n---\n\n# condition-based-screening\n\n## 这个 skill 做什么\n\n`condition-based-screening` 是电话网络数据中的**规则筛选型** skill。\n\n它的核心不是“自动找最可疑对象”，而是：\n\n> 用户已经给出明确筛选条件，系统按照这些条件过滤号码集合，找出满足条件的对象，并解释每个对象命中了哪些规则。\n\n它回答的是：\n\n1. 给定条件能筛出哪些号码；\n2. 每个号码具体命中了哪些条件；\n3. 筛选过程是否真的缩小了样本范围；\n4. 命中对象是否存在共享设备、共同对端等补充证据；\n5. 哪些命中对象适合继续做单号码画像、证据包或群体分析。\n\n## 与 topn-high-risk-discovery 的强边界\n\n必须严格区分本 skill 和 `topn-high-risk-discovery`。\n\n| 维度 | condition-based-screening | topn-high-risk-discovery |\n|---|---|---|\n| 用户意图 | 用户已经给出明确规则 | 用户没有给硬性筛选规则 |\n| 核心动作 | 筛选、过滤、命中解释 | 自动打分、排序、发现 |\n| 典型词 | 筛选、过滤、满足条件、阈值、同时满足、按省份、按标签 | TopN、Top10、排行榜、最可疑、自动发现、优先核查 |\n| 输出重点 | 命中对象、筛选链路、命中原因 | 风险排名、风险分、驱动因素 |\n| 是否做综合榜单 | 不做全量风险排行榜 | 做全量或候选集风险排行榜 |\n\n如果用户说：\n\n- “筛选夜间通话明显异常的号码”；\n- “过滤出四川省风险标签对象”；\n- “找同时满足联系人广度高、共享设备多的号码”；\n- “按阈值找夜间占比超过 0.35 的对象”；\n\n应使用本 skill。\n\n如果用户说：\n\n- “自动找 Top10 高风险号码”；\n- “生成高风险排行榜”；\n- “哪些号码最可疑”；\n- “综合评分排序所有号码”；\n\n应使用 `topn-high-risk-discovery`，不是本 skill。\n\n## 适合使用的场景\n\n本 skill 适合规则筛选、条件命中、候选集合收缩类问题，例如：\n\n- 筛选夜间通话占比超过阈值的号码；\n- 筛选联系人广度高于阈值的号码；\n- 筛选共享设备数量达到阈值的号码；\n- 筛选四川省或陕西省中的特定标签对象；\n- 筛选风险标签对象或未标注但满足可疑条件的对象；\n- 筛选同时满足多个条件的号码；\n- 验证某类目标画像在数据中是否存在；\n- 输出筛选链路、命中号码、证据表和工作簿附件。\n\n## 不适合使用的场景\n\n以下情况不要使用本 skill：\n\n- 用户没有给明确条件，只想让系统自动发现最可疑号码；\n- 用户要求生成 TopN 高风险排行榜；\n- 用户要求对全部号码做综合风险评分排序；\n- 用户要求解释某一个号码为什么可疑；\n- 用户要求生成单号码风险证据包；\n- 用户上传原始 CSV，要求先建图；\n- 用户要求四川和陕西做地域对比；\n- 用户要求跨省同实体联动识别。\n\n对应应转向：\n\n- 自动高风险排行榜：`topn-high-risk-discovery`；\n- 单号码画像：`single-number-analysis`；\n- 单号码风险证据包：`risk-evidence-pack`；\n- 原始数据建图：`dataset-onboarding-graph-preprocess`；\n- 四川陕西地域对比：`sichuan-shaanxi-comparison`；\n- 跨省可联动性判断：`dataset-quality-and-linkability-diagnostic`。\n\n---\n\n## 一、数据集使用规则\n\n### 规则 1：用户明确指定数据集时，优先使用用户指定的数据集\n\n如果用户问题或命令中明确给出：\n\n- `--dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network`\n- `--dataset unified`\n- “使用 unified / sichuan / shaanxi 数据”\n\n则直接按用户指定执行。\n\n### 规则 2：用户没有指定数据集根目录时，优先使用真实 unified 预处理数据\n\n脚本优先自动查找以下真实数据位置：\n\n1. `PHONE_NETWORK_DATASETS_ROOT`\n2. `<repo_root>/datasets/phone-network`\n3. `/workspace/imiss-deer-flow-main/datasets/phone-network`\n4. `/mnt/datasets/phone-network`\n5. `~/imiss-deer-flow-main/datasets/phone-network`\n\n### 规则 3：用户没有指定 dataset 时，默认使用 `unified`\n\n前端问题中出现：\n\n- “在现有电话网络数据里筛选”；\n- “在 unified 电话网络数据里筛选”；\n- “用已预处理好的数据筛选”；\n\n都应默认理解为：\n\n```text\ndataset-root = datasets/phone-network\ndataset = unified\n```\n\n### 规则 4：只有真实数据根目录找不到时，才允许退回测试样例\n\n测试样例只用于回归测试，不是正式前端分析的默认数据源。\n\n---\n\n## 二、输入数据\n\n本 skill 默认依赖标准图结构三件套：\n\n```text\ndatasets/phone-network/processed/unified/user_nodes.csv\ndatasets/phone-network/processed/unified/call_edges.csv\ndatasets/phone-network/processed/unified/edges_phone_imei.parquet\n```\n\n各文件作用：\n\n| 文件 | 用途 |\n|---|---|\n| `user_nodes.csv` | 号码节点属性、标签、省份、sub_label |\n| `call_edges.csv` | 通话次数、对端数量、夜间行为、通话时间和时长 |\n| `edges_phone_imei.parquet` | 号码与设备关系、共享设备、一机多号线索 |\n\n---\n\n## 三、支持的筛选模式\n\n### 1. 夜间行为筛选\n\n```bash\n--mode night_abnormal\n```\n\n常用条件：\n\n- `--min-night-ratio`\n- `--min-night-count`\n\n适合问题：\n\n```text\n筛选夜间通话占比高的号码。\n筛选夜间通话次数超过 8 次的号码。\n```\n\n### 2. 联系人广度筛选\n\n```bash\n--mode broad_contacts\n```\n\n常用条件：\n\n- `--min-counterparties`\n\n适合问题：\n\n```text\n筛选联系人数量超过 50 的号码。\n筛选对端广度异常的对象。\n```\n\n### 3. 共享设备筛选\n\n```bash\n--mode shared_device\n```\n\n常用条件：\n\n- `--min-shared-device-count`\n- `--min-shared-peer-total`\n\n适合问题：\n\n```text\n筛选共享设备数量达到阈值的号码。\n筛选疑似一机多号或设备池相关号码。\n```\n\n### 4. 高通话量筛选\n\n```bash\n--mode high_call_volume\n```\n\n常用条件：\n\n- `--min-call-records`\n\n适合问题：\n\n```text\n筛选通话记录数超过阈值的号码。\n```\n\n### 5. 多条件联合筛选\n\n```bash\n--mode mixed\n```\n\n适合把多个规则组合起来筛选，例如：\n\n```text\n筛选四川省、风险标签、联系人广度高、共享设备明显的号码。\n```\n\n---\n\n## 四、常用条件参数\n\n- `--risk-only`：只保留风险标签对象；\n- `--unlabeled-only`：只保留未显式标注风险的对象；\n- `--labels`：按 label 筛选；\n- `--sub-labels`：按 sub_label 筛选；\n- `--province`：按省份筛选；\n- `--min-risk-score`：按风险分阈值筛选；\n- `--min-call-records`：按通话记录数阈值筛选；\n- `--min-counterparties`：按联系人广度阈值筛选；\n- `--min-shared-device-count`：按共享设备数量阈值筛选；\n- `--min-shared-peer-total`：按共享设备牵出号码数量阈值筛选；\n- `--min-night-ratio`：按夜间通话占比阈值筛选；\n- `--min-night-count`：按夜间通话次数阈值筛选；\n- `--match-mode all|any`：控制条件组合方式；\n- `--min-match-count`：至少命中几条条件；\n- `--top-k`：只控制输出展示条数，不表示自动风险排行榜。\n\n重要说明：\n\n> 本 skill 的 `--top-k` 只是“命中结果太多时展示前 K 条”，不是自动发现 TopN 高风险对象，也不是综合风险排名。\n\n---\n\n## 五、前端推荐提问模板\n\n### 模板 1：夜间行为筛选\n\n```text\n请在 unified 电话网络数据中筛选夜间通话占比超过 0.35 且夜间通话次数不少于 8 次的号码，并输出筛选链路、命中号码和证据附件。\n```\n\n### 模板 2：多条件联合筛选\n\n```text\n请筛选四川省中同时满足风险标签、联系人广度较高、共享设备明显的号码，并说明每个号码命中了哪些条件。\n```\n\n### 模板 3：未标注对象筛选\n\n```text\n请筛选未显式标注风险但联系人广度高且共享设备数量达到阈值的号码，输出命中原因和后续下钻建议。\n```\n\n### 模板 4：阈值过滤\n\n```text\n请筛选通话记录数超过 100、对端数量超过 50、共享设备数量不少于 1 的号码。\n```\n\n---\n\n## 六、命令行正式分析\n\n进入脚本目录：\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts\n```\n\n### 场景 1：夜间行为筛选\n\n```bash\npython3 condition_based_screening_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --group-name night_abnormal_targets \\\n  --mode night_abnormal \\\n  --min-night-ratio 0.35 \\\n  --min-night-count 8 \\\n  --top-k 20\n```\n\n### 场景 2：联系人广度筛选\n\n```bash\npython3 condition_based_screening_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --group-name broad_contact_targets \\\n  --mode broad_contacts \\\n  --min-counterparties 50 \\\n  --top-k 20\n```\n\n### 场景 3：共享设备筛选\n\n```bash\npython3 condition_based_screening_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --group-name device_targets \\\n  --mode shared_device \\\n  --min-shared-device-count 1 \\\n  --min-shared-peer-total 5 \\\n  --top-k 20\n```\n\n### 场景 4：多条件联合筛选\n\n```bash\npython3 condition_based_screening_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --group-name mixed_targets \\\n  --mode mixed \\\n  --province sichuan \\\n  --risk-only \\\n  --min-counterparties 50 \\\n  --min-shared-device-count 1 \\\n  --match-mode all \\\n  --top-k 20\n```\n\n### 场景 5：未标注但满足条件对象筛选\n\n```bash\npython3 condition_based_screening_wrapper.py \\\n  --dataset-root /workspace/imiss-deer-flow-main/datasets/phone-network \\\n  --dataset unified \\\n  --group-name unlabeled_condition_hits \\\n  --mode mixed \\\n  --unlabeled-only \\\n  --min-counterparties 80 \\\n  --min-shared-device-count 1 \\\n  --match-mode all \\\n  --top-k 20\n```\n\n---\n\n## 七、命令行回归测试\n\n```bash\ncd /workspace/imiss-deer-flow-main/skills/custom/phone-network-analysis/condition-based-screening/scripts\nbash test_condition_based_screening.sh\n```\n\n该测试用于验证脚本功能，必要时会使用脚本自带的小型样例数据。\n\n---\n\n## 八、输出文件\n\n默认输出到：\n\n- `/mnt/user-data/outputs`\n- 如果该目录不可写，则输出到项目 `outputs/`\n\n标准输出包括：\n\n1. `report_md`：Markdown 筛选报告；\n2. `targets_csv`：命中对象表；\n3. `devices_csv`：共享设备证据表；\n4. `counterparts_csv`：共同对端证据表；\n5. `summary_json`：结构化摘要；\n6. `evidence_xlsx`：证据工作簿。\n\n---\n\n## 九、结果解读原则\n\n本 skill 的结果表示“满足用户指定规则的候选对象”，不是最终风险定性，也不是系统自动计算出的高风险排行榜。\n\n解读时应说明：\n\n- 筛选条件是什么；\n- 原始候选规模是多少；\n- 筛选后命中规模是多少；\n- 每个命中对象命中了哪些条件；\n- 是否存在共享设备、共同对端等补充证据；\n- 是否建议继续调用其他 skill 下钻。\n\n推荐后续链路：\n\n- 单个命中号码解释：`single-number-analysis`；\n- 单个命中号码证据包：`risk-evidence-pack`；\n- 共享设备下钻：`shared-device-analysis`；\n- 两号码关系重叠：`overlap-analysis`；\n- 两号码路径分析：`association-path-analysis`；\n- 群体或团伙扩展：`group-risk-analysis` / `gang-cluster-analysis`。\n\n---\n\n## 十、基础算子对齐\n\n本 skill 属于基础算子组合得到的电话网络规则筛选 skill：\n\n- 条件对象筛选 = `node_lookup + aggregation_query + relationship_filter`；\n- 夜间行为筛选 = `time-window relationship_filter + aggregation_query`；\n- 联系人广度筛选 = `neighbor_query + aggregation_query`；\n- 共享设备筛选 = `query_shared_device + aggregation_query`；\n- 条件命中解释 = `aggregation_query + evidence_summary`。\n"
+  },
+  "execution": {
+    "required_tools": [
+      "read_file",
+      "bash"
+    ],
+    "optional_tools": [
+      "write_file",
+      "chart_generator",
+      "spreadsheet_export"
+    ],
+    "allowed_file_patterns": [
+      "*.csv",
+      "*.parquet",
+      "*.json",
+      "*.jsonl",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "can_run_standalone": true,
+    "can_compose_with": [
+      "phone-network-analysis",
+      "graph-operator",
+      "data-analysis",
+      "report-generation"
+    ]
+  },
+  "routing_policy": {
+    "priority": 89,
+    "conflict_group": "phone_network_condition_screening",
+    "prefer_when": [
+      "用户给出明确筛选条件",
+      "用户希望按规则找重点对象"
+    ],
+    "defer_when": [
+      "用户没有给条件只说找最可疑时优先 topn-high-risk-discovery",
+      "用户给单个号码时优先 single-number-analysis"
+    ]
+  },
+  "source": {
+    "skill_dir": "skills/custom/phone-network-analysis/condition-based-screening",
+    "skill_md_path": "skills/custom/phone-network-analysis/condition-based-screening/SKILL.md",
+    "skill_md_hash": "sha256:daa5aeef060fd27c72c477912682823f278ad4e23dd60988bb7ba45e3e293544",
+    "generated_at": "2026-05-21T12:36:19Z",
+    "generator_version": "phone-router-card-16-v1.0.0"
+  },
+  "embedding": {
+    "model": "SkillRouter-Embedding-0.6B",
+    "text_hash": "sha256:014380c2695d2974aa297f78fa1680cebe39f0eb7cdd615f97d7a7940b64b658",
+    "es_index": "citybrain-skill-router-cards",
+    "es_doc_id": "condition-based-screening"
+  }
+}

@@ -1,0 +1,118 @@
+{
+    "schema_version":  "1.0.0",
+    "identity":  {
+                     "id":  "classify_trajectory_state",
+                     "name":  "classify_trajectory_state",
+                     "description":  "Use this skill when the user wants to classify each user\u0027s trajectory into motion states such as stationary, directed migration, frequent circulation, random walk, cruising, long-stay, or semantic mobility behavior."
+                 },
+    "scope":  {
+                  "scenes":  [
+                                 "spatiotemporal_trajectory"
+                             ],
+                  "is_public":  false,
+                  "task_types":  [
+                                     "classify_trajectory_state",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                  "input_types":  [
+                                      "csv",
+                                      "tsv",
+                                      "json",
+                                      "jsonl",
+                                      "trajectory_records",
+                                      "staypoints_jsonl",
+                                      "evidence_jsonl"
+                                  ],
+                  "output_types":  [
+                                       "state_classification.jsonl",
+                                       "summary.json"
+                                   ]
+              },
+    "routing":  {
+                    "routing_text":  "名称：classify_trajectory_state\n描述：Use this skill when the user wants to classify each user\u0027s trajectory into motion states such as stationary, directed migration, frequent circulation, random walk, cruising, long-stay, or semantic mobility behavior.\n适用场景：spatiotemporal_trajectory。\n适用任务：classify_trajectory_state, spatiotemporal_trajectory。\n输入类型：csv, tsv, json, jsonl, trajectory_records, staypoints_jsonl, evidence_jsonl。\n输出类型：state_classification.jsonl, summary.json。\n适合使用：处理时空轨迹、GPS、签到、OD、区域热度、路线异常、轨迹模式、流量预测等移动性分析任务。\n不适合使用：网络流量 PCAP 分析；政策法规检索；财务台账分析；纯通用闲聊。",
+                    "positive_triggers":  [
+                                              "Use this skill when the user wants to classify each user\u0027s trajectory into motion states such as stationary, directed migration, frequent circulation, random walk, cruising, long-stay, or semantic mobility behavior.",
+                                              "处理或分析时空轨迹数据",
+                                              "对 GPS、签到、OD、区域热度、路线或移动模式进行计算"
+                                          ],
+                    "negative_triggers":  [
+                                              "分析 pcap/pcapng/cap 网络流量文件",
+                                              "检索政策法规或合规条款",
+                                              "处理财务台账或票据审计"
+                                          ],
+                    "keywords":  [
+                                     "classify",
+                                     "trajectory",
+                                     "state",
+                                     "spatiotemporal",
+                                     "GPS",
+                                     "OD",
+                                     "geohash",
+                                     "staypoint",
+                                     "轨迹",
+                                     "时空",
+                                     "移动性",
+                                     "spatiotemporal_trajectory"
+                                 ],
+                    "anti_keywords":  [
+                                          "pcap",
+                                          "network_traffic",
+                                          "网络流量",
+                                          "政策法规",
+                                          "财务台账"
+                                      ]
+                },
+    "body":  {
+                 "source":  "SKILL.md",
+                 "content":  "---\nname: classify_trajectory_state\ndescription: Use this skill when the user wants to classify each user\u0027s trajectory into motion states such as stationary, directed migration, frequent circulation, random walk, cruising, long-stay, or semantic mobility behavior.\nmetadata:\n  short-description: 识别用户轨迹状态：长时静止、定向迁徙、高频巡游或随机游走。\n---\n\n# classify_trajectory_state\n\nUse this Skill on cleaned points or staypoints to infer entity movement state.\n\n## Command\n\n```bash\ncd /mnt/skills/custom/classify_trajectory_state\npython3 scripts/classify_trajectory_state.py --input /path/to/staypoints.jsonl --output-dir /path/to/output --geohash-precision 5\n```\n\n## Outputs\n\n- `state_classification.jsonl`\n- `summary.json`\n\n## Algorithm\n\n- Per-user chronological trajectory construction\n- Average speed, spatial span, directionality, and geohash diversity features\n- Rule-based state classification\n- Landmark enrichment when geohash can be mapped\n\n## Next Skills\n\nUse results with `$mine_trajectory_patterns`, `$profile_urban_region`, or `$fuse_spatial_evidence`.\n"
+             },
+    "execution":  {
+                      "required_tools":  [
+                                             "read_file",
+                                             "bash",
+                                             "python3"
+                                         ],
+                      "optional_tools":  [
+                                             "write_file",
+                                             "chart_generator"
+                                         ],
+                      "allowed_file_patterns":  [
+                                                    "*.csv",
+                                                    "*.tsv",
+                                                    "*.json",
+                                                    "*.jsonl",
+                                                    "*.ndjson"
+                                                ],
+                      "can_run_standalone":  true,
+                      "can_compose_with":  [
+                                               "mine_trajectory_patterns",
+                                               "profile_urban_region",
+                                               "fuse_spatial_evidence"
+                                           ]
+                  },
+    "routing_policy":  {
+                           "priority":  90,
+                           "conflict_group":  "spatiotemporal_trajectory",
+                           "prefer_when":  [
+                                               "用户问题涉及 GPS 轨迹、签到、移动路径、OD、区域热度、停留点、路线异常或时空预测",
+                                               "输入数据是轨迹点、staypoints、trips、region metrics 或 trajectory evidence"
+                                           ],
+                           "defer_when":  [
+                                              "任务明确属于网络流量、安全协议或 PCAP 分析",
+                                              "任务明确属于政策法规、财务台账或其他非时空轨迹场景"
+                                          ]
+                       },
+    "source":  {
+                   "skill_dir":  "skills/custom/classify_trajectory_state",
+                   "skill_md_path":  "skills/custom/classify_trajectory_state/SKILL.md",
+                   "skill_md_hash":  "sha256:6470eaf75700098e9dde22122a6d5df2fe57f1549b005ce52775e72dbd15f47f",
+                   "generated_at":  "2026-05-27T08:45:12Z",
+                   "generator_version":  "spatial-temporal-routercard-1.0.0"
+               },
+    "embedding":  {
+                      "model":  "SkillRouter-Embedding-0.6B",
+                      "text_hash":  "sha256:ef4d5530e40c85f3ad2ae16fbdb38407e2b41e4f9c9aefa4d3d22821ab38a23d",
+                      "es_index":  "citybrain-skill-router-cards",
+                      "es_doc_id":  "classify_trajectory_state"
+                  }
+}
