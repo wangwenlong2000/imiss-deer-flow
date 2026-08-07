@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ShieldAlertIcon } from "lucide-react";
+import { ChevronDownIcon, ShieldAlertIcon, ShieldCheckIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -47,11 +47,8 @@ export function ComplianceNotice({
   const actionLabel = (code: string) =>
     t.compliance.actions[code as ComplianceAction] ?? code;
 
-  const hasDetails =
-    disposition.basis.length > 0 ||
-    disposition.auditRef !== null ||
-    disposition.gate !== null ||
-    disposition.scene !== null;
+  const passed = disposition.checks.every((check) => check.status !== "handled");
+  const StatusIcon = passed ? ShieldCheckIcon : ShieldAlertIcon;
 
   return (
     <Alert
@@ -59,23 +56,34 @@ export function ComplianceNotice({
       className={cn("border-border/60 bg-muted/40", className)}
     >
       {/* Must be a direct child of Alert — alertVariants keys its grid off has-[>svg]. */}
-      <ShieldAlertIcon />
+      <StatusIcon />
       <AlertTitle>
         {disposition.mutated
           ? t.compliance.titleBlocked
-          : t.compliance.title}
+          : passed
+            ? t.compliance.titlePassed
+            : t.compliance.title}
       </AlertTitle>
       <AlertDescription className="w-full">
         <div className="flex flex-wrap items-center gap-1.5">
-          {disposition.violationTypes.map((code) => (
+          {disposition.violationTypes.length > 0 ? (
+            disposition.violationTypes.map((code) => (
+              <Badge
+                key={`v-${code}`}
+                variant="secondary"
+                className="rounded px-1.5 py-0.5 text-[10px] font-normal"
+              >
+                {violationLabel(code)}
+              </Badge>
+            ))
+          ) : (
             <Badge
-              key={`v-${code}`}
               variant="secondary"
               className="rounded px-1.5 py-0.5 text-[10px] font-normal"
             >
-              {violationLabel(code)}
+              {t.compliance.noRisk}
             </Badge>
-          ))}
+          )}
           {disposition.actions.map((code) => (
             <Badge
               key={`a-${code}`}
@@ -90,7 +98,7 @@ export function ComplianceNotice({
         {/* w-full is required throughout: AlertDescription is
             `grid justify-items-start`, so children otherwise shrink to the
             width of the trigger text. */}
-        {hasDetails && (
+        {disposition.checks.length > 0 && (
           <Collapsible open={open} onOpenChange={setOpen} className="w-full">
             <CollapsibleTrigger className="text-muted-foreground hover:text-foreground mt-1.5 flex items-center gap-1 text-xs">
               {open ? t.compliance.hideDetails : t.compliance.showDetails}
@@ -102,77 +110,82 @@ export function ComplianceNotice({
               />
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
-              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                {disposition.violationTypes.length > 0 && (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t.compliance.violationTypesLabel}
-                    </dt>
-                    <dd>
-                      {disposition.violationTypes
-                        .map(violationLabel)
-                        .join("、")}
-                    </dd>
-                  </>
-                )}
-                {disposition.actions.length > 0 && (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t.compliance.actionsLabel}
-                    </dt>
-                    <dd>{disposition.actions.map(actionLabel).join("、")}</dd>
-                  </>
-                )}
-                <dt className="text-muted-foreground">
-                  {t.compliance.basisLabel}
-                </dt>
-                <dd>
-                  {disposition.basis.length > 0 ? (
-                    <ul className="list-inside list-disc">
-                      {disposition.basis.map((clause) => (
-                        <li key={clause}>{clause}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    t.compliance.noBasis
-                  )}
-                </dd>
-                {disposition.gate && (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t.compliance.gateLabel}
-                    </dt>
-                    <dd>
-                      {t.compliance.gates[disposition.gate as ComplianceGate] ??
-                        disposition.gate}
-                    </dd>
-                  </>
-                )}
-                {disposition.scene && (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t.compliance.sceneLabel}
-                    </dt>
-                    <dd>
-                      {t.compliance.scenes[
-                        disposition.scene as ComplianceScene
-                      ] ?? disposition.scene}
-                    </dd>
-                  </>
-                )}
-                {disposition.auditRef && (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t.compliance.auditRefLabel}
-                    </dt>
-                    <dd>
-                      <code className="font-mono text-[11px]">
-                        {disposition.auditRef}
-                      </code>
-                    </dd>
-                  </>
-                )}
-              </dl>
+              <div className="divide-border/60 divide-y">
+                {disposition.checks.map((check, index) => (
+                  <section
+                    key={`${check.gate ?? "gate"}-${index}`}
+                    className="py-2 first:pt-0 last:pb-0"
+                  >
+                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium">
+                      <span>
+                        {check.gate
+                          ? (t.compliance.gates[
+                              check.gate as ComplianceGate
+                            ] ?? check.gate)
+                          : t.compliance.gateLabel}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="rounded px-1.5 py-0.5 text-[10px] font-normal"
+                      >
+                        {t.compliance.checkStatuses[check.status]}
+                      </Badge>
+                    </div>
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                      <dt className="text-muted-foreground">
+                        {t.compliance.violationTypesLabel}
+                      </dt>
+                      <dd>
+                        {check.violationTypes.length > 0
+                          ? check.violationTypes.map(violationLabel).join("、")
+                          : t.compliance.noRisk}
+                      </dd>
+                      <dt className="text-muted-foreground">
+                        {t.compliance.actionsLabel}
+                      </dt>
+                      <dd>{check.actions.map(actionLabel).join("、")}</dd>
+                      <dt className="text-muted-foreground">
+                        {t.compliance.basisLabel}
+                      </dt>
+                      <dd>
+                        {check.basis.length > 0 ? (
+                          <ul className="list-inside list-disc">
+                            {check.basis.map((clause) => (
+                              <li key={clause}>{clause}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          t.compliance.noBasis
+                        )}
+                      </dd>
+                      {check.scene && (
+                        <>
+                          <dt className="text-muted-foreground">
+                            {t.compliance.sceneLabel}
+                          </dt>
+                          <dd>
+                            {t.compliance.scenes[
+                              check.scene as ComplianceScene
+                            ] ?? check.scene}
+                          </dd>
+                        </>
+                      )}
+                      {check.auditRef && (
+                        <>
+                          <dt className="text-muted-foreground">
+                            {t.compliance.auditRefLabel}
+                          </dt>
+                          <dd>
+                            <code className="font-mono text-[11px]">
+                              {check.auditRef}
+                            </code>
+                          </dd>
+                        </>
+                      )}
+                    </dl>
+                  </section>
+                ))}
+              </div>
             </CollapsibleContent>
           </Collapsible>
         )}

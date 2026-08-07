@@ -90,6 +90,7 @@ class ComplianceEngine:
         intent: Any = None,
         budget_ms: int = 400,
         max_units: int = 32,
+        audit_clean: bool = False,
         origin: dict[str, Any] | None = None,
     ) -> ComplianceDecision:
         """Convenience wrapper that builds a ``DetectionRequest`` and runs it."""
@@ -102,6 +103,7 @@ class ComplianceEngine:
             intent=intent,
             budget_ms=budget_ms,
             max_units=max_units,
+            audit_clean=audit_clean,
             origin=origin or {},
         )
         return self.run(request)
@@ -155,7 +157,7 @@ class ComplianceEngine:
             diagnostics=diagnostics,
         )
 
-        if hits:
+        if hits or request.audit_clean:
             decision.audit_ref = self._auditor.record(request, decision)
         return decision
 

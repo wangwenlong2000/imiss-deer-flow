@@ -164,7 +164,9 @@ function MessageContent_({
     // On warn / manual_review the backend keeps the answer and appends a
     // 【合规提示】 paragraph. The banner already says all of that, so rendering
     // both shows the user the same thing twice.
-    return disposition ? stripAppendedComplianceNotice(text) : text;
+    return disposition
+      ? stripAppendedComplianceNotice(text, disposition.notice)
+      : text;
   }, [rawContent, isHuman, disposition]);
 
   const filesList =

@@ -1,0 +1,25 @@
+contract_version: "1.0"
+detector_id: rule_illegal_political_v4
+adapter: inprocess
+entry: deerflow.compliance.detectors.rule_illegal_political_v4.detector:IllegalPoliticalV4Detector
+
+violation_types:
+  - illegal_content
+  - political
+
+gates:
+  illegal_content: [InputGate, ContextGate, OutputGate]
+  political: [InputGate, ContextGate, OutputGate]
+
+data_types: null
+cost_hint: light
+
+description: >-
+  第4类违法有害内容与第5类政治敏感内容 V4 本地规则检测器。仅分析
+  DetectionUnit 中已有的文本和结构化文本字段，不解析图片或视频像素，
+  不调用大模型、在线 API 或外部服务。冻结测试集整体准确率为 0.95。
+
+default_params:
+  min_score: 70
+  max_risk_locations: 8
+  max_rule_ids: 12

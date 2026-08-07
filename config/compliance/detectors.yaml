@@ -48,7 +48,9 @@ detectors:
   - { id: regex_struct_id, enabled: true } # 1 结构化标识符泄露
   - { id: regex_geo_loc, enabled: true } # 2 精确地理位置泄露
   - { id: entropy_hardcoded_cred, enabled: false } # 3 硬编码凭证泄露（仅 InputGate）
-  - { id: keyword_illegal_content, enabled: false } # 4 违法有害内容
-  - { id: keyword_political, enabled: false } # 5 政治敏感内容
+  # 第 4/5 类共用 V4 规则核心，运行时按命中结果输出独立违规类型。
+  - id: rule_illegal_political_v4
+    enabled: true
+    params: {}
   - { id: ner_text_id, enabled: false } # 6 自由文本标识符泄露
   - { id: llm_confidential, enabled: false } # 7 商业秘密与内部敏感

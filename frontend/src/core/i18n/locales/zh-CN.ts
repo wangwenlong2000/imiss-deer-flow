@@ -303,6 +303,7 @@ export const zhCN: Translations = {
   // Compliance
   compliance: {
     title: "合规处置提示",
+    titlePassed: "合规检测通过",
     titleBlocked: "内容已按合规策略处置",
     showDetails: "查看处置详情",
     hideDetails: "收起",
@@ -313,6 +314,7 @@ export const zhCN: Translations = {
     gateLabel: "检查闸门",
     sceneLabel: "权限场景",
     noBasis: "本次判定未附带条款依据",
+    noRisk: "未检测到合规风险",
     violationTypes: {
       struct_id: "结构化标识符泄露",
       geo_loc: "精确地理位置泄露",
@@ -349,6 +351,11 @@ export const zhCN: Translations = {
       public_release: "公开发布",
       research_anon: "匿名科研",
       _unknown: "未知（保守策略）",
+    },
+    checkStatuses: {
+      passed: "检测通过",
+      allowed: "发现风险，按场景放行",
+      handled: "已执行合规处置",
     },
   },
 

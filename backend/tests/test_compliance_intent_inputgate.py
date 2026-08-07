@@ -193,7 +193,10 @@ def test_benign_desensitize_intent_drops_entity_hit_before_policy(real_input_gat
     assert _intent_from_state(state).intent_type == "desensitize"
     assert decision.hits == ()
     assert decision.actions == ()
-    assert auditor.read_all() == []
+    records = auditor.read_all()
+    assert len(records) == 1
+    assert records[0]["hits"] == []
+    assert records[0]["actions"] == []
 
 
 @pytest.mark.parametrize(

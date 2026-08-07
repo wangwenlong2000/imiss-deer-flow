@@ -92,6 +92,46 @@ void test("ignores messages with no or incomplete compliance metadata", () => {
   );
 });
 
+void test("parses a clean two-gate evaluation summary", () => {
+  const message = {
+    type: "ai",
+    id: "clean",
+    content: "safe answer",
+    response_metadata: {
+      compliance: {
+        evaluated: true,
+        retracted: false,
+        checks: [
+          {
+            gate: "InputGate",
+            scene: "self_use",
+            status: "passed",
+            violation_types: [],
+            actions: ["allow"],
+            basis: [],
+            audit_ref: "audit-input",
+          },
+          {
+            gate: "OutputGate",
+            scene: "self_use",
+            status: "passed",
+            violation_types: [],
+            actions: ["allow"],
+            basis: [],
+            audit_ref: "audit-output",
+          },
+        ],
+      },
+    },
+  };
+  const disposition = complianceDispositionOf(message);
+  assert.ok(disposition);
+  assert.equal(disposition.mutated, false);
+  assert.deepEqual(disposition.actions, ["allow"]);
+  assert.equal(disposition.checks.length, 2);
+  assert.equal(disposition.checks[1]?.auditRef, "audit-output");
+});
+
 // ── the appended-notice strip ──────────────────────────────────────────────
 
 void test("strips the appended notice so it is not shown twice", () => {
@@ -106,6 +146,11 @@ void test("never strips a standalone refusal to nothing", () => {
   assert.equal(stripAppendedComplianceNotice(refusal), refusal);
   const standaloneNotice = "【合规提示】 检测到合规风险类型：re_identify。";
   assert.equal(stripAppendedComplianceNotice(standaloneNotice), standaloneNotice);
+});
+
+void test("hides a standalone notice when its structured card is available", () => {
+  const notice = "【合规提示】 检测到合规风险类型：struct_id。";
+  assert.equal(stripAppendedComplianceNotice(notice, notice), "");
 });
 
 // ── the live event path ────────────────────────────────────────────────────

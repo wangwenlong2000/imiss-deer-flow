@@ -149,6 +149,9 @@ env-audit/
 datasets/compliance/*
 !datasets/compliance/type12_frozen_test/
 !datasets/compliance/type12_frozen_test/*.jsonl
+!datasets/compliance/type45_frozen_test/
+!datasets/compliance/type45_frozen_test/*.jsonl
+!datasets/compliance/type45_frozen_test/*.json
 !datasets/compliance/normalized/
 datasets/compliance/normalized/*
 !datasets/compliance/normalized/0624_supported_split/

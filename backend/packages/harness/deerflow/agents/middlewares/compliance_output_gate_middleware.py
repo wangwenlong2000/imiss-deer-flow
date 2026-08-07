@@ -82,11 +82,13 @@ from langchain_core.messages import AIMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
+from deerflow.agents.thread_state import ThreadState
 from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
+    decision_check,
     failure_decision,
     gate_config,
     gate_enabled,
@@ -111,10 +113,10 @@ def _digest(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
+class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
     """Check the model's answer, retract and rewrite it when it violates."""
 
-    state_schema = AgentState
+    state_schema = ThreadState
 
     def __init__(self, *, engine: Any = None) -> None:
         super().__init__()
@@ -211,21 +213,20 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
                 return None
-            return self._retract(message, FAIL_CLOSED_NOTICE, decision)
+            return self._retract(message, FAIL_CLOSED_NOTICE, decision, state)
 
         if not decision.actions:
             self._scan_offsets.pop(message_id, None)
-            if message_id:
-                self._checked[message_id] = _digest(text)
-            return None
+            self._remember(message, text)
+            return {"messages": [self._rewritten(message, text, decision, state, retracted=False)]}
 
         replacement = apply_actions(text, decision.actions, decision.hits)
         if replacement is None:
             # warn / manual_review only: nothing to rewrite, but the user should
             # still be told the answer was flagged.
-            return self._notice_only(message, decision)
+            return self._notice_only(message, decision, state)
 
-        return self._retract(message, replacement, decision)
+        return self._retract(message, replacement, decision, state)
 
     def _check(
         self,
@@ -252,6 +253,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             user=user_context(runtime_or_request),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
+            audit_clean=True,
             origin={
                 "message_id": str(message.id or ""),
                 "chars": len(text),
@@ -327,10 +329,16 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
 
     # ── retraction (layer 1 event + layer 2 rewrite) ────────────────────────
 
-    def _retract(self, message: AIMessage, replacement: str, decision: ComplianceDecision) -> dict[str, Any]:
+    def _retract(
+        self,
+        message: AIMessage,
+        replacement: str,
+        decision: ComplianceDecision,
+        state: AgentState,
+    ) -> dict[str, Any]:
         self.emit_retract_event(message, replacement, decision)
         self._remember(message, replacement)
-        return {"messages": [self._rewritten(message, replacement, decision)]}
+        return {"messages": [self._rewritten(message, replacement, decision, state, retracted=True)]}
 
     def _remember(self, message: AIMessage, replacement: str) -> None:
         """Record the sanitized text so the backstop treats it as already cleared."""
@@ -338,13 +346,18 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         if message_id:
             self._checked[message_id] = _digest(replacement)
 
-    def _notice_only(self, message: AIMessage, decision: ComplianceDecision) -> dict[str, Any] | None:
+    def _notice_only(
+        self,
+        message: AIMessage,
+        decision: ComplianceDecision,
+        state: AgentState,
+    ) -> dict[str, Any] | None:
         """warn / manual_review: keep the answer, append the compliance notice."""
         text = extract_text(message.content)
         annotated = f"{text}\n\n{user_notice(decision)}"
         self.emit_retract_event(message, annotated, decision)
         self._remember(message, annotated)
-        return {"messages": [self._rewritten(message, annotated, decision)]}
+        return {"messages": [self._rewritten(message, annotated, decision, state, retracted=True)]}
 
     def emit_retract_event(self, message: AIMessage, replacement: str, decision: ComplianceDecision) -> bool:
         """Send the ``compliance_retract`` custom stream event.
@@ -376,7 +389,14 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         return True
 
     @staticmethod
-    def _rewritten(message: AIMessage, replacement: str, decision: ComplianceDecision) -> AIMessage:
+    def _rewritten(
+        message: AIMessage,
+        replacement: str,
+        decision: ComplianceDecision,
+        state: AgentState,
+        *,
+        retracted: bool,
+    ) -> AIMessage:
         """Rebuild the message so persisted state holds only the safe version.
 
         The id is preserved so LangGraph's message reducer replaces the original
@@ -384,7 +404,11 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
         checkpoint.
         """
         metadata = dict(getattr(message, "response_metadata", None) or {})
+        input_check = (state or {}).get("compliance_input_result")
+        checks = [input_check] if isinstance(input_check, dict) else []
+        checks.append(decision_check(decision))
         metadata["compliance"] = {
+            "evaluated": True,
             "gate": GATE,
             "scene": decision.scene_key,
             "streaming_mode": "compatible_retract",
@@ -397,7 +421,8 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[AgentState]):
             # of which rule") has to survive a refresh, so persist them here too.
             "basis": list(decision.basis),
             "notice": user_notice(decision),
-            "retracted": True,
+            "retracted": retracted,
+            "checks": checks,
         }
         return AIMessage(
             content=replacement,

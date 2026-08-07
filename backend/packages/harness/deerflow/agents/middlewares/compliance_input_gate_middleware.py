@@ -41,6 +41,7 @@ from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, U
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
+    decision_check,
     failure_decision,
     gate_config,
     gate_enabled,
@@ -159,12 +160,19 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
                 return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
-            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_scene_context else None)
+            return self._block(
+                decision,
+                scene_resolution.to_dict() if has_scene_context else None,
+                notice=FAIL_CLOSED_NOTICE,
+            )
 
         if "refuse" in decision.actions:
             # Guide action 10: terminate the request and return a standard notice.
-            return self._block(user_notice(decision), scene_resolution.to_dict() if has_scene_context else None)
-        return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
+            return self._block(decision, scene_resolution.to_dict() if has_scene_context else None)
+        update: dict[str, Any] = {"compliance_input_result": decision_check(decision)}
+        if has_scene_context:
+            update[SCENE_CONTEXT_KEY] = scene_resolution.to_dict()
+        return update
 
     def _check(
         self,
@@ -191,6 +199,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             intent=_intent_from_state(state),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
+            audit_clean=True,
             origin={
                 "kind": "user_query",
                 "compliance_context": compliance_context(runtime),
@@ -199,9 +208,34 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
         )
 
     @staticmethod
-    def _block(notice: str, scene_context: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Refuse the request by answering directly instead of running the agent."""
-        update: dict[str, Any] = {"messages": [AIMessage(content=notice)], "jump_to": "end"}
+    def _block(
+        decision: ComplianceDecision,
+        scene_context: dict[str, Any] | None = None,
+        *,
+        notice: str | None = None,
+    ) -> dict[str, Any]:
+        """Refuse before model execution and persist the structured disposition."""
+        rendered_notice = notice or user_notice(decision)
+        metadata = {
+            "compliance": {
+                "evaluated": True,
+                "gate": GATE,
+                "scene": decision.scene_key,
+                "streaming_mode": "preflight_block",
+                "transient_exposure_possible": False,
+                "actions": list(decision.actions),
+                "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+                "audit_ref": decision.audit_ref,
+                "basis": list(decision.basis),
+                "notice": rendered_notice,
+                "retracted": True,
+                "checks": [decision_check(decision)],
+            }
+        }
+        update: dict[str, Any] = {
+            "messages": [AIMessage(content=rendered_notice, response_metadata=metadata)],
+            "jump_to": "end",
+        }
         if scene_context is not None:
             update[SCENE_CONTEXT_KEY] = scene_context
         return update

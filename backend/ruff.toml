@@ -5,7 +5,10 @@ target-version = "py312"
 # so a package upgrade is a straight overwrite. `make lint --fix` / `make format`
 # would otherwise silently rewrite them (it has: UP035/UP037 rewrites in
 # tfidf_knn.py, feature_extractor.py, io_utils.py, holdout_split.py).
-exclude = ["packages/harness/deerflow/compliance/detectors/*/vendor/"]
+exclude = [
+    "packages/harness/deerflow/compliance/detectors/*/vendor/",
+    "packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/legacy_core.py",
+]
 
 [lint]
 select = ["E", "F", "I", "UP"]

@@ -115,6 +115,26 @@ def user_notice(decision: ComplianceDecision) -> str:
     return " ".join(parts)
 
 
+def decision_check(decision: ComplianceDecision) -> dict[str, Any]:
+    """Serialize one gate decision for the per-turn frontend summary."""
+    if not decision.hits:
+        status = "passed"
+    elif decision.actions and set(decision.actions) <= {"allow"}:
+        status = "allowed"
+    else:
+        status = "handled"
+
+    return {
+        "gate": decision.gate,
+        "scene": decision.scene_key,
+        "status": status,
+        "actions": list(decision.actions) or ["allow"],
+        "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+        "basis": list(decision.basis),
+        "audit_ref": decision.audit_ref,
+    }
+
+
 __all__ = [
     "FAIL_CLOSED_NOTICE",
     "failure_decision",
@@ -122,6 +142,7 @@ __all__ = [
     "gate_enabled",
     "get_compliance_config",
     "get_engine",
+    "decision_check",
     "compliance_context",
     "runtime_context",
     "user_context",

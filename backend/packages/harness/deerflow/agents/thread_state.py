@@ -130,6 +130,7 @@ class ThreadState(AgentState):
     dialogue_context: NotRequired[dict | None]
     compliance_request: NotRequired[dict | None]
     scene_context: NotRequired[dict | None]
+    compliance_input_result: NotRequired[dict | None]
     pending_action: NotRequired[dict | None]
 
     # SkillRouter scope tracking — per-turn

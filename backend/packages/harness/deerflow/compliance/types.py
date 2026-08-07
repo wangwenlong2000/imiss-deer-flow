@@ -50,6 +50,9 @@ class DetectionRequest:
     intent: IntentInfo | None = None
     budget_ms: int = 400
     max_units: int = 32
+    #: Record a final clean decision as well as detector hits. Internal and
+    #: incremental scans leave this false to avoid noisy audit logs.
+    audit_clean: bool = False
     #: Free-form provenance for the audit trail (tool name, message id, ...).
     origin: Mapping[str, Any] = field(default_factory=dict)
 

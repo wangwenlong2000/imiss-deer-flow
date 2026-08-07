@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-gates compliance-export-schema
+.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-gates compliance-eval-type45 compliance-export-schema
 PYTHON ?= python
 
 help:
@@ -32,6 +32,7 @@ help:
 	@echo "  make sync-skill-router-index - Sync all skills into SkillRouter index"
 	@echo "  make check-skill-router-health - Check ES + embedding + reranker health"
 	@echo "  make test-skill-router      - Run SkillRouter test suite"
+	@echo "  make compliance-eval-type45 - Run frozen type 4/5 rules through the compliance engine"
 	@echo "  make dev-daemon      - Start all services in background (daemon mode)"
 	@echo "  make start           - Start all services in production mode (optimized, no hot-reloading)"
 	@echo "  make stop            - Stop all running services"
@@ -338,6 +339,10 @@ compliance-eval-model:
 # End-to-end gate evaluation through the full ComplianceEngine (four metric groups).
 compliance-eval-gates:
 	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/run_compliance_gate_eval.py
+
+# Frozen type 4/5 regression through Registry, Router, Engine and Policy Matrix.
+compliance-eval-type45:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/eval_compliance_type45_engine.py --json
 
 # Export the detector contract as JSON Schema (for cross-language detector authors).
 compliance-export-schema:
