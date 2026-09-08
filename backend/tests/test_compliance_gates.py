@@ -31,6 +31,7 @@ from deerflow.agents.middlewares.tool_error_handling_middleware import (
     build_compliance_input_gate_middlewares,
     build_lead_runtime_middlewares,
 )
+from deerflow.compliance.actions import REFUSAL_TEXT
 from deerflow.compliance.contract import DetectionHit, RiskLocation
 from deerflow.compliance.types import ComplianceDecision, Diagnostics
 from deerflow.config.compliance_config import (
@@ -561,7 +562,25 @@ def test_input_gate_refusal_ends_the_turn(enabled_config) -> None:
     result = ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="here is my aws key")]}, runtime=None)
 
     assert result["jump_to"] == "end"
-    assert "合规" in result["messages"][0].content
+    assert result["messages"][0].content == REFUSAL_TEXT
+
+
+def test_input_gate_refusal_stamps_the_frontend_compliance_contract(enabled_config) -> None:
+    """A pre-model refusal must render as the same red card as OutputGate."""
+    decision = _decision(gate="InputGate", actions=("aggregate", "desensitize", "refuse"), violation="struct_id")
+    decision.scene_key = "public_release"
+    result = ComplianceInputGateMiddleware(engine=_StubEngine(decision)).before_agent(
+        {"messages": [HumanMessage(content="publish this phone number")]},
+        runtime=None,
+    )
+
+    metadata = result["messages"][0].response_metadata["compliance"]
+    assert metadata["retracted"] is True
+    assert metadata["gate"] == "InputGate"
+    assert metadata["scene"] == "public_release"
+    assert metadata["actions"] == ["aggregate", "desensitize", "refuse"]
+    assert metadata["violation_types"] == ["struct_id"]
+    assert metadata["audit_ref"] == "audit-test"
 
 
 def test_input_gate_refusal_does_not_reach_the_model(enabled_config) -> None:

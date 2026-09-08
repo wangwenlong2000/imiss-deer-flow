@@ -36,6 +36,7 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
+from deerflow.compliance.actions import REFUSAL_TEXT
 from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, IntentInfo, UserContext
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
@@ -159,11 +160,19 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             decision = failure_decision(GATE, request_id, exc)
             if not decision.actions:
                 return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
-            return self._block(FAIL_CLOSED_NOTICE, scene_resolution.to_dict() if has_scene_context else None)
+            return self._block(
+                decision,
+                scene_resolution.to_dict() if has_scene_context else None,
+                content=FAIL_CLOSED_NOTICE,
+            )
 
         if "refuse" in decision.actions:
-            # Guide action 10: terminate the request and return a standard notice.
-            return self._block(user_notice(decision), scene_resolution.to_dict() if has_scene_context else None)
+            # Guide action 10: terminate the request before the model runs.  The
+            # refusal is also stamped with the same durable metadata contract as
+            # OutputGate retractions, so the frontend renders its structured,
+            # destructive compliance card instead of treating this as ordinary
+            # assistant Markdown.
+            return self._block(decision, scene_resolution.to_dict() if has_scene_context else None)
         return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
 
     def _check(
@@ -199,9 +208,31 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
         )
 
     @staticmethod
-    def _block(notice: str, scene_context: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Refuse the request by answering directly instead of running the agent."""
-        update: dict[str, Any] = {"messages": [AIMessage(content=notice)], "jump_to": "end"}
+    def _block(
+        decision: ComplianceDecision,
+        scene_context: dict[str, Any] | None = None,
+        *,
+        content: str = REFUSAL_TEXT,
+    ) -> dict[str, Any]:
+        """Refuse before the model runs, with a frontend-readable disposition."""
+        notice = user_notice(decision)
+        metadata = {
+            "gate": GATE,
+            "scene": decision.scene_key,
+            "streaming_mode": "pre_model_refusal",
+            "transient_exposure_possible": False,
+            "actions": list(decision.actions),
+            "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            "audit_ref": decision.audit_ref,
+            "basis": list(decision.basis),
+            "notice": notice,
+            "retracted": True,
+        }
+        message = AIMessage(
+            content=content,
+            response_metadata={"compliance": metadata},
+        )
+        update: dict[str, Any] = {"messages": [message], "jump_to": "end"}
         if scene_context is not None:
             update[SCENE_CONTEXT_KEY] = scene_context
         return update

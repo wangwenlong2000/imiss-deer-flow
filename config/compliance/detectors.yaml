@@ -19,9 +19,8 @@ detectors:
   # ── 已实现 ────────────────────────────────────────────────────────────────
   # 第 8/9/10 类：视频监控点位元数据 / 模型输出再识别风险 / 城市治理领域专有敏感
   - id: model_tfidf_knn
-    # The gitignored 8/9/10 model asset is not part of this checkout. Keep this
-    # local UI test instance focused on the merged rule-only type 1/2 detectors.
-    enabled: false
+    # 模型资产已挂载在 models/compliance/，启用后覆盖第 8/9/10 类检测。
+    enabled: true
     # 不覆盖任何参数，直接用 manifest 的 default_params（min_similarity: 0.20）。
     #
     # 为什么不抬到 0.25 —— 实测数据说话（0624 测试集 56 条，命中 31 条）：

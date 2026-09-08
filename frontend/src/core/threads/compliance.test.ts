@@ -79,6 +79,34 @@ void test("refuse/rewrite is treated as a mutation", () => {
   assert.equal(complianceDispositionOf(message).mutated, true);
 });
 
+void test("recognizes a pre-model InputGate refusal for the destructive card", () => {
+  const message = {
+    type: "ai",
+    id: "input-gate-refusal",
+    content: "【合规拦截】该内容包含合规风险，已被安全策略拦截，无法展示。",
+    response_metadata: {
+      compliance: {
+        gate: "InputGate",
+        scene: "public_release",
+        streaming_mode: "pre_model_refusal",
+        actions: ["aggregate", "desensitize", "refuse"],
+        violation_types: ["geo_loc", "struct_id"],
+        audit_ref: "audit-input-gate",
+        basis: ["标注指南 7.23 §1.2.1(1)"],
+        notice: "【合规提示】...",
+        retracted: true,
+      },
+    },
+  };
+
+  const disposition = complianceDispositionOf(message);
+  assert.ok(disposition);
+  assert.equal(disposition.gate, "InputGate");
+  assert.equal(disposition.scene, "public_release");
+  assert.deepEqual(disposition.actions, ["aggregate", "desensitize", "refuse"]);
+  assert.equal(disposition.mutated, true);
+});
+
 void test("ignores messages with no or incomplete compliance metadata", () => {
   assert.equal(complianceDispositionOf({ type: "ai", id: "x", content: "hi" }), null);
   assert.equal(
