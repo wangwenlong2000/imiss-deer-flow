@@ -319,6 +319,7 @@ export const enUS: Translations = {
   // Compliance
   compliance: {
     title: "Compliance notice",
+    titlePassed: "Compliance checks passed",
     titleBlocked: "Content altered by compliance policy",
     showDetails: "View disposition details",
     hideDetails: "Hide",
@@ -329,6 +330,7 @@ export const enUS: Translations = {
     gateLabel: "Gate",
     sceneLabel: "Permission scene",
     noBasis: "No clause was attached to this determination",
+    noRisk: "No compliance risk detected",
     violationTypes: {
       struct_id: "Structured identifier leak",
       geo_loc: "Precise geolocation leak",
@@ -365,6 +367,11 @@ export const enUS: Translations = {
       public_release: "Public release",
       research_anon: "Anonymized research",
       _unknown: "Unknown (conservative)",
+    },
+    checkStatuses: {
+      passed: "Passed",
+      allowed: "Risk detected, allowed for this scene",
+      handled: "Compliance action applied",
     },
   },
 

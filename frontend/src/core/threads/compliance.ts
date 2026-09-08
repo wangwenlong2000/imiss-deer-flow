@@ -98,6 +98,14 @@ export const COMPLIANCE_SCENES = [
 ] as const;
 export type ComplianceScene = (typeof COMPLIANCE_SCENES)[number];
 
+export const COMPLIANCE_CHECK_STATUSES = [
+  "passed",
+  "allowed",
+  "handled",
+] as const;
+export type ComplianceCheckStatus =
+  (typeof COMPLIANCE_CHECK_STATUSES)[number];
+
 /**
  * Actions that changed or withheld the answer — mirrors backend
  * `contract.MUTATING_ACTIONS`.
@@ -115,6 +123,16 @@ const MUTATING_ACTIONS = new Set<string>([
 ]);
 
 /** What the UI needs to explain a compliance disposition. */
+export type ComplianceCheck = {
+  gate: string | null;
+  scene: string | null;
+  status: ComplianceCheckStatus;
+  violationTypes: string[];
+  actions: string[];
+  basis: string[];
+  auditRef: string | null;
+};
+
 export type ComplianceDisposition = {
   gate: string | null;
   scene: string | null;
@@ -123,6 +141,7 @@ export type ComplianceDisposition = {
   basis: string[];
   auditRef: string | null;
   notice: string | null;
+  checks: ComplianceCheck[];
   /** True when the answer itself was altered or withheld. */
   mutated: boolean;
 };
@@ -131,6 +150,28 @@ function strings(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function checkOf(value: unknown): ComplianceCheck | null {
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+  const raw = value as Record<string, unknown>;
+  const rawStatus = raw.status;
+  const status = COMPLIANCE_CHECK_STATUSES.includes(
+    rawStatus as ComplianceCheckStatus,
+  )
+    ? (rawStatus as ComplianceCheckStatus)
+    : "handled";
+  return {
+    gate: typeof raw.gate === "string" ? raw.gate : null,
+    scene: typeof raw.scene === "string" ? raw.scene : null,
+    status,
+    violationTypes: strings(raw.violation_types),
+    actions: strings(raw.actions),
+    basis: strings(raw.basis),
+    auditRef: typeof raw.audit_ref === "string" ? raw.audit_ref : null,
+  };
 }
 
 /**
@@ -150,19 +191,43 @@ export function complianceDispositionOf(
     return null;
   }
   const meta = raw as Record<string, unknown>;
-  if (meta.retracted !== true) {
+  if (meta.evaluated !== true && meta.retracted !== true) {
     return null;
   }
 
-  const actions = strings(meta.actions);
+  const checks = Array.isArray(meta.checks)
+    ? meta.checks.map(checkOf).filter((item): item is ComplianceCheck => item !== null)
+    : [];
+  if (checks.length === 0) {
+    checks.push(
+      checkOf({
+        gate: meta.gate,
+        scene: meta.scene,
+        status: "handled",
+        violation_types: meta.violation_types,
+        actions: meta.actions,
+        basis: meta.basis,
+        audit_ref: meta.audit_ref,
+      })!,
+    );
+  }
+
+  const actions = Array.from(
+    new Set(checks.flatMap((check) => check.actions)),
+  );
+  const violationTypes = Array.from(
+    new Set(checks.flatMap((check) => check.violationTypes)),
+  );
+  const basis = Array.from(new Set(checks.flatMap((check) => check.basis)));
   return {
     gate: typeof meta.gate === "string" ? meta.gate : null,
     scene: typeof meta.scene === "string" ? meta.scene : null,
-    violationTypes: strings(meta.violation_types),
+    violationTypes,
     actions,
-    basis: strings(meta.basis),
+    basis,
     auditRef: typeof meta.audit_ref === "string" ? meta.audit_ref : null,
     notice: typeof meta.notice === "string" ? meta.notice : null,
+    checks,
     mutated: actions.some((action) => MUTATING_ACTIONS.has(action)),
   };
 }
@@ -180,7 +245,13 @@ export function complianceDispositionOf(
  */
 const APPENDED_NOTICE = /\n{2,}【合规提示】[\s\S]*$/;
 
-export function stripAppendedComplianceNotice(text: string): string {
+export function stripAppendedComplianceNotice(
+  text: string,
+  standaloneNotice?: string | null,
+): string {
+  if (text.trim() === standaloneNotice?.trim()) {
+    return "";
+  }
   return text.replace(APPENDED_NOTICE, "").trimEnd();
 }
 

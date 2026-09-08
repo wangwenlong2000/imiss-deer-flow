@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 import type {
   ComplianceAction,
+  ComplianceCheckStatus,
   ComplianceGate,
   ComplianceScene,
   ComplianceViolationType,
@@ -262,6 +263,7 @@ export interface Translations {
   // frontend test framework, that compile error is the test.
   compliance: {
     title: string;
+    titlePassed: string;
     titleBlocked: string;
     showDetails: string;
     hideDetails: string;
@@ -272,10 +274,12 @@ export interface Translations {
     gateLabel: string;
     sceneLabel: string;
     noBasis: string;
+    noRisk: string;
     violationTypes: Record<ComplianceViolationType, string>;
     actions: Record<ComplianceAction, string>;
     gates: Record<ComplianceGate, string>;
     scenes: Record<ComplianceScene, string>;
+    checkStatuses: Record<ComplianceCheckStatus, string>;
   };
 
   // Settings

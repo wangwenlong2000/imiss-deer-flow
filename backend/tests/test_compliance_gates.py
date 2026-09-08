@@ -400,9 +400,16 @@ def _state(text="camera HK-0431 at 31.19,121.43", message_id="m-1", tool_calls=N
     return {"messages": [HumanMessage(content="q"), AIMessage(content=text, id=message_id, tool_calls=tool_calls or [])]}
 
 
-def test_clean_output_is_left_alone(enabled_config) -> None:
+def test_clean_output_is_annotated_without_changing_content(enabled_config) -> None:
     middleware = ComplianceOutputGateMiddleware(engine=_StubEngine())
-    assert middleware.after_model(_state(), runtime=None) is None
+    result = middleware.after_model(_state(), runtime=None)
+    message = result["messages"][0]
+    assert message.content == "camera HK-0431 at 31.19,121.43"
+    metadata = message.response_metadata["compliance"]
+    assert metadata["evaluated"] is True
+    assert metadata["retracted"] is False
+    assert metadata["checks"][0]["status"] == "passed"
+    assert metadata["checks"][0]["actions"] == ["allow"]
 
 
 def test_intermediate_tool_call_message_is_skipped(enabled_config) -> None:
@@ -554,7 +561,9 @@ def test_incremental_scan_returns_none_when_clean(enabled_config) -> None:
 
 def test_input_gate_allows_a_clean_query(enabled_config) -> None:
     middleware = ComplianceInputGateMiddleware(engine=_StubEngine())
-    assert middleware.before_agent({"messages": [HumanMessage(content="hello")]}, runtime=None) is None
+    result = middleware.before_agent({"messages": [HumanMessage(content="hello")]}, runtime=None)
+    assert result["compliance_input_result"]["status"] == "passed"
+    assert result["compliance_input_result"]["actions"] == ["allow"]
 
 
 def test_input_gate_refusal_ends_the_turn(enabled_config) -> None:
@@ -562,7 +571,13 @@ def test_input_gate_refusal_ends_the_turn(enabled_config) -> None:
     result = ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="here is my aws key")]}, runtime=None)
 
     assert result["jump_to"] == "end"
-    assert result["messages"][0].content == REFUSAL_TEXT
+    message = result["messages"][0]
+    assert message.content == REFUSAL_TEXT
+    metadata = message.response_metadata["compliance"]
+    assert metadata["retracted"] is True
+    assert metadata["gate"] == "InputGate"
+    assert metadata["actions"] == ["refuse", "warn"]
+    assert metadata["violation_types"] == ["hardcoded_cred"]
 
 
 def test_input_gate_refusal_stamps_the_frontend_compliance_contract(enabled_config) -> None:
@@ -609,7 +624,27 @@ def test_input_gate_refusal_does_not_reach_the_model(enabled_config) -> None:
 def test_input_gate_warn_does_not_block(enabled_config) -> None:
     """Only `refuse` stops the request; warn/manual_review are recorded and pass."""
     engine = _StubEngine(_decision(gate="InputGate", actions=("warn", "manual_review")))
-    assert ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="q")]}, runtime=None) is None
+    result = ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="q")]}, runtime=None)
+    assert result["compliance_input_result"]["status"] == "handled"
+    assert result["compliance_input_result"]["actions"] == ["warn", "manual_review"]
+
+
+def test_output_summary_combines_input_and_output_checks(enabled_config) -> None:
+    input_check = {
+        "gate": "InputGate",
+        "scene": "self_use",
+        "status": "passed",
+        "actions": ["allow"],
+        "violation_types": [],
+        "basis": [],
+        "audit_ref": "audit-input",
+    }
+    state = _state()
+    state["compliance_input_result"] = input_check
+    result = ComplianceOutputGateMiddleware(engine=_StubEngine()).after_model(state, runtime=None)
+    checks = result["messages"][0].response_metadata["compliance"]["checks"]
+    assert [check["gate"] for check in checks] == ["InputGate", "OutputGate"]
+    assert checks[0]["audit_ref"] == "audit-input"
 
 
 def test_input_gate_passes_recognized_intent_to_the_engine(enabled_config) -> None:
@@ -644,6 +679,7 @@ def test_input_gate_fail_mode_closed_blocks(enabled_config) -> None:
     result = ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="q")]}, runtime=None)
     assert result["jump_to"] == "end"
     assert "合规检查失败" in result["messages"][0].content
+    assert result["messages"][0].response_metadata["compliance"]["retracted"] is True
 
 
 def test_upload_scan_helper_is_exposed_for_the_app_layer() -> None:

@@ -42,6 +42,7 @@ from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, U
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
+    decision_check,
     failure_decision,
     gate_config,
     gate_enabled,
@@ -173,7 +174,10 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             # destructive compliance card instead of treating this as ordinary
             # assistant Markdown.
             return self._block(decision, scene_resolution.to_dict() if has_scene_context else None)
-        return {SCENE_CONTEXT_KEY: scene_resolution.to_dict()} if has_scene_context else None
+        update: dict[str, Any] = {"compliance_input_result": decision_check(decision)}
+        if has_scene_context:
+            update[SCENE_CONTEXT_KEY] = scene_resolution.to_dict()
+        return update
 
     def _check(
         self,
@@ -200,6 +204,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             intent=_intent_from_state(state),
             budget_ms=config.budget_ms,
             max_units=config.max_units,
+            audit_clean=True,
             origin={
                 "kind": "user_query",
                 "compliance_context": compliance_context(runtime),
@@ -217,6 +222,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
         """Refuse before the model runs, with a frontend-readable disposition."""
         notice = user_notice(decision)
         metadata = {
+            "evaluated": True,
             "gate": GATE,
             "scene": decision.scene_key,
             "streaming_mode": "pre_model_refusal",
@@ -227,6 +233,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             "basis": list(decision.basis),
             "notice": notice,
             "retracted": True,
+            "checks": [decision_check(decision)],
         }
         message = AIMessage(
             content=content,

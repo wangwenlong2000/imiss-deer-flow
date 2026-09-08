@@ -368,6 +368,16 @@ def test_clean_pass_writes_no_audit_record(tmp_path: Path) -> None:
     assert auditor.read_all() == []
 
 
+def test_final_clean_pass_can_be_audited_explicitly(tmp_path: Path) -> None:
+    auditor = Auditor(path=tmp_path / "audit", enabled=True)
+    engine = _engine([_registration("d1", _FakeAdapter([]), gates={"domain": ("OutputGate",)})], auditor=auditor)
+    decision = engine.check([_unit()], gate="OutputGate", audit_clean=True)
+    assert decision.audit_ref is not None
+    records = auditor.read_all()
+    assert len(records) == 1
+    assert records[0]["hits"] == []
+
+
 def test_audit_failure_is_reported_but_never_raises(tmp_path: Path) -> None:
     """Losing the log must not take a request down — but the gap must be visible."""
     blocker = tmp_path / "audit"

@@ -212,8 +212,11 @@ def test_conceptual_negative_is_not_flagged(strict_runtime):
     events, final = asyncio.run(_stream(_agent(engine, OUTPUTS["negative"]), "public_release"))
     assert OUTPUTS["negative"] in _dump(final)
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
-    assert "compliance" not in assistant.response_metadata
-    assert auditor.read_all() == []
+    metadata = assistant.response_metadata["compliance"]
+    assert metadata["evaluated"] is True
+    assert metadata["retracted"] is False
+    assert [check["status"] for check in metadata["checks"]] == ["passed", "passed"]
+    assert len(auditor.read_all()) == 2
     # A clean answer remains unchanged under stream_retract.
     assert OUTPUTS["negative"] in _dump([data for mode, data in events if mode == "messages"])
 

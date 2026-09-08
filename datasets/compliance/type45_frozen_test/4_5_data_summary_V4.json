@@ -1,0 +1,328 @@
+{
+  "schema_version": "illegal_political_test_eval_data_v4",
+  "source_dir": "7.23 数据（清洗版）",
+  "output_dir": "7.23 数据（清洗版）/test_eval_data_V4",
+  "random_seed": 20260723,
+  "split_ratio": "80:20",
+  "target_types": [
+    "illegal_content",
+    "political"
+  ],
+  "all": {
+    "total": 400,
+    "target_counts": {
+      "illegal_content": 200,
+      "political": 200
+    },
+    "expected_counts": {
+      "illegal_content:illegal_content": 151,
+      "illegal_content:none": 49,
+      "political:none": 83,
+      "political:political": 117
+    },
+    "sample_kind_counts": {
+      "boundary": 43,
+      "positive": 251,
+      "negative": 106
+    },
+    "data_type_counts": {
+      "policy_regulation": 225,
+      "street_view": 100,
+      "video_monitoring": 75
+    },
+    "source_file_counts": {
+      "policy_regulation.jsonl": 225,
+      "street_view_200.jsonl": 100,
+      "video_monitoring_200.jsonl": 75
+    }
+  },
+  "train": {
+    "total": 320,
+    "target_counts": {
+      "illegal_content": 161,
+      "political": 159
+    },
+    "expected_counts": {
+      "illegal_content:illegal_content": 121,
+      "illegal_content:none": 40,
+      "political:none": 66,
+      "political:political": 93
+    },
+    "sample_kind_counts": {
+      "boundary": 34,
+      "positive": 201,
+      "negative": 85
+    },
+    "data_type_counts": {
+      "policy_regulation": 180,
+      "street_view": 80,
+      "video_monitoring": 60
+    },
+    "source_file_counts": {
+      "policy_regulation.jsonl": 180,
+      "street_view_200.jsonl": 80,
+      "video_monitoring_200.jsonl": 60
+    }
+  },
+  "test": {
+    "total": 80,
+    "target_counts": {
+      "illegal_content": 39,
+      "political": 41
+    },
+    "expected_counts": {
+      "illegal_content:illegal_content": 30,
+      "illegal_content:none": 9,
+      "political:none": 17,
+      "political:political": 24
+    },
+    "sample_kind_counts": {
+      "positive": 50,
+      "boundary": 9,
+      "negative": 21
+    },
+    "data_type_counts": {
+      "policy_regulation": 45,
+      "street_view": 20,
+      "video_monitoring": 15
+    },
+    "source_file_counts": {
+      "policy_regulation.jsonl": 45,
+      "street_view_200.jsonl": 20,
+      "video_monitoring_200.jsonl": 15
+    }
+  },
+  "by_target": {
+    "illegal_content": {
+      "all": {
+        "total": 200,
+        "target_counts": {
+          "illegal_content": 200
+        },
+        "expected_counts": {
+          "illegal_content:illegal_content": 151,
+          "illegal_content:none": 49
+        },
+        "sample_kind_counts": {
+          "boundary": 15,
+          "positive": 147,
+          "negative": 38
+        },
+        "data_type_counts": {
+          "policy_regulation": 25,
+          "street_view": 100,
+          "video_monitoring": 75
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 25,
+          "street_view_200.jsonl": 100,
+          "video_monitoring_200.jsonl": 75
+        }
+      },
+      "train": {
+        "total": 161,
+        "target_counts": {
+          "illegal_content": 161
+        },
+        "expected_counts": {
+          "illegal_content:illegal_content": 121,
+          "illegal_content:none": 40
+        },
+        "sample_kind_counts": {
+          "boundary": 12,
+          "positive": 118,
+          "negative": 31
+        },
+        "data_type_counts": {
+          "policy_regulation": 21,
+          "street_view": 80,
+          "video_monitoring": 60
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 21,
+          "street_view_200.jsonl": 80,
+          "video_monitoring_200.jsonl": 60
+        }
+      },
+      "test": {
+        "total": 39,
+        "target_counts": {
+          "illegal_content": 39
+        },
+        "expected_counts": {
+          "illegal_content:illegal_content": 30,
+          "illegal_content:none": 9
+        },
+        "sample_kind_counts": {
+          "positive": 29,
+          "boundary": 3,
+          "negative": 7
+        },
+        "data_type_counts": {
+          "policy_regulation": 4,
+          "street_view": 20,
+          "video_monitoring": 15
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 4,
+          "street_view_200.jsonl": 20,
+          "video_monitoring_200.jsonl": 15
+        }
+      },
+      "split_groups": {
+        "illegal_content|illegal_content|boundary|policy_regulation": {
+          "total": 1,
+          "train": 1,
+          "test": 0
+        },
+        "illegal_content|illegal_content|boundary|street_view": {
+          "total": 3,
+          "train": 2,
+          "test": 1
+        },
+        "illegal_content|illegal_content|positive|policy_regulation": {
+          "total": 12,
+          "train": 10,
+          "test": 2
+        },
+        "illegal_content|illegal_content|positive|street_view": {
+          "total": 70,
+          "train": 56,
+          "test": 14
+        },
+        "illegal_content|illegal_content|positive|video_monitoring": {
+          "total": 65,
+          "train": 52,
+          "test": 13
+        },
+        "illegal_content|none|boundary|policy_regulation": {
+          "total": 1,
+          "train": 1,
+          "test": 0
+        },
+        "illegal_content|none|boundary|street_view": {
+          "total": 7,
+          "train": 6,
+          "test": 1
+        },
+        "illegal_content|none|boundary|video_monitoring": {
+          "total": 3,
+          "train": 2,
+          "test": 1
+        },
+        "illegal_content|none|negative|policy_regulation": {
+          "total": 11,
+          "train": 9,
+          "test": 2
+        },
+        "illegal_content|none|negative|street_view": {
+          "total": 20,
+          "train": 16,
+          "test": 4
+        },
+        "illegal_content|none|negative|video_monitoring": {
+          "total": 7,
+          "train": 6,
+          "test": 1
+        }
+      }
+    },
+    "political": {
+      "all": {
+        "total": 200,
+        "target_counts": {
+          "political": 200
+        },
+        "expected_counts": {
+          "political:none": 83,
+          "political:political": 117
+        },
+        "sample_kind_counts": {
+          "boundary": 28,
+          "negative": 68,
+          "positive": 104
+        },
+        "data_type_counts": {
+          "policy_regulation": 200
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 200
+        }
+      },
+      "train": {
+        "total": 159,
+        "target_counts": {
+          "political": 159
+        },
+        "expected_counts": {
+          "political:none": 66,
+          "political:political": 93
+        },
+        "sample_kind_counts": {
+          "boundary": 22,
+          "negative": 54,
+          "positive": 83
+        },
+        "data_type_counts": {
+          "policy_regulation": 159
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 159
+        }
+      },
+      "test": {
+        "total": 41,
+        "target_counts": {
+          "political": 41
+        },
+        "expected_counts": {
+          "political:none": 17,
+          "political:political": 24
+        },
+        "sample_kind_counts": {
+          "boundary": 6,
+          "negative": 14,
+          "positive": 21
+        },
+        "data_type_counts": {
+          "policy_regulation": 41
+        },
+        "source_file_counts": {
+          "policy_regulation.jsonl": 41
+        }
+      },
+      "split_groups": {
+        "political|none|boundary|policy_regulation": {
+          "total": 15,
+          "train": 12,
+          "test": 3
+        },
+        "political|none|negative|policy_regulation": {
+          "total": 68,
+          "train": 54,
+          "test": 14
+        },
+        "political|political|boundary|policy_regulation": {
+          "total": 13,
+          "train": 10,
+          "test": 3
+        },
+        "political|political|positive|policy_regulation": {
+          "total": 104,
+          "train": 83,
+          "test": 21
+        }
+      }
+    }
+  },
+  "files": {
+    "4_illegal_content_all": "4_illegal_content_all.jsonl",
+    "4_illegal_content_train_80pct": "4_illegal_content_train_80pct.jsonl",
+    "4_illegal_content_test_20pct": "4_illegal_content_test_20pct.jsonl",
+    "5_political_all": "5_political_all.jsonl",
+    "5_political_train_80pct": "5_political_train_80pct.jsonl",
+    "5_political_test_20pct": "5_political_test_20pct.jsonl",
+    "4_5_train_80pct": "4_5_train_80pct.jsonl",
+    "4_5_test_20pct": "4_5_test_20pct.jsonl"
+  }
+}
