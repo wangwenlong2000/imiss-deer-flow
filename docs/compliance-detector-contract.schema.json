@@ -23,6 +23,16 @@
             }
           ]
         },
+        "model_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "scenes": {
           "items": {
             "enum": [
@@ -337,7 +347,7 @@
   },
   "$id": "https://deerflow.dev/schemas/compliance/detector-contract.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "contract_version": "1.0",
+  "contract_version": "1.1",
   "description": "Wire format for subprocess_cli and http_service detector adapters.",
   "properties": {
     "request": {

@@ -1,0 +1,8 @@
+51E77A12D020D994DFE85E6299DFAB3E20D0E99A70CA8D4E0290EC47DEE57204  base.py.source-crlf
+681B8888CD75C4CCD17B743CB8438CFEAA287D0BF58167A03C3A08F4B07C2FB7  hardcoded_cred.py.source-crlf
+CF9CD7959CF867A77DCFFCD557345A609537384E976F27F35AD967649B94FB9A  text_id.py.source-crlf
+D7589766200058659B449708C0DD5AA466E1F4A3DE3479FC778EA91312C3BFEE  confidential.py.source-crlf
+
+The recorded values identify the original files under compliance_detectors/.
+The vendored snapshot uses repository LF line endings, so byte hashes differ.
+

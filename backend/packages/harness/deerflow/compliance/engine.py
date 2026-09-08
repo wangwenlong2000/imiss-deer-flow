@@ -88,6 +88,7 @@ class ComplianceEngine:
         thread_id: str | None = None,
         user: Any = None,
         intent: Any = None,
+        model_name: str | None = None,
         budget_ms: int = 400,
         max_units: int = 32,
         audit_clean: bool = False,
@@ -101,6 +102,7 @@ class ComplianceEngine:
             thread_id=thread_id,
             user=user,
             intent=intent,
+            model_name=model_name,
             budget_ms=budget_ms,
             max_units=max_units,
             audit_clean=audit_clean,
@@ -123,6 +125,7 @@ class ComplianceEngine:
             scenes=scenes,
             user=request.user,
             intent=request.intent,
+            model_name=request.model_name,
             budget_ms=request.budget_ms,
         )
 

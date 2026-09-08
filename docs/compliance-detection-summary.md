@@ -149,7 +149,7 @@ InputGate 会读取 IntentRecognitionMiddleware 产生的意图信息：
 
 因此 InputGate 必须挂载在意图识别之后，具体顺序在 backend/packages/harness/deerflow/agents/lead_agent/agent.py 中控制。
 
-如果检测结果包含 refuse，InputGate 会直接返回 AIMessage，并跳转到结束节点，从而终止本轮 Agent 执行。
+如果检测结果包含 refuse，InputGate 会直接返回 AIMessage，并跳转到结束节点，从而终止本轮 Agent 执行。该消息同时携带 `response_metadata.compliance`（包括闸门、场景、违规类型、处置动作、依据和审计编号），因此前端会显示结构化合规卡片，刷新页面后仍可恢复；由于模型未运行，`transient_exposure_possible` 为 `false`。
 
 #### 上传文件检测
 
@@ -896,4 +896,3 @@ config/compliance/detectors.yaml 当前配置：
 前端测试位于 frontend/src/core/threads/compliance.test.ts，主要验证撤回事件、消息合并、合规元数据和线程隔离。
 
 当前宿主环境是 Python 3.10，项目要求 Python 3.12 以上，且宿主没有安装 pytest，因此本次未能在当前环境实际执行测试。
-

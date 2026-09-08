@@ -61,6 +61,7 @@ def ctx_to_json(ctx: DetectContext) -> dict[str, Any]:
         "scenes": list(ctx.scenes),
         "user": user,
         "intent": intent,
+        "model_name": ctx.model_name,
         "budget_ms": ctx.budget_ms,
     }
 
@@ -180,6 +181,7 @@ def ctx_from_json(data: Mapping[str, Any]) -> DetectContext:
         )
         if isinstance(intent_data, dict)
         else None,
+        model_name=str(data["model_name"]) if data.get("model_name") else None,
         budget_ms=int(data.get("budget_ms") or 400),
     )
 

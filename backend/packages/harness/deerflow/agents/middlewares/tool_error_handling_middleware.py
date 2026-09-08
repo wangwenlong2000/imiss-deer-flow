@@ -79,6 +79,7 @@ def _build_runtime_middlewares(
     include_uploads: bool,
     include_dangling_tool_call_patch: bool,
     lazy_init: bool = True,
+    model_name: str | None = None,
 ) -> list[AgentMiddleware]:
     """Build shared base middlewares for agent execution."""
     from deerflow.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
@@ -121,11 +122,11 @@ def _build_runtime_middlewares(
     #
     # test_compliance_gates.py asserts all of these positions rather than
     # trusting this comment to stay true.
-    middlewares[:0] = build_compliance_flow_middlewares()
+    middlewares[:0] = build_compliance_flow_middlewares(model_name=model_name)
     return middlewares
 
 
-def build_compliance_flow_middlewares() -> list[AgentMiddleware]:
+def build_compliance_flow_middlewares(*, model_name: str | None = None) -> list[AgentMiddleware]:
     """Context and output gate middlewares, or none when compliance is off.
 
     Imports are deliberately local and guarded: compliance is disabled by
@@ -146,9 +147,9 @@ def build_compliance_flow_middlewares() -> list[AgentMiddleware]:
 
         gates: list[AgentMiddleware] = []
         if config.gates.output.enabled:
-            gates.append(ComplianceOutputGateMiddleware())
+            gates.append(ComplianceOutputGateMiddleware(model_name=model_name))
         if config.gates.context.enabled:
-            gates.append(ComplianceContextGateMiddleware())
+            gates.append(ComplianceContextGateMiddleware(model_name=model_name))
         return gates
     except ComplianceStartupError:
         # strict_startup was requested: the deployment has declared that running
@@ -205,7 +206,7 @@ def reset_compliance_preflight() -> None:
     _preflight_ok = None
 
 
-def build_compliance_input_gate_middlewares() -> list[AgentMiddleware]:
+def build_compliance_input_gate_middlewares(*, model_name: str | None = None) -> list[AgentMiddleware]:
     """Input gate middleware, mounted after IntentRecognitionMiddleware.
 
     Separate from the flow gates because ``before_agent`` runs in forward list
@@ -221,25 +222,27 @@ def build_compliance_input_gate_middlewares() -> list[AgentMiddleware]:
 
         from deerflow.agents.middlewares.compliance_input_gate_middleware import ComplianceInputGateMiddleware
 
-        return [ComplianceInputGateMiddleware()]
+        return [ComplianceInputGateMiddleware(model_name=model_name)]
     except Exception:
         logger.exception("compliance: failed to build the input gate middleware; agent will run WITHOUT it")
         return []
 
 
-def build_lead_runtime_middlewares(*, lazy_init: bool = True) -> list[AgentMiddleware]:
+def build_lead_runtime_middlewares(*, lazy_init: bool = True, model_name: str | None = None) -> list[AgentMiddleware]:
     """Middlewares shared by lead agent runtime before lead-only middlewares."""
     return _build_runtime_middlewares(
         include_uploads=True,
         include_dangling_tool_call_patch=True,
         lazy_init=lazy_init,
+        model_name=model_name,
     )
 
 
-def build_subagent_runtime_middlewares(*, lazy_init: bool = True) -> list[AgentMiddleware]:
+def build_subagent_runtime_middlewares(*, lazy_init: bool = True, model_name: str | None = None) -> list[AgentMiddleware]:
     """Middlewares shared by subagent runtime before subagent-only middlewares."""
     return _build_runtime_middlewares(
         include_uploads=False,
         include_dangling_tool_call_patch=False,
         lazy_init=lazy_init,
+        model_name=model_name,
     )

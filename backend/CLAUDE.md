@@ -177,6 +177,12 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
 - **ComplianceOutputGateMiddleware** and **ComplianceContextGateMiddleware** are inserted at the **front** of the list by `build_lead_runtime_middlewares()`. Both rely on the same rule: `wrap_tool_call` *and* `wrap_model_call` compose first-in-list as **outermost**. The context gate therefore sits *outside* `ToolErrorHandlingMiddleware` (which would otherwise swallow detection failures into an error ToolMessage), and the output gate's `wrap_model_call` result is the only version that reaches graph state.
 - The output gate sanitizes in **`wrap_model_call`**, not `after_model`. `after_model` runs in *reverse* list order, so a front-mounted gate runs *last* and every other `after_model` middleware sees the unsanitized answer first — `RawTranscriptMiddleware` then locks it into `raw_messages` permanently (its reducer dedups by id keeping the first), and `TitleMiddleware` sends it to an external model. Sanitizing in `wrap_model_call` means the original never enters state at all. `after_model` is retained as a digest-gated backstop for content mutated after the model node (e.g. `LoopDetectionMiddleware`'s hard-stop append).
 - **ComplianceInputGateMiddleware** is appended **after** `IntentRecognitionMiddleware` in `_build_middlewares()`, because `before_agent` runs in forward order and the input gate needs the recognized intent to apply the "sensitive entity + high-risk intent" rule.
+- InputGate refusals terminate the graph with an `AIMessage` whose
+  `response_metadata.compliance` uses the durable frontend disposition
+  contract (`streaming_mode: pre_model_refusal`, `retracted: true`). Keep this
+  metadata in sync with the OutputGate contract so the structured compliance
+  UI survives refreshes; `transient_exposure_possible` is false because the
+  model is never invoked.
 
 `tests/test_compliance_gates.py` asserts all three positions.
 

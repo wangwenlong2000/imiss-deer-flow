@@ -55,6 +55,7 @@ class DetectionRequest:
     audit_clean: bool = False
     #: Free-form provenance for the audit trail (tool name, message id, ...).
     origin: Mapping[str, Any] = field(default_factory=dict)
+    model_name: str | None = None
 
 
 @dataclass

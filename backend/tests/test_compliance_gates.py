@@ -207,13 +207,28 @@ def test_input_gate_is_built_separately(enabled_config) -> None:
     assert [type(m).__name__ for m in built] == ["ComplianceInputGateMiddleware"]
 
 
+def test_selected_model_is_bound_to_all_three_gates(enabled_config) -> None:
+    model_name = "conversation-model"
+    flow_gates = build_lead_runtime_middlewares(
+        lazy_init=True,
+        model_name=model_name,
+    )[:2]
+    input_gates = build_compliance_input_gate_middlewares(model_name=model_name)
+
+    assert [gate._model_name for gate in [*flow_gates, *input_gates]] == [
+        model_name,
+        model_name,
+        model_name,
+    ]
+
+
 def test_agent_mounts_the_input_gate_after_intent_recognition() -> None:
     """Guide §9.7 needs the recognized intent, so order is load-bearing."""
     from deerflow.agents.lead_agent import agent as agent_module
 
     source = inspect.getsource(agent_module._build_middlewares)
     intent_at = source.index("IntentRecognitionMiddleware(model_name=model_name)")
-    gate_at = source.index("build_compliance_input_gate_middlewares()")
+    gate_at = source.index("build_compliance_input_gate_middlewares(model_name=model_name)")
     assert intent_at < gate_at, "the input gate must be appended after intent recognition"
 
 
@@ -574,10 +589,17 @@ def test_input_gate_refusal_ends_the_turn(enabled_config) -> None:
     message = result["messages"][0]
     assert message.content == REFUSAL_TEXT
     metadata = message.response_metadata["compliance"]
+    assert metadata["evaluated"] is True
     assert metadata["retracted"] is True
     assert metadata["gate"] == "InputGate"
+    assert metadata["scene"] == "_unknown"
+    assert metadata["streaming_mode"] == "pre_model_refusal"
+    assert metadata["transient_exposure_possible"] is False
     assert metadata["actions"] == ["refuse", "warn"]
     assert metadata["violation_types"] == ["hardcoded_cred"]
+    assert metadata["audit_ref"] == "audit-test"
+    assert metadata["basis"] == ["测试依据条款"]
+    assert metadata["notice"] != message.content
 
 
 def test_input_gate_refusal_stamps_the_frontend_compliance_contract(enabled_config) -> None:
@@ -619,6 +641,9 @@ def test_input_gate_refusal_does_not_reach_the_model(enabled_config) -> None:
 
     assert "合规" in rendered
     assert "MODEL_MUST_NOT_RUN" not in rendered
+    blocked = next(message for message in result["messages"] if isinstance(message, AIMessage))
+    assert blocked.response_metadata["compliance"]["gate"] == "InputGate"
+    assert blocked.response_metadata["compliance"]["retracted"] is True
 
 
 def test_input_gate_warn_does_not_block(enabled_config) -> None:
@@ -678,8 +703,11 @@ def test_input_gate_fail_mode_closed_blocks(enabled_config) -> None:
     engine = _StubEngine(error=RuntimeError("boom"))
     result = ComplianceInputGateMiddleware(engine=engine).before_agent({"messages": [HumanMessage(content="q")]}, runtime=None)
     assert result["jump_to"] == "end"
-    assert "合规检查失败" in result["messages"][0].content
-    assert result["messages"][0].response_metadata["compliance"]["retracted"] is True
+    message = result["messages"][0]
+    assert "合规检查失败" in message.content
+    assert message.response_metadata["compliance"]["gate"] == "InputGate"
+    assert message.response_metadata["compliance"]["actions"] == ["refuse"]
+    assert message.response_metadata["compliance"]["retracted"] is True
 
 
 def test_upload_scan_helper_is_exposed_for_the_app_layer() -> None:

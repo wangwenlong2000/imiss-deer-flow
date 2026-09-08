@@ -32,6 +32,7 @@ class _FakeAdapter:
         self.delay_s = delay_s
         self.calls = 0
         self.seen_units: list[DetectionUnit] = []
+        self.seen_model_names: list[str | None] = []
 
     def setup(self) -> None:
         return None
@@ -39,6 +40,7 @@ class _FakeAdapter:
     def detect(self, unit, ctx):  # noqa: ANN001
         self.calls += 1
         self.seen_units.append(unit)
+        self.seen_model_names.append(ctx.model_name)
         if self.delay_s:
             import time
 
@@ -120,6 +122,19 @@ def test_detector_is_called_only_at_its_declared_gates() -> None:
 
     engine.check([_unit(gate="OutputGate")], gate="OutputGate")
     assert adapter.calls == 1
+
+
+def test_engine_passes_conversation_model_to_detector_context() -> None:
+    adapter = _FakeAdapter([])
+    engine = _engine([_registration("d1", adapter)])
+
+    engine.check(
+        [_unit(gate="OutputGate")],
+        gate="OutputGate",
+        model_name="conversation-model",
+    )
+
+    assert adapter.seen_model_names == ["conversation-model"]
 
 
 def test_disabled_detector_is_never_routed() -> None:

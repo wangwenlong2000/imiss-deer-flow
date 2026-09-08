@@ -70,9 +70,10 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
 
     state_schema = ThreadState
 
-    def __init__(self, *, engine: Any = None) -> None:
+    def __init__(self, *, engine: Any = None, model_name: str | None = None) -> None:
         super().__init__()
         self._engine = engine  # injected in tests; resolved lazily in production
+        self._model_name = model_name
         self._normalizer = SkillResultNormalizer()
 
     # ── hooks ───────────────────────────────────────────────────────────────
@@ -153,6 +154,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             gate=GATE,
             request_id=request_id,
             user=user_context(request),
+            model_name=self._model_name,
             budget_ms=config.budget_ms,
             max_units=config.max_units,
             origin={

@@ -1,0 +1,1 @@
+"""Hardcoded-credential delivery adapter."""

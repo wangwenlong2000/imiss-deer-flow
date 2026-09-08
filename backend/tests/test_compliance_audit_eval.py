@@ -30,7 +30,14 @@ MODEL = REPO_ROOT / "models/compliance/ml_detector_0624_fresh.json"
 
 
 def _request() -> DetectionRequest:
-    return DetectionRequest(gate="OutputGate", units=(), request_id="req-1", thread_id="t-1", origin={"tool_name": "invoke_skill"})
+    return DetectionRequest(
+        gate="OutputGate",
+        units=(),
+        request_id="req-1",
+        thread_id="t-1",
+        model_name="conversation-model",
+        origin={"tool_name": "invoke_skill"},
+    )
 
 
 def _decision(**overrides) -> ComplianceDecision:
@@ -68,6 +75,7 @@ def test_record_persists_the_full_determination(tmp_path: Path) -> None:
     record = auditor.read_all()[0]
     assert record["audit_ref"] == ref
     assert record["gate"] == "OutputGate"
+    assert record["model_name"] == "conversation-model"
     assert record["scene_key"] == "_unknown"
     assert record["actions"] == ["warn", "manual_review"]
     assert record["basis"] == ["个人信息保护法 §73(4)"], "requirement 5: the basis must be persisted"

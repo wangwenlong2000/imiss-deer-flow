@@ -45,7 +45,7 @@ UNIT = DetectionUnit(
     field_items=(FieldItem(item_id="f-1", path="metadata.camera_id", value="C-1", source="output"),),
     raw={"kind": "llm_output"},
 )
-CTX = DetectContext(gate="OutputGate", budget_ms=400)
+CTX = DetectContext(gate="OutputGate", model_name="conversation-model", budget_ms=400)
 
 EXPECTED_HIT = DetectionHit(
     detector_id="demo",
@@ -76,6 +76,7 @@ def test_ctx_round_trips_through_json() -> None:
     assert restored.gate == CTX.gate
     assert restored.budget_ms == CTX.budget_ms
     assert restored.scenes == ()
+    assert restored.model_name == "conversation-model"
 
 
 def test_hit_round_trips_through_json() -> None:

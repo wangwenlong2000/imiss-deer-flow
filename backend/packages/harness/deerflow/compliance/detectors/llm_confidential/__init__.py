@@ -1,0 +1,1 @@
+"""Confidential-information delivery adapter."""

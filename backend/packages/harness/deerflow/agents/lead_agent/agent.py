@@ -221,7 +221,7 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     Returns:
         List of middleware instances.
     """
-    middlewares = build_lead_runtime_middlewares(lazy_init=True)
+    middlewares = build_lead_runtime_middlewares(lazy_init=True, model_name=model_name)
 
     # Capture the full transcript before summarization collapses
     # the working message window.
@@ -246,7 +246,7 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
     # guide's §9.7 rule that a sensitive entity is only a violation when paired with
     # high-risk intent. The context/output gates are mounted separately, at the front
     # of build_lead_runtime_middlewares() — see the comment there.
-    middlewares.extend(build_compliance_input_gate_middlewares())
+    middlewares.extend(build_compliance_input_gate_middlewares(model_name=model_name))
 
     # Add SkillRouterMiddleware before TodoMiddleware so routing_context is available
     if skill_router_config.enabled:

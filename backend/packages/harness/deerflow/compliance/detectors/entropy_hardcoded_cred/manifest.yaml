@@ -1,0 +1,21 @@
+contract_version: "1.0"
+detector_id: entropy_hardcoded_cred
+adapter: inprocess
+entry: deerflow.compliance.detectors.entropy_hardcoded_cred.detector:EntropyHardcodedCredDetector
+
+violation_types:
+  - hardcoded_cred
+
+gates:
+  hardcoded_cred:
+    - InputGate
+
+data_types: null
+cost_hint: light
+
+description: >-
+  compliance_detectors 交付的硬编码凭证规则检测器，覆盖密钥赋值、私钥块、
+  Authorization 头及带凭证的连接串，并过滤环境变量、模板和占位值。
+
+default_params:
+  use_llm: false

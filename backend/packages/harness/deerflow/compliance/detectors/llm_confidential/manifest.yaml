@@ -1,0 +1,27 @@
+contract_version: "1.0"
+detector_id: llm_confidential
+adapter: inprocess
+entry: deerflow.compliance.detectors.llm_confidential.detector:LlmConfidentialDetector
+
+violation_types:
+  - confidential
+
+gates:
+  confidential:
+    - InputGate
+    - ContextGate
+    - OutputGate
+
+data_types: null
+cost_hint: medium
+
+description: >-
+  compliance_detectors 交付的商业秘密与内部敏感规则检测器，覆盖内部网络/API、
+  数据库端点、业务金额组合以及敏感遥感目标、坐标和密级控制组合；边界样本可
+  使用当前对话实际选择的聊天模型进行主进程内复核。
+
+default_params:
+  use_llm: false
+  llm_max_content_chars: 2500
+  llm_max_output_tokens: 512
+  llm_timeout_seconds: 7
