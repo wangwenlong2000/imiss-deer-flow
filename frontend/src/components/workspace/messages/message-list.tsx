@@ -18,12 +18,14 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import type { Subtask } from "@/core/tasks";
 import { useUpdateSubtask } from "@/core/tasks/context";
 import type { AgentThreadState } from "@/core/threads";
+import { complianceDispositionFromCheck } from "@/core/threads/compliance";
 import { displayMessagesOfThread } from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
 import { StreamingIndicator } from "../streaming-indicator";
 
+import { ComplianceNotice } from "./compliance-notice";
 import { MarkdownContent } from "./markdown-content";
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
@@ -45,6 +47,11 @@ export function MessageList({
   const rehypePlugins = useRehypeSplitWordsIntoSpans(thread.isLoading);
   const updateSubtask = useUpdateSubtask();
   const messages = displayMessagesOfThread(thread);
+  const inputComplianceFallback = getInputComplianceFallback(
+    messages,
+    thread.values?.compliance_input_result,
+    thread.isLoading,
+  );
   if (thread.isThreadLoading && messages.length === 0) {
     return <MessageListSkeleton />;
   }
@@ -200,9 +207,53 @@ export function MessageList({
             />
           );
         })}
+        {inputComplianceFallback && (
+          <ComplianceNotice
+            disposition={inputComplianceFallback}
+            className="mt-1 mb-2"
+          />
+        )}
         {thread.isLoading && <StreamingIndicator className="my-4" />}
         <div style={{ height: `${paddingBottom}px` }} />
       </ConversationContent>
     </Conversation>
   );
+}
+
+function getInputComplianceFallback(
+  messages: ReturnType<typeof displayMessagesOfThread>,
+  inputCheck: unknown,
+  isLoading: boolean,
+) {
+  if (isLoading || !inputCheck) {
+    return null;
+  }
+
+  let lastUserIndex = -1;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index]?.type === "human") {
+      lastUserIndex = index;
+      break;
+    }
+  }
+  if (lastUserIndex < 0) {
+    return null;
+  }
+
+  // A normal final answer already owns the complete durable card from
+  // OutputGate. Only show this fallback when the current turn has no visible
+  // assistant answer (for example, it ended at ask_clarification).
+  const hasVisibleAssistantAnswer = messages
+    .slice(lastUserIndex + 1)
+    .some(
+      (message) =>
+        message.type === "ai" &&
+        !message.tool_calls?.length &&
+        extractContentFromMessage(message).trim().length > 0,
+    );
+  if (hasVisibleAssistantAnswer) {
+    return null;
+  }
+
+  return complianceDispositionFromCheck(inputCheck);
 }

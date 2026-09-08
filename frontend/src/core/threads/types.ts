@@ -8,6 +8,7 @@ export interface AgentThreadState extends Record<string, unknown> {
   title: string;
   messages: Message[];
   raw_messages?: Message[];
+  compliance_input_result?: Record<string, unknown> | null;
   artifacts: string[];
   todos?: Todo[];
 }

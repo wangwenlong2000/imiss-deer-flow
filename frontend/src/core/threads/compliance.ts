@@ -233,6 +233,36 @@ export function complianceDispositionOf(
 }
 
 /**
+ * Build the same UI disposition from a gate result kept in thread state.
+ *
+ * InputGate records a clean result in ``compliance_input_result`` before the
+ * model runs. A turn can end at a clarification or another non-answering
+ * control-flow step, so there may be no final AIMessage onto which OutputGate
+ * could attach the usual durable metadata. The UI can still show the check
+ * that actually ran without pretending that OutputGate also ran.
+ */
+export function complianceDispositionFromCheck(
+  value: unknown,
+): ComplianceDisposition | null {
+  const check = checkOf(value);
+  if (!check) {
+    return null;
+  }
+
+  return {
+    gate: check.gate,
+    scene: check.scene,
+    violationTypes: [...check.violationTypes],
+    actions: [...check.actions],
+    basis: [...check.basis],
+    auditRef: check.auditRef,
+    notice: null,
+    checks: [check],
+    mutated: check.actions.some((action) => MUTATING_ACTIONS.has(action)),
+  };
+}
+
+/**
  * The `【合规提示】` paragraph the backend appends on warn / manual_review.
  *
  * On those dispositions the answer is kept and a notice is glued to the bottom.

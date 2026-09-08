@@ -2,16 +2,16 @@
 # Usage: docker-compose -f docker-compose-dev.yaml up --build
 #
 # Services:
-#   - nginx: Reverse proxy (port 3214)
-#   - frontend: Frontend Next.js dev server (port 3217)
-#   - gateway: Backend Gateway API (port 3216)
-#   - langgraph: LangGraph server (port 3215)
+#   - nginx: Reverse proxy (port 3240)
+#   - frontend: Frontend Next.js dev server (port 3243)
+#   - gateway: Backend Gateway API (port 3242)
+#   - langgraph: LangGraph server (port 3241)
 #   - provisioner (optional): Sandbox provisioner (creates Pods in host Kubernetes)
 #
 # Prerequisites:
 #   - Kubernetes cluster + kubeconfig are only required when using provisioner mode.
 #
-# Access: http://localhost:3214
+# Access: http://localhost:3240
 
 services:
   # ── Sandbox Provisioner ────────────────────────────────────────────────
@@ -64,7 +64,7 @@ services:
     image: nginx:alpine
     container_name: huangyuzhe-merged-compliance-deer-flow-nginx
     ports:
-      - "3214:3214"
+      - "3240:3240"
     volumes:
       - ./nginx/${NGINX_CONF:-nginx.conf}:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -84,7 +84,7 @@ services:
       args:
         PNPM_STORE_PATH: ${PNPM_STORE_PATH:-/root/.local/share/pnpm/store}
     container_name: huangyuzhe-merged-compliance-deer-flow-frontend
-    command: sh -c "cd frontend && PORT=3217 pnpm run dev > /app/logs/frontend.log 2>&1"
+    command: sh -c "cd frontend && PORT=3243 pnpm run dev > /app/logs/frontend.log 2>&1"
     volumes:
       - ../frontend/src:/app/frontend/src
       - ../frontend/public:/app/frontend/public
@@ -110,7 +110,7 @@ services:
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-gateway
     container_name: huangyuzhe-merged-compliance-deer-flow-gateway
-    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 3216 --reload --reload-include='*.yaml .env' > /app/logs/gateway.log 2>&1"
+    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 3242 --reload --reload-include='*.yaml .env' > /app/logs/gateway.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/
@@ -140,6 +140,9 @@ services:
     working_dir: /app
     environment:
       - CI=true
+      # The .env file contains host paths; use the mounted container paths here.
+      - DEER_FLOW_CONFIG_PATH=/app/config.yaml
+      - DEER_FLOW_EXTENSIONS_CONFIG_PATH=/app/extensions_config.json
       - DEER_FLOW_HOST_BASE_DIR=${DEER_FLOW_ROOT}/backend/.deer-flow
       - DEER_FLOW_HOST_SKILLS_PATH=${DEER_FLOW_ROOT}/skills
       - DEER_FLOW_HOST_DATASETS_PATH=${DEER_FLOW_ROOT}/datasets
@@ -160,7 +163,7 @@ services:
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-langgraph
     container_name: huangyuzhe-merged-compliance-deer-flow-langgraph
-    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port 3215 > /app/logs/langgraph.log 2>&1"
+    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port 3241 > /app/logs/langgraph.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/
@@ -189,6 +192,9 @@ services:
     working_dir: /app
     environment:
       - CI=true
+      # The .env file contains host paths; use the mounted container paths here.
+      - DEER_FLOW_CONFIG_PATH=/app/config.yaml
+      - DEER_FLOW_EXTENSIONS_CONFIG_PATH=/app/extensions_config.json
       - DEER_FLOW_HOST_BASE_DIR=${DEER_FLOW_ROOT}/backend/.deer-flow
       - DEER_FLOW_HOST_SKILLS_PATH=${DEER_FLOW_ROOT}/skills
       - DEER_FLOW_HOST_DATASETS_PATH=${DEER_FLOW_ROOT}/datasets
@@ -213,4 +219,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.214.0/24
+        - subnet: 192.168.215.0/24

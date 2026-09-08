@@ -5,6 +5,7 @@ const {
   applyComplianceRetractions,
   bindComplianceThread,
   clearComplianceRetractions,
+  complianceDispositionFromCheck,
   complianceDispositionOf,
   isComplianceRetractEvent,
   recordComplianceRetraction,
@@ -188,6 +189,24 @@ void test("parses a clean two-gate evaluation summary", () => {
   assert.deepEqual(disposition.actions, ["allow"]);
   assert.equal(disposition.checks.length, 2);
   assert.equal(disposition.checks[1]?.auditRef, "audit-output");
+});
+
+void test("builds a card from an InputGate result when a turn has no final answer", () => {
+  const disposition = complianceDispositionFromCheck({
+    gate: "InputGate",
+    scene: "public_release",
+    status: "passed",
+    violation_types: [],
+    actions: ["allow"],
+    basis: [],
+    audit_ref: "audit-input-only",
+  });
+
+  assert.ok(disposition);
+  assert.equal(disposition.gate, "InputGate");
+  assert.equal(disposition.checks.length, 1);
+  assert.equal(disposition.checks[0]?.status, "passed");
+  assert.deepEqual(disposition.actions, ["allow"]);
 });
 
 // ── the appended-notice strip ──────────────────────────────────────────────
