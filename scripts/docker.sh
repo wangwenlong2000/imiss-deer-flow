@@ -160,11 +160,11 @@ start() {
         fi
     fi
 
-    echo "Building and starting containers..."
-    cd "$DOCKER_DIR" && $COMPOSE_CMD up --build -d --remove-orphans $services
+    echo "Starting containers with existing images..."
+    cd "$DOCKER_DIR" && $COMPOSE_CMD up -d --no-build --remove-orphans $services
 
     # The frontend and gateway may be recreated with new bridge-network IPs
-    # during `up --build`, while an unchanged nginx container keeps its old
+    # during `up`, while an unchanged nginx container keeps its old
     # resolved upstream addresses. Restart nginx so it resolves the current
     # service IPs before users access the configured Nginx port.
     $COMPOSE_CMD restart nginx
