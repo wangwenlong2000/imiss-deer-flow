@@ -1,20 +1,20 @@
 import logging
 import mimetypes
 import zipfile
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
+from pydantic import BaseModel
 
 from app.gateway.path_utils import resolve_thread_virtual_path
-
-from datetime import datetime, timezone
-from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["artifacts"])
+
 
 class WorkspaceFileItem(BaseModel):
     """A user-visible file generated in the current thread outputs directory."""
@@ -25,6 +25,7 @@ class WorkspaceFileItem(BaseModel):
     size_bytes: int
     modified_at: str
     mime_type: str | None
+
 
 class WorkspaceFileListResponse(BaseModel):
     """Files available under the current thread outputs directory."""
@@ -76,14 +77,12 @@ def _extract_file_from_skill_archive(zip_path: Path, internal_path: str) -> byte
     except (zipfile.BadZipFile, KeyError):
         return None
 
+
 @router.get(
     "/threads/{thread_id}/workspace-files",
     response_model=WorkspaceFileListResponse,
     summary="List thread output files",
-    description=(
-        "List user-visible files generated under the current thread's "
-        "/mnt/user-data/outputs directory."
-    ),
+    description=("List user-visible files generated under the current thread's /mnt/user-data/outputs directory."),
 )
 async def list_workspace_files(
     thread_id: str,
@@ -130,8 +129,7 @@ async def list_workspace_files(
             relative = resolved_file.relative_to(resolved_root)
         except ValueError:
             logger.warning(
-                "Skipped output file outside thread root: "
-                "thread_id=%s, path=%s",
+                "Skipped output file outside thread root: thread_id=%s, path=%s",
                 thread_id,
                 resolved_file,
             )
@@ -162,7 +160,7 @@ async def list_workspace_files(
                 size_bytes=stat.st_size,
                 modified_at=datetime.fromtimestamp(
                     stat.st_mtime,
-                    tz=timezone.utc,
+                    tz=UTC,
                 ).isoformat(),
                 mime_type=mime_type,
             )
@@ -234,20 +232,35 @@ async def get_artifact(thread_id: str, path: str, request: Request) -> FileRespo
         # Extract the file from the .skill archive
         content = _extract_file_from_skill_archive(actual_skill_path, internal_path)
         if content is None:
-            raise HTTPException(status_code=404, detail=f"File '{internal_path}' not found in skill archive")
+            raise HTTPException(
+                status_code=404,
+                detail=f"File '{internal_path}' not found in skill archive",
+            )
 
         # Determine MIME type based on the internal file
         mime_type, _ = mimetypes.guess_type(internal_path)
         # Add cache headers to avoid repeated ZIP extraction (cache for 5 minutes)
         cache_headers = {"Cache-Control": "private, max-age=300"}
         if mime_type and mime_type.startswith("text/"):
-            return PlainTextResponse(content=content.decode("utf-8"), media_type=mime_type, headers=cache_headers)
+            return PlainTextResponse(
+                content=content.decode("utf-8"),
+                media_type=mime_type,
+                headers=cache_headers,
+            )
 
         # Default to plain text for unknown types that look like text
         try:
-            return PlainTextResponse(content=content.decode("utf-8"), media_type="text/plain", headers=cache_headers)
+            return PlainTextResponse(
+                content=content.decode("utf-8"),
+                media_type="text/plain",
+                headers=cache_headers,
+            )
         except UnicodeDecodeError:
-            return Response(content=content, media_type=mime_type or "application/octet-stream", headers=cache_headers)
+            return Response(
+                content=content,
+                media_type=mime_type or "application/octet-stream",
+                headers=cache_headers,
+            )
 
     actual_path = resolve_thread_virtual_path(thread_id, path)
 
@@ -266,7 +279,12 @@ async def get_artifact(thread_id: str, path: str, request: Request) -> FileRespo
 
     # if `download` query parameter is true, return the file as a download
     if request.query_params.get("download"):
-        return FileResponse(path=actual_path, filename=actual_path.name, media_type=mime_type, headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"})
+        return FileResponse(
+            path=actual_path,
+            filename=actual_path.name,
+            media_type=mime_type,
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"},
+        )
 
     if mime_type and mime_type == "text/html":
         return HTMLResponse(content=actual_path.read_text())
@@ -277,4 +295,8 @@ async def get_artifact(thread_id: str, path: str, request: Request) -> FileRespo
     if is_text_file_by_content(actual_path):
         return PlainTextResponse(content=actual_path.read_text(), media_type=mime_type)
 
-    return Response(content=actual_path.read_bytes(), media_type=mime_type, headers={"Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}"})
+    return Response(
+        content=actual_path.read_bytes(),
+        media_type=mime_type,
+        headers={"Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}"},
+    )
