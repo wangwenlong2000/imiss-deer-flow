@@ -210,6 +210,9 @@ def update_docker_script(text: str, file_path: Path) -> str:
     text = replace_regex(text, r'http://localhost:\d+/api/langgraph/\*', f'http://localhost:{nginx_port}/api/langgraph/*', file_path, min_count=1)
     text = replace_regex(text, r'http://localhost:\d+/api/\*', f'http://localhost:{nginx_port}/api/*', file_path, min_count=1)
     text = replace_regex(text, r'http://localhost:\d+', f'http://localhost:{nginx_port}', file_path, min_count=2)
+    text = replace_regex(text, r'http://127\.0\.0\.1:\d+/', f'http://127.0.0.1:{nginx_port}/', file_path, min_count=1, max_count=1)
+    text = replace_regex(text, r'Frontend did not become ready on port \d+', f'Frontend did not become ready on port {nginx_port}', file_path, min_count=1, max_count=1)
+    text = replace_regex(text, r'Frontend is ready on port \d+', f'Frontend is ready on port {nginx_port}', file_path, min_count=1, max_count=1)
     return text
 
 

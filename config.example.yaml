@@ -20,12 +20,12 @@ config_version: 1
 # Used by scripts/update-docker-ports.sh to update docker/nginx related files.
 # Priority when running the script: environment variables > docker_ports > built-in defaults.
 docker_ports:
-  nginx: 2026
-  langgraph: 2024
-  gateway: 8001
-  frontend: 3000
+  nginx: 3328
+  langgraph: 3329
+  gateway: 3330
+  frontend: 3331
 subnet:
-  dev: 192.168.200.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
+  dev: 192.168.201.0/24  # Docker bridge subnet for dev compose; must be unique per user on shared servers
 
 # ============================================================================
 # Models Configuration
@@ -472,10 +472,10 @@ checkpointer:
 # All channels use outbound connections (WebSocket or polling) — no public IP required.
 
 # channels:
-#   # LangGraph Server URL for thread/message management (default: http://localhost:2024)
-#   langgraph_url: http://localhost:2024
-#   # Gateway API URL for auxiliary queries like /models, /memory (default: http://localhost:8001)
-#   gateway_url: http://localhost:8001
+#   # LangGraph Server URL for thread/message management (default: http://localhost:3329)
+#   langgraph_url: http://localhost:3329
+#   # Gateway API URL for auxiliary queries like /models, /memory (default: http://localhost:3330)
+#   gateway_url: http://localhost:3330
 #
 #   # Optional: default mobile/session settings for all IM channels
 #   session:
