@@ -183,6 +183,10 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
   metadata in sync with the OutputGate contract so the structured compliance
   UI survives refreshes; `transient_exposure_possible` is false because the
   model is never invoked.
+- The mobile adapter subscribes to LangGraph's `custom` stream mode and maps
+  each `compliance_retract` event to one `反馈智能体` segment containing only the
+  safe replacement/refusal. It forwards disposition metadata and suppresses
+  the rewritten final answer so JSON and SSE clients do not receive duplicates.
 
 `tests/test_compliance_gates.py` asserts all three positions.
 

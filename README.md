@@ -468,6 +468,13 @@ and the message is rewritten so the checkpoint never holds the original. This is
 recovery, not prevention — there is a visible window between a violating token being rendered and
 the retraction arriving, tunable via `incremental_scan.interval_chars`.
 
+The mobile adapter also converts `compliance_retract` into one ordered
+`反馈智能体` segment. Its content is the safe compliance replacement/refusal,
+while violation types, actions, policy basis and audit reference are forwarded
+as metadata. The rewritten final AI message is suppressed to avoid sending the
+same refusal twice. This applies to both JSON and SSE responses from
+`/api/deerflow/mobile/run`.
+
 **Detectors are pluggable and isolated.** A detector declares its capabilities in its own
 `manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an
 HTTP service — the engine cannot tell the difference, so heavy dependencies never enter the main

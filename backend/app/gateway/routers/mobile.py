@@ -13,24 +13,17 @@ Current version:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
-from typing import Any
-
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-
-import asyncio
 from collections.abc import AsyncIterator
-from fastapi.responses import StreamingResponse, FileResponse
-
-
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
-
-
-
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
+from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["mobile"])
 
@@ -46,9 +39,7 @@ PUBLIC_GATEWAY_BASE_URL = os.getenv(
     "",
 ).rstrip("/")
 
-DEFAULT_RUN_CONFIG: dict[str, Any] = {
-    "recursion_limit": int(os.getenv("MOBILE_ADAPTER_RECURSION_LIMIT", "300"))
-}
+DEFAULT_RUN_CONFIG: dict[str, Any] = {"recursion_limit": int(os.getenv("MOBILE_ADAPTER_RECURSION_LIMIT", "300"))}
 DEFAULT_RUN_CONTEXT: dict[str, Any] = {
     "thinking_enabled": True,
     "is_plan_mode": False,
@@ -81,6 +72,7 @@ class MobileChatRequest(BaseModel):
         default=None,
         description="Uploaded file metadata returned by DeerFlow uploads API",
     )
+
 
 class DeerFlowMobileRunRequest(BaseModel):
     query: str = Field(..., description="User query from city brain platform")
@@ -206,10 +198,7 @@ def _slice_messages_after_current_query(messages: list[Any], current_query: str)
 
 
 def _has_human_message(messages: list[Any]) -> bool:
-    return any(
-        isinstance(msg, dict) and _message_type(msg) == "human"
-        for msg in messages
-    )
+    return any(isinstance(msg, dict) and _message_type(msg) == "human" for msg in messages)
 
 
 def _current_turn_or_incremental_messages(
@@ -232,6 +221,7 @@ def _current_turn_or_incremental_messages(
         return []
 
     return [msg for msg in messages if isinstance(msg, dict)]
+
 
 def _message_has_tool_calls(msg: dict[str, Any]) -> bool:
     tool_calls = msg.get("tool_calls") or []
@@ -351,10 +341,7 @@ def _split_intent_and_planner_content(intent_content: str) -> tuple[str, str]:
         "任务提示",
     )
 
-    has_task_planning = any(
-        line.strip().startswith("任务规划")
-        for line in lines
-    )
+    has_task_planning = any(line.strip().startswith("任务规划") for line in lines)
     target_title = "任务规划" if has_task_planning else "任务切分"
 
     in_target_section = False
@@ -366,11 +353,7 @@ def _split_intent_and_planner_content(intent_content: str) -> tuple[str, str]:
             in_target_section = True
             continue
 
-        if in_target_section and any(
-            stripped.startswith(title)
-            for title in section_starters
-            if title != target_title
-        ):
+        if in_target_section and any(stripped.startswith(title) for title in section_starters if title != target_title):
             in_target_section = False
             intent_lines.append(line)
             continue
@@ -390,6 +373,7 @@ def _split_intent_and_planner_content(intent_content: str) -> tuple[str, str]:
         planner_content = ""
 
     return cleaned_intent, planner_content
+
 
 def _extract_skill_name_from_args(args: Any) -> str:
     if not isinstance(args, dict):
@@ -425,6 +409,7 @@ def _extract_skill_name_from_path(path: str) -> str:
                 return parts[idx + 2]
             return parts[idx + 1]
     return ""
+
 
 def _filename_from_path(path: str) -> str:
     return path.rstrip("/").split("/")[-1]
@@ -502,7 +487,6 @@ def _parse_tool_args(args: Any) -> Any:
         except Exception:
             return {"raw": args}
     return args
-
 
 
 def _extract_pending_action_from_event(raw_event: dict[str, Any]) -> dict[str, Any] | None:
@@ -605,6 +589,7 @@ def _is_actual_clarification_tool_message(obj: dict[str, Any]) -> bool:
 
     return bool(content)
 
+
 def _iter_message_lists_from_event(raw_event: dict[str, Any]):
     if not isinstance(raw_event, dict):
         return
@@ -660,7 +645,7 @@ def _slice_after_latest_human_message(
                 break
 
     if start_index >= 0:
-        return [m for m in messages[start_index + 1:] if isinstance(m, dict)]
+        return [m for m in messages[start_index + 1 :] if isinstance(m, dict)]
 
     # 没有人类消息时，说明可能是当前轮增量 updates，直接保留
     return [m for m in messages if isinstance(m, dict)]
@@ -685,11 +670,7 @@ def _event_has_current_turn_clarification_tool_call(
             if not isinstance(tool_call, dict):
                 continue
 
-            name = str(
-                tool_call.get("name")
-                or tool_call.get("function", {}).get("name")
-                or ""
-            )
+            name = str(tool_call.get("name") or tool_call.get("function", {}).get("name") or "")
 
             if _is_clarification_tool_name(name):
                 return True
@@ -741,16 +722,13 @@ def _event_has_current_turn_clarification_tool_call(
             if not isinstance(tool_call, dict):
                 continue
 
-            name = str(
-                tool_call.get("name")
-                or tool_call.get("function", {}).get("name")
-                or ""
-            )
+            name = str(tool_call.get("name") or tool_call.get("function", {}).get("name") or "")
 
             if _is_clarification_tool_name(name):
                 return True
 
     return False
+
 
 def _extract_clarification_from_event(
     raw_event: dict[str, Any],
@@ -789,10 +767,7 @@ def _extract_clarification_from_event(
 
     # 2. pending_action 只能作为“当前轮确实调用了 ask_clarification”时的兜底
     # 不能单独看到 pending_action 就返回，否则会把上一轮 pending_action 当成当前轮。
-    if (
-        isinstance(pending_action, dict)
-        and _event_has_current_turn_clarification_tool_call(raw_event, current_query)
-    ):
+    if isinstance(pending_action, dict) and _event_has_current_turn_clarification_tool_call(raw_event, current_query):
         content = _format_pending_action_question(pending_action)
         if content:
             return _make_clarification_payload(
@@ -803,7 +778,6 @@ def _extract_clarification_from_event(
             )
 
     return None
-
 
 
 def _extract_description_from_args(args: Any) -> str:
@@ -892,7 +866,7 @@ def _extract_tool_segments(raw_events: list[Any], current_query: str) -> list[di
             name = str(tool_call.get("name") or tool_call.get("function", {}).get("name") or "")
             if not name:
                 continue
-            
+
             if name == "present_files":
                 continue
 
@@ -1042,10 +1016,7 @@ def _extract_file_segments(
     if not files:
         return []
 
-    content = "已生成结果文件：\n" + "\n".join(
-        f"• {item['filename']}\n  {item.get('download_url') or item.get('artifact_url') or ''}"
-        for item in files
-    )
+    content = "已生成结果文件：\n" + "\n".join(f"• {item['filename']}\n  {item.get('download_url') or item.get('artifact_url') or ''}" for item in files)
 
     segment = make_segment(
         agent_id="files",
@@ -1056,10 +1027,10 @@ def _extract_file_segments(
     segment["metadata"]["files"] = files
     return [segment]
 
+
 def _strip_system_reminder(content: str) -> str:
     return (
-        content
-        .replace("<system_reminder>", "")
+        content.replace("<system_reminder>", "")
         .replace("</system_reminder>", "")
         .replace(
             "Use the following current-turn intent and routing guidance when deciding whether to create or update todos. Treat it as planning context, not as a user request.",
@@ -1153,7 +1124,6 @@ def _extract_current_turn_intent_content(
     return ""
 
 
-
 def _extract_error_segments(raw_events: list[Any]) -> list[dict[str, Any]]:
     segments: list[dict[str, Any]] = []
 
@@ -1179,6 +1149,59 @@ def _extract_error_segments(raw_events: list[Any]) -> list[dict[str, Any]]:
                 source_event="error",
             )
         )
+
+    return segments
+
+
+def _extract_compliance_retract_segments(raw_events: list[Any]) -> list[dict[str, Any]]:
+    """Convert OutputGate retractions into mobile feedback segments.
+
+    The replacement is the only user-facing content forwarded from the custom
+    event.  The original violating answer is deliberately absent from the
+    retraction contract and must never be reconstructed here.
+    """
+    segments: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+
+    for event in raw_events:
+        if not isinstance(event, dict) or event.get("event") != "custom":
+            continue
+
+        for payload in _walk_dicts(event.get("data")):
+            if payload.get("type") != "compliance_retract":
+                continue
+
+            replacement = _extract_text_content(payload.get("replacement"))
+            if not replacement:
+                replacement = _extract_text_content(payload.get("notice"))
+            if not replacement:
+                continue
+
+            message_id = _text(payload.get("message_id"))
+            key = (message_id, replacement)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            segment = make_segment(
+                agent_id="feedback",
+                content=replacement,
+                status="completed",
+                source_event="compliance_retract",
+            )
+            segment["metadata"].update(
+                {
+                    "message_id": message_id,
+                    "scene": payload.get("scene"),
+                    "streaming_mode": payload.get("streaming_mode"),
+                    "violation_types": payload.get("violation_types") or [],
+                    "action": payload.get("action") or [],
+                    "notice": payload.get("notice"),
+                    "audit_ref": payload.get("audit_ref"),
+                    "basis": payload.get("basis") or [],
+                }
+            )
+            segments.append(segment)
 
     return segments
 
@@ -1249,7 +1272,6 @@ def adapt_events_to_mobile(
     raw_events: list[Any],
     current_query: str,
 ) -> dict[str, Any]:
-
     for raw_event in raw_events:
         if not isinstance(raw_event, dict):
             continue
@@ -1308,16 +1330,20 @@ def adapt_events_to_mobile(
     segments.extend(_extract_file_segments(raw_events, current_query, thread_id))
     segments.extend(_extract_error_segments(raw_events))
 
-    final_answer = _extract_final_answer(raw_events, current_query)
-    if final_answer:
-        segments.append(
-            make_segment(
-                agent_id="final",
-                content=final_answer,
-                status="completed",
-                source_event="final_answer",
+    compliance_segments = _extract_compliance_retract_segments(raw_events)
+    if compliance_segments:
+        segments.extend(compliance_segments)
+    else:
+        final_answer = _extract_final_answer(raw_events, current_query)
+        if final_answer:
+            segments.append(
+                make_segment(
+                    agent_id="final",
+                    content=final_answer,
+                    status="completed",
+                    source_event="final_answer",
+                )
             )
-        )
 
     if not segments:
         segments.append(
@@ -1406,11 +1432,9 @@ def _segments_to_ordered_segments(segments: list[Any]) -> list[dict[str, Any]]:
 
     return ordered_segments
 
+
 def _sse_event(event: str, data: dict[str, Any]) -> str:
-    return (
-        f"event: {event}\n"
-        f"data: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
-    )
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
 
 
 def _mobile_run_error_response(
@@ -1447,10 +1471,7 @@ def _build_mobile_download_url(thread_id: str, filename: str) -> str | None:
         return None
 
     safe_filename = Path(filename).name
-    return (
-        f"{DEERFLOW_PUBLIC_BASE_URL}"
-        f"/api/deerflow/mobile/files/{quote(thread_id)}/{quote(safe_filename)}"
-    )
+    return f"{DEERFLOW_PUBLIC_BASE_URL}/api/deerflow/mobile/files/{quote(thread_id)}/{quote(safe_filename)}"
 
 
 def _coerce_file_size(value: Any) -> int | None:
@@ -1480,12 +1501,7 @@ def _normalize_mobile_attachments(attachments: Any) -> list[dict[str, Any]]:
             continue
 
         filename = str(item.get("filename") or item.get("name") or "").strip()
-        raw_path = str(
-            item.get("virtual_path")
-            or item.get("path")
-            or item.get("file_path")
-            or ""
-        ).strip()
+        raw_path = str(item.get("virtual_path") or item.get("path") or item.get("file_path") or "").strip()
 
         if not filename and raw_path:
             filename = Path(raw_path).name
@@ -1495,7 +1511,7 @@ def _normalize_mobile_attachments(attachments: Any) -> list[dict[str, Any]]:
         if raw_path and not raw_path.startswith("/mnt/user-data/"):
             marker = "/user-data/"
             if marker in raw_path:
-                raw_path = "/mnt" + raw_path[raw_path.index(marker):]
+                raw_path = "/mnt" + raw_path[raw_path.index(marker) :]
 
         if not raw_path and filename:
             raw_path = f"/mnt/user-data/uploads/{Path(filename).name}"
@@ -1640,6 +1656,7 @@ async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, 
 
     return thread_id, raw_events
 
+
 async def _produce_langgraph_stream(
     chat_req: MobileChatRequest,
     queue: asyncio.Queue[dict[str, Any]],
@@ -1751,9 +1768,7 @@ async def _stream_deerflow_mobile_run(
             current_query=req.query,
         )
 
-        ordered = _segments_to_ordered_segments(
-            adapted.get("segments") if isinstance(adapted, dict) else []
-        )
+        ordered = _segments_to_ordered_segments(adapted.get("segments") if isinstance(adapted, dict) else [])
 
         new_items: list[dict[str, Any]] = []
 
@@ -1796,7 +1811,7 @@ async def _stream_deerflow_mobile_run(
         while True:
             try:
                 item = await asyncio.wait_for(queue.get(), timeout=15)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # 心跳非常重要：防止 A 侧 requests 读超时
                 yield _sse_event(
                     "heartbeat",
@@ -1951,7 +1966,6 @@ async def mobile_chat(req: MobileChatRequest) -> dict[str, Any]:
 
 @router.post("/api/deerflow/mobile/run")
 async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
-
     if req.stream:
         return StreamingResponse(
             _stream_deerflow_mobile_run(req),
@@ -1962,7 +1976,6 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
                 "X-Accel-Buffering": "no",
             },
         )
-
 
     context = req.context if isinstance(req.context, dict) else {}
     thread_id = req.thread_id or context.get("thread_id")
@@ -1986,9 +1999,7 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
             current_query=req.query,
         )
 
-        ordered_segments = _segments_to_ordered_segments(
-            adapted.get("segments") if isinstance(adapted, dict) else []
-        )
+        ordered_segments = _segments_to_ordered_segments(adapted.get("segments") if isinstance(adapted, dict) else [])
 
         return {
             "code": 0,
