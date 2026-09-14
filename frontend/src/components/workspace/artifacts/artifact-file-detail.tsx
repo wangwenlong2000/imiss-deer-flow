@@ -54,7 +54,7 @@ export function ArtifactFileDetail({
   threadId: string;
 }) {
   const { t } = useI18n();
-  const { artifacts, setOpen, select } = useArtifacts();
+  const { artifacts, select, deselect } = useArtifacts();
   const isWriteFile = useMemo(() => {
     return filepathFromProps.startsWith("write-file:");
   }, [filepathFromProps]);
@@ -228,7 +228,7 @@ export function ArtifactFileDetail({
             <ArtifactAction
               icon={XIcon}
               label={t.common.close}
-              onClick={() => setOpen(false)}
+              onClick={() => deselect()}
               tooltip={t.common.close}
             />
           </ArtifactActions>

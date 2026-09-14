@@ -9,9 +9,28 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Res
 
 from app.gateway.path_utils import resolve_thread_virtual_path
 
+from datetime import datetime, timezone
+from pydantic import BaseModel
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["artifacts"])
+
+class WorkspaceFileItem(BaseModel):
+    """A user-visible file generated in the current thread outputs directory."""
+
+    name: str
+    relative_path: str
+    virtual_path: str
+    size_bytes: int
+    modified_at: str
+    mime_type: str | None
+
+class WorkspaceFileListResponse(BaseModel):
+    """Files available under the current thread outputs directory."""
+
+    root: str
+    files: list[WorkspaceFileItem]
 
 
 def is_text_file_by_content(path: Path, sample_size: int = 8192) -> bool:
@@ -56,6 +75,109 @@ def _extract_file_from_skill_archive(zip_path: Path, internal_path: str) -> byte
             return None
     except (zipfile.BadZipFile, KeyError):
         return None
+
+@router.get(
+    "/threads/{thread_id}/workspace-files",
+    response_model=WorkspaceFileListResponse,
+    summary="List thread output files",
+    description=(
+        "List user-visible files generated under the current thread's "
+        "/mnt/user-data/outputs directory."
+    ),
+)
+async def list_workspace_files(
+    thread_id: str,
+    limit: int = 500,
+) -> WorkspaceFileListResponse:
+    """List generated files belonging to the current thread.
+
+    Only files under /mnt/user-data/outputs are returned. The response
+    exposes virtual paths rather than actual host filesystem paths.
+    """
+
+    virtual_root = "/mnt/user-data/outputs"
+    actual_root = resolve_thread_virtual_path(thread_id, virtual_root)
+
+    # A new thread may not have generated any output yet.
+    if not actual_root.exists():
+        return WorkspaceFileListResponse(
+            root=virtual_root,
+            files=[],
+        )
+
+    if not actual_root.is_dir():
+        raise HTTPException(
+            status_code=400,
+            detail="Thread outputs path is not a directory",
+        )
+
+    safe_limit = min(max(limit, 1), 2000)
+    resolved_root = actual_root.resolve()
+    files: list[WorkspaceFileItem] = []
+
+    for candidate in actual_root.rglob("*"):
+        if len(files) >= safe_limit:
+            break
+
+        # Do not expose symbolic links or directories.
+        if candidate.is_symlink() or not candidate.is_file():
+            continue
+
+        resolved_file = candidate.resolve()
+
+        # Defense in depth: ensure the resolved file is still under outputs.
+        try:
+            relative = resolved_file.relative_to(resolved_root)
+        except ValueError:
+            logger.warning(
+                "Skipped output file outside thread root: "
+                "thread_id=%s, path=%s",
+                thread_id,
+                resolved_file,
+            )
+            continue
+
+        # Do not show hidden files or files inside hidden directories.
+        if any(part.startswith(".") for part in relative.parts):
+            continue
+
+        try:
+            stat = resolved_file.stat()
+        except OSError:
+            logger.exception(
+                "Failed to stat output file: thread_id=%s, path=%s",
+                thread_id,
+                resolved_file,
+            )
+            continue
+
+        relative_path = relative.as_posix()
+        mime_type, _ = mimetypes.guess_type(resolved_file.name)
+
+        files.append(
+            WorkspaceFileItem(
+                name=resolved_file.name,
+                relative_path=relative_path,
+                virtual_path=f"{virtual_root}/{relative_path}",
+                size_bytes=stat.st_size,
+                modified_at=datetime.fromtimestamp(
+                    stat.st_mtime,
+                    tz=timezone.utc,
+                ).isoformat(),
+                mime_type=mime_type,
+            )
+        )
+
+    # Show recently generated or modified files first.
+    files.sort(
+        key=lambda item: item.modified_at,
+        reverse=True,
+    )
+
+    return WorkspaceFileListResponse(
+        root=virtual_root,
+        files=files,
+    )
 
 
 @router.get(
