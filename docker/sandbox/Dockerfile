@@ -33,6 +33,7 @@ RUN apt-get update \
        tshark \
        ffmpeg \
        imagemagick \
+       wkhtmltopdf \
        gdal-bin \
        libgdal-dev \
        proj-bin \
@@ -83,7 +84,10 @@ RUN apt-get update \
        elasticsearch \
        networkx \
        matplotlib \
-       pillow \
+       Pillow==11.3.0 \
+       paddlepaddle==3.2.2 \
+       paddleocr==3.7.0 \
+       imgkit==1.2.3 \
        opencv-python-headless \
        scikit-image \
        tifffile \
