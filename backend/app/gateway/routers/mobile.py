@@ -72,6 +72,18 @@ class MobileChatRequest(BaseModel):
         default=None,
         description="Uploaded file metadata returned by DeerFlow uploads API",
     )
+    compliance_identity: dict[str, Any] | None = Field(
+        default=None,
+        description="Authenticated mobile identity mapped to compliance_context.user_context",
+    )
+    compliance_context: dict[str, Any] | None = Field(
+        default=None,
+        description="Compliance runtime context forwarded to LangGraph run_context",
+    )
+    compliance_request: dict[str, Any] | None = Field(
+        default=None,
+        description="Trusted compliance request contract written to LangGraph state",
+    )
 
 
 class DeerFlowMobileRunRequest(BaseModel):
@@ -86,6 +98,18 @@ class DeerFlowMobileRunRequest(BaseModel):
         default=None,
         description="Uploaded file metadata returned by DeerFlow uploads API",
     )
+    compliance_identity: dict[str, Any] | None = Field(
+        default=None,
+        description="Authenticated mobile identity mapped to compliance_context.user_context",
+    )
+    compliance_context: dict[str, Any] | None = Field(
+        default=None,
+        description="Compliance runtime context forwarded to LangGraph run_context",
+    )
+    compliance_request: dict[str, Any] | None = Field(
+        default=None,
+        description="Trusted compliance request contract written to LangGraph state",
+    )
 
 
 class DeerFlowMobileEnsureThreadRequest(BaseModel):
@@ -94,6 +118,54 @@ class DeerFlowMobileEnsureThreadRequest(BaseModel):
     user_id: str | None = Field(default=None, description="Mobile platform user id")
     assistant_id: str | None = Field(default=None, description="LangGraph assistant id")
     metadata: dict[str, Any] | None = Field(default=None, description="Optional extra metadata")
+
+
+def _mapping(value: Any) -> dict[str, Any]:
+    return dict(value) if isinstance(value, dict) else {}
+
+
+def _mobile_chat_request(req: DeerFlowMobileRunRequest) -> MobileChatRequest:
+    """Translate the public mobile request without forwarding arbitrary context."""
+    context = _mapping(req.context)
+    compliance_context = _mapping(req.compliance_context or context.get("compliance_context"))
+    compliance_identity = _mapping(req.compliance_identity or context.get("compliance_identity"))
+
+    if compliance_identity:
+        user_context = _mapping(compliance_context.get("user_context"))
+        user_context = {**compliance_identity, **user_context}
+        compliance_context["user_context"] = user_context
+    elif req.user_id and not isinstance(compliance_context.get("user_context"), dict):
+        compliance_context["user_context"] = {"user_id": req.user_id}
+
+    compliance_request = _mapping(req.compliance_request or context.get("compliance_request"))
+    thread_id = req.thread_id or context.get("thread_id")
+
+    return MobileChatRequest(
+        query=req.query,
+        user_id=req.user_id,
+        session_id=req.conversation_id,
+        thread_id=str(thread_id) if thread_id else None,
+        assistant_id=req.assistant_id,
+        stream=req.stream,
+        attachments=_attachments_from_request(req, context),
+        compliance_identity=compliance_identity or None,
+        compliance_context=compliance_context or None,
+        compliance_request=compliance_request or None,
+    )
+
+
+def _build_mobile_run_context(req: MobileChatRequest, thread_id: str) -> dict[str, Any]:
+    run_context: dict[str, Any] = {
+        **DEFAULT_RUN_CONTEXT,
+        "thread_id": thread_id,
+    }
+    if req.user_id:
+        run_context["user_id"] = req.user_id
+    if req.session_id:
+        run_context["session_id"] = req.session_id
+    if req.compliance_context:
+        run_context["compliance_context"] = dict(req.compliance_context)
+    return run_context
 
 
 def make_segment(
@@ -1084,6 +1156,82 @@ def _walk_dicts(value: Any):
             yield from _walk_dicts(child)
 
 
+COMPLIANCE_GATES = {"InputGate", "ContextGate", "OutputGate"}
+COMPLIANCE_ACTION_PRIORITY = (
+    "refuse",
+    "manual_review",
+    "desensitize",
+    "rewrite",
+    "aggregate",
+    "role_check",
+    "warn",
+    "allow",
+)
+
+
+def _string_list(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value] if value else []
+    if isinstance(value, (list, tuple, set)):
+        return [str(item) for item in value if str(item)]
+    return []
+
+
+def _final_disposition(actions: list[str], *, retracted: bool = False) -> str:
+    if retracted and "refuse" not in actions:
+        return "refuse"
+    for action in COMPLIANCE_ACTION_PRIORITY:
+        if action in actions:
+            return action
+    return "allow"
+
+
+def _normalize_compliance_result(payload: dict[str, Any]) -> dict[str, Any] | None:
+    is_retract = payload.get("type") == "compliance_retract"
+    gate = "OutputGate" if is_retract else str(payload.get("gate") or "")
+    if gate not in COMPLIANCE_GATES:
+        return None
+
+    actions = _string_list(payload.get("actions")) or _string_list(payload.get("action"))
+    if not actions:
+        actions = ["allow"]
+    retracted = bool(payload.get("retracted")) or is_retract
+
+    return {
+        "gate": gate,
+        "scene": str(payload.get("scene") or payload.get("scene_key") or "_unknown"),
+        "violation_types": _string_list(payload.get("violation_types")),
+        "actions": actions,
+        "audit_ref": payload.get("audit_ref"),
+        "basis": _string_list(payload.get("basis")),
+        "final_disposition": _final_disposition(actions, retracted=retracted),
+    }
+
+
+def _compliance_result_key(result: dict[str, Any]) -> str:
+    return json.dumps(result, ensure_ascii=False, sort_keys=True, default=str)
+
+
+def _extract_compliance_results(raw_events: list[Any]) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for event in raw_events:
+        if not isinstance(event, dict):
+            continue
+        for payload in _walk_dicts(event.get("data")):
+            result = _normalize_compliance_result(payload)
+            if result is None:
+                continue
+            key = _compliance_result_key(result)
+            if key in seen:
+                continue
+            seen.add(key)
+            results.append(result)
+
+    return results
+
+
 def _extract_current_turn_intent_content(
     raw_events: list[Any],
     current_query: str,
@@ -1196,6 +1344,7 @@ def _extract_compliance_retract_segments(raw_events: list[Any]) -> list[dict[str
                     "streaming_mode": payload.get("streaming_mode"),
                     "violation_types": payload.get("violation_types") or [],
                     "action": payload.get("action") or [],
+                    "actions": payload.get("actions") or payload.get("action") or [],
                     "notice": payload.get("notice"),
                     "audit_ref": payload.get("audit_ref"),
                     "basis": payload.get("basis") or [],
@@ -1359,6 +1508,7 @@ def adapt_events_to_mobile(
         "session_id": session_id or thread_id,
         "thread_id": thread_id,
         "segments": segments,
+        "compliance_results": _extract_compliance_results(raw_events),
     }
 
 
@@ -1548,7 +1698,11 @@ def _attachments_from_request(req: Any, context: dict[str, Any] | None = None) -
     return []
 
 
-def _build_langgraph_input(query: str, attachments: Any = None) -> dict[str, Any]:
+def _build_langgraph_input(
+    query: str,
+    attachments: Any = None,
+    compliance_request: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     message: dict[str, Any] = {
         "role": "human",
         "content": query,
@@ -1558,7 +1712,10 @@ def _build_langgraph_input(query: str, attachments: Any = None) -> dict[str, Any
     if files:
         message["additional_kwargs"] = {"files": files}
 
-    return {"messages": [message]}
+    graph_input: dict[str, Any] = {"messages": [message]}
+    if compliance_request:
+        graph_input["compliance_request"] = dict(compliance_request)
+    return graph_input
 
 
 async def ensure_mobile_thread(req: DeerFlowMobileEnsureThreadRequest) -> tuple[str, bool]:
@@ -1627,21 +1784,14 @@ async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, 
 
     assistant_id = req.assistant_id or DEFAULT_ASSISTANT_ID
 
-    run_context = {
-        **DEFAULT_RUN_CONTEXT,
-        "thread_id": thread_id,
-    }
-    if req.user_id:
-        run_context["user_id"] = req.user_id
-    if req.session_id:
-        run_context["session_id"] = req.session_id
+    run_context = _build_mobile_run_context(req, thread_id)
 
     raw_events: list[Any] = []
 
     async for chunk in client.runs.stream(
         thread_id,
         assistant_id,
-        input=_build_langgraph_input(req.query, req.attachments),
+        input=_build_langgraph_input(req.query, req.attachments, req.compliance_request),
         config=DEFAULT_RUN_CONFIG,
         context=run_context,
         # `custom` carries the compliance OutputGate retract event.
@@ -1681,14 +1831,7 @@ async def _produce_langgraph_stream(
 
         assistant_id = chat_req.assistant_id or DEFAULT_ASSISTANT_ID
 
-        run_context = {
-            **DEFAULT_RUN_CONTEXT,
-            "thread_id": thread_id,
-        }
-        if chat_req.user_id:
-            run_context["user_id"] = chat_req.user_id
-        if chat_req.session_id:
-            run_context["session_id"] = chat_req.session_id
+        run_context = _build_mobile_run_context(chat_req, thread_id)
 
         await queue.put(
             {
@@ -1700,7 +1843,7 @@ async def _produce_langgraph_stream(
         async for chunk in client.runs.stream(
             thread_id,
             assistant_id,
-            input=_build_langgraph_input(chat_req.query, chat_req.attachments),
+            input=_build_langgraph_input(chat_req.query, chat_req.attachments, chat_req.compliance_request),
             config=DEFAULT_RUN_CONFIG,
             context=run_context,
             # `custom` carries the compliance OutputGate retract event.
@@ -1731,18 +1874,8 @@ async def _produce_langgraph_stream(
 async def _stream_deerflow_mobile_run(
     req: DeerFlowMobileRunRequest,
 ) -> AsyncIterator[str]:
-    context = req.context if isinstance(req.context, dict) else {}
-    thread_id = req.thread_id or context.get("thread_id")
-
-    chat_req = MobileChatRequest(
-        query=req.query,
-        user_id=req.user_id,
-        session_id=req.conversation_id,
-        thread_id=thread_id,
-        assistant_id=req.assistant_id,
-        stream=True,
-        attachments=_attachments_from_request(req, context),
-    )
+    chat_req = _mobile_chat_request(req)
+    thread_id = chat_req.thread_id
 
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
     producer_task = asyncio.create_task(_produce_langgraph_stream(chat_req, queue))
@@ -1751,9 +1884,22 @@ async def _stream_deerflow_mobile_run(
     current_thread_id = thread_id or ""
     emitted_keys: set[tuple[str, str, str]] = set()
     emitted_segments: list[dict[str, Any]] = []
+    emitted_compliance_keys: set[str] = set()
+    compliance_results: list[dict[str, Any]] = []
     next_order = 1
     clarification_emitted = False
     pending_clarification: dict[str, Any] | None = None
+
+    def emit_new_compliance_results() -> list[dict[str, Any]]:
+        new_items: list[dict[str, Any]] = []
+        for item in _extract_compliance_results(raw_events):
+            key = _compliance_result_key(item)
+            if key in emitted_compliance_keys:
+                continue
+            emitted_compliance_keys.add(key)
+            compliance_results.append(item)
+            new_items.append(item)
+        return new_items
 
     def emit_new_segments(final: bool = False) -> list[dict[str, Any]]:
         nonlocal next_order
@@ -1844,6 +1990,9 @@ async def _stream_deerflow_mobile_run(
                 if isinstance(raw_event, dict):
                     raw_events.append(raw_event)
 
+                    for compliance_result in emit_new_compliance_results():
+                        yield _sse_event("compliance", compliance_result)
+
                     clarification = _extract_clarification_from_event(
                         raw_event,
                         conversation_id=req.conversation_id,
@@ -1897,6 +2046,7 @@ async def _stream_deerflow_mobile_run(
                         "thread_id": current_thread_id,
                         "status": "completed",
                         "ordered_segments": emitted_segments,
+                        "compliance_results": compliance_results,
                     },
                 )
 
@@ -1977,18 +2127,8 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
             },
         )
 
-    context = req.context if isinstance(req.context, dict) else {}
-    thread_id = req.thread_id or context.get("thread_id")
-
-    chat_req = MobileChatRequest(
-        query=req.query,
-        user_id=req.user_id,
-        session_id=req.conversation_id,
-        thread_id=thread_id,
-        assistant_id=req.assistant_id,
-        stream=req.stream,
-        attachments=_attachments_from_request(req, context),
-    )
+    chat_req = _mobile_chat_request(req)
+    thread_id = chat_req.thread_id
 
     try:
         deerflow_thread_id, raw_events = await run_deerflow_and_collect_events(chat_req)
@@ -2007,6 +2147,7 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
             "conversation_id": req.conversation_id,
             "thread_id": deerflow_thread_id,
             "ordered_segments": ordered_segments,
+            "compliance_results": adapted.get("compliance_results", []),
         }
 
     except Exception as exc:

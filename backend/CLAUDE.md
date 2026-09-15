@@ -187,6 +187,16 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
   each `compliance_retract` event to one `反馈智能体` segment containing only the
   safe replacement/refusal. It forwards disposition metadata and suppresses
   the rewritten final answer so JSON and SSE clients do not receive duplicates.
+- `/api/deerflow/mobile/run` accepts explicit `compliance_identity`,
+  `compliance_context`, and `compliance_request` fields (plus their legacy
+  nested forms under `context`). Identity becomes
+  `run_context.compliance_context.user_context`; `compliance_request` is part
+  of LangGraph input/state. Never forward arbitrary client `context` keys.
+- Mobile compliance results from InputGate, ContextGate, and OutputGate are
+  normalized to `gate`, `scene`, `violation_types`, `actions`, `audit_ref`,
+  `basis`, and `final_disposition`. SSE emits incremental `compliance` events
+  and a final `done.compliance_results` snapshot; non-streaming JSON returns the
+  same `compliance_results` field.
 
 `tests/test_compliance_gates.py` asserts all three positions.
 

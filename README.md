@@ -468,12 +468,19 @@ and the message is rewritten so the checkpoint never holds the original. This is
 recovery, not prevention — there is a visible window between a violating token being rendered and
 the retraction arriving, tunable via `incremental_scan.interval_chars`.
 
-The mobile adapter also converts `compliance_retract` into one ordered
-`反馈智能体` segment. Its content is the safe compliance replacement/refusal,
-while violation types, actions, policy basis and audit reference are forwarded
-as metadata. The rewritten final AI message is suppressed to avoid sending the
-same refusal twice. This applies to both JSON and SSE responses from
-`/api/deerflow/mobile/run`.
+The mobile adapter accepts `compliance_identity`, `compliance_context`, and the
+trusted `compliance_request` contract. Runtime identity is forwarded through
+LangGraph `run_context`, while `compliance_request` is written into graph state.
+InputGate, ContextGate, and OutputGate determinations use one mobile contract:
+`gate`, `scene`, `violation_types`, `actions`, `audit_ref`, `basis`, and
+`final_disposition`. SSE clients receive each new determination as a
+`compliance` event and receive the complete snapshot in
+`done.compliance_results`; JSON clients receive the same top-level snapshot.
+The adapter also converts `compliance_retract` into one ordered `反馈智能体`
+segment containing only the safe replacement/refusal and suppresses the
+rewritten final answer to avoid duplicates. See the
+[mobile test plan](docs/mobile-platform-compliance-test-plan.md) and the
+[real SSE test record](docs/mobile-platform-compliance-sse-test-record-20260915.md).
 
 **Detectors are pluggable and isolated.** A detector declares its capabilities in its own
 `manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an
