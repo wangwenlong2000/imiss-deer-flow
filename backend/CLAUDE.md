@@ -199,6 +199,9 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
   same `compliance_results` field. Derive `final_disposition` from policy
   `actions`, never from `compliance_retract`/`retracted`: allow determinations
   can use replacement transport semantics to append a safe compliance notice.
+  A live `compliance` event keeps these canonical fields at the top level and
+  also exposes an identical `compliance_result` object for the OneCityAgent UI
+  bridge. Do not add that transport-only mirror to `done.compliance_results`.
 
 `tests/test_compliance_gates.py` asserts all three positions.
 

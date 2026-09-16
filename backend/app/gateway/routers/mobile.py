@@ -1583,6 +1583,11 @@ def _sse_event(event: str, data: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
 
 
+def _mobile_compliance_sse_payload(result: dict[str, Any]) -> dict[str, Any]:
+    """Keep the canonical fields while supporting OneCity's UI envelope."""
+    return {**result, "compliance_result": dict(result)}
+
+
 def _mobile_run_error_response(
     *,
     conversation_id: str | None,
@@ -1987,7 +1992,10 @@ async def _stream_deerflow_mobile_run(
                     raw_events.append(raw_event)
 
                     for compliance_result in emit_new_compliance_results():
-                        yield _sse_event("compliance", compliance_result)
+                        yield _sse_event(
+                            "compliance",
+                            _mobile_compliance_sse_payload(compliance_result),
+                        )
 
                     clarification = _extract_clarification_from_event(
                         raw_event,

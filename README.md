@@ -476,6 +476,10 @@ InputGate, ContextGate, and OutputGate determinations use one mobile contract:
 `final_disposition`. SSE clients receive each new determination as a
 `compliance` event and receive the complete snapshot in
 `done.compliance_results`; JSON clients receive the same top-level snapshot.
+For OneCityAgent UI compatibility, each live `compliance` event also carries a
+`compliance_result` mirror of those canonical top-level fields. The final
+`done.compliance_results` list remains canonical and does not contain the
+transport-only wrapper.
 The adapter also converts `compliance_retract` into one ordered `反馈智能体`
 segment containing only the safe replacement/refusal and suppresses the
 rewritten final answer to avoid duplicates. The normalized

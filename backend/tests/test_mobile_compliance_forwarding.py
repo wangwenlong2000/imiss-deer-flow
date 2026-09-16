@@ -262,6 +262,10 @@ def test_stream_forwards_compliance_refusal_once_as_feedback(monkeypatch: pytest
     assert compliance_payloads[0]["gate"] == "OutputGate"
     assert compliance_payloads[0]["actions"] == ["refuse"]
     assert compliance_payloads[0]["final_disposition"] == "refuse"
+    canonical_compliance = {
+        key: value for key, value in compliance_payloads[0].items() if key != "compliance_result"
+    }
+    assert compliance_payloads[0]["compliance_result"] == canonical_compliance
 
     done_payload = next(json.loads(frame.split("data: ", 1)[1]) for frame in frames if frame.startswith("event: done\n"))
-    assert done_payload["compliance_results"] == compliance_payloads
+    assert done_payload["compliance_results"] == [canonical_compliance]

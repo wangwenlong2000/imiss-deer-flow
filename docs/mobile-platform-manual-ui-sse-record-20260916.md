@@ -109,3 +109,43 @@ data: {"gate":"InputGate","scene":"public_release","violation_types":["struct_id
 - manual context 与移动合规相关测试共 `26 passed`；
 - 两份真实 SSE 均正常到达 `done` 与 `[DONE]`；
 - 全程未修改 `fallback_key: _unknown`。
+
+## 6. OneCityAgent 卡片兼容字段
+
+联调页面曾能识别 `event: compliance`，但只显示空白“合规检测”消息。实时合规事件现同时保留标准顶层字段，并增加内容完全相同的 `compliance_result` 镜像，供 OneCityAgent 转换层直接传给前端：
+
+```json
+{
+  "gate": "InputGate",
+  "scene": "self_use",
+  "violation_types": ["struct_id"],
+  "actions": ["allow"],
+  "audit_ref": "audit-...",
+  "basis": ["..."],
+  "final_disposition": "allow",
+  "compliance_result": {
+    "gate": "InputGate",
+    "scene": "self_use",
+    "violation_types": ["struct_id"],
+    "actions": ["allow"],
+    "audit_ref": "audit-...",
+    "basis": ["..."],
+    "final_disposition": "allow"
+  }
+}
+```
+
+顶层标准字段继续兼容严格按 DeerFlow SSE 契约解析的客户端；`done.compliance_results` 仍返回不带嵌套镜像的标准对象数组。
+
+### 修复后真实 SSE 验证
+
+- `conversation_id`: `manual-envelope-live-20260916-002`
+- `thread_id`: `07c5c986-7b45-4eca-9513-9d847e7ff093`
+- `audit_ref`: `audit-669e315306f9495a`
+
+```text
+event: compliance
+data: {"gate":"InputGate","scene":"public_release","violation_types":["struct_id"],"actions":["desensitize","refuse"],"audit_ref":"audit-669e315306f9495a","basis":["个人信息保护法 §28 敏感个人信息","标注指南 7.23 §1.2.1(1)"],"final_disposition":"refuse","compliance_result":{"gate":"InputGate","scene":"public_release","violation_types":["struct_id"],"actions":["desensitize","refuse"],"audit_ref":"audit-669e315306f9495a","basis":["个人信息保护法 §28 敏感个人信息","标注指南 7.23 §1.2.1(1)"],"final_disposition":"refuse"}}
+```
+
+随后依次收到安全拦截 `segment`、不带传输镜像的标准 `done.compliance_results`，以及 `data: [DONE]`。该次真实运行耗时较长，主要时间仍消耗在已有的意图识别流程，不影响 SSE 格式验证结论。
