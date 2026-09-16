@@ -25,6 +25,16 @@ UrbanBrain 聚焦以下能力建设：
 - 多技能统一调用与结果聚合
 - 场景过滤与 Reranker 精排
 
+The current deployment intentionally keeps the external SkillRouter disabled
+and uses recognized scenes as a lightweight custom-skill filter. The ten
+business scenes therefore require explicit domain evidence before they may
+filter skills. Generic action words such as "提取", "分析", "报告", and
+"风险" cannot activate a specialist scene by themselves. Weak entities use
+composite evidence—for example, a phone number plus an extraction, screening,
+profile, contact, device, or list action routes to `phone_network`, while an
+incidental phone number in a contract does not override `policy_regulation`.
+LLM-selected scenes are validated against the same evidence rules.
+
 ---
 
 ## Table of Contents

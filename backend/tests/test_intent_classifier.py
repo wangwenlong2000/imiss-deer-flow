@@ -1,7 +1,7 @@
 """Tests for the routing intent classifier."""
 
-from deerflow.routing.intent import classify_routing_intent, load_scene_templates
 from deerflow.routing.dialogue_act import classify_dialogue_act
+from deerflow.routing.intent import classify_routing_intent, load_scene_templates
 from deerflow.routing.intent.classifier import TaskSpan, _normalize_task_span_texts, _resolve_scene_for_span, classify_routing_intent_with_llm
 
 
@@ -259,6 +259,76 @@ def test_other_scene_still_routes_as_task():
     assert result.intent == "task"
     assert result.scene is None
     assert result.routing_query == "西安市今天天气怎么样"
+
+
+def test_phone_entity_and_business_action_route_to_phone_network():
+    query = "请把手机号13800138000完整提取出来，并生成对外公开名单。"
+
+    result = classify_routing_intent(query, scene_templates=load_scene_templates())
+
+    assert result.scene == "phone_network"
+    assert result.scene_name == "电话网络"
+    assert result.confidence < 0.9
+
+
+def test_llm_cannot_override_phone_evidence_with_unrelated_remote_scene():
+    query = "请把手机号13800138000完整提取出来，并生成对外公开名单。"
+
+    result = classify_routing_intent_with_llm(
+        query,
+        llm=_FakeIntentLLM(),
+        scene_templates=load_scene_templates(),
+    )
+
+    assert result.scene == "phone_network"
+    assert result.scene_name == "电话网络"
+    assert result.confidence < 0.9
+
+
+def test_incidental_phone_number_does_not_override_legal_scene():
+    result = classify_routing_intent(
+        "请审查合同中甲方联系电话13800138000的填写是否符合现行法规。",
+        scene_templates=load_scene_templates(),
+    )
+
+    assert result.scene == "policy_regulation"
+
+
+def test_generic_actions_do_not_activate_specialist_scenes():
+    queries = [
+        "请提取这段文字中的姓名并整理成名单",
+        "请生成一份风险分析报告",
+        "请分析上传的数据并给出结论",
+        "请从文件中提取关键信息",
+        "请识别异常并输出表格",
+        "把以下内容整理成报告",
+        "查看这个位置附近发生了什么",
+    ]
+
+    templates = load_scene_templates()
+    for query in queries:
+        result = classify_routing_intent(query, scene_templates=templates)
+        assert result.scene is None, (query, result.scene)
+
+
+def test_all_ten_business_scenes_require_and_accept_domain_evidence():
+    cases = {
+        "network_traffic": "分析这个 pcap 文件中的 DNS 异常通信",
+        "phone_network": "分析这个号码的画像和共享设备风险",
+        "policy_regulation": "审查采购合同的违约责任条款",
+        "spatiotemporal_trajectory": "分析车辆 GPS 轨迹和停留点",
+        "street_view_image": "根据这张街景照片定位拍摄道路",
+        "remote_sensing_image": "分析卫星遥感影像中的土地利用变化",
+        "video_surveillance": "检测监控视频中的人员聚集事件",
+        "program_snippet": "分析这段 Python 代码的 AST 和调用图",
+        "road_traffic": "统计路口晚高峰车流量和拥堵指数",
+        "table_yearbook": "读取统计年鉴表格并计算指定单元格占比",
+    }
+
+    templates = load_scene_templates()
+    for expected_scene, query in cases.items():
+        result = classify_routing_intent(query, scene_templates=templates)
+        assert result.scene == expected_scene, (query, result.scene)
 
 
 def test_llm_scene_slot_and_rewrite():

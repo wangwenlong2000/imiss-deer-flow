@@ -172,6 +172,18 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
 10. **SubagentLimitMiddleware** - Truncates excess `task` tool calls from model response to enforce `MAX_CONCURRENT_SUBAGENTS` limit (optional, if subagent_enabled)
 11. **ClarificationMiddleware** - Intercepts `ask_clarification` tool calls, interrupts via `Command(goto=END)` (must be last)
 
+**Intent scene filtering** uses the ten deployment business scenes defined in
+`backend/config/intent_scene_templates.json`. `skill_router.enabled: false` is
+intentional in this deployment: `SceneSkillFilterMiddleware` filters custom
+skills by the recognized scene without calling the embedding/reranker
+services. Each business scene therefore declares `domain_anchors`; weak
+entities may declare `weak_domain_anchors` plus `weak_anchor_actions`. Both
+deterministic and LLM-selected scenes must pass this evidence check. Do not
+reintroduce generic actions such as extraction, analysis, report generation,
+risk, or anomaly as standalone specialist-scene evidence. Per-scene
+`routing.threshold`, `ambiguity_margin`, and `top_k` are runtime settings, and
+reported confidence must be score-derived rather than a fixed constant.
+
 **Compliance gates** (optional, only when `compliance.enabled: true` in `config.yaml`) are mounted outside this chain:
 
 - **ComplianceOutputGateMiddleware** and **ComplianceContextGateMiddleware** are inserted at the **front** of the list by `build_lead_runtime_middlewares()`. Both rely on the same rule: `wrap_tool_call` *and* `wrap_model_call` compose first-in-list as **outermost**. The context gate therefore sits *outside* `ToolErrorHandlingMiddleware` (which would otherwise swallow detection failures into an error ToolMessage), and the output gate's `wrap_model_call` result is the only version that reaches graph state.
