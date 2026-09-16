@@ -478,9 +478,12 @@ InputGate, ContextGate, and OutputGate determinations use one mobile contract:
 `done.compliance_results`; JSON clients receive the same top-level snapshot.
 The adapter also converts `compliance_retract` into one ordered `反馈智能体`
 segment containing only the safe replacement/refusal and suppresses the
-rewritten final answer to avoid duplicates. See the
+rewritten final answer to avoid duplicates. The normalized
+`final_disposition` is derived from policy `actions`, not from the stream's
+retract transport marker: an allowed result may use replacement semantics to
+append a compliance notice without becoming a refusal. See the
 [mobile test plan](docs/mobile-platform-compliance-test-plan.md) and the
-[real SSE test record](docs/mobile-platform-compliance-sse-test-record-20260915.md).
+[manual-UI real SSE record](docs/mobile-platform-manual-ui-sse-record-20260916.md).
 
 **Detectors are pluggable and isolated.** A detector declares its capabilities in its own
 `manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an

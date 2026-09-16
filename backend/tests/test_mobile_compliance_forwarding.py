@@ -139,6 +139,54 @@ def test_extracts_normalized_results_for_all_compliance_gates() -> None:
     assert results[2]["final_disposition"] == "refuse"
 
 
+def test_allow_retract_keeps_allow_disposition_and_deduplicates_persisted_metadata() -> None:
+    retract = _retract_event()
+    retract["data"].update(
+        {
+            "action": ["allow"],
+            "violation_types": ["struct_id"],
+            "audit_ref": "audit-allow",
+            "basis": ["allow-policy"],
+        }
+    )
+    persisted = {
+        "event": "values",
+        "data": {
+            "messages": [
+                {
+                    "type": "ai",
+                    "content": REFUSAL,
+                    "response_metadata": {
+                        "compliance": {
+                            "gate": "OutputGate",
+                            "scene": "public_release",
+                            "actions": ["allow"],
+                            "violation_types": ["struct_id"],
+                            "audit_ref": "audit-allow",
+                            "basis": ["allow-policy"],
+                            "retracted": True,
+                        }
+                    },
+                }
+            ]
+        },
+    }
+
+    results = mobile._extract_compliance_results([retract, persisted])
+
+    assert results == [
+        {
+            "gate": "OutputGate",
+            "scene": "public_release",
+            "violation_types": ["struct_id"],
+            "actions": ["allow"],
+            "audit_ref": "audit-allow",
+            "basis": ["allow-policy"],
+            "final_disposition": "allow",
+        }
+    ]
+
+
 def test_compliance_retract_becomes_feedback_and_replaces_final_answer() -> None:
     raw_events = [
         _retract_event(),

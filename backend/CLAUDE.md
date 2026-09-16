@@ -196,7 +196,9 @@ Middlewares execute in strict order in `packages/harness/deerflow/agents/lead_ag
   normalized to `gate`, `scene`, `violation_types`, `actions`, `audit_ref`,
   `basis`, and `final_disposition`. SSE emits incremental `compliance` events
   and a final `done.compliance_results` snapshot; non-streaming JSON returns the
-  same `compliance_results` field.
+  same `compliance_results` field. Derive `final_disposition` from policy
+  `actions`, never from `compliance_retract`/`retracted`: allow determinations
+  can use replacement transport semantics to append a safe compliance notice.
 
 `tests/test_compliance_gates.py` asserts all three positions.
 

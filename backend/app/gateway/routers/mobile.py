@@ -1177,9 +1177,7 @@ def _string_list(value: Any) -> list[str]:
     return []
 
 
-def _final_disposition(actions: list[str], *, retracted: bool = False) -> str:
-    if retracted and "refuse" not in actions:
-        return "refuse"
+def _final_disposition(actions: list[str]) -> str:
     for action in COMPLIANCE_ACTION_PRIORITY:
         if action in actions:
             return action
@@ -1195,8 +1193,6 @@ def _normalize_compliance_result(payload: dict[str, Any]) -> dict[str, Any] | No
     actions = _string_list(payload.get("actions")) or _string_list(payload.get("action"))
     if not actions:
         actions = ["allow"]
-    retracted = bool(payload.get("retracted")) or is_retract
-
     return {
         "gate": gate,
         "scene": str(payload.get("scene") or payload.get("scene_key") or "_unknown"),
@@ -1204,7 +1200,7 @@ def _normalize_compliance_result(payload: dict[str, Any]) -> dict[str, Any] | No
         "actions": actions,
         "audit_ref": payload.get("audit_ref"),
         "basis": _string_list(payload.get("basis")),
-        "final_disposition": _final_disposition(actions, retracted=retracted),
+        "final_disposition": _final_disposition(actions),
     }
 
 
