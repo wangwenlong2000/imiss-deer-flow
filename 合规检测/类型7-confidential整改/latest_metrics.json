@@ -1,0 +1,138 @@
+{
+  "dataset": "合规检测\\类型7-confidential整改\\confidential_type7_regression.jsonl",
+  "dataset_sha256": "f3ac3bb0f0f366e9f83984085e9bf4681538e3d93e6a654a330fe693d38327f4",
+  "split": "test",
+  "split_method": "SHA-256 sample_id seed confidential-type7-v1, stratified by source and label, 20/80",
+  "sources": {
+    "compliance_annotations_250.jsonl": {
+      "source_rows": 257,
+      "selected_rows": 117,
+      "sha256": "5de90dfd3abc8cbcc085294cc8937b283d54b56f54af598c9129a6e13bd38587"
+    },
+    "network_flow_compliance_annotations_150.jsonl": {
+      "source_rows": 150,
+      "selected_rows": 63,
+      "sha256": "c1842094b03a821e28e6fed1f06dd4d0071f013abc9becde22b39b44a29f959e"
+    },
+    "remote_sensing_all_120.jsonl": {
+      "source_rows": 120,
+      "selected_rows": 20,
+      "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb"
+    }
+  },
+  "detector_rule_sha256": "04ca26975476dc902235792b242582296e7832c4ae542e802c37bd92ec0d2c04",
+  "git_head": "f74d589b02bc79b70cdca1f56515cf73813d308d",
+  "evaluation_mode": "rule_only; llm_disabled; 80% was explored before split request and is not blind acceptance",
+  "llm_review": {
+    "enabled": false,
+    "model": null,
+    "model_version": null,
+    "prompt_version": "confidential-boundary-v2-20260917",
+    "temperature": 0
+  },
+  "overall": {
+    "total": 176,
+    "tp": 81,
+    "fp": 2,
+    "fn": 17,
+    "tn": 76,
+    "precision": 0.975904,
+    "recall": 0.826531,
+    "f1": 0.895028,
+    "fp_ids": [
+      "confidential-repair-013",
+      "confidential-repair-015"
+    ],
+    "fn_ids": [
+      "stat-yearbook-confidential-final-002",
+      "stat-yearbook-confidential-final-003",
+      "stat-yearbook-confidential-final-004",
+      "stat-yearbook-confidential-final-005",
+      "stat-yearbook-confidential-final-006",
+      "stat-yearbook-confidential-final-007",
+      "stat-yearbook-confidential-final-008",
+      "stat-yearbook-confidential-final-009",
+      "stat-yearbook-confidential-final-010",
+      "stat-yearbook-confidential-final-011",
+      "stat-yearbook-confidential-final-013",
+      "network-flow-confidential-add-006",
+      "network-flow-confidential-add-008",
+      "network-flow-confidential-add-010",
+      "network-flow-confidential-add-021",
+      "network-flow-confidential-add-022",
+      "network-flow-confidential-add-024"
+    ]
+  },
+  "by_origin": {
+    "compliance_annotations_250.jsonl": {
+      "total": 93,
+      "tp": 37,
+      "fp": 0,
+      "fn": 11,
+      "tn": 45,
+      "precision": 1.0,
+      "recall": 0.770833,
+      "f1": 0.870588,
+      "fp_ids": [],
+      "fn_ids": [
+        "stat-yearbook-confidential-final-002",
+        "stat-yearbook-confidential-final-003",
+        "stat-yearbook-confidential-final-004",
+        "stat-yearbook-confidential-final-005",
+        "stat-yearbook-confidential-final-006",
+        "stat-yearbook-confidential-final-007",
+        "stat-yearbook-confidential-final-008",
+        "stat-yearbook-confidential-final-009",
+        "stat-yearbook-confidential-final-010",
+        "stat-yearbook-confidential-final-011",
+        "stat-yearbook-confidential-final-013"
+      ]
+    },
+    "network_flow_compliance_annotations_150.jsonl": {
+      "total": 51,
+      "tp": 20,
+      "fp": 0,
+      "fn": 6,
+      "tn": 25,
+      "precision": 1.0,
+      "recall": 0.769231,
+      "f1": 0.869565,
+      "fp_ids": [],
+      "fn_ids": [
+        "network-flow-confidential-add-006",
+        "network-flow-confidential-add-008",
+        "network-flow-confidential-add-010",
+        "network-flow-confidential-add-021",
+        "network-flow-confidential-add-022",
+        "network-flow-confidential-add-024"
+      ]
+    },
+    "remote_sensing_all_120.jsonl": {
+      "total": 16,
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "added_synthetic": {
+      "total": 16,
+      "tp": 8,
+      "fp": 2,
+      "fn": 0,
+      "tn": 6,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.888889,
+      "fp_ids": [
+        "confidential-repair-013",
+        "confidential-repair-015"
+      ],
+      "fn_ids": []
+    }
+  }
+}

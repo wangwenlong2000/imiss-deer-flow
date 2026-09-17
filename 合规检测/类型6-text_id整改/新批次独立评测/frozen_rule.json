@@ -1,0 +1,8 @@
+{
+  "rule_sha256": "5acb417d57947faa2e33e5f3a0bcfdb5c6de2e275076e845a73dedc456dbc386",
+  "dataset_sha256": "fce664f7f46ed16c62ff494d11990c6a0cb79cd2d3aff0cf25ac50a5f87aab88",
+  "development_sha256": "046de7c4cd4c36e928302eeb35e9d13a04a0479ef3dc4dcd202e273d4239c168",
+  "test_sha256": "145b82ce02a09b551e0d78084ae4871739debb42ff576e74f3b84b782886bae2",
+  "development_metrics_sha256": "480c097fec418e9ace04afbdb7d4ba3df3d9416bb443761d78991dd61261db07",
+  "test_not_used_for_tuning": true
+}

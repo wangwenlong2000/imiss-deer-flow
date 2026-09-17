@@ -65,6 +65,8 @@ class TextIdDetector(BaseDetector):
         "督办",
         "权属",
         "入学",
+        "督导", "巡查", "征询", "补偿", "验收", "报送", "调解", "抽样",
+        "欠薪", "能耗", "补贴", "防汛", "许可", "医疗", "卫检",
     ]
     ADDRESS_WORDS = [
         "小区",
@@ -143,6 +145,10 @@ class TextIdDetector(BaseDetector):
         "队长",
         "见证人",
         "负责",
+        "经办人", "监督员", "信息员", "协商员", "调解秘书", "基层治理专干",
+        "绿化验收员", "市容巡查员", "督导专员", "劳保监察员", "卫生检查员",
+        "监察员", "项目主管", "窗口人员", "协调员",
+        "就业统计员",
     ]
 
     # A conservative surname-based candidate recognizer is used only when a
@@ -167,7 +173,7 @@ class TextIdDetector(BaseDetector):
 
     NAME = re.compile(r"(?:姓名[:：]?|叫|被拘留人是|当事人|举报人|投诉人|信访人|联系人|负责人|主申请人[:：]?|受益人中，?|原告[:：]?|被告[:：]?)(?:是|为)?[:：]?\s*([\u4e00-\u9fff]{2,4}|[\u4e00-\u9fff]{1,3}某{1,2})|[\u4e00-\u9fff]某")
     MASKED_ID = re.compile(r"(?<!\d)(?:\d{17}[0-9Xx]|\d{6,17}[Xx]{2,8}\d{0,4})(?!\d)")
-    MASKED_PHONE = re.compile(r"\b1[3-9]\d{1,8}X{2,6}\d{0,4}\b|\b1[3-9]\d{9}\b", re.IGNORECASE)
+    MASKED_PHONE = re.compile(r"(?<!\d)1[3-9]\d{1,8}X{2,6}\d{0,4}(?!\d)|(?<!\d)1[3-9]\d{9}(?!\d)", re.IGNORECASE)
     MOJIBAKE_HINT = re.compile(r"\b\d{6,17}X{2,8}\b|\b1[3-9]\d{2,8}X{2,6}\b|XX|X{2,}")
     ADDRESS_SHAPE = re.compile(r"(?:XX|[\u4e00-\u9fff]{1,8}).{0,12}(?:路|街|大厦|花园|新村).{0,12}(?:\d+|XX).{0,8}(?:号|楼|栋|单元|室|平房)|(?:小区|花园|新村).{0,8}(?:\d+|XX).{0,8}(?:号|楼|栋|单元|室|平房)")
     ADDRESS_LABEL = re.compile(
@@ -212,9 +218,16 @@ class TextIdDetector(BaseDetector):
 
     PERSON_CANDIDATE = re.compile(
         rf"([{COMMON_SURNAMES}][\u4e00-\u9fff]{{1,2}})"
-        r"(?=为|是|，|、|（|\(|）|\)|“|”|\"|｜|\||；|;|。|的|作为|现任|担任|负责|承办|参与|"
+        r"(?=为|是|任|曾任|列为|对|，|、|（|\(|）|\)|“|”|\"|｜|\||；|;|。|的|作为|现任|担任|负责|承办|参与|"
         r"登记|居住|住在|在|跟进|完成|处理|审核|复核|标注|任职|就职|系|$)"
     )
+    PERSON_AFTER_ROLE = re.compile(
+        rf"(?:被调查人|案件承办人|经办人|填报人|复核人|审核员|调查员|联络员|网格员|联系人|投诉人|举报人|"
+        rf"信访人|申请人|责任人|原告|被告|项目负责人|网格员|点名|披露|保留|列出|写明|"
+        rf"记载|注明|出现|签署人为|人员=|姓名为)[:：=—\-]?\s*([{COMMON_SURNAMES}][\u4e00-\u9fff]{{1,2}})"
+        r"(?=[，。；;：（(、”\s]|在|为|任|担任|参与|负责|承担|对|的|与|及|住|系|$)"
+    )
+    GENERIC_PERSON_WORDS = {"方式", "单位", "于本周", "查的", "人员", "工作", "材料", "项目", "窗口"}
 
     def detect(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         text = self.build_text_view(sample)
@@ -222,11 +235,40 @@ class TextIdDetector(BaseDetector):
         rules: List[str] = []
         score = 0
         counts: Dict[str, int] = {}
+        signal_scores: List[Dict[str, Any]] = []
+
+        def with_rule_evidence(result: Dict[str, Any], decision_source: str) -> Dict[str, Any]:
+            result["rule_score"] = score
+            result["combination_scores"] = signal_scores + [
+                {
+                    "rule_id": relation["rule_id"],
+                    "score": 7,
+                    "aggregate_contribution": 7 if index == 0 else 1 if index <= 3 else 0,
+                    "trigger_entities": [
+                        {"type": entity["type"], "text": entity["text"],
+                         "start": entity["start"], "end": entity["end"]}
+                        for entity in relation["entities"]
+                    ],
+                }
+                for index, relation in enumerate(relationships)
+            ]
+            result["score_aggregation"] = "max(sum of unique signal scores, relationship contributions); direct ID/phone and legal-person pairs floor at 7"
+            result["trigger_entities"] = [
+                {"type": entity["type"], "text": entity["text"],
+                 "start": entity["start"], "end": entity["end"]}
+                for entity in entities
+            ]
+            result["decision_source"] = decision_source
+            return result
 
         def add_signal(kind: str, points: int, matched_text: str, rule_id: str) -> None:
             nonlocal score
             if counts.get(kind, 0) == 0:
                 score += points
+                signal_scores.append({
+                    "rule_id": rule_id, "score": points,
+                    "trigger_entities": [{"type": kind, "text": matched_text[:120]}],
+                })
             counts[kind] = counts.get(kind, 0) + 1
             locations.append(self.make_location("content_text", kind, matched_text[:120], rule_id))
             rules.append(rule_id)
@@ -241,8 +283,9 @@ class TextIdDetector(BaseDetector):
                 add_signal("event_keyword", 2, word, "event-keyword")
                 break
 
-        if any(word in text for word in ["拘留", "涉嫌", "看守所", "通知书"]):
-            add_signal("legal_case_context", 3, "legal case context", "legal-case-context")
+        legal_word = next((word for word in ["拘留", "涉嫌", "看守所", "通知书"] if word in text), None)
+        if legal_word:
+            add_signal("legal_case_context", 3, legal_word, "legal-case-context")
 
         name_match = self.NAME.search(text)
         if name_match:
@@ -256,8 +299,9 @@ class TextIdDetector(BaseDetector):
         if phone_match:
             add_signal("phone", 3, phone_match.group(0), "masked-or-full-phone")
 
-        if any(word in text for word in self.ORG_WORDS):
-            add_signal("organization", 2, "organization keyword", "organization-keyword")
+        organization_word = next((word for word in self.ORG_WORDS if word in text), None)
+        if organization_word:
+            add_signal("organization", 2, organization_word, "organization-keyword")
 
         address_match = self.ADDRESS_SHAPE.search(text)
         if address_match:
@@ -265,8 +309,9 @@ class TextIdDetector(BaseDetector):
 
         # Many normalized policy samples are mojibake, but digits, X masks, and XX placeholders survive.
         # This fallback keeps the detector useful while still requiring multiple quasi-identifying signals.
-        if self.MOJIBAKE_HINT.search(text) and ("XXXX" in text or len(re.findall(r"\d", text)) >= 8):
-            add_signal("masked_identifier_context", 2, "masked identifier context", "mojibake-masked-identifier-context")
+        masked_hint = self.MOJIBAKE_HINT.search(text)
+        if masked_hint and ("XXXX" in text or len(re.findall(r"\d", text)) >= 8):
+            add_signal("masked_identifier_context", 2, masked_hint.group(0), "mojibake-masked-identifier-context")
 
         entities = self._extract_entities(text)
         relationships = self._find_relationships(text, entities)
@@ -289,15 +334,17 @@ class TextIdDetector(BaseDetector):
                     )
 
         # Avoid treating a bare public organization or public place as a text identifier leak.
-        if counts.get("id_number") and counts.get("phone"):
+        direct_identifier_pair = bool(counts.get("id_number") and counts.get("phone"))
+        legal_person_pair = bool(counts.get("person_name") and counts.get("legal_case_context"))
+        if direct_identifier_pair:
             score = max(score, 7)
-        if counts.get("person_name") and counts.get("legal_case_context"):
+        if legal_person_pair:
             score = max(score, 7)
 
         llm_result = self._maybe_review_with_llm(sample, counts, score, entities)
         if llm_result is not None and llm_result.get("confidence", 0.0) >= 0.75:
             if llm_result.get("is_hit"):
-                return self.make_result(
+                return with_rule_evidence(self.make_result(
                     sample,
                     True,
                     min(0.95, max(0.75, llm_result.get("confidence", 0.0))),
@@ -305,8 +352,8 @@ class TextIdDetector(BaseDetector):
                     rules + ["llm-text-id-review"],
                     f"LLM review: {llm_result.get('reason')}",
                     ["desensitize"],
-                )
-            return self.make_result(
+                ), "llm_review")
+            return with_rule_evidence(self.make_result(
                 sample,
                 False,
                 1.0 - min(0.95, llm_result.get("confidence", 0.0)),
@@ -314,10 +361,13 @@ class TextIdDetector(BaseDetector):
                 rules + ["llm-text-id-review"],
                 f"LLM review rejected text_id: {llm_result.get('reason')}",
                 ["allow"],
-            )
+            ), "llm_review")
 
-        if score < 7:
-            return self.no_hit(sample, f"Entity combination score {score} is below text_id threshold.")
+        if score < 7 or not (relationships or direct_identifier_pair or legal_person_pair):
+            return with_rule_evidence(
+                self.no_hit(sample, f"Entity score {score}; no qualifying identifying relationship or identifier pair."),
+                "pure_rule",
+            )
 
         confidence = 0.86 if score < 10 else 0.92
         relation_rule_ids = sorted({item["rule_id"] for item in relationships})
@@ -325,7 +375,7 @@ class TextIdDetector(BaseDetector):
             reason = "Identifying entity relationship(s) found: " + ", ".join(relation_rule_ids) + "."
         else:
             reason = f"Free-text entity combination score reached {score}, indicating identifiable person/object risk."
-        return self.make_result(
+        return with_rule_evidence(self.make_result(
             sample,
             True,
             confidence,
@@ -333,7 +383,7 @@ class TextIdDetector(BaseDetector):
             rules,
             reason,
             ["desensitize"],
-        )
+        ), "pure_rule")
 
     def _extract_entities(self, text: str) -> List[Dict[str, Any]]:
         entities: List[Dict[str, Any]] = []
@@ -365,8 +415,24 @@ class TextIdDetector(BaseDetector):
             quality = "masked" if "某" in value or "*" in value else "full"
             add_entity("person", value, start, end, quality)
 
+        for match in self.PERSON_AFTER_ROLE.finditer(text):
+            value = match.group(1)
+            if value not in self.GENERIC_PERSON_WORDS and "某" not in value:
+                add_entity("person", value, *match.span(1))
+
+        for match in re.finditer(
+            rf"由([{self.COMMON_SURNAMES}][\u4e00-\u9fff]{{1,2}})(?=（|\()",
+            text,
+        ):
+            add_entity("person", match.group(1), *match.span(1))
+
+        for match in re.finditer(r"模拟人员\d{2}", text):
+            add_entity("person", match.group(0), match.start(), match.end(), "synthetic_id")
+
         for match in self.PERSON_CANDIDATE.finditer(text):
             value = match.group(1)
+            if value in self.GENERIC_PERSON_WORDS or value.startswith("和") or value.endswith(("条", "步", "岗", "区")):
+                continue
             if not self._person_candidate_has_context(text, match.start(1), match.end(1)):
                 continue
             quality = (
@@ -397,6 +463,11 @@ class TextIdDetector(BaseDetector):
 
         for match in self.ORGANIZATION.finditer(text):
             add_entity("organization", match.group(0), match.start(), match.end())
+        for match in re.finditer(
+            r"[A-Za-z\u4e00-\u9fff]{2,24}?(?:统计局|财政局|督导室|司法所|事务中心|联络站|统计中心|管理部门|巡查队|服务站|监管所|监督所|监察大队)",
+            text,
+        ):
+            add_entity("organization", match.group(0), match.start(), match.end())
         for match in self.CASE_ID.finditer(text):
             add_entity("case_id", match.group(0), match.start(), match.end())
 
@@ -414,9 +485,9 @@ class TextIdDetector(BaseDetector):
 
     def _person_candidate_has_context(self, text: str, start: int, end: int) -> bool:
         suffix = text[end : end + 4]
-        if suffix.startswith(("在", "为", "是", "作为", "现任", "担任", "负责", "承办", "参与", "跟进", "完成", "处理")):
+        if suffix.startswith(("在", "为", "是", "任", "曾任", "列为", "对", "作为", "现任", "担任", "负责", "承办", "参与", "跟进", "完成", "处理")):
             return True
-        if start == 0 or text[start - 1] in " \t\r\n，。；;：:“\"「（(":
+        if start == 0 or text[start - 1] in " \t\r\n，。；;：:“\"「（(—":
             return True
         prefix = text[max(0, start - 32) : start]
         if any(prefix.endswith(word) for word in self.POSITION_WORDS):
@@ -476,6 +547,14 @@ class TextIdDetector(BaseDetector):
         add_relation("person-organization-event-relation", ("person", "organization", "event"), max_span=180)
         add_relation("person-position-event-relation", ("person", "position", "event"), max_span=180)
         add_relation("person-case-event-relation", ("person", "case_id", "event"), max_span=220)
+
+        synthetic_people = [item for item in entities if item["type"] == "person" and item["quality"] == "synthetic_id"]
+        organizations = [item for item in entities if item["type"] == "organization"]
+        addresses = [item for item in entities if item["type"] == "address"]
+        for combination in product(synthetic_people, organizations, addresses):
+            if self._entities_share_context(text, combination, 180):
+                relationships.append({"rule_id": "synthetic-person-organization-address-relation", "entities": list(combination)})
+                break
 
         # A masked name or nickname can still identify a person when the text
         # states uniqueness or binds it to a precise scope, position and event.
@@ -584,4 +663,3 @@ class TextIdDetector(BaseDetector):
             seen.add(key)
             unique.append(location)
         return unique
-

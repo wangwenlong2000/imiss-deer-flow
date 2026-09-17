@@ -1,0 +1,95 @@
+{
+  "dataset": "合规检测\\类型7-confidential整改\\confidential_type7_regression.jsonl",
+  "dataset_sha256": "f3ac3bb0f0f366e9f83984085e9bf4681538e3d93e6a654a330fe693d38327f4",
+  "split": "dev",
+  "split_method": "SHA-256 sample_id seed confidential-type7-v1, stratified by source and label, 20/80",
+  "sources": {
+    "compliance_annotations_250.jsonl": {
+      "source_rows": 257,
+      "selected_rows": 117,
+      "sha256": "5de90dfd3abc8cbcc085294cc8937b283d54b56f54af598c9129a6e13bd38587"
+    },
+    "network_flow_compliance_annotations_150.jsonl": {
+      "source_rows": 150,
+      "selected_rows": 63,
+      "sha256": "c1842094b03a821e28e6fed1f06dd4d0071f013abc9becde22b39b44a29f959e"
+    },
+    "remote_sensing_all_120.jsonl": {
+      "source_rows": 120,
+      "selected_rows": 20,
+      "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb"
+    }
+  },
+  "detector_rule_sha256": "6a65e236bec90859b67978517ab5f016ec2d438434a350d6e92aa79f6fe3fb99",
+  "git_head": "f74d589b02bc79b70cdca1f56515cf73813d308d",
+  "evaluation_mode": "rule_only; llm_disabled; 20% rule development",
+  "llm_review": {
+    "enabled": false,
+    "model": null,
+    "model_version": null,
+    "prompt_version": null,
+    "temperature": null
+  },
+  "overall": {
+    "total": 44,
+    "tp": 24,
+    "fp": 0,
+    "fn": 0,
+    "tn": 20,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "fp_ids": [],
+    "fn_ids": []
+  },
+  "by_origin": {
+    "compliance_annotations_250.jsonl": {
+      "total": 24,
+      "tp": 12,
+      "fp": 0,
+      "fn": 0,
+      "tn": 12,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "network_flow_compliance_annotations_150.jsonl": {
+      "total": 12,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "remote_sensing_all_120.jsonl": {
+      "total": 4,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "added_synthetic": {
+      "total": 4,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    }
+  }
+}

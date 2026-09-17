@@ -1,5 +1,15 @@
 # UrbanBrain 城市超脑
 
+## 类型 6 自由文本标识符回归数据
+
+运行 `python scripts/build_eval_text_id.py` 可从 `compliance_annotations_250.jsonl` 和 `policy_regulation.jsonl` 汇集 text_id 标注，并加入政策材料、统计年鉴风格的 20 条合成正样本与 9 条负样本。脚本按来源及正负标签固定划分约 20% 开发集、80% 测试集；数据、划分清单、测试集逐条组合分值与触发实体、分组指标、修改报告位于 `合规检测/类型6-text_id整改/`。这次划分发生在先前全量调规则之后，80% 测试集已有历史暴露，不能作为独立冻结集成绩。LLM 边界复核指标另列，当前未运行。
+
+为进行真正未用于既往调规则的新批次测试，运行 `python scripts/text_id_fresh_holdout.py prepare` 先冻结 100 条新样本及精确 20/80 划分；随后依次运行 `development`、`freeze`、`test`。`freeze` 会记录规则与数据哈希，`test` 拒绝规则或数据哈希变化。新批次产物在 `合规检测/类型6-text_id整改/新批次独立评测/`，最新测试精确率 88.89%、召回率 100.00%、F1 94.12%。测试误报保留在结果中，没有据此继续调规则。
+
+## 类型 3 硬编码凭证回归数据
+
+运行 `python scripts/build_eval_hardcoded_cred_program_code.py` 可从原始 `program_code.jsonl` 生成 290 条类型 3 回归数据和最新指标 JSON，产物位于 `合规检测/类型3-hardcoded_cred整改/`。新增样本均为合成值；脚本仅记录指标、样本 ID 与哈希，不在指标文件中输出凭证明文。该评测是本轮规则开发回归，不代表独立冻结集成绩。OutputGate 标注仅保留原本属于输出阶段的样本，类型 3 的生产 Gate 范围仍按当前配置执行。
+
 <a href="https://trendshift.io/repositories/14699" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14699" alt="bytedance%2Fdeer-flow | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 UrbanBrain 是面向城市治理、城市分析与行业场景协同的城市超脑智能体平台。它在多智能体、长期记忆、沙箱执行与可扩展技能体系之上，组织网络流量、程序片段、时空轨迹、视频监控、遥感等场景能力，提供统一的分析、编排与交互入口。
 
@@ -562,3 +572,6 @@ Your unwavering commitment and expertise have been the driving force behind Deer
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=bytedance/deer-flow&type=Date)](https://star-history.com/#bytedance/deer-flow&Date)
+# Type 7 confidential rule regression
+
+Run `scripts/build_eval_confidential.py --evaluate dev` to check the 20% rule-development partition, then `--evaluate test` once the rule is fixed. The source-preserving corpus and the latest rule-only predictions/metrics are in `合规检测/类型7-confidential整改/`. Confidential LLM boundary review is disabled unless both `COMPLIANCE_CONFIDENTIAL_MODEL_NAME` and `COMPLIANCE_CONFIDENTIAL_MODEL_VERSION` are configured; the rule-only evaluation does not use an LLM.

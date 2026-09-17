@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import threading
 from collections.abc import Iterator
@@ -17,6 +18,8 @@ DEFAULT_MAX_CONTENT_CHARS = 2500
 MAX_FEATURE_CHARS = 2500
 MAX_RISK_SPANS = 20
 MAX_RISK_SPAN_CHARS = 256
+CONFIDENTIAL_PROMPT_VERSION = "confidential-boundary-v2-20260917"
+CONFIDENTIAL_TEMPERATURE = 0
 
 
 def _create_configured_model(
@@ -159,6 +162,11 @@ class ConfiguredLLMAdapter:
     def is_available(self) -> bool:
         return self._injected_model is not None or self._active_model_name.get() is not None
 
+    def confidential_review_ready(self) -> bool:
+        """Only enable confidential LLM review with an explicit model and version pin."""
+        return bool(os.getenv("COMPLIANCE_CONFIDENTIAL_MODEL_NAME") and
+                    os.getenv("COMPLIANCE_CONFIDENTIAL_MODEL_VERSION"))
+
     def _get_model(self) -> Any:
         if self._injected_model is not None:
             return self._injected_model
@@ -182,7 +190,7 @@ class ConfiguredLLMAdapter:
             model = self._get_model()
             bind = getattr(model, "bind", None)
             bounded_model = bind(
-                temperature=0,
+                temperature=CONFIDENTIAL_TEMPERATURE,
                 max_tokens=self.max_output_tokens,
             ) if callable(bind) else model
             configured = getattr(bounded_model, "with_config", None)
@@ -258,11 +266,14 @@ rule_signals: {json.dumps(signals, ensure_ascii=False)}
         prompt = f"""
 你是 DeerFlow 内部合规边界复核器。判断内容是否构成 confidential（商业秘密或内部敏感信息泄露）。
 
+提示词版本：{CONFIDENTIAL_PROMPT_VERSION}
+
 判定要求：
-1. 内部域名/API、数据库端点、部署信息、供应商报价、合同或预算明细可构成风险。
-2. 公开财政汇总、公开政策、公开接口和单独出现“预算/内部/公司名”不应直接命中。
-3. 结合规则信号、结构化字段和上下文判断是否包含未公开内部明细。
-4. 只能输出 JSON，不得输出 Markdown 或额外文本。
+1. 同时核对密级/限制流转标记与实际内容；区分普通内部信息、商业秘密、国家秘密/工作秘密，不能由“内部”单词直接推断密级。
+2. 未公开预测、内部口径、客户名单、报价策略及供应商报价等须与未公开性或限制流转证据组合判断。
+3. 公开年报、公开政策、公开汇总数据和保密教育示例不命中；否定句中的敏感词不算证据。
+4. 缺少甲方制度时，普通内部资料和密级归属不明的材料只能建议 manual_review。
+5. 只能输出 JSON，不得输出 Markdown 或额外文本。
 
 data_type: {sample.get("data_type")}
 gate: {sample.get("gate") or sample.get("trigger_gate")}
@@ -273,8 +284,12 @@ features: {features_text}
 {content}
 
 输出格式：
-{{"is_hit": true, "confidence": 0.0, "risk_type": "internal_api | database_endpoint | contract_amount | none", "risk_spans": [{{"text": "精确风险片段", "reason": "原因"}}], "reason": "一句话结论"}}
+{{"is_hit": true, "confidence": 0.0, "risk_type": "ordinary_internal | business_secret | state_or_work_secret | classification_unverified | none", "risk_spans": [{{"text": "精确风险片段", "reason": "原因"}}], "reason": "一句话结论"}}
 """.strip()
+        pinned_model = os.getenv("COMPLIANCE_CONFIDENTIAL_MODEL_NAME")
+        if pinned_model:
+            with self.use_model(pinned_model):
+                return self._invoke(prompt, "ComplianceConfidentialBoundaryReview")
         return self._invoke(prompt, "ComplianceConfidentialBoundaryReview")
 
 

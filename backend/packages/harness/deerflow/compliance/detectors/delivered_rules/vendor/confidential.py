@@ -7,6 +7,14 @@ from .base import BaseDetector
 class ConfidentialDetector(BaseDetector):
     violation_type = "confidential"
 
+    # A marking alone is insufficient: pair it with a restricted document or
+    # substantive data. Public training material may quote the same words.
+    STATE_MARKING = re.compile(r"国家秘密|绝密|机密级|秘密级|工作秘密|top secret|classified", re.I)
+    INTERNAL_MARKING = re.compile(r"内部资料|内部口径|内部测算|内部未定稿|未公开|未发布|未经授权|仅限内部|限制流转|商业秘密|商业机密|核心商业秘密|保密期限", re.I)
+    SENSITIVE_DETAIL = re.compile(r"预测|测算|客户(?:名|清)单|客户分层|报价策略|定价策略|谈判底价|底线折扣|供应商(?:内部)?报价|供应商比价|采购策略|毛利|折扣方案|模型权重|算法阈值|审计初稿|风险准备金|评审结论|运维窗口|部署拓扑|数据库表结构|接口地址|生产环境|投标成本", re.I)
+    PUBLIC_RELEASE = re.compile(r"已公开|公开发布|官网公开|公开可查|公开年报|公开汇总|公开月报|公开政策|公开培训|公开招标|公示系统|公开服务|public[_ /-]?(?:summary|statistics|status|service)", re.I)
+    NEGATED_DETAIL = re.compile(r"不含|不包含|不涉及|未披露|已删除|已剔除|仅讲解|模板|示例|演示", re.I)
+
     INTERNAL_IP = re.compile(r"\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b")
     DB_ENDPOINT = re.compile(r"(?i)\b(mysql|postgresql|postgres|redis|mongodb|jdbc|oracle|sqlserver)[:/][^\s'\"]+")
     AMOUNT = re.compile(r"(?i)(contract[_-]?amount|budget|quote|price|amount|合同|预算|报价|金额|评分细则)")
@@ -179,6 +187,9 @@ class ConfidentialDetector(BaseDetector):
     def detect(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         signals: List[Tuple[str, Dict[str, Any]]] = []
         rules: List[str] = []
+        classified = self._classify_marked_content(sample)
+        if classified is not None:
+            return classified
         if self._is_public_summary_record(sample):
             return self.no_hit(sample, "Record is a public/open budget summary, not confidential detail.")
 
@@ -295,8 +306,56 @@ class ConfidentialDetector(BaseDetector):
             ["manual_review", "desensitize"],
         )
 
+    def _classify_marked_content(self, sample: Dict[str, Any]) -> Dict[str, Any] | None:
+        items = list(self.iter_search_items(sample))
+        if not items:
+            return None
+        # Metadata keys may carry the decisive meaning even when values are numeric.
+        combined = "\n".join(f"{path}: {value}" for path, value in items)
+        fields = self.build_field_view(sample)
+        publication = " ".join(str(value) for key, value in fields.items() if any(
+            token in key.lower() for token in ("publish_status", "publication_status", "watermark_note")
+        ))
+        public = bool(self.PUBLIC_RELEASE.search(publication))
+        marked_state = bool(self.STATE_MARKING.search(combined))
+        marked_internal = bool(self.INTERNAL_MARKING.search(combined))
+        detail = bool(self.SENSITIVE_DETAIL.search(combined))
+        # A public record can describe absent sensitive fields without exposing them.
+        if public and not (marked_state and detail) and not (marked_internal and detail and not self.NEGATED_DETAIL.search(combined)):
+            return self.no_hit(sample, "Published or public summary contains no protected detail.")
+        if self.NEGATED_DETAIL.search(combined) and not marked_state and not marked_internal:
+            return None
+        classification_value = " ".join(str(value) for key, value in fields.items() if any(
+            token in key.lower() for token in ("classification_level", "security_level", "密级")
+        ))
+        restricted = bool(re.search(r"仅限|限授权|按需知悉|不得外发|不得复制|不得通过非涉密|严禁|未经授权|保密期限|涉密任务|密级|限制流转", combined))
+        state_secret = bool(self.STATE_MARKING.search(classification_value)) or (marked_state and restricted)
+        # Bare 机密/秘密 in a classification field establishes a marked file,
+        # but does not by itself prove the legal category of state secret.
+        classification_unverified = classification_value.strip() in {"机密", "秘密", "绝密"} and restricted
+        business_secret = bool(re.search(r"商业秘密|商业机密|核心商业秘密", combined)) and detail
+        ordinary_internal = marked_internal and detail
+        if not (state_secret or classification_unverified or business_secret or ordinary_internal):
+            return None
+        if public and not state_secret and not business_secret:
+            return self.no_hit(sample, "Publicly released information is not confidential solely because of draft/internal wording.")
+        category = ("state_or_work_secret" if state_secret else "classification_unverified" if classification_unverified
+                    else "business_secret" if business_secret else "ordinary_internal")
+        rule = f"confidential-{category}-combination"
+        evidence = [self.make_location(path, category, value[:240], rule) for path, value in items
+                    if self.STATE_MARKING.search(value) or self.INTERNAL_MARKING.search(value)
+                    or self.SENSITIVE_DETAIL.search(path + ": " + value)
+                    or re.search(r"access_scope|知悉范围|仅限|按需知悉|限授权", path + ": " + value)]
+        # Without the owner's policy, ordinary internal material has no automatic
+        # disclosure verdict. Keep detection visible and route only to a person.
+        action = ["manual_review"] if category in {"ordinary_internal", "classification_unverified"} else ["manual_review", "desensitize"]
+        return self.make_result(sample, True, 0.94 if state_secret else 0.9 if business_secret else 0.78,
+                                self._dedupe_locations(evidence), [rule],
+                                f"{category}: marking and substantive detail occur together.", action)
+
     def _maybe_review_with_llm(self, sample: Dict[str, Any], signals: List[Dict[str, Any]]) -> Dict[str, Any]:
-        if not self.use_llm or self.llm_adapter is None or not self.llm_adapter.is_available():
+        if (not self.use_llm or self.llm_adapter is None
+                or not getattr(self.llm_adapter, "confidential_review_ready", lambda: False)()):
             return None
         if not signals and sample.get("sample_kind") != "boundary":
             return None
@@ -490,4 +549,3 @@ class ConfidentialDetector(BaseDetector):
             seen.add(key)
             unique.append(location)
         return unique
-

@@ -1,0 +1,25 @@
+{
+  "split": "test",
+  "dataset_sha256": "fce664f7f46ed16c62ff494d11990c6a0cb79cd2d3aff0cf25ac50a5f87aab88",
+  "rule_sha256": "5acb417d57947faa2e33e5f3a0bcfdb5c6de2e275076e845a73dedc456dbc386",
+  "total": 80,
+  "tp": 40,
+  "fp": 5,
+  "fn": 0,
+  "tn": 35,
+  "precision": 0.888889,
+  "recall": 1.0,
+  "f1": 0.941176,
+  "fp_ids": [
+    "fresh-text-id-yearbook-neg-016",
+    "fresh-text-id-yearbook-neg-017",
+    "fresh-text-id-yearbook-neg-018",
+    "fresh-text-id-yearbook-neg-019",
+    "fresh-text-id-yearbook-neg-020"
+  ],
+  "fn_ids": [],
+  "llm_boundary": {
+    "status": "not_run"
+  },
+  "scope": "Direct delivered rule, LLM disabled; excludes Gate and policy routing"
+}

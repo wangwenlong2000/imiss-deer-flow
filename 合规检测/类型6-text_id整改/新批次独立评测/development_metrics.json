@@ -1,0 +1,19 @@
+{
+  "split": "development",
+  "dataset_sha256": "fce664f7f46ed16c62ff494d11990c6a0cb79cd2d3aff0cf25ac50a5f87aab88",
+  "rule_sha256": "5acb417d57947faa2e33e5f3a0bcfdb5c6de2e275076e845a73dedc456dbc386",
+  "total": 20,
+  "tp": 10,
+  "fp": 0,
+  "fn": 0,
+  "tn": 10,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "fp_ids": [],
+  "fn_ids": [],
+  "llm_boundary": {
+    "status": "not_run"
+  },
+  "scope": "Direct delivered rule, LLM disabled; excludes Gate and policy routing"
+}

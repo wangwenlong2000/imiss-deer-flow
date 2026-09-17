@@ -1,0 +1,123 @@
+{
+  "dataset": "合规检测\\类型6-text_id整改\\text_id_type6_regression.jsonl",
+  "dataset_sha256": "cac0560e3489146f33c67eb9ab120d6824a310c115cad74ce36f53cfd89f4ffb",
+  "rule_sha256": "a69cfbf3ccc27060364fab1c607ae5df56d124b8a3fe5f23c6002699abee560b",
+  "split_manifest": "合规检测\\类型6-text_id整改\\split_manifest.json",
+  "split_seed": "text-id-type6-20260917-v1",
+  "development_count": 56,
+  "test_count": 223,
+  "source_counts": {
+    "compliance_annotations_250.jsonl": 50,
+    "policy_regulation.jsonl": 200
+  },
+  "source_sha256": {
+    "compliance_annotations_250.jsonl": "5de90dfd3abc8cbcc085294cc8937b283d54b56f54af598c9129a6e13bd38587",
+    "policy_regulation.jsonl": "a7f2d5e23c43bcd83cda1aecab68324134015e6f6b93b48cebecc338b3b03f4b"
+  },
+  "pure_rule": {
+    "development_20": {
+      "total": 56,
+      "tp": 33,
+      "fp": 0,
+      "fn": 0,
+      "tn": 23,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "test_80": {
+      "total": 223,
+      "tp": 131,
+      "fp": 0,
+      "fn": 0,
+      "tn": 92,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "test_groups": {
+      "compliance_annotations_250.jsonl": {
+        "total": 40,
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "tn": 20,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "data_type:statistical_yearbook": {
+        "total": 52,
+        "tp": 29,
+        "fp": 0,
+        "fn": 0,
+        "tn": 23,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "policy_regulation.jsonl": {
+        "total": 160,
+        "tp": 95,
+        "fp": 0,
+        "fn": 0,
+        "tn": 65,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "data_type:policy_regulation": {
+        "total": 171,
+        "tp": 102,
+        "fp": 0,
+        "fn": 0,
+        "tn": 69,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "added_positive": {
+        "total": 16,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "added_negative": {
+        "total": 7,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 7,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "fp_ids": [],
+        "fn_ids": []
+      }
+    }
+  },
+  "holdout_status": "retrospectively_exposed: the detector was modified after an earlier evaluation of all 279 rows; the 80% split is not an independent unseen holdout",
+  "llm_boundary": {
+    "status": "not_run",
+    "reason": "No fixed model, prompt, and available configured LLM for a reproducible run; excluded from rule metrics."
+  },
+  "evaluation_scope": "Direct delivered-rule evaluation on content text; no Gate routing or policy action evaluation."
+}

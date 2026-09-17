@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+## Type 7 confidential regression (2026-09-17)
+
+`scripts/build_eval_confidential.py` copies all confidential-targeted records from the three source files, appends fictional boundary examples, and assigns a stable stratified 20/80 development/test split. Use `--evaluate dev` while adjusting rules and `--evaluate test` only after freezing the rule. `latest_metrics.json` records source and rule hashes, Git HEAD, FP/FN IDs, and rule-only configuration. The initial full-corpus exploration occurred before the split request, so the 80% result is not a blind independent acceptance score. Confidential LLM review requires explicit `COMPLIANCE_CONFIDENTIAL_MODEL_NAME` and `COMPLIANCE_CONFIDENTIAL_MODEL_VERSION` settings; prompt version is `confidential-boundary-v2-20260917` and temperature is 0. Without those pins it stays disabled.
+
+## Type 6 text_id regression (2026-09-17)
+
+`scripts/build_eval_text_id.py` copies every text_id row from the statistical-yearbook annotation file and policy-regulation file, adds 20 synthetic positive natural-language cases and 9 generic/anonymous negatives, and deterministically splits by origin and label into 56 development rows and 223 test rows. It evaluates `TextIdDetector(use_llm=False)` and writes split files, a manifest, test-only per-sample scores and trigger entities, and separate development/test metrics to `合规检测/类型6-text_id整改/`. Run `python -m unittest discover -s backend/tests -p test_text_id_type6.py -v` for focused checks. The detector includes `decision_source` and `rule_score` on both rule and LLM decisions; never merge offline rule metrics with a live LLM result. The rule had already been tuned against the full 279-row corpus before this split, so the 223-row test partition is historically exposed and must not be reported as a clean independent holdout. Do not tune on test-partition outcomes.
+
+For the fresh independent batch, run `scripts/text_id_fresh_holdout.py` with actions in order: `prepare`, `development`, `freeze`, `test`. The 100 synthetic rows are distinct in ID and exact content from the earlier 279 rows. The split is frozen before development tuning: 20 development rows and 80 test rows, five development cases per source/label stratum. `frozen_rule.json` records rule, dataset, and partition hashes; test checks rule and dataset hashes. The first frozen test produced TP 40, FP 5, FN 0, TN 35. Keep these five FP cases as test findings; do not revise the rule from them or rerun as if the same test were unseen. LLM and Gate behavior are outside this offline metric.
+
+## Type 3 credential regression (2026-09-17)
+
+`scripts/build_eval_hardcoded_cred_program_code.py` copies all 250 source program-code annotations, adds 20 placeholder negatives and 20 synthetic nonstandard credential positives, then evaluates the delivered hardcoded-credential rule. The generated data and ID-only metrics live in `合规检测/类型3-hardcoded_cred整改/`. The rule now filters placeholder credentials per match and recognizes cloud-token, JWT, private-key and connection-string forms. Keep the type-3 manifest on InputGate until the annotation guide's OutputGate conflict is resolved by the compliance owner. The generated score is a development regression, not an independent holdout.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview

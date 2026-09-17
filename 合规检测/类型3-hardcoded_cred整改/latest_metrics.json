@@ -1,0 +1,82 @@
+{
+  "evaluated_at_utc": "2026-09-17T10:13:46.071937+00:00",
+  "source": "合规检测\\合规评测全部十类违规类型数据\\program_code.jsonl",
+  "dataset": "合规检测\\类型3-hardcoded_cred整改\\program_code_type3_regression.jsonl",
+  "source_rows": 250,
+  "new_negative": 20,
+  "new_positive": 20,
+  "gate_counts": {
+    "InputGate": 272,
+    "ContextGate": 10,
+    "OutputGate": 8
+  },
+  "source_sha256": "417b8e386e9271ab9cbd27aa6ceafbbbf1d491c704000bed2b5340e9718ce530",
+  "dataset_sha256": "cddb2e71acd6a345c57babfcf5d1704dc3e2c8bdadd655a55695c6f6da7fc92d",
+  "rule_sha256": "53c4170f17044287c7449ea1f8740377c02044ef3d16d805c14a3f8a13350adc",
+  "config_sha256": "5a3ff5f214444f2149bb82cb2c439425eef1e7fb340ffd2ea860b6f3267e9f4a",
+  "model_version": null,
+  "metrics": {
+    "overall": {
+      "samples": 290,
+      "tp": 170,
+      "fp": 0,
+      "fn": 0,
+      "tn": 120,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "new_40": {
+      "samples": 40,
+      "tp": 20,
+      "fp": 0,
+      "fn": 0,
+      "tn": 20,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "by_gate": {
+      "ContextGate": {
+        "samples": 10,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 10,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "InputGate": {
+        "samples": 272,
+        "tp": 170,
+        "fp": 0,
+        "fn": 0,
+        "tn": 102,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "OutputGate": {
+        "samples": 8,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 8,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "fp_ids": [],
+        "fn_ids": []
+      }
+    }
+  }
+}
