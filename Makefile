@@ -111,16 +111,7 @@ setup-sandbox:
 
 # Build the custom sandbox image used by AioSandboxProvider
 sandbox-build:
-	@echo "=========================================="
-	@echo "  Building Custom Sandbox Image"
-	@echo "=========================================="
-	@echo ""
-	@SANDBOX_TAG="$${SANDBOX_TAG:-$${USER:-deerflow}}-deerflow-sandbox:network-tools"; \
-	docker build -f docker/sandbox/Dockerfile -t "$$SANDBOX_TAG" . && \
-	echo "" && \
-	echo "✓ Custom sandbox image built: $$SANDBOX_TAG" || \
-	(echo "" && echo "✗ Sandbox build failed" && exit 1)
-	@echo ""
+	@./scripts/docker.sh sandbox-build
 
 # Start all services in development mode (with hot-reloading)
 dev:

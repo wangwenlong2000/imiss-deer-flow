@@ -227,7 +227,9 @@ class LocalContainerBackend(SandboxBackend):
 
         # Docker-specific security options
         if self._runtime == "docker":
-            cmd.extend(["--security-opt", "seccomp=unconfined"])
+            # AIO sandbox images are deployment artifacts. Never let a user
+            # request trigger an implicit registry pull at runtime.
+            cmd.extend(["--pull", "never", "--security-opt", "seccomp=unconfined"])
 
         cmd.extend(
             [

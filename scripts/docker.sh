@@ -17,6 +17,27 @@ export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 COMPOSE_CMD="docker compose -p gaozhuohui-deer-flow-dev -f docker-compose-dev.yaml"
 
+read_env_value() {
+    local key="$1"
+    local env_file="$PROJECT_ROOT/.env"
+    if [ ! -f "$env_file" ]; then
+        return
+    fi
+    awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$env_file"
+}
+
+# Keep the build, startup preflight, and runtime configuration on one exact
+# local image tag. An explicitly exported value wins over the project .env.
+if [ -z "${DEER_FLOW_SANDBOX_IMAGE:-}" ]; then
+    DEER_FLOW_SANDBOX_IMAGE="$(read_env_value DEER_FLOW_SANDBOX_IMAGE)"
+fi
+if [ -z "$DEER_FLOW_SANDBOX_IMAGE" ]; then
+    RAW_USER="${SUDO_USER:-${USER:-deerflow}}"
+    IMAGE_PREFIX="$(printf '%s' "$RAW_USER" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/-\{2,\}/-/g; s/^-//; s/-$//')"
+    DEER_FLOW_SANDBOX_IMAGE="${IMAGE_PREFIX:-deerflow}-deerflow-sandbox:policies-regulations-tools"
+fi
+export DEER_FLOW_SANDBOX_IMAGE
+
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"
     local sandbox_use=""
@@ -94,6 +115,43 @@ init() {
     echo -e "${YELLOW}Next step: make docker-start${NC}"
 }
 
+sandbox_image_exists() {
+    docker image inspect "$DEER_FLOW_SANDBOX_IMAGE" >/dev/null 2>&1
+}
+
+# Build the custom AIO image once. Runtime sandbox creation is configured to
+# use only this local image and never pull from a registry.
+sandbox_build() {
+    echo "=========================================="
+    echo "  Building Custom Sandbox Image"
+    echo "=========================================="
+    echo ""
+    echo -e "${BLUE}DEER_FLOW_SANDBOX_IMAGE=$DEER_FLOW_SANDBOX_IMAGE${NC}"
+    echo ""
+
+    docker build -f "$PROJECT_ROOT/docker/sandbox/Dockerfile" -t "$DEER_FLOW_SANDBOX_IMAGE" "$PROJECT_ROOT"
+
+    echo ""
+    echo -e "${GREEN}✓ Custom sandbox image built: $DEER_FLOW_SANDBOX_IMAGE${NC}"
+    echo ""
+}
+
+build_all() {
+    echo "=========================================="
+    echo "  Building All Docker Images"
+    echo "=========================================="
+    echo ""
+
+    sandbox_build
+    export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    echo -e "${BLUE}Building app images...${NC}"
+    cd "$DOCKER_DIR" && $COMPOSE_CMD build
+
+    echo ""
+    echo -e "${GREEN}✓ All images built${NC}"
+    echo ""
+}
+
 # Start Docker development environment
 start() {
     local sandbox_mode
@@ -113,6 +171,13 @@ start() {
     fi
 
     echo -e "${BLUE}Detected sandbox mode: $sandbox_mode${NC}"
+    echo -e "${BLUE}DEER_FLOW_SANDBOX_IMAGE=$DEER_FLOW_SANDBOX_IMAGE${NC}"
+    if [ "$sandbox_mode" = "aio" ] && ! sandbox_image_exists; then
+        echo -e "${YELLOW}✗ Local AIO sandbox image is missing: $DEER_FLOW_SANDBOX_IMAGE${NC}"
+        echo -e "${YELLOW}  Build it once with: make sandbox-build${NC}"
+        echo -e "${YELLOW}  Runtime pulling is disabled by design.${NC}"
+        return 1
+    fi
     if [ "$sandbox_mode" = "provisioner" ]; then
         echo -e "${BLUE}Provisioner enabled (Kubernetes mode).${NC}"
     else
@@ -272,6 +337,8 @@ help() {
     echo ""
     echo "Commands:"
     echo "  init          - Pull the sandbox image (speeds up first Pod startup)"
+    echo "  sandbox-build - Build the configured custom sandbox image"
+    echo "  build-all     - Build the sandbox and all DeerFlow service images"
     echo "  start         - Start Docker services (auto-detects sandbox mode from config.yaml)"
     echo "  restart       - Restart all running Docker services"
     echo "  logs [option] - View Docker development logs"
@@ -289,6 +356,12 @@ main() {
     case "$1" in
         init)
             init
+            ;;
+        sandbox-build)
+            sandbox_build
+            ;;
+        build-all)
+            build_all
             ;;
         start)
             start
