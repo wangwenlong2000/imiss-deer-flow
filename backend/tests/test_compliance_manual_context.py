@@ -166,7 +166,7 @@ def test_manual_profile_rejects_spoofed_role_or_organization() -> None:
         ("ordinary_user", ("allow",), ("allow",)),
         ("internal_operator", ("role_check", "warn"), ("warn", "desensitize")),
         ("cross_org_operator", ("desensitize",), ("desensitize",)),
-        ("publisher", ("refuse", "desensitize"), ("aggregate",)),
+        ("publisher", ("refuse",), ("aggregate",)),
         ("researcher", ("desensitize",), ("aggregate",)),
     ],
 )

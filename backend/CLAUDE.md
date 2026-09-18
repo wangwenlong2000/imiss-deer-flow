@@ -393,6 +393,16 @@ Violation detection across three gates, sharing one engine, one detector set and
 
 **Shipped detector**: `model_tfidf_knn` covers violation types 8/9/10 (`video_meta_leak` / `re_identify` / `domain`). Pure-standard-library TF-IDF + kNN; measured `accuracy=0.9821`, `macro_f1=0.9859` on the 0624 test split at ~12 ms/row.
 
+The lightweight `regex_struct_id` and `regex_geo_loc` plugins run without
+Presidio/spaCy. Their text fallbacks cover quoted JSON/YAML identifier fields,
+nested latitude/longitude objects, and GeoJSON coordinate arrays because an
+InputGate query is normalized as a text item rather than parsed into fields.
+For telephone-network coordinates, the geo detector requires the precise
+coordinate to be bound to an object and an explicit time.
+The revised 7.23 policy uses `refuse` for complete type-1 identifiers at the
+public-release InputGate, and `desensitize` at OutputGate. The desensitizer
+already falls back to refusal when no reported risk location can be masked.
+
 **Commands**:
 
 End-to-end verification against the running service (Docker, `http://localhost:3538`) is documented in [docs/compliance-e2e-verification.md](../docs/compliance-e2e-verification.md), including the container operations that are safe and the ones that would destroy the running stack.

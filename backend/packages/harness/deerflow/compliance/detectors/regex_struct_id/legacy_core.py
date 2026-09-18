@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 STRUCT_ID_VIOLATION = "struct_id"
-DETECTOR_VERSION = "struct_id_detector_presidio_rule_v2.0"
+DETECTOR_VERSION = "struct_id_detector_presidio_rule_v2.1"
 
 # -----------------------------
 # Regex rules
@@ -56,8 +56,20 @@ REGEX_RULES: list[tuple[str, re.Pattern[str], float]] = [
     ("TOLL_GATE_ID", re.compile(r"\bTG-[A-Z]{2}-\d{3,}\b"), 0.93),
     # URL query/body parameters with structured identifiers. Value filtering is applied later.
     ("URL_PARAM_IDENTIFIER", re.compile(r"(?i)(?:\b|[?&])(user_id|account_id|phone|mobile|email|plate_no|vehicle_plate)=([^&\s'\"<>]+)"), 0.88),
-    # Explicit field-like expressions for text outputs.
-    ("FIELD_LIKE_STRUCT_ID", re.compile(r"(?i)\b(?:user_id|src_user_id|dst_counterparty_id|src_id|dst_id|imei|device_id|checkpoint_id|plate_no|vehicle_plate|traffic_card_id|toll_card_no|gate_id|toll_gate_id)\b\s*[:=：]\s*[A-Za-z0-9_:\-]{4,}"), 0.90),
+    # Explicit field-like expressions for text/JSON/YAML outputs.  The
+    # optional quotes are important at InputGate, where a user query is kept as
+    # one text item instead of being parsed into FieldItems.
+    (
+        "FIELD_LIKE_STRUCT_ID",
+        re.compile(
+            r"(?i)(?<![A-Za-z0-9_])[\"']?"
+            r"(?P<field>user_id|src_user_id|dst_user_id|counterparty_id|dst_counterparty_id|src_id|dst_id|"
+            r"imei|imsi|iccid|terminal_id|device_id|checkpoint_id|plate_no|vehicle_plate|"
+            r"traffic_card_id|toll_card_no|gate_id|toll_gate_id)"
+            r"[\"']?\s*[:=：]\s*[\"']?(?P<value>[A-Za-z0-9_:.@\-]{4,})[\"']?"
+        ),
+        0.90,
+    ),
 ]
 
 # Field names which directly indicate structured identifiers.
@@ -360,6 +372,35 @@ def url_param_value_is_suppressed(name: str, value: str, context: str) -> bool:
     return False
 
 
+def field_like_value_is_suppressed(name: str, value: str) -> bool:
+    """Reject placeholders without weakening real stable-ID detection."""
+    field = normalize_key(name)
+    raw = value.strip().strip("'\"")
+    low = raw.lower()
+    if is_masked_or_placeholder(raw):
+        return True
+    if low in {
+        "null", "none", "nil", "unknown", "undefined", "masked", "redacted",
+        "example", "sample", "placeholder", "test", "your_id_here",
+    }:
+        return True
+    if low == field or low in {f"your_{field}", f"example_{field}", f"sample_{field}"}:
+        return True
+    if set(raw) <= {"0"}:
+        return True
+
+    # Telecom identifiers have well-known numeric shapes.  Requiring those
+    # shapes prevents prose such as ``imei: unknown_device`` from becoming a
+    # high-confidence finding.
+    if field == "imei":
+        return re.fullmatch(r"\d{14,16}", raw) is None
+    if field == "imsi":
+        return re.fullmatch(r"\d{14,16}", raw) is None
+    if field == "iccid":
+        return re.fullmatch(r"\d{18,22}", raw) is None
+    return False
+
+
 def looks_like_hash_or_stable_id(value: str, precise_field: bool = False) -> bool:
     if not isinstance(value, str):
         return False
@@ -417,6 +458,22 @@ def text_scan(text: str, field: str, context: str | None = None) -> list[Hit]:
                 if url_param_value_is_suppressed(name, value, scan_context):
                     continue
                 hits.append(make_hit(field, span, entity, "regex", score, f"URL/query parameter '{name}' contains structured identifier", "url_param_identifier"))
+                continue
+            if entity == "FIELD_LIKE_STRUCT_ID":
+                name, value = m.group("field"), m.group("value")
+                if field_like_value_is_suppressed(name, value):
+                    continue
+                hits.append(
+                    make_hit(
+                        field,
+                        span,
+                        entity,
+                        "regex",
+                        score,
+                        f"field-like expression '{name}' contains a structured identifier",
+                        f"field_like_{normalize_key(name)}",
+                    )
+                )
                 continue
             if should_suppress_hit(entity, span, scan_context):
                 continue

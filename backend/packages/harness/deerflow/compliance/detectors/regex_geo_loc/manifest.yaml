@@ -17,7 +17,7 @@ cost_hint: light
 
 description: >-
   第2类精确地理位置泄露轻量规则检测器。覆盖高精度经纬度、详细地址、
-  对象-时间-位置组合、单对象连续轨迹和电话网络位置字段组合。
+  JSON/GeoJSON坐标数组、对象-时间-位置组合、单对象连续轨迹和电话网络位置字段组合。
 
 default_params:
   presidio_mode: never

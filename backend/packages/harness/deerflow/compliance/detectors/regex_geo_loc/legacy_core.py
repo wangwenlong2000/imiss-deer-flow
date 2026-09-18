@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any
 
 TARGET = "geo_loc"
-DETECTOR_VERSION = "geo_loc_detector_rule_final_v2.0"
+DETECTOR_VERSION = "geo_loc_detector_rule_final_v2.1"
 
 # 当前已确认接入第 2 类的数据类型。
 SUPPORTED_DATA_TYPES = {"spatiotemporal_trajectory", "telecom", "remote_sensing"}
@@ -73,8 +73,21 @@ GPS_PAIR_RE = re.compile(r"(?<!\d)([-+]?\d{1,2}\.\d{4,})\s*[,，]\s*([-+]?\d{1,3
 # ``lat``/``lon`` because both are classified as word characters.  Use an
 # ASCII-identifier boundary on the left so natural text such as ``位置为lat=...``
 # is detected without matching inside names such as ``user_lat``.
-LAT_ASSIGN_RE = re.compile(r"(?i)(?<![A-Za-z0-9_])(?:lat|latitude)\b\s*[:=：]\s*([-+]?\d{1,2}\.\d{4,})")
-LON_ASSIGN_RE = re.compile(r"(?i)(?<![A-Za-z0-9_])(?:lon|lng|longitude)\b\s*[:=：]\s*([-+]?\d{1,3}\.\d{4,})")
+LAT_ASSIGN_RE = re.compile(
+    r"(?i)(?<![A-Za-z0-9_])[\"']?(?:lat|latitude)[\"']?\s*[:=：]\s*[\"']?([-+]?\d{1,2}\.\d{4,})[\"']?"
+)
+LON_ASSIGN_RE = re.compile(
+    r"(?i)(?<![A-Za-z0-9_])[\"']?(?:lon|lng|longitude)[\"']?\s*[:=：]\s*[\"']?([-+]?\d{1,3}\.\d{4,})[\"']?"
+)
+
+# GeoJSON and common JSON payloads encode coordinate arrays in longitude,
+# latitude order.  Limit the rule to an explicit coordinate key so arbitrary
+# decimal arrays (statistics, scores, model vectors) are not treated as places.
+GEOJSON_COORDINATES_RE = re.compile(
+    r"(?i)(?<![A-Za-z0-9_])[\"']?(?:coordinate|coordinates|gps_coordinate)[\"']?"
+    r"\s*[:=：]\s*\[\s*(?:\[\s*)?[\"']?([-+]?\d{1,3}\.\d{4,})[\"']?"
+    r"\s*[,，]\s*[\"']?([-+]?\d{1,2}\.\d{4,})[\"']?"
+)
 
 # Models often render the same fact as prose instead of assignments, for
 # example ``纬度 39.9219，经度 116.4436``.  Keep this bounded to labelled,
@@ -116,6 +129,11 @@ CN_DETAIL_ADDRESS_RE = re.compile(
 
 TIME_TEXT_RE = re.compile(r"\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}(?:[ T]\d{1,2}:\d{2}(?::\d{2})?)?\b")
 OBJECT_TEXT_RE = re.compile(r"\b(?:user|hash_u|U|obj|object|src|device)[A-Za-z0-9_\-]{2,}\b|某对象")
+TELECOM_OBJECT_TEXT_RE = re.compile(
+    r"(?i)(?<!\d)1[3-9]\d{9}(?!\d)|"
+    r"[\"']?(?:msisdn|imei|imsi|iccid|user_id|src_user_id|dst_user_id)[\"']?"
+    r"\s*[:=：]\s*[\"']?[A-Za-z0-9_:\-]{4,}[\"']?"
+)
 TRAJECTORY_OBJECT_RE = re.compile(r"\b(?:TRK|GEO|SP)-\d{2,4}\b", re.I)
 HHMM_RE = re.compile(r"(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)")
 ROUTE_SEP_RE = re.compile(r"(?:->|→|➡|至|到)")
@@ -222,6 +240,10 @@ def decimal_places(num_text: str) -> int:
     return len(num_text.split(".")[-1]) if "." in num_text else 0
 
 
+def is_high_precision_coordinate_text(num_text: str) -> bool:
+    return decimal_places(num_text.strip().strip("'\"")) >= 4
+
+
 def build_risk(field_path: str, text: str, risk_type: str, method: str, score: float, reason: str) -> dict[str, Any]:
     return {
         "field_path": field_path,
@@ -302,6 +324,7 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
     risks: list[dict[str, Any]] = []
     lat_paths: list[str] = []
     lon_paths: list[str] = []
+    coordinate_arrays: dict[str, dict[int, tuple[str, str, float]]] = {}
     for path, value in items:
         base = field_basename(path)
         if not has_meaningful_value(value):
@@ -312,6 +335,8 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
                 val = float(text)
             except Exception:
                 continue
+            if not is_high_precision_coordinate_text(text):
+                continue
             if base in LAT_FIELDS and is_plausible_lat(val):
                 lat_paths.append(path)
                 risks.append(build_risk(path, text, "latitude", "field_coordinate", 0.93, "latitude field contains high precision coordinate"))
@@ -319,6 +344,12 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
                 lon_paths.append(path)
                 risks.append(build_risk(path, text, "longitude", "field_coordinate", 0.93, "longitude field contains high precision coordinate"))
         elif base in COORD_FIELDS:
+            array_match = re.match(r"^(.*)\[(\d+)\]$", path)
+            if array_match and is_high_precision_coordinate_text(text):
+                try:
+                    coordinate_arrays.setdefault(array_match.group(1), {})[int(array_match.group(2))] = (path, text, float(text))
+                except ValueError:
+                    pass
             # coordinate field with GPS-like pair in value, including LAT=... LON=... text.
             for m in GPS_PAIR_RE.finditer(text):
                 try:
@@ -333,6 +364,26 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
             if lat_hits and lon_hits:
                 coord_text = f"{lat_hits[0].group(0)} {lon_hits[0].group(0)}"
                 risks.append(build_risk(path, coord_text, "gps_coordinate", "field_coordinate_pair", 0.95, "coordinate field contains explicit LAT/LON assignments"))
+
+    # Flattened GeoJSON arrays arrive as ``geometry.coordinates[0]`` and
+    # ``geometry.coordinates[1]`` FieldItems.  Reconstruct the first point in
+    # the standard [longitude, latitude] order.
+    for parent_path, indexed in coordinate_arrays.items():
+        if 0 not in indexed or 1 not in indexed:
+            continue
+        _, lon_text, lon = indexed[0]
+        _, lat_text, lat = indexed[1]
+        if is_plausible_lon(lon) and is_plausible_lat(lat):
+            risks.append(
+                build_risk(
+                    parent_path,
+                    f"[{lon_text}, {lat_text}]",
+                    "gps_coordinate",
+                    "field_geojson_coordinate_array",
+                    0.95,
+                    "coordinate array contains a high precision GeoJSON longitude/latitude pair",
+                )
+            )
     return risks, lat_paths, lon_paths
 
 
@@ -443,6 +494,22 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
                 continue
             # 至少 4 位小数，已由正则保证。虚构/示意在 safe hints 里已过滤。
             risks.append(build_risk(path, m.group(0), "gps_coordinate", "regex_gps_pair", 0.95, "text contains high precision latitude/longitude pair"))
+
+        for m in GEOJSON_COORDINATES_RE.finditer(text):
+            lon = float(m.group(1))
+            lat = float(m.group(2))
+            if not (is_plausible_lon(lon) and is_plausible_lat(lat)):
+                continue
+            risks.append(
+                build_risk(
+                    path,
+                    m.group(0),
+                    "gps_coordinate",
+                    "regex_geojson_coordinate_array",
+                    0.95,
+                    "text contains a high precision GeoJSON longitude/latitude pair",
+                )
+            )
 
         for pattern_index, pattern in enumerate(LABELED_GPS_PAIR_RES):
             for m in pattern.finditer(text):
@@ -610,11 +677,48 @@ def detect_geo_loc(sample: dict[str, Any], presidio: OptionalPresidio, exclude_d
     # spatiotemporal: 经纬度字段或文本坐标、详细地址均可触发。
     # telecom: 必须命中 telecom_object_time_geo_field 或 telecom_text_combo；单独 city/county 不触发。
     if data_type == "telecom":
-        strong_risks = [r for r in risks if str(r.get("method")) in {"telecom_object_time_geo_field", "telecom_text_combo"}]
+        telecom_binding = bool(object_paths and time_paths) or any(
+            TIME_TEXT_RE.search(text)
+            and (OBJECT_TEXT_RE.search(text) or TELECOM_OBJECT_TEXT_RE.search(text))
+            for _, text in text_blobs
+        )
+        telecom_coordinate_methods = {
+            "field_coordinate",
+            "field_coordinate_pair",
+            "field_geojson_coordinate_array",
+            "regex_gps_pair",
+            "regex_labeled_gps_pair",
+            "regex_labelled_lat_lon_pair",
+            "regex_labelled_latitude",
+            "regex_labelled_longitude",
+            "regex_lat_assignment",
+            "regex_lon_assignment",
+            "regex_geojson_coordinate_array",
+        }
+        strong_risks = [
+            r
+            for r in risks
+            if str(r.get("method")) in {"telecom_object_time_geo_field", "telecom_text_combo"}
+            or (telecom_binding and str(r.get("method")) in telecom_coordinate_methods)
+        ]
     else:
-        strong_risks = [r for r in risks if str(r.get("method")) in {
-            "field_coordinate", "field_coordinate_pair", "field_address", "regex_gps_pair", "regex_labeled_gps_pair", "regex_labelled_lat_lon_pair", "regex_labelled_latitude", "regex_labelled_longitude", "regex_lat_assignment", "regex_lon_assignment", "regex_detail_address", "trajectory_route_combo"
-        }]
+        generic_geo_methods = {
+            "field_coordinate",
+            "field_coordinate_pair",
+            "field_geojson_coordinate_array",
+            "field_address",
+            "regex_gps_pair",
+            "regex_geojson_coordinate_array",
+            "regex_labeled_gps_pair",
+            "regex_labelled_lat_lon_pair",
+            "regex_labelled_latitude",
+            "regex_labelled_longitude",
+            "regex_lat_assignment",
+            "regex_lon_assignment",
+            "regex_detail_address",
+            "trajectory_route_combo",
+        }
+        strong_risks = [r for r in risks if str(r.get("method")) in generic_geo_methods]
 
     pred_positive = bool(strong_risks)
     confidence = max([float(r.get("score", 0.0)) for r in strong_risks], default=0.0)
