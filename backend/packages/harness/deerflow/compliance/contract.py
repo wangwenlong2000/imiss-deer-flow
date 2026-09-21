@@ -69,8 +69,8 @@ VIOLATION_TYPES: tuple[str, ...] = (
     "domain",
 )
 
-#: Violations that are blocked regardless of scene — including when the scene is
-#: unknown. Phase 1 leans on this to stay safe while ``scenes`` is empty (§7.2).
+#: Violations whose InputGate hits must survive benign-intent filtering. Their
+#: final action is still selected by gate and scene in the policy matrix.
 BASELINE_VIOLATION_TYPES: tuple[str, ...] = ("hardcoded_cred", "illegal_content", "political")
 
 Scene = Literal["self_use", "internal_org", "cross_org", "public_release", "research_anon"]

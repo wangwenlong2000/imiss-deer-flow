@@ -1,9 +1,4 @@
-"""Policy matrix: full coverage, the `_unknown` fallback, and the baseline floor.
-
-The matrix is transcribed from the guide by hand. These tests are the safety net
-for that transcription — especially the rule that the three baseline violation
-types are refused in every scene, including when the scene is unknown.
-"""
+"""Policy matrix coverage, fallback behavior, and gate/scene dispositions."""
 
 from __future__ import annotations
 
@@ -56,20 +51,33 @@ def test_every_cell_covers_all_five_scenes_plus_fallback(matrix, violation_type:
 # ── the `_unknown` fallback column (plan §7.2) ──────────────────────────────
 
 
-@pytest.mark.parametrize("violation_type", BASELINE_VIOLATION_TYPES)
+@pytest.mark.parametrize("violation_type", ("illegal_content", "political"))
 def test_baseline_types_refuse_even_when_the_scene_is_unknown(matrix, violation_type: str) -> None:
-    """Guide chapter 3 core rule: types 3/4/5 are refused in every scene."""
+    """Illegal and political content retain the all-gate refusal floor."""
     for gate in GATES:
         resolution = matrix.resolve(violation_type, gate, "_unknown")
         assert "refuse" in resolution.actions, f"{violation_type}.{gate}._unknown must refuse, got {resolution.actions}"
 
 
-@pytest.mark.parametrize("violation_type", BASELINE_VIOLATION_TYPES)
+@pytest.mark.parametrize("violation_type", ("illegal_content", "political"))
 def test_baseline_types_refuse_in_every_named_scene(matrix, violation_type: str) -> None:
     for gate in ("InputGate", "OutputGate"):  # ContextGate is "—" for baseline types
         for scene in SCENES:
             actions = matrix.cell(violation_type, gate, scene)
             assert actions is not None and "refuse" in actions, f"{violation_type}.{gate}.{scene} must refuse, got {actions}"
+
+
+def test_hardcoded_credential_uses_the_declared_gate_and_scene_actions(matrix) -> None:
+    assert matrix.cell("hardcoded_cred", "InputGate", "public_release") == ("refuse",)
+    assert matrix.cell("hardcoded_cred", "OutputGate", "public_release") == ("desensitize", "refuse")
+    assert matrix.cell("hardcoded_cred", "InputGate", "internal_org") == ("role_check", "warn")
+    assert matrix.cell("hardcoded_cred", "OutputGate", "internal_org") == ("role_check", "warn")
+
+    for scene in ("_unknown", *SCENES):
+        assert matrix.cell("hardcoded_cred", "ContextGate", scene) is None
+
+    for gate in ("InputGate", "OutputGate"):
+        assert "refuse" in matrix.resolve("hardcoded_cred", gate, "_unknown").actions
 
 
 NON_BASELINE = tuple(v for v in VIOLATION_TYPES if v not in BASELINE_VIOLATION_TYPES)

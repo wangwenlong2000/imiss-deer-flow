@@ -118,18 +118,29 @@ class PolicyMatrix:
         self._validate_baseline_types()
 
     def _validate_baseline_types(self) -> None:
-        """The three baseline violations must block even when the scene is unknown.
+        """Enforce the unknown-scene floor on gates where a baseline type runs.
 
-        The guide's chapter 3 core rules are explicit: hardcoded credentials,
-        illegal content and politically sensitive content are refused in *every*
-        scene. If a re-transcription ever softens one of those cells, this fails
-        at load time rather than silently opening a hole in production.
+        Illegal and political content keep the original all-gate refusal floor.
+        Hardcoded credentials are different: phase 1 deliberately does not run
+        that detector at ContextGate, while InputGate and OutputGate still fail
+        closed when the scene cannot be resolved.
         """
+        required_refusal_gates = {
+            "hardcoded_cred": ("InputGate", "OutputGate"),
+            "illegal_content": GATES,
+            "political": GATES,
+        }
         for violation_type in BASELINE_VIOLATION_TYPES:
-            for gate, scenes in self._matrix[violation_type].items():
-                actions = scenes.get(self.fallback_key)
+            for gate in required_refusal_gates[violation_type]:
+                actions = self._matrix[violation_type][gate].get(self.fallback_key)
                 if not actions or "refuse" not in actions:
                     raise PolicyMatrixError(f"baseline violation `{violation_type}` at {gate}.{self.fallback_key} must include `refuse`, got {actions}")
+
+        context_fallback = self._matrix["hardcoded_cred"]["ContextGate"].get(self.fallback_key)
+        if context_fallback is not None:
+            raise PolicyMatrixError(
+                "baseline violation `hardcoded_cred` at ContextGate._unknown must be null because phase-1 context detection is disabled"
+            )
 
     # ── lookup ──────────────────────────────────────────────────────────────
 

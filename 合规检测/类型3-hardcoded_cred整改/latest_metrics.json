@@ -1,7 +1,7 @@
 {
-  "evaluated_at_utc": "2026-09-20T06:40:48.208511+00:00",
-  "source": "合规检测/合规评测全部十类违规类型数据/program_code.jsonl",
-  "dataset": "合规检测/类型3-hardcoded_cred整改/program_code_type3_regression.jsonl",
+  "evaluated_at_utc": "2026-09-21T09:15:24.041183+00:00",
+  "source": "合规检测\\合规评测全部十类违规类型数据\\program_code.jsonl",
+  "dataset": "合规检测\\类型3-hardcoded_cred整改\\program_code_type3_regression.jsonl",
   "source_rows": 250,
   "new_negative": 20,
   "new_positive": 20,
@@ -12,7 +12,7 @@
   },
   "source_sha256": "417b8e386e9271ab9cbd27aa6ceafbbbf1d491c704000bed2b5340e9718ce530",
   "dataset_sha256": "cddb2e71acd6a345c57babfcf5d1704dc3e2c8bdadd655a55695c6f6da7fc92d",
-  "rule_sha256": "53c4170f17044287c7449ea1f8740377c02044ef3d16d805c14a3f8a13350adc",
+  "rule_sha256": "4fb97c09ab35ee3e98f5bb5c6471709a72249900f5edff337eb9544951843be3",
   "config_sha256": "e1ceb88abd2e08df2246ac6dcf229262c182d78fd2c11e8caee5dd153323a8ea",
   "model_version": null,
   "metrics": {

@@ -605,7 +605,7 @@ compliance:
    ```
    通过 `compliance.scene.resolver` 配置项换实现，**换的时候不用改引擎**。
 3. 矩阵走 `_unknown` 兜底列。**兜底列的填法遵循一个原则：宁可漏处置，不可误伤**——
-   - 底线类（`hardcoded_cred` / `illegal_content` / `political`）：`[refuse, warn]`，任何场景都拦，场景未知也拦
+   - `illegal_content` / `political`：`[refuse, warn]`，场景未知也拦。`hardcoded_cred` 在 InputGate / OutputGate 未知场景保守拒答，ContextGate 一期不启用。
    - 其余七类：`[warn, manual_review]`，只告警 + 留痕 + 入人工队列，**不自动脱敏、不自动拒答**
 
    理由：场景未知时自动脱敏/拒答会在 `self_use`（可能本该放行）场景下大面积误伤；但硬编码凭证、违法有害内容、政治敏感内容等底线风险不因场景未知而放行。告警 + 留痕保留了审计能力，可信 scene 到位后再切到正式矩阵列。
@@ -638,7 +638,7 @@ compliance:
 | `test_compliance_decoupling.py` | **AST 扫描**：engine/router/policy 不得 import 具体检测器 |
 | `test_compliance_registry.py` | manifest 自动发现、非法声明拒绝、`heavy` 挂 ContextGate 必须报错、禁用检测器不被路由 |
 | `test_compliance_adapters.py` | 三种 adapter 行为一致；子进程/HTTP 崩溃时故障隔离生效 |
-| `test_compliance_policy_matrix.py` | 矩阵全覆盖、`_unknown` 兜底列存在、底线三类在所有场景（含 `_unknown`）都拦截 |
+| `test_compliance_policy_matrix.py` | 矩阵全覆盖、`_unknown` 兜底列存在、类型 3 的 Gate/场景差异化处置、类型 4/5 底线拦截 |
 | `test_compliance_row_builder.py` | ★ §5.1 规则：282 条 100% 精确匹配 + 100% 预测一致率 |
 | `test_compliance_model_detector.py` | 低相似度降级、`re_identify` 不在 ContextGate 触发、模型单例只加载一次 |
 | `test_compliance_gates.py` | 三个 middleware 挂载顺序、`after_model` 逆序断言、`fail_mode` 语义、预算截断写 warning |

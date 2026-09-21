@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions
 from deerflow.compliance.contract import (
     DetectContext,
     DetectionUnit,
@@ -93,7 +95,43 @@ def test_hardcoded_credential_positive_has_exact_span_and_no_policy_action() -> 
     assert "suggested_action" not in hit.evidence
 
 
-def test_hardcoded_credential_flows_through_engine_to_existing_policy() -> None:
+@pytest.mark.parametrize(
+    ("gate", "scene", "expected_actions"),
+    [
+        ("InputGate", "public_release", ("refuse",)),
+        ("OutputGate", "public_release", ("desensitize", "refuse")),
+        ("InputGate", "internal_org", ("warn", "role_check")),
+        ("OutputGate", "internal_org", ("warn", "role_check")),
+    ],
+)
+def test_hardcoded_credential_flows_through_engine_to_scene_policy(
+    gate: str,
+    scene: str,
+    expected_actions: tuple[str, ...],
+) -> None:
+    class _FixedSceneResolver:
+        def resolve(self, request):  # noqa: ANN001, ARG002
+            return scene
+
+    registry = build_registry(config_path=DETECTORS_CONFIG, strict=True)
+    engine = ComplianceEngine(
+        registry=registry,
+        policy=load_policy_matrix(POLICY_CONFIG),
+        scene_resolver=_FixedSceneResolver(),
+    )
+    unit = _text_unit(
+        'client_secret = "prod-secret-A7z9K2"',
+        gate=gate,
+        data_type="code",
+    )
+
+    decision = engine.check((unit,), gate=gate)
+
+    assert "hardcoded_cred" in {hit.violation_type for hit in decision.hits}
+    assert decision.actions == expected_actions
+
+
+def test_hardcoded_credential_is_not_routed_at_context_gate() -> None:
     registry = build_registry(config_path=DETECTORS_CONFIG, strict=True)
     engine = ComplianceEngine(
         registry=registry,
@@ -101,14 +139,33 @@ def test_hardcoded_credential_flows_through_engine_to_existing_policy() -> None:
     )
     unit = _text_unit(
         'client_secret = "prod-secret-A7z9K2"',
-        gate="InputGate",
+        gate="ContextGate",
         data_type="code",
     )
 
-    decision = engine.check((unit,), gate="InputGate")
+    decision = engine.check((unit,), gate="ContextGate")
 
-    assert "hardcoded_cred" in {hit.violation_type for hit in decision.hits}
-    assert decision.actions == ("warn", "refuse")
+    assert "hardcoded_cred" not in {hit.violation_type for hit in decision.hits}
+
+
+def test_public_output_masks_credential_and_refuses_when_location_is_unreliable() -> None:
+    secret = "generated-secret-A7z9K2"
+    text = f'client_secret = "{secret}"'
+    hits = _detect(
+        EntropyHardcodedCredDetector(),
+        _text_unit(text, gate="OutputGate", data_type="code"),
+    )
+    actions = load_policy_matrix(POLICY_CONFIG).resolve(
+        "hardcoded_cred", "OutputGate", "public_release"
+    ).actions
+
+    masked = apply_actions(text, actions, hits)
+    assert masked is not None
+    assert secret not in masked
+    assert masked != REFUSAL_TEXT
+
+    unlocatable_hits = (replace(hits[0], risk_locations=()),)
+    assert apply_actions(text, actions, unlocatable_hits) == REFUSAL_TEXT
 
 
 def test_hardcoded_credential_ignores_environment_and_placeholder_values() -> None:
@@ -120,6 +177,10 @@ def test_hardcoded_credential_ignores_environment_and_placeholder_values() -> No
     assert not _detect(
         detector,
         _text_unit('api_key = "your_api_key"', gate="InputGate", data_type="code"),
+    )
+    assert not _detect(
+        detector,
+        _text_unit('client_secret = "****************"', gate="InputGate", data_type="code"),
     )
     assert not _detect(
         detector,

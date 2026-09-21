@@ -396,7 +396,7 @@ IntentGuard 只对 InputGate 生效：
 
 - 高风险意图：保留命中。
 - 低风险意图：普通敏感实体命中会被降级。
-- hardcoded_cred、illegal_content、political 三类底线风险不会被普通意图放行。
+- hardcoded_cred、illegal_content、political 三类命中不会被普通意图过滤；最终处置由 Gate 和场景矩阵决定。
 - 没有意图信息时不会静默放行，而是保留命中并记录 warning。
 
 ### 5. 场景和矩阵
@@ -404,8 +404,8 @@ IntentGuard 只对 InputGate 生效：
 场景解析由引擎调用 `SceneResolver` 完成。五类场景表示使用权限和公开程度，而不是
 业务领域；`self_use` 相对宽松但不等于全部放行，越接近 `public_release` 要求越严格。
 当前默认部署可能因权限信息缺失而回退到 `_unknown`，但检测器不应假设
-`DetectContext.scenes` 永久为空，也不得自行根据场景决定处置。硬编码凭证、违法有害
-内容、政治敏感内容等底线风险在任何场景下都应拒绝或人工复核。
+`DetectContext.scenes` 永久为空，也不得自行根据场景决定处置。违法有害内容和
+政治敏感内容保持底线拦截；硬编码凭证按 Gate 和场景执行差异化处置。
 
 ### 6. 动作和审计
 
@@ -598,15 +598,17 @@ OutputGate 对模型/Skill 生成的明文凭证做兜底检测，ContextGate �
 
 ### 缺少可信场景时的 `_unknown` 处置规则
 
-底线三类：
+违法有害内容与政治敏感内容：
 
-    hardcoded_cred
     illegal_content
     political
 
 默认处置：
 
     [refuse, warn]
+
+`hardcoded_cred` 在 InputGate / OutputGate 的 `_unknown` 也使用
+`[refuse, warn]` 保守兜底；ContextGate 一期不启用该类检测，矩阵值为 `null`。
 
 其他七类默认处置：
 

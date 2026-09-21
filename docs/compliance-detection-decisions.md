@@ -63,11 +63,14 @@ docx 里的"模糊化"和"打码"不在这个代号表里 —— 标注员把"�
 但没逐格给出值。
 
 **决定**：
-- `hardcoded_cred` / `illegal_content` / `political`：三个闸门全部 `[refuse, warn]`
+- `illegal_content` / `political`：三个闸门的 `_unknown` 均为 `[refuse, warn]`
+- `hardcoded_cred`：InputGate / OutputGate 的 `_unknown` 为 `[refuse, warn]`；ContextGate 一期不启用，为 `null`
 - 其余七类：三个闸门全部 `[warn, manual_review]`
 
 并在 `PolicyMatrix._validate_baseline_types()` 里做**加载期强制校验**：
-底线三类的 `_unknown` 格必须含 `refuse`，否则直接抛异常拒绝启动。
+类型 4/5 的全 Gate `_unknown` 以及类型 3 的 InputGate / OutputGate `_unknown`
+必须含 `refuse`，否则直接抛异常拒绝启动；类型 3 的 ContextGate `_unknown`
+必须为 `null`。
 
 **理由**：矩阵是手工从 docx 抄的，抄错一格就是一个静默的安全漏洞。
 把"底线类必须拦"这条规则变成加载期断言，比写在注释里可靠得多。
@@ -311,17 +314,17 @@ OVERALL          994/1610  61.7%
 - `domain.ContextGate.cross_org`：docx"拒答"，标注 `['desensitize','manual_review']`
 - `re_identify.OutputGate.self_use`：docx"告警"，标注 `['role_check','warn']`
 
-**决定**：矩阵**保持按 docx 7.23 第三章逐格照抄**，不按标注数据改。
-分歧作为**发现**报告出来，交由数据负责人裁决。
+**当时决定**：矩阵按 docx 7.23 第三章逐格照抄，不按标注数据自行改动。
+后续已收到类型 3 的明确 Gate/场景口径，因此 `hardcoded_cred` 作为有证据的业务覆盖项；
+其他分歧仍作为**发现**报告并交由数据负责人裁决。
 
 **理由**：计划 §4.5 明确指定"录入以《合规评测标注指南7.23.docx》第三章为准"。
 标注数据是另一批人按自己的理解填的，两者不一致本身就是这个校验要发现的东西。
 我无权替业务方裁决哪边对 —— 每一格都要人工判断是"改指南 / 改标注 / 记为有意例外"。
 
-**重要的正面结论**：**底线三类（hardcoded_cred / illegal_content / political）
-一致率 100% / 100% / 97.3%** —— 最安全攸关的那部分，指南和标注是一致的，
-矩阵转录也是对的。`test_compliance_audit_eval.py` 里有一条测试持续断言这三类
-一致率 ≥ 0.95，防止后续回归。
+**历史评测结论**：当时 hardcoded_cred / illegal_content / political 与旧矩阵的
+一致率为 100% / 100% / 97.3%。后续 hardcoded_cred 已按新的 Gate/场景口径调整，
+不再以“三闸、全场景均拒答”作为当前验收假设；类型 4/5 的底线约束保持不变。
 
 **建议解法**：把 `outputs/compliance-eval/{ts}/report.json` 里
 `matrix_cross_validation.discrepancies`（15 个去重后的格）发给标注负责人逐格确认。

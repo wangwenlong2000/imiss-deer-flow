@@ -1,6 +1,7 @@
 # 违规 × 场景 二维处置矩阵
 #
-# 数据来源：《合规评测标注指南 7.23.docx》第三章，逐格照抄，未做任何"优化"。
+# 数据来源：《合规评测标注指南 7.23.docx》第三章；类型 3 按
+# 2026-09-21 确认的 Gate/场景口径覆盖，见“类型3-hardcoded_cred整改/修改报告.md”。
 # 处置代号使用指南 §6.4 的统一模板（与标注样本 expected_action 同一套词表）：
 #   allow / warn / report / role_check / manual_review /
 #   aggregate / desensitize / rewrite / block_storage / refuse
@@ -21,8 +22,9 @@
 #
 # 系统优先从可信的 manual_ui/trusted_upstream 上下文解析使用权限和公开程度；
 # 缺少或无法验证时才落到这一列。填法遵循一条原则：**宁可漏处置，不可误伤**——
-#   · 底线三类（hardcoded_cred / illegal_content / political）：[refuse, warn]
-#     指南 §3 核心规则明写"不分场景……任何场景下都拒答"，场景未知也照拦。
+#   · illegal_content / political：[refuse, warn]，场景未知也照拦。
+#   · hardcoded_cred：InputGate / OutputGate 的未知场景按 [refuse, warn]
+#     保守兜底；ContextGate 一期不启用该类检测，因此为 null。
 #   · 其余七类：[warn, manual_review]
 #     只告警 + 留痕 + 进人工队列，不自动脱敏、不自动拒答。理由：场景未知时
 #     自动脱敏会在 self_use（可能本该放行）下大面积误伤，可用性代价远大于收益；
@@ -34,7 +36,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 version: "7.23"
-source: "合规评测标注指南7.23.docx 第三章 二维处置矩阵：违规 × 场景"
+source: "合规评测标注指南7.23.docx 第三章 + 2026-09-21 类型3 Gate/场景确认口径"
 fallback_key: _unknown
 
 # 每类违规的默认合规依据条款。模型类检测器不产出条款依据（它只知道"像什么"，
@@ -101,17 +103,19 @@ matrix:
       public_release: [aggregate]
       research_anon: [aggregate]
 
-  # 3 硬编码凭证泄露 —— 底线类，不分场景
+  # 3 硬编码凭证泄露。InputGate 主检，OutputGate 兜底，
+  # ContextGate 一期不重复检测。public_release 输入拒答；输出优先脱敏，
+  # 无法可靠脱敏时拒答。internal_org 仅做角色校验与告警。
   hardcoded_cred:
-    InputGate: # docx 标注为"输入闸(补齐)"
+    InputGate:
       _unknown: [refuse, warn]
       self_use: [refuse, warn]
-      internal_org: [refuse, warn]
+      internal_org: [role_check, warn]
       cross_org: [refuse, warn]
-      public_release: [refuse, warn]
+      public_release: [refuse]
       research_anon: [refuse]
     ContextGate:
-      _unknown: [refuse, warn]
+      _unknown: null
       self_use: null
       internal_org: null
       cross_org: null
@@ -120,9 +124,9 @@ matrix:
     OutputGate:
       _unknown: [refuse, warn]
       self_use: [refuse, warn]
-      internal_org: [refuse, warn]
+      internal_org: [role_check, warn]
       cross_org: [refuse, warn]
-      public_release: [refuse, warn]
+      public_release: [desensitize, refuse]
       research_anon: [refuse]
 
   # 4 违法有害内容 —— 底线类，不分场景
