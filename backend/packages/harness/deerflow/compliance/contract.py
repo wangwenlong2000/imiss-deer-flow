@@ -20,7 +20,9 @@ What a detector must NOT do
 ---------------------------
 * Do not decide disposition. Emit *what was hit, where, how confident, on what
   basis*; the ``violation x scene`` matrix decides what happens next.
-* Do not depend on ``DetectContext.scenes``. It is permanently empty in phase 1.
+* Do not depend on ``DetectContext.scenes``. The engine/``SceneResolver`` may
+  provide a trusted scene; missing or untrusted context is represented by the
+  ``_unknown`` policy fallback.
 * Do not import anything else from ``deerflow.compliance``.
 """
 
@@ -188,7 +190,7 @@ class DetectContext:
     """Ambient information for a detection call."""
 
     gate: Gate
-    scenes: tuple[Scene, ...] = ()  # phase 1: always empty — see plan §7.2
+    scenes: tuple[Scene, ...] = ()  # engine-resolved; detectors must not choose disposition
     user: UserContext | None = None
     intent: IntentInfo | None = None
     budget_ms: int = 400

@@ -66,8 +66,10 @@
 1. **彻底解耦**：`contract.py` 是检测器作者唯一 import 的模块；`engine.py`/`router.py`/`policy.py` **永不 import 任何具体检测器**，只有 `registry.py` 做反射装载。必须写 AST 扫描单测强制这一点（`test_compliance_decoupling.py`）。
 2. **不使用 T1–T6 原子检测器分类**。契约里不许出现 `tech` 字段，文档里不许再提这套分类。
 3. **OutputGate 用流式 + 命中即撤回，不做缓冲**。双层机制都要实现：`custom` 流事件负责立刻撤回屏幕内容，`after_model` 改写 AIMessage 负责持久层不留违规原文。
-4. **场景（scene）一期留空**：`DetectContext.scenes` 恒为空 tuple，矩阵走 `_unknown` 兜底列。兜底原则是"宁可漏处置，不可误伤"——底线三类（`hardcoded_cred`/`illegal_content`/`political`）照拦，其余七类只 `[warn, manual_review]`。`SceneResolver` 接口要留好。
-5. **`content_text` 拼接规则已定稿，直接实现，不要重新反推**：
+4. **场景按使用权限和公开程度分类**：`self_use` 相对宽松但不代表全部放行，越接近 `public_release` 要求越严格。场景由引擎/`SceneResolver` 解析，检测器不得依赖 `ctx.scenes` 或自行决定处置；缺少可信信息时才走 `_unknown` 兜底。底线三类（`hardcoded_cred`/`illegal_content`/`political`）在任何场景都要拦截或人工复核。
+5. **三道闸共用同一套检测引擎、违规类型、规则/检测器集合和处置矩阵**：InputGate 检查用户 query 与上传数据，ContextGate 检查检索结果/SkillResult 进入 LLM 前，OutputGate 检查最终回答。ContextGate 是 RAG + LLM 特有的合规卡点，一期只用规则、标签/字段匹配和轻量检测，不调用重型 LLM。
+6. **第 3 类硬编码凭证的闸门边界**：InputGate 是用户 query、上传代码/配置明文凭证的主检测节点；OutputGate 必须对模型或 Skill 生成的明文凭证兜底检测；ContextGate 第一阶段不重复检测。第 8 类 InputGate 仅适用于上传图片/视频经文件预处理产生的监控点位、设备、地址、OCR 或视觉标签等结构化结果，纯自然语言 query 且未上传媒体时不适用。
+7. **`content_text` 拼接规则已定稿，直接实现，不要重新反推**：
    ```python
    def build_content_text(features: dict) -> str:
        if len(features) == 1 and "content" in features:

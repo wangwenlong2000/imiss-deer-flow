@@ -47,7 +47,7 @@ detectors:
   # 第 3/6/7 类来自 workspace 顶层 compliance_detectors 交付包；适配说明见
   # docs/compliance-delivered-detectors-integration.md。第 6/7 类的边界样本
   # 复核使用当前对话实际选择的模型，由三道合规闸随请求传入。
-  - { id: entropy_hardcoded_cred, enabled: true } # 3 硬编码凭证泄露（仅 InputGate）
+  - { id: entropy_hardcoded_cred, enabled: true } # 3 InputGate 主检，OutputGate 兜底，ContextGate 一期不重复检
   # 第 4/5 类共用 V4 规则核心，运行时按命中结果输出独立违规类型。
   - id: rule_illegal_political_v4
     enabled: true

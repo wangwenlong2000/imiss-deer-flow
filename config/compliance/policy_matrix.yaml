@@ -17,14 +17,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # ⚠️ `_unknown` 列是**临时状态**，不是正式场景。
 #
-# 一期系统没有"使用权限和公开程度"的信息源，五类场景无从判定（计划 §7.2），
-# 所有请求都落在这一列。填法遵循一条原则：**宁可漏处置，不可误伤**——
+# 系统优先从可信的 manual_ui/trusted_upstream 上下文解析使用权限和公开程度；
+# 缺少或无法验证时才落到这一列。填法遵循一条原则：**宁可漏处置，不可误伤**——
 #   · 底线三类（hardcoded_cred / illegal_content / political）：[refuse, warn]
 #     指南 §3 核心规则明写"不分场景……任何场景下都拒答"，场景未知也照拦。
 #   · 其余七类：[warn, manual_review]
 #     只告警 + 留痕 + 进人工队列，不自动脱敏、不自动拒答。理由：场景未知时
-#     自动脱敏会在 self_use（本该放行）下大面积误伤，可用性代价远大于收益；
-#     而告警 + 留痕保留了全部审计能力，等 scene 补全后直接切正式列即可。
+#     自动脱敏会在 self_use（可能本该放行）下大面积误伤，可用性代价远大于收益；
+#     而告警 + 留痕保留了全部审计能力，可信 scene 到位后切正式列即可。
 #
 # TODO(scene): SceneResolver 接上真实信息源后，删除所有 `_unknown` 列。
 # test_compliance_policy_matrix.py 会持续断言这一列存在且填法正确，
@@ -223,21 +223,21 @@ matrix:
   video_meta_leak:
     InputGate:
       _unknown: [warn, manual_review]
-      self_use: null
-      internal_org: null
-      cross_org: null
-      public_release: null
-      research_anon: null
+      self_use: [allow]
+      internal_org: [role_check]
+      cross_org: [desensitize]
+      public_release: [desensitize, refuse]
+      research_anon: [desensitize]
     ContextGate:
       _unknown: [warn, manual_review]
-      self_use: null
+      self_use: [allow]
       internal_org: [role_check]
       cross_org: [desensitize]
       public_release: [refuse]
       research_anon: [desensitize]
     OutputGate: # docx 标注为"输出闸(兜底)"
       _unknown: [warn, manual_review]
-      self_use: null
+      self_use: [allow]
       internal_org: [role_check]
       cross_org: [desensitize]
       public_release: [refuse]

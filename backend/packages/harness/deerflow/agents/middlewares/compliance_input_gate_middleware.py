@@ -1,9 +1,9 @@
 """InputGate — check the user query as it enters the system.
 
-Phase 1 ships the plumbing, not the detectors. The three model detectors this
-work owns (types 8/9/10) do not declare ``InputGate``, and types 1-7 belong to
-other owners. So with the shipped configuration this middleware runs, finds
-nothing, and returns ``None`` — which is the expected outcome, not a bug.
+The gate uses the shared detector registry. Type 8 and type 10 may run here,
+but type 8 is restricted to structured output produced by preprocessing an
+uploaded image/video; a natural-language query is not a type-8 media source.
+Type 9 remains output-only, while types 1-7 use their own registered rules.
 
 What it does provide is the mounting point and the joint judgement, so a detector
 added later needs no engine change.
@@ -43,6 +43,7 @@ from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
     decision_check,
+    decision_types,
     failure_decision,
     gate_config,
     gate_enabled,
@@ -231,6 +232,7 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
             "transient_exposure_possible": False,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            **decision_types(decision),
             "audit_ref": decision.audit_ref,
             "basis": list(decision.basis),
             "notice": notice,

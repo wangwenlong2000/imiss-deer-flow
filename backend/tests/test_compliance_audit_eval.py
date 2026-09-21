@@ -81,6 +81,9 @@ def test_record_persists_the_full_determination(tmp_path: Path) -> None:
     assert record["basis"] == ["个人信息保护法 §73(4)"], "requirement 5: the basis must be persisted"
     assert record["hits"][0]["detector_id"] == "model_tfidf_knn"
     assert record["hits"][0]["reason_code"] == "ml_tfidf_knn_classifier"
+    assert record["raw_detection_types"] == ["re_identify"]
+    assert record["effective_violation_types"] == ["re_identify"]
+    assert record["downgraded_detection_types"] == []
     assert record["origin"] == {"tool_name": "invoke_skill"}
 
 

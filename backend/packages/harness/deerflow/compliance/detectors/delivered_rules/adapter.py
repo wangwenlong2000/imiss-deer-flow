@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -185,12 +186,21 @@ class DeliveredRulesDetector:
         # Do not swallow delivery failures here. ComplianceEngine isolates each
         # detector and records its exception in diagnostics; converting an
         # implementation error into an empty result would look like a clean pass.
-        llm_adapter = getattr(self._delivery_detector, "llm_adapter", None)
+        detector = self._delivery_detector
+        # ContextGate is the RAG/LLM context boundary. Its first-phase path is
+        # deliberately rule/field based: configured LLM review remains
+        # available for InputGate/OutputGate, but never runs here.
+        if unit.gate == "ContextGate" and bool(getattr(detector, "use_llm", False)):
+            detector = copy.copy(detector)
+            detector.use_llm = False
+            detector.llm_adapter = None
+
+        llm_adapter = getattr(detector, "llm_adapter", None)
         if isinstance(llm_adapter, ConfiguredLLMAdapter):
             with llm_adapter.use_model(ctx.model_name):
-                result = self._delivery_detector.detect(sample)
+                result = detector.detect(sample)
         else:
-            result = self._delivery_detector.detect(sample)
+            result = detector.detect(sample)
 
         if not isinstance(result, Mapping) or not bool(result.get("is_hit")):
             return ()

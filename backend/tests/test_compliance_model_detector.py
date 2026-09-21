@@ -83,7 +83,10 @@ def test_a_real_positive_sample_is_detected() -> None:
     assert len(hits) == 1
     assert hits[0].violation_type in ("re_identify", "domain", "video_meta_leak")
     assert hits[0].detector_id == "model_tfidf_knn"
-    assert hits[0].reason_code == "ml_tfidf_knn_classifier"
+    assert hits[0].reason_code in {
+        "ml_tfidf_knn_classifier",
+        "reidentify_multi_attribute_combination",
+    }
 
 
 def test_hit_carries_model_evidence_for_audit() -> None:
@@ -122,11 +125,14 @@ def test_re_identify_is_reported_at_the_output_gate() -> None:
     assert any(hit.violation_type == "re_identify" for hit in hits) or hits == ()
 
 
-def test_no_label_is_reported_at_the_input_gate() -> None:
-    """None of types 8/9/10 is declared for InputGate."""
-    for text in (RE_IDENTIFY_TEXT, VIDEO_META_TEXT):
-        hits = _detector().detect(_unit(text, gate="InputGate"), _ctx("InputGate"))
-        assert hits == (), f"nothing should fire at InputGate, got {[h.violation_type for h in hits]}"
+def test_only_re_identify_is_excluded_from_the_input_gate() -> None:
+    """Types 8 and 10 can stop risky uploads; type 9 remains output-only."""
+    assert LABEL_GATES["video_meta_leak"] == ("InputGate", "ContextGate", "OutputGate")
+    assert LABEL_GATES["domain"] == ("InputGate", "ContextGate", "OutputGate")
+    assert LABEL_GATES["re_identify"] == ("OutputGate",)
+
+    identify_hits = _detector().detect(_unit(RE_IDENTIFY_TEXT, gate="InputGate"), _ctx("InputGate"))
+    assert all(hit.violation_type != "re_identify" for hit in identify_hits)
 
 
 # ── low-similarity degradation (delivery README: k=1 is negation-sensitive) ──
@@ -148,17 +154,11 @@ def test_low_similarity_hit_is_degraded_to_low_severity() -> None:
     assert hit.evidence["low_similarity_degraded"] is True
 
 
-def test_a_hit_is_still_reported_when_similarity_is_low() -> None:
-    """Degrade, do not discard — dropping would cost recall.
-
-    Passing `min_similarity` to the model itself instead forces the label to
-    `none` and turns true positives into false negatives (measured: accuracy
-    0.9821 -> 0.9107 at 0.25). The detector keeps the hit and lowers severity.
-    """
+def test_explicit_aggregate_negative_is_suppressed_even_at_a_high_threshold() -> None:
+    """A semantic safe-negative guard takes precedence over model similarity."""
     negated = "报告仅展示 label=0/1 的总体数量，不包含 user_id、imei、时间位置或 sub_label 对象级组合。"
     hits = _detector(min_similarity=0.99).detect(_unit(negated), _ctx())
-    assert len(hits) == 1, "a very high threshold must degrade, never silence"
-    assert hits[0].severity == "low"
+    assert hits == ()
 
 
 def test_high_similarity_hit_keeps_a_real_severity() -> None:

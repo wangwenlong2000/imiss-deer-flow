@@ -131,7 +131,14 @@ class ComplianceEngine:
 
         hits = self._detect_all(units, ctx, request, diagnostics, started)
 
-        verdict = self._intent_guard.apply(hits, gate=request.gate, intent=request.intent, user=request.user)
+        raw_hits = tuple(hits)
+        verdict = self._intent_guard.apply(
+            raw_hits,
+            gate=request.gate,
+            intent=request.intent,
+            user=request.user,
+            scene_key=scene_key,
+        )
         for warning in verdict.warnings:
             diagnostics.warn(warning)
         hits = verdict.hits
@@ -153,6 +160,8 @@ class ComplianceEngine:
             gate=request.gate,
             scene_key=scene_key,
             scenes=scenes,
+            raw_hits=raw_hits,
+            downgraded_hits=verdict.dropped,
             hits=tuple(hits),
             actions=actions,
             per_violation_actions=dict(per_violation),
@@ -160,7 +169,10 @@ class ComplianceEngine:
             diagnostics=diagnostics,
         )
 
-        if hits or request.audit_clean:
+        # A downgraded finding is still a detector result and must remain
+        # traceable; otherwise the UI can explain it while the audit trail
+        # silently loses the original detection.
+        if hits or raw_hits or request.audit_clean:
             decision.audit_ref = self._auditor.record(request, decision)
         return decision
 

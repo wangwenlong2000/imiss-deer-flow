@@ -23,8 +23,9 @@ if str(HARNESS) not in sys.path:
 from deerflow.compliance.contract import DetectionUnit, FieldItem, TextItem  # noqa: E402
 from deerflow.compliance.detectors.regex_geo_loc import legacy_core as geo_core  # noqa: E402
 from deerflow.compliance.detectors.regex_struct_id import legacy_core as struct_core  # noqa: E402
-from deerflow.compliance.engine import build_engine  # noqa: E402
-from deerflow.config.compliance_config import ComplianceConfig  # noqa: E402
+from deerflow.compliance.engine import ComplianceEngine  # noqa: E402
+from deerflow.compliance.policy import load_policy_matrix  # noqa: E402
+from deerflow.compliance.registry import build_registry  # noqa: E402
 
 DATA_DIR = REPO_ROOT / "datasets/compliance/type12_frozen_test"
 FILES = {
@@ -76,13 +77,11 @@ def _legacy_prediction(row: dict[str, Any], violation_type: str) -> bool:
 
 
 def evaluate() -> dict[str, Any]:
-    config = ComplianceConfig(
-        enabled=True,
-        detectors_config_path="config/compliance/detectors.yaml",
-        policy_matrix_path="config/compliance/policy_matrix.yaml",
-        audit={"enabled": False},
+    registry = build_registry(config_path=REPO_ROOT / "config/compliance/detectors.yaml", strict=True)
+    engine = ComplianceEngine(
+        registry=registry,
+        policy=load_policy_matrix(REPO_ROOT / "config/compliance/policy_matrix.yaml"),
     )
-    engine = build_engine(config)
     # This regression is deliberately scoped to types 1/2.  The independently
     # shipped type 8/9/10 model assets may be absent in a lightweight dev
     # container and must not add unrelated detector errors to every row.

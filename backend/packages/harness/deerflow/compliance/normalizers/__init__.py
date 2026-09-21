@@ -3,13 +3,18 @@
 from deerflow.compliance.normalizers.base import Normalizer, build_unit, flatten_fields, make_text_items, stringify
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.normalizers.skill_result import SkillResultNormalizer, try_parse_skill_result
-from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
+from deerflow.compliance.normalizers.user_input import (
+    MediaPreprocessedNormalizer,
+    UploadedFileNormalizer,
+    UserInputNormalizer,
+)
 
 __all__ = [
     "LlmOutputNormalizer",
     "Normalizer",
     "SkillResultNormalizer",
     "UploadedFileNormalizer",
+    "MediaPreprocessedNormalizer",
     "UserInputNormalizer",
     "build_unit",
     "extract_text",

@@ -178,7 +178,8 @@ def test_output_gate_metadata_and_sse_contract_for_combined_hit(type12_runtime):
     rewritten = update["messages"][0]
     metadata = rewritten.response_metadata["compliance"]
     assert metadata["gate"] == "OutputGate"
-    assert set(metadata["violation_types"]) == {"struct_id", "geo_loc"}
+    expected_types = {"struct_id", "geo_loc", "text_id"}
+    assert set(metadata["violation_types"]) == expected_types
     assert metadata["actions"] == ["warn", "manual_review"]
     assert metadata["audit_ref"]
     assert metadata["retracted"] is True
@@ -192,7 +193,7 @@ def test_output_gate_metadata_and_sse_contract_for_combined_hit(type12_runtime):
     )
     event = build_retract_event(message, rewritten.content, decision)
     assert event["type"] == "compliance_retract"
-    assert set(event["violation_types"]) == {"struct_id", "geo_loc"}
+    assert set(event["violation_types"]) == expected_types
     assert event["message_id"] == "msg-type12"
     assert auditor.read_all()
 

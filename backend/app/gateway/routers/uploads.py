@@ -1,6 +1,8 @@
 """Upload router for handling file uploads."""
 
 import logging
+import shlex
+from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
@@ -15,6 +17,70 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads/{thread_id}/uploads", tags=["uploads"])
 
 _CROSS_USER_WRITABLE_FILE_MODE = 0o666
+
+
+@dataclass(frozen=True)
+class _UploadArtifactSnapshot:
+    """State needed to roll an upload back after a compliance rejection."""
+
+    path: Path
+    virtual_path: str
+    existed: bool
+    content: bytes | None
+
+
+def _snapshot_artifact(path: Path, virtual_path: str) -> _UploadArtifactSnapshot:
+    """Capture one file before an upload can overwrite or create it."""
+    if path.is_file():
+        return _UploadArtifactSnapshot(
+            path=path,
+            virtual_path=virtual_path,
+            existed=True,
+            content=path.read_bytes(),
+        )
+    return _UploadArtifactSnapshot(path=path, virtual_path=virtual_path, existed=False, content=None)
+
+
+def _restore_artifact(snapshot: _UploadArtifactSnapshot) -> None:
+    """Restore the host-side artifact without following an unexpected path."""
+    if snapshot.existed:
+        snapshot.path.write_bytes(snapshot.content or b"")
+    else:
+        try:
+            snapshot.path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _rollback_uploads(thread_id: str, snapshots: list[_UploadArtifactSnapshot]) -> None:
+    """Restore host files and remove copies from a non-local sandbox.
+
+    The sandbox API has no delete-file primitive. The virtual path is generated
+    from a basename validated by ``save_thread_upload_from_bytes``; quoting it
+    here keeps the fallback shell operation bounded to that exact file.
+    """
+    for snapshot in reversed(snapshots):
+        try:
+            _restore_artifact(snapshot)
+        except OSError:
+            logger.exception("compliance: failed to restore upload artifact %s", snapshot.path)
+
+    try:
+        sandbox_provider = get_sandbox_provider()
+        sandbox_id = sandbox_provider.acquire(thread_id)
+        sandbox = sandbox_provider.get(sandbox_id)
+        if sandbox_id == "local" or sandbox is None:
+            return
+        for snapshot in reversed(snapshots):
+            try:
+                if snapshot.existed:
+                    sandbox.update_file(snapshot.virtual_path, snapshot.content or b"")
+                else:
+                    sandbox.execute_command(f"rm -f -- {shlex.quote(snapshot.virtual_path)}")
+            except Exception:
+                logger.exception("compliance: failed to roll back sandbox artifact %s", snapshot.virtual_path)
+    except Exception:
+        logger.exception("compliance: failed to acquire sandbox while rolling back uploads")
 
 
 class UploadResponse(BaseModel):
@@ -54,6 +120,8 @@ async def save_thread_upload_from_bytes(
     thread_id: str,
     filename: str,
     content: bytes,
+    *,
+    rollback: list[_UploadArtifactSnapshot] | None = None,
 ) -> dict[str, str]:
     """Save bytes as a thread upload and run the same conversion/sandbox sync logic as manual upload."""
     safe_filename = Path(filename).name
@@ -73,6 +141,8 @@ async def save_thread_upload_from_bytes(
     sandbox = sandbox_provider.get(sandbox_id)
 
     file_path = uploads_dir / safe_filename
+    if rollback is not None:
+        rollback.append(_snapshot_artifact(file_path, f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"))
     file_path.write_bytes(content)
     _set_cross_user_writable(file_path)
 
@@ -94,6 +164,9 @@ async def save_thread_upload_from_bytes(
 
     file_ext = file_path.suffix.lower()
     if file_ext in CONVERTIBLE_EXTENSIONS:
+        md_path = file_path.with_suffix(".md")
+        if rollback is not None:
+            rollback.append(_snapshot_artifact(md_path, f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"))
         md_path = await convert_file_to_markdown(file_path)
         if md_path:
             _set_cross_user_writable(md_path)
@@ -122,9 +195,12 @@ async def upload_files(
         raise HTTPException(status_code=400, detail="No files provided")
 
     uploaded_files = []
+    rollback: list[_UploadArtifactSnapshot] = []
 
     for file in files:
         if not file.filename:
+            continue
+        if file.filename in {".", ".."} or Path(file.filename).name in {".", "..", ""}:
             continue
 
         try:
@@ -133,10 +209,15 @@ async def upload_files(
                 thread_id=thread_id,
                 filename=file.filename,
                 content=content,
+                rollback=rollback,
             )
             uploaded_files.append(file_info)
 
+        except HTTPException:
+            _rollback_uploads(thread_id, rollback)
+            raise
         except Exception as e:
+            _rollback_uploads(thread_id, rollback)
             logger.error(f"Failed to upload {file.filename}: {e}")
             raise HTTPException(
                 status_code=500,
@@ -148,6 +229,7 @@ async def upload_files(
     # as accepted. App calls harness; the dependency direction stays legal.
     warning = _scan_uploads_for_compliance(thread_id, uploaded_files)
     if warning is not None:
+        _rollback_uploads(thread_id, rollback)
         return UploadResponse(success=False, files=[], message=warning)
 
     return UploadResponse(

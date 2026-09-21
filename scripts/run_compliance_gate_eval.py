@@ -32,7 +32,7 @@ import argparse
 import json
 import sys
 from collections import Counter, defaultdict
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -41,9 +41,10 @@ HARNESS = REPO_ROOT / "backend/packages/harness"
 if str(HARNESS) not in sys.path:
     sys.path.insert(0, str(HARNESS))
 
-from deerflow.compliance.contract import GATES, SCENES, VIOLATION_TYPES, DetectionUnit, TextItem  # noqa: E402
+from deerflow.compliance.contract import GATES, SCENES, VIOLATION_TYPES, DetectionUnit, FieldItem, TextItem  # noqa: E402
 from deerflow.compliance.engine import ComplianceEngine  # noqa: E402
-from deerflow.compliance.normalizers.base import build_unit  # noqa: E402
+from deerflow.compliance.detectors.model_tfidf_knn.composite_risk import canonical_data_type  # noqa: E402
+from deerflow.compliance.normalizers.base import build_unit, flatten_fields, stringify  # noqa: E402
 from deerflow.compliance.policy import load_policy_matrix  # noqa: E402
 from deerflow.compliance.registry import build_registry  # noqa: E402
 from deerflow.compliance.types import rank_action  # noqa: E402
@@ -64,18 +65,30 @@ def sample_to_unit(sample: dict[str, Any], gate: str) -> DetectionUnit:
     Uses ``features`` directly, mirroring what the normalizers produce at
     runtime, so the evaluation exercises the same code path production does.
     """
-    features = sample.get("features") or {}
-    text_items = tuple(
-        TextItem(item_id=f"t-{index:03d}", text=str(value), source=str(key))
-        for index, (key, value) in enumerate(features.items(), start=1)
-        if str(value).strip()
+    features = sample.get("features")
+    if isinstance(features, dict):
+        flattened = flatten_fields(features, prefix="", source="eval", max_depth=6)
+    else:
+        flattened = []
+    field_items = tuple(
+        FieldItem(item_id=f"f-{index:04d}", path=item.path, value=item.value, source=item.source)
+        for index, item in enumerate(flattened[:256], start=1)
     )
+
+    # Structured samples follow the production contract: their feature paths
+    # become FieldItems and are not duplicated as free text. Text remains the
+    # fallback for a genuinely unstructured sample.
+    if field_items:
+        text_items: tuple[TextItem, ...] = ()
+    else:
+        text = stringify(sample.get("content_text") or sample.get("content") or sample.get("raw_content"))
+        text_items = (TextItem(item_id="t-0001", text=text, source="content"),) if text.strip() else ()
     return build_unit(
         unit_id=str(sample.get("data_id") or sample.get("sample_id") or "sample"),
         gate=gate,
-        data_type=sample.get("data_type"),
+        data_type=canonical_data_type(sample.get("data_type")) or None,
         text_items=text_items,
-        field_items=(),
+        field_items=field_items,
         raw={"kind": "eval_sample", "data_id": sample.get("data_id")},
     )
 
@@ -262,13 +275,13 @@ def main(argv: list[str] | None = None) -> int:
 
         all_pairs.append((gold, predicted))
         by_gate[gate].append((gold, predicted))
-        by_data_type[str(sample.get("data_type") or "unknown")].append((gold, predicted))
+        by_data_type[canonical_data_type(sample.get("data_type")) or "unknown"].append((gold, predicted))
 
         records.append(
             {
                 "data_id": sample.get("data_id"),
                 "gate": gate,
-                "data_type": sample.get("data_type"),
+                "data_type": canonical_data_type(sample.get("data_type")) or None,
                 "gold": gold,
                 "predicted": predicted,
                 "scene_key": decision.scene_key,
@@ -285,12 +298,12 @@ def main(argv: list[str] | None = None) -> int:
     matrix_check = cross_validate_matrix(matrix_samples, engine.policy)
     matrix_check["input"] = str(args.matrix_input if args.matrix_input.is_file() else args.input)
 
-    timestamp = args.timestamp or datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    timestamp = args.timestamp or datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     output_dir = args.output_root / timestamp
     output_dir.mkdir(parents=True, exist_ok=True)
 
     report = {
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "input": str(args.input),
         "samples": len(records),
         "enabled_detectors": enabled,

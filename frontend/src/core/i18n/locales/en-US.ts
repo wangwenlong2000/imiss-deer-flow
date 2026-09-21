@@ -324,6 +324,8 @@ export const enUS: Translations = {
     showDetails: "View disposition details",
     hideDetails: "Hide",
     violationTypesLabel: "Risk type",
+    rawDetectionLabel: "Raw detection",
+    downgradedDetectionLabel: "Downgraded finding",
     actionsLabel: "Disposition",
     basisLabel: "Compliance basis",
     auditRefLabel: "Audit reference",

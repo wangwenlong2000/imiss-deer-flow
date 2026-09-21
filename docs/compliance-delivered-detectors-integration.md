@@ -9,7 +9,7 @@ DeerFlow 合规链路。设计遵循《合规检测实现总览与异构检测�
 
 | 交付实现 | DeerFlow detector_id | 违规类型 | 闸门 | 适配器 |
 |---|---|---|---|---|
-| `HardcodedCredDetector` | `entropy_hardcoded_cred` | `hardcoded_cred` | InputGate | inprocess |
+| `HardcodedCredDetector` | `entropy_hardcoded_cred` | `hardcoded_cred` | InputGate 主检 / OutputGate 兜底 | inprocess |
 | `TextIdDetector` | `ner_text_id` | `text_id` | InputGate / ContextGate / OutputGate | inprocess |
 | `ConfidentialDetector` | `llm_confidential` | `confidential` | InputGate / ContextGate / OutputGate | inprocess |
 
@@ -18,7 +18,10 @@ DeerFlow 合规链路。设计遵循《合规检测实现总览与异构检测�
 主进程边界复核，复用 `config.yaml` 的聊天模型。所有三个检测器已经显式启用；整个
 合规系统是否运行仍由 `config.yaml` 的 `compliance.enabled` 控制。
 
-`hardcoded_cred` 按契约硬约束只声明 InputGate。`text_id` 与 `confidential` 的规则
+`hardcoded_cred` 的主检测节点是 InputGate，负责拦截用户 query、上传代码或配置中的
+明文凭证；OutputGate 必须对模型或 Skill 生成的明文凭证再次兜底检测并拦截，ContextGate
+第一阶段不重复检测。当前 `entropy_hardcoded_cred` manifest 声明 InputGate 和
+OutputGate；OutputGate 负责模型或 Skill 生成明文凭证的兜底拦截。`text_id` 与 `confidential` 的规则
 不依赖单一数据类型，因此 `data_types: null`，避免 `DetectionUnit.data_type` 缺失时
 产生静默漏检。具体处置没有写入 manifest 或检测器代码，仍使用现有
 `config/compliance/policy_matrix.yaml`。

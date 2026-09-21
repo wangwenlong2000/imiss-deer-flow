@@ -1,6 +1,6 @@
 # DeerFlow - Unified Development Environment
 
-.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-gates compliance-eval-type45 compliance-export-schema
+.PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-model-cross-source compliance-eval-gates compliance-eval-type45 compliance-export-schema
 PYTHON ?= python
 
 help:
@@ -33,6 +33,7 @@ help:
 	@echo "  make check-skill-router-health - Check ES + embedding + reranker health"
 	@echo "  make test-skill-router      - Run SkillRouter test suite"
 	@echo "  make compliance-eval-type45 - Run frozen type 4/5 rules through the compliance engine"
+	@echo "  make compliance-eval-model-cross-source - Evaluate types 8/9/10 by source, data type and gate"
 	@echo "  make dev-daemon      - Start all services in background (daemon mode)"
 	@echo "  make start           - Start all services in production mode (optimized, no hot-reloading)"
 	@echo "  make stop            - Stop all running services"
@@ -335,6 +336,13 @@ compliance-eval-model:
 		--input datasets/compliance/normalized/0624_supported_split/test.jsonl \
 		--model models/compliance/ml_detector_0624_fresh.json \
 		--min-accuracy 0.98
+
+# Cross-source evaluation for the model detector and its structural backstops.
+compliance-eval-model-cross-source:
+	@PYTHONPATH=backend/packages/harness $(PYTHON) scripts/run_compliance_model_cross_source_eval.py \
+		--input $(or $(INPUT),合规检测/合规评测全部十类违规类型数据) \
+		--model models/compliance/ml_detector_0624_fresh.json \
+		--output $(or $(OUTPUT),outputs/compliance-eval/model-cross-source.json)
 
 # End-to-end gate evaluation through the full ComplianceEngine (four metric groups).
 compliance-eval-gates:

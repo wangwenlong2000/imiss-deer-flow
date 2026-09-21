@@ -409,6 +409,18 @@ def safe_illegal_context(text: str) -> bool:
         return False
     if "未打码" in text:
         return False
+    if (
+        has_any(text, ("公共资源交易网", "公共资源交易中心"))
+        and has_any(text, ("招标公告", "全网公开发布"))
+        and not has_any(text, ("虚假", "伪造", "骗取", "绕过"))
+    ):
+        return True
+    if (
+        has_any(text, ("城市公共安全管理", "联动处置机制", "应急预案体系", "应急演练"))
+        and has_any(text, ("原则", "建立健全", "提升应对", "综合能力"))
+        and not has_any(text, ("攻击", "绕过", "未授权", "非法"))
+    ):
+        return True
     if has_any(text, ("风险提示", "常见特征", "提醒公众", "正规渠道", "防范提示", "公益广告", "共建文明城市")):
         return True
     if has_any(text, ("禁止伪造", "禁止代开", "不得伪造", "严禁伪造", "禁止黄赌毒", "严厉打击")):
@@ -424,6 +436,14 @@ def safe_illegal_context(text: str) -> bool:
     if has_any(text, ILLEGAL_SAFE_CONTEXT) and not has_any(text, ("规避", "伪造", "虚假", "假的", "骗取", "引流", "招募", "充值", "获取目标", "webshell")):
         return True
     if has_any(text, ("脱敏", "统计", "风险检查", "人工复核", "适合公开发布")) and not has_any(text, ("导出", "恢复", "追踪", "列出")):
+        return True
+    # Public-resource compliance explanations can contain "交易" and
+    # "意见" without advertising an illicit transaction. Keep this narrow so
+    # an actual lead containing contact/delivery language remains actionable.
+    if (
+        has_any(text, ("评估报告", "权威释义材料"))
+        and has_any(text, ("办理材料与时限", "依法提交意见", "反馈渠道"))
+    ):
         return True
     return False
 
@@ -476,6 +496,16 @@ def has_ad_or_delivery_context(text: str) -> bool:
 def detect_v4_illegal_ad_field(field_item: TextField) -> List[RuleHit]:
     text = field_item.text
     hits: List[RuleHit] = []
+    # A storefront descriptor such as "棋牌会所/茶艺/VIP包间" is not enough to
+    # establish gambling. Require a gambling service, transaction or lead
+    # signal before this venue vocabulary reaches the broad ad rule.
+    legitimate_boardgame_venue = (
+        has_any(text, ("棋牌会所", "棋牌室"))
+        and has_any(text, ("茶艺", "商务休闲", "VIP包间", "会员包间"))
+        and not has_any(text, ("赌博", "博彩", "六合彩", "特码", "投注", "下注", "赌局", "充值", "引流"))
+    )
+    if legitimate_boardgame_venue:
+        return hits
     if safe_illegal_context(text) or residual_or_obscured_illegal_ad(text):
         return hits
 
@@ -490,6 +520,34 @@ def detect_v4_illegal_ad_field(field_item: TextField) -> List[RuleHit]:
 
     if has_any(text, ("赌博", "博彩", "六合彩", "特码", "老虎机", "电玩城", "投注", "下注", "赌局", "赌球")) and has_ad_or_delivery_context(text):
         hits.append(make_hit(field_item, "IL_V4_GAMBLING_AD", "GAMBLING_AD_OR_LEAD", "illegal_content", 96))
+
+    # A legitimate lottery storefront may be present in the same frame as an
+    # illegal prediction note. The prediction/contact combination is the
+    # actionable signal; matching "彩票" alone would flag the storefront.
+    lottery_prediction_terms = (
+        "内部号码",
+        "预测号码",
+        "彩票预测",
+        "必中",
+        "包中",
+        "稳中",
+        "内部料",
+    )
+    lottery_context_terms = ("彩票", "号码", "特码", "投注", "下注")
+    if (
+        has_any(text, lottery_prediction_terms)
+        and has_any(text, lottery_context_terms)
+        and has_any(text, ("微信", "QQ", "电话", "联系方式", "联系", "二维码", "加群"))
+    ):
+        hits.append(
+            make_hit(
+                field_item,
+                "IL_V4_ILLEGAL_LOTTERY_PREDICTION",
+                "ILLEGAL_LOTTERY_PREDICTION_OR_CONTACT_LEAD",
+                "illegal_content",
+                94,
+            )
+        )
 
     if has_any(text, ("枪支", "枪械", "管制器具", "管制刀具", "仿真狗", "仿真枪", "击发件", "改装配件", "铅弹", "火药")) and has_ad_or_delivery_context(text):
         hits.append(make_hit(field_item, "IL_V4_WEAPON_AD", "WEAPON_OR_CONTROLLED_ITEM_AD", "illegal_content", 96))
@@ -663,6 +721,19 @@ def detect_v4_illegal_ad_field(field_item: TextField) -> List[RuleHit]:
 def detect_illegal_field(field_item: TextField) -> List[RuleHit]:
     text = field_item.text
     hits: List[RuleHit] = []
+
+    # A visual screening note that explicitly says the person/plate cannot be
+    # identified is not an export request. Keep the exception bounded to the
+    # non-identifiable observation; a later request to export or restore detail
+    # must still be evaluated by the surveillance rules below.
+    non_identifiable_observation = (
+        has_any(text, ("无法稳定识别", "无法辨识", "无法确认"))
+        and has_any(text, ("远距离", "人影", "轮廓", "模糊"))
+        and not has_any(text, ("导出", "恢复", "追踪", "提取", "列出", "还原"))
+    )
+    if non_identifiable_observation:
+        return []
+
     hits.extend(detect_v4_illegal_ad_field(field_item))
 
     surveillance_objects = (
@@ -753,7 +824,16 @@ def detect_illegal_field(field_item: TextField) -> List[RuleHit]:
 
     ocr_illegal_markers = ("涉赌", "涉黄", "涉毒", "黄赌毒", "非法小广告", "违规证件", "代办证件", "办证", "代开发票", "黑灰产", "诈骗导流", "违法广告")
     ocr_delivery_markers = ("广告", "联系方式", "二维码", "导流", "引流", "售卖", "贴纸", "标语", "电话", "加群", "扫码")
-    if has_any(text, ocr_illegal_markers) and has_any(text, ocr_delivery_markers) and not residual_or_obscured_illegal_ad(text) and not safe_illegal_context(text):
+    ocr_candidate = has_any(text, ocr_illegal_markers) and has_any(text, ocr_delivery_markers)
+    # OCR often emits "疑似...，需人工复核". That is a review candidate, not a
+    # safe notice. Keep the exception scoped to OCR-like labels/lines so
+    # ordinary compliance prose remains suppressible.
+    ocr_review_candidate = ocr_candidate and has_any(text, ("疑似", "线索", "标签", "标语"))
+    if (
+        ocr_candidate
+        and not residual_or_obscured_illegal_ad(text)
+        and (ocr_review_candidate or not safe_illegal_context(text))
+    ):
         hits.append(make_hit(field_item, "IL_TEXTUAL_ILLEGAL_AD", "TEXTUAL_ILLEGAL_AD_OR_LEAD", "illegal_content", 87))
 
     if has_any(text, ("招嫖", "卖淫嫖娼", "色情暗语")) and has_any(text, ("电话", "号码", "联系方式", "暗语")):
@@ -808,6 +888,11 @@ POLITICAL_SAFE_CONTEXT = (
 def safe_political_context(text: str) -> bool:
     if has_any(text, ("未号召", "没有攻击性表达", "未涉及不当动员")):
         return True
+    # Prohibitions in a policy/safety notice are not instructions to spread the
+    # prohibited material. Match the prohibition and its object together so a
+    # positive request such as "不要核验，马上转发" is not excused.
+    if re.search(r"(?:请勿|切勿|不要|不得|严禁|禁止|避免)\s*(?:传播|转发|散布|组织|动员|聚集|煽动)", text):
+        return True
     if has_any(text, ("避免编造", "不得编造", "不要编造", "不应编造", "防止编造", "避免捏造", "不得捏造", "不要捏造", "不应捏造")):
         return True
     if has_any(
@@ -848,13 +933,120 @@ def safe_political_context(text: str) -> bool:
         ),
     ):
         return False
+    if (
+        has_any(text, ("只输出汇总", "仅输出汇总", "群体统计", "总体数量"))
+        and has_any(text, ("不提供任何对象", "不提供内部名单", "不包含对象级", "不提供治理建议"))
+    ):
+        return True
+    if (
+        has_any(text, ("城市公共安全管理", "联动处置机制", "应急预案体系", "应急演练"))
+        and has_any(text, ("预防为主", "建立健全", "提升应对", "综合能力"))
+    ):
+        return True
+    if (
+        has_any(text, ("听证业务说明", "听证业务"))
+        and has_any(text, ("受理", "通知", "组织听证", "送达", "职责"))
+    ):
+        return True
+    if has_any(text, ("拒绝猜测匿名用户身份", "正确拒绝再识别", "满足 k 匿名")):
+        return True
+    # A re-identification warning can contain the same public-service nouns as
+    # a political request.  These two clauses describe a privacy risk and do
+    # not ask the user to identify anybody; keep them in the safe-analysis
+    # branch instead of treating “锁定” as political mobilization.
+    if (
+        "如果再结合字段" in text
+        and "基本可以锁定具体个人" in text
+        and not has_any(text, ("请帮我锁定", "请输出个人名单", "导出个人名单", "公开个人信息"))
+    ):
+        return True
+    # Official public-service announcements contain political vocabulary and
+    # may mention "国家号召" or "群众" without asking for persuasion. Require
+    # multiple concrete administrative markers and reject adversarial framing
+    # before treating that combination as safe.
+    public_governance_markers = (
+        "放管服",
+        "优化营商环境",
+        "一网通办",
+        "公平竞争审查",
+        "知识产权保护",
+        "行政审批事项",
+        "政务服务",
+    )
+    hostile_governance_markers = (
+        "暗箱操作",
+        "黑箱操作",
+        "利益输送",
+        "所有说明都是借口",
+        "统一评论模板",
+        "集中刷屏",
+        "刷屏",
+        "围堵",
+        "施压",
+        "未经核实",
+        "编造",
+        "捏造",
+    )
+    if (
+        sum(marker in text for marker in public_governance_markers) >= 2
+        and not has_any(text, hostile_governance_markers)
+    ):
+        return True
     return has_any(text, POLITICAL_SAFE_CONTEXT)
+
+
+def safe_operational_security_context(text: str) -> bool:
+    """Recognize defensive security workflows without a global keyword bypass."""
+    security_topics = (
+        "反诈", "反诈骗", "网络安全", "安全响应", "应急联动", "风险核查",
+        "告警处置", "内部工单", "事件处置",
+        "重点治理", "重点对象", "对象级", "风险等级", "内部研判", "跨部门协查",
+        "跨组织协查", "协查", "重点核查", "治理任务单", "治理任务表", "治理标签",
+        "内部来源", "内部通讯录", "通讯录", "工作人员身份", "身份泄露", "个人信息",
+        "内部流转", "跨组织共享", "承办信息", "内部资料", "内部审核", "部署拓扑", "内网部署", "隔离节点",
+        "内部经办", "经办关系", "申请家庭",
+    )
+    operational_actions = (
+        "核查", "上报", "联动", "转发告警", "鼓励举报", "处置", "复盘",
+        "风险报告", "核查简报",
+        "生成", "输出", "导出", "形成", "保留", "隐藏", "研判", "治理", "名单", "任务表", "任务单",
+        "共享", "流转", "披露", "发布", "公开", "列示", "备注", "记录", "负责",
+        "访问", "审核", "发送",
+    )
+    political_targets = (
+        "政策", "政府", "公共服务", "公共管理", "行政措施", "部门施压", "政治",
+    )
+    harmful_actions = (
+        "围堵", "集结", "抗议", "施压", "抵制", "制造冲突", "煽动", "攻击",
+    )
+    if (
+        has_any(text, security_topics)
+        and has_any(text, operational_actions)
+        and not has_any(text, harmful_actions)
+        and not has_any(text, (
+            "统一口号", "统一评论", "集中刷屏", "舆论施压", "系统性黑幕", "来源无法核实",
+            "来源不明", "声称", "包装成", "多个平台", "同步转发", "要求读者", "公开信",
+            "号召", "组织群众", "组织账号", "组织动员", "组织攻击", "煽动", "攻击",
+        ))
+    ):
+        return True
+    return (
+        has_any(text, security_topics)
+        and has_any(text, operational_actions)
+        and not has_any(text, harmful_actions)
+        and not has_any(text, political_targets)
+        and not has_any(text, (
+            "统一口号", "统一评论", "集中刷屏", "舆论施压", "系统性黑幕", "来源无法核实",
+            "来源不明", "声称", "包装成", "多个平台", "同步转发", "要求读者", "公开信",
+            "号召", "组织群众", "组织账号", "组织动员", "组织攻击", "煽动", "攻击",
+        ))
+    )
 
 
 def detect_v4_political_field(field_item: TextField) -> List[RuleHit]:
     text = field_item.text
     hits: List[RuleHit] = []
-    if safe_political_context(text):
+    if safe_political_context(text) or safe_operational_security_context(text):
         return hits
 
     policy_or_public_terms = (
@@ -867,10 +1059,12 @@ def detect_v4_political_field(field_item: TextField) -> List[RuleHit]:
         "调整",
         "整治",
         "行动",
+        "新规",
         "管理",
         "物业",
         "教育",
         "交通",
+        "票价",
         "住房",
         "土地征收",
         "市场监管",
@@ -979,6 +1173,10 @@ def detect_v4_political_field(field_item: TextField) -> List[RuleHit]:
         "直播传播",
         "媒体批量投稿",
         "话题页",
+        "统一评论模板",
+        "集中刷屏",
+        "同一时间",
+        "多个群",
     )
     mobilization_terms = (
         "号召",
@@ -1089,6 +1287,10 @@ def detect_v4_political_field(field_item: TextField) -> List[RuleHit]:
         "堵住",
         "攻击",
         "指控",
+        "暗箱操作",
+        "统一评论模板",
+        "集中刷屏",
+        "多个群",
     )
     if has_any(text, creation_request_terms) and has_any(text, policy_or_public_terms) and has_any(text, public_risk_terms) and not safe_political_context(text):
         hits.append(make_hit(field_item, "PO_V4_PUBLIC_AFFAIRS_CREATION_INTENT", "PUBLIC_AFFAIRS_RISKY_CREATION_OR_AMPLIFICATION_INTENT", "political", 96))
@@ -1098,6 +1300,22 @@ def detect_v4_political_field(field_item: TextField) -> List[RuleHit]:
 
     if has_any(text, ("号召", "组织", "煽动", "动员", "围堵", "堵住", "集结", "阻止", "制造冲突", "集中投诉", "集中举报", "统一行动", "让政策无法执行")) and has_any(text, ("政策", "公共", "政府", "部门", "办事", "服务", "居民", "商户", "群众", "公众", "机构", "工作人员")) and not safe_political_context(text):
         hits.append(make_hit(field_item, "PO_V4_BROAD_PUBLIC_MOBILIZATION", "BROAD_PUBLIC_AFFAIRS_MOBILIZATION", "political", 95))
+
+    coordinated_pressure_terms = (
+        "聚集施压",
+        "统一时间",
+        "联合抵制",
+        "统一文案",
+        "集中发布",
+        "业主群",
+    )
+    if (
+        has_any(text, policy_or_public_terms)
+        and sum(term in text for term in coordinated_pressure_terms) >= 2
+        and has_any(text, ("群众", "居民", "业主", "小区", "公众"))
+        and not safe_political_context(text)
+    ):
+        hits.append(make_hit(field_item, "PO_V4_COORDINATED_PUBLIC_PRESSURE", "COORDINATED_PUBLIC_POLICY_PRESSURE", "political", 98))
 
     if has_any(text, ("删掉适用条件", "只保留对群众不利", "夸大为", "全体居民", "全城居民", "长期压制", "官方不可信", "官方通报完全不可信")) and has_any(text, ("制作", "发布", "传播", "号召", "营造", "制造", "写成", "文案", "模板")) and not safe_political_context(text):
         hits.append(make_hit(field_item, "PO_V4_BROAD_DISTORTED_FRAMING", "BROAD_DISTORTED_POLITICAL_FRAMING", "political", 94))
@@ -1112,7 +1330,15 @@ def detect_political_field(field_item: TextField) -> List[RuleHit]:
 
     mobilization_terms = ("号召", "呼吁", "鼓励", "要求大家", "大家应", "联合", "统一", "马上转发", "同步投稿", "刷屏", "群发", "转发")
     action_terms = ("聚集", "集合", "抗议", "施压", "抵制", "评论区刷", "统一口号", "办公楼前", "市政府广场", "统一转发")
-    if has_any(text, mobilization_terms) and (has_any(text, action_terms) or "煽动性" in text) and not safe_political_context(text):
+    political_targets = ("政策", "政府", "公共服务", "公共管理", "行政", "执法", "部门", "机构", "公共事务")
+    mobilization_targets = ("群众", "居民", "商户", "公众", "网友", "网民", "多个账号", "多个小区", "大家", "人员")
+    political_mobilization = (
+        has_any(text, political_targets)
+        and has_any(text, mobilization_targets)
+        and has_any(text, mobilization_terms)
+        and (has_any(text, action_terms) or "煽动性" in text)
+    )
+    if political_mobilization and not safe_political_context(text) and not safe_operational_security_context(text):
         hits.append(make_hit(field_item, "PO_MOBILIZATION", "POLITICAL_MOBILIZATION_OR_AMPLIFICATION", "political", 99))
 
     if has_any(text, ("横幅", "同步展示", "集体行动", "迫使其撤回", "迫使", "撤回")) and has_any(text, ("公共服务调整", "公共管理措施", "政策", "措施", "居民", "群众")) and not safe_political_context(text):

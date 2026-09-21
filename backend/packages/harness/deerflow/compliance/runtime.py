@@ -104,9 +104,14 @@ def failure_decision(gate: Gate, request_id: str, error: Exception) -> Complianc
 def user_notice(decision: ComplianceDecision) -> str:
     """Short, honest, user-facing summary of a compliance determination."""
     types = sorted({hit.violation_type for hit in decision.hits})
+    raw_types = sorted({hit.violation_type for hit in (decision.raw_hits or decision.hits)})
     parts = ["【合规提示】"]
     if types:
         parts.append(f"检测到合规风险类型：{', '.join(types)}。")
+    elif raw_types:
+        parts.append(
+            f"检测到敏感实体：{', '.join(raw_types)}；结合当前使用场景后放行。"
+        )
     parts.append(f"处置动作：{', '.join(decision.actions) or '无'}。")
     if decision.basis:
         parts.append(f"依据：{'；'.join(decision.basis)}。")
@@ -115,9 +120,18 @@ def user_notice(decision: ComplianceDecision) -> str:
     return " ".join(parts)
 
 
+def decision_types(decision: ComplianceDecision) -> dict[str, list[str]]:
+    """Return stable type lists for API, audit cards and stream metadata."""
+    return {
+        "raw_detection_types": sorted({hit.violation_type for hit in (decision.raw_hits or decision.hits)}),
+        "effective_violation_types": sorted({hit.violation_type for hit in decision.hits}),
+        "downgraded_detection_types": sorted({hit.violation_type for hit in decision.downgraded_hits}),
+    }
+
+
 def decision_check(decision: ComplianceDecision) -> dict[str, Any]:
     """Serialize one gate decision for the per-turn frontend summary."""
-    if not decision.hits:
+    if not decision.hits and not decision.raw_hits and not decision.downgraded_hits:
         status = "passed"
     elif decision.actions and set(decision.actions) <= {"allow"}:
         status = "allowed"
@@ -130,6 +144,7 @@ def decision_check(decision: ComplianceDecision) -> dict[str, Any]:
         "status": status,
         "actions": list(decision.actions) or ["allow"],
         "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+        **decision_types(decision),
         "basis": list(decision.basis),
         "audit_ref": decision.audit_ref,
     }
@@ -143,6 +158,7 @@ __all__ = [
     "get_compliance_config",
     "get_engine",
     "decision_check",
+    "decision_types",
     "compliance_context",
     "runtime_context",
     "user_context",

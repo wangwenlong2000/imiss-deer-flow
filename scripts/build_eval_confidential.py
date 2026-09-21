@@ -77,6 +77,47 @@ def score(rows: list[dict]) -> dict:
             "fn_ids": [r["sample_id"] for r in rows if r["expected"] and not r["predicted"]]}
 
 
+def error_details(predictions: list[dict], rows_by_id: dict[str, dict]) -> list[dict]:
+    """Make every FP/FN auditable without requiring a second manual join."""
+    details = []
+    for prediction in predictions:
+        if prediction["expected"] == prediction["predicted"]:
+            continue
+        row = rows_by_id[prediction["sample_id"]]
+        source = row.get("data_source") if isinstance(row.get("data_source"), dict) else {}
+        category = row.get("confidential_category")
+        if prediction["expected"] and not prediction["predicted"]:
+            reason = (
+                "FN: annotation marks confidential but the rule-only detector returned no hit; "
+                "the sample must remain a high-risk manual-review candidate until the missing "
+                "combination is implemented and re-evaluated."
+            )
+        else:
+            reason = (
+                "FP: a negative sample was classified as confidential by a combination rule; "
+                "the public/education context should suppress the rule or be routed to review "
+                "without asserting confidentiality."
+            )
+        details.append({
+            "sample_id": prediction["sample_id"],
+            "expected": prediction["expected"],
+            "predicted": prediction["predicted"],
+            "content_type": row.get("data_type"),
+            "regression_origin": row.get("regression_origin"),
+            "data_source_type": source.get("type"),
+            "gate": row.get("trigger_gate") or row.get("gate"),
+            "annotation_category": category,
+            "annotation_meta": row.get("annotation_meta"),
+            "matched_rules": prediction.get("matched_rules", []),
+            "suggested_action": prediction.get("suggested_action", []),
+            "reason": reason,
+            "manual_review_required": True,
+            "high_risk_miss_fixed": False if prediction["expected"] and not prediction["predicted"] else None,
+            "content_preview": str(row.get("content"))[:500],
+        })
+    return details
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--evaluate", choices=("dev", "test"), help="Only run the named frozen partition")
@@ -103,6 +144,7 @@ def main() -> None:
     ids = [r["sample_id"] for r in corpus]
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate sample_id")
+    rows_by_id = {row["sample_id"]: row for row in corpus}
     # Stratify by origin and label, then use a stable hash for membership.
     groups = defaultdict(list)
     for row in corpus:
@@ -120,8 +162,24 @@ def main() -> None:
         row["evaluation_split"] = "dev" if row["sample_id"] in dev_ids else "test"
     dataset = OUT / "confidential_type7_regression.jsonl"
     dataset.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in corpus), encoding="utf-8")
+    split_name = args.evaluate or "all"
+    split_dataset = OUT / f"confidential_type7_{split_name}_split.jsonl"
+    split_rows = [
+        row for row in corpus
+        if args.evaluate is None or row["evaluation_split"] == args.evaluate
+    ]
+    split_dataset.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in split_rows),
+        encoding="utf-8",
+    )
     if not args.evaluate:
-        print(json.dumps({"total": len(corpus), "dev": len(dev_ids), "test": len(corpus)-len(dev_ids)}))
+        print(json.dumps({
+            "total": len(corpus),
+            "dev": len(dev_ids),
+            "test": len(corpus)-len(dev_ids),
+            "dataset": str(dataset.relative_to(ROOT)),
+            "all_split": str(split_dataset.relative_to(ROOT)),
+        }))
         return
     detector = ConfidentialDetector(use_llm=False)
     predictions = []
@@ -133,26 +191,43 @@ def main() -> None:
                   "content_text": content_text, "features": features}
         result = detector.detect(sample)
         predictions.append({"sample_id": row["sample_id"], "origin": row["regression_origin"],
-                            "data_type": row["data_type"], "expected": bool(row["is_positive"]),
+                            "data_type": row["data_type"], "gate": row.get("trigger_gate") or row.get("gate"),
+                            "expected": bool(row["is_positive"]),
                             "predicted": result["is_hit"], "category": row.get("confidential_category"),
                             "matched_rules": result["matched_rules"], "suggested_action": result["suggested_action"]})
     pred_file = OUT / ("dev_predictions.jsonl" if args.evaluate == "dev" else "latest_predictions.jsonl")
     pred_file.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in predictions), encoding="utf-8")
     grouped = defaultdict(list)
+    by_data_type = defaultdict(list)
+    by_gate = defaultdict(list)
     for row in predictions:
         grouped[row["origin"]].append(row)
+        by_data_type[row["data_type"]].append(row)
+        gate = row.get("gate")
+        by_gate[gate if gate in {"InputGate", "ContextGate", "OutputGate"} else "unannotated"].append(row)
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     except (OSError, subprocess.CalledProcessError):
         commit = None
     metrics = {"dataset": str(dataset.relative_to(ROOT)), "dataset_sha256": digest(dataset),
+               "split_dataset": str(split_dataset.relative_to(ROOT)),
+               "split_dataset_rows": len(split_rows), "split_dataset_sha256": digest(split_dataset),
                "split": args.evaluate, "split_method": "SHA-256 sample_id seed confidential-type7-v1, stratified by source and label, 20/80",
                "sources": sources, "detector_rule_sha256": digest(RULE), "git_head": commit,
+               "dataset_version": "confidential-type7-v1",
+               "independent_frozen_set": False,
+               "fixed_regression_set": True,
+               "evaluation_command": f"PYTHONPATH=backend/packages/harness python scripts/build_eval_confidential.py --evaluate {args.evaluate}",
+               "detector_version": f"ConfidentialDetector rule-only ({digest(RULE)})",
+               "config_sha256": hashlib.sha256(json.dumps({"use_llm": False, "prompt_version": CONFIDENTIAL_PROMPT_VERSION, "temperature": CONFIDENTIAL_TEMPERATURE}, sort_keys=True).encode()).hexdigest(),
                "evaluation_mode": "rule_only; llm_disabled; 80% was explored before split request and is not blind acceptance" if args.evaluate == "test" else "rule_only; llm_disabled; 20% rule development",
                "llm_review": {"enabled": False, "model": None, "model_version": None,
                               "prompt_version": CONFIDENTIAL_PROMPT_VERSION,
                               "temperature": CONFIDENTIAL_TEMPERATURE},
-               "overall": score(predictions), "by_origin": {k: score(v) for k, v in grouped.items()}}
+               "overall": score(predictions), "by_origin": {k: score(v) for k, v in grouped.items()},
+               "by_data_type": {k: score(v) for k, v in sorted(by_data_type.items())},
+               "by_gate": {k: score(v) for k, v in sorted(by_gate.items())},
+               "error_details": error_details(predictions, rows_by_id)}
     metrics_file = OUT / ("dev_metrics.json" if args.evaluate == "dev" else "latest_metrics.json")
     metrics_file.write_text(json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"overall": metrics["overall"], "by_origin": metrics["by_origin"]}, ensure_ascii=False, indent=2))

@@ -1867,6 +1867,21 @@ async def _stream_deerflow_mobile_run(
             elif kind == "done":
                 if pending_clarification:
                     yield _sse_event("clarification", pending_clarification)
+                    # A clarification is a successful, terminal turn from the
+                    # transport's perspective.  It must still have the same
+                    # structured terminal event as normal completion; a bare
+                    # [DONE] leaves clients unable to distinguish completion
+                    # from a truncated stream.
+                    yield _sse_event(
+                        "done",
+                        {
+                            "code": 0,
+                            "message": "clarification_required",
+                            "conversation_id": req.conversation_id,
+                            "thread_id": current_thread_id,
+                            "status": "awaiting_clarification",
+                        },
+                    )
                     yield "data: [DONE]\n\n"
                     break
 

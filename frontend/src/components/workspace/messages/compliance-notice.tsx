@@ -138,8 +138,30 @@ export function ComplianceNotice({
                       <dd>
                         {check.violationTypes.length > 0
                           ? check.violationTypes.map(violationLabel).join("、")
+                          : check.rawViolationTypes.length > 0
+                            ? t.compliance.titlePassed
+                            : t.compliance.noRisk}
+                      </dd>
+                      <dt className="text-muted-foreground">
+                        {t.compliance.rawDetectionLabel}
+                      </dt>
+                      <dd>
+                        {check.rawViolationTypes.length > 0
+                          ? check.rawViolationTypes.map(violationLabel).join("、")
                           : t.compliance.noRisk}
                       </dd>
+                      {check.downgradedViolationTypes.length > 0 && (
+                        <>
+                          <dt className="text-muted-foreground">
+                            {t.compliance.downgradedDetectionLabel}
+                          </dt>
+                          <dd>
+                            {check.downgradedViolationTypes
+                              .map(violationLabel)
+                              .join("、")}
+                          </dd>
+                        </>
+                      )}
                       <dt className="text-muted-foreground">
                         {t.compliance.actionsLabel}
                       </dt>

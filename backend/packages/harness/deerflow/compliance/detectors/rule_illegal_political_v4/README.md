@@ -5,12 +5,12 @@ This in-process detector integrates the validated local V4 rules for:
 - `illegal_content` (type 4)
 - `political` (type 5)
 
-`legacy_core.py` is a byte-identical copy of
-`/home/guowei/wgjc-script/illegal_political_detector_V4.py` at integration time.
-Its SHA-256 is:
+`legacy_core.py` is the maintained V4 rule core. It includes the bounded
+lottery-prediction and OCR review-context fixes described below. Its current
+SHA-256 is:
 
 ```text
-8e894d050ea789e8a8d6e23ada181f8e93e1d3e3c5ec249907a25fa8331f62e2
+e21ef2164a60efb8d06f33aa3f2918bbb65d6e3c41ab811e07c84e4038f6e8c6
 ```
 
 The adapter only reads text already present in `DetectionUnit`. It does not

@@ -308,6 +308,8 @@ export const zhCN: Translations = {
     showDetails: "查看处置详情",
     hideDetails: "收起",
     violationTypesLabel: "风险类型",
+    rawDetectionLabel: "原始检测",
+    downgradedDetectionLabel: "降级命中",
     actionsLabel: "处置动作",
     basisLabel: "合规依据",
     auditRefLabel: "审计编号",

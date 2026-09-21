@@ -35,8 +35,14 @@ behave differently from tests which manually supplied `high_risk=true`.
 
 The Gateway/LangGraph transport itself preserves arbitrary state dictionaries;
 the missing data originated before serialization rather than being removed by
-SSE. Types 8/9/10 do not use this InputGate intent join because their current
-manifests operate at ContextGate and/or OutputGate.
+SSE. This intent join does not turn every detector into a query-only rule:
+type 8 and type 10 may run at InputGate when the normalized input satisfies
+their data-type and structured-combination boundaries, while type 9 remains
+OutputGate-only. In particular, type 8 InputGate applies to structured output
+from preprocessing an uploaded image/video (for example camera-point,
+device/address, OCR, or vision-label fields); a plain-language query without
+uploaded media does not qualify. ContextGate and OutputGate continue to use
+the shared detector/policy pipeline for their own input objects.
 
 ## Unified result
 

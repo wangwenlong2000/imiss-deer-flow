@@ -108,6 +108,7 @@ class IntentGuard:
         gate: Gate,
         intent: IntentInfo | None,
         user: UserContext | None = None,  # noqa: ARG002 - reserved for the auth module
+        scene_key: str = "_unknown",
     ) -> IntentVerdict:
         hits = tuple(hits)
         if gate != "InputGate" or not self._require_high_risk:
@@ -119,7 +120,10 @@ class IntentGuard:
         if intent is None:
             return IntentVerdict(hits=hits, warnings=("InputGate: no intent signal available; keyword/entity hits were not intent-filtered",) if hits else ())
 
-        if intent.high_risk:
+        # A verified public-release scene is itself a high-risk audience. The
+        # policy matrix must see sensitive findings even when the request text
+        # is phrased as analysis or report generation.
+        if scene_key == "public_release" or intent.high_risk:
             return IntentVerdict(hits=hits)
 
         legacy = classify_compliance_intent(intent.intent or "")

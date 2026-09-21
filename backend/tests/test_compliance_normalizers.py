@@ -19,7 +19,11 @@ from deerflow.compliance.normalizers.skill_result import (
     evidence_scores,
     try_parse_skill_result,
 )
-from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
+from deerflow.compliance.normalizers.user_input import (
+    MediaPreprocessedNormalizer,
+    UploadedFileNormalizer,
+    UserInputNormalizer,
+)
 
 
 def _skill_result(**overrides) -> dict:
@@ -209,6 +213,75 @@ def test_query_becomes_one_unit() -> None:
     assert units[0].text_items[0].source == "query"
 
 
+def test_json_query_preserves_text_and_emits_nested_field_items() -> None:
+    query = '{"msisdn": "13800138000", "location": {"lat": 31.230416, "lon": 121.473701}}'
+    unit = UserInputNormalizer().to_units(query, gate="InputGate")[0]
+
+    assert unit.text_items[0].text == query
+    assert {(item.path, item.value) for item in unit.field_items} == {
+        ("msisdn", "13800138000"),
+        ("location.lat", 31.230416),
+        ("location.lon", 121.473701),
+    }
+    assert unit.raw["normalization"] == {
+        "structured_format": "json",
+        "structured": True,
+        "field_count": 3,
+        "parse_error": None,
+    }
+
+
+def test_embedded_json_is_parsed_without_discarding_the_user_query() -> None:
+    unit = UserInputNormalizer().to_units(
+        '请分析以下记录：{"imei":"867530912345678"}',
+        gate="InputGate",
+    )[0]
+    assert unit.text_items[0].text.startswith("请分析")
+    assert [(item.path, item.value) for item in unit.field_items] == [("imei", "867530912345678")]
+
+
+def test_yaml_and_key_value_scalars_share_the_field_contract() -> None:
+    yaml_query = 'location:\n  lat: 31.230416\n  lon: 121.473701\nimei: "867530912345678"'
+    unit = UserInputNormalizer().to_units(yaml_query, gate="InputGate")[0]
+    assert {(item.path, item.value) for item in unit.field_items} == {
+        ("location.lat", 31.230416),
+        ("location.lon", 121.473701),
+        ("imei", "867530912345678"),
+    }
+    assert unit.raw["normalization"]["structured_format"] == "yaml_or_key_value"
+
+
+def test_quoted_yaml_keys_and_coordinate_arrays_become_field_items() -> None:
+    query = '"coordinates": [31.230416, 121.473701]\n"imei": "867530912345678"'
+    unit = UserInputNormalizer().to_units(query, gate="InputGate")[0]
+
+    assert {(item.path, item.value) for item in unit.field_items} == {
+        ("coordinates[0]", 31.230416),
+        ("coordinates[1]", 121.473701),
+        ("imei", "867530912345678"),
+    }
+
+
+def test_yaml_indentation_is_preserved_in_nested_field_paths() -> None:
+    unit = UserInputNormalizer().to_units(
+        "outer:\n    inner:\n      value: 7\nother: 8",
+        gate="InputGate",
+    )[0]
+
+    assert {(item.path, item.value) for item in unit.field_items} == {
+        ("outer.inner.value", 7),
+        ("other", 8),
+    }
+
+
+def test_malformed_structured_input_keeps_text_detection_available() -> None:
+    query = '{"imei": "867530912345678"'
+    unit = UserInputNormalizer().to_units(query, gate="InputGate")[0]
+    assert unit.text_items
+    assert unit.field_items == ()
+    assert unit.raw["normalization"]["parse_error"] is not None
+
+
 def test_blank_query_yields_no_units() -> None:
     assert UserInputNormalizer().to_units("  ", gate="InputGate") == ()
 
@@ -240,6 +313,47 @@ def test_large_upload_is_truncated_and_flagged(tmp_path) -> None:
     upload.write_text("x" * (MAX_UPLOAD_BYTES + 1000), encoding="utf-8")
     units = UploadedFileNormalizer().to_units([str(upload)], gate="InputGate")
     assert units[0].raw["truncated"] is True
+
+
+def test_media_preprocessed_result_is_an_input_gate_unit() -> None:
+    payload = {
+        "media_preprocessed": True,
+        "data_type": "video_monitoring",
+        "source_file": "camera-frame.jpg",
+        "ocr_text": "camera_id: HK-XC-0431",
+        "features": {
+            "camera_id": "HK-XC-0431",
+            "install_address": "徐汇区虹桥路 1234 号",
+        },
+    }
+
+    units = MediaPreprocessedNormalizer().to_units(payload, gate="InputGate", thread_id="t-1")
+
+    assert len(units) == 1
+    unit = units[0]
+    assert unit.data_type == "video_monitoring"
+    assert unit.raw == {
+        "kind": "media_preprocessed",
+        "media_preprocessed": True,
+        "source_file": "camera-frame.jpg",
+        "thread_id": "t-1",
+    }
+    assert {item.path for item in unit.field_items} == {"camera_id", "install_address"}
+    assert unit.text_items[0].source == "ocr_text"
+
+
+@pytest.mark.parametrize(
+    "payload, gate",
+    [
+        ({"data_type": "video_monitoring", "ocr_text": "camera_id: C-1"}, "InputGate"),
+        ({"media_preprocessed": True, "ocr_text": "camera_id: C-1"}, "InputGate"),
+        ({"media_preprocessed": True, "data_type": "video_monitoring", "ocr_text": "camera_id: C-1"}, "ContextGate"),
+        ({"media_preprocessed": True, "data_type": "video_monitoring"}, "InputGate"),
+    ],
+    ids=["missing_marker", "missing_data_type", "wrong_gate", "missing_content"],
+)
+def test_media_preprocessed_normalizer_rejects_unqualified_payloads(payload, gate) -> None:
+    assert MediaPreprocessedNormalizer().to_units(payload, gate=gate) == ()
 
 
 # ── base helpers ────────────────────────────────────────────────────────────

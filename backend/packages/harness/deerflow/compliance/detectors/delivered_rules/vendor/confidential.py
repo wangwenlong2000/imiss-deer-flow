@@ -313,10 +313,19 @@ class ConfidentialDetector(BaseDetector):
         # Metadata keys may carry the decisive meaning even when values are numeric.
         combined = "\n".join(f"{path}: {value}" for path, value in items)
         fields = self.build_field_view(sample)
+        data_type = str(sample.get("data_type") or "").casefold().replace("-", "_")
         publication = " ".join(str(value) for key, value in fields.items() if any(
             token in key.lower() for token in ("publish_status", "publication_status", "watermark_note")
         ))
-        public = bool(self.PUBLIC_RELEASE.search(publication))
+        public_remote_source = (
+            data_type in {"satellite_remote_sensing", "remote_sensing"}
+            and bool(re.search(
+                r"wikimedia|public (?:source|reference)|公开来源|公开数据集|open source",
+                combined,
+                flags=re.IGNORECASE,
+            ))
+        )
+        public = bool(self.PUBLIC_RELEASE.search(publication)) or public_remote_source
         marked_state = bool(self.STATE_MARKING.search(combined))
         marked_internal = bool(self.INTERNAL_MARKING.search(combined))
         detail = bool(self.SENSITIVE_DETAIL.search(combined))
@@ -329,12 +338,34 @@ class ConfidentialDetector(BaseDetector):
             token in key.lower() for token in ("classification_level", "security_level", "密级")
         ))
         restricted = bool(re.search(r"仅限|限授权|按需知悉|不得外发|不得复制|不得通过非涉密|严禁|未经授权|保密期限|涉密任务|密级|限制流转", combined))
+        # A structured security_level is already an explicit classification;
+        # requiring a second prose restriction made network-flow records with
+        # ``security_level: 机密`` disappear before the detector could act.
+        explicit_security_level = bool(re.search(
+            r"(?:security_level|classification_level|密级)[^\n]{0,32}(?:国家秘密|绝密|机密|秘密)",
+            combined,
+            flags=re.IGNORECASE,
+        ))
+        # The 7.23 yearbook supplement has a stable structured contract.  Its
+        # ``internal_document`` + ``sensitive_field`` + restriction combination
+        # is substantive confidential material even when the field value does
+        # not contain one of the older prose keywords (for example 灾备切换策略).
+        yearbook_internal = (
+            data_type == "statistical_yearbook"
+            and any("base_table" in key.lower() and "年鉴" in value for key, value in fields.items())
+            and any("internal_document" in key.lower() for key in fields)
+            and any("sensitive_field" in key.lower() or "sensitive_value" in key.lower() for key in fields)
+            and bool(self.INTERNAL_MARKING.search(combined))
+            and not public
+        )
         state_secret = bool(self.STATE_MARKING.search(classification_value)) or (marked_state and restricted)
         # Bare 机密/秘密 in a classification field establishes a marked file,
         # but does not by itself prove the legal category of state secret.
-        classification_unverified = classification_value.strip() in {"机密", "秘密", "绝密"} and restricted
+        classification_unverified = (
+            classification_value.strip() in {"机密", "秘密", "绝密"} and restricted
+        ) or explicit_security_level
         business_secret = bool(re.search(r"商业秘密|商业机密|核心商业秘密", combined)) and detail
-        ordinary_internal = marked_internal and detail
+        ordinary_internal = marked_internal and (detail or yearbook_internal)
         if not (state_secret or classification_unverified or business_secret or ordinary_internal):
             return None
         if public and not state_secret and not business_secret:
@@ -345,6 +376,11 @@ class ConfidentialDetector(BaseDetector):
         evidence = [self.make_location(path, category, value[:240], rule) for path, value in items
                     if self.STATE_MARKING.search(value) or self.INTERNAL_MARKING.search(value)
                     or self.SENSITIVE_DETAIL.search(path + ": " + value)
+                    or (yearbook_internal and re.search(
+                        r"base_table|internal_document|sensitive_field|sensitive_value|restriction",
+                        path,
+                        flags=re.IGNORECASE,
+                    ))
                     or re.search(r"access_scope|知悉范围|仅限|按需知悉|限授权", path + ": " + value)]
         # Without the owner's policy, ordinary internal material has no automatic
         # disclosure verdict. Keep detection visible and route only to a person.

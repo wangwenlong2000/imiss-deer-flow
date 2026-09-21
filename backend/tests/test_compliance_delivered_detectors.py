@@ -68,7 +68,7 @@ def test_strict_registry_discovers_and_enables_all_delivered_detectors() -> None
     }
     assert expected <= {registration.detector_id for registration in registry.enabled()}
     assert registry.get("entropy_hardcoded_cred").gates == {
-        "hardcoded_cred": ("InputGate",)
+        "hardcoded_cred": ("InputGate", "OutputGate")
     }
     for detector_id in ("ner_text_id", "llm_confidential"):
         registration = registry.get(detector_id)
@@ -121,6 +121,14 @@ def test_hardcoded_credential_ignores_environment_and_placeholder_values() -> No
         detector,
         _text_unit('api_key = "your_api_key"', gate="InputGate", data_type="code"),
     )
+    assert not _detect(
+        detector,
+        _text_unit(
+            "mysql://user:password@localhost:3306/demo",
+            gate="InputGate",
+            data_type="network_flow",
+        ),
+    )
 
 
 def test_text_id_relationship_positive_and_anonymized_negative() -> None:
@@ -136,6 +144,18 @@ def test_text_id_relationship_positive_and_anonymized_negative() -> None:
 
     negative = "演示样例已将姓名替换为张某，单位替换为某街道，不对应真实人员。"
     assert not _detect(detector, _text_unit(negative, data_type="policy"))
+
+
+def test_text_id_does_not_treat_unlabelled_public_signage_as_a_person() -> None:
+    detector = NerTextIdDetector()
+    text = '街景中可见某商业街有"消费者投诉热线12315 保护您的合法权益"的市场监督管理局公告牌'
+    assert not _detect(detector, _text_unit(text, data_type="street_view"))
+
+
+def test_text_id_does_not_treat_masked_property_service_phone_as_personal_id() -> None:
+    detector = NerTextIdDetector()
+    text = '街景中可见某住宅楼外墙有"XX物业 服务电话010-XXXX-5566"的物业公告'
+    assert not _detect(detector, _text_unit(text, data_type="street_view"))
 
 
 def test_confidential_structured_combination_keeps_field_paths() -> None:
@@ -188,7 +208,62 @@ def test_confidential_public_summary_is_a_near_negative() -> None:
     )
 
 
-def test_inprocess_delivery_uses_current_conversation_model(monkeypatch) -> None:
+def test_confidential_yearbook_contract_detects_internal_supplement() -> None:
+    unit = DetectionUnit(
+        unit_id="yearbook-internal-supplement",
+        gate="ContextGate",
+        data_type="statistical_yearbook",
+        field_items=tuple(
+            FieldItem(item_id=f"f-{index}", path=path, value=value, source="eval")
+            for index, (path, value) in enumerate(
+                (
+                    ("content.base_table", "统计年鉴内部工作底稿"),
+                    ("content.internal_document", "灾备演练方案"),
+                    ("content.sensitive_field", "灾备切换策略"),
+                    ("content.sensitive_value", "核心汇编库切换顺序为采集层、校验层、发布层"),
+                    ("content.restriction", "内部资料，未经授权不得跨组织发送或公开发布。"),
+                ),
+                start=1,
+            )
+        ),
+    )
+    hits = _detect(LlmConfidentialDetector(), unit)
+    assert len(hits) == 1
+    assert hits[0].violation_type == "confidential"
+
+
+def test_confidential_network_security_level_is_explicit() -> None:
+    unit = DetectionUnit(
+        unit_id="network-secret-level",
+        gate="InputGate",
+        data_type="network_flow",
+        field_items=(
+            FieldItem(item_id="f-1", path="application_data.security_level", value="机密", source="eval"),
+            FieldItem(item_id="f-2", path="application_data.value", value="customer_pricing_strategy_internal", source="eval"),
+        ),
+    )
+    hits = _detect(LlmConfidentialDetector(), unit)
+    assert len(hits) == 1
+    assert hits[0].violation_type == "confidential"
+
+
+def test_confidential_public_remote_sensing_reference_is_not_a_secret() -> None:
+    unit = DetectionUnit(
+        unit_id="public-remote-reference",
+        gate="InputGate",
+        data_type="satellite_remote_sensing",
+        field_items=(
+            FieldItem(item_id="f-1", path="content.source_file", value="public_wikimedia/airbase.tiff", source="eval"),
+            FieldItem(item_id="f-2", path="content.captions[0]", value="Public source record title: satellite image of an airbase.", source="eval"),
+            FieldItem(item_id="f-3", path="content.captions[1]", value="This is a classified military base.", source="eval"),
+            FieldItem(item_id="f-4", path="content.image_url", value="https://commons.wikimedia.org/wiki/File:airbase.tiff", source="eval"),
+            FieldItem(item_id="f-5", path="content.facility_type", value="military_base", source="eval"),
+        ),
+    )
+    assert not _detect(LlmConfidentialDetector(), unit)
+
+
+def test_inprocess_delivery_uses_current_conversation_model_at_output_gate(monkeypatch) -> None:
     created_with: list[tuple[str | None, float]] = []
 
     class FakeModel:
@@ -229,8 +304,8 @@ def test_inprocess_delivery_uses_current_conversation_model(monkeypatch) -> None
     )
     text = "记录显示，林知远在公开会议发言。"
     hits = detector.detect(
-        _text_unit(text, data_type="policy"),
-        DetectContext(gate="ContextGate", model_name="conversation-model"),
+        _text_unit(text, gate="OutputGate", data_type="policy"),
+        DetectContext(gate="OutputGate", model_name="conversation-model"),
     )
 
     assert created_with == [("conversation-model", 7.0)]
@@ -254,11 +329,40 @@ def test_inprocess_delivery_without_conversation_model_skips_llm(monkeypatch) ->
 
     hits = detector.detect(
         _text_unit("记录显示，林知远在公开会议发言。", data_type="policy"),
-        DetectContext(gate="ContextGate"),
+        DetectContext(gate="OutputGate"),
     )
 
     assert created_with == []
     assert hits == ()
+
+
+def test_context_gate_never_calls_configured_llm(monkeypatch) -> None:
+    created_with: list[str] = []
+
+    monkeypatch.setattr(
+        configured_llm,
+        "_create_configured_model",
+        lambda model_name, _timeout_seconds: created_with.append(model_name),
+    )
+    detector = NerTextIdDetector()
+    detector.setup({"use_llm": True})
+
+    hits = detector.detect(
+        _text_unit("记录显示，林知远在公开会议发言。", data_type="policy"),
+        DetectContext(gate="ContextGate", model_name="conversation-model"),
+    )
+
+    assert created_with == []
+    assert hits == ()
+
+
+def test_hardcoded_credential_is_available_as_output_backstop() -> None:
+    hits = _detect(
+        EntropyHardcodedCredDetector(),
+        _text_unit('client_secret = "generated-secret-A7z9K2"', gate="OutputGate", data_type="code"),
+    )
+    assert len(hits) == 1
+    assert hits[0].violation_type == "hardcoded_cred"
 
 
 def test_configured_llm_caches_models_by_conversation_model(monkeypatch) -> None:

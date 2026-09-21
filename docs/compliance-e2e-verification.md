@@ -137,9 +137,12 @@ curl -s -X POST "localhost:3538/api/langgraph/threads/$TID/runs/wait" \
 
 ### 4.1 一期的**主导**场景是"保留回答 + 追加提示"，不是"替换正文"
 
-一期 `SceneResolver` 恒返回 `None`，矩阵走 `_unknown` 兜底列，
+本次验证未注入可信的权限/公开范围上下文，使用默认回退 resolver，矩阵走 `_unknown` 兜底列；
 而模型检测器覆盖的三类在该列都是 `[warn, manual_review]` ——
 `apply_actions` 返回 `None`，走 `_notice_only()`。
+
+这是一条本次验证环境的运行记录，不是场景协议的永久限制。引擎支持通过
+`manual_ui` 或 `trusted_upstream` 提供可信场景；未提供这类信息时才使用 `_unknown`。
 
 ```
 命中          re_identify，severity=high，最近邻相似度 0.6112

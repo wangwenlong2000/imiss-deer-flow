@@ -187,6 +187,43 @@ class SkillResultNormalizer(Normalizer):
             value = payload.get(key)
             if isinstance(value, str) and value.strip():
                 return value.strip()
+
+        # Skill results often omit the top-level type, while their evidence
+        # schema still identifies the source through stable field names. Keep
+        # this inference deliberately narrow: it is routing metadata, not a
+        # violation decision.
+        result = payload.get("result")
+        evidence_list = result.get("evidence") if isinstance(result, Mapping) else None
+        if not isinstance(evidence_list, list):
+            return None
+        paths: set[str] = set()
+        values: list[str] = []
+        for evidence in evidence_list:
+            if not isinstance(evidence, Mapping):
+                continue
+            for key in ("data", "metadata"):
+                value = evidence.get(key)
+                if isinstance(value, str) and value.strip():
+                    values.append(value.casefold())
+                    continue
+                if not isinstance(value, (Mapping, list, tuple)):
+                    continue
+                for item in flatten_fields(value, prefix="", source="inference", max_depth=6):
+                    paths.add(item.path.casefold())
+                    values.append(str(item.value).casefold())
+        path_blob = " ".join(paths)
+        value_blob = " ".join(values)
+        combined = f"{path_blob} {value_blob}"
+        if any(marker in combined for marker in ("camera_id", "rtsp_url", "gb28181", "video_path", "frame_path")):
+            return "video_monitoring"
+        if any(marker in combined for marker in ("checkpoint_id", "deploy_type", "patrol_route", "flow_id", "http.body")):
+            return "network_flow"
+        if any(marker in combined for marker in ("object_ref", "user_id", "sub_label", "source_table")):
+            return "phone_network"
+        if any(marker in combined for marker in ("age_band", "occupation", "rare_condition", "cell_count")):
+            return "statistical_yearbook"
+        if any(marker in combined for marker in ("governance_document", "policy_regulation", "patrol_schedule")):
+            return "policy_regulation"
         return None
 
 

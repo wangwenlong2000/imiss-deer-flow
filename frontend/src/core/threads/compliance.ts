@@ -29,6 +29,9 @@ export type ComplianceRetractEvent = {
   scene?: string;
   streaming_mode?: string;
   violation_types: string[];
+  raw_detection_types?: string[];
+  effective_violation_types?: string[];
+  downgraded_detection_types?: string[];
   action: string[];
   replacement: string;
   notice?: string;
@@ -41,6 +44,9 @@ export type ComplianceRetraction = {
   scene?: string;
   streamingMode?: string;
   violationTypes: string[];
+  rawDetectionTypes: string[];
+  effectiveViolationTypes: string[];
+  downgradedDetectionTypes: string[];
   actions: string[];
   replacement: string;
   notice?: string;
@@ -128,6 +134,8 @@ export type ComplianceCheck = {
   scene: string | null;
   status: ComplianceCheckStatus;
   violationTypes: string[];
+  rawViolationTypes: string[];
+  downgradedViolationTypes: string[];
   actions: string[];
   basis: string[];
   auditRef: string | null;
@@ -137,6 +145,8 @@ export type ComplianceDisposition = {
   gate: string | null;
   scene: string | null;
   violationTypes: string[];
+  rawViolationTypes: string[];
+  downgradedViolationTypes: string[];
   actions: string[];
   basis: string[];
   auditRef: string | null;
@@ -167,7 +177,13 @@ function checkOf(value: unknown): ComplianceCheck | null {
     gate: typeof raw.gate === "string" ? raw.gate : null,
     scene: typeof raw.scene === "string" ? raw.scene : null,
     status,
-    violationTypes: strings(raw.violation_types),
+    violationTypes: strings(raw.effective_violation_types).length > 0
+      ? strings(raw.effective_violation_types)
+      : strings(raw.violation_types),
+    rawViolationTypes: strings(raw.raw_detection_types).length > 0
+      ? strings(raw.raw_detection_types)
+      : strings(raw.violation_types),
+    downgradedViolationTypes: strings(raw.downgraded_detection_types),
     actions: strings(raw.actions),
     basis: strings(raw.basis),
     auditRef: typeof raw.audit_ref === "string" ? raw.audit_ref : null,
@@ -205,6 +221,9 @@ export function complianceDispositionOf(
         scene: meta.scene,
         status: "handled",
         violation_types: meta.violation_types,
+        raw_detection_types: meta.raw_detection_types,
+        effective_violation_types: meta.effective_violation_types,
+        downgraded_detection_types: meta.downgraded_detection_types,
         actions: meta.actions,
         basis: meta.basis,
         audit_ref: meta.audit_ref,
@@ -218,11 +237,19 @@ export function complianceDispositionOf(
   const violationTypes = Array.from(
     new Set(checks.flatMap((check) => check.violationTypes)),
   );
+  const rawViolationTypes = Array.from(
+    new Set(checks.flatMap((check) => check.rawViolationTypes)),
+  );
+  const downgradedViolationTypes = Array.from(
+    new Set(checks.flatMap((check) => check.downgradedViolationTypes)),
+  );
   const basis = Array.from(new Set(checks.flatMap((check) => check.basis)));
   return {
     gate: typeof meta.gate === "string" ? meta.gate : null,
     scene: typeof meta.scene === "string" ? meta.scene : null,
     violationTypes,
+    rawViolationTypes,
+    downgradedViolationTypes,
     actions,
     basis,
     auditRef: typeof meta.audit_ref === "string" ? meta.audit_ref : null,
@@ -253,6 +280,8 @@ export function complianceDispositionFromCheck(
     gate: check.gate,
     scene: check.scene,
     violationTypes: [...check.violationTypes],
+    rawViolationTypes: [...check.rawViolationTypes],
+    downgradedViolationTypes: [...check.downgradedViolationTypes],
     actions: [...check.actions],
     basis: [...check.basis],
     auditRef: check.auditRef,
@@ -307,6 +336,15 @@ export function recordComplianceRetraction(event: ComplianceRetractEvent) {
     streamingMode: event.streaming_mode,
     violationTypes: Array.isArray(event.violation_types)
       ? event.violation_types
+      : [],
+    rawDetectionTypes: Array.isArray(event.raw_detection_types)
+      ? event.raw_detection_types
+      : [],
+    effectiveViolationTypes: Array.isArray(event.effective_violation_types)
+      ? event.effective_violation_types
+      : [],
+    downgradedDetectionTypes: Array.isArray(event.downgraded_detection_types)
+      ? event.downgraded_detection_types
       : [],
     actions: Array.isArray(event.action) ? event.action : [],
     replacement: event.replacement,
@@ -367,6 +405,15 @@ function stamp(message: Message, retraction: ComplianceRetraction): Message {
         violation_types: retraction.violationTypes.length
           ? retraction.violationTypes
           : (previous.violation_types ?? []),
+        raw_detection_types: retraction.rawDetectionTypes.length
+          ? retraction.rawDetectionTypes
+          : (previous.raw_detection_types ?? []),
+        effective_violation_types: retraction.effectiveViolationTypes.length
+          ? retraction.effectiveViolationTypes
+          : (previous.effective_violation_types ?? []),
+        downgraded_detection_types: retraction.downgradedDetectionTypes.length
+          ? retraction.downgradedDetectionTypes
+          : (previous.downgraded_detection_types ?? []),
         actions: retraction.actions.length
           ? retraction.actions
           : (previous.actions ?? []),

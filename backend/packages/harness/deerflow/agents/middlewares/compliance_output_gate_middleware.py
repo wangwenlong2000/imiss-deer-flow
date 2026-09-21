@@ -88,6 +88,7 @@ from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extr
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
+    decision_types,
     decision_check,
     failure_decision,
     gate_config,
@@ -418,6 +419,7 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
             "transient_exposure_possible": True,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            **decision_types(decision),
             "audit_ref": decision.audit_ref,
             # `basis` and `notice` also ride the transient retract event, but that
             # event is gone after a page reload. Guide requirement 5 ("on the basis
@@ -457,6 +459,7 @@ def build_retract_event(message: AIMessage, replacement: str, decision: Complian
         "streaming_mode": "compatible_retract",
         "violation_types": sorted({hit.violation_type for hit in decision.hits}),
         "action": list(decision.actions),
+        **decision_types(decision),
         "replacement": replacement,
         "notice": user_notice(decision),
         "audit_ref": decision.audit_ref,

@@ -50,6 +50,7 @@ from deerflow.compliance.normalizers.skill_result import (
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     compliance_context,
+    decision_types,
     failure_decision,
     gate_config,
     gate_enabled,
@@ -281,6 +282,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             "scene": decision.scene_key,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            **decision_types(decision),
             "audit_ref": decision.audit_ref,
             "units_checked": decision.diagnostics.units_checked,
             "units_total": decision.diagnostics.units_total,

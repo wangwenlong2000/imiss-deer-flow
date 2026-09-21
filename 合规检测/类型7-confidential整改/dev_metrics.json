@@ -1,6 +1,6 @@
 {
-  "dataset": "合规检测\\类型7-confidential整改\\confidential_type7_regression.jsonl",
-  "dataset_sha256": "f3ac3bb0f0f366e9f83984085e9bf4681538e3d93e6a654a330fe693d38327f4",
+  "dataset": "合规检测/类型7-confidential整改/confidential_type7_regression.jsonl",
+  "dataset_sha256": "e3164a255be40f330046fcb70b29101678f0fa7f1fdcaf8097cceecce9793ae4",
   "split": "dev",
   "split_method": "SHA-256 sample_id seed confidential-type7-v1, stratified by source and label, 20/80",
   "sources": {
@@ -20,15 +20,21 @@
       "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb"
     }
   },
-  "detector_rule_sha256": "6a65e236bec90859b67978517ab5f016ec2d438434a350d6e92aa79f6fe3fb99",
-  "git_head": "f74d589b02bc79b70cdca1f56515cf73813d308d",
+  "detector_rule_sha256": "04ca26975476dc902235792b242582296e7832c4ae542e802c37bd92ec0d2c04",
+  "git_head": "f70fa31467f74c266bf509397e2b9ef7f60fa738",
+  "dataset_version": "confidential-type7-v1",
+  "independent_frozen_set": false,
+  "fixed_regression_set": true,
+  "evaluation_command": "PYTHONPATH=backend/packages/harness python scripts/build_eval_confidential.py --evaluate dev",
+  "detector_version": "ConfidentialDetector rule-only (04ca26975476dc902235792b242582296e7832c4ae542e802c37bd92ec0d2c04)",
+  "config_sha256": "cc85a75ee06e4735fa5d9372ed25c125772480e8ad43954ecf7ddc08d5894fbf",
   "evaluation_mode": "rule_only; llm_disabled; 20% rule development",
   "llm_review": {
     "enabled": false,
     "model": null,
     "model_version": null,
-    "prompt_version": null,
-    "temperature": null
+    "prompt_version": "confidential-boundary-v2-20260917",
+    "temperature": 0
   },
   "overall": {
     "total": 44,
@@ -91,5 +97,106 @@
       "fp_ids": [],
       "fn_ids": []
     }
-  }
+  },
+  "by_data_type": {
+    "network_flow": {
+      "total": 13,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 7,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "policy_regulation": {
+      "total": 2,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "satellite_remote_sensing": {
+      "total": 4,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "statistical_yearbook": {
+      "total": 25,
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "tn": 12,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    }
+  },
+  "by_gate": {
+    "ContextGate": {
+      "total": 18,
+      "tp": 11,
+      "fp": 0,
+      "fn": 0,
+      "tn": 7,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "InputGate": {
+      "total": 11,
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "tn": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "OutputGate": {
+      "total": 10,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "unannotated": {
+      "total": 5,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fp_ids": [],
+      "fn_ids": []
+    }
+  },
+  "error_details": []
 }

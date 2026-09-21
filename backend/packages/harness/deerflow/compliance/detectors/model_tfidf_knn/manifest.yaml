@@ -14,9 +14,9 @@ entry: deerflow.compliance.detectors.model_tfidf_knn.detector:ModelTfidfKnnDetec
 violation_types: [video_meta_leak, re_identify, domain]
 
 gates:
-  video_meta_leak: [ContextGate, OutputGate]
+  video_meta_leak: [InputGate, ContextGate, OutputGate]
   re_identify: [OutputGate] # 指南硬约束：第 9 类只在输出闸检测
-  domain: [ContextGate, OutputGate]
+  domain: [InputGate, ContextGate, OutputGate]
 
 data_types: null # null = 不限数据类型
 cost_hint: light # 纯 Python 标准库，单条约 13ms，可以挂 ContextGate
@@ -37,6 +37,10 @@ default_params:
 
   # 低于此置信度的非 none 预测直接归为 none
   min_confidence: 0.35
+
+  # 第 8 类覆盖视频监控、surveillance、街景和当前标注口径中的遥感元数据。
+  # 遥感命中必须同时满足敏感设施、精确坐标和来源元数据组合，不能只靠模型相似度。
+  video_meta_leak_data_types: [video_monitoring, surveillance, street_view, satellite_remote_sensing]
 
   # 最近邻相似度低于此值时降级为 low 严重度（只进人工复核，不拒答/改写）。
   # 交付包 README 明写 k=1 对否定语境敏感；0624 唯一误判就是一条否定表达，

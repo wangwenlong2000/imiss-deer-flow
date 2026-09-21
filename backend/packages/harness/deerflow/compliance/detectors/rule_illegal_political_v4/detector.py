@@ -14,8 +14,8 @@ from deerflow.compliance.contract import (
 
 from . import legacy_core
 
-DETECTOR_VERSION = "4.0"
-SOURCE_SHA256 = "8e894d050ea789e8a8d6e23ada181f8e93e1d3e3c5ec249907a25fa8331f62e2"
+DETECTOR_VERSION = "4.1"
+SOURCE_SHA256 = "e21ef2164a60efb8d06f33aa3f2918bbb65d6e3c41ab811e07c84e4038f6e8c6"
 SURVEILLANCE_EXPORT_RULES = {
     "IL_V4_BROAD_SURVEILLANCE_EXPORT",
     "IL_V4_SURVEILLANCE_TRACKING_EXPORT",
@@ -23,6 +23,11 @@ SURVEILLANCE_EXPORT_RULES = {
     "IL_SURVEILLANCE_ASSET_EXPORT",
 }
 SURVEILLANCE_DATA_TYPES = {"surveillance", "video_monitoring"}
+MATCH_EVIDENCE_TERMS = (
+    "号召", "呼吁", "鼓励", "联合", "统一", "转发", "聚集", "集合", "抗议", "施压",
+    "抵制", "横幅", "公共服务", "公共管理", "政府", "政策", "群众", "居民", "公众",
+    "未经核实", "编造", "捏造", "虚构", "反诈", "网络安全", "应急联动", "风险核查",
+)
 NON_IDENTIFIABLE_CONTEXT = (
     "无法稳定识别",
     "无法识别",
@@ -30,6 +35,10 @@ NON_IDENTIFIABLE_CONTEXT = (
     "未能识别",
     "无法确认",
     "未做人脸/车牌人工确认",
+    "不包含可识别人员",
+    "不包含可识别人员、车辆、路线或精确点位",
+    "未输出姓名、车牌或精确路线",
+    "未输出姓名、车牌、精确路线",
 )
 SAFE_REPORT_TOPICS = (
     "内容风险",
@@ -162,6 +171,7 @@ class IllegalPoliticalV4Detector:
     def _scope_surveillance_hits(
         hits: list[legacy_core.RuleHit],
         data_type: str | None,
+        fields: list[legacy_core.TextField],
     ) -> list[legacy_core.RuleHit]:
         """Keep V4's surveillance-export rules inside their trained domain.
 
@@ -171,7 +181,19 @@ class IllegalPoliticalV4Detector:
         the baseline illegal-content category merely because it says "export".
         """
         if data_type in SURVEILLANCE_DATA_TYPES:
-            return hits
+            # Structured video metadata often contains words such as 卡口、
+            # 抓拍 and 导出批次 as field values.  Those describe the asset and
+            # belong to video_meta_leak; they are not, by themselves, a user
+            # request to extract identifiable surveillance data.  Keep the V4
+            # rule for query/output text, where the action is explicit.
+            query_or_output_paths = tuple(
+                field.path.casefold()
+                for field in fields
+                if any(token in field.path.casefold() for token in ("user_query", "query", "prompt", "output", "answer", "response"))
+            )
+            if query_or_output_paths:
+                return hits
+            return [hit for hit in hits if hit.rule_id not in SURVEILLANCE_EXPORT_RULES]
         return [hit for hit in hits if hit.rule_id not in SURVEILLANCE_EXPORT_RULES]
 
     @staticmethod
@@ -221,7 +243,7 @@ class IllegalPoliticalV4Detector:
                 return ()
             _, raw_hits = legacy_core.detect_sample(self._sample(unit, fields))
             raw_hits = self._suppress_negated_surveillance_hits(raw_hits, fields)
-            raw_hits = self._scope_surveillance_hits(raw_hits, unit.data_type)
+            raw_hits = self._scope_surveillance_hits(raw_hits, unit.data_type, fields)
             raw_hits = self._suppress_safe_governance_report_hits(raw_hits, fields, ctx.gate)
         except (AttributeError, TypeError, ValueError):
             # Malformed runtime payloads are ordinary detector negatives. Engine
@@ -242,6 +264,8 @@ class IllegalPoliticalV4Detector:
             return ()
 
         primary = label_hits[0]
+        primary_text = next((field.text for field in fields if field.path == primary.field_path), "")
+        matched_terms = [term for term in MATCH_EVIDENCE_TERMS if term in primary_text][:12]
         locations: list[RiskLocation] = []
         seen_paths: set[str] = set()
         for hit in label_hits:
@@ -280,6 +304,7 @@ class IllegalPoliticalV4Detector:
                     "primary_rule_id": primary.rule_id,
                     "rule_ids": list(dict.fromkeys(hit.rule_id for hit in label_hits))[: self._max_rule_ids],
                     "matched_field_paths": sorted(seen_paths),
+                    "matched_terms": matched_terms,
                     "max_score": primary.score,
                 },
                 basis=(),

@@ -268,6 +268,8 @@ export interface Translations {
     showDetails: string;
     hideDetails: string;
     violationTypesLabel: string;
+    rawDetectionLabel: string;
+    downgradedDetectionLabel: string;
     actionsLabel: string;
     basisLabel: string;
     auditRefLabel: string;

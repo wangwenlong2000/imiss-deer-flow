@@ -9,6 +9,7 @@ violation_types:
 gates:
   hardcoded_cred:
     - InputGate
+    - OutputGate
 
 data_types: null
 cost_hint: light

@@ -8,7 +8,7 @@
 > 1. 检测器彻底解耦：契约独立成 `contract.py`，检测器自带 manifest 独立成包，支持进程内/子进程/HTTP 三种接入方式（§4）
 > 2. 废弃 T1–T6 原子检测器分类，不再出现在任何接口、配置和文档中
 > 3. OutputGate 改为**流式 + 命中即撤回**，不做缓冲（§6.3）
-> 4. 场景（scene）一期留空，矩阵走 `_unknown` 兜底列，预留 `SceneResolver` 接口（§7.2）
+> 4. 场景按使用权限和公开程度建模，预留 `SceneResolver` 接口；未取得可信场景时才走 `_unknown` 兜底列（§7.2）
 > 5. **`content_text` 拼接规则已反推完成并全量验证通过**（§5.1）
 
 ---
@@ -37,16 +37,16 @@
 
 - **维度 1**：10 类违规类型（`struct_id` / `geo_loc` / `hardcoded_cred` / `illegal_content` / `political` / `text_id` / `confidential` / `video_meta_leak` / `re_identify` / `domain`）
 - **维度 2**：3 道闸 —— `InputGate`（query/上传数据进系统时）、`ContextGate`（检索完成后、进 LLM 上下文前）、`OutputGate`（LLM 生成后、推给用户前）
-- **维度 3**：5 类场景 —— `self_use` / `internal_org` / `cross_org` / `public_release` / `research_anon`
+- **维度 3**：5 类场景 —— `self_use` / `internal_org` / `cross_org` / `public_release` / `research_anon`。它们表示使用权限和公开程度，不是业务领域；越接近 `public_release`，合规要求越严格。
 
 ### 1.2 架构要求（来自指南，必须遵守）
 
-1. **不为每道闸单独造检测系统**，三道闸共用一套引擎、一套检测器集合、一套处置矩阵。
+1. **不为每道闸单独造检测系统**，三道闸共用同一套检测引擎、违规类型、规则/检测器集合和处置矩阵；区别只在检测对象、时机、性能约束和处置策略：InputGate 检查用户 query 与上传数据进入系统前，ContextGate 检查检索/SkillResult 进入 LLM 上下文前，OutputGate 检查模型最终回答输出前。
 2. **识别与处置必须解耦**：检测器只输出"命中了什么"，处置由 `违规 × 场景` 二维矩阵决定。
 3. **ContextGate 是性能敏感点**：一期只做规则/词典/标签/轻量模型，**不调重型 LLM**。
 4. **关键词命中 ≠ 违规**：InputGate 必须"敏感实体 + 高风险意图 + 场景"三者同时成立才判违规。
 5. **合规依据必须留痕**：每次判定要能回答"依据哪条规则/法律/制度"。
-6. 第 3 类只在 InputGate 检测；第 9 类只在 OutputGate 检测。
+6. 第 3 类以 InputGate 为主检测节点，并由 OutputGate 对模型或 Skill 生成内容做兜底检测；ContextGate 一期不重复检测第 3 类。manifest 和运行时路由必须同时声明/支持 InputGate、OutputGate。第 9 类只在 OutputGate 检测。
 
 > 指南里的 T1–T6"原子检测工具"分类**本计划不采用**。检测器只按 `违规类型 × 闸门 × 数据类型 × 开销等级` 描述自己，实现技术是检测器内部私事，引擎不需要知道，也不应该知道——这本身就是解耦要求的一部分。
 
@@ -106,7 +106,7 @@ backend/packages/harness/deerflow/compliance/
 ├── registry.py                  # 检测器注册表（唯一做反射装载的地方）
 ├── router.py                    # 候选检测器动态路由
 ├── policy.py                    # 违规 × 场景 处置矩阵（读 YAML）
-├── scene.py                     # SceneResolver 接口（一期返回 None）
+├── scene.py                     # SceneResolver 接口（缺少可信信息时回退 None）
 ├── intent.py                    # 意图与权限校验
 ├── audit.py                     # 判定留痕（JSONL）
 ├── actions.py                   # 处置动作执行器（脱敏/模糊化/聚合/改写/拒答…）
@@ -203,7 +203,7 @@ class DetectionUnit:
 @dataclass(frozen=True)
 class DetectContext:
     gate: Gate
-    scenes: tuple[Scene, ...]       # 一期恒为空 tuple，见 §7.2
+    scenes: tuple[Scene, ...]       # 由引擎/SceneResolver 注入；检测器不得依赖其具体值
     user: UserContext | None
     intent: IntentInfo | None
     budget_ms: int
@@ -250,9 +250,9 @@ entry: deerflow.compliance.detectors.model_tfidf_knn.detector:ModelTfidfKnnDetec
 
 violation_types: [video_meta_leak, re_identify, domain]
 gates:
-  video_meta_leak: [ContextGate, OutputGate]
+  video_meta_leak: [InputGate, ContextGate, OutputGate]
   re_identify:     [OutputGate]          # 指南硬约束：只在输出闸
-  domain:          [ContextGate, OutputGate]
+  domain:          [InputGate, ContextGate, OutputGate]
 data_types: null                          # null = 不限
 cost_hint: light                          # light | medium | heavy
 
@@ -450,7 +450,7 @@ class ModelTfidfKnnDetector:
 
 顺序要求：必须排在 [IntentRecognitionMiddleware](backend/packages/harness/deerflow/agents/middlewares/intent_recognition_middleware.py) **之后**，才能拿到意图识别结果做"敏感实体 + 高风险意图"联合判定（指南 §9.7：不能因为 query 里出现手机号就判违规）。插入位置在 [agent.py:242](backend/packages/harness/deerflow/agents/lead_agent/agent.py#L242) 之后。
 
-> 我的三个模型检测器**不挂 InputGate**。所以 InputGate 一期只建骨架、跑通链路、留好挂载位，检测器由第 1–7 类负责人填。
+> 当前实现已将 `video_meta_leak` 和 `domain` 纳入 InputGate；`re_identify` 仍严格保持 OutputGate-only。第 8 类在 InputGate 仅适用于图片/视频经文件预处理后生成的监控点位、设备、接入/播放地址、OCR 文本或视觉标签等结构化结果；纯自然语言 query 且未上传媒体时不适用。类型 8 的遥感来源只在完成敏感设施、精确坐标和来源/资产字段等组合校验后命中，不能仅凭“遥感”或普通视频元数据判定。
 
 ### 6.2 ContextGate ★ 我负责的主战场
 
@@ -572,7 +572,7 @@ compliance:
   policy_matrix_path:    "config/compliance/policy_matrix.yaml"
 
   scene:
-    resolver: null            # 一期留空，见 §7.2
+    resolver: null            # 无可信权限信息时回退，见 §7.2
     fallback_key: _unknown
 
   audit:
@@ -583,18 +583,24 @@ compliance:
 
 对应 `backend/packages/harness/deerflow/config/compliance_config.py`（Pydantic，`get_compliance_config()` 单例，与 `get_skill_router_config()` 同构）。
 
-### 7.2 场景（scene）一期留空（本次修改）
+### 7.2 场景（scene）与使用权限
 
-系统目前没有"使用权限和公开程度"的信息源，五类场景无从判定。一期处理：
+五类场景是使用权限和公开程度分类，不是业务领域分类：`self_use` 相对宽松，
+但不代表任何内容都能放行；越接近 `public_release`，合规要求越严格。场景由引擎
+通过 `SceneResolver` 统一解析，检测器不得自行根据 `ctx.scenes` 决定处置。
 
-1. `DetectContext.scenes` 恒为**空 tuple**，检测器不得依赖它。
-2. `scene.py` 定义接口，一期实现返回 `None`：
+当前默认部署可能尚未接入完整的权限/公开范围信息，因此部分请求会落到 `_unknown`；
+这不是把 `DetectContext.scenes` 永久定义为空，也不是检测器的判断依据。已有的
+`manual_ui`、`trusted_upstream` 来源和 `SceneResolver` 接口可用于逐步补充可信场景。
+
+1. 引擎将解析结果注入 `DetectContext.scenes`；检测器只输出命中，不读取场景来决定动作。
+2. `scene.py` 定义接口，默认回退实现返回 `None`：
    ```python
    class SceneResolver(Protocol):
        def resolve(self, request: DetectionRequest) -> Scene | None: ...
 
    class NullSceneResolver:
-       """一期占位。日后接鉴权模块 / 请求参数 / agent 配置时替换。"""
+       """缺少可信权限信息时的保守回退；接入真实来源后由配置替换。"""
        def resolve(self, request): return None
    ```
    通过 `compliance.scene.resolver` 配置项换实现，**换的时候不用改引擎**。
@@ -602,7 +608,7 @@ compliance:
    - 底线类（`hardcoded_cred` / `illegal_content` / `political`）：`[refuse, warn]`，任何场景都拦，场景未知也拦
    - 其余七类：`[warn, manual_review]`，只告警 + 留痕 + 入人工队列，**不自动脱敏、不自动拒答**
 
-   理由：场景未知时自动脱敏/拒答会在 `self_use`（本该放行）场景下大面积误伤，可用性代价远大于收益；而告警 + 留痕保留了全部审计能力，等 scene 补全后直接切到正式矩阵列。
+   理由：场景未知时自动脱敏/拒答会在 `self_use`（可能本该放行）场景下大面积误伤；但硬编码凭证、违法有害内容、政治敏感内容等底线风险不因场景未知而放行。告警 + 留痕保留了审计能力，可信 scene 到位后再切到正式矩阵列。
 4. `_unknown` 列的存在是**临时状态**，在 `policy_matrix.yaml` 顶部加显式注释 + 单测断言"scene 补全后必须删除 `_unknown` 列"的 TODO 追踪。
 
 ---
@@ -655,7 +661,7 @@ python3 scripts/run_compliance_model_eval.py \
 
 `scripts/run_compliance_gate_eval.py`：按标注样本的 `trigger_gate` 分组，构造对应闸的 payload，走完整 `ComplianceEngine`，产出指南第七章要求的四组指标：主指标（违规类型 P/R/F1）、按闸门、按场景、按数据类型。输出落 `outputs/compliance-eval/{timestamp}/`。
 
-> ⚠️ 场景维度指标一期只能产出 `_unknown` 一列，等 scene 补全后才有完整数据。报告里要写明，不要让空白看起来像"通过"。
+> ⚠️ 未携带可信权限/公开范围信息的请求，场景维度指标可能只产出 `_unknown` 一列；携带可信 `manual_ui` 或 `trusted_upstream` 上下文时，应按解析出的正式场景统计。报告里要写明回退原因，不要让空白看起来像"通过"。
 
 ---
 
@@ -683,7 +689,7 @@ python3 scripts/run_compliance_model_eval.py \
 | 2 | ~~`content_text` 拼接规则未文档化~~ | ✅ **已解决** | §5.1，282/282 精确匹配 + 100% 预测一致率，回归脚本进 CI |
 | 3 | **两套数据集 `content_text` 规范不同** | 🆕 新发现 | 生产只用 0624 模型 + 0624 规范；`manifest.yaml` 记 `content_text_spec` 并做启动校验，规范不匹配直接报错 |
 | 4 | **线上 `features` 键名与训练样本是否同构** | ⚠️ 剩余风险 | §5.1.5 第 4 条：上线前用真实 SkillResult 抽样人工核对。这是 `content_text` 链路上唯一还没被测试覆盖的环节 |
-| 5 | 场景（scene）无信息源 | 🔵 一期留空 | §7.2：`_unknown` 兜底列，底线类照拦，其余只告警不误伤；`SceneResolver` 接口已留 |
+| 5 | 权限/公开范围信息可能缺失 | 🔵 保留回退 | §7.2：场景按权限和公开程度解析；无法取得可信结果时走 `_unknown`，底线类照拦，其余只告警并人工复核；`SceneResolver`、`manual_ui`、`trusted_upstream` 接口已留 |
 | 6 | 流式撤回有可见窗口 | ⚠️ 设计取舍 | §6.3.4：已选定撤回方案，用 `interval_chars` 调节窗口；截屏无法收回，属于方案固有代价 |
 | 7 | IM 渠道撤回适配 | ⚠️ 待实现 | Feishu 原地 patch 卡片天然支持；Slack/Telegram 走 `runs.wait()` 不受影响；需在 P3 逐一验证 |
 | 8 | `k=1` 对否定语境敏感 | ⚠️ 已知 1/56 | `min_similarity=0.20` + 低置信降级 `manual_review`；后续补 hard negative 重训或试 k=3/5 |
@@ -701,4 +707,4 @@ python3 scripts/run_compliance_model_eval.py \
 > - **只 import `contract.py`**，不要 import 引擎的任何其他模块。
 > - **重依赖走 `subprocess_cli` 或 `http_service` adapter**，不要往主 venv 塞 torch。
 > - **不要在检测器里做处置决策**——只输出"命中了什么、在哪、多确信、依据什么"，处置由矩阵统一决定（指南 §9.1 硬要求）。
-> - **不要依赖 `ctx.scenes`**，一期它恒为空。
+> - **不要依赖 `ctx.scenes`**，场景由引擎/`SceneResolver` 解析；检测器不自行决定处置。

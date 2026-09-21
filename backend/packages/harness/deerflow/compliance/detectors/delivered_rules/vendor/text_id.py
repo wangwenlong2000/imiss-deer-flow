@@ -171,7 +171,14 @@ class TextIdDetector(BaseDetector):
         "游竺权逯盖益桓公"
     )
 
-    NAME = re.compile(r"(?:姓名[:：]?|叫|被拘留人是|当事人|举报人|投诉人|信访人|联系人|负责人|主申请人[:：]?|受益人中，?|原告[:：]?|被告[:：]?)(?:是|为)?[:：]?\s*([\u4e00-\u9fff]{2,4}|[\u4e00-\u9fff]{1,3}某{1,2})|[\u4e00-\u9fff]某")
+    # An anonymous name is only a person signal when it has a person label or
+    # grammatical context. The old unanchored ``一字+某`` alternative turned
+    # ordinary phrases such as ``可见某商业街`` into a person relationship.
+    NAME = re.compile(
+        r"(?:姓名[:：]?|叫|被拘留人是|当事人|举报人|投诉人|信访人|联系人|负责人|主申请人[:：]?|"
+        r"受益人中，?|原告[:：]?|被告[:：]?)(?:是|为)?[:：]?\s*"
+        r"([\u4e00-\u9fff]{2,4}|[\u4e00-\u9fff]{1,3}某{1,2})"
+    )
     MASKED_ID = re.compile(r"(?<!\d)(?:\d{17}[0-9Xx]|\d{6,17}[Xx]{2,8}\d{0,4})(?!\d)")
     MASKED_PHONE = re.compile(r"(?<!\d)1[3-9]\d{1,8}X{2,6}\d{0,4}(?!\d)|(?<!\d)1[3-9]\d{9}(?!\d)", re.IGNORECASE)
     MOJIBAKE_HINT = re.compile(r"\b\d{6,17}X{2,8}\b|\b1[3-9]\d{2,8}X{2,6}\b|XX|X{2,}")
@@ -210,6 +217,10 @@ class TextIdDetector(BaseDetector):
         r"(?:姓名|联系方式|住址|人员字段).{0,20}(?:为空|删除|替换|匿名化)|"
         r"(?:作|已作|已经作|已进行)匿名化处理"
     )
+    PUBLIC_SIGNAGE_CONTEXT = re.compile(
+        r"(?:物业|公告|公告牌|服务电话|热线).{0,50}"
+        r"(?:1[3-9]\d{9}|0\d{2,3}[-－]\s*[Xx*]{2,}(?:[-－]\s*)?\d{2,})"
+    )
 
     PERSON_LABEL = re.compile(
         rf"(?:姓名|申请人|投诉人|举报人|信访人|联系人|负责人|当事人|原告|被告|主申请人|"
@@ -227,7 +238,10 @@ class TextIdDetector(BaseDetector):
         rf"记载|注明|出现|签署人为|人员=|姓名为)[:：=—\-]?\s*([{COMMON_SURNAMES}][\u4e00-\u9fff]{{1,2}})"
         r"(?=[，。；;：（(、”\s]|在|为|任|担任|参与|负责|承担|对|的|与|及|住|系|$)"
     )
-    GENERIC_PERSON_WORDS = {"方式", "单位", "于本周", "查的", "人员", "工作", "材料", "项目", "窗口"}
+    GENERIC_PERSON_WORDS = {
+        "方式", "单位", "于本周", "查的", "人员", "工作", "材料", "项目", "窗口",
+        "公告牌", "广告牌", "标识牌", "商业街", "投诉热线",
+    }
 
     def detect(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         text = self.build_text_view(sample)
@@ -236,6 +250,17 @@ class TextIdDetector(BaseDetector):
         score = 0
         counts: Dict[str, int] = {}
         signal_scores: List[Dict[str, Any]] = []
+
+        # A street-view image may contain a public property/service sign with
+        # a masked landline.  That is signage metadata, not a natural-person
+        # identifier; require an explicit person relation before scoring it.
+        if (
+            sample.get("data_type") == "street_view"
+            and self.PUBLIC_SIGNAGE_CONTEXT.search(text)
+            and not self.PERSON_LABEL.search(text)
+            and not self.ADDRESS_LABEL.search(text)
+        ):
+            return self.no_hit(sample, "Public street signage service number without a person relation.")
 
         def with_rule_evidence(result: Dict[str, Any], decision_source: str) -> Dict[str, Any]:
             result["rule_score"] = score

@@ -79,12 +79,56 @@ class GeoLocDetector:
             entity_type=entity_type,
         )
 
+    @classmethod
+    def _risk_locations(
+        cls,
+        risks: list[Mapping[str, Any]],
+        content_text: str,
+    ) -> tuple[RiskLocation, ...]:
+        """Prefer structured evidence when text and fields report one value.
+
+        UserInputNormalizer keeps raw text for fallback detection, so the same
+        coordinate can appear once as a text span and once as a field. Distinct
+        field paths remain separate because they represent separate sources.
+        """
+        locations = [cls._risk_location(risk, content_text) for risk in risks if isinstance(risk, Mapping)]
+        field_values = {
+            (location.entity_type, location.text)
+            for location in locations
+            if location.kind == "field_path" and location.text
+        }
+        seen: set[tuple[str, str, str | None, str | None]] = set()
+        kept: list[RiskLocation] = []
+        for location in locations:
+            if location.kind == "char_span" and (location.entity_type, location.text) in field_values:
+                continue
+            key = (location.kind, location.locator, location.text, location.entity_type)
+            if key in seen:
+                continue
+            seen.add(key)
+            kept.append(location)
+        return tuple(kept)
+
+    @staticmethod
+    def _is_explicit_synthetic_remote_coordinate(unit: DetectionUnit) -> bool:
+        """Exclude coordinates explicitly marked synthetic in remote metadata."""
+        data_type = str(unit.data_type or "").casefold().replace("-", "_")
+        if data_type not in {"remote_sensing", "satellite_remote_sensing"}:
+            return False
+        return any(
+            "synthetic" in item.path.casefold()
+            and str(item.value).casefold() in {"true", "1", "yes"}
+            for item in unit.field_items
+        )
+
     def detect(
         self,
         unit: DetectionUnit,
         ctx: DetectContext,
     ) -> list[DetectionHit]:
         del ctx
+        if self._is_explicit_synthetic_remote_coordinate(unit):
+            return []
         try:
             sample, content_text = self._to_legacy_sample(unit)
             result = legacy_core.detect_geo_loc(
@@ -99,11 +143,7 @@ class GeoLocDetector:
             return []
 
         raw_risks = result.get("risk_locations_pred") or []
-        locations = tuple(
-            self._risk_location(risk, content_text)
-            for risk in raw_risks
-            if isinstance(risk, Mapping)
-        )
+        locations = self._risk_locations(raw_risks, content_text)
 
         confidence = max(0.0, min(1.0, float(result.get("confidence") or 0.0)))
         methods = sorted({

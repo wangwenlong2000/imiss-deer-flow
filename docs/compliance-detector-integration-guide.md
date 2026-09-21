@@ -19,7 +19,8 @@
 2. **重依赖走 `subprocess_cli` 或 `http_service`**，不要往主 venv 塞 torch / OpenCV / spaCy。
 3. **不要在检测器里做处置决策**。只输出"命中了什么、在哪、多确信、依据什么"，
    处置由 `违规 × 场景` 矩阵统一决定（指南 §9.1 硬要求）。
-4. **不要依赖 `ctx.scenes`**。一期它恒为空 tuple，永远不要写 `if ctx.scenes[0] == ...`。
+4. **不要依赖 `ctx.scenes`**。场景由引擎/`SceneResolver` 解析，检测器只输出命中，
+   不自行决定处置，也不要写 `if ctx.scenes[0] == ...`。
 
 ---
 
@@ -76,7 +77,7 @@ class MyDetector:
 | `unit.raw` | 只读原始 payload（`MappingProxyType`，改不了） |
 | `ctx.intent` | 意图识别结果，可能是 `None` |
 | `ctx.budget_ms` | 本次检测的时间预算 |
-| `ctx.scenes` | **一期恒为空**，不要用 |
+| `ctx.scenes` | 由引擎/`SceneResolver` 注入；不要依赖具体场景值 |
 
 拿不到 agent state、messages、sandbox —— 这是有意的数据边界。
 
@@ -133,7 +134,7 @@ default_params:
 
 指南把某些违规类型钉死在特定闸门：
 
-- 第 3 类 `hardcoded_cred`：**只在 InputGate** 检测
+- 第 3 类 `hardcoded_cred`：InputGate 是主检测节点；OutputGate 必须对模型或 Skill 生成的明文凭证做兜底检测，ContextGate 一期不重复检测
 - 第 9 类 `re_identify`：**只在 OutputGate** 检测
 
 引擎会做双重校验：路由时按 manifest 过滤，拿到结果后再按 manifest 过滤一次。

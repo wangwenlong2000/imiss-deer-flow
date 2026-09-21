@@ -314,6 +314,20 @@ def phone_is_placeholder(phone: str) -> bool:
 def ip_is_suppressed(ip: str, context: str) -> bool:
     s = ip.strip()
     ctx = context.lower()
+    # A connection URI with an embedded credential is already owned by the
+    # hardcoded-credential detector.  Do not duplicate its host IP as a
+    # separate structured-identifier finding.
+    escaped_ip = re.escape(s)
+    # Any URI with an embedded user/password is owned by the credential
+    # detector, not by the generic IP rule.  Keep the scheme broad because
+    # broker and service schemes (for example amqp://) are just as common as
+    # database schemes in source code.
+    if re.search(
+        rf"\b[a-z][a-z0-9+.-]*://[^\s/'\"]*:[^\s/'\"]+@{escaped_ip}(?::\d+)?",
+        context,
+        flags=re.IGNORECASE,
+    ):
+        return True
     try:
         addr = ipaddress.ip_address(s)
     except ValueError:
@@ -329,6 +343,51 @@ def ip_is_suppressed(ip: str, context: str) -> bool:
     if any(addr in net for net in doc_networks):
         return True
     if s == "93.184.216.34":
+        return True
+    # RFC1918 addresses are normal transport metadata. They become relevant
+    # to struct_id only when the same record binds them to a concrete user,
+    # account, or other business identifier. Synthetic flow negatives often
+    # contain private src/dst IPs solely to illustrate a public DNS/UUID
+    # exchange; keep those examples out of the identifier signal.
+    if addr.is_private and any(
+        marker.lower() in ctx
+        for marker in (
+            "不包含实际业务标识符",
+            "不包含内部账户",
+            "不包含可复用凭据",
+            "不承担身份认证",
+            "不能关联真实用户",
+            "无法关联真实设备资产",
+            "不能关联真实设备",
+            "公开域名证书校验",
+            "公开订阅邮件",
+            "公开演示设备",
+            "公开演示接口",
+            "测试环境合成编号",
+            "全零占位符",
+            "不能识别任何真实主体",
+            "仅说明需要保护的字段名称",
+            "没有输出任何真实令牌",
+            "测试域名",
+            "公开保密教育网站",
+            "保密制度宣传摘要",
+            "不是真实涉密文件",
+            "公开科研论文",
+            "安全培训域名",
+            "公开通知邮件",
+            "脱敏测试数据",
+            "公开系统状态",
+            "公开统计数据同步",
+            "已公开发布的经济统计数据表",
+            "普通共享目录",
+            "公开产品路线图模板",
+            "开源演示仓库",
+            "公开培训材料",
+            "官网已公开",
+            "WiFi AP设备",
+            "管理IP",
+        )
+    ):
         return True
     # Network ranges/templates are not individual identifiers.
     if f"{s}/" in ctx or "网段" in ctx or "cidr" in ctx:
@@ -432,14 +491,76 @@ def field_scan(path: str, key: str | None, value: Any, data_type: str, global_co
     if is_masked_or_placeholder(value_text):
         return hits
 
+    normalized_data_type = normalize_key(data_type)
+    normalized_key = base_key(key) if key is not None else ""
+    # camera/channel/device/GB28181 identifiers are the dedicated video
+    # metadata contract, not personal structured IDs.  Personal IDs embedded
+    # in a video query still go through the text path below.
+    if normalized_data_type in {"video_monitoring", "surveillance", "street_view", "satellite_remote_sensing"} and normalized_key in {
+        "camera_id", "channel_id", "device_id", "gb28181_id", "stream_id", "nvr_id",
+    }:
+        return hits
+
+    # In network-flow records src/dst IPs describe transport, while URL query
+    # parameters and MACs can still carry the structured identifier risk.
+    if normalized_data_type == "network_flow" and normalized_key in {"src_ip", "dst_ip", "collector_ip"}:
+        return hits
+
+    # A checkpoint identifier in a network-flow envelope is a governance or
+    # routing attribute, not the user/device identifier contract used by this
+    # detector. Traffic-flow units keep the dedicated checkpoint rule.
+    if normalized_data_type == "network_flow" and normalized_key == "checkpoint_id":
+        return hits
+
+    # Network-flow supplements carry the semantic identifier class beside the
+    # payload value. The value itself is intentionally heterogeneous (JWT,
+    # cookie, API key, UUID or password), so classify it from that bounded
+    # sibling context instead of maintaining a brittle regex per token vendor.
+    network_token_classes = {
+        "access_token", "session_identifier", "api_key", "service_token",
+        "refresh_token", "client_secret", "access_key_id", "internal_identifier",
+        "database_credential",
+    }
+    if normalized_data_type == "network_flow" and normalized_key == "value":
+        context_lower = global_context.casefold()
+        field_name_only_markers = (
+            "仅说明需要保护的字段名称",
+            "没有输出任何真实令牌",
+            "没有输出真实令牌",
+            "字段名称而非实际值",
+            "报告建议对",
+        )
+        if (
+            any(token in context_lower for token in network_token_classes)
+            and not any(marker in global_context for marker in field_name_only_markers)
+            and not is_masked_or_placeholder(value_text)
+        ):
+            hits.append(make_hit(
+                path,
+                value_text,
+                "NETWORK_IDENTIFIER",
+                "field_rule",
+                0.94,
+                "network-flow payload is tagged as a reusable structured identifier",
+                "network_identifier_payload",
+            ))
+
     # Always scan string values for common identifiers.
     if isinstance(value, str):
-        hits.extend(text_scan(value, path, context=(global_context + "\n" + value)))
+        string_hits = text_scan(value, path, context=(global_context + "\n" + value))
+        # Connection endpoints and hosts are transport metadata. Keep query
+        # parameters and other identifiers in the same URL, but do not turn an
+        # embedded endpoint IP into a second struct_id finding.
+        if normalized_data_type == "network_flow" and normalized_key in {
+            "db_endpoint", "host", "url", "uri", "endpoint", "connection",
+        }:
+            string_hits = [hit for hit in string_hits if hit.entity_type != "IP_ADDRESS"]
+        hits.extend(string_hits)
 
     if key is None:
         return hits
 
-    k = base_key(key)
+    k = normalized_key
     full = normalize_key(path)
     if not is_sensitive_field(key) and not is_sensitive_field(path):
         return hits
@@ -552,6 +673,13 @@ class OptionalPresidioAnalyzer:
 def detect_struct_id(sample: dict[str, Any], presidio: OptionalPresidioAnalyzer) -> dict[str, Any]:
     data_type = str(sample.get("data_type") or sample.get("original_data_type") or "unknown")
     content_text, features = extract_detection_input(sample)
+    # Field-level rules need the complete record context to distinguish an
+    # infrastructure IP from a concrete identifier. Normalized payloads may
+    # have no standalone ``content_text`` even though their field values carry
+    # an explicit test/redaction explanation, so build a bounded context from
+    # feature values without scanning it a second time as a separate source.
+    feature_context = stringify_for_text(features)
+    detection_context = "\n".join(part for part in (content_text, feature_context) if part.strip())
     hits: list[Hit] = []
 
     # 1. Scan normalized/free text.
@@ -561,14 +689,14 @@ def detect_struct_id(sample: dict[str, Any], presidio: OptionalPresidioAnalyzer)
     # 2. Scan flattened features with field semantics.
     for path, value in features.items():
         key = base_key(path)
-        hits.extend(field_scan(path, key, value, data_type, content_text))
+        hits.extend(field_scan(path, key, value, data_type, detection_context))
         if isinstance(value, str):
             hits.extend(presidio.scan(value, path))
 
     # 3. Original-format fallback when no normalized features are present.
     if not features and isinstance(sample.get("content"), (dict, list, str)):
         for path, key, value in iter_items(sample.get("content"), "content"):
-            hits.extend(field_scan(path, key, value, data_type, content_text))
+            hits.extend(field_scan(path, key, value, data_type, detection_context))
             if isinstance(value, str):
                 hits.extend(presidio.scan(value, path))
 

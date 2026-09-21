@@ -19,7 +19,7 @@ import os
 import threading
 import uuid
 from collections.abc import Mapping
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -77,7 +77,7 @@ class Auditor:
             return None
 
         audit_ref = f"audit-{uuid.uuid4().hex[:16]}"
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         record: dict[str, Any] = {
             "audit_ref": audit_ref,
             "timestamp": now.isoformat(),
@@ -105,6 +105,11 @@ class Auditor:
                 "reason": request.intent.reason,
                 "source": request.intent.source,
             } if request.intent else None,
+            "raw_detection_types": sorted({hit.violation_type for hit in (decision.raw_hits or decision.hits)}),
+            "effective_violation_types": sorted({hit.violation_type for hit in decision.hits}),
+            "downgraded_detection_types": sorted({hit.violation_type for hit in decision.downgraded_hits}),
+            "raw_hits": [self._hit_record(hit) for hit in (decision.raw_hits or decision.hits)],
+            "downgraded_hits": [self._hit_record(hit) for hit in decision.downgraded_hits],
             "hits": [self._hit_record(hit) for hit in decision.hits],
             "diagnostics": decision.diagnostics.to_dict(),
         }
@@ -149,12 +154,12 @@ class Auditor:
         """Delete audit files older than the retention window. Returns the count."""
         if not self._enabled or not self._retain_days or not self._dir.is_dir():
             return 0
-        cutoff = (now or datetime.now(UTC)) - timedelta(days=self._retain_days)
+        cutoff = (now or datetime.now(timezone.utc)) - timedelta(days=self._retain_days)
         removed = 0
         for candidate in self._dir.glob("compliance-*.jsonl"):
             stamp = candidate.stem.removeprefix("compliance-")
             try:
-                file_date = datetime.strptime(stamp, "%Y%m%d").replace(tzinfo=UTC)
+                file_date = datetime.strptime(stamp, "%Y%m%d").replace(tzinfo=timezone.utc)
             except ValueError:
                 continue
             if file_date < cutoff:

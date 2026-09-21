@@ -69,12 +69,12 @@ def _registration(detector_id: str, adapter, *, gates=None, data_types=None, cos
     )
 
 
-def _engine(registrations, *, auditor=None) -> ComplianceEngine:
+def _engine(registrations, *, auditor=None, scene_resolver=None) -> ComplianceEngine:
     return ComplianceEngine(
         registry=DetectorRegistry(list(registrations)),
         policy=load_policy_matrix(MATRIX_PATH),
         auditor=auditor or NullAuditor(),
-        scene_resolver=NullSceneResolver(),
+        scene_resolver=scene_resolver or NullSceneResolver(),
     )
 
 
@@ -269,7 +269,7 @@ def test_time_budget_exhaustion_is_reported() -> None:
 
 
 def test_scene_is_unknown_in_phase_one() -> None:
-    """Plan §7.2: scenes are always empty until a real resolver is wired up."""
+    """Unknown scenes use the fallback until trusted scene context is supplied."""
     engine = _engine([_registration("d1", _FakeAdapter([_hit()]), gates={"domain": ("OutputGate",)})])
     decision = engine.check([_unit()], gate="OutputGate")
     assert decision.scene_key == "_unknown"
@@ -305,7 +305,51 @@ def test_benign_intent_downgrades_a_non_baseline_input_hit() -> None:
         intent=IntentInfo(intent="desensitize_request", high_risk=False),
     )
     assert decision.hits == ()
+    assert len(decision.raw_hits) == 1
+    assert len(decision.downgraded_hits) == 1
+    assert decision.to_dict()["raw_detection_types"] == ["struct_id"]
+    assert decision.to_dict()["downgraded_detection_types"] == ["struct_id"]
     assert any("not high-risk" in w for w in decision.diagnostics.warnings)
+
+
+def test_downgraded_input_hit_is_kept_in_the_audit_trail(tmp_path: Path) -> None:
+    auditor = Auditor(path=tmp_path / "audit", enabled=True)
+    engine = _engine(
+        [_registration("d1", _FakeAdapter([_hit("struct_id")]), gates={"struct_id": ("InputGate",)})],
+        auditor=auditor,
+    )
+    decision = engine.check(
+        [_unit(gate="InputGate")],
+        gate="InputGate",
+        intent=IntentInfo(intent="desensitize_request", high_risk=False),
+    )
+
+    assert decision.hits == ()
+    assert decision.audit_ref
+    record = auditor.read_all()[0]
+    assert record["raw_detection_types"] == ["struct_id"]
+    assert record["effective_violation_types"] == []
+    assert record["downgraded_detection_types"] == ["struct_id"]
+
+
+def test_public_release_scene_keeps_sensitive_hits_for_policy() -> None:
+    class _PublicReleaseResolver:
+        def resolve(self, request):  # noqa: ANN001
+            return "public_release"
+
+    engine = _engine(
+        [_registration("d1", _FakeAdapter([_hit("struct_id")]), gates={"struct_id": ("InputGate",)})],
+        scene_resolver=_PublicReleaseResolver(),
+    )
+    decision = engine.check(
+        [_unit(gate="InputGate")],
+        gate="InputGate",
+        intent=IntentInfo(intent="分析并生成简报", intent_type="analysis", risk_level="low"),
+    )
+    assert decision.scene_key == "public_release"
+    assert len(decision.raw_hits) == len(decision.hits) == 1
+    assert decision.downgraded_hits == ()
+    assert "refuse" in decision.actions
 
 
 def test_high_risk_intent_keeps_the_hit() -> None:

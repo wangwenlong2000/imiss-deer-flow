@@ -92,12 +92,17 @@ class Diagnostics:
 
 @dataclass
 class ComplianceDecision:
-    """The engine's verdict: what was hit, and what should happen about it."""
+    """The engine's verdict, including findings filtered before policy."""
 
     request_id: str
     gate: Gate
     scene_key: str
     scenes: tuple[Scene, ...] = ()
+    #: Detector output before intent/permission filtering.
+    raw_hits: tuple[DetectionHit, ...] = ()
+    #: Findings that were recognized but intentionally kept out of policy.
+    downgraded_hits: tuple[DetectionHit, ...] = ()
+    #: Effective findings passed to the policy matrix.
     hits: tuple[DetectionHit, ...] = ()
     #: Union of all per-violation actions, deduplicated, weakest first.
     actions: tuple[Action, ...] = ()
@@ -113,8 +118,13 @@ class ComplianceDecision:
 
     @property
     def violated(self) -> bool:
-        """True when at least one detector hit."""
+        """True when at least one effective finding reaches policy."""
         return bool(self.hits)
+
+    @property
+    def raw_violated(self) -> bool:
+        """True when a detector found something, even if it was downgraded."""
+        return bool(self.raw_hits or self.hits)
 
     @property
     def strongest(self) -> str | None:
@@ -130,16 +140,8 @@ class ComplianceDecision:
         return any(action in MUTATING_ACTIONS for action in self.actions)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "request_id": self.request_id,
-            "gate": self.gate,
-            "scene_key": self.scene_key,
-            "scenes": list(self.scenes),
-            "actions": list(self.actions),
-            "per_violation_actions": {k: list(v) for k, v in self.per_violation_actions.items()},
-            "basis": list(self.basis),
-            "audit_ref": self.audit_ref,
-            "hits": [
+        def serialize_hits(hits: tuple[DetectionHit, ...]) -> list[dict[str, Any]]:
+            return [
                 {
                     "detector_id": hit.detector_id,
                     "violation_type": hit.violation_type,
@@ -153,8 +155,27 @@ class ComplianceDecision:
                     "basis": list(hit.basis),
                     "evidence": dict(hit.evidence),
                 }
-                for hit in self.hits
-            ],
+                for hit in hits
+            ]
+
+        raw_types = sorted({hit.violation_type for hit in (self.raw_hits or self.hits)})
+        effective_types = sorted({hit.violation_type for hit in self.hits})
+        downgraded_types = sorted({hit.violation_type for hit in self.downgraded_hits})
+        return {
+            "request_id": self.request_id,
+            "gate": self.gate,
+            "scene_key": self.scene_key,
+            "scenes": list(self.scenes),
+            "actions": list(self.actions),
+            "per_violation_actions": {k: list(v) for k, v in self.per_violation_actions.items()},
+            "basis": list(self.basis),
+            "audit_ref": self.audit_ref,
+            "raw_detection_types": raw_types,
+            "effective_violation_types": effective_types,
+            "downgraded_detection_types": downgraded_types,
+            "raw_hits": serialize_hits(self.raw_hits or self.hits),
+            "downgraded_hits": serialize_hits(self.downgraded_hits),
+            "hits": serialize_hits(self.hits),
             "diagnostics": self.diagnostics.to_dict(),
         }
 

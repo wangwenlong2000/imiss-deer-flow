@@ -1,6 +1,9 @@
 {
-  "dataset": "合规检测\\类型7-confidential整改\\confidential_type7_regression.jsonl",
-  "dataset_sha256": "f3ac3bb0f0f366e9f83984085e9bf4681538e3d93e6a654a330fe693d38327f4",
+  "dataset": "合规检测/类型7-confidential整改/confidential_type7_regression.jsonl",
+  "dataset_sha256": "e3164a255be40f330046fcb70b29101678f0fa7f1fdcaf8097cceecce9793ae4",
+  "split_dataset": "合规检测/类型7-confidential整改/confidential_type7_test_split.jsonl",
+  "split_dataset_rows": 176,
+  "split_dataset_sha256": "9f0572962467565bc5a9e0b281610ca5fe41e565b720f50f66d67c3dc29a40df",
   "split": "test",
   "split_method": "SHA-256 sample_id seed confidential-type7-v1, stratified by source and label, 20/80",
   "sources": {
@@ -20,8 +23,14 @@
       "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb"
     }
   },
-  "detector_rule_sha256": "04ca26975476dc902235792b242582296e7832c4ae542e802c37bd92ec0d2c04",
-  "git_head": "f74d589b02bc79b70cdca1f56515cf73813d308d",
+  "detector_rule_sha256": "751ad393dbd5ce1601d1cd395ece2295724eb58405f87a321e14db9b75cf02e0",
+  "git_head": "f70fa31467f74c266bf509397e2b9ef7f60fa738",
+  "dataset_version": "confidential-type7-v1",
+  "independent_frozen_set": false,
+  "fixed_regression_set": true,
+  "evaluation_command": "PYTHONPATH=backend/packages/harness python scripts/build_eval_confidential.py --evaluate test",
+  "detector_version": "ConfidentialDetector rule-only (751ad393dbd5ce1601d1cd395ece2295724eb58405f87a321e14db9b75cf02e0)",
+  "config_sha256": "cc85a75ee06e4735fa5d9372ed25c125772480e8ad43954ecf7ddc08d5894fbf",
   "evaluation_mode": "rule_only; llm_disabled; 80% was explored before split request and is not blind acceptance",
   "llm_review": {
     "enabled": false,
@@ -32,80 +41,43 @@
   },
   "overall": {
     "total": 176,
-    "tp": 81,
+    "tp": 98,
     "fp": 2,
-    "fn": 17,
+    "fn": 0,
     "tn": 76,
-    "precision": 0.975904,
-    "recall": 0.826531,
-    "f1": 0.895028,
+    "precision": 0.98,
+    "recall": 1.0,
+    "f1": 0.989899,
     "fp_ids": [
       "confidential-repair-013",
       "confidential-repair-015"
     ],
-    "fn_ids": [
-      "stat-yearbook-confidential-final-002",
-      "stat-yearbook-confidential-final-003",
-      "stat-yearbook-confidential-final-004",
-      "stat-yearbook-confidential-final-005",
-      "stat-yearbook-confidential-final-006",
-      "stat-yearbook-confidential-final-007",
-      "stat-yearbook-confidential-final-008",
-      "stat-yearbook-confidential-final-009",
-      "stat-yearbook-confidential-final-010",
-      "stat-yearbook-confidential-final-011",
-      "stat-yearbook-confidential-final-013",
-      "network-flow-confidential-add-006",
-      "network-flow-confidential-add-008",
-      "network-flow-confidential-add-010",
-      "network-flow-confidential-add-021",
-      "network-flow-confidential-add-022",
-      "network-flow-confidential-add-024"
-    ]
+    "fn_ids": []
   },
   "by_origin": {
     "compliance_annotations_250.jsonl": {
       "total": 93,
-      "tp": 37,
+      "tp": 48,
       "fp": 0,
-      "fn": 11,
+      "fn": 0,
       "tn": 45,
       "precision": 1.0,
-      "recall": 0.770833,
-      "f1": 0.870588,
+      "recall": 1.0,
+      "f1": 1.0,
       "fp_ids": [],
-      "fn_ids": [
-        "stat-yearbook-confidential-final-002",
-        "stat-yearbook-confidential-final-003",
-        "stat-yearbook-confidential-final-004",
-        "stat-yearbook-confidential-final-005",
-        "stat-yearbook-confidential-final-006",
-        "stat-yearbook-confidential-final-007",
-        "stat-yearbook-confidential-final-008",
-        "stat-yearbook-confidential-final-009",
-        "stat-yearbook-confidential-final-010",
-        "stat-yearbook-confidential-final-011",
-        "stat-yearbook-confidential-final-013"
-      ]
+      "fn_ids": []
     },
     "network_flow_compliance_annotations_150.jsonl": {
       "total": 51,
-      "tp": 20,
+      "tp": 26,
       "fp": 0,
-      "fn": 6,
+      "fn": 0,
       "tn": 25,
       "precision": 1.0,
-      "recall": 0.769231,
-      "f1": 0.869565,
+      "recall": 1.0,
+      "f1": 1.0,
       "fp_ids": [],
-      "fn_ids": [
-        "network-flow-confidential-add-006",
-        "network-flow-confidential-add-008",
-        "network-flow-confidential-add-010",
-        "network-flow-confidential-add-021",
-        "network-flow-confidential-add-022",
-        "network-flow-confidential-add-024"
-      ]
+      "fn_ids": []
     },
     "remote_sensing_all_120.jsonl": {
       "total": 16,
@@ -134,5 +106,162 @@
       ],
       "fn_ids": []
     }
-  }
+  },
+  "by_data_type": {
+    "network_flow": {
+      "total": 56,
+      "tp": 29,
+      "fp": 0,
+      "fn": 0,
+      "tn": 27,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "policy_regulation": {
+      "total": 5,
+      "tp": 2,
+      "fp": 2,
+      "fn": 0,
+      "tn": 1,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667,
+      "fp_ids": [
+        "confidential-repair-013",
+        "confidential-repair-015"
+      ],
+      "fn_ids": []
+    },
+    "satellite_remote_sensing": {
+      "total": 16,
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "statistical_yearbook": {
+      "total": 99,
+      "tp": 51,
+      "fp": 0,
+      "fn": 0,
+      "tn": 48,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    }
+  },
+  "by_gate": {
+    "ContextGate": {
+      "total": 81,
+      "tp": 56,
+      "fp": 2,
+      "fn": 0,
+      "tn": 23,
+      "precision": 0.965517,
+      "recall": 1.0,
+      "f1": 0.982456,
+      "fp_ids": [
+        "confidential-repair-013",
+        "confidential-repair-015"
+      ],
+      "fn_ids": []
+    },
+    "InputGate": {
+      "total": 43,
+      "tp": 32,
+      "fp": 0,
+      "fn": 0,
+      "tn": 11,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "OutputGate": {
+      "total": 30,
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "tn": 20,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fp_ids": [],
+      "fn_ids": []
+    },
+    "unannotated": {
+      "total": 22,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 22,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fp_ids": [],
+      "fn_ids": []
+    }
+  },
+  "error_details": [
+    {
+      "sample_id": "confidential-repair-013",
+      "expected": false,
+      "predicted": true,
+      "content_type": "policy_regulation",
+      "regression_origin": "added_synthetic",
+      "data_source_type": "manual_synthetic",
+      "gate": "ContextGate",
+      "annotation_category": "public",
+      "annotation_meta": {
+        "rule_version": "confidential-repair-20260917",
+        "review_status": "self_checked"
+      },
+      "matched_rules": [
+        "confidential-ordinary_internal-combination"
+      ],
+      "suggested_action": [
+        "manual_review"
+      ],
+      "reason": "FP: a negative sample was classified as confidential by a combination rule; the public/education context should suppress the rule or be routed to review without asserting confidentiality.",
+      "manual_review_required": true,
+      "high_risk_miss_fixed": null,
+      "content_preview": "公开政策材料说明办事流程，正文不包含未公开预测或内部口径。"
+    },
+    {
+      "sample_id": "confidential-repair-015",
+      "expected": false,
+      "predicted": true,
+      "content_type": "policy_regulation",
+      "regression_origin": "added_synthetic",
+      "data_source_type": "manual_synthetic",
+      "gate": "ContextGate",
+      "annotation_category": "public",
+      "annotation_meta": {
+        "rule_version": "confidential-repair-20260917",
+        "review_status": "self_checked"
+      },
+      "matched_rules": [
+        "confidential-state_or_work_secret-combination"
+      ],
+      "suggested_action": [
+        "manual_review",
+        "desensitize"
+      ],
+      "reason": "FP: a negative sample was classified as confidential by a combination rule; the public/education context should suppress the rule or be routed to review without asserting confidentiality.",
+      "manual_review_required": true,
+      "high_risk_miss_fixed": null,
+      "content_preview": "公开保密教育培训材料解释国家秘密的密级，不载具体涉密文件。"
+    }
+  ]
 }

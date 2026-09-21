@@ -76,6 +76,38 @@ class StructIdDetector:
             entity_type=entity_type,
         )
 
+    @classmethod
+    def _risk_locations(
+        cls,
+        risks: list[Mapping[str, Any]],
+        content_text: str,
+    ) -> tuple[RiskLocation, ...]:
+        """Collapse duplicate JSON/text evidence without losing field scope.
+
+        The normalizer intentionally keeps the original JSON text as a
+        fallback while also emitting field items. If both paths identify the
+        same value, prefer the field-path evidence; retain distinct fields and
+        distinct character occurrences because they are useful for surgical
+        disposition and audit.
+        """
+        locations = [cls._risk_location(risk, content_text) for risk in risks if isinstance(risk, Mapping)]
+        field_values = {
+            (location.entity_type, location.text)
+            for location in locations
+            if location.kind == "field_path" and location.text
+        }
+        seen: set[tuple[str, str, str | None, str | None]] = set()
+        kept: list[RiskLocation] = []
+        for location in locations:
+            if location.kind == "char_span" and (location.entity_type, location.text) in field_values:
+                continue
+            key = (location.kind, location.locator, location.text, location.entity_type)
+            if key in seen:
+                continue
+            seen.add(key)
+            kept.append(location)
+        return tuple(kept)
+
     def detect(
         self,
         unit: DetectionUnit,
@@ -93,11 +125,7 @@ class StructIdDetector:
             return []
 
         raw_risks = result.get("risk_locations_pred") or []
-        locations = tuple(
-            self._risk_location(risk, content_text)
-            for risk in raw_risks
-            if isinstance(risk, Mapping)
-        )
+        locations = self._risk_locations(raw_risks, content_text)
 
         confidence = max(0.0, min(1.0, float(result.get("confidence") or 0.0)))
         methods = sorted({

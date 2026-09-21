@@ -41,6 +41,26 @@ LAT_FIELDS = {"lat", "latitude", "gps_lat"}
 LON_FIELDS = {"lon", "lng", "longitude", "gps_lon", "gps_lng"}
 COORD_FIELDS = {"coordinate", "coordinates", "gps", "gps_coordinate", "location_coord", "visible_coordinate_text", "synthetic_coordinate"}
 
+# A coordinate explicitly described as a fictitious center/example point is a
+# safe negative. Do not use the broad redaction vocabulary here: a report can
+# say that a coordinate was generalized and still retain the raw coordinate.
+NON_REAL_COORDINATE_MARKERS = (
+    "虚构中心点",
+    "虚构示意点",
+    "示意坐标",
+    "不代表真实点位",
+    "不代表真实位置",
+    "fictitious center",
+    "synthetic example point",
+)
+REAL_COORDINATE_OVERRIDE_MARKERS = (
+    "仍包含",
+    "仍保留",
+    "实际坐标",
+    "真实坐标",
+    "原始坐标仍",
+)
+
 # 字段名规则：详细地址/语义位置字段。
 ADDRESS_FIELDS = {
     "address", "detail_address", "detailed_address", "full_address", "doorplate", "house_no",
@@ -210,6 +230,20 @@ def is_safe_or_negated_text(text: str) -> bool:
     return any(h.lower() in low for h in NEGATION_OR_SAFE_HINTS)
 
 
+def is_non_real_coordinate(text: str, start: int, end: int) -> bool:
+    """Recognize an explicitly fictitious coordinate example.
+
+    The check is local to the match. A report may say that a coordinate was
+    generalized and still retain the raw coordinate, which must remain a hit.
+    """
+    window = text[max(0, start - 96): min(len(text), end + 96)]
+    lowered = window.lower()
+    return (
+        any(marker.lower() in lowered for marker in NON_REAL_COORDINATE_MARKERS)
+        and not any(marker.lower() in lowered for marker in REAL_COORDINATE_OVERRIDE_MARKERS)
+    )
+
+
 def is_plausible_lat(lat: float) -> bool:
     return -90 <= lat <= 90
 
@@ -302,11 +336,17 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
     risks: list[dict[str, Any]] = []
     lat_paths: list[str] = []
     lon_paths: list[str] = []
+    coordinate_arrays: dict[str, dict[int, tuple[str, Any]]] = {}
     for path, value in items:
         base = field_basename(path)
         if not has_meaningful_value(value):
             continue
         text = stringify(value).strip()
+        array_match = re.match(r"^(?P<parent>.+)\[(?P<index>\d+)\]$", path)
+        if array_match and field_basename(array_match.group("parent")) in COORD_FIELDS:
+            coordinate_arrays.setdefault(array_match.group("parent"), {})[
+                int(array_match.group("index"))
+            ] = (path, value)
         if base in LAT_FIELDS | LON_FIELDS:
             try:
                 val = float(text)
@@ -333,6 +373,42 @@ def detect_coordinate_fields(items: list[tuple[str, Any]]) -> tuple[list[dict[st
             if lat_hits and lon_hits:
                 coord_text = f"{lat_hits[0].group(0)} {lon_hits[0].group(0)}"
                 risks.append(build_risk(path, coord_text, "gps_coordinate", "field_coordinate_pair", 0.95, "coordinate field contains explicit LAT/LON assignments"))
+
+    # Flattened JSON arrays need to be paired again before detection. GeoJSON
+    # uses [longitude, latitude]; generic coordinate arrays are inferred from
+    # geographic bounds when the order is unambiguous.
+    for parent, indexed in coordinate_arrays.items():
+        if len(indexed) < 2:
+            continue
+        first_index, second_index = sorted(indexed)[:2]
+        first_path, first_value = indexed[first_index]
+        second_path, second_value = indexed[second_index]
+        del first_path, second_path
+        try:
+            first = float(first_value)
+            second = float(second_value)
+        except (TypeError, ValueError):
+            continue
+        parent_lower = parent.lower()
+        is_geojson = "geojson" in parent_lower or parent_lower.endswith("geometry.coordinates")
+        if is_geojson or (abs(first) > 90 and abs(second) <= 90):
+            lon, lat = first, second
+        else:
+            lat, lon = first, second
+        if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
+            continue
+        if decimal_places(str(first_value)) < 4 or decimal_places(str(second_value)) < 4:
+            continue
+        risks.append(
+            build_risk(
+                parent,
+                f"[{first_value}, {second_value}]",
+                "gps_coordinate",
+                "field_coordinate_array",
+                0.95,
+                "coordinate array contains a high precision latitude/longitude pair",
+            )
+        )
     return risks, lat_paths, lon_paths
 
 
@@ -441,6 +517,8 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
                 continue
             if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
                 continue
+            if is_non_real_coordinate(text, m.start(), m.end()):
+                continue
             # 至少 4 位小数，已由正则保证。虚构/示意在 safe hints 里已过滤。
             risks.append(build_risk(path, m.group(0), "gps_coordinate", "regex_gps_pair", 0.95, "text contains high precision latitude/longitude pair"))
 
@@ -455,6 +533,8 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
                 else:
                     lat, lon = first, second
                 if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
+                    continue
+                if is_non_real_coordinate(text, m.start(), m.end()):
                     continue
                 risks.append(
                     build_risk(
@@ -471,6 +551,8 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
             lat = float(m.group(1))
             lon = float(m.group(2))
             if not (is_plausible_lat(lat) and is_plausible_lon(lon)):
+                continue
+            if is_non_real_coordinate(text, m.start(), m.end()):
                 continue
             risks.append(
                 build_risk(
@@ -495,6 +577,8 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
                 valid = is_plausible_lat(value) if field_name == "latitude" else is_plausible_lon(value)
                 if not valid:
                     continue
+                if is_non_real_coordinate(text, m.start(), m.end()):
+                    continue
                 risks.append(
                     build_risk(
                         path,
@@ -511,8 +595,12 @@ def detect_text_geo(text_blobs: list[tuple[str, str]], data_type: str) -> list[d
         lon_hits = list(LON_ASSIGN_RE.finditer(text))
         if lat_hits and lon_hits:
             for lm in lat_hits[:2]:
+                if is_non_real_coordinate(text, lm.start(), lm.end()):
+                    continue
                 risks.append(build_risk(path, lm.group(0), "latitude", "regex_lat_assignment", 0.93, "text contains explicit latitude assignment"))
             for lm in lon_hits[:2]:
+                if is_non_real_coordinate(text, lm.start(), lm.end()):
+                    continue
                 risks.append(build_risk(path, lm.group(0), "longitude", "regex_lon_assignment", 0.93, "text contains explicit longitude assignment"))
 
         # 对详细地址、路线等语义规则，仍保留负向/泛化保护，避免仅因
@@ -572,6 +660,28 @@ def detect_geo_loc(sample: dict[str, Any], presidio: OptionalPresidio, exclude_d
         return pre
 
     data_type = canonical_data_type(sample.get("data_type") or sample.get("original_data_type") or "")
+    # Network-flow emergency/domain records may carry a field named
+    # ``precise_location`` as an operational governance attribute. The current
+    # type-2 corpus assigns those records to domain, not geo_loc; do not turn a
+    # field name alone into a location finding outside the three owned sources.
+    # A user query or a generic tool payload may not declare a data type. In
+    # that case the coordinate rules still apply; only an explicit, known
+    # out-of-scope type should be excluded.
+    if data_type and data_type not in SUPPORTED_DATA_TYPES:
+        return {
+            "sample_id": sample.get("sample_id"),
+            "data_id": sample.get("data_id"),
+            "data_type": data_type,
+            "gate": sample.get("gate") or sample.get("trigger_gate"),
+            "trigger_gate": sample.get("trigger_gate") or sample.get("gate"),
+            "target_violation_type": sample.get("target_violation_type"),
+            "predicted_violation_type": "none",
+            "is_positive_pred": False,
+            "confidence": 0.0,
+            "risk_locations_pred": [],
+            "reason_code": "geo_loc_data_type_out_of_scope",
+            "debug": {"excluded": True, "message": f"{data_type} is outside geo_loc source scope"},
+        }
     items, text_blobs = collect_items(sample)
     risks: list[dict[str, Any]] = []
 
@@ -613,7 +723,7 @@ def detect_geo_loc(sample: dict[str, Any], presidio: OptionalPresidio, exclude_d
         strong_risks = [r for r in risks if str(r.get("method")) in {"telecom_object_time_geo_field", "telecom_text_combo"}]
     else:
         strong_risks = [r for r in risks if str(r.get("method")) in {
-            "field_coordinate", "field_coordinate_pair", "field_address", "regex_gps_pair", "regex_labeled_gps_pair", "regex_labelled_lat_lon_pair", "regex_labelled_latitude", "regex_labelled_longitude", "regex_lat_assignment", "regex_lon_assignment", "regex_detail_address", "trajectory_route_combo"
+            "field_coordinate", "field_coordinate_pair", "field_coordinate_array", "field_address", "regex_gps_pair", "regex_labeled_gps_pair", "regex_labelled_lat_lon_pair", "regex_labelled_latitude", "regex_labelled_longitude", "regex_lat_assignment", "regex_lon_assignment", "regex_detail_address", "trajectory_route_combo"
         }]
 
     pred_positive = bool(strong_risks)

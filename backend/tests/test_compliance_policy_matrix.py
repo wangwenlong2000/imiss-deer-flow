@@ -99,6 +99,47 @@ def test_unknown_column_is_documented_as_temporary() -> None:
     assert "临时状态" in text
 
 
+@pytest.mark.parametrize(
+    ("gate", "expected"),
+    [
+        (
+            "InputGate",
+            {
+                "self_use": ("allow",),
+                "internal_org": ("role_check",),
+                "cross_org": ("desensitize",),
+                "public_release": ("desensitize", "refuse"),
+                "research_anon": ("desensitize",),
+            },
+        ),
+        (
+            "ContextGate",
+            {
+                "self_use": ("allow",),
+                "internal_org": ("role_check",),
+                "cross_org": ("desensitize",),
+                "public_release": ("refuse",),
+                "research_anon": ("desensitize",),
+            },
+        ),
+        (
+            "OutputGate",
+            {
+                "self_use": ("allow",),
+                "internal_org": ("role_check",),
+                "cross_org": ("desensitize",),
+                "public_release": ("refuse",),
+                "research_anon": ("desensitize",),
+            },
+        ),
+    ],
+)
+def test_video_metadata_type8_has_the_declared_scene_actions(matrix, gate, expected) -> None:
+    """Type 8 follows the requested Input/Context/Output action tables."""
+    for scene, actions in expected.items():
+        assert matrix.cell("video_meta_leak", gate, scene) == actions
+
+
 # ── lookup semantics ────────────────────────────────────────────────────────
 
 

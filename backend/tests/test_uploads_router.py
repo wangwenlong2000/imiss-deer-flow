@@ -74,6 +74,64 @@ def test_upload_files_syncs_non_local_sandbox_and_marks_markdown_file(tmp_path):
     sandbox.update_file.assert_any_call("/mnt/user-data/uploads/report.md", b"converted")
 
 
+def test_compliance_rejection_removes_new_host_and_sandbox_artifacts(tmp_path):
+    """A rejected upload must not remain readable after the failed response."""
+    thread_uploads_dir = tmp_path / "uploads"
+    thread_uploads_dir.mkdir(parents=True)
+
+    provider = MagicMock()
+    provider.acquire.return_value = "aio-1"
+    sandbox = MagicMock()
+    provider.get.return_value = sandbox
+
+    with (
+        patch.object(uploads, "get_uploads_dir", return_value=thread_uploads_dir),
+        patch.object(uploads, "get_sandbox_provider", return_value=provider),
+        patch.object(uploads, "_scan_uploads_for_compliance", return_value="blocked"),
+    ):
+        file = UploadFile(filename="secret.txt", file=BytesIO(b"sensitive content"))
+        result = asyncio.run(uploads.upload_files("thread-aio", files=[file]))
+
+    assert result.success is False
+    assert not (thread_uploads_dir / "secret.txt").exists()
+    sandbox.execute_command.assert_called_once_with("rm -f -- /mnt/user-data/uploads/secret.txt")
+
+
+def test_compliance_rejection_restores_overwritten_file_and_generated_markdown(tmp_path):
+    """Rollback restores a prior same-name file instead of deleting user data."""
+    thread_uploads_dir = tmp_path / "uploads"
+    thread_uploads_dir.mkdir(parents=True)
+    original = thread_uploads_dir / "report.pdf"
+    original.write_bytes(b"old-pdf")
+    original_markdown = thread_uploads_dir / "report.md"
+    original_markdown.write_text("old-markdown", encoding="utf-8")
+
+    provider = MagicMock()
+    provider.acquire.return_value = "aio-1"
+    sandbox = MagicMock()
+    provider.get.return_value = sandbox
+
+    async def fake_convert(file_path: Path) -> Path:
+        md_path = file_path.with_suffix(".md")
+        md_path.write_text("new-markdown", encoding="utf-8")
+        return md_path
+
+    with (
+        patch.object(uploads, "get_uploads_dir", return_value=thread_uploads_dir),
+        patch.object(uploads, "get_sandbox_provider", return_value=provider),
+        patch.object(uploads, "convert_file_to_markdown", AsyncMock(side_effect=fake_convert)),
+        patch.object(uploads, "_scan_uploads_for_compliance", return_value="blocked"),
+    ):
+        file = UploadFile(filename="report.pdf", file=BytesIO(b"new-pdf"))
+        result = asyncio.run(uploads.upload_files("thread-aio", files=[file]))
+
+    assert result.success is False
+    assert original.read_bytes() == b"old-pdf"
+    assert original_markdown.read_text(encoding="utf-8") == "old-markdown"
+    sandbox.update_file.assert_any_call("/mnt/user-data/uploads/report.pdf", b"old-pdf")
+    sandbox.update_file.assert_any_call("/mnt/user-data/uploads/report.md", b"old-markdown")
+
+
 def test_upload_files_rejects_dotdot_and_dot_filenames(tmp_path):
     thread_uploads_dir = tmp_path / "uploads"
     thread_uploads_dir.mkdir(parents=True)

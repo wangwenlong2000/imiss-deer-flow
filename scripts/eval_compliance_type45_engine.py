@@ -17,8 +17,9 @@ if str(HARNESS) not in sys.path:
 
 from deerflow.compliance.contract import DetectionUnit, TextItem  # noqa: E402
 from deerflow.compliance.detectors.rule_illegal_political_v4 import legacy_core  # noqa: E402
-from deerflow.compliance.engine import build_engine  # noqa: E402
-from deerflow.config.compliance_config import ComplianceConfig  # noqa: E402
+from deerflow.compliance.engine import ComplianceEngine  # noqa: E402
+from deerflow.compliance.policy import load_policy_matrix  # noqa: E402
+from deerflow.compliance.registry import build_registry  # noqa: E402
 
 DATA_FILE = REPO_ROOT / "datasets/compliance/type45_frozen_test/4_5_test_20pct.jsonl"
 DETECTOR_ID = "rule_illegal_political_v4"
@@ -49,13 +50,11 @@ def _metrics(counts: Counter[str]) -> dict[str, float | int]:
 
 def evaluate() -> dict[str, Any]:
     samples, _ = legacy_core.load_samples(DATA_FILE)
-    config = ComplianceConfig(
-        enabled=True,
-        detectors_config_path="config/compliance/detectors.yaml",
-        policy_matrix_path="config/compliance/policy_matrix.yaml",
-        audit={"enabled": False},
+    registry = build_registry(config_path=REPO_ROOT / "config/compliance/detectors.yaml", strict=True)
+    engine = ComplianceEngine(
+        registry=registry,
+        policy=load_policy_matrix(REPO_ROOT / "config/compliance/policy_matrix.yaml"),
     )
-    engine = build_engine(config)
     for registration in engine.registry.all():
         registration.enabled = registration.detector_id == DETECTOR_ID
 

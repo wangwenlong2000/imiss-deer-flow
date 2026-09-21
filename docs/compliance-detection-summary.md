@@ -36,6 +36,15 @@
 - 检测器不负责决定拒答、脱敏还是放行。
 - 具体处置由“违规类型 × 检测闸门 × 使用场景”矩阵决定。
 
+三道闸不是三套完全独立的系统，而是同一套检测引擎、违规类型、规则/检测器集合和
+处置矩阵在不同位置的调用：InputGate 检查用户 query 和上传数据进入系统前，
+ContextGate 检查检索结果/SkillResult 进入 LLM 上下文前，OutputGate 检查模型最终回答
+输出前。三者的差异在于触发对象、执行时机、性能约束和处置策略。
+
+ContextGate 是 RAG + LLM 系统特有的上下文合规卡点，也是本项目论文/专利可重点描述
+的工程创新点候选。一期优先使用规则匹配、标签/字段查找和轻量模型，不依赖重型 LLM
+判断；需要边界复核时必须另行受控，不能把重型 LLM 放进 ContextGate 主链路。
+
 ## 二、文件结构
 
 ### 1. 核心合规模块
@@ -173,6 +182,17 @@ InputGate 会读取 IntentRecognitionMiddleware 产生的意图信息：
 
 单个文件最多读取 200000 字节。二进制文件目前会跳过，需要后续专门的文件检测器。
 
+#### 第 8 类在 InputGate 的适用边界
+
+`video_meta_leak` 在 InputGate 只适用于图片/视频经过文件预处理后生成的结构化结果，
+例如监控点位、设备标识、接入/播放地址、OCR 文本或视觉标签。纯自然语言 query 且未
+上传媒体时，不适用第 8 类 InputGate。当前上传链路尚未对二进制媒体做通用预处理，因此
+这部分能力仍以文件预处理器接入为前提。
+
+第 8 类在 ContextGate 和 OutputGate 仍可检测检索结果及最终回答；需要结合上下文、
+来源和字段组合判断，不能仅凭“遥感”或普通视频元数据单独归类。遥感元数据只有在
+敏感设施、精确坐标、来源/资产字段等组合满足规则时才可命中。
+
 ### 2. ContextGate
 
 实现文件：backend/packages/harness/deerflow/agents/middlewares/compliance_context_gate_middleware.py
@@ -181,6 +201,9 @@ ContextGate 包装所有工具调用：
 
     wrap_tool_call(...)
     awrap_tool_call(...)
+
+ContextGate 与另外两道闸共用检测引擎和处置矩阵，但只处理即将进入模型上下文的检索
+证据/SkillResult；一期必须保持轻量路径，不调用重型 LLM。
 
 只有返回值是 ToolMessage，且内容能够解析为 SkillResult 时才会进行检测。普通工具文本、控制流对象等会原样放行。
 
@@ -378,7 +401,11 @@ IntentGuard 只对 InputGate 生效：
 
 ### 5. 场景和矩阵
 
-场景解析由 SceneResolver 完成。当前一期 SceneResolver 总是返回 None，因此统一使用 _unknown。
+场景解析由引擎调用 `SceneResolver` 完成。五类场景表示使用权限和公开程度，而不是
+业务领域；`self_use` 相对宽松但不等于全部放行，越接近 `public_release` 要求越严格。
+当前默认部署可能因权限信息缺失而回退到 `_unknown`，但检测器不应假设
+`DetectContext.scenes` 永久为空，也不得自行根据场景决定处置。硬编码凭证、违法有害
+内容、政治敏感内容等底线风险在任何场景下都应拒绝或人工复核。
 
 ### 6. 动作和审计
 
@@ -407,14 +434,18 @@ IntentGuard 只对 InputGate 生效：
       - domain
 
     gates:
-      video_meta_leak: [ContextGate, OutputGate]
+      video_meta_leak: [InputGate, ContextGate, OutputGate]
       re_identify: [OutputGate]
-      domain: [ContextGate, OutputGate]
+      domain: [InputGate, ContextGate, OutputGate]
 
     data_types: null
     cost_hint: light
 
 注册时会检查契约版本、违规类型、闸门、开销等级、参数和检测器 ID。heavy 检测器如果声明挂载到 ContextGate，会在启动时被拒绝。
+
+其中，第 8 类的 InputGate 命中仅针对上传媒体经预处理得到的结构化结果；纯自然语言
+query 不因包含普通视频词或“遥感”字样而进入该类。第 3 类由 InputGate 主检，
+OutputGate 对模型/Skill 生成的明文凭证做兜底检测，ContextGate 一期不重复检测。
 
 支持三种检测器适配方式：
 
@@ -560,9 +591,12 @@ IntentGuard 只对 InputGate 生效：
     public_release
     research_anon
 
-一期没有真实的使用权限和公开范围信息，所有请求默认进入 _unknown 场景。
+五类场景按使用权限和公开程度分类，而不是按业务领域分类：`self_use` 相对宽松，
+但并非所有内容都可放行；越接近 `public_release`，合规要求越严格。当前默认 resolver
+可能在缺少可信权限信息时返回 `_unknown`，但系统已保留 `manual_ui`、`trusted_upstream`
+和 `SceneResolver` 接口，场景不应被描述为永久为空。
 
-### 一期 _unknown 处置规则
+### 缺少可信场景时的 `_unknown` 处置规则
 
 底线三类：
 
@@ -584,11 +618,35 @@ IntentGuard 只对 InputGate 生效：
 
 | 类型 | InputGate | ContextGate | OutputGate |
 |---|---|---|---|
-| video_meta_leak | 不适用 | 检测 | 检测 |
+| video_meta_leak | 检测 | 检测 | 检测 |
 | re_identify | 不适用 | 不适用 | 检测 |
-| domain | 不适用 | 检测 | 检测 |
+| domain | 检测 | 检测 | 检测 |
 
-re_identify 被硬性限制为只允许在 OutputGate 检测。
+re_identify 被硬性限制为只允许在 OutputGate 检测。第 3 类 `hardcoded_cred` 的主
+检测节点是 InputGate；OutputGate 必须对模型或 Skill 生成内容再次兜底检测，ContextGate
+第一阶段不重复检测该类。
+
+### 关键类型的正式矩阵口径
+
+下表记录五类场景正式矩阵的动作要求，场景列依次为
+`self_use`、`internal_org`、`cross_org`、`public_release`、`research_anon`。
+这是指南/业务口径的设计目标；实际动作仍由 `config/compliance/policy_matrix.yaml`
+统一决定。本轮仅同步文档，未修改 YAML 或代码；`_unknown` 是缺少可信场景时的回退列，
+不应替代正式场景分类，当前实现限制见本节后的说明。
+
+| 违规类型 | 闸门 | self_use | internal_org | cross_org | public_release | research_anon |
+|---|---|---|---|---|---|---|
+| `struct_id` 结构化标识符泄露 | InputGate | 放行 | 角色校验 + 告警 | 脱敏 | 拒绝完整标识输入；脱敏后可重新提交 | 脱敏 |
+|  | ContextGate | 放行 | 告警 | 脱敏 | 拒答 | 脱敏 |
+|  | OutputGate | 放行 | 告警 | 脱敏 | 自动脱敏；无法可靠脱敏时拒答 | 脱敏 |
+| `video_meta_leak` 视频监控点位元数据 | InputGate | 放行 | 角色校验 | 自动打码/脱敏 | 自动打码/脱敏；无法可靠处理时拒答 | 打码/脱敏 |
+|  | ContextGate | 放行 | 角色校验 | 脱敏/模糊化 | 拒答 | 脱敏/模糊化 |
+|  | OutputGate（兜底） | 放行 | 角色校验 | 脱敏/模糊化 | 拒答 | 脱敏/模糊化 |
+
+在 `public_release` 等要求严格的矩阵格，第 1 类 InputGate 的完整标识输入应被拦截，
+只有完成脱敏后才允许重新提交；第 1 类 OutputGate 优先自动脱敏，无法可靠脱敏时拒答。
+第 8 类 InputGate 的“自动打码/脱敏”
+仅针对已完成图片/视频文件预处理的结构化结果，不能扩展到未上传媒体的纯文本 query。
 
 ## 九、动作执行方式
 
@@ -867,7 +925,8 @@ config/compliance/detectors.yaml 当前配置：
 
 1. 合规总开关默认关闭：compliance.enabled: false。
 2. 模型权重不在 Git 中，必须通过资源包准备。
-3. 场景解析尚未接入，所有请求走 _unknown。
+3. 默认场景 resolver 仍可能因权限信息缺失回退到 _unknown；场景分类口径、
+   `manual_ui`/`trusted_upstream` 来源和 `SceneResolver` 接口已定义。
 4. 第 1–7 类只有注册和矩阵骨架，尚无实际检测器。
 5. scan_increment() 已实现，但尚未接入生产流式调用方。
 6. rewrite 当前是掩码加提示，不是 LLM 语义重写。

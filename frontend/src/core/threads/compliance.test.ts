@@ -238,6 +238,9 @@ const EVENT = {
   scene: "public_release",
   streaming_mode: "strict_buffered",
   violation_types: ["re_identify"],
+  raw_detection_types: ["re_identify"],
+  effective_violation_types: ["re_identify"],
+  downgraded_detection_types: [],
   action: ["refuse"],
   replacement: "【合规拦截】内容已拦截。",
   notice: "【合规提示】 ...",
@@ -265,6 +268,8 @@ void test("a live event stamps durable metadata onto the message", () => {
   assert.equal(d.auditRef, "audit-live");
   assert.equal(d.scene, "public_release");
   assert.deepEqual(d.basis, ["个人信息保护法 §73(4)"]);
+  assert.deepEqual(d.rawViolationTypes, ["re_identify"]);
+  assert.deepEqual(d.downgradedViolationTypes, []);
   assert.equal(d.mutated, true);
   clearComplianceRetractions();
 });
