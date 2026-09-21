@@ -3,6 +3,8 @@
 Follows the annotation guide §1.2.3: each entry in ``result.evidence[]`` becomes
 one unit, its ``data``/``description`` go into ``text_items``, and its
 ``metadata`` business fields are flattened into dotted ``FieldItem`` paths.
+Optional ``findings[]`` and ``artifacts[]`` are normalized as well because they
+are also serialized into the model context and must not become bypass fields.
 
 That layout is not arbitrary — it mirrors the ``features`` structure of the
 training samples, which is exactly why the ``content_text`` rule reconstructed in
@@ -66,7 +68,7 @@ def try_parse_skill_result(content: Any) -> dict[str, Any] | None:
 
 
 class SkillResultNormalizer(Normalizer):
-    """Turn a parsed ``SkillResult`` into one unit per evidence entry."""
+    """Turn a parsed ``SkillResult`` into units for every model-visible payload section."""
 
     def to_units(self, payload: Any, *, gate: Gate = "ContextGate", data_type: str | None = None, **kwargs: Any) -> tuple[DetectionUnit, ...]:
         result = payload.get("result") if isinstance(payload, Mapping) else None
@@ -82,6 +84,41 @@ class SkillResultNormalizer(Normalizer):
         if isinstance(evidence_list, list):
             for index, evidence in enumerate(evidence_list, start=1):
                 unit = self._evidence_unit(evidence, index, gate, skill_name, request_id, resolved_data_type)
+                if unit is not None:
+                    units.append(unit)
+
+        # `findings` and `artifacts` are optional in the envelope, but when a
+        # skill supplies them they are still part of the retrieval result that
+        # is serialized into the model context.  Do not make `evidence[]` a
+        # bypass around the ContextGate.  The dedicated prefixes keep their
+        # field paths disambiguated for surgical masking.
+        findings = result.get("findings")
+        if isinstance(findings, list):
+            for index, finding in enumerate(findings, start=1):
+                unit = self._evidence_unit(
+                    finding,
+                    index,
+                    gate,
+                    skill_name,
+                    request_id,
+                    resolved_data_type,
+                    kind="skill_finding",
+                    field_prefix="findings",
+                )
+                if unit is not None:
+                    units.append(unit)
+
+        artifacts = result.get("artifacts")
+        if isinstance(artifacts, list):
+            for index, artifact in enumerate(artifacts, start=1):
+                unit = self._artifact_unit(
+                    artifact,
+                    index,
+                    gate,
+                    skill_name,
+                    request_id,
+                    resolved_data_type,
+                )
                 if unit is not None:
                     units.append(unit)
 
@@ -103,7 +140,23 @@ class SkillResultNormalizer(Normalizer):
         skill_name: str,
         request_id: str,
         data_type: str | None,
+        *,
+        kind: str = "skill_evidence",
+        field_prefix: str = "",
     ) -> DetectionUnit | None:
+        if isinstance(evidence, str):
+            source = f"{kind}-{index:03d}"
+            text_items = make_text_items([(source, evidence)])
+            if not text_items:
+                return None
+            return build_unit(
+                unit_id=f"{request_id or skill_name}:{source}",
+                gate=gate,
+                data_type=data_type,
+                text_items=text_items,
+                field_items=(),
+                raw={"kind": kind, "skill_name": skill_name, "evidence_id": source},
+            )
         if not isinstance(evidence, Mapping):
             return None
 
@@ -124,16 +177,18 @@ class SkillResultNormalizer(Normalizer):
 
         field_items = []
         if isinstance(data, (Mapping, list, tuple)):
-            field_items.extend(flatten_fields(data, prefix="data", source=source, counter=field_counter))
+            prefix = f"{field_prefix}.data" if field_prefix else "data"
+            field_items.extend(flatten_fields(data, prefix=prefix, source=source, counter=field_counter))
 
         metadata = evidence.get("metadata")
         if isinstance(metadata, Mapping):
-            field_items.extend(flatten_fields(metadata, prefix="metadata", source=source, counter=field_counter))
+            prefix = f"{field_prefix}.metadata" if field_prefix else "metadata"
+            field_items.extend(flatten_fields(metadata, prefix=prefix, source=source, counter=field_counter))
 
         # Any non-envelope key is business payload too.
         extras = {k: v for k, v in evidence.items() if k not in _ENVELOPE_KEYS and k not in ("data", "metadata", "description")}
         if extras:
-            field_items.extend(flatten_fields(extras, prefix="", source=source, counter=field_counter))
+            field_items.extend(flatten_fields(extras, prefix=field_prefix, source=source, counter=field_counter))
 
         text_items = make_text_items(texts, counter=text_counter)
         if not text_items and not field_items:
@@ -146,11 +201,47 @@ class SkillResultNormalizer(Normalizer):
             text_items=text_items,
             field_items=field_items,
             raw={
-                "kind": "skill_evidence",
+                "kind": kind,
                 "skill_name": skill_name,
                 "evidence_id": evidence_id,
                 "evidence_type": evidence.get("type"),
             },
+        )
+
+    def _artifact_unit(
+        self,
+        artifact: Any,
+        index: int,
+        gate: Gate,
+        skill_name: str,
+        request_id: str,
+        data_type: str | None,
+    ) -> DetectionUnit | None:
+        """Normalize artifact names/URIs, which may contain media metadata."""
+        source = f"artifact-{index:03d}"
+        if isinstance(artifact, Mapping):
+            texts = []
+            for key in ("title", "description", "uri", "url", "path"):
+                value = artifact.get(key)
+                if isinstance(value, str) and value.strip():
+                    texts.append((source, value))
+            fields = flatten_fields(artifact, prefix="artifacts", source=source)
+        elif isinstance(artifact, str) and artifact.strip():
+            texts = [(source, artifact)]
+            fields = []
+        else:
+            return None
+
+        text_items = make_text_items(texts)
+        if not text_items and not fields:
+            return None
+        return build_unit(
+            unit_id=f"{request_id or skill_name}:{source}",
+            gate=gate,
+            data_type=data_type,
+            text_items=text_items,
+            field_items=fields,
+            raw={"kind": "skill_artifact", "skill_name": skill_name, "artifact_id": source},
         )
 
     def _display_text_unit(

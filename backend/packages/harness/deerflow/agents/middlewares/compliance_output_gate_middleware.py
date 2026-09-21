@@ -83,7 +83,7 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
-from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions
+from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions, has_terminal_refusal
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
@@ -217,12 +217,19 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
                 return None
             return self._retract(message, FAIL_CLOSED_NOTICE, decision, state)
 
-        if not decision.actions:
+        # `allow` is an explicit policy result for self_use.  Do not turn it
+        # into a warning/retraction merely because a detector found an entity
+        # that the current scene permits.
+        if not decision.actions or set(decision.actions) <= {"allow"}:
             self._scan_offsets.pop(message_id, None)
             self._remember(message, text)
             return {"messages": [self._rewritten(message, text, decision, state, retracted=False)]}
 
-        replacement = apply_actions(text, decision.actions, decision.hits)
+        replacement = (
+            REFUSAL_TEXT
+            if has_terminal_refusal(decision.actions, decision.per_violation_actions)
+            else apply_actions(text, decision.actions, decision.hits)
+        )
         if replacement is None:
             # warn / manual_review only: nothing to rewrite, but the user should
             # still be told the answer was flagged.

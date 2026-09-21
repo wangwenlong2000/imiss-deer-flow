@@ -41,7 +41,13 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 
 from deerflow.agents.thread_state import ThreadState
-from deerflow.compliance.actions import REFUSAL_TEXT, mask_text
+from deerflow.compliance.actions import (
+    AGGREGATE_NOTICE,
+    REFUSAL_TEXT,
+    REWRITE_NOTICE,
+    has_terminal_refusal,
+    mask_text,
+)
 from deerflow.compliance.normalizers.skill_result import (
     SkillResultNormalizer,
     evidence_scores,
@@ -124,7 +130,15 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
                 return self._annotate_only(message, payload, decision)
             return self._rewrite(message, payload, decision, fail_closed=True)
 
-        if not decision.actions:
+        # `allow` is a real matrix disposition, not a warning-only result.  A
+        # self-use hit must remain byte-for-byte unchanged at this gate.
+        if not decision.actions or set(decision.actions) <= {"allow"}:
+            # A non-applicable hit has no action by design, but the engine may
+            # have emitted a routing warning. Preserve that warning in the
+            # structured envelope instead of silently passing a misrouted
+            # detector result through the RAG boundary.
+            if decision.hits and decision.diagnostics.warnings:
+                return self._annotate_only(message, payload, decision)
             return message
 
         return self._rewrite(message, payload, decision, fail_closed=False)
@@ -201,10 +215,24 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         mutated = copy.deepcopy(payload)
         result = mutated.get("result")
         if isinstance(result, dict):
-            if fail_closed or "refuse" in decision.actions:
+            transform_actions = set(decision.actions) & {"aggregate", "desensitize", "rewrite"}
+            if fail_closed or has_terminal_refusal(decision.actions, decision.per_violation_actions):
                 self._blank_result(result, FAIL_CLOSED_NOTICE if fail_closed else REFUSAL_TEXT)
-            elif any(action in decision.actions for action in ("desensitize", "rewrite", "aggregate")):
-                self._mask_result(result, decision)
+            elif transform_actions:
+                changed = self._mask_result(result, decision)
+                if not changed:
+                    # Matrix cells that offer a transformation with refusal as
+                    # a fallback must never leak the original simply because a
+                    # detector returned a field location the structured result
+                    # could not apply.
+                    self._blank_result(result, REFUSAL_TEXT)
+                else:
+                    if "aggregate" in transform_actions:
+                        result["display_text"] = f"{AGGREGATE_NOTICE}\n{result.get('display_text', '')}".strip()
+                    if "rewrite" in transform_actions:
+                        result["display_text"] = f"{REWRITE_NOTICE}\n{result.get('display_text', '')}".strip()
+            elif "refuse" in decision.actions:
+                self._blank_result(result, REFUSAL_TEXT)
 
         self._append_warnings(mutated, decision)
         return self._replace_content(message, mutated)
@@ -219,12 +247,16 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         result["display_text"] = notice
         result["evidence"] = []
         result["findings"] = []
-        summary = result.get("summary")
-        if isinstance(summary, dict):
-            summary["overview"] = notice
+        result["artifacts"] = []
+        result["summary"] = {"overview": notice}
+        # Skill implementations may add extension fields.  Refusal must clear
+        # those too instead of assuming only the canonical four keys exist.
+        for key in list(result):
+            if key not in {"display_text", "evidence", "findings", "artifacts", "summary"}:
+                result[key] = None
 
     @staticmethod
-    def _mask_result(result: dict[str, Any], decision: ComplianceDecision) -> None:
+    def _mask_result(result: dict[str, Any], decision: ComplianceDecision) -> bool:
         """Mask the reported risk locations, leaving the rest readable.
 
         Surgical beats wholesale: the model keeps the parts of the evidence it
@@ -232,29 +264,81 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         """
         hits = list(decision.hits)
         located = {location.locator for hit in hits for location in hit.risk_locations}
+        changed = False
 
-        display = result.get("display_text")
-        if isinstance(display, str) and display:
-            masked, _ = mask_text(display, hits)
-            result["display_text"] = masked
+        # Literal locations and character spans can appear in display text,
+        # findings, artifact URIs, or extension fields.  Walk all values so a
+        # sensitive string is not hidden merely because it was duplicated
+        # outside evidence[].
+        literal_texts = sorted(
+            {
+                location.text
+                for hit in hits
+                for location in hit.risk_locations
+                if location.text
+            },
+            key=len,
+            reverse=True,
+        )
+
+        def mask_literals(value: Any) -> Any:
+            nonlocal changed
+            if isinstance(value, str):
+                masked = value
+                for literal in literal_texts:
+                    if literal in masked:
+                        masked = masked.replace(literal, "*" * len(literal))
+                        changed = True
+                return masked
+            if isinstance(value, dict):
+                for key, item in list(value.items()):
+                    value[key] = mask_literals(item)
+                return value
+            if isinstance(value, list):
+                for index, item in enumerate(value):
+                    value[index] = mask_literals(item)
+                return value
+            return value
+
+        mask_literals(result)
+
+        # Character offsets are meaningful only in the text-bearing fields from
+        # which the normalizer built a TextItem.  Do not apply an output span
+        # such as `0:12` to unrelated titles/URIs at the same array level.
+        def mask_text_field(container: dict[str, Any], key: str) -> None:
+            nonlocal changed
+            value = container.get(key)
+            if isinstance(value, str):
+                masked, did_change = mask_text(value, hits)
+                container[key] = masked
+                changed = changed or did_change
+
+        mask_text_field(result, "display_text")
 
         evidence_list = result.get("evidence")
-        if not isinstance(evidence_list, list):
-            return
-        for evidence in evidence_list:
-            if not isinstance(evidence, dict):
-                continue
-            for key in ("data", "description"):
-                value = evidence.get(key)
-                if isinstance(value, str) and value:
-                    masked, _ = mask_text(value, hits)
-                    evidence[key] = masked
-            metadata = evidence.get("metadata")
-            if isinstance(metadata, dict):
-                _mask_mapping(metadata, located, prefix="metadata")
-            data = evidence.get("data")
-            if isinstance(data, dict):
-                _mask_mapping(data, located, prefix="data")
+        if isinstance(evidence_list, list):
+            for evidence in evidence_list:
+                if not isinstance(evidence, dict):
+                    continue
+                for key in ("title", "description", "data", "text", "message"):
+                    mask_text_field(evidence, key)
+                changed = _mask_mapping(evidence.get("metadata"), located, prefix="metadata") or changed
+                changed = _mask_mapping(evidence.get("data"), located, prefix="data") or changed
+
+        findings = result.get("findings")
+        if isinstance(findings, list):
+            for finding in findings:
+                if isinstance(finding, dict):
+                    for key in ("title", "description", "data", "text", "message"):
+                        mask_text_field(finding, key)
+                    changed = _mask_mapping(finding, located, prefix="findings") or changed
+
+        artifacts = result.get("artifacts")
+        if isinstance(artifacts, list):
+            for artifact in artifacts:
+                if isinstance(artifact, dict):
+                    changed = _mask_mapping(artifact, located, prefix="artifacts") or changed
+        return changed
 
     @staticmethod
     def _append_warnings(payload: dict[str, Any], decision: ComplianceDecision) -> None:
@@ -300,14 +384,25 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         )
 
 
-def _mask_mapping(mapping: dict[str, Any], located: set[str], *, prefix: str) -> None:
+def _mask_mapping(mapping: Any, located: set[str], *, prefix: str) -> bool:
     """Star out mapping values whose dotted path was reported as risky."""
+    if not isinstance(mapping, (dict, list)):
+        return False
+    changed = False
+    if isinstance(mapping, list):
+        for index, value in enumerate(mapping):
+            changed = _mask_mapping(value, located, prefix=f"{prefix}[{index}]") or changed
+        return changed
     for key, value in list(mapping.items()):
         path = f"{prefix}.{key}"
         if path in located and isinstance(value, (str, int, float)):
             mapping[key] = "*" * len(str(value))
+            changed = True
         elif isinstance(value, dict):
-            _mask_mapping(value, located, prefix=path)
+            changed = _mask_mapping(value, located, prefix=path) or changed
+        elif isinstance(value, list):
+            changed = _mask_mapping(value, located, prefix=path) or changed
+    return changed
 
 
 __all__ = ["ComplianceContextGateMiddleware"]

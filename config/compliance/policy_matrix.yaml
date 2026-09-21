@@ -9,7 +9,9 @@
 #   放行→allow  告警→warn  角色校验→role_check  脱敏→desensitize
 #   模糊化→desensitize（降低精度也是脱敏的一种，标注样本即如此归并）
 #   聚合化→aggregate  改写→rewrite  人工复核→manual_review  拒答→refuse
-#   "A / B" 表示二选一 → 记为 [A, B]，引擎取其中最强的一个执行
+#   组合动作仍完整保留在列表中：例如 [warn, desensitize] 要同时告警并脱敏，
+#   [aggregate, rewrite] 要先聚合再改写；[desensitize, refuse] 表示先尝试
+#   脱敏，无法可靠定位时拒答。动作执行器按这些语义处理，不能简单丢掉较弱动作。
 #
 # `null` = docx 表中的 "—"：该违规类型在该闸门不适用（不检测 / 无业务权限接触）。
 # 命中 null 格说明检测器路由错了或标注有缺口，引擎会记 warning 而不是静默放行。

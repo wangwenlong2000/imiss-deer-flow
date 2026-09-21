@@ -36,7 +36,7 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
 from deerflow.agents.thread_state import ThreadState
-from deerflow.compliance.actions import REFUSAL_TEXT
+from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions, has_terminal_refusal
 from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, IntentInfo, UserContext
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
@@ -169,13 +169,42 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
                 content=FAIL_CLOSED_NOTICE,
             )
 
-        if "refuse" in decision.actions:
+        if self._input_refusal_is_terminal(decision):
             # Guide action 10: terminate the request before the model runs.  The
             # refusal is also stamped with the same durable metadata contract as
             # OutputGate retractions, so the frontend renders its structured,
             # destructive compliance card instead of treating this as ordinary
             # assistant Markdown.
             return self._block(decision, scene_resolution.to_dict() if has_scene_context else None)
+
+        # InputGate dispositions are effective on the request itself.  Merely
+        # recording `desensitize`/`aggregate` and then letting the original
+        # HumanMessage continue would make the policy metadata cosmetic: the
+        # model would still receive the sensitive query.  The same action
+        # executor is used by OutputGate so fallback and compound-action
+        # semantics stay identical across gates.
+        replacement = apply_actions(query, decision.actions, decision.hits)
+        if replacement is not None:
+            if replacement == REFUSAL_TEXT:
+                # A requested transformation could not be applied safely.  Do
+                # not send the raw query onward just because the matrix cell
+                # did not spell out `refuse` as a separate action.
+                return self._block(decision, scene_resolution.to_dict() if has_scene_context else None)
+            update_messages = self._replace_last_user_message(state, replacement)
+            if update_messages is None:
+                return self._block(
+                    decision,
+                    scene_resolution.to_dict() if has_scene_context else None,
+                    content=FAIL_CLOSED_NOTICE,
+                )
+            update: dict[str, Any] = {
+                "messages": update_messages,
+                "compliance_input_result": decision_check(decision),
+            }
+            if has_scene_context:
+                update[SCENE_CONTEXT_KEY] = scene_resolution.to_dict()
+            return update
+
         update: dict[str, Any] = {"compliance_input_result": decision_check(decision)}
         if has_scene_context:
             update[SCENE_CONTEXT_KEY] = scene_resolution.to_dict()
@@ -214,6 +243,25 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
                 **(scene_origin or {}),
             },
         )
+
+    @staticmethod
+    def _input_refusal_is_terminal(decision: ComplianceDecision) -> bool:
+        """Keep explicit InputGate refusals from becoming silent rewrites.
+
+        Type 1's public-input cell is documented as "reject the complete
+        identifier; resubmit after sanitizing", so its matrix order is
+        ``refuse, desensitize``.  Type 8's input cell is the opposite workflow:
+        ``desensitize, refuse`` means automatic media masking with refusal only
+        when masking fails.  Preserve that distinction while still making all
+        baseline refusals terminal.
+        """
+        if has_terminal_refusal(decision.actions, decision.per_violation_actions):
+            return True
+        for cell_actions in decision.per_violation_actions.values():
+            cell = tuple(cell_actions)
+            if "refuse" in cell and cell and cell[0] == "refuse":
+                return True
+        return False
 
     @staticmethod
     def _block(
@@ -257,16 +305,59 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
 
     @staticmethod
     def _last_user_text(state: AgentState) -> str | None:
+        message = ComplianceInputGateMiddleware._last_user_message(state)
+        if message is None:
+            return None
+        content = message.content
+        if isinstance(content, str) and content.strip():
+            return content.strip()
+        if isinstance(content, list):
+            parts = [b["text"] for b in content if isinstance(b, dict) and isinstance(b.get("text"), str)]
+            if parts:
+                return "\n".join(parts).strip()
+        return None
+
+    @staticmethod
+    def _last_user_message(state: AgentState) -> HumanMessage | None:
         for message in reversed((state or {}).get("messages") or []):
+            if isinstance(message, HumanMessage):
+                return message
+        return None
+
+    @staticmethod
+    def _replace_last_user_message(state: AgentState, content: str) -> list[Any] | None:
+        """Replace the latest user text while retaining non-text media blocks."""
+        messages = list((state or {}).get("messages") or [])
+        for index in range(len(messages) - 1, -1, -1):
+            message = messages[index]
             if not isinstance(message, HumanMessage):
                 continue
-            content = message.content
-            if isinstance(content, str) and content.strip():
-                return content.strip()
-            if isinstance(content, list):
-                parts = [b["text"] for b in content if isinstance(b, dict) and isinstance(b.get("text"), str)]
-                if parts:
-                    return "\n".join(parts).strip()
+            replacement: Any = content
+            if isinstance(message.content, list):
+                blocks: list[Any] = []
+                replaced_text = False
+                for block in message.content:
+                    if isinstance(block, dict) and isinstance(block.get("text"), str):
+                        if replaced_text:
+                            blocks.append({**block, "text": ""})
+                        else:
+                            blocks.append({**block, "text": content})
+                            replaced_text = True
+                    elif isinstance(block, str):
+                        if replaced_text:
+                            blocks.append("")
+                        else:
+                            blocks.append(content)
+                            replaced_text = True
+                    else:
+                        blocks.append(block)
+                if replaced_text:
+                    replacement = blocks
+            try:
+                messages[index] = message.model_copy(update={"content": replacement})
+            except AttributeError:  # pragma: no cover - legacy LangChain
+                messages[index] = HumanMessage(content=replacement, id=message.id)
+            return messages
         return None
 
 

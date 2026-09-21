@@ -73,15 +73,18 @@ def mask_text(text: str, hits: Iterable[DetectionHit]) -> tuple[str, bool]:
     result = text
     changed = False
 
-    # Literal replacement first: spans are computed against the original string,
-    # so doing spans first would invalidate them if lengths changed.
+    # Literal replacement first: masking preserves length, so char spans remain
+    # aligned with the original string while both location forms are applied.
     for literal in {t for hit in hits for t in _literal_texts(hit)}:
         if literal and literal in result:
             result = result.replace(literal, MASK_CHARACTER * len(literal))
             changed = True
 
-    if spans and not changed:
-        # Apply right-to-left so earlier offsets stay valid.
+    if spans:
+        # Literal masking preserves string length, so the original offsets are
+        # still valid. Apply right-to-left so overlapping replacements do not
+        # shift earlier offsets, even when another hit was already masked by
+        # its literal location.
         chars = list(result)
         for start, end in sorted(spans, key=lambda s: s[0], reverse=True):
             if start < len(chars):
@@ -133,27 +136,70 @@ def apply_aggregate(text: str, hits: Iterable[DetectionHit]) -> str:
     return f"{AGGREGATE_NOTICE}\n{masked}"
 
 
-#: Action -> transformer. Actions absent from this map have no payload effect.
-_TRANSFORMERS = {
-    "refuse": lambda text, hits: apply_refuse(text),
-    "rewrite": apply_rewrite,
-    "aggregate": apply_aggregate,
-    "desensitize": apply_desensitize,
-}
-
-
 def apply_actions(text: str, actions: Iterable[str], hits: Iterable[DetectionHit]) -> str | None:
-    """Apply the strongest payload-changing action in *actions*.
+    """Apply the payload-changing part of a matrix action set.
 
-    Only one transformation runs: chaining ``desensitize`` into ``rewrite`` would
-    double-annotate the output and lose the original spans. Returns ``None`` when
-    no action changes the payload.
+    The matrix contains both compound actions and fallbacks.  For example,
+    ``aggregate + rewrite`` means that both transformations are required, while
+    ``desensitize + refuse`` means "try to sanitize; refuse if that cannot be
+    done reliably".  Treating every list as "pick the strongest action" loses
+    that distinction and, in particular, would refuse answers that the matrix
+    explicitly says to sanitize first.
+
+    ``warn``/``report``/``role_check``/``manual_review`` are intentionally left
+    to the audit/metadata layer. Returns ``None`` when no payload action exists.
     """
     hits = list(hits)
-    for action in ("refuse", "rewrite", "aggregate", "desensitize"):
-        if action in actions:
-            return _TRANSFORMERS[action](text, hits)
-    return None
+    action_set = set(actions)
+    transform_actions = action_set & {"aggregate", "desensitize", "rewrite"}
+
+    if not transform_actions:
+        return apply_refuse(text) if "refuse" in action_set else None
+
+    # All current matrix cells containing both `refuse` and a transform use
+    # refuse as a reliability fallback.  Try the transform first and only
+    # refuse when no safe location can be changed.
+    if "aggregate" in transform_actions and "rewrite" in transform_actions:
+        masked, changed = mask_text(text, hits)
+        if not changed:
+            return apply_refuse(text)
+        return f"{REWRITE_NOTICE}\n{AGGREGATE_NOTICE}\n{masked}"
+
+    if "aggregate" in transform_actions:
+        masked, changed = mask_text(text, hits)
+        return f"{AGGREGATE_NOTICE}\n{masked}" if changed else apply_refuse(text)
+
+    if "rewrite" in transform_actions:
+        masked, changed = mask_text(text, hits)
+        return f"{REWRITE_NOTICE}\n{masked}" if changed else apply_refuse(text)
+
+    # Desensitization is also the first choice for cells such as
+    # `desensitize / refuse` and `refuse; desensitize`.
+    masked, changed = mask_text(text, hits)
+    if changed:
+        return masked
+    return apply_refuse(text) if "refuse" in action_set else apply_desensitize(text, hits)
+
+
+def has_terminal_refusal(
+    actions: Iterable[str],
+    per_violation_actions: dict[str, Iterable[str]] | None = None,
+) -> bool:
+    """Whether a decision contains a refusal that is not a transform fallback.
+
+    The merged action tuple can contain ``refuse`` together with a sanitizer
+    belonging to another violation.  A bottom-line hit such as a credential or
+    illegal content must still win that merge.  Per-violation matrix cells let
+    the middlewares distinguish that terminal refusal from cells that mean
+    "sanitize, otherwise refuse".
+    """
+    if per_violation_actions:
+        for cell_actions in per_violation_actions.values():
+            cell = set(cell_actions)
+            if "refuse" in cell and not cell & {"aggregate", "desensitize", "rewrite"}:
+                return True
+        return False
+    return "refuse" in set(actions)
 
 
 __all__ = [
@@ -166,5 +212,6 @@ __all__ = [
     "apply_desensitize",
     "apply_refuse",
     "apply_rewrite",
+    "has_terminal_refusal",
     "mask_text",
 ]
