@@ -60,7 +60,8 @@ matrix:
       self_use: [allow]
       internal_org: [role_check, warn]
       cross_org: [desensitize]
-      public_release: [refuse, desensitize]
+      # 修订版指南：完整标识输入直接拒答；用户可在自行脱敏后重新提交。
+      public_release: [refuse]
       research_anon: [desensitize]
     ContextGate:
       _unknown: [warn, manual_review]
@@ -74,7 +75,9 @@ matrix:
       self_use: [allow]
       internal_org: [warn]
       cross_org: [desensitize]
-      public_release: [refuse, desensitize]
+      # 修订版指南：优先自动脱敏；actions.apply_desensitize 在无法可靠
+      # 定位并脱敏风险片段时会自动回退为拒答。
+      public_release: [desensitize]
       research_anon: [desensitize]
 
   # 2 精确地理位置泄露（docx 的"模糊化"归并为 desensitize）

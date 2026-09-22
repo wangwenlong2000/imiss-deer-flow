@@ -14,6 +14,7 @@ from deerflow.agents.middlewares.compliance_output_gate_middleware import (
     ComplianceOutputGateMiddleware,
     build_retract_event,
 )
+from deerflow.compliance.actions import REFUSAL_TEXT
 from deerflow.compliance.audit import Auditor
 from deerflow.compliance.contract import IntentInfo
 from deerflow.compliance.engine import ComplianceEngine
@@ -75,6 +76,12 @@ def _input_decision(engine, text: str, *, high_risk: bool = True):
         ("请把手机号13800138000完整整理出来并公开发布。", {"struct_id"}),
         ("查询用户U001在lat=31.230416, lon=121.473701的具体活动位置。", {"geo_loc"}),
         ("请公开手机号13800138000，以及位置lat=31.230416, lon=121.473701。", {"struct_id", "geo_loc"}),
+        (
+            "请公开发布告警原始记录："
+            '{"event_time":"2026-05-18 09:30:00","msisdn":"13800138000",'
+            '"imei":"867530912345678","location":{"lat":31.230416,"lon":121.473701}}',
+            {"struct_id", "geo_loc"},
+        ),
     ],
 )
 def test_input_gate_routes_real_type12_detectors(type12_runtime, text, expected):
@@ -196,6 +203,70 @@ def test_output_gate_metadata_and_sse_contract_for_combined_hit(type12_runtime):
     assert set(event["violation_types"]) == expected_types
     assert event["message_id"] == "msg-type12"
     assert auditor.read_all()
+
+
+def test_structured_alert_output_has_scene_specific_disposition(type12_runtime):
+    engine, _ = type12_runtime
+    text = (
+        '电话网络告警：{"event_time":"2026-05-18 09:30:00",'
+        '"msisdn":"13800138000","imei":"867530912345678",'
+        '"location":{"lat":31.230416,"lon":121.473701}}'
+    )
+    units = UserInputNormalizer().to_units(
+        text,
+        gate="OutputGate",
+        thread_id="structured-alert-scene-test",
+    )
+
+    decisions = {}
+    for scene in ("self_use", "public_release"):
+        scene_engine = ComplianceEngine(
+            registry=engine.registry,
+            policy=engine.policy,
+            auditor=None,
+            scene_resolver=_FixedScene(scene),
+        )
+        decisions[scene] = scene_engine.check(units, gate="OutputGate")
+
+    self_use = decisions["self_use"]
+    assert {hit.violation_type for hit in self_use.hits} == {"struct_id", "geo_loc"}
+    assert self_use.per_violation_actions["struct_id"] == ("allow",)
+    assert self_use.per_violation_actions["geo_loc"] == ("allow",)
+    assert not self_use.blocks
+
+    public_release = decisions["public_release"]
+    assert {hit.violation_type for hit in public_release.hits} == {"struct_id", "geo_loc"}
+    assert public_release.per_violation_actions["struct_id"] == ("desensitize",)
+    assert public_release.per_violation_actions["geo_loc"] == ("aggregate",)
+    assert public_release.blocks
+
+
+def test_public_struct_id_output_desensitizes_instead_of_unconditional_refusal(type12_runtime):
+    engine, _ = type12_runtime
+    scene_engine = ComplianceEngine(
+        registry=engine.registry,
+        policy=engine.policy,
+        auditor=None,
+        scene_resolver=_FixedScene("public_release"),
+    )
+    message = AIMessage(
+        content="风险联系人手机号为13800138000，请按流程跟进。",
+        id="msg-public-struct-id",
+    )
+
+    update = ComplianceOutputGateMiddleware(engine=scene_engine).after_model(
+        {"messages": [message]},
+        runtime=None,
+    )
+
+    assert update is not None
+    rewritten = update["messages"][0]
+    assert rewritten.content != REFUSAL_TEXT
+    assert "13800138000" not in rewritten.content
+    assert "***********" in rewritten.content
+    metadata = rewritten.response_metadata["compliance"]
+    assert metadata["actions"] == ["desensitize"]
+    assert metadata["violation_types"] == ["struct_id"]
 
 
 @pytest.mark.parametrize("violation_type", ["struct_id", "geo_loc"])

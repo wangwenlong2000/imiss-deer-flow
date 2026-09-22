@@ -454,6 +454,15 @@ City governance data carries real compliance risk — surveillance camera metada
 records, telecom identifiers. DeerFlow inspects it at three points in the agent loop, using
 one engine, one detector set and one disposition matrix.
 
+The lightweight type-1/type-2 rule plugins also inspect structured text that
+arrives at InputGate without prior JSON parsing. Quoted JSON/YAML telecom
+identifiers, nested latitude/longitude objects, and GeoJSON coordinate arrays
+are supported. Precise telecom coordinates require an object-and-time binding;
+placeholder identifiers and coarse coordinates remain negative cases.
+For public-release outputs, type-1 identifiers are masked first; if no
+reliable risk location can be masked, the disposition executor falls back to
+the standard refusal response.
+
 **Three gates**
 
 | Gate | When | What it inspects |

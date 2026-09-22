@@ -203,3 +203,76 @@ def test_detects_telecom_object_time_cell_combination():
         loc.kind == "field_path" and loc.locator == "features.cell"
         for loc in hits[0].risk_locations
     )
+
+
+def test_detects_nested_json_coordinate_in_telecom_alert():
+    text = (
+        '告警原始记录：{"event_time":"2026-05-18 09:30:00",'
+        '"msisdn":"13800138000","location":{"lat":31.230416,"lon":121.473701}}'
+    )
+    hits = new_detector().detect(
+        make_text_unit(text, data_type="phone_network"),
+        DetectContext(gate="InputGate"),
+    )
+
+    assert hits
+    assert any('"lat":31.230416' in (loc.text or "") for loc in hits[0].risk_locations)
+    assert any('"lon":121.473701' in (loc.text or "") for loc in hits[0].risk_locations)
+
+
+def test_telecom_coordinate_requires_object_and_time_binding():
+    text = '系统参数：{"location":{"lat":31.230416,"lon":121.473701}}'
+    hits = new_detector().detect(
+        make_text_unit(text, data_type="phone_network"),
+        DetectContext(gate="InputGate"),
+    )
+
+    assert hits == []
+
+
+def test_detects_geojson_coordinate_array_in_text():
+    text = '轨迹点：{"type":"Point","coordinates":[121.473701,31.230416]}'
+    hits = new_detector().detect(
+        make_text_unit(text),
+        DetectContext(gate="ContextGate"),
+    )
+
+    assert hits
+    assert any(
+        loc.entity_type == "gps_coordinate" and "coordinates" in (loc.text or "")
+        for loc in hits[0].risk_locations
+    )
+
+
+def test_detects_flattened_geojson_coordinate_array_fields():
+    unit = DetectionUnit(
+        unit_id="u-geojson-fields",
+        gate="ContextGate",
+        data_type="spatiotemporal_trajectory",
+        field_items=(
+            FieldItem(item_id="f1", path="geometry.coordinates[0]", value=121.473701, source="test"),
+            FieldItem(item_id="f2", path="geometry.coordinates[1]", value=31.230416, source="test"),
+        ),
+    )
+    hits = new_detector().detect(unit, DetectContext(gate="ContextGate"))
+
+    assert hits
+    assert any(
+        loc.kind == "field_path" and loc.locator == "geometry.coordinates"
+        for loc in hits[0].risk_locations
+    )
+
+
+def test_ignores_coarse_coordinate_fields():
+    unit = DetectionUnit(
+        unit_id="u-coarse-geo",
+        gate="ContextGate",
+        data_type="spatiotemporal_trajectory",
+        field_items=(
+            FieldItem(item_id="f1", path="location.lat", value=31.23, source="test"),
+            FieldItem(item_id="f2", path="location.lon", value=121.47, source="test"),
+        ),
+    )
+    hits = new_detector().detect(unit, DetectContext(gate="ContextGate"))
+
+    assert hits == []

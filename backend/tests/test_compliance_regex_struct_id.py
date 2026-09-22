@@ -228,3 +228,27 @@ def test_ignores_masked_phone():
         DetectContext(gate="ContextGate"),
     )
     assert hits == []
+
+
+def test_detects_quoted_imei_in_nested_json_text():
+    text = '告警原始记录：{"device":{"imei":"867530912345678"}}'
+    hits = new_detector().detect(
+        make_text_unit(text, data_type="phone_network"),
+        DetectContext(gate="InputGate"),
+    )
+
+    assert hits
+    assert any(
+        loc.kind == "char_span" and "867530912345678" in (loc.text or "")
+        for loc in hits[0].risk_locations
+    )
+
+
+def test_ignores_placeholder_telecom_identifiers_in_json_text():
+    text = '{"imei":"unknown", "imsi":"000000000000000", "user_id":"example_user_id"}'
+    hits = new_detector().detect(
+        make_text_unit(text, data_type="phone_network"),
+        DetectContext(gate="InputGate"),
+    )
+
+    assert hits == []
