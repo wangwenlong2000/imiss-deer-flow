@@ -262,10 +262,134 @@ def test_stream_forwards_compliance_refusal_once_as_feedback(monkeypatch: pytest
     assert compliance_payloads[0]["gate"] == "OutputGate"
     assert compliance_payloads[0]["actions"] == ["refuse"]
     assert compliance_payloads[0]["final_disposition"] == "refuse"
-    canonical_compliance = {
-        key: value for key, value in compliance_payloads[0].items() if key != "compliance_result"
-    }
+    canonical_compliance = {key: value for key, value in compliance_payloads[0].items() if key != "compliance_result"}
     assert compliance_payloads[0]["compliance_result"] == canonical_compliance
 
     done_payload = next(json.loads(frame.split("data: ", 1)[1]) for frame in frames if frame.startswith("event: done\n"))
     assert done_payload["compliance_results"] == [canonical_compliance]
+
+
+def test_terminal_state_event_requires_a_new_completed_current_turn() -> None:
+    state = {
+        "values": {
+            "messages": [
+                {"type": "human", "content": "查询敏感信息"},
+                {
+                    "type": "ai",
+                    "content": REFUSAL,
+                    "response_metadata": {
+                        "compliance": {
+                            "gate": "InputGate",
+                            "scene": "public_release",
+                            "actions": ["refuse"],
+                            "violation_types": ["struct_id"],
+                            "audit_ref": "audit-input-refuse",
+                            "basis": ["input-policy"],
+                        }
+                    },
+                },
+            ]
+        },
+        "next": [],
+        "checkpoint_id": "checkpoint-new",
+    }
+
+    event = mobile._terminal_state_event(
+        state,
+        current_query="查询敏感信息",
+        initial_checkpoint_id="checkpoint-old",
+    )
+
+    assert event == {"event": "values", "data": state["values"]}
+    assert (
+        mobile._terminal_state_event(
+            state,
+            current_query="另一个问题",
+            initial_checkpoint_id="checkpoint-old",
+        )
+        is None
+    )
+    assert (
+        mobile._terminal_state_event(
+            state,
+            current_query="查询敏感信息",
+            initial_checkpoint_id="checkpoint-new",
+        )
+        is None
+    )
+
+
+def test_stream_recovers_done_from_terminal_state_when_sdk_stream_stalls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def stalled_producer(_chat_req, queue) -> None:
+        await queue.put(
+            {
+                "kind": "start",
+                "thread_id": "thread-stalled",
+                "initial_checkpoint_id": "checkpoint-old",
+            }
+        )
+        while True:
+            # The SDK can keep yielding non-displayable transport chunks after
+            # LangGraph has already committed the terminal checkpoint.
+            await queue.put(
+                {
+                    "kind": "chunk",
+                    "raw_event": {"event": "metadata", "data": {}},
+                }
+            )
+            await asyncio.sleep(0.001)
+
+    terminal_event = {
+        "event": "values",
+        "data": {
+            "messages": [
+                {"type": "human", "content": "查询敏感信息"},
+                {
+                    "type": "ai",
+                    "content": REFUSAL,
+                    "response_metadata": {
+                        "compliance": {
+                            "gate": "InputGate",
+                            "scene": "public_release",
+                            "actions": ["refuse"],
+                            "violation_types": ["struct_id"],
+                            "audit_ref": "audit-stalled",
+                            "basis": ["input-policy"],
+                            "retracted": True,
+                        }
+                    },
+                },
+            ]
+        },
+    }
+
+    async def fake_terminal_event(*_args, **_kwargs):
+        return terminal_event
+
+    monkeypatch.setattr(mobile, "_produce_langgraph_stream", stalled_producer)
+    monkeypatch.setattr(mobile, "_load_terminal_state_event", fake_terminal_event)
+    monkeypatch.setattr(mobile, "MOBILE_STREAM_HEARTBEAT_SECONDS", 0.01)
+    request = mobile.DeerFlowMobileRunRequest(
+        query="查询敏感信息",
+        conversation_id="conversation-stalled",
+        stream=True,
+    )
+
+    async def collect_frames() -> list[str]:
+        async def collect() -> list[str]:
+            return [frame async for frame in mobile._stream_deerflow_mobile_run(request)]
+
+        return await asyncio.wait_for(
+            collect(),
+            timeout=0.5,
+        )
+
+    frames = asyncio.run(collect_frames())
+
+    assert any(frame.startswith("event: compliance\n") for frame in frames)
+    done_payload = next(json.loads(frame.split("data: ", 1)[1]) for frame in frames if frame.startswith("event: done\n"))
+    assert done_payload["thread_id"] == "thread-stalled"
+    assert done_payload["compliance_results"][0]["audit_ref"] == "audit-stalled"
+    assert frames[-1] == "data: [DONE]\n\n"

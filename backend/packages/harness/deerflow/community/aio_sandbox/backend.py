@@ -96,3 +96,15 @@ class SandboxBackend(ABC):
             SandboxInfo if found and healthy, None otherwise.
         """
         ...
+
+    def prepare_writable_mounts(
+        self,
+        info: SandboxInfo,
+        mounts: list[tuple[str, str, bool]] | None,
+    ) -> None:
+        """Prepare writable mounts after the sandbox service is ready.
+
+        Remote backends do not manage host bind mounts, so the default is a
+        no-op. Local backends may override this lifecycle hook.
+        """
+        return None

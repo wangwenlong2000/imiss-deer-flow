@@ -39,6 +39,8 @@ class LocalContainerBackend(SandboxBackend):
         container_prefix: str,
         config_mounts: list,
         environment: dict[str, str],
+        writable_uid: int = 1000,
+        writable_gid: int = 1000,
     ):
         """Initialize the local container backend.
 
@@ -54,6 +56,8 @@ class LocalContainerBackend(SandboxBackend):
         self._container_prefix = container_prefix
         self._config_mounts = config_mounts
         self._environment = environment
+        self._writable_uid = writable_uid
+        self._writable_gid = writable_gid
         self._runtime = self._detect_runtime()
 
     @property
@@ -169,6 +173,50 @@ class LocalContainerBackend(SandboxBackend):
         if info.container_name:
             return self._is_container_running(info.container_name)
         return False
+
+    def prepare_writable_mounts(
+        self,
+        info: SandboxInfo,
+        mounts: list[tuple[str, str, bool]] | None,
+    ) -> None:
+        """Give the sandbox file-service account ownership of writable mounts.
+
+        The AIO image starts its API as a non-root user and resets mounted
+        directories to root:root 0755 during startup. Ownership is repaired
+        only after readiness, and only for explicitly writable mounts. This is
+        narrower than making the host directories world-writable.
+        """
+        if self._runtime != "docker" or not mounts:
+            return
+
+        container = info.container_id or info.container_name
+        if not container:
+            raise RuntimeError("Cannot prepare writable mounts without a container identifier")
+
+        owner = f"{self._writable_uid}:{self._writable_gid}"
+        for _host_path, container_path, read_only in mounts:
+            if read_only:
+                continue
+            try:
+                subprocess.run(
+                    [
+                        "docker",
+                        "exec",
+                        "--user",
+                        "0:0",
+                        container,
+                        "chown",
+                        "-R",
+                        owner,
+                        container_path,
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+            except subprocess.CalledProcessError as exc:
+                logger.error("Failed to prepare writable sandbox mount %s: %s", container_path, exc.stderr)
+                raise RuntimeError(f"Failed to prepare writable sandbox mount {container_path}: {exc.stderr}") from exc
 
     def discover(self, sandbox_id: str) -> SandboxInfo | None:
         """Discover an existing container by its deterministic name.

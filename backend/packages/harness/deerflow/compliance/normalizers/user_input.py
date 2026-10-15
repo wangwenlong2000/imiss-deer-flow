@@ -10,12 +10,14 @@ Note the guide's constraint (§9.7): a hit here is not on its own a violation.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import itertools
+import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 from deerflow.compliance.contract import DetectionUnit, Gate
-from deerflow.compliance.normalizers.base import Normalizer, build_unit, make_text_items, stringify
+from deerflow.compliance.normalizers.base import Normalizer, build_unit, flatten_fields, make_text_items, stringify
 
 #: Only text-ish uploads are scanned inline; binaries need a dedicated detector.
 TEXT_SUFFIXES = {".txt", ".md", ".csv", ".tsv", ".json", ".jsonl", ".yaml", ".yml", ".log", ".py", ".sql", ".xml", ".html"}
@@ -23,6 +25,47 @@ TEXT_SUFFIXES = {".txt", ".md", ".csv", ".tsv", ".json", ".jsonl", ".yaml", ".ym
 #: Bytes read per uploaded file. A whole file would blow the latency budget; the
 #: caller is told when a file was only partially scanned.
 MAX_UPLOAD_BYTES = 200_000
+
+#: Bound embedded JSON extraction so adversarial text cannot create unbounded
+#: field expansion before the normal compliance unit budget is applied.
+MAX_EMBEDDED_JSON_VALUES = 16
+
+
+def _structured_fields(payload: Any):
+    """Expose structured input (including JSON embedded in prose) as fields."""
+    counter = itertools.count(1)
+    if isinstance(payload, (Mapping, list, tuple)):
+        return tuple(flatten_fields(payload, prefix="", source="query", counter=counter))
+    if not isinstance(payload, str):
+        return ()
+
+    decoder = json.JSONDecoder()
+    fields = []
+    cursor = 0
+    extracted = 0
+    while cursor < len(payload) and extracted < MAX_EMBEDDED_JSON_VALUES:
+        starts = [index for token in ("{", "[") if (index := payload.find(token, cursor)) >= 0]
+        if not starts:
+            break
+        start = min(starts)
+        try:
+            value, end = decoder.raw_decode(payload, start)
+        except json.JSONDecodeError:
+            cursor = start + 1
+            continue
+        cursor = end
+        if not isinstance(value, (Mapping, list)):
+            continue
+        extracted += 1
+        fields.extend(
+            flatten_fields(
+                value,
+                prefix=f"embedded_json[{extracted}]",
+                source="query",
+                counter=counter,
+            )
+        )
+    return tuple(fields)
 
 
 class UserInputNormalizer(Normalizer):
@@ -35,13 +78,14 @@ class UserInputNormalizer(Normalizer):
         text_items = make_text_items([("query", text)])
         if not text_items:
             return ()
+        field_items = _structured_fields(payload)
         return (
             build_unit(
                 unit_id=f"query:{thread_id or 'anonymous'}",
                 gate=gate,
                 data_type=None,
                 text_items=text_items,
-                field_items=(),
+                field_items=field_items,
                 raw={"kind": "user_query", "thread_id": thread_id},
             ),
         )
@@ -82,4 +126,4 @@ class UploadedFileNormalizer(Normalizer):
         )
 
 
-__all__ = ["MAX_UPLOAD_BYTES", "TEXT_SUFFIXES", "UploadedFileNormalizer", "UserInputNormalizer"]
+__all__ = ["MAX_EMBEDDED_JSON_VALUES", "MAX_UPLOAD_BYTES", "TEXT_SUFFIXES", "UploadedFileNormalizer", "UserInputNormalizer"]

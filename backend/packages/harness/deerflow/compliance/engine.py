@@ -131,7 +131,13 @@ class ComplianceEngine:
 
         hits = self._detect_all(units, ctx, request, diagnostics, started)
 
-        verdict = self._intent_guard.apply(hits, gate=request.gate, intent=request.intent, user=request.user)
+        verdict = self._intent_guard.apply(
+            hits,
+            gate=request.gate,
+            intent=request.intent,
+            user=request.user,
+            scene_key=scene_key,
+        )
         for warning in verdict.warnings:
             diagnostics.warn(warning)
         hits = verdict.hits

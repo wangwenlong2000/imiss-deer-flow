@@ -23,6 +23,8 @@ class SandboxConfig(BaseModel):
         idle_timeout: Idle timeout in seconds before sandbox is released (default: 600 = 10 minutes). Set to 0 to disable.
         mounts: List of volume mounts to share directories with the container
         environment: Environment variables to inject into the container (values starting with $ are resolved from host env)
+        writable_uid: Numeric UID used by the sandbox file service for writable bind mounts
+        writable_gid: Numeric GID used by the sandbox file service for writable bind mounts
     """
 
     use: str = Field(
@@ -56,6 +58,16 @@ class SandboxConfig(BaseModel):
     environment: dict[str, str] = Field(
         default_factory=dict,
         description="Environment variables to inject into the sandbox container. Values starting with $ will be resolved from host environment variables.",
+    )
+    writable_uid: int | None = Field(
+        default=None,
+        ge=0,
+        description="Numeric UID that owns writable sandbox bind mounts (default: 1000)",
+    )
+    writable_gid: int | None = Field(
+        default=None,
+        ge=0,
+        description="Numeric GID that owns writable sandbox bind mounts (default: 1000)",
     )
 
     model_config = ConfigDict(extra="allow")

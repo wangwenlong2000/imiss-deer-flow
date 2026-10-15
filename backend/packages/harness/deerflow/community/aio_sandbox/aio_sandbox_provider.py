@@ -39,6 +39,8 @@ DEFAULT_PORT = 8080
 DEFAULT_CONTAINER_PREFIX = "gaozhuohui-deer-flow-sandbox"
 DEFAULT_IDLE_TIMEOUT = 600  # 10 minutes in seconds
 DEFAULT_REPLICAS = 3  # Maximum concurrent sandbox containers
+DEFAULT_WRITABLE_UID = 1000
+DEFAULT_WRITABLE_GID = 1000
 IDLE_CHECK_INTERVAL = 60  # Check every 60 seconds
 
 
@@ -116,6 +118,8 @@ class AioSandboxProvider(SandboxProvider):
             container_prefix=self._config["container_prefix"],
             config_mounts=self._config["mounts"],
             environment=self._config["environment"],
+            writable_uid=self._config["writable_uid"],
+            writable_gid=self._config["writable_gid"],
         )
 
     # ── Configuration ────────────────────────────────────────────────────
@@ -127,6 +131,8 @@ class AioSandboxProvider(SandboxProvider):
 
         idle_timeout = getattr(sandbox_config, "idle_timeout", None)
         replicas = getattr(sandbox_config, "replicas", None)
+        writable_uid = getattr(sandbox_config, "writable_uid", None)
+        writable_gid = getattr(sandbox_config, "writable_gid", None)
 
         return {
             "image": sandbox_config.image or DEFAULT_IMAGE,
@@ -136,6 +142,8 @@ class AioSandboxProvider(SandboxProvider):
             "replicas": replicas if replicas is not None else DEFAULT_REPLICAS,
             "mounts": sandbox_config.mounts or [],
             "environment": self._resolve_env_vars(sandbox_config.environment or {}),
+            "writable_uid": writable_uid if writable_uid is not None else DEFAULT_WRITABLE_UID,
+            "writable_gid": writable_gid if writable_gid is not None else DEFAULT_WRITABLE_GID,
             # provisioner URL for dynamic pod management (e.g. http://provisioner:8002)
             "provisioner_url": getattr(sandbox_config, "provisioner_url", None) or "",
         }
@@ -426,6 +434,7 @@ class AioSandboxProvider(SandboxProvider):
                 # Backend discovery: another process may have created the container.
                 discovered = self._backend.discover(sandbox_id)
                 if discovered is not None:
+                    self._backend.prepare_writable_mounts(discovered, self._get_extra_mounts(thread_id))
                     sandbox = AioSandbox(id=discovered.sandbox_id, base_url=discovered.sandbox_url)
                     with self._lock:
                         self._sandboxes[discovered.sandbox_id] = sandbox
@@ -495,6 +504,11 @@ class AioSandboxProvider(SandboxProvider):
         if not wait_for_sandbox_ready(info.sandbox_url, timeout=60):
             self._backend.destroy(info)
             raise RuntimeError(f"Sandbox {sandbox_id} failed to become ready within timeout at {info.sandbox_url}")
+
+        # AIO startup may reset bind-mount ownership while its services boot.
+        # Repair ownership only after readiness so the non-root file API can
+        # write without opening the directories to every host user.
+        self._backend.prepare_writable_mounts(info, extra_mounts)
 
         sandbox = AioSandbox(id=sandbox_id, base_url=info.sandbox_url)
         with self._lock:

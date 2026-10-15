@@ -45,6 +45,7 @@ DEFAULT_RUN_CONTEXT: dict[str, Any] = {
     "is_plan_mode": False,
     "subagent_enabled": False,
 }
+MOBILE_STREAM_HEARTBEAT_SECONDS = 15.0
 
 CONVERSATION_THREAD_MAP: dict[str, str] = {}
 
@@ -1834,10 +1835,17 @@ async def _produce_langgraph_stream(
 
         run_context = _build_mobile_run_context(chat_req, thread_id)
 
+        try:
+            initial_state = await client.threads.get_state(thread_id)
+        except Exception:
+            initial_state = {}
+        initial_checkpoint_id = _checkpoint_id(initial_state)
+
         await queue.put(
             {
                 "kind": "start",
                 "thread_id": thread_id,
+                "initial_checkpoint_id": initial_checkpoint_id,
             }
         )
 
@@ -1872,6 +1880,74 @@ async def _produce_langgraph_stream(
         )
 
 
+def _checkpoint_id(state: Any) -> str:
+    if not isinstance(state, dict):
+        return ""
+    direct = state.get("checkpoint_id")
+    if direct:
+        return str(direct)
+    checkpoint = state.get("checkpoint")
+    if isinstance(checkpoint, dict) and checkpoint.get("checkpoint_id"):
+        return str(checkpoint["checkpoint_id"])
+    return ""
+
+
+def _terminal_state_event(
+    state: Any,
+    *,
+    current_query: str,
+    initial_checkpoint_id: str,
+) -> dict[str, Any] | None:
+    """Convert a newly completed current-turn state into a synthetic values event.
+
+    Some LangGraph SDK streams remain open after the run has committed its final
+    checkpoint.  The checkpoint and current-query guards prevent an old thread
+    state from being mistaken for completion of the active mobile request.
+    """
+    if not isinstance(state, dict):
+        return None
+    next_steps = state.get("next")
+    if not isinstance(next_steps, (list, tuple)) or next_steps:
+        return None
+
+    checkpoint_id = _checkpoint_id(state)
+    if not checkpoint_id or checkpoint_id == initial_checkpoint_id:
+        return None
+
+    values = state.get("values")
+    if not isinstance(values, dict):
+        return None
+    messages = values.get("messages")
+    if not isinstance(messages, list):
+        return None
+    current_turn = _slice_messages_after_current_query(messages, current_query)
+    if not any(_message_type(message) == "ai" for message in current_turn):
+        return None
+
+    return {"event": "values", "data": values}
+
+
+async def _load_terminal_state_event(
+    thread_id: str,
+    *,
+    current_query: str,
+    initial_checkpoint_id: str,
+) -> dict[str, Any] | None:
+    from langgraph_sdk import get_client
+
+    if not thread_id:
+        return None
+    try:
+        state = await get_client(url=DEFAULT_LANGGRAPH_URL).threads.get_state(thread_id)
+    except Exception:
+        return None
+    return _terminal_state_event(
+        state,
+        current_query=current_query,
+        initial_checkpoint_id=initial_checkpoint_id,
+    )
+
+
 async def _stream_deerflow_mobile_run(
     req: DeerFlowMobileRunRequest,
 ) -> AsyncIterator[str]:
@@ -1883,6 +1959,7 @@ async def _stream_deerflow_mobile_run(
 
     raw_events: list[Any] = []
     current_thread_id = thread_id or ""
+    initial_checkpoint_id = ""
     emitted_keys: set[tuple[str, str, str]] = set()
     emitted_segments: list[dict[str, Any]] = []
     emitted_compliance_keys: set[str] = set()
@@ -1955,26 +2032,49 @@ async def _stream_deerflow_mobile_run(
             },
         )
 
+        loop = asyncio.get_running_loop()
+        next_terminal_check = loop.time() + MOBILE_STREAM_HEARTBEAT_SECONDS
+
         while True:
+            check_timeout = max(0.001, next_terminal_check - loop.time())
             try:
-                item = await asyncio.wait_for(queue.get(), timeout=15)
+                item = await asyncio.wait_for(queue.get(), timeout=check_timeout)
             except TimeoutError:
-                # 心跳非常重要：防止 A 侧 requests 读超时
-                yield _sse_event(
-                    "heartbeat",
-                    {
-                        "type": "heartbeat",
-                        "conversation_id": req.conversation_id,
-                        "thread_id": current_thread_id,
-                        "status": "running",
-                    },
+                next_terminal_check = loop.time() + MOBILE_STREAM_HEARTBEAT_SECONDS
+                terminal_event = await _load_terminal_state_event(
+                    current_thread_id,
+                    current_query=req.query,
+                    initial_checkpoint_id=initial_checkpoint_id,
                 )
-                continue
+                if terminal_event is None:
+                    # 心跳非常重要：防止 A 侧 requests 读超时
+                    yield _sse_event(
+                        "heartbeat",
+                        {
+                            "type": "heartbeat",
+                            "conversation_id": req.conversation_id,
+                            "thread_id": current_thread_id,
+                            "status": "running",
+                        },
+                    )
+                    continue
+
+                raw_events.append(terminal_event)
+                for compliance_result in emit_new_compliance_results():
+                    yield _sse_event(
+                        "compliance",
+                        _mobile_compliance_sse_payload(compliance_result),
+                    )
+                if not clarification_emitted:
+                    for segment in emit_new_segments(final=False):
+                        yield _sse_event("segment", segment)
+                item = {"kind": "done"}
 
             kind = item.get("kind")
 
             if kind == "start":
                 current_thread_id = str(item.get("thread_id") or "")
+                initial_checkpoint_id = str(item.get("initial_checkpoint_id") or "")
                 yield _sse_event(
                     "start",
                     {

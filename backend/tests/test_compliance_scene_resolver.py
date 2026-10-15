@@ -204,9 +204,7 @@ def test_cached_scene_requires_current_actor_resource_and_operation_binding():
     cached = TrustedSceneResolver().resolve_context(original).to_dict()
     changed = _request(operation="public_release", audience="public", intent_type="public_release")
 
-    _, resolution = resolve_scene_from_state(
-        {"compliance_request": changed, "scene_context": cached}
-    )
+    _, resolution = resolve_scene_from_state({"compliance_request": changed, "scene_context": cached})
 
     assert resolution.scene == "public_release"
     assert resolution.source == "trusted_upstream"
@@ -301,6 +299,53 @@ def test_audit_contains_scene_permission_and_request_facts(scene_engine):
     assert record["request_context"]["actor"]["org_id"] == "org-001"
     assert record["request_context"]["operation"]["target_audience"] == "public"
     assert record["request_context"]["resource"]["owner_org_id"] == "org-001"
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected_scene", "expected_actions"),
+    [
+        (_request(), "self_use", ("allow",)),
+        (
+            _request(
+                operation="public_release",
+                audience="public",
+                intent_type="analysis",
+            ),
+            "public_release",
+            ("refuse", "desensitize"),
+        ),
+    ],
+)
+def test_resolved_scene_keeps_low_risk_struct_id_hit_for_policy(
+    scene_engine,
+    raw,
+    expected_scene,
+    expected_actions,
+):
+    engine, _ = scene_engine
+    resolution = TrustedSceneResolver().resolve_context(raw)
+    units = UserInputNormalizer().to_units(
+        "请分析手机号13800138000的告警记录",
+        gate="InputGate",
+        thread_id="thread-scene",
+    )
+
+    decision = engine.check(
+        units,
+        gate="InputGate",
+        intent=IntentInfo(
+            intent="task",
+            high_risk=False,
+            intent_type="analysis",
+            requested_operation="analysis",
+            risk_level="low",
+        ),
+        origin=scene_audit_context(raw, resolution),
+    )
+
+    assert decision.scene_key == expected_scene
+    assert "struct_id" in {hit.violation_type for hit in decision.hits}
+    assert decision.per_violation_actions["struct_id"] == expected_actions
 
 
 def test_input_context_and_output_middleware_checks_share_resolved_scene(scene_engine):

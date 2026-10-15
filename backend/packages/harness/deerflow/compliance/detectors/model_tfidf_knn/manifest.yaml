@@ -16,7 +16,7 @@ violation_types: [video_meta_leak, re_identify, domain]
 gates:
   video_meta_leak: [ContextGate, OutputGate]
   re_identify: [OutputGate] # 指南硬约束：第 9 类只在输出闸检测
-  domain: [ContextGate, OutputGate]
+  domain: [InputGate, ContextGate, OutputGate]
 
 data_types: null # null = 不限数据类型
 cost_hint: light # 纯 Python 标准库，单条约 13ms，可以挂 ContextGate
