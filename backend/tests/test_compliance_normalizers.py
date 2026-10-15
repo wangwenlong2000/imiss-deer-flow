@@ -94,9 +94,7 @@ def test_non_skill_result_content_is_left_alone(content: object) -> None:
 
 def test_each_evidence_entry_becomes_one_unit() -> None:
     payload = _skill_result()
-    payload["result"]["evidence"].append(
-        {"evidence_id": "e-002", "type": "text", "title": "Second", "data": "another camera"}
-    )
+    payload["result"]["evidence"].append({"evidence_id": "e-002", "type": "text", "title": "Second", "data": "another camera"})
     units = SkillResultNormalizer().to_units(payload, gate="ContextGate")
     evidence_units = [u for u in units if u.raw.get("kind") == "skill_evidence"]
     assert len(evidence_units) == 2
@@ -284,6 +282,49 @@ def test_malformed_structured_input_keeps_text_detection_available() -> None:
 
 def test_blank_query_yields_no_units() -> None:
     assert UserInputNormalizer().to_units("  ", gate="InputGate") == ()
+
+
+def test_structured_query_exposes_nested_identity_and_location_fields() -> None:
+    units = UserInputNormalizer().to_units(
+        {
+            "event": {
+                "msisdn": "13800138000",
+                "imei": "867530912345678",
+                "location": {"lat": 31.230416, "lon": 121.473701},
+            }
+        },
+        gate="InputGate",
+    )
+
+    fields = {item.path: item.value for item in units[0].field_items}
+    assert fields == {
+        "event.msisdn": "13800138000",
+        "event.imei": "867530912345678",
+        "event.location.lat": 31.230416,
+        "event.location.lon": 121.473701,
+    }
+
+
+def test_query_text_exposes_embedded_json_fields_without_losing_original_text() -> None:
+    query = '请分析这条告警：{"event":{"msisdn":"13800138000","imei":"867530912345678","location":{"lat":31.230416,"lon":121.473701}}}'
+    units = UserInputNormalizer().to_units(query, gate="InputGate")
+
+    fields = {item.path: item.value for item in units[0].field_items}
+    assert units[0].text_items[0].text == query
+    assert fields["event.msisdn"] == "13800138000"
+    assert fields["event.imei"] == "867530912345678"
+    assert fields["event.location.lat"] == 31.230416
+    assert fields["event.location.lon"] == 121.473701
+
+
+def test_multiple_embedded_json_objects_keep_distinct_field_paths() -> None:
+    query = '比较两条记录：{"event":{"msisdn":"13800138000"}} 和 {"event":{"msisdn":"13900139000"}}'
+    unit = UserInputNormalizer().to_units(query, gate="InputGate")[0]
+
+    fields = {item.path: item.value for item in unit.field_items}
+    assert fields["embedded_json[1].event.msisdn"] == "13800138000"
+    assert fields["embedded_json[2].event.msisdn"] == "13900139000"
+    assert unit.raw["normalization"]["field_count"] == 2
 
 
 def test_text_uploads_are_read(tmp_path) -> None:

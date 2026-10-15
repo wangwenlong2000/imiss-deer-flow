@@ -20,8 +20,8 @@ from typing import Any, Literal
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
-from deerflow.routing.query_segmenter import is_obvious_chitchat
 from deerflow.routing.intent_policy import policy_float, policy_int, policy_list, policy_value
+from deerflow.routing.query_segmenter import is_obvious_chitchat
 
 _UPLOAD_BLOCK_RE = re.compile(r"<uploaded_files>[\s\S]*?</uploaded_files>\s*", re.IGNORECASE)
 
@@ -362,7 +362,7 @@ def classify_routing_intent_with_llm(
             params=params if is_multi_scene else (params or _empty_params(scene_config)),
             task_hints=task_hints if is_multi_scene else task_hints,
             mentioned_skill_ids=baseline.mentioned_skill_ids,
-            confidence=0.9,
+            confidence=_intent_scene_confidence(query, scenes, templates, baseline),
             reason="llm_scene_slot_rewrite",
             scenes=scenes,
             scene_mode="multi" if is_multi_scene else "single",
@@ -545,7 +545,7 @@ async def aclassify_routing_intent_with_llm(
             params=params if is_multi_scene else (params or _empty_params(scene_config)),
             task_hints=task_hints if is_multi_scene else task_hints,
             mentioned_skill_ids=baseline.mentioned_skill_ids,
-            confidence=0.9,
+            confidence=_intent_scene_confidence(query, scenes, templates, baseline),
             reason="llm_scene_slot_rewrite",
             scenes=scenes,
             scene_mode="multi" if is_multi_scene else "single",
@@ -706,7 +706,10 @@ def _recognize_scene_with_llm(
         baseline_confidence=baseline_confidence,
     )
     raw = _invoke_text(llm, system_prompt, query)
-    return _parse_scene_choice(raw, option_map)
+    scene_id = _parse_scene_choice(raw, option_map)
+    if scene_id and _scene_has_domain_evidence(_compact(query), scene_templates.get(scene_id, {})):
+        return scene_id
+    return None
 
 
 async def _arecognize_scene_with_llm(
@@ -726,7 +729,10 @@ async def _arecognize_scene_with_llm(
         baseline_confidence=baseline_confidence,
     )
     raw = await _ainvoke_text(llm, system_prompt, query)
-    return _parse_scene_choice(raw, option_map)
+    scene_id = _parse_scene_choice(raw, option_map)
+    if scene_id and _scene_has_domain_evidence(_compact(query), scene_templates.get(scene_id, {})):
+        return scene_id
+    return None
 
 
 def _scene_options(scene_templates: dict[str, dict[str, Any]]) -> tuple[str, dict[str, str]]:
@@ -743,15 +749,15 @@ def _scene_options(scene_templates: dict[str, dict[str, Any]]) -> tuple[str, dic
         name = config.get("name") or scene_id
         description = config.get("description") or ""
 
-        # Extract key task hints from parameter descriptions
+        # Parameter names help disambiguation without leaking generic words
+        # from long descriptions into every specialist scene option.
         param_hints: list[str] = []
         for param in config.get("parameters", []) or []:
             if not isinstance(param, dict):
                 continue
             param_name = param.get("name", "")
-            param_desc = param.get("desc", "")
-            if param_name and param_desc:
-                param_hints.append(f"{param_name}({param_desc})")
+            if param_name:
+                param_hints.append(str(param_name))
             # Include option values if present
             for opt_val in param.get("options", []) or []:
                 if opt_val and len(param_hints) < 5:  # Limit to avoid overload
@@ -780,6 +786,12 @@ def _scene_options(scene_templates: dict[str, dict[str, Any]]) -> tuple[str, dic
         keywords = _list_preview(config.get("keywords"), limit=8)
         if keywords:
             parts.append(f"关键词: {keywords}")
+        domain_anchors = _list_preview(config.get("domain_anchors"), limit=8)
+        weak_domain_anchors = _list_preview(config.get("weak_domain_anchors"), limit=5)
+        if domain_anchors:
+            parts.append(f"领域锚点: {domain_anchors}")
+        if weak_domain_anchors:
+            parts.append(f"弱锚点（需与动作组合）: {weak_domain_anchors}")
         anti_keywords = _list_preview(config.get("anti_keywords"), limit=8)
         if anti_keywords:
             parts.append(f"排除词: {anti_keywords}")
@@ -823,7 +835,11 @@ def _recognize_scenes_with_llm(
         max_scenes=int(policy_value("thresholds", "multi_scene_max_count", default=2)),
     )
     raw = _invoke_text(llm, system_prompt, query)
-    return _parse_scene_choices(raw, option_map)
+    return [
+        scene_id
+        for scene_id in _parse_scene_choices(raw, option_map)
+        if _scene_has_domain_evidence(_compact(query), scene_templates.get(scene_id, {}))
+    ]
 
 
 async def _arecognize_scenes_with_llm(
@@ -844,7 +860,11 @@ async def _arecognize_scenes_with_llm(
         max_scenes=int(policy_value("thresholds", "multi_scene_max_count", default=2)),
     )
     raw = await _ainvoke_text(llm, system_prompt, query)
-    return _parse_scene_choices(raw, option_map)
+    return [
+        scene_id
+        for scene_id in _parse_scene_choices(raw, option_map)
+        if _scene_has_domain_evidence(_compact(query), scene_templates.get(scene_id, {}))
+    ]
 
 
 def _recognize_scene_tasks_with_llm(
@@ -1274,15 +1294,13 @@ def _resolve_scene_for_span(
     ranked = _rank_scene_candidates(span_text, scene_templates)
     if ranked:
         top_scene_id, top_config, top_score, _top_raw_score = ranked[0]
-        second_score = ranked[1][2] if len(ranked) > 1 else 0.0
-        if top_score >= policy_float("thresholds", "scene_match_min_score") and (
-            len(ranked) == 1 or top_score - second_score >= policy_float("thresholds", "multi_scene_score_gap")
-        ):
+        if _scene_candidate_is_decisive(ranked):
             return top_scene_id, top_config
 
+        candidate_limit = _scene_candidate_limit(top_config)
         candidate_scene_ids = [
             scene_id
-            for scene_id, _config, score, _raw_score in ranked[: int(policy_value("thresholds", "multi_scene_max_count", default=2)) + 1]
+            for scene_id, _config, score, _raw_score in ranked[:candidate_limit]
             if score > 0
         ]
         candidate_templates = {
@@ -1325,15 +1343,13 @@ async def _aresolve_scene_for_span(
     ranked = _rank_scene_candidates(span_text, scene_templates)
     if ranked:
         top_scene_id, top_config, top_score, _top_raw_score = ranked[0]
-        second_score = ranked[1][2] if len(ranked) > 1 else 0.0
-        if top_score >= policy_float("thresholds", "scene_match_min_score") and (
-            len(ranked) == 1 or top_score - second_score >= policy_float("thresholds", "multi_scene_score_gap")
-        ):
+        if _scene_candidate_is_decisive(ranked):
             return top_scene_id, top_config
 
+        candidate_limit = _scene_candidate_limit(top_config)
         candidate_scene_ids = [
             scene_id
-            for scene_id, _config, score, _raw_score in ranked[: int(policy_value("thresholds", "multi_scene_max_count", default=2)) + 1]
+            for scene_id, _config, score, _raw_score in ranked[:candidate_limit]
             if score > 0
         ]
         candidate_templates = {
@@ -1380,6 +1396,8 @@ def _rank_scene_candidates(
 
 
 def _score_scene(query_compact: str, config: dict[str, Any]) -> tuple[float, float]:
+    if not _scene_has_domain_evidence(query_compact, config):
+        return 0.0, 0.0
     terms = _scene_terms(config)
     raw_score = 0.0
     matched = 0
@@ -1398,6 +1416,100 @@ def _score_scene(query_compact: str, config: dict[str, Any]) -> tuple[float, flo
         + raw_score / policy_float("thresholds", "scene_match_score_divisor"),
     )
     return round(score, 2), raw_score
+
+
+def _scene_has_domain_evidence(query_compact: str, config: dict[str, Any]) -> bool:
+    """Require explicit domain evidence before activating specialist scenes."""
+    domain_anchors = config.get("domain_anchors") or []
+    weak_anchors = config.get("weak_domain_anchors") or []
+    weak_actions = config.get("weak_anchor_actions") or []
+    if not domain_anchors and not weak_anchors:
+        return True
+    if _contains_configured_term(query_compact, domain_anchors):
+        return True
+    return bool(weak_actions) and _contains_configured_term(
+        query_compact, weak_anchors
+    ) and _contains_configured_term(query_compact, weak_actions)
+
+
+def _contains_configured_term(query_compact: str, values: Any) -> bool:
+    if not isinstance(values, list):
+        return False
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        normalized = _compact(value.strip())
+        if normalized and normalized in query_compact:
+            return True
+    return False
+
+
+def _scene_routing_config(config: dict[str, Any]) -> dict[str, Any]:
+    routing = config.get("routing")
+    return routing if isinstance(routing, dict) else {}
+
+
+def _scene_match_threshold(config: dict[str, Any]) -> float:
+    value = _scene_routing_config(config).get("threshold")
+    if isinstance(value, (int, float)):
+        return float(value)
+    return policy_float("thresholds", "scene_match_min_score")
+
+
+def _scene_ambiguity_margin(config: dict[str, Any]) -> float:
+    value = _scene_routing_config(config).get("ambiguity_margin")
+    if isinstance(value, (int, float)):
+        return float(value)
+    return policy_float("thresholds", "multi_scene_score_gap")
+
+
+def _scene_candidate_limit(config: dict[str, Any]) -> int:
+    value = _scene_routing_config(config).get("top_k")
+    if isinstance(value, int) and value > 0:
+        return value
+    return int(policy_value("thresholds", "multi_scene_max_count", default=2)) + 1
+
+
+def _scene_candidate_is_decisive(
+    ranked: list[tuple[str, dict[str, Any], float, float]],
+) -> bool:
+    """Keep a strong rule winner from being lost after confidence capping."""
+    if not ranked:
+        return False
+    _scene_id, config, score, raw_score = ranked[0]
+    if score < _scene_match_threshold(config):
+        return False
+    if len(ranked) == 1:
+        return True
+
+    _second_id, _second_config, second_score, second_raw_score = ranked[1]
+    if score - second_score >= _scene_ambiguity_margin(config):
+        return True
+
+    # Several rich queries hit the confidence ceiling for more than one
+    # scene.  Preserve the leading scene only when its uncapped evidence is
+    # overwhelmingly stronger; balanced multi-domain queries still reach the
+    # LLM disambiguation path.
+    return raw_score >= 6.0 and raw_score >= second_raw_score * 2
+
+
+def _intent_scene_confidence(
+    query: str,
+    scenes: list[str],
+    templates: dict[str, dict[str, Any]],
+    baseline: RoutingIntentResult,
+) -> float:
+    query_compact = _compact(query)
+    scores = [
+        _score_scene(query_compact, templates.get(scene_id, {}))[0]
+        for scene_id in scenes
+        if scene_id in templates
+    ]
+    positive_scores = [score for score in scores if score > 0]
+    score = min(positive_scores) if positive_scores else 0.0
+    if baseline.scene in scenes:
+        score = max(score, baseline.confidence)
+    return round(min(0.95, max(0.5, score)), 2)
 
 
 def _extract_scene_params_with_llm(
@@ -1691,46 +1803,13 @@ def _match_scene(
     if not scene_templates:
         return None, None, 0.0
 
-    best_scene: str | None = None
-    best_config: dict[str, Any] | None = None
-    best_score = 0.0
-    best_raw_score = 0.0
-    query_compact = _compact(query)
-
-    for scene_id, config in scene_templates.items():
-        terms = _scene_terms(config)
-        if not terms:
-            continue
-
-        raw_score = 0.0
-        matched = 0
-        for term, weight in terms.items():
-            if term and term in query_compact:
-                matched += 1
-                raw_score += weight
-
-        score = 0.0
-        if matched:
-            raw_score += _scene_penalty(query_compact, config)
-            if raw_score <= 0:
-                continue
-            # Normalize enough to compare scenes, but retain a high confidence
-            # when exact option/example terms match.
-            score = min(
-                policy_float("thresholds", "scene_match_max_score"),
-                policy_float("thresholds", "scene_match_base_score")
-                + raw_score / policy_float("thresholds", "scene_match_score_divisor"),
-            )
-
-        if score > best_score or (score == best_score and matched and score and score > 0 and raw_score > best_raw_score):
-            best_scene = scene_id
-            best_config = config
-            best_score = score
-            best_raw_score = raw_score
-
-    if best_score < policy_float("thresholds", "scene_match_min_score"):
+    ranked = _rank_scene_candidates(query, scene_templates)
+    if not ranked:
         return None, None, 0.0
-    return best_scene, best_config, round(best_score, 2)
+    best_scene, best_config, best_score, _best_raw_score = ranked[0]
+    if best_score < _scene_match_threshold(best_config):
+        return None, None, 0.0
+    return best_scene, best_config, best_score
 
 
 def _scene_terms(config: dict[str, Any]) -> dict[str, float]:
@@ -1747,6 +1826,10 @@ def _scene_terms(config: dict[str, Any]) -> dict[str, float]:
     add(config.get("example"), 1.0, expand_cjk=False)
     for keyword in config.get("strong_keywords", []) or []:
         add(keyword, 4.5, expand_cjk=False)
+    for anchor in config.get("domain_anchors", []) or []:
+        add(anchor, 4.0, expand_cjk=False)
+    for anchor in config.get("weak_domain_anchors", []) or []:
+        add(anchor, 2.0, expand_cjk=False)
     for keyword in config.get("keywords", []) or []:
         add(keyword, 2.7, expand_cjk=False)
     for positive_example in config.get("positive_examples", []) or []:

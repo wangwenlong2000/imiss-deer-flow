@@ -368,6 +368,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             **decision_types(decision),
             "audit_ref": decision.audit_ref,
+            "basis": list(decision.basis),
             "units_checked": decision.diagnostics.units_checked,
             "units_total": decision.diagnostics.units_total,
             "truncated": decision.diagnostics.truncated,

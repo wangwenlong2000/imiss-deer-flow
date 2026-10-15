@@ -32,6 +32,7 @@ MAX_UPLOAD_BYTES = 200_000
 MAX_STRUCTURED_BYTES = 200_000
 MAX_STRUCTURED_DEPTH = 6
 MAX_STRUCTURED_FIELDS = 256
+MAX_EMBEDDED_JSON_VALUES = 16
 _KEY_VALUE_RE = re.compile(
     r"^(?P<indent>[ \t]*)(?P<key>\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*'|[A-Za-z_][\w.-]*)\s*(?::|=)\s*(?P<value>.*?)\s*$"
 )
@@ -162,6 +163,30 @@ def _bounded_field_items(payload: Any, *, source: str) -> tuple[FieldItem, ...]:
     return tuple(items)
 
 
+def _embedded_json_values(payload: str) -> tuple[dict[str, Any], ...]:
+    """Find bounded JSON objects embedded in one text request."""
+    if len(payload.encode("utf-8")) > MAX_STRUCTURED_BYTES:
+        return ()
+    decoder = json.JSONDecoder()
+    values: list[dict[str, Any]] = []
+    cursor = 0
+    attempts = 0
+    while len(values) < MAX_EMBEDDED_JSON_VALUES and attempts < MAX_STRUCTURED_FIELDS:
+        start = payload.find("{", cursor)
+        if start < 0:
+            break
+        attempts += 1
+        try:
+            value, end = decoder.raw_decode(payload, start)
+        except json.JSONDecodeError:
+            cursor = start + 1
+            continue
+        cursor = end
+        if isinstance(value, dict):
+            values.append(value)
+    return tuple(values)
+
+
 class UserInputNormalizer(Normalizer):
     """Normalize a user query into a detection unit."""
 
@@ -173,6 +198,13 @@ class UserInputNormalizer(Normalizer):
         if not text_items:
             return ()
         structured, structured_format, parse_error = _parse_structured_payload(payload, text)
+        if isinstance(payload, str) and structured_format == "json":
+            embedded_values = _embedded_json_values(payload)
+            if len(embedded_values) > 1:
+                structured = {
+                    f"embedded_json[{index}]": value
+                    for index, value in enumerate(embedded_values, start=1)
+                }
         field_items = _bounded_field_items(structured, source="query") if structured is not None else ()
         return (
             build_unit(
@@ -281,6 +313,7 @@ __all__ = [
     "MAX_STRUCTURED_BYTES",
     "MAX_STRUCTURED_DEPTH",
     "MAX_STRUCTURED_FIELDS",
+    "MAX_EMBEDDED_JSON_VALUES",
     "MAX_UPLOAD_BYTES",
     "MediaPreprocessedNormalizer",
     "TEXT_SUFFIXES",

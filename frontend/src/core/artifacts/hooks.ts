@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useThread } from "@/components/workspace/messages/context";
 
 import { loadArtifactContent, loadArtifactContentFromToolCall } from "./loader";
+import { listWorkspaceFiles } from "./workspace-files";
 
 export function useArtifactContent({
   filepath,
@@ -35,4 +36,27 @@ export function useArtifactContent({
     staleTime: 5 * 60 * 1000,
   });
   return { content: isWriteFile ? content : data, isLoading, error };
+}
+
+
+export function useWorkspaceFiles({
+  threadId,
+  enabled = true,
+}: {
+  threadId: string;
+  enabled?: boolean;
+}) {
+  return useQuery({
+    queryKey: ["workspace-files", threadId],
+    queryFn: () => listWorkspaceFiles(threadId),
+    enabled: enabled && Boolean(threadId),
+
+    // 每两秒发现一次通过 Python、Shell 或 Skill 新生成的文件
+    refetchInterval: 2000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+
+    staleTime: 0,
+    retry: 2,
+  });
 }

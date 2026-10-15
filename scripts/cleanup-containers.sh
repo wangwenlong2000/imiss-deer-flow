@@ -8,7 +8,7 @@
 
 set -e
 
-PREFIX="${1:huangyuzhe-merged-compliance-deer-flow-sandbox}"
+PREFIX="${1:gaozhuohui-deer-flow-sandbox}"
 
 # Colors for output
 RED='\033[0;31m'

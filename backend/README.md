@@ -201,6 +201,28 @@ Direct access: LangGraph at http://localhost:2024, Gateway at http://localhost:8
 
 ---
 
+## Compliance Input Handling
+
+When a compliance scene has been resolved, InputGate preserves detector hits
+and lets the `violation type × gate × scene` policy matrix choose the final
+action. A low-risk query intent therefore cannot silently remove sensitive
+entities from an explicit `public_release` or other resolved scene. For an
+unresolved scene, IntentGuard retains the legacy intent-based downgrade to
+avoid treating every entity mention as a violation.
+
+InputGate also exposes nested mappings and JSON objects embedded in user text
+as dotted field paths. Fields such as `msisdn`, `imei`, `lat`, and `lon` can be
+handled by structured detector rules while the original query text remains
+available to text detectors.
+
+For mobile SSE calls, the adapter checks the thread's final checkpoint after
+an idle heartbeat interval. If the LangGraph SDK stream remains open after the
+run has completed, the adapter emits the committed current-turn result,
+compliance event, and terminal `done` frame instead of leaving the client
+waiting indefinitely.
+
+---
+
 ## Project Structure
 
 ```

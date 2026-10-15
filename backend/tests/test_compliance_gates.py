@@ -338,6 +338,7 @@ def test_determination_is_surfaced_to_the_model(enabled_config) -> None:
     assert diagnostics["compliance"]["gate"] == "ContextGate"
     assert diagnostics["compliance"]["violation_types"] == ["domain"]
     assert diagnostics["compliance"]["audit_ref"] == "audit-test"
+    assert diagnostics["compliance"]["basis"] == ["测试依据条款"]
 
 
 def test_fail_mode_closed_blocks_when_detection_errors(enabled_config) -> None:

@@ -15,7 +15,28 @@ DOCKER_DIR="$PROJECT_ROOT/docker"
 # Docker Compose command with project name
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
-COMPOSE_CMD="docker compose -p huangyuzhe-merged-compliance-deer-flow-dev -f docker-compose-dev.yaml"
+COMPOSE_CMD="docker compose -p gaozhuohui-deer-flow-dev -f docker-compose-dev.yaml"
+
+read_env_value() {
+    local key="$1"
+    local env_file="$PROJECT_ROOT/.env"
+    if [ ! -f "$env_file" ]; then
+        return
+    fi
+    awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$env_file"
+}
+
+# Keep the build, startup preflight, and runtime configuration on one exact
+# local image tag. An explicitly exported value wins over the project .env.
+if [ -z "${DEER_FLOW_SANDBOX_IMAGE:-}" ]; then
+    DEER_FLOW_SANDBOX_IMAGE="$(read_env_value DEER_FLOW_SANDBOX_IMAGE)"
+fi
+if [ -z "$DEER_FLOW_SANDBOX_IMAGE" ]; then
+    RAW_USER="${SUDO_USER:-${USER:-deerflow}}"
+    IMAGE_PREFIX="$(printf '%s' "$RAW_USER" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/-\{2,\}/-/g; s/^-//; s/-$//')"
+    DEER_FLOW_SANDBOX_IMAGE="${IMAGE_PREFIX:-deerflow}-deerflow-sandbox:policies-regulations-tools"
+fi
+export DEER_FLOW_SANDBOX_IMAGE
 
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"
@@ -94,6 +115,43 @@ init() {
     echo -e "${YELLOW}Next step: make docker-start${NC}"
 }
 
+sandbox_image_exists() {
+    docker image inspect "$DEER_FLOW_SANDBOX_IMAGE" >/dev/null 2>&1
+}
+
+# Build the custom AIO image once. Runtime sandbox creation is configured to
+# use only this local image and never pull from a registry.
+sandbox_build() {
+    echo "=========================================="
+    echo "  Building Custom Sandbox Image"
+    echo "=========================================="
+    echo ""
+    echo -e "${BLUE}DEER_FLOW_SANDBOX_IMAGE=$DEER_FLOW_SANDBOX_IMAGE${NC}"
+    echo ""
+
+    docker build -f "$PROJECT_ROOT/docker/sandbox/Dockerfile" -t "$DEER_FLOW_SANDBOX_IMAGE" "$PROJECT_ROOT"
+
+    echo ""
+    echo -e "${GREEN}✓ Custom sandbox image built: $DEER_FLOW_SANDBOX_IMAGE${NC}"
+    echo ""
+}
+
+build_all() {
+    echo "=========================================="
+    echo "  Building All Docker Images"
+    echo "=========================================="
+    echo ""
+
+    sandbox_build
+    export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    echo -e "${BLUE}Building app images...${NC}"
+    cd "$DOCKER_DIR" && $COMPOSE_CMD build
+
+    echo ""
+    echo -e "${GREEN}✓ All images built${NC}"
+    echo ""
+}
+
 # Start Docker development environment
 start() {
     local sandbox_mode
@@ -113,6 +171,13 @@ start() {
     fi
 
     echo -e "${BLUE}Detected sandbox mode: $sandbox_mode${NC}"
+    echo -e "${BLUE}DEER_FLOW_SANDBOX_IMAGE=$DEER_FLOW_SANDBOX_IMAGE${NC}"
+    if [ "$sandbox_mode" = "aio" ] && ! sandbox_image_exists; then
+        echo -e "${YELLOW}✗ Local AIO sandbox image is missing: $DEER_FLOW_SANDBOX_IMAGE${NC}"
+        echo -e "${YELLOW}  Build it once with: make sandbox-build${NC}"
+        echo -e "${YELLOW}  Runtime pulling is disabled by design.${NC}"
+        return 1
+    fi
     if [ "$sandbox_mode" = "provisioner" ]; then
         echo -e "${BLUE}Provisioner enabled (Kubernetes mode).${NC}"
     else
@@ -160,11 +225,11 @@ start() {
         fi
     fi
 
-    echo "Building and starting containers..."
-    cd "$DOCKER_DIR" && $COMPOSE_CMD up --build -d --remove-orphans $services
+    echo "Starting containers with existing images..."
+    cd "$DOCKER_DIR" && $COMPOSE_CMD up -d --no-build --remove-orphans $services
 
     # The frontend and gateway may be recreated with new bridge-network IPs
-    # during `up --build`, while an unchanged nginx container keeps its old
+    # during `up`, while an unchanged nginx container keeps its old
     # resolved upstream addresses. Restart nginx so it resolves the current
     # service IPs before users access the configured Nginx port.
     $COMPOSE_CMD restart nginx
@@ -175,25 +240,25 @@ start() {
     # frontend is actually reachable through nginx.
     local ui_ready=false
     for _ in $(seq 1 30); do
-        if curl --fail --silent --max-time 2 http://127.0.0.1:3240/ >/dev/null; then
+        if curl --fail --silent --max-time 2 http://127.0.0.1:3328/ >/dev/null; then
             ui_ready=true
             break
         fi
         sleep 1
     done
     if [ "$ui_ready" != "true" ]; then
-        echo -e "${YELLOW}Frontend did not become ready on port 3240 within 30 seconds.${NC}"
+        echo -e "${YELLOW}Frontend did not become ready on port 3328 within 30 seconds.${NC}"
         return 1
     fi
-    echo -e "${GREEN}✓ Frontend is ready on port 3240${NC}"
+    echo -e "${GREEN}✓ Frontend is ready on port 3328${NC}"
     echo ""
     echo "=========================================="
     echo "  DeerFlow Docker is starting!"
     echo "=========================================="
     echo ""
-    echo "  🌐 Application: http://localhost:3240"
-    echo "  📡 API Gateway: http://localhost:3240/api/*"
-    echo "  🤖 LangGraph:   http://localhost:3240/api/langgraph/*"
+    echo "  🌐 Application: http://localhost:3328"
+    echo "  📡 API Gateway: http://localhost:3328/api/*"
+    echo "  🤖 LangGraph:   http://localhost:3328/api/langgraph/*"
     echo ""
     echo "  📋 View logs: make docker-logs"
     echo "  🛑 Stop:      make docker-stop"
@@ -259,7 +324,7 @@ restart() {
     echo ""
     echo -e "${GREEN}✓ Docker services restarted${NC}"
     echo ""
-    echo "  🌐 Application: http://localhost:3240"
+    echo "  🌐 Application: http://localhost:3328"
     echo "  📋 View logs: make docker-dev-logs"
     echo ""
 }
@@ -272,6 +337,8 @@ help() {
     echo ""
     echo "Commands:"
     echo "  init          - Pull the sandbox image (speeds up first Pod startup)"
+    echo "  sandbox-build - Build the configured custom sandbox image"
+    echo "  build-all     - Build the sandbox and all DeerFlow service images"
     echo "  start         - Start Docker services (auto-detects sandbox mode from config.yaml)"
     echo "  restart       - Restart all running Docker services"
     echo "  logs [option] - View Docker development logs"
@@ -289,6 +356,12 @@ main() {
     case "$1" in
         init)
             init
+            ;;
+        sandbox-build)
+            sandbox_build
+            ;;
+        build-all)
+            build_all
             ;;
         start)
             start

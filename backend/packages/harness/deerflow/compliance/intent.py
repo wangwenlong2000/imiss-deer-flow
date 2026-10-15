@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from deerflow.compliance.contract import BASELINE_VIOLATION_TYPES, DetectionHit, Gate, IntentInfo, UserContext
+from deerflow.compliance.contract import BASELINE_VIOLATION_TYPES, SCENES, DetectionHit, Gate, IntentInfo, UserContext
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     pass
@@ -108,10 +108,18 @@ class IntentGuard:
         gate: Gate,
         intent: IntentInfo | None,
         user: UserContext | None = None,  # noqa: ARG002 - reserved for the auth module
-        scene_key: str = "_unknown",
+        scene_key: str | None = None,
     ) -> IntentVerdict:
         hits = tuple(hits)
         if gate != "InputGate" or not self._require_high_risk:
+            return IntentVerdict(hits=hits)
+
+        # A resolved scene is already the authorization/data-flow context that
+        # the 7.23 matrix needs. Do not erase detector evidence before that
+        # matrix can decide whether the scene allows, masks, aggregates or
+        # refuses it. Intent-based downgrading remains only for unresolved
+        # requests, where the engine has no authoritative scene facts.
+        if scene_key in SCENES:
             return IntentVerdict(hits=hits)
 
         # No intent signal at all: we cannot prove high-risk intent, but we also
@@ -120,25 +128,15 @@ class IntentGuard:
         if intent is None:
             return IntentVerdict(hits=hits, warnings=("InputGate: no intent signal available; keyword/entity hits were not intent-filtered",) if hits else ())
 
-        # A verified public-release scene is itself a high-risk audience. The
-        # policy matrix must see sensitive findings even when the request text
-        # is phrased as analysis or report generation.
-        if scene_key == "public_release" or intent.high_risk:
+        if intent.high_risk:
             return IntentVerdict(hits=hits)
 
         legacy = classify_compliance_intent(intent.intent or "")
-        legacy_known_low = (
-            intent.intent_type == "unknown"
-            and intent.risk_level == "unknown"
-            and legacy["risk_level"] in {"low", "medium"}
-        )
+        legacy_known_low = intent.intent_type == "unknown" and intent.risk_level == "unknown" and legacy["risk_level"] in {"low", "medium"}
         if (intent.intent_type == "unknown" or intent.risk_level == "unknown") and not legacy_known_low:
             return IntentVerdict(
                 hits=hits,
-                warnings=(
-                    "InputGate: compliance intent fields are missing or unknown; "
-                    "findings kept for conservative policy/manual review",
-                ) if hits else (),
+                warnings=("InputGate: compliance intent fields are missing or unknown; findings kept for conservative policy/manual review",) if hits else (),
             )
 
         kept: list[DetectionHit] = []
@@ -153,9 +151,7 @@ class IntentGuard:
 
         warnings: list[str] = []
         if dropped:
-            warnings.append(
-                f"InputGate: {len(dropped)} hit(s) downgraded — sensitive entities present but intent {intent.intent!r} is not high-risk (guide §9.7)"
-            )
+            warnings.append(f"InputGate: {len(dropped)} hit(s) downgraded — sensitive entities present but intent {intent.intent!r} is not high-risk (guide §9.7)")
         return IntentVerdict(hits=tuple(kept), dropped=tuple(dropped), warnings=tuple(warnings))
 
     def role_check(self, user: UserContext | None) -> tuple[bool, str | None]:

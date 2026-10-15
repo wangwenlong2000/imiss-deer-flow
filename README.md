@@ -35,6 +35,16 @@ UrbanBrain 聚焦以下能力建设：
 - 多技能统一调用与结果聚合
 - 场景过滤与 Reranker 精排
 
+The current deployment intentionally keeps the external SkillRouter disabled
+and uses recognized scenes as a lightweight custom-skill filter. The ten
+business scenes therefore require explicit domain evidence before they may
+filter skills. Generic action words such as "提取", "分析", "报告", and
+"风险" cannot activate a specialist scene by themselves. Weak entities use
+composite evidence—for example, a phone number plus an extraction, screening,
+profile, contact, device, or list action routes to `phone_network`, while an
+incidental phone number in a contract does not override `policy_regulation`.
+LLM-selected scenes are validated against the same evidence rules.
+
 ---
 
 ## Table of Contents
@@ -486,6 +496,27 @@ exactly as before; when a violation lands, a `compliance_retract` event clears i
 and the message is rewritten so the checkpoint never holds the original. This is after-the-fact
 recovery, not prevention — there is a visible window between a violating token being rendered and
 the retraction arriving, tunable via `incremental_scan.interval_chars`.
+
+The mobile adapter accepts `compliance_identity`, `compliance_context`, and the
+trusted `compliance_request` contract. Runtime identity is forwarded through
+LangGraph `run_context`, while `compliance_request` is written into graph state.
+InputGate, ContextGate, and OutputGate determinations use one mobile contract:
+`gate`, `scene`, `violation_types`, `actions`, `audit_ref`, `basis`, and
+`final_disposition`. SSE clients receive each new determination as a
+`compliance` event and receive the complete snapshot in
+`done.compliance_results`; JSON clients receive the same top-level snapshot.
+For OneCityAgent UI compatibility, each live `compliance` event also carries a
+`compliance_result` mirror of those canonical top-level fields. The final
+`done.compliance_results` list remains canonical and does not contain the
+transport-only wrapper.
+The adapter also converts `compliance_retract` into one ordered `反馈智能体`
+segment containing only the safe replacement/refusal and suppresses the
+rewritten final answer to avoid duplicates. The normalized
+`final_disposition` is derived from policy `actions`, not from the stream's
+retract transport marker: an allowed result may use replacement semantics to
+append a compliance notice without becoming a refusal. See the
+[mobile test plan](docs/mobile-platform-compliance-test-plan.md) and the
+[manual-UI real SSE record](docs/mobile-platform-manual-ui-sse-record-20260916.md).
 
 **Detectors are pluggable and isolated.** A detector declares its capabilities in its own
 `manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an

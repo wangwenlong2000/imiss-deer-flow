@@ -229,3 +229,14 @@ def test_re_identify_is_output_gate_only_across_all_detectors() -> None:
         gates = registration.gates.get("re_identify")
         if gates:
             assert set(gates) == {"OutputGate"}, f"{registration.detector_id} declares re_identify outside the output gate: {gates}"
+
+
+def test_domain_detector_covers_all_guide_gates() -> None:
+    registry = build_registry(config_path=None, strict=True)
+    try:
+        registrations = [registration for registration in registry.all() if "domain" in registration.violation_types]
+        assert registrations
+        covered = {gate for registration in registrations for gate in registration.gates.get("domain", ())}
+        assert covered == {"InputGate", "ContextGate", "OutputGate"}
+    finally:
+        registry.close()
