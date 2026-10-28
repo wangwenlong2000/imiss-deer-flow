@@ -1,0 +1,269 @@
+[
+  {
+    "id": "road-evolution",
+    "turns": [
+      {
+        "query": "这是两天的道路交通观测 traffic_days.csv。先只分析2026-10-26，分别给出两条道路的流量总和、平均流量、平均车速，导出CSV。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "day": "2026-10-26",
+          "主路甲": {
+            "sum_flow": 400,
+            "mean_flow": 200,
+            "mean_speed": 20
+          },
+          "支路乙": {
+            "sum_flow": 400,
+            "mean_flow": 200,
+            "mean_speed": 30
+          }
+        },
+        "upload": "traffic_days.csv"
+      },
+      {
+        "query": "日期改成2026-10-27，只看支路乙。不再导出CSV；给出平均流量和平均车速，并与26号支路乙比较差值。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "mean_flow": 200,
+          "mean_speed": 40,
+          "flow_delta": 0,
+          "speed_delta": 10,
+          "no_new_artifact": true
+        }
+      },
+      {
+        "query": "刚才那个平均流量具体怎么算出来的？解释就行，不要调用工具、执行计算或重新导出文件。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "explanation": "(100+300)/2=200",
+          "no_tools": true,
+          "requires_computation": false
+        }
+      },
+      {
+        "query": "先不管道路。分析这段Python，生成AST JSON供下载，并实际验证average_flow([100,300])的返回值：\n```python\ndef average_flow(xs):\n    return sum(xs)/len(xs)\n```\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "program_snippet"
+        ],
+        "expected": {
+          "return_value": 200,
+          "function": "average_flow",
+          "artifact": "AST JSON"
+        }
+      }
+    ]
+  },
+  {
+    "id": "yearbook-zero",
+    "turns": [
+      {
+        "query": "这是虚构城市年鉴 city_zero_base.csv。计算2024、2025年人口和GDP同比，以及2023到2025年GDP累计增幅。全部指标放进可下载CSV，增长率保留两位小数；分母为0的增长率必须写NA，不要写0%，也不要改为空白。给出简短结论。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "table_yearbook"
+        ],
+        "expected": {
+          "population_2024": "NA",
+          "population_2025": "10.00",
+          "gdp_2024": "10.00",
+          "gdp_2025": "10.00",
+          "cumulative_gdp": "21.00"
+        },
+        "upload": "city_zero_base.csv"
+      },
+      {
+        "query": "把增长率的小数精度改成三位，NA保持不变，保留前面全部指标，直接更新可下载CSV。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "table_yearbook"
+        ],
+        "expected": {
+          "population_2024": "NA",
+          "population_2025": "10.000",
+          "gdp_2024": "10.000",
+          "gdp_2025": "10.000",
+          "cumulative_gdp": "21.000"
+        }
+      }
+    ]
+  },
+  {
+    "id": "network-history",
+    "turns": [
+      {
+        "query": "请分析 session_new.flow.csv 网络会话：统计总流数、总字节数，按源IP总字节数列前两名及各自流数；统计目的端口443、53、8080各自流数。输出可下载JSON汇总和简短结论，不做外联探测。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "network_traffic"
+        ],
+        "expected": {
+          "flows": 7,
+          "bytes": 1550,
+          "top": [
+            {
+              "ip": "10.0.0.2",
+              "bytes": 600,
+              "flows": 2
+            },
+            {
+              "ip": "10.0.0.3",
+              "bytes": 500,
+              "flows": 2
+            }
+          ],
+          "ports": {
+            "443": 4,
+            "53": 2,
+            "8080": 1
+          }
+        },
+        "upload": "session_new.flow.csv"
+      },
+      {
+        "query": "换个话题：这段Python的筛选是什么意思？只解释，不运行、不生成文件，也不继续分析网络。\n```python\n[x*2 for x in xs if x>0]\n```\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "program_snippet"
+        ],
+        "expected": {
+          "positive_only": true,
+          "double": true,
+          "no_tools": true,
+          "requires_computation": false
+        }
+      },
+      {
+        "query": "回到第一轮上传的网络文件，这次仅统计目的端口53的流数和字节总量。不要再解释Python，也不用生成附件。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "network_traffic"
+        ],
+        "expected": {
+          "port": 53,
+          "flows": 2,
+          "bytes": 600,
+          "no_new_artifact": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "trajectory-empty",
+    "turns": [
+      {
+        "query": "对 gps_unsorted.csv 的GPS轨迹按用户、轨迹和时间排序并去重后，提取半径200米、停留至少20分钟的停留点，恰好20分钟和轨迹末段都计入。列出每个用户次数（含0次），并导出CSV明细。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "expected": {
+          "stay_counts": {
+            "A": 1,
+            "B": 1,
+            "C": 0
+          },
+          "stays": [
+            {
+              "user": "A",
+              "start": "08:00",
+              "end": "08:20"
+            },
+            {
+              "user": "B",
+              "start": "09:00",
+              "end": "09:20"
+            }
+          ]
+        },
+        "upload": "gps_unsorted.csv"
+      },
+      {
+        "query": "把最短停留改成至少21分钟，其他条件不变，重新计算并导出CSV。如果没有停留，也要给出每个用户0次，并提供带表头的空明细文件。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "expected": {
+          "stay_counts": {
+            "A": 0,
+            "B": 0,
+            "C": 0
+          },
+          "csv_rows": 0,
+          "csv_has_header": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "multi-cancel",
+    "turns": [
+      {
+        "query": "有两个独立任务：一是虚构年鉴GDP为2022年100亿元、2023年110亿元、2024年121亿元，计算2023和2024年的同比；二是分析以下Python并实际运行，生成AST JSON供下载：\n```python\ndef positives(xs):\n    return len([x for x in xs if x>0])\n```\n验证positives([-1,0,3,5])。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "table_yearbook",
+          "program_snippet"
+        ],
+        "expected": {
+          "gdp_yoy": [
+            10,
+            10
+          ],
+          "return_value": 2,
+          "function": "positives"
+        }
+      },
+      {
+        "query": "取消代码任务，只计算刚才GDP从2022到2024的累计增幅。这轮不用生成文件。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "table_yearbook"
+        ],
+        "expected": {
+          "cumulative_gdp": 21,
+          "cancelled_scene": "program_snippet"
+        }
+      },
+      {
+        "query": "同比10%就意味着每年固定增加10亿元吗？只说明区别，不调用任何工具，不执行计算，也不导出文件。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "table_yearbook"
+        ],
+        "expected": {
+          "not_fixed_increment": true,
+          "no_tools": true,
+          "requires_computation": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "code-error-recovery",
+    "turns": [
+      {
+        "query": "分析以下Python并导出AST JSON；实际运行ratio(10,0)，如实说明异常类型和原因，不要把异常说成正常返回。\n```python\ndef ratio(a,b):\n    return a/b\n```\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "program_snippet"
+        ],
+        "expected": {
+          "exception": "ZeroDivisionError",
+          "artifact": "AST JSON"
+        }
+      },
+      {
+        "query": "保留函数名，把除数为0时改为返回None，其他情况正常相除。提供修正后的Python文件和AST JSON供下载，并实际验证ratio(10,0)和ratio(10,2)。\n仅使用本会话提供的合成数据和线程工作区；不联网、不读取平台其他数据、不安装依赖、不改动已安装技能。",
+        "expected_scenes": [
+          "program_snippet"
+        ],
+        "expected": {
+          "return_values": [
+            null,
+            5
+          ],
+          "artifacts": [
+            "Python",
+            "AST JSON"
+          ]
+        }
+      }
+    ]
+  }
+]

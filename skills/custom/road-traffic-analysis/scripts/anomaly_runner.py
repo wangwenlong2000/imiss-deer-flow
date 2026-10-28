@@ -117,6 +117,10 @@ def repo_root() -> Path:
 
 
 def outputs_dir() -> Path:
+    # Mounted datasets are read-only in the business sandbox. Derived results
+    # belong to the current thread's writable outputs directory.
+    if Path("/mnt/user-data").is_dir():
+        return Path("/mnt/user-data/outputs")
     return (repo_root() / "datasets" / "road-traffic" / "outputs").resolve()
 
 
@@ -827,6 +831,10 @@ def run_detection_with_detectors(
         pca_min_features=pca_min_features,
     )
 
+    # A fixed business threshold needs no training history. Preserve statistical
+    # detector safeguards and respect an explicitly requested minimum.
+    if selected == ["threshold_ad"]:
+        cfg["min_points"] = max(1, int(min_points))
     groups, skipped_series = _prepare_series_groups(df, min_points=cfg["min_points"])
 
     per_series_detectors = [k for k in selected if k != "pca_ad"]
@@ -1082,7 +1090,7 @@ def _build_detect_payload(
     detector_requested: str,
     detectors_text: str,
     freq_hint: str,
-    min_points: int,
+    min_points: int | None,
     side: str,
     seasonal_period: int,
     seasonal_c: float,
@@ -1113,6 +1121,9 @@ def _build_detect_payload(
         threshold_low=threshold_low,
         threshold_high=threshold_high,
     )
+
+    if min_points is None:
+        min_points = 1 if selected_detectors == ["threshold_ad"] else 8
 
     detect_frame, meta = run_detection_with_detectors(
         frame,
@@ -1290,7 +1301,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--detectors", default="", help="Comma-separated detector keys; overrides --detector")
 
     p.add_argument("--freq", default="", help="Pandas/adtk freq alias, e.g. h/15min/D")
-    p.add_argument("--min-points", type=int, default=8, help="Minimum points per series")
+    p.add_argument("--min-points", type=int, default=None, help="Minimum points per series (default: 1 for threshold-only, 8 for statistical detectors)")
     p.add_argument("--side", default="both", choices=["both", "positive", "negative"], help="Detector side")
 
     p.add_argument("--seasonal-period", type=int, default=24, help="Seasonal period for SeasonalAD")

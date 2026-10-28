@@ -5,7 +5,9 @@ from langchain.agents.middleware import SummarizationMiddleware
 from langchain_core.runnables import RunnableConfig
 
 from deerflow.agents.lead_agent.prompt import apply_prompt_template
+from deerflow.agents.middlewares.answer_consistency_middleware import AnswerConsistencyMiddleware
 from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from deerflow.agents.middlewares.computation_guard_middleware import ComputationGuardMiddleware
 from deerflow.agents.middlewares.intent_recognition_middleware import IntentRecognitionMiddleware
 from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
@@ -286,6 +288,8 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
 
     # LoopDetectionMiddleware — detect and break repetitive tool call loops
     middlewares.append(LoopDetectionMiddleware())
+    middlewares.append(AnswerConsistencyMiddleware())
+    middlewares.append(ComputationGuardMiddleware())
 
     # ClarificationMiddleware should always be last
     middlewares.append(ClarificationMiddleware())
@@ -316,7 +320,7 @@ def make_lead_agent(config: RunnableConfig):
     agent_model_name = agent_config.model if agent_config and agent_config.model else _resolve_model_name()
 
     # Final model name resolution with request override, then agent config, then global default
-    model_name = requested_model_name or agent_model_name
+    model_name = _resolve_model_name(requested_model_name or agent_model_name)
 
     app_config = get_app_config()
     model_config = app_config.get_model_config(model_name) if model_name else None

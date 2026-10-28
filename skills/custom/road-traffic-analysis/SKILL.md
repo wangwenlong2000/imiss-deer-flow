@@ -98,6 +98,23 @@ The LLM decides the task family from the user's wording. Do not build script-lev
 13. If the user asks for CSV data analysis, forecasting, or anomaly detection without uploaded CSV, local CSV, or inline history data, ask for the data source. Do not infer trends from a single realtime Baidu response.
 14. Do not use web search for realtime weather or traffic unless the user explicitly asks to search the web.
 
+For a user-specified fixed threshold, use `threshold_ad` directly; no detector
+catalog, training history, or detector-choice clarification is needed. Threshold-only
+detection supports short series. Read `references/anomaly-detection.md` for exact
+commands; do not repeatedly guess flags after an execution error.
+
+For descriptive CSV results, state measured flow and speed comparisons only.
+Without a supplied congestion baseline or status column, do not label a road as
+congested/free-flowing or infer incidents/causes from mean speed and count alone.
+Present all requested metrics in the file and final answer using the same values.
+
+For synthetic or short descriptive data, the final response should contain the
+requested result table, factual comparisons and download links. Do not add
+congestion labels, commute explanations or incident suggestions without evidence.
+For an explicit threshold task, report only the requested count, timestamps,
+values, average and threshold rule. Do not add a multiplier unless requested;
+if requested, compute it with the tool using the exact stated denominator.
+
 ## Reference Loading
 
 Load only the reference needed for the current task:

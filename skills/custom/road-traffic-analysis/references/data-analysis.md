@@ -49,6 +49,10 @@ python /mnt/skills/custom/road-traffic-analysis/scripts/forecast_runner.py \
 - Do not read the whole CSV into model context.
 - Do not invent unavailable metrics.
 - Do not claim incident causes from CSV statistics alone.
+- Without a supplied congestion baseline/status, do not call lower mean speed
+  "congestion" or higher mean speed "free-flowing". Report the actual comparison.
+- Use the same computed rows for CSV export and prose; include all requested
+  metrics and actual decimal formatting before `present_files`.
 - If a requested metric has no matching column, say which column is missing and continue with available metrics.
 - For visualization requests, refer to the chart-visualization skill after producing the data summary needed for plotting.
 

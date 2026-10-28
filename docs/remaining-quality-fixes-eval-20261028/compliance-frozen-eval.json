@@ -1,0 +1,47 @@
+{
+  "detector_id": "rule_illegal_political_v4",
+  "dataset": "/app/datasets/compliance/type45_frozen_test/4_5_test_20pct.jsonl",
+  "overall": {
+    "samples": 80,
+    "correct": 76,
+    "accuracy": 0.95
+  },
+  "per_target": {
+    "illegal_content": {
+      "samples": 39,
+      "correct": 37,
+      "accuracy": 0.9487179487179487
+    },
+    "political": {
+      "samples": 41,
+      "correct": 39,
+      "accuracy": 0.9512195121951219
+    }
+  },
+  "gold_positive_refuse_coverage": 0.9444444444444444,
+  "detected_positive_refuse_rate": 1.0,
+  "legacy_engine_100pct_consistent": true,
+  "legacy_mismatches": [],
+  "mismatches": [
+    {
+      "sample_id": "street_view-041",
+      "gold": "illegal_content",
+      "predicted": "none"
+    },
+    {
+      "sample_id": "video-095",
+      "gold": "illegal_content",
+      "predicted": "none"
+    },
+    {
+      "sample_id": "policy-political-neg-007",
+      "gold": "none",
+      "predicted": "political"
+    },
+    {
+      "sample_id": "policy-political-v2-pos-011",
+      "gold": "political",
+      "predicted": "none"
+    }
+  ]
+}

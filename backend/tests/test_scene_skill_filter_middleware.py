@@ -54,6 +54,17 @@ def test_scene_skill_filter_injects_only_detected_scene_custom_skills(monkeypatc
     assert "network-traffic-analysis" not in prompt
 
 
+def test_out_of_scope_checkpoint_scene_cannot_inject_demo_skills(monkeypatch, tmp_path):
+    fire_skill = _skill(tmp_path, "fire-handler", ["fire_alarm"])
+    monkeypatch.setattr(scene_filter_module, "load_custom_skills", lambda enabled_only=True: [fire_skill])
+    result = SceneSkillFilterMiddleware().before_agent(
+        {"messages": [HumanMessage(content="继续处理", id="new-turn")], "intent_context": {"scene": "fire_alarm", "scenes": ["fire_alarm"]}},
+        runtime=None,
+    )
+    assert result["final_scope_skill_ids"] == []
+    assert result["routing_context"]["trigger"] is False
+
+
 def test_scene_skill_filter_removes_previous_routed_prompt(monkeypatch, tmp_path):
     video_skill = _skill(tmp_path, "analyze-video", ["video_surveillance"])
     monkeypatch.setattr(scene_filter_module, "load_custom_skills", lambda enabled_only=True: [video_skill])

@@ -1,0 +1,11 @@
+{
+  "model_calls": 0,
+  "original_error_count": 3,
+  "new_delivery_error": false,
+  "registered_files": [
+    "/mnt/user-data/outputs/staypoints/staypoints_by_user.csv",
+    "/mnt/user-data/outputs/staypoints/staypoints_detail.csv"
+  ],
+  "missing_global_metrics": [],
+  "passed": true
+}

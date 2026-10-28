@@ -25,15 +25,15 @@ UrbanBrain 聚焦以下能力建设：
 - 多技能统一调用与结果聚合
 - 场景过滤与 Reranker 精排
 
-The current deployment intentionally keeps the external SkillRouter disabled
-and uses recognized scenes as a lightweight custom-skill filter. The ten
-business scenes therefore require explicit domain evidence before they may
-filter skills. Generic action words such as "提取", "分析", "报告", and
-"风险" cannot activate a specialist scene by themselves. Weak entities use
-composite evidence—for example, a phone number plus an extraction, screening,
-profile, contact, device, or list action routes to `phone_network`, while an
-incidental phone number in a contract does not override `policy_regulation`.
-LLM-selected scenes are validated against the same evidence rules.
+当前部署保持外部SkillRouter关闭，使用十类业务场景过滤技能。普通业务请求通常由
+Qwen3.6-35B-A3B进行一次结构化语义识别，同时输出任务、场景、参数和规划；十类场景
+均参与判断，不再通过关键词硬裁剪候选。信息不足时具体澄清，多轮对话更新本轮计算、
+工具和交付要求。意图识别关闭思考，业务按模式控制思考，子任务继承该设置。
+
+配置示例仅启用Qwen3.6-35B-A3B，使用环境变量QWEN_BASE_URL和QWEN_API_KEY，
+不包含真实凭证。最新24轮核心任务回归符合预期，仍有3处扩展说明偏差。
+详见[优化汇总](docs/optimization-summary-20261028.md)和
+[本次提交说明及复现方法](docs/releases/20261028-intent-full-flow.md)。
 
 ---
 

@@ -1,0 +1,135 @@
+{
+  "backup_files": 330,
+  "supplemental_backup_files": 4,
+  "changed_files": [
+    {
+      "path": "backend/CLAUDE.md",
+      "before_sha256": "9fe89c504dc13f9df0906ef615acfc460c10ab258eadb0bd7a2d1d8e04c966f8",
+      "after_sha256": "79bb3149a67725bf9f7f1748ed505210ce9d4a8cd8da30063f12dde27034096c"
+    },
+    {
+      "path": "backend/README.md",
+      "before_sha256": "d89f9391523260be333c1d7d2925a803ef27519e2e291d2bf4a32ad520507a13",
+      "after_sha256": "deade3b95ae6ba0f94b001a64c48207c146aa9fc1fed4c123e13470ba806f8d4"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/agents/lead_agent/agent.py",
+      "before_sha256": "bae5e3941984e1389755c33d92e7b59729add0775526ab2da17cd88f16bcfbfd",
+      "after_sha256": "627ee28f2a4a0766e4e791fb8b7ebe4ea30b4ca4524d1672128a16fcfdf1cb12"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/agents/lead_agent/prompt.py",
+      "before_sha256": "35642e3ab0a01384f32bfd2149f180e9dbebb9312022eac5192d1cdf21d1fbec",
+      "after_sha256": "0d4ad16e7ece010881f2e8668831194c6acdcd9373bcc39f41650445b2717dc5"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/agents/middlewares/computation_guard_middleware.py",
+      "before_sha256": "a13cdb0aa2733b1046716f20b4c77b15438065f4f0066a624bd382f6c1eecc1a",
+      "after_sha256": "63ac2698eff9a9fb567cacb16d842382385485d25c53eb930df3e1166b925751"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/detector.py",
+      "before_sha256": "bb5573c51187898c05696c597828291d04129cff5d4c87bb359fc800c6834792",
+      "after_sha256": "9af5c752cf638341537cab69b514b6b5098ed5cc2f61a8112241d6cd3edcd2cd"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/routing/intent/structured.py",
+      "before_sha256": "fc5aef2dc472b4b6e4a7cfad1f4e7e185f84839da47245a425d2a3833cf0d94f",
+      "after_sha256": "cf7852d9b88e019f218cb5eb455bbb405c6f0d74209b6aa19d7d27c584e82d19"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/tools/builtins/present_file_tool.py",
+      "before_sha256": "3da0e2e05806984d38eccc39f4541511e80abc05fa2fed0334b80925ae59d039",
+      "after_sha256": "859e45065811e6f1d60d69748434eda00b547da10dfadcdc61c4706fd54ecd7d"
+    },
+    {
+      "path": "skills/custom/spatiotemporal_trajectory/extract_stay_points/scripts/extract_stay_points.py",
+      "before_sha256": "21fdc441929291b8e009923e90629b6267238a0f06ee48a01c81a9ff01e540b0",
+      "after_sha256": "2ecaffa7beb24d21ba004a57a5788481f1e2f980d28f86946c09774c7d425764"
+    },
+    {
+      "path": "skills/custom/spatiotemporal_trajectory/extract_stay_points/SKILL.md",
+      "before_sha256": "6d8c04c29521ab02fc8ff4f4ae9ae9b19c618e2f90e40090755a44746484ac14",
+      "after_sha256": "6b59013f4cb9e3703d8e7eefb0f78a881510f1a81669609fa98414c1b5a2955e"
+    },
+    {
+      "path": "skills/public/data-analysis/scripts/analyze.py",
+      "before_sha256": "f3e95254dfd241b2eedd64835f229ebdf9a5093da99dd14bb936f0af2c1f1988",
+      "after_sha256": "557a19729dafa2ce978079be2a96ecb2fce64bd7819e3818cabe465f5583f546"
+    },
+    {
+      "path": "skills/public/data-analysis/SKILL.md",
+      "before_sha256": "d9383f31df40250c7dd58b31f3518bc80c95f670eada6e8222c7925d80a0b3a1",
+      "after_sha256": "9c1c9ce072a390791317f4bf9ccc4db51b420928545d929d71f97855a661e7e9"
+    },
+    {
+      "path": "backend/tests/test_remaining_quality_regressions.py",
+      "before_sha256": null,
+      "after_sha256": "903fb650afc4b430cc58d75a6a521fc4757cab8a4fbaa0958c75d272a81a07e9"
+    },
+    {
+      "path": "backend/packages/harness/deerflow/agents/middlewares/answer_consistency_middleware.py",
+      "before_sha256": null,
+      "after_sha256": "7227b21a95c51e9b882d94b395b80c5721c4b46d1024da5edf9344396d2e8cea"
+    }
+  ],
+  "unchanged_protected": {
+    "config.yaml": true,
+    "backend/config/intent_scene_templates.json": true,
+    "backend/packages/harness/deerflow/models/factory.py": true,
+    "backend/tests/test_model_factory.py": true
+  },
+  "source_frozen_files": 237,
+  "local_tests": {
+    "main_passed": 566,
+    "main_skipped": 1,
+    "main_warnings": 9,
+    "compliance_passed": 116,
+    "executor_passed": 25,
+    "total_passed": 707
+  },
+  "extra_judge_model_calls": 0,
+  "backups": [
+    {
+      "archive": "scripts/intent_files_backup/20261028-quality-fixes-8ed30aa7/before-quality-fixes.tar.gz",
+      "files": 330,
+      "hash_mismatches": [],
+      "mode": "0o600"
+    },
+    {
+      "archive": "scripts/intent_files_backup/20261028-quality-fixes-8ed30aa7/before-staypoint-csv.tar.gz",
+      "files": 2,
+      "hash_mismatches": [],
+      "mode": "0o600"
+    },
+    {
+      "archive": "scripts/intent_files_backup/20261028-quality-fixes-8ed30aa7/before-data-preview.tar.gz",
+      "files": 2,
+      "hash_mismatches": [],
+      "mode": "0o600"
+    }
+  ],
+  "live_core_task_results": {
+    "thinking": {
+      "passed": 16,
+      "total": 16
+    },
+    "legacy": {
+      "passed": 8,
+      "total": 8
+    }
+  },
+  "supplemental_prose_issues": 3,
+  "all_prose_correct": false,
+  "registered_delivery_integrity": "22/22",
+  "source_during_live_tests_unchanged": true,
+  "post_test_ast_equivalent_formatting": {
+    "file": "backend/packages/harness/deerflow/agents/middlewares/computation_guard_middleware.py",
+    "before_sha256": "7d5bdae88d809f64f8c4602d898c368695cf40b146773db36fb5eeb66ba87a71",
+    "after_sha256": "63ac2698eff9a9fb567cacb16d842382385485d25c53eb930df3e1166b925751",
+    "python_ast_identical": true,
+    "reason": "Split two long source lines; prompt text and executable syntax tree unchanged",
+    "after_full_24_turn_run": true
+  },
+  "quality_regression_cases": 53
+}

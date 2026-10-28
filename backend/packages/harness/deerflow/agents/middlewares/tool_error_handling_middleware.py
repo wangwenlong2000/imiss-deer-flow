@@ -28,6 +28,23 @@ class ComplianceStartupError(RuntimeError):
 class ToolErrorHandlingMiddleware(AgentMiddleware[AgentState]):
     """Convert tool exceptions into error ToolMessages so the run can continue."""
 
+    @staticmethod
+    def _argument_error(request: ToolCallRequest) -> ToolMessage | None:
+        tool = getattr(request, 'tool', None)
+        if tool is None:
+            return None
+        schema = tool.tool_call_schema
+        if isinstance(schema, dict):
+            required = set(schema.get('required', []))
+        else:
+            required = {name for name, field in schema.model_fields.items() if field.is_required()}
+        args = request.tool_call.get('args') or {}
+        if not (missing := required - set(args)):
+            return None
+        name = request.tool_call.get('name', 'unknown_tool')
+        content = f"Error: Tool '{name}' is missing required JSON argument fields: {', '.join(sorted(missing))}. Send separate top-level fields: {', '.join(sorted(required))}. Do not place parameter names or descriptions inside command; correct the JSON fields instead of changing executable code."
+        return ToolMessage(content=content, name=name, tool_call_id=request.tool_call.get('id') or _MISSING_TOOL_CALL_ID, status='error', additional_kwargs={'error_code': 'TOOL_ARGUMENTS_INVALID'})
+
     def _build_error_message(self, request: ToolCallRequest, exc: Exception) -> ToolMessage:
         tool_name = str(request.tool_call.get("name") or "unknown_tool")
         tool_call_id = str(request.tool_call.get("id") or _MISSING_TOOL_CALL_ID)
@@ -50,6 +67,8 @@ class ToolErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         handler: Callable[[ToolCallRequest], ToolMessage | Command],
     ) -> ToolMessage | Command:
         try:
+            if error := self._argument_error(request):
+                return error
             return handler(request)
         except GraphBubbleUp:
             # Preserve LangGraph control-flow signals (interrupt/pause/resume).
@@ -65,6 +84,8 @@ class ToolErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         handler: Callable[[ToolCallRequest], Awaitable[ToolMessage | Command]],
     ) -> ToolMessage | Command:
         try:
+            if error := self._argument_error(request):
+                return error
             return await handler(request)
         except GraphBubbleUp:
             # Preserve LangGraph control-flow signals (interrupt/pause/resume).

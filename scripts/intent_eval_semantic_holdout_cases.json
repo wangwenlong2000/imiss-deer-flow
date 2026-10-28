@@ -1,0 +1,246 @@
+{
+  "description": "New synthetic semantic probes frozen before their first model evaluation. Includes identical vague requests with different file metadata, missing context, colloquial language, negation, background domains, multi-intent and topic shifts. Not production accuracy.",
+  "cases": [
+    {
+      "id": "semantic-01",
+      "query": "看看每天早上大家从哪些片区出来，晚上又回到哪里。",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-02",
+      "query": "帮我查一下哪里不对劲。",
+      "expected_scenes": [
+        "video_surveillance"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "uploaded_files": [
+        {
+          "filename": "entrance.mp4",
+          "content_type": "video/mp4"
+        }
+      ]
+    },
+    {
+      "id": "semantic-03",
+      "query": "帮我查一下哪里不对劲。",
+      "expected_scenes": [
+        "network_traffic"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "uploaded_files": [
+        {
+          "filename": "capture.pcap",
+          "content_type": "application/vnd.tcpdump.pcap"
+        }
+      ]
+    },
+    {
+      "id": "semantic-04",
+      "query": "帮我查一下哪里不对劲。",
+      "expected_scenes": [],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "expected_clarification": true
+    },
+    {
+      "id": "semantic-05",
+      "query": "把这两次从天上拍的多波段图对一下，看看植被少了多少。",
+      "expected_scenes": [
+        "remote_sensing_image"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-06",
+      "query": "这张照片是在哪条街拍的？能给一个坐标吗？",
+      "expected_scenes": [
+        "street_view_image"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "uploaded_files": [
+        {
+          "filename": "photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "semantic-07",
+      "query": "用户说电话经常打着打着就断了，找找原因和受影响的号码。",
+      "expected_scenes": [
+        "phone_network"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-08",
+      "query": "In this worksheet, divide the sum of the female counts by the overall total and show which cells you used.",
+      "expected_scenes": [
+        "table_yearbook"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "uploaded_files": [
+        {
+          "filename": "counts.xlsx"
+        }
+      ]
+    },
+    {
+      "id": "semantic-09",
+      "query": "帮我找出摄像头录像使用方面的法律依据，解释保存期限。",
+      "expected_scenes": [
+        "policy_regulation"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-10",
+      "query": "看看这个 cv2 脚本里各函数怎样传数据，画出它们的调用关系。",
+      "expected_scenes": [
+        "program_snippet"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "uploaded_files": [
+        {
+          "filename": "pipeline.py"
+        }
+      ]
+    },
+    {
+      "id": "semantic-11",
+      "query": "这条路每天上班时间堵成这样，看看近几年的变化，最近是不是更慢了？",
+      "expected_scenes": [
+        "road_traffic"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-12",
+      "query": "请把这些材料归纳成一份带图表的风险简报。",
+      "expected_scenes": [],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "expected_clarification": false
+    },
+    {
+      "id": "semantic-13",
+      "query": "把“检测监控视频中的异常行为”这句话翻成英文，不要执行分析。",
+      "expected_scenes": [],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "expected_clarification": false
+    },
+    {
+      "id": "semantic-14",
+      "query": "不要处理录像，只审查采购合同的付款条件。",
+      "expected_scenes": [
+        "policy_regulation"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-15",
+      "query": "一边查看门口录像里有没有人倒地，一边检查这份 pcap 是否有可疑外联。",
+      "expected_scenes": [
+        "video_surveillance",
+        "network_traffic"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-16",
+      "query": "按大家白天夜里出现的频率，判断这些片区是办公为主还是住人为主。",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    },
+    {
+      "id": "semantic-17",
+      "query": "流量不对，帮忙看一下。",
+      "expected_scenes": [],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "expected_clarification": true
+    },
+    {
+      "id": "semantic-18",
+      "query": "这些人下一站大概会去哪里？",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "读取人员 GPS 记录并提取常驻位置",
+        "normalized_query": "读取人员 GPS 记录并提取常驻位置",
+        "routing_query": "读取人员 GPS 记录并提取常驻位置",
+        "scene": "spatiotemporal_trajectory",
+        "scenes": [
+          "spatiotemporal_trajectory"
+        ]
+      }
+    },
+    {
+      "id": "semantic-19",
+      "query": "换个事情，检查 capture.pcap 是否有数据外传。",
+      "expected_scenes": [
+        "network_traffic"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation",
+      "previous_intent": {
+        "original_query": "审查设备采购合同",
+        "scene": "policy_regulation",
+        "scenes": [
+          "policy_regulation"
+        ]
+      }
+    },
+    {
+      "id": "semantic-20",
+      "query": "我想知道哪些号码总和同一批人联系，有没有共用终端。",
+      "expected_scenes": [
+        "phone_network"
+      ],
+      "expected_intent": "task",
+      "category": "semantic_holdout",
+      "split": "validation"
+    }
+  ]
+}

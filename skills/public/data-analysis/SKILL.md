@@ -43,7 +43,9 @@ This returns:
 - Sheet names (for Excel) or filename (for CSV)
 - Column names, data types, and non-null counts
 - Row count per sheet/file
-- Sample data (first 5 rows)
+- Complete input rows for tables with at most 20 rows; otherwise the first 5 rows, explicitly marked as an incomplete preview
+
+Use observed rows when explaining an earlier result. Aggregates do not determine individual observations: do not reconstruct missing rows from a mean or sum. If the existing preview is incomplete and the user asks for an explanation without more computation, explain the verified aggregate and state which row details remain unverified.
 
 ### Step 3: Perform Analysis
 

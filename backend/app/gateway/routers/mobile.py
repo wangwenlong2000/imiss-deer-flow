@@ -1352,11 +1352,16 @@ def _extract_compliance_retract_segments(raw_events: list[Any]) -> list[dict[str
     return segments
 
 
-def _extract_final_answer(raw_events: list[Any], current_query: str) -> str:
+def _extract_final_answer(raw_events: list[Any], current_query: str, *, completion: dict | None = None) -> str:
     final_answer = ""
+    final_status = None
+    final_id = None
 
-    def maybe_update_from_messages(messages: list[Any]) -> None:
-        nonlocal final_answer
+    def maybe_update_from_messages(messages: list[Any], *, canonical=False) -> None:
+        nonlocal final_answer, final_status, final_id
+
+        if canonical:
+            final_answer, final_status, final_id = '', None, None
 
         current_turn_messages = _current_turn_or_incremental_messages(messages, current_query)
         if not current_turn_messages:
@@ -1365,6 +1370,11 @@ def _extract_final_answer(raw_events: list[Any], current_query: str) -> str:
         for msg in current_turn_messages:
             if not isinstance(msg, dict):
                 continue
+            if _message_type(msg) == 'remove' and msg.get('id') == final_id:
+                final_answer, final_status, final_id = '', 'needs_verification', None
+                continue
+            if _message_type(msg) == 'system' and msg.get('name') == 'computation_guard_retry':
+                final_status = 'needs_verification'
             if _message_type(msg) != "ai":
                 continue
             if _message_has_tool_calls(msg):
@@ -1386,7 +1396,9 @@ def _extract_final_answer(raw_events: list[Any], current_query: str) -> str:
 
             content = _extract_text_content(msg.get("content"))
             if content:
-                final_answer = content
+                final_status = (msg.get('response_metadata') or {}).get('execution_status')
+                final_id = msg.get('id')
+                final_answer = '' if final_status == 'needs_verification' else content
 
     for event in raw_events:
         if not isinstance(event, dict):
@@ -1396,19 +1408,21 @@ def _extract_final_answer(raw_events: list[Any], current_query: str) -> str:
         data = event.get("data")
 
         if event_name == "values" and isinstance(data, dict):
-            messages = data.get("raw_messages") or data.get("messages") or []
+            messages = data.get("messages") or data.get("raw_messages") or []
             if isinstance(messages, list):
-                maybe_update_from_messages(messages)
+                maybe_update_from_messages(messages, canonical=bool(data.get('messages')))
 
         elif event_name == "updates" and isinstance(data, dict):
             for node_value in data.values():
                 if not isinstance(node_value, dict):
                     continue
 
-                messages = node_value.get("raw_messages") or node_value.get("messages") or []
+                messages = node_value.get("messages") or node_value.get("raw_messages") or []
                 if isinstance(messages, list):
                     maybe_update_from_messages(messages)
 
+    if completion is not None:
+        completion['status'] = final_status
     return final_answer.strip()
 
 
@@ -1418,7 +1432,8 @@ def adapt_events_to_mobile(
     raw_events: list[Any],
     current_query: str,
 ) -> dict[str, Any]:
-    for raw_event in raw_events:
+    errors = _extract_error_segments(raw_events)
+    for raw_event in ([] if errors else raw_events):
         if not isinstance(raw_event, dict):
             continue
 
@@ -1474,20 +1489,22 @@ def adapt_events_to_mobile(
 
     segments.extend(_extract_tool_segments(raw_events, current_query))
     segments.extend(_extract_file_segments(raw_events, current_query, thread_id))
-    segments.extend(_extract_error_segments(raw_events))
+    segments.extend(errors)
 
     compliance_segments = _extract_compliance_retract_segments(raw_events)
+    completion = {}
     if compliance_segments:
         segments.extend(compliance_segments)
-    else:
-        final_answer = _extract_final_answer(raw_events, current_query)
+    elif not errors:
+        final_answer = _extract_final_answer(raw_events, current_query, completion=completion)
         if final_answer:
+            failed = completion.get('status') == 'failed'
             segments.append(
                 make_segment(
-                    agent_id="final",
+                    agent_id='feedback' if failed else "final",
                     content=final_answer,
-                    status="completed",
-                    source_event="final_answer",
+                    status='failed' if failed else "completed",
+                    source_event='execution_failure' if failed else "final_answer",
                 )
             )
 
@@ -1501,12 +1518,17 @@ def adapt_events_to_mobile(
             )
         )
 
-    return {
+    result = {
         "session_id": session_id or thread_id,
         "thread_id": thread_id,
         "segments": segments,
         "compliance_results": _extract_compliance_results(raw_events),
     }
+    if errors or completion.get('status') == 'failed':
+        result['status'] = 'failed'
+    elif completion.get('status') == 'needs_verification':
+        result['status'] = 'incomplete'
+    return result
 
 
 MOBILE_ALLOWED_ROLES = {

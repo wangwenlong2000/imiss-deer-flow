@@ -1,5 +1,7 @@
 """Tests for the routing intent classifier."""
 
+from pathlib import Path
+
 from deerflow.routing.dialogue_act import classify_dialogue_act
 from deerflow.routing.intent import classify_routing_intent, load_scene_templates
 from deerflow.routing.intent.classifier import TaskSpan, _normalize_task_span_texts, _resolve_scene_for_span, classify_routing_intent_with_llm
@@ -179,7 +181,9 @@ def test_previous_task_followup_does_not_select_program_snippet_scene():
     llm = _FakeTurnLLM(
         '{"act":"task_followup","should_reclassify_intent":false,'
         '"should_reroute_skills":false,"confidence":0.93,'
-        '"reason":"用户在追问上一轮为什么未使用 skill 脚本"}'
+        '"reason":"用户在追问上一轮为什么未使用 skill 脚本",'
+        '"turn_requirements":{"requires_computation":false,"allow_tools":true,'
+        '"required_csv_metrics":[],"csv_precision":{},"csv_missing_values":[],"required_artifact_types":[]}}'
     )
 
     result = classify_dialogue_act(
@@ -240,7 +244,7 @@ def test_previous_context_new_task_turn_allows_reclassification():
 def test_fire_alarm_scene_match():
     result = classify_routing_intent(
         "阳光小区3号楼2单元发生火灾告警",
-        scene_templates=load_scene_templates(),
+        scene_templates=load_scene_templates(str(Path(__file__).parents[1] / "packages/harness/deerflow/routing/intent/scene_templates.json")),
     )
 
     assert result.intent == "task"
@@ -335,7 +339,7 @@ def test_llm_scene_slot_and_rewrite():
     result = classify_routing_intent_with_llm(
         "阳光小区3号楼2单元发生火灾告警",
         llm=_FakeIntentLLM(),
-        scene_templates=load_scene_templates(),
+        scene_templates=load_scene_templates(str(Path(__file__).parents[1] / "packages/harness/deerflow/routing/intent/scene_templates.json")),
     )
 
     assert result.scene == "fire_alarm"
@@ -348,10 +352,10 @@ def test_llm_scene_slot_and_rewrite():
     assert len(result.scene_tasks) == 1
 
 
-def test_user_scene_templates_are_merged():
+def test_deployment_registry_contains_exactly_the_ten_business_scenes():
     templates = load_scene_templates()
 
-    assert "fire_alarm" in templates
+    assert set(templates) == {"network_traffic", "phone_network", "policy_regulation", "spatiotemporal_trajectory", "street_view_image", "remote_sensing_image", "video_surveillance", "program_snippet", "road_traffic", "table_yearbook"}
     assert "network_traffic" in templates
     assert "policy_regulation" in templates
     assert "spatiotemporal_trajectory" in templates

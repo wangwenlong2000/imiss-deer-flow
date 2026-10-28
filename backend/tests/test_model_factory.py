@@ -142,9 +142,41 @@ def test_thinking_enabled_merges_when_thinking_enabled_settings(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.parametrize("thinking_enabled", [False, True])
+@pytest.mark.parametrize("local_template", [False, True])
+def test_qwen_thinking_switch(monkeypatch, thinking_enabled, local_template):
+    body = {"enable_thinking": True}
+    if local_template:
+        body = {"chat_template_kwargs": body}
+    model = _make_model("qwen3.6-35b-a3b", supports_thinking=True, when_thinking_enabled={"extra_body": body})
+    # Keep unrelated serving options when explicitly disabling thinking.
+    model.model_extra["extra_body"] = {"top_k": 20}
+    cfg = _make_app_config([model])
+    _patch_factory(monkeypatch, cfg)
+
+    factory_module.create_chat_model(name=model.name, thinking_enabled=thinking_enabled)
+
+    actual = FakeChatModel.captured_kwargs["extra_body"]
+    switch = actual["chat_template_kwargs"] if local_template else actual
+    assert switch["enable_thinking"] is thinking_enabled
+    if not thinking_enabled:
+        assert actual["top_k"] == 20
+    assert body == ({"chat_template_kwargs": {"enable_thinking": True}} if local_template else {"enable_thinking": True})
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_qwen_thinking_budget_only_sent_for_thinking_execution(monkeypatch, enabled):
+    model = _make_model("qwen3.6-35b-a3b", supports_thinking=True, when_thinking_enabled={"extra_body": {"enable_thinking": True, "thinking_budget": 2048}})
+    _patch_factory(monkeypatch, _make_app_config([model]))
+    factory_module.create_chat_model(name=model.name, thinking_enabled=enabled)
+    body = FakeChatModel.captured_kwargs["extra_body"]
+    assert body["enable_thinking"] is enabled
+    assert body.get("thinking_budget") == (2048 if enabled else None)
+
+
 def test_thinking_disabled_openai_gateway_format(monkeypatch):
     """When thinking is configured via extra_body (OpenAI-compatible gateway),
-    disabling must inject extra_body.thinking.type=disabled and reasoning_effort=minimal."""
+    disabling must inject extra_body.thinking.type=disabled without reasoning_effort."""
     wte = {"extra_body": {"thinking": {"type": "enabled", "budget_tokens": 10000}}}
     cfg = _make_app_config(
         [
@@ -170,7 +202,7 @@ def test_thinking_disabled_openai_gateway_format(monkeypatch):
     factory_module.create_chat_model(name="openai-gw", thinking_enabled=False)
 
     assert captured.get("extra_body") == {"thinking": {"type": "disabled"}}
-    assert captured.get("reasoning_effort") == "minimal"
+    assert "reasoning_effort" not in captured
     assert "thinking" not in captured  # must NOT set the direct thinking param
 
 
@@ -253,7 +285,7 @@ def test_reasoning_effort_cleared_when_not_supported(monkeypatch):
     assert captured.get("reasoning_effort") is None
 
 
-def test_reasoning_effort_preserved_when_supported(monkeypatch):
+def test_reasoning_effort_removed_when_thinking_disabled(monkeypatch):
     wte = {"extra_body": {"thinking": {"type": "enabled", "budget_tokens": 5000}}}
     cfg = _make_app_config(
         [
@@ -276,11 +308,10 @@ def test_reasoning_effort_preserved_when_supported(monkeypatch):
 
     monkeypatch.setattr(factory_module, "resolve_class", lambda path, base: CapturingModel)
 
-    factory_module.create_chat_model(name="effort-model", thinking_enabled=False)
+    factory_module.create_chat_model(name="effort-model", thinking_enabled=False, reasoning_effort="high")
 
-    # When supports_reasoning_effort=True, it should NOT be cleared to None
-    # The disable path sets it to "minimal"; supports_reasoning_effort=True keeps it
-    assert captured.get("reasoning_effort") == "minimal"
+    # Thinking disabled must not conflict with an explicit reasoning effort.
+    assert "reasoning_effort" not in captured
 
 
 # ---------------------------------------------------------------------------

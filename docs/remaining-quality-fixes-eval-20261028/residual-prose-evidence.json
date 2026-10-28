@@ -1,0 +1,30 @@
+{
+  "model_calls": 0,
+  "road_speed_fluctuation": {
+    "主路甲": {
+      "speeds": [
+        40.0,
+        30.0,
+        20.0
+      ],
+      "range": 20.0,
+      "population_variance": 66.66666666666667
+    },
+    "支路乙": {
+      "speeds": [
+        50.0,
+        40.0,
+        30.0
+      ],
+      "range": 20.0,
+      "population_variance": 66.66666666666667
+    }
+  },
+  "same_speed_values_up_to_offset": true,
+  "integer_division_type": "int",
+  "integer_division_method": "<slot wrapper '__truediv__' of 'int' objects>",
+  "notes": [
+    "Both road speed ranges and population variances are equal; claiming first road speed fluctuates more has no support in these standard measures.",
+    "The tested operands are ints; the low-level float.__truediv__ generalization is unsupported by the execution."
+  ]
+}
