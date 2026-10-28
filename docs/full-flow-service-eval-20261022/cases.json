@@ -1,0 +1,173 @@
+[
+  {
+    "id": "road",
+    "turns": [
+      {
+        "upload": "road_counts.csv",
+        "query": "这是两条道路的交通统计。请分析上传的 road_counts.csv：分别给出各道路流量总和、算术平均流量、算术平均车速，找出各道路流量最高的时刻。生成可下载的 CSV 汇总，并在最终回答中简要说明结果。仅使用本次提供的合成数据，不读取平台其他数据，不安装依赖。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "主路甲": {
+            "sum_flow": 600,
+            "mean_flow": 200,
+            "mean_speed_kmh": 30,
+            "peak_time": "09:00"
+          },
+          "支路乙": {
+            "sum_flow": 360,
+            "mean_flow": 120,
+            "mean_speed_kmh": 40,
+            "peak_time": "09:00"
+          }
+        },
+        "artifact_required": true
+      },
+      {
+        "query": "沿用刚才上传的道路数据，这次只看支路乙，告诉我平均流量、平均车速，以及它的总流量占两条路总流量的百分比。不需要重新上传文件。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "mean_flow": 120,
+          "mean_speed_kmh": 40,
+          "share_percent": 37.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "network",
+    "turns": [
+      {
+        "upload": "traffic.flow.csv",
+        "query": "请统计上传的 traffic.flow.csv 网络流量：一共有多少条流、多少字节；按源 IP 的总字节数取前两名，同时列出各自流数；再统计目的端口 443 和 53 分别有多少条流。生成可下载的汇总文件，结论只依据本文件，不做真实外联探测。仅使用本次提供的合成数据，不读取平台其他数据，不安装依赖。",
+        "expected_scenes": [
+          "network_traffic"
+        ],
+        "expected": {
+          "flows": 6,
+          "bytes": 2200,
+          "rank": [
+            {
+              "src_ip": "10.0.0.2",
+              "bytes": 1200,
+              "flows": 2
+            },
+            {
+              "src_ip": "10.0.0.1",
+              "bytes": 1000,
+              "flows": 4
+            }
+          ],
+          "ports": {
+            "443": 4,
+            "53": 2
+          }
+        },
+        "artifact_required": true
+      }
+    ]
+  },
+  {
+    "id": "trajectory",
+    "turns": [
+      {
+        "upload": "gps_stays.csv",
+        "query": "请对上传的 GPS 轨迹 gps_stays.csv 提取停留点，半径 200 米、停留至少 20 分钟，恰好 20 分钟也算；轨迹结束时如果已满足持续时间也要计入。列出每个用户的停留次数、每个停留起止时间和时长，并导出可下载明细。仅使用本次提供的合成数据，不读取平台其他数据，不安装依赖。",
+        "expected_scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "expected": {
+          "raw_points": 9,
+          "stay_counts": {
+            "A": 2,
+            "B": 0
+          },
+          "stays": [
+            {
+              "user_id": "A",
+              "start": "08:00",
+              "end": "08:20",
+              "minutes": 20
+            },
+            {
+              "user_id": "A",
+              "start": "08:40",
+              "end": "09:00",
+              "minutes": 20
+            }
+          ]
+        },
+        "artifact_required": true
+      }
+    ]
+  },
+  {
+    "id": "code",
+    "turns": [
+      {
+        "query": "帮我分析这段 Python：生成可下载的 AST JSON，解释筛选逻辑，并实际运行验证 total([-2, 0, 3, 5]) 的返回值。代码如下：\n```python\ndef total(xs):\n    return sum(x * 2 for x in xs if x > 0)\n```\n仅使用本次提供的合成数据，不读取平台其他数据，不安装依赖。",
+        "expected_scenes": [
+          "program_snippet"
+        ],
+        "expected": {
+          "return_value": 16,
+          "function": "total",
+          "ast_nodes": [
+            "FunctionDef",
+            "GeneratorExp",
+            "Compare"
+          ]
+        },
+        "artifact_required": true
+      }
+    ]
+  },
+  {
+    "id": "yearbook",
+    "turns": [
+      {
+        "upload": "city_yearbook.csv",
+        "query": "这是一个虚构城市的统计年鉴表 city_yearbook.csv，population 单位为万人，gdp 单位为亿元。请计算 2023、2024 年的人口和 GDP 同比增长率，以及 2022 到 2024 年 GDP 累计增幅，结果保留两位小数，输出可下载的 CSV 和简短结论。不要补充表外事实。仅使用本次提供的合成数据，不读取平台其他数据，不安装依赖。",
+        "expected_scenes": [
+          "table_yearbook"
+        ],
+        "expected": {
+          "population_yoy_2023": 10,
+          "population_yoy_2024": 10,
+          "gdp_yoy_2023": 10,
+          "gdp_yoy_2024": 10,
+          "gdp_growth_2022_2024": 21
+        },
+        "artifact_required": true
+      }
+    ]
+  },
+  {
+    "id": "clarify",
+    "turns": [
+      {
+        "query": "帮我看看这个流量有没有异常。",
+        "expected_scenes": [],
+        "expected": {
+          "needs_clarification": true,
+          "must_not_invent_data": true
+        }
+      },
+      {
+        "query": "我指的是道路交通流量，只有一条路。按“流量大于 500”判异常就行：2026-10-20 08:00 是 100，08:05 是 100，08:10 是 900，08:15 是 100，08:20 是 100，单位是辆/5分钟。请按这个规则实际计算异常点数量、异常时刻和全部五点的平均值；这就是完整数据，不需要其他文件。",
+        "expected_scenes": [
+          "road_traffic"
+        ],
+        "expected": {
+          "anomalies": 1,
+          "time": "08:10",
+          "flow": 900,
+          "mean_flow": 260
+        }
+      }
+    ]
+  }
+]

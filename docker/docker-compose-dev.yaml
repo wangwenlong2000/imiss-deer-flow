@@ -110,7 +110,8 @@ services:
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-gateway
     container_name: gaozhuohui-deer-flow-gateway
-    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 3330 --reload --reload-include='*.yaml .env' > /app/logs/gateway.log 2>&1"
+    # This Uvicorn version compares watched absolute paths with exclusion paths.
+    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 3330 --reload --reload-include='*.yaml .env' --reload-exclude='/app/backend/.deer-flow' --reload-exclude='/app/backend/.venv' > /app/logs/gateway.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/
@@ -163,7 +164,9 @@ services:
       dockerfile: backend/Dockerfile
       # cache_from disabled - requires manual setup: mkdir -p /tmp/docker-cache-langgraph
     container_name: gaozhuohui-deer-flow-langgraph
-    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port 3329 > /app/logs/langgraph.log 2>&1"
+    # Explicit job capacity: the installed development runner otherwise defaults to one.
+    # Runtime uploads must not reload the graph while other requests are running.
+    command: sh -c "cd backend && uv run langgraph dev --no-browser --allow-blocking --no-reload --n-jobs-per-worker ${DEER_FLOW_GRAPH_JOBS:-2} --host 0.0.0.0 --port 3329 > /app/logs/langgraph.log 2>&1"
     volumes:
       - ../backend/:/app/backend/
       # Preserve the .venv built during Docker image build — mounting the full backend/

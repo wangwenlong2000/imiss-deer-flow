@@ -1,0 +1,270 @@
+{
+  "description": "Additional unseen contextual acceptance cases frozen after development; no prompt tuning on these results.",
+  "cases": [
+    {
+      "id": "holdout-01",
+      "query": "基于刚才的 GPS 轨迹分析结果，预测这些对象下一处可能的位置。",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "基于上传 GPS 轨迹识别停留点",
+        "normalized_query": "基于上传 GPS 轨迹识别停留点",
+        "routing_query": "基于上传 GPS 轨迹识别停留点",
+        "scene": "spatiotemporal_trajectory",
+        "scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-02",
+      "query": "基于刚才的结果，预测这些对象下一处可能的位置。",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "基于上传 GPS 轨迹识别停留点",
+        "normalized_query": "基于上传 GPS 轨迹识别停留点",
+        "routing_query": "基于上传 GPS 轨迹识别停留点",
+        "scene": "spatiotemporal_trajectory",
+        "scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-03",
+      "query": "对上述区域，检测上传监控视频中的人员聚集事件。",
+      "expected_scenes": [
+        "video_surveillance"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "基于卫星遥感影像分析城市建设用地",
+        "normalized_query": "基于卫星遥感影像分析城市建设用地",
+        "routing_query": "基于卫星遥感影像分析城市建设用地",
+        "scene": "remote_sensing_image",
+        "scenes": [
+          "remote_sensing_image"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-04",
+      "query": "基于刚才结果，检索相关法律法规，判断数据采集是否合规。",
+      "expected_scenes": [
+        "policy_regulation"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "分析上传 pcap 网络流量中的外连行为",
+        "normalized_query": "分析上传 pcap 网络流量中的外连行为",
+        "routing_query": "分析上传 pcap 网络流量中的外连行为",
+        "scene": "network_traffic",
+        "scenes": [
+          "network_traffic"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-05",
+      "query": "不要沿用刚才的合同分析。现在检查这段 Python 源码的 SQL 注入隐患。",
+      "expected_scenes": [
+        "program_snippet"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "审查采购合同中的违约责任",
+        "normalized_query": "审查采购合同中的违约责任",
+        "routing_query": "审查采购合同中的违约责任",
+        "scene": "policy_regulation",
+        "scenes": [
+          "policy_regulation"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-06",
+      "query": "将刚才的结论改写为三条要点。",
+      "expected_scenes": [
+        "table_yearbook"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "task_followup",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "分析统计年鉴中的人口变化",
+        "normalized_query": "分析统计年鉴中的人口变化",
+        "routing_query": "分析统计年鉴中的人口变化",
+        "scene": "table_yearbook",
+        "scenes": [
+          "table_yearbook"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-07",
+      "query": "继续输出前面没有写完的部分。",
+      "expected_scenes": [
+        "program_snippet"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "task_followup",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "分析 Python 源码的调用图",
+        "normalized_query": "分析 Python 源码的调用图",
+        "routing_query": "分析 Python 源码的调用图",
+        "scene": "program_snippet",
+        "scenes": [
+          "program_snippet"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-08",
+      "query": "基于上述对象，统计共享设备和共同联系人。",
+      "expected_scenes": [
+        "phone_network"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "对 CDR 话单中的号码做画像分析",
+        "normalized_query": "对 CDR 话单中的号码做画像分析",
+        "routing_query": "对 CDR 话单中的号码做画像分析",
+        "scene": "phone_network",
+        "scenes": [
+          "phone_network"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-09",
+      "query": "基于刚才结果，分析另外上传的 PCAP 中是否存在 DNS 隧道通信。",
+      "expected_scenes": [
+        "network_traffic"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "分析 CDR 话单中共享设备的号码",
+        "normalized_query": "分析 CDR 话单中共享设备的号码",
+        "routing_query": "分析 CDR 话单中共享设备的号码",
+        "scene": "phone_network",
+        "scenes": [
+          "phone_network"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-10",
+      "query": "结合上述区域，识别这张街景图像的拍摄位置。",
+      "expected_scenes": [
+        "street_view_image"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "统计路口晚高峰交通流量",
+        "normalized_query": "统计路口晚高峰交通流量",
+        "routing_query": "统计路口晚高峰交通流量",
+        "scene": "road_traffic",
+        "scenes": [
+          "road_traffic"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-11",
+      "query": "以刚才的结果为输入，生成各对象的轨迹热力分布图。",
+      "expected_scenes": [
+        "spatiotemporal_trajectory"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "清洗 GPS 轨迹中的异常点",
+        "normalized_query": "清洗 GPS 轨迹中的异常点",
+        "routing_query": "清洗 GPS 轨迹中的异常点",
+        "scene": "spatiotemporal_trajectory",
+        "scenes": [
+          "spatiotemporal_trajectory"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "holdout-12",
+      "query": "基于上述结果，再分析遥感影像中的植被覆盖变化，同时查询相关政策法规依据。",
+      "expected_scenes": [
+        "remote_sensing_image",
+        "policy_regulation"
+      ],
+      "expected_intent": "task",
+      "category": "context",
+      "split": "validation",
+      "expected_act": "new_task",
+      "previous_intent": {
+        "intent": "task",
+        "original_query": "定位街景照片的拍摄位置",
+        "normalized_query": "定位街景照片的拍摄位置",
+        "routing_query": "定位街景照片的拍摄位置",
+        "scene": "street_view_image",
+        "scenes": [
+          "street_view_image"
+        ],
+        "confidence": 0.9
+      }
+    }
+  ]
+}

@@ -69,8 +69,10 @@ async def save_thread_upload_from_bytes(
     paths = get_paths()
 
     sandbox_provider = get_sandbox_provider()
-    sandbox_id = sandbox_provider.acquire(thread_id)
-    sandbox = sandbox_provider.get(sandbox_id)
+    sandbox_id, sandbox = None, None
+    if getattr(sandbox_provider, "uploads_are_shared", False) is not True:
+        sandbox_id = sandbox_provider.acquire(thread_id)
+        sandbox = sandbox_provider.get(sandbox_id)
 
     file_path = uploads_dir / safe_filename
     file_path.write_bytes(content)
@@ -79,7 +81,7 @@ async def save_thread_upload_from_bytes(
     relative_path = str(paths.sandbox_uploads_dir(thread_id) / safe_filename)
     virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"
 
-    if sandbox_id != "local":
+    if sandbox is not None and sandbox_id != "local":
         sandbox.update_file(virtual_path, content)
 
     file_info = {
@@ -100,7 +102,7 @@ async def save_thread_upload_from_bytes(
             md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
             md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
 
-            if sandbox_id != "local":
+            if sandbox is not None and sandbox_id != "local":
                 sandbox.update_file(md_virtual_path, md_path.read_bytes())
 
             file_info["markdown_file"] = md_path.name
@@ -124,7 +126,7 @@ async def upload_files(
     uploaded_files = []
 
     for file in files:
-        if not file.filename:
+        if not file.filename or Path(file.filename).name in {"", ".", ".."}:
             continue
 
         try:

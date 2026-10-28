@@ -7,11 +7,12 @@ recognition.  The router should only classify new tasks.
 
 from __future__ import annotations
 
-import re
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from deerflow.routing.turn_requirements import REQUIREMENTS_EXAMPLE, REQUIREMENTS_INSTRUCTION, TurnRequirements
 
 DialogueAct = Literal[
     "clarification_answer",
@@ -174,7 +175,7 @@ def classify_dialogue_act(
         if turn_decision is not None:
             return turn_decision
 
-    if _looks_like_previous_task_followup(text, previous_intent_context, previous_routing_context):
+    if llm is None and _looks_like_previous_task_followup(text, previous_intent_context, previous_routing_context):
         return DialogueActResult(
             act="task_followup",
             confidence=0.86,
@@ -264,7 +265,10 @@ def _classify_previous_task_turn_with_llm(
         '  "confidence": number,\n'
         '  "reason": string\n'
         "}\n\n"
-        f"上一轮任务摘要：\n{previous_summary}\n\n"
+        'task_followup时同时返回turn_requirements（本轮完整约束）和parameter_updates（明确修改的参数，未修改则{}）。\n'
+        + 'turn_requirements格式：' + json.dumps(REQUIREMENTS_EXAMPLE, ensure_ascii=False) + '\n' + REQUIREMENTS_INSTRUCTION + '\n'
+        + '上一轮交付约束：' + json.dumps(TurnRequirements.model_validate(previous_intent_context or {}).model_dump(), ensure_ascii=False) + '\n'
+        + f"上一轮任务摘要：\n{previous_summary}\n\n"
         f"当前用户消息：{text}\n"
     )
 
@@ -293,6 +297,22 @@ def _classify_previous_task_turn_with_llm(
             "reason": reason,
         },
     }
+    if act == 'task_followup':
+        if not isinstance(data.get('turn_requirements'), dict) or not set(TurnRequirements.model_fields).issubset(data['turn_requirements']):
+            return DialogueActResult(act='new_task', confidence=confidence, reason='incomplete_followup_requirements')
+        if (previous_intent_context or {}).get('recognition_status') == 'failed':
+            return DialogueActResult(act='new_task', confidence=confidence, reason='retry_failed_recognition')
+        try:
+            requirements = TurnRequirements.model_validate(data.get('turn_requirements') or {})
+            if requirements.requires_computation and not requirements.allow_tools:
+                return DialogueActResult(act='new_task', confidence=confidence, reason='contradictory_followup_requirements')
+            if set(requirements.csv_precision) - set(requirements.required_csv_metrics):
+                return DialogueActResult(act='new_task', confidence=confidence, reason='inconsistent_followup_metric_labels')
+            metadata['turn_requirements'] = requirements.model_dump()
+        except ValueError:
+            return None
+        if isinstance(data.get('parameter_updates'), dict):
+            metadata['parameter_updates'] = data['parameter_updates']
 
     if act == "task_followup" and confidence >= 0.55:
         return DialogueActResult(

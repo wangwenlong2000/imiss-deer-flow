@@ -1,0 +1,73 @@
+{
+  "core_passed": 8,
+  "total": 8,
+  "rows": [
+    {
+      "turn": "road-turn-1",
+      "core_task_passed": true,
+      "review": "Totals600/360,means200/120,speeds30/40,peaks09:00,CSV actual matches. Unsupported fluctuation sentence noted separately.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "road-turn-2",
+      "core_task_passed": true,
+      "review": "Current scope only: mean120/speed40/share37.5,CSV contains actual current metrics and no stale highest-time requirement.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "network-turn-1",
+      "core_task_passed": true,
+      "review": "6flows2200bytes,top1200/1000 andcounts2/4,ports4/2;actual rectangular CSV.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "trajectory-turn-1",
+      "core_task_passed": true,
+      "review": "Actual event CSV has2 A stays including terminal20min segment;A2B0,JSONcounts match.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "code-turn-1",
+      "core_task_passed": true,
+      "review": "Actual total16 and ASTtotal withGeneratorExp/Compare; term misuse noted separately.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "yearbook-turn-1",
+      "core_task_passed": true,
+      "review": "ActualCSV YoY10/10,cumulative21;correct compute and precision.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "clarify-turn-1",
+      "core_task_passed": true,
+      "review": "Ambiguous request correctly pauses for domain clarification; no false completed final.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "clarify-turn-2",
+      "core_task_passed": true,
+      "review": "Resumed with original input:average260,oneanomaly08:10=900,threshold500.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    }
+  ],
+  "additional_prose_findings": [
+    {
+      "turn": "road-turn-1",
+      "severity": "supplemental_explanation_inaccuracy",
+      "text": "主路甲的流量和速度波动均大于支路乙",
+      "issue": "Both speed ranges are20 and population variances are66.6667; speed fluctuation claim unsupported/false under standard measures.",
+      "status": "recorded_remaining_semantic_limit",
+      "core_failure": false
+    },
+    {
+      "turn": "code-turn-1",
+      "severity": "supplemental_explanation_inaccuracy",
+      "text": "列表推导式 + 过滤 + 映射",
+      "issue": "The actual syntax uses a generator expression. The AST table correctly says GeneratorExp and runtime result16 is correct.",
+      "status": "recorded_remaining_semantic_limit",
+      "core_failure": false
+    }
+  ],
+  "all_prose_verified": false
+}

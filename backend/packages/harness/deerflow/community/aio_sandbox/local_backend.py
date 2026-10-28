@@ -311,7 +311,9 @@ class LocalContainerBackend(SandboxBackend):
 
         cmd.append(self._image)
 
-        logger.info(f"Starting container using {self._runtime}: {' '.join(cmd)}")
+        # Log argument names for diagnosis, never credentials passed through -e.
+        log_cmd = [arg.split("=", 1)[0] + "=<redacted>" if i > 0 and cmd[i - 1] == "-e" else arg for i, arg in enumerate(cmd)]
+        logger.info(f"Starting container using {self._runtime}: {' '.join(log_cmd)}")
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)

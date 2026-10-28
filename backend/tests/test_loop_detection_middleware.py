@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 from langchain_core.messages import AIMessage, SystemMessage
 
 from deerflow.agents.middlewares.loop_detection_middleware import (
-    _HARD_STOP_MSG,
     LoopDetectionMiddleware,
     _hash_tool_calls,
 )
@@ -119,7 +118,8 @@ class TestLoopDetection:
         # Hard stop strips tool_calls
         assert isinstance(msgs[0], AIMessage)
         assert msgs[0].tool_calls == []
-        assert _HARD_STOP_MSG in msgs[0].content
+        assert '部分计算或交付可能尚未完成' in msgs[0].content
+        assert msgs[0].response_metadata['execution_status'] == 'failed'
 
     def test_different_calls_dont_trigger(self):
         mw = LoopDetectionMiddleware(warn_threshold=2)

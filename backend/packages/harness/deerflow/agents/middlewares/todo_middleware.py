@@ -8,6 +8,7 @@ reminder message so the model still knows about the outstanding todo list.
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 try:
@@ -142,6 +143,10 @@ def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
             if isinstance(text, str) and text.strip():
                 lines.append(f"- {text.strip()}")
     planning_steps = intent_ctx.get("planning_steps") or []
+    clarification = intent_ctx.get("clarification_question")
+    if isinstance(clarification, str) and clarification.strip():
+        lines.append(f"待澄清问题：{clarification.strip()}")
+        lines.append("先核验现有上下文能否回答；仍缺信息时使用 ask_clarification，收到回答后再执行依赖该信息的分析。")
     if isinstance(planning_steps, list) and planning_steps:
         lines.append("任务规划：")
         for index, step in enumerate(planning_steps, 1):
@@ -168,6 +173,10 @@ def _format_intent_guidance(intent_ctx: dict[str, Any]) -> str:
     if params:
         lines.append(f"已提取参数：{params}")
     hints = intent_ctx.get("task_hints") or []
+    if intent_ctx.get("requires_computation"):
+        lines.append("计算要求：必须取得本轮实际工具计算结果，再据此交付数值，不能心算替代执行。")
+    if csv_metrics := intent_ctx.get("required_csv_metrics"):
+        lines.append("CSV 必含指标：" + "、".join(csv_metrics))
     if hints:
         lines.append("任务提示：")
         lines.extend(f"- {hint}" for hint in hints)
@@ -243,6 +252,15 @@ def _build_routing_guidance_message(state: PlanningState) -> HumanMessage | None
             '<hidden_step source="skill_router" title="SkillRouter 路由">\n'
             f"{routing_text}\n"
             "</hidden_step>"
+        )
+    if intent_ctx.get("requires_computation"):
+        blocks.append("执行约束（内部）：请使用 bash 中的 Python/SQL 实际计算；直接 write_file 写入手算数值不算计算执行。")
+    if csv_metrics := intent_ctx.get("required_csv_metrics"):
+        blocks.append(
+            "CSV 交付参数（内部，不在回复中展示）：present_files.delivery_checks 接受对象或数组。"
+            f"全部文件合计须覆盖 {json.dumps(csv_metrics, ensure_ascii=False)}；每份文件的 metric_columns 只声明其实际包含的指标，键逐字使用对应指标名，值为实际 CSV 列名；"
+            "保持原有列名即可，不必重命名文件。decimal_places 仅列需要小数格式的计算结果列，不要包含原始年份/ID列。"
+            "精度和缺失值以 current_turn_requirements 为准；空明细保留表头，不要给汇总表添加无关空列。"
         )
     blocks.append("</system_reminder>")
     return HumanMessage(name="todo_routing_guidance", content="\n".join(blocks))

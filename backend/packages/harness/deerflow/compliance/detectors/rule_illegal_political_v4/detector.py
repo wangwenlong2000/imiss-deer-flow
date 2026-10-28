@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from typing import Any
 
@@ -16,6 +17,12 @@ from . import legacy_core
 
 DETECTOR_VERSION = "4.0"
 SOURCE_SHA256 = "8e894d050ea789e8a8d6e23ada181f8e93e1d3e3c5ec249907a25fa8331f62e2"
+# Interpret explicit arithmetic objects without exempting their field or scene.
+ARITHMETIC_VALIDATION = re.compile(
+    r"(?:对)?(?:除数|分母|数值|整数|浮点数)(?:\s*`?[a-zA-Z_][a-zA-Z0-9_]{0,15}`?)?\s*(?:进行|做)?\s*(?:非零|有效性|类型|范围)?校验"
+    r"|校验(?:除数|分母|数值|整数|浮点数)(?:是否为[零0]|非零|的范围|的类型)?"
+    r"|(?:格式|语法|非零|类型)校验"
+)
 SURVEILLANCE_EXPORT_RULES = {
     "IL_V4_BROAD_SURVEILLANCE_EXPORT",
     "IL_V4_SURVEILLANCE_TRACKING_EXPORT",
@@ -223,6 +230,17 @@ class IllegalPoliticalV4Detector:
             raw_hits = self._suppress_negated_surveillance_hits(raw_hits, fields)
             raw_hits = self._scope_surveillance_hits(raw_hits, unit.data_type)
             raw_hits = self._suppress_safe_governance_report_hits(raw_hits, fields, ctx.gate)
+            # Only the broad rule is re-evaluated. Actual authorization words,
+            # other occurrences of 校验 and other rule hits are kept intact.
+            remaining_broad_paths = {
+                field.path for field in fields
+                if any(hit.rule_id == "IL_V4_BROAD_UNAUTHORIZED_SYSTEM_USE"
+                       for hit in legacy_core.detect_v4_illegal_ad_field(
+                           legacy_core.TextField(field.path, ARITHMETIC_VALIDATION.sub("数值检查", field.text))
+                       ))
+            }
+            raw_hits = [hit for hit in raw_hits
+                        if hit.rule_id != "IL_V4_BROAD_UNAUTHORIZED_SYSTEM_USE" or hit.field_path in remaining_broad_paths]
         except (AttributeError, TypeError, ValueError):
             # Malformed runtime payloads are ordinary detector negatives. Engine
             # diagnostics remain reserved for initialization and system failures.

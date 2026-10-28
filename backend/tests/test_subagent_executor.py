@@ -15,6 +15,7 @@ the real implementation in isolation.
 import asyncio
 import sys
 from datetime import datetime
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -117,6 +118,28 @@ async def async_iterator(items):
     """Helper to create an async iterator from a list."""
     for item in items:
         yield item
+
+
+@pytest.mark.parametrize("parent_thinking", [False, True])
+@pytest.mark.parametrize("supported", [False, True])
+def test_subagent_inherits_thinking_with_model_capability_guard(classes, base_config, monkeypatch, parent_thinking, supported):
+    module = sys.modules[classes["SubagentExecutor"].__module__]
+    model_config = SimpleNamespace(supports_thinking=supported)
+    app_config = SimpleNamespace(models=[model_config], get_model_config=lambda _: model_config)
+    captured = {}
+
+    def model_factory(**kwargs):
+        captured.update(kwargs)
+        return "model-instance"
+
+    monkeypatch.setattr(module, "get_app_config", lambda: app_config)
+    monkeypatch.setattr(module, "create_chat_model", model_factory)
+    monkeypatch.setattr(module, "create_agent", lambda **kwargs: kwargs)
+    monkeypatch.setitem(sys.modules, "deerflow.agents.middlewares.tool_error_handling_middleware", SimpleNamespace(build_subagent_runtime_middlewares=lambda **kwargs: []))
+    executor = classes["SubagentExecutor"](base_config, tools=[], parent_model="qwen3.6-35b-a3b", thinking_enabled=parent_thinking)
+    result = executor._create_agent()
+    assert captured == {"name": "qwen3.6-35b-a3b", "thinking_enabled": parent_thinking and supported}
+    assert result["model"] == "model-instance"
 
 
 # -----------------------------------------------------------------------------

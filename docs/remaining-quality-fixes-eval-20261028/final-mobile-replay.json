@@ -1,0 +1,288 @@
+[
+  {
+    "run": "thinking-on",
+    "turn": "code-error-recovery-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "code-error-recovery-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "multi-cancel-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "multi-cancel-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "multi-cancel-turn-3.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": false
+  },
+  {
+    "run": "thinking-on",
+    "turn": "network-history-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "network-history-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "network-history-turn-3.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "road-evolution-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "road-evolution-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "road-evolution-turn-3.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": false
+  },
+  {
+    "run": "thinking-on",
+    "turn": "road-evolution-turn-4.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "trajectory-empty-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "trajectory-empty-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "yearbook-zero-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "thinking-on",
+    "turn": "yearbook-zero-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "clarify-turn-1.result",
+    "status": "need_user_input",
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [],
+    "final_answer_preserved": false,
+    "has_planning": false
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "clarify-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": false
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "code-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "network-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "road-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "road-turn-2.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "trajectory-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  },
+  {
+    "run": "nonthinking-legacy",
+    "turn": "yearbook-turn-1.result",
+    "status": null,
+    "source_errors": false,
+    "failed_segments": 0,
+    "final_statuses": [
+      "completed"
+    ],
+    "final_answer_preserved": true,
+    "has_planning": true
+  }
+]

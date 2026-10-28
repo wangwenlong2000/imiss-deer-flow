@@ -33,6 +33,23 @@ subnet:
 # Configure available LLM models for the agent to use
 
 models:
+  # Project acceptance model. Set these variables in your local environment;
+  # never commit a populated config.yaml or provider credentials.
+  - name: qwen3.6-35b-a3b
+    display_name: Qwen3.6-35B-A3B
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.6-35b-a3b
+    base_url: $QWEN_BASE_URL
+    api_key: $QWEN_API_KEY
+    max_tokens: 8192
+    temperature: 0.0
+    supports_thinking: true
+    supports_vision: true
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
+        thinking_budget: 2048
+
   # Example: Volcengine (Doubao) model
   # - name: doubao-seed-1.8
   #   display_name: Doubao-Seed-1.8

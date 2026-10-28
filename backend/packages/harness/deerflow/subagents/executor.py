@@ -17,6 +17,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 
 from deerflow.agents.thread_state import SandboxState, ThreadDataState, ThreadState
+from deerflow.config import get_app_config
 from deerflow.models import create_chat_model
 from deerflow.subagents.config import SubagentConfig
 
@@ -132,6 +133,7 @@ class SubagentExecutor:
         thread_data: ThreadDataState | None = None,
         thread_id: str | None = None,
         trace_id: str | None = None,
+        thinking_enabled: bool = True,
     ):
         """Initialize the executor.
 
@@ -143,12 +145,14 @@ class SubagentExecutor:
             thread_data: Thread data from parent agent.
             thread_id: Thread ID for sandbox operations.
             trace_id: Trace ID from parent for distributed tracing.
+            thinking_enabled: Effective parent thinking setting for business execution.
         """
         self.config = config
         self.parent_model = parent_model
         self.sandbox_state = sandbox_state
         self.thread_data = thread_data
         self.thread_id = thread_id
+        self.thinking_enabled = thinking_enabled
         # Generate trace_id if not provided (for top-level calls)
         self.trace_id = trace_id or str(uuid.uuid4())[:8]
 
@@ -164,7 +168,10 @@ class SubagentExecutor:
     def _create_agent(self):
         """Create the agent instance."""
         model_name = _get_model_name(self.config, self.parent_model)
-        model = create_chat_model(name=model_name, thinking_enabled=False)
+        app_config = get_app_config()
+        model_config = app_config.get_model_config(model_name) if model_name else next(iter(app_config.models), None)
+        thinking_enabled = self.thinking_enabled and bool(model_config and model_config.supports_thinking)
+        model = create_chat_model(name=model_name, thinking_enabled=thinking_enabled)
 
         from deerflow.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
 
