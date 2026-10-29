@@ -1,0 +1,45 @@
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+config/config.toml
+config/a2a.json
+config/mcp.json
+config/private.pem
+config/*.key
+config/*.pem
+config/*secret*
+
+# Runtime data and generated artifacts
+.venv/
+venv/
+node_modules/
+web/node_modules/
+web/src/.umi/
+web/src/.umi-*/
+dist/
+web/dist/
+build/
+logs/
+pids/
+tmp/
+workspace/
+instance/
+*.log
+*.pid
+*.sqlite*
+*.db
+*.bak*
+*.swp
+*.zip
+*.pcap
+mock_mcp_tools/mock_mcp_server_flooding_alarm.20*
+
+# Local tooling
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.DS_Store

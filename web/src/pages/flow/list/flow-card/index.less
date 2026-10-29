@@ -1,0 +1,92 @@
+.container {
+  display: flex;
+  align-items: center;
+
+  .delete {
+    height: 24px;
+  }
+  .contentRight {
+    height: 0.58rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 0.64rem;
+    height: 0.64rem;
+    .context {
+      flex: 1;
+    }
+  }
+
+  .footer {
+    // text-align: left;
+  }
+  .footerTop {
+    padding-bottom: 2px;
+  }
+}
+
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(234, 236, 240, 1);
+  box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  padding: 0.16rem;
+  width: 3.5rem;
+  cursor: pointer;
+
+  .titleWrapper {
+    // flex: 1;
+    .title {
+      margin-bottom: 0;
+      font-size: 0.18rem;
+      line-height: 0.26rem;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      word-break: break-all;
+      width: 2.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .description {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 20px;
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  :global {
+    .ant-card-body {
+      padding: 0;
+      margin: 0;
+    }
+  }
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bottomLeft {
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    width: 2.5rem;
+    justify-content: space-between;
+  }
+  .leftIcon {
+    margin-right: 10px;
+    font-size: 0.16rem;
+    vertical-align: middle;
+  }
+  .rightText {
+    font-size: 0.14rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.65);
+    vertical-align: middle;
+  }
+}

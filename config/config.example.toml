@@ -1,0 +1,57 @@
+# Sanitized template. Copy to config.toml and replace every REPLACE_* value locally.
+[llm]
+api_key = "REPLACE_WITH_LLM_API_KEY"
+model = "REPLACE_WITH_MODEL_NAME"
+base_url = "https://YOUR-LANGUAGE-MODEL-ENDPOINT/v1"
+max_tokens = 4096
+temperature = 0.0
+api_type = "OpenAI"
+api_version = ""
+
+[intent]
+DEBUG = "False"
+RELATED_INTENT_THRESHOLD = 0.5
+OTHER_SCENE = "非内置场景"
+
+[ragflow]
+base_url = "https://YOUR-RAG-ENDPOINT"
+api_key = "REPLACE_WITH_RAG_API_KEY"
+
+[agent.public]
+dataset = "REPLACE_WITH_PUBLIC_DATASET"
+document = "REPLACE_WITH_PUBLIC_DOCUMENT"
+similarity_threshold = 0.5
+
+[agent.personal]
+dataset = "REPLACE_WITH_PERSONAL_DATASET"
+document = "REPLACE_WITH_PERSONAL_DOCUMENT"
+similarity_threshold = 0.5
+
+[a2a]
+router = "http://localhost:REPLACE_WITH_LOCAL_COORDINATOR_PORT"
+llm_qa = "http://localhost:REPLACE_WITH_LOCAL_LLM_AGENT_PORT"
+intent = "http://localhost:REPLACE_WITH_LOCAL_INTENT_AGENT_PORT"
+planner = "http://localhost:REPLACE_WITH_LOCAL_PLANNING_AGENT_PORT"
+thinker = "http://localhost:REPLACE_WITH_LOCAL_THINKER_PORT"
+actor = "http://localhost:REPLACE_WITH_LOCAL_ACTOR_AGENT_PORT"
+feedback = "http://localhost:REPLACE_WITH_LOCAL_FEEDBACK_AGENT_PORT"
+config_crud_url = "http://localhost:REPLACE_WITH_LOCAL_APP_PORT"
+system_prompt = "Route each user request to the appropriate agent and preserve the requested response format."
+
+[agent.database]
+DATABASE_TYPE = "mysql"
+DATABASE_HOST = "REPLACE_WITH_DATABASE_HOST"
+DATABASE_PORT = 0 # Replace with the local database listener value before startup.
+DATABASE_NAME = "onecityagent"
+DATABASE_USER = "REPLACE_WITH_DATABASE_USER"
+DATABASE_PASSWORD = "REPLACE_WITH_DATABASE_PASSWORD"
+DATABASE_MAX_CONNECTIONS = 100
+DATABASE_TIMEOUT = 30
+
+[mock_mcp]
+fire_safety = 0 # Replace with the local tool listener value if enabled.
+flooding_alarm = 0 # Replace with the local tool listener value if enabled.
+
+[security]
+PRIVATE_KEY = ""
+PRIVATE_KEY_PATH = "config/private.pem"

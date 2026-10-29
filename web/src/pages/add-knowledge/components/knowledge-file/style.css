@@ -1,0 +1,33 @@
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper .ant-table-cell,
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th,
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper
+  .ant-table-tbody
+  > tr
+  > th,
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper
+  .ant-table-tbody
+  > tr
+  > td,
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper tfoot > tr > th,
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper
+  tfoot
+  > tr
+  > td {
+  padding: 0.12rem;
+  font-size: 0.14rem;
+}
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper table {
+  border-radius: 0.1rem;
+}
+:where(.css-dev-only-do-not-override-1wxecgq).ant-table-wrapper
+  .ant-table-pagination.ant-pagination {
+  margin: 0;
+  background: white;
+  height: 0.54rem;
+  align-items: center;
+  border-radius: 0 0 10px 10px;
+  padding: 0 10px 0 0;
+}

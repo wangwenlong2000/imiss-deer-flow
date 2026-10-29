@@ -1,0 +1,173 @@
+@import '../../theme/vars';
+@import '~@/less/remSet.less';
+
+.loginInput {
+  margin-bottom: 0.24rem;
+}
+.loginButton {
+  margin-top: 0.2rem;
+  height: 0.4rem !important;
+  line-height: 0.4rem !important;
+  font-size: 0.16rem !important;
+  padding: unset !important;
+}
+.loginFormItem {
+  margin-top: 0.08rem;
+  margin-bottom: 0.2rem;
+}
+
+.loginPage {
+  // display: flex;
+  .loginLeft {
+    position: absolute;
+    width: .rem(480) [ @rem];
+    // height: .rem(422) [ @rem];
+    right: .rem(200) [ @rem];
+    top: 50%;
+    transform: translate(0, -50%);
+    // border-radius: 5px;
+    background: #fff;
+    box-shadow:
+      0px 4px 4px 0px rgba(0, 0, 0, 0.15),
+      0px 6px 30px 5px rgba(0, 0, 0, 0.05),
+      0px 16px 24px 2px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(30px);
+    display: inline-flex;
+    padding: 0.48rem 0.4rem 0rem 0.4rem;
+    align-items: flex-start;
+  }
+
+  .leftContainer {
+    margin: 0 auto;
+    width: .rem(400) [ @rem];
+  }
+  .loginTop {
+    width: 100%;
+    height: 62px;
+    /* position: fixed; */
+    /* top: 0; */
+    /* left: 0; */
+    background-size: cover;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    padding: 10px;
+    color: var(--Brand-Brand6-Normal, #2083ea);
+    font-size: 0.3rem;
+    background: white;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* 从左到右的渐变：左侧更深，右侧更浅 */
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.6),
+      /* 左侧不透明度更高（更深） */ rgba(255, 255, 255, 0.2)
+        /* 右侧不透明度更低（更浅） */
+    );
+  }
+  .loginRight {
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
+    // flex: 1;
+    // position: relative;
+    width: 100%;
+    height: 100%;
+    &::before {
+      content: ' ';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-image: url('@/assets/picture/background-pic.png');
+      // background-size: cover;
+      // background-blend-mode: multiply;
+      // filter: blur(3px);
+      // background-position: center;
+      background-size: 100% 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .white {
+      color: #fff;
+    }
+    .pink {
+      color: #e9d7fe;
+    }
+    .rightPanel {
+      max-width: 670px;
+      .loginTitle {
+        font-size: .rem(68) [ @rem];
+        font-style: normal;
+        font-weight: 600;
+        line-height: 90px;
+        letter-spacing: -1.44px;
+      }
+      .loginDescription {
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 30px;
+      }
+      .loginRateNumber {
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 24px;
+      }
+      .loginRateReviews {
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 24px;
+      }
+    }
+  }
+
+  .loginTitle {
+    color: var(--Brand-Brand6-Normal, #2083ea);
+    text-align: center;
+    font-family: 'PingFang SC';
+    font-size: .rem(36) [ @rem];
+    font-style: normal;
+    font-weight: 500;
+    line-height: .rem(44) [ @rem];
+    margin-bottom: .rem(48) [ @rem];
+    //styleName: Heading/1;
+    // font-size: 38px;
+    // font-weight: 600;
+    // line-height: 46px;
+    // letter-spacing: 0em;
+    // height: 80px;
+    // margin-bottom: 69px;
+
+    // text-align: center;
+    // span {
+    //   font-size: 16px;
+    //   line-height: 24px;
+
+    //   color: #000000a6;
+    // }
+  }
+  .copyright {
+    position: absolute;
+    bottom: 5px;
+    color: #000000;
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-size: 14px;
+  }
+
+  // @media screen and (max-width: 957px) {
+  //   .loginLeft {
+  //     width: 100%;
+  //     background-color: #fff;
+  //     height: 100%;
+  //   }
+
+  //   .modal {
+  //     width: 80%;
+  //   }
+  // }
+}

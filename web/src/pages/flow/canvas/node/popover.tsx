@@ -1,0 +1,121 @@
+import { useFetchFlow } from '@/hooks/flow-hooks';
+import get from 'lodash/get';
+import React, { MouseEventHandler, useCallback, useMemo } from 'react';
+import JsonView from 'react18-json-view';
+import 'react18-json-view/src/style.css';
+import { useGetComponentLabelByValue, useReplaceIdWithText } from '../../hooks';
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useTranslate } from '@/hooks/common-hooks';
+
+interface IProps extends React.PropsWithChildren {
+  nodeId: string;
+  name?: string;
+}
+
+export function NextNodePopover({ children, nodeId, name }: IProps) {
+  const { t } = useTranslate('flow');
+
+  const { data } = useFetchFlow();
+  const component = useMemo(() => {
+    return get(data, ['dsl', 'components', nodeId], {});
+  }, [nodeId, data]);
+
+  const inputs: Array<{ component_id: string; content: string }> = get(
+    component,
+    ['obj', 'inputs'],
+    [],
+  );
+  const output = get(component, ['obj', 'output'], {});
+  const { replacedOutput } = useReplaceIdWithText(output);
+  const stopPropagation: MouseEventHandler = useCallback((e) => {
+    e.stopPropagation();
+  }, []);
+
+  const getLabel = useGetComponentLabelByValue(nodeId);
+
+  return (
+    <Popover>
+      <PopoverTrigger onClick={stopPropagation} asChild>
+        {children}
+      </PopoverTrigger>
+      <PopoverContent
+        align={'start'}
+        side={'right'}
+        sideOffset={20}
+        onClick={stopPropagation}
+        style={{ width: '4rem', padding: '0.2rem', borderRadius: '10px' }}
+      >
+        <div className="font-semibold text-[16px]">
+          {name} {t('operationResults')}
+        </div>
+        <div className="flex w-full flex-col">
+          <div className="flex flex-col">
+            <span className="font-semibold text-[14px]">{t('input')}</span>
+            <div className="bg-gray-100" style={{ padding: '0.2rem' }}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead
+                      style={{
+                        width: '0.5rem',
+                        fontSize: '0.16rem',
+                        height: '0.5rem',
+                        lineHeight: '0.5rem',
+                        padding: '0',
+                      }}
+                    >
+                      {t('componentId')}
+                    </TableHead>
+                    <TableHead
+                      style={{
+                        width: '0.5rem',
+                        fontSize: '0.16rem',
+                        height: '0.5rem',
+                        lineHeight: '0.5rem',
+                        padding: '0',
+                      }}
+                    >
+                      {t('content')}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inputs.map((x, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{getLabel(x.component_id)}</TableCell>
+                      <TableCell className="truncate">{x.content}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-[14px]">{t('output')}</span>
+            <div className="bg-gray-100" style={{ padding: '0.2rem' }}>
+              <JsonView
+                src={replacedOutput}
+                displaySize={30}
+                className="w-full max-h-[300px] break-words overflow-auto"
+                style={{ fontSize: '0.16rem' }}
+              />
+            </div>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
