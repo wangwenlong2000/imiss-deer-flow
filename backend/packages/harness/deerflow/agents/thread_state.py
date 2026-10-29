@@ -46,6 +46,10 @@ def merge_viewed_images(existing: dict[str, ViewedImageData] | None, new: dict[s
     return {**existing, **new}
 
 
+def merge_delivery_records(existing: dict | None, new: dict | None) -> dict:
+    return {**(existing or {}), **(new or {})}
+
+
 COMPACTION_SUMMARY_PREFIXES = (
     "Here is a summary of the conversation to date:",
     "This is a summary of the conversation to date:",
@@ -121,6 +125,8 @@ class ThreadState(AgentState):
     thread_data: NotRequired[ThreadDataState | None]
     title: NotRequired[str | None]
     artifacts: Annotated[list[str], merge_artifacts]
+    verified_deliveries: Annotated[dict[str, dict], merge_delivery_records]
+    output_baseline: NotRequired[dict]
     raw_messages: NotRequired[Annotated[list[BaseMessage], merge_raw_messages]]
     todos: NotRequired[list | None]
     uploaded_files: NotRequired[list[dict] | None]

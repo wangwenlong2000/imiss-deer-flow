@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 from pathlib import Path
@@ -42,8 +43,17 @@ def main() -> int:
     )
     cleaned = clean_points(points, stats, args.max_speed_kmh, args.geohash_precision)
     staypoints = extract_staypoints(cleaned, args.stay_radius_m, args.stay_min_minutes, args.geohash_precision)
+    staypoints_by_user = {point.user_id: 0 for point in cleaned}
+    for stay in staypoints:
+        staypoints_by_user[stay["user_id"]] += 1
     staypoints_path = output_dir / "staypoints.jsonl"
     write_jsonl(staypoints_path, staypoints)
+    csv_path = output_dir / "staypoints_detail.csv"
+    fields = ["staypoint_id", "user_id", "trajectory_id", "start_time", "end_time", "duration_minutes", "centroid_lat", "centroid_lon", "geohash", "point_count"]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(staypoints)
     summary = {
         "ok": True,
         "skill": "extract_stay_points",
@@ -63,9 +73,11 @@ def main() -> int:
         },
         "outputs": {
             "staypoints": str(staypoints_path),
+            "staypoints_csv": str(csv_path),
             "summary": str(output_dir / "summary.json"),
         },
         "warnings": sorted(set(stats.warnings)),
+        "staypoints_by_user": dict(sorted(staypoints_by_user.items())),
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))

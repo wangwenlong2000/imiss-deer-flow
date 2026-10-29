@@ -141,9 +141,16 @@ def _infer_scenario(skill: Any) -> str:
 
 
 def _last_user_text(runtime: ToolRuntime[ContextT, ThreadState]) -> str | None:
+    intent = (runtime.state or {}).get("intent_context") or {}
+    if isinstance(intent.get("original_query"), str) and intent["original_query"].strip():
+        return intent["original_query"]
     messages = (runtime.state or {}).get("messages") or []
     for message in reversed(messages):
         if getattr(message, "type", None) != "human":
+            continue
+        name = getattr(message, "name", None) or ""
+        kwargs = getattr(message, "additional_kwargs", {}) or {}
+        if name.endswith("_guidance") or name == "todo_reminder" or kwargs.get("internal") or kwargs.get("message_type") in {"view_image_context", "routed_skill_prompt"}:
             continue
         content = getattr(message, "content", "")
         if isinstance(content, str) and content.strip():
@@ -156,6 +163,16 @@ def _last_user_text(runtime: ToolRuntime[ContextT, ThreadState]) -> str | None:
             if parts:
                 return "\n".join(parts).strip()
     return None
+
+
+def _normalize_legacy_artifacts(value: list[str] | str | None) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = json.loads(value)
+    if not isinstance(value, list) or any(not isinstance(p, str) or not p.strip() for p in value):
+        raise ValueError("legacy_artifacts must be an array of nonempty file path strings")
+    return list(dict.fromkeys(value))
 
 
 def _legacy_invocation_package(envelope: dict[str, Any], skill: Any) -> dict[str, Any]:
@@ -199,6 +216,8 @@ def _wrap_skill_result(
     legacy_artifacts: list[str] | None,
     status: str,
 ) -> dict[str, Any]:
+    if legacy_output is None and not legacy_artifacts:
+        raise ValueError("wrap_output requires the actual legacy_output or generated legacy_artifacts; put execution results in these fields, not input_envelope")
     output_text = legacy_output if isinstance(legacy_output, str) else json.dumps(legacy_output, ensure_ascii=False)
     display_text = output_text.strip()
     overview = display_text or "Skill execution completed."
@@ -273,7 +292,7 @@ def invoke_skill_tool(
     input_envelope: dict[str, Any] | str | None = None,
     capability: str | None = None,
     legacy_output: str | dict[str, Any] | list[Any] | None = None,
-    legacy_artifacts: list[str] | None = None,
+    legacy_artifacts: list[str] | str | None = None,
     status: Literal["success", "partial_success", "failed"] = "success",
 ) -> str:
     """Adapt a selected Skill call to the unified Skill input/output contracts.
@@ -295,7 +314,7 @@ def invoke_skill_tool(
         input_envelope: SkillInputEnvelope fields. Missing common fields are filled from runtime state.
         capability: Optional concrete capability for this call.
         legacy_output: Existing Skill output to wrap as SkillResult in `wrap_output` mode.
-        legacy_artifacts: Optional output file paths produced by the legacy Skill.
+        legacy_artifacts: Output file path array; a valid JSON array string is also accepted and normalized locally.
         status: SkillResult status used in `wrap_output` mode.
     """
     del tool_call_id  # Injected for traceability by LangGraph; no direct use needed here.
@@ -376,7 +395,7 @@ def invoke_skill_tool(
                 envelope=envelope,
                 skill_name=skill.name,
                 legacy_output=legacy_output,
-                legacy_artifacts=legacy_artifacts,
+                legacy_artifacts=_normalize_legacy_artifacts(legacy_artifacts),
                 status=status,
             )
         except Exception as exc:

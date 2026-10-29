@@ -1,0 +1,8 @@
+{
+  "file": "backend/packages/harness/deerflow/agents/middlewares/computation_guard_middleware.py",
+  "before_sha256": "7d5bdae88d809f64f8c4602d898c368695cf40b146773db36fb5eeb66ba87a71",
+  "after_sha256": "63ac2698eff9a9fb567cacb16d842382385485d25c53eb930df3e1166b925751",
+  "python_ast_identical": true,
+  "reason": "Split two long source lines; prompt text and executable syntax tree unchanged",
+  "after_full_24_turn_run": true
+}

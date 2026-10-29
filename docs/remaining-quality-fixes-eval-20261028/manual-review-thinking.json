@@ -1,0 +1,113 @@
+{
+  "core_passed": 16,
+  "total": 16,
+  "rows": [
+    {
+      "turn": "road-evolution-turn-1",
+      "core_task_passed": true,
+      "review": "Actual CSV: both sums 400, means 200, speeds 20/30; invalid decimal formatting rejected and corrected before delivery.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "road-evolution-turn-2",
+      "core_task_passed": true,
+      "review": "Current day/road only, mean 200/speed40, deltas0/+10, no new artifact.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "road-evolution-turn-3",
+      "core_task_passed": true,
+      "review": "Observed 100+300 correctly explained without tools.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "road-evolution-turn-4",
+      "core_task_passed": true,
+      "review": "Executed average_flow([100,300])=200 and delivered AST with correct function.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "yearbook-zero-turn-1",
+      "core_task_passed": true,
+      "review": "Actual downloadable CSV contains NA for zero denominator,10.00 YoY,21.00 cumulative.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "yearbook-zero-turn-2",
+      "core_task_passed": true,
+      "review": "Actual downloadable CSV preserves NA and all metrics, precision changes to 3 decimals.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "network-history-turn-1",
+      "core_task_passed": true,
+      "review": "7flows1550bytes,top600/500 with2flows each,ports4/2/1,actual JSON matches.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "network-history-turn-2",
+      "core_task_passed": true,
+      "review": "Positive-only doubling explained without tools or new files.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "network-history-turn-3",
+      "core_task_passed": true,
+      "review": "Returned to original file: destination53=2flows600bytes; no new attachment.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "trajectory-empty-turn-1",
+      "core_task_passed": true,
+      "review": "Actual CSV has2 event rows A/B each20minutes;summaryA1B1C0;raw10clean9.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "trajectory-empty-turn-2",
+      "core_task_passed": true,
+      "review": "Actual CSV has valid header and0 rows,summaryA0B0C0 at21minutes.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "multi-cancel-turn-1",
+      "core_task_passed": true,
+      "review": "Both GDP10%/10% and code2 returned; actual AST for positives delivered.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "multi-cancel-turn-2",
+      "core_task_passed": true,
+      "review": "Code goal cancelled; computed GDP cumulative21%,no new artifact.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "multi-cancel-turn-3",
+      "core_task_passed": true,
+      "review": "Correctly distinguishes relative rate vs fixed increment, no tools.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "code-error-recovery-turn-1",
+      "core_task_passed": true,
+      "review": "Actual ZeroDivisionError correctly reported, AST delivered; extra low-level explanation noted separately.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    },
+    {
+      "turn": "code-error-recovery-turn-2",
+      "core_task_passed": true,
+      "review": "Downloaded Python handles zero withNone; actual checksNone/5;newAST containsratio.",
+      "review_method": "manual final answer plus original fixtures, downloaded snapshots and execution trace"
+    }
+  ],
+  "additional_prose_findings": [
+    {
+      "turn": "code-error-recovery-turn-1",
+      "severity": "supplemental_explanation_inaccuracy",
+      "text": "Python 的 / 运算符在底层调用 float.__truediv__",
+      "issue": "This generalized low-level claim is not established by the execution evidence; integer inputs are being described. The actual exception and requested reason (division by zero) are correct.",
+      "status": "recorded_remaining_semantic_limit",
+      "core_failure": false
+    }
+  ],
+  "all_prose_verified": false
+}

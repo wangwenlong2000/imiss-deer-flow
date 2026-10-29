@@ -159,7 +159,7 @@ def update_dev_compose(text: str, file_path: Path) -> str:
         min_count=1,
         max_count=1,
     )
-    text = replace_regex(text, r'langgraph dev --no-browser --allow-blocking --host 0\.0\.0\.0 --port \d+', f'langgraph dev --no-browser --allow-blocking --host 0.0.0.0 --port {langgraph_port}', file_path, min_count=1, max_count=1)
+    text = replace_regex(text, r'(langgraph dev --no-browser --allow-blocking(?: --no-reload)?(?: --n-jobs-per-worker \$\{DEER_FLOW_GRAPH_JOBS:-\d+\})? --host 0\.0\.0\.0 --port )\d+', rf'\g<1>{langgraph_port}', file_path, min_count=1, max_count=1)
     text = replace_regex(text, r"        - subnet: \S+", f"        - subnet: {dev_subnet}", file_path, min_count=1, max_count=1)
     return text
 
@@ -170,7 +170,7 @@ def update_prod_compose(text: str, file_path: Path) -> str:
     text = replace_regex(text, r"# Access: http://localhost:\$\{PORT:-\d+\}", f"# Access: http://localhost:${{PORT:-{nginx_port}}}", file_path)
     text = replace_regex(text, r'      - "\$\{PORT:-\d+\}:\d+"', f'      - "${{PORT:-{nginx_port}}}:{nginx_port}"', file_path, min_count=1, max_count=1)
     text = replace_regex(text, r'--port \d+ --workers 2', f'--port {gateway_port} --workers 2', file_path, min_count=1, max_count=1)
-    text = replace_regex(text, r'langgraph dev --no-browser --allow-blocking --no-reload --host 0\.0\.0\.0 --port \d+', f'langgraph dev --no-browser --allow-blocking --no-reload --host 0.0.0.0 --port {langgraph_port}', file_path, min_count=1, max_count=1)
+    text = replace_regex(text, r'(langgraph dev --no-browser --allow-blocking(?: --no-reload)?(?: --n-jobs-per-worker \$\{DEER_FLOW_GRAPH_JOBS:-\d+\})? --host 0\.0\.0\.0 --port )\d+', rf'\g<1>{langgraph_port}', file_path, min_count=1, max_count=1)
 
     port_line = f"      - PORT={frontend_port}\n"
     if re.search(r"^\s+- PORT=\d+\s*$", text, flags=re.MULTILINE):

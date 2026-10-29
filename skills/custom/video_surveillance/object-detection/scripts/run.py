@@ -240,7 +240,7 @@ def run_ultralytics(frames, labels, thresholds, model_config):
                 if conf < float(thresholds.get(mapped, 0.0)):
                     continue
                 objects.append({"object_id": f"det_{frame_index + 1:04d}_{box_index + 1:03d}", "label": mapped, "confidence": round(conf, 4), "bbox": [round(float(v), 2) for v in box.xyxy[0].tolist()], "model_label": label})
-        detections.append({"frame_id": frame.get("frame_id"), "timestamp": frame.get("timestamp"), "objects": objects})
+        detections.append({"frame_id": frame.get("frame_id"), "timestamp": frame.get("timestamp"), "source_elapsed_seconds": frame.get("source_elapsed_seconds"), "timestamp_display": frame.get("timestamp_display"), "time_reference": frame.get("time_reference"), "objects": objects})
     vals = [o["confidence"] for d in detections for o in d["objects"]]
     return success(SKILL, {"detections": detections, "model": str(model_path)}, sum(vals) / len(vals) if vals else 0)
 

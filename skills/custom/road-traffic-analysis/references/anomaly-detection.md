@@ -14,6 +14,16 @@ Use `anomaly_runner.py` for traffic-flow anomaly detection only. It supports upl
 
 ## Mandatory Workflow
 
+If the user already specifies a fixed business threshold, select `threshold_ad`
+directly and skip catalog/choice steps. The default minimum for threshold-only
+detection is one point; statistical and mixed detectors retain eight. An explicit
+`--min-points` is respected. A short threshold series does not require training.
+If timestamps are provided, create a small CSV in the workspace and use `--file`;
+`--history` creates a synthetic time axis and must not replace actual timestamps.
+Use only documented flags and stop repeated attempts if an error cannot be resolved.
+Default exports in the sandbox go to `/mnt/user-data/outputs`, never the read-only
+`/mnt/datasets` tree. Use `--output-file` for an explicit workspace/output path.
+
 1. Read the detector catalog:
 
 ```bash
@@ -101,3 +111,7 @@ Include:
 - detector(s) used and key parameters
 - anomaly count/rate
 - output file path
+
+For a fixed-threshold request, keep the final answer to the user's requested
+metrics. A value/baseline ratio and a value/threshold ratio are different;
+do not add either ratio or infer a cause unless requested and verified by tools.

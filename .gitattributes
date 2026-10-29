@@ -41,3 +41,7 @@ Makefile text eol=lf
 *.mov binary
 *.woff binary
 *.woff2 binary
+
+# Frozen synthetic full-flow inputs retain their evaluated byte hashes.
+docs/full-flow-thinking-eval-20261027/fixtures/*.csv -text whitespace=trailing-space,space-before-tab,cr-at-eol
+docs/full-flow-service-eval-20261022/fixtures/*.csv -text whitespace=trailing-space,space-before-tab,cr-at-eol

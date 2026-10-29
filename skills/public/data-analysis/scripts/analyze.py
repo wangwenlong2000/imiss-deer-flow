@@ -220,13 +220,18 @@ def action_inspect(con: duckdb.DuckDBPyConnection, table_map: dict[str, str]) ->
         except Exception:
             pass
 
-        # Sample data (first 5 rows)
-        output_parts.append(f"\nSample data (first 5 rows):")
+        # Complete small inputs so later explanations can cite real records
+        # rather than infer individual observations from an aggregate.
+        sample_limit = 20 if row_count <= 20 else 5
+        if row_count <= 20:
+            output_parts.append(f"\nSample data (all {row_count} rows; complete input rows):")
+        else:
+            output_parts.append(f"\nSample data (first 5 rows): [incomplete preview; {row_count} total rows]")
         try:
-            sample = con.execute(f'SELECT * FROM "{table_name}" LIMIT 5').fetchdf()
+            sample = con.execute(f'SELECT * FROM "{table_name}" LIMIT {sample_limit}').fetchdf()
             output_parts.append(sample.to_string(index=False))
         except Exception:
-            sample = con.execute(f'SELECT * FROM "{table_name}" LIMIT 5').fetchall()
+            sample = con.execute(f'SELECT * FROM "{table_name}" LIMIT {sample_limit}').fetchall()
             header = [col[0] for col in columns]
             output_parts.append("  " + " | ".join(header))
             for row in sample:

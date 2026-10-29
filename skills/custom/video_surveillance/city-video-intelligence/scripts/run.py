@@ -565,7 +565,7 @@ def recommended_chain(capability: str, scenario: str, request: str) -> list[str]
 def build_steps(chain: list[str]) -> list[dict[str, str]]:
     labels = {
         "video-search": "Load video-search. Use image-vector retrieval for image input; for text input use keyword matching plus LLM-optimized text-to-video vector retrieval and fuse both result lists.",
-        "single-video-event-analysis": "Load single-video-event-analysis and inspect frames for visible event evidence.",
+        "single-video-event-analysis": "Load single-video-event-analysis and RUN its scripts/run.py --input <JSON file>. Read the returned review_manifest_uri, inspect its listed frames, and cite frame_id with video-relative time for every timeline entry. frame-sampling alone does not execute event review. At the last reviewed frame, describe visible subjects; do not infer an exit from proximity to the edge.",
         "evidence-package-generation": "Load evidence-package-generation and run it once. For a local video path plus HH:MM:SS/MM:SS offset, pass --raw-segment-uri and --event-elapsed-seconds directly; summarize package_id, manifest_uri, manifest_hash, and artifact_summary, then stop.",
         "privacy-masking": "Load privacy-masking when explicit sensitive regions or privacy config are available.",
         "object-statistics": "Load object-statistics and aggregate counts, distributions, or trends.",

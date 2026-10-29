@@ -19,6 +19,8 @@ The tool accepts structured fields only:
 - `capture_seconds`
 - `interval_seconds`
 - `labels`
+- `every_frame`: 用户明确要求逐帧时必须设为 true；默认 interval 模式只是抽样，不能称为逐帧
+- `started_at`: 仅在用户或权威记录提供真实拍摄时间时填写
 
 The tool internally runs the fixed chain:
 
@@ -38,3 +40,7 @@ Return the tool's structured result. Use its `summary`, `track_summary`, `artifa
 - YOLO detects visible objects only; it does not decide whether an event occurred.
 - Tracking output is object-level trajectory analytics only; it does not infer events or identities.
 - If the tool returns `status=failed`, report its concrete error and stop instead of trying alternative shell commands.
+
+时间区间为 `[0, capture_seconds)`。未知摄像头和拍摄时间留空；使用 `source_elapsed_seconds` / `timestamp_display` 解释相对时间，不能把内部文件标识当作真实摄像头 ID。
+
+完整的逐帧计数和检测框明细由固定 exporter 生成，路径在 artifacts.per_frame_csv / detection_details_csv；summary.per_frame 只预览前20帧，不能据此声称只处理了20帧。导出时直接展示工具生成的 CSV，不要手工重写或遗漏零目标帧。

@@ -379,6 +379,7 @@ def parse_args() -> argparse.Namespace:
         help="Max geo distance in meters",
     )
 
+    parser.add_argument("--model-service-url", default=None, help="Reachable embedding service URL; overrides STREETMODEL_BASE_URL and MODEL_SERVICE_URL")
     parser.add_argument("--es-url", default=None, help="Elasticsearch URL")
     parser.add_argument("--es-username", default=None, help="Basic auth username")
     parser.add_argument("--es-password", default=None, help="Basic auth password")
@@ -389,6 +390,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.model_service_url:
+        street_server.configure_base_url(args.model_service_url)
     es = build_es_client(args)
     target_fields = parse_target_fields(args.target_field)
     geo_filters = make_geo_filter(args)
@@ -443,4 +446,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except street_server.ModelServiceError as exc:
+        print(json.dumps({"status": "failed", "error_code": exc.code, "message": str(exc),
+                          "retryable": True, "service_url": street_server._BASE_URL}, ensure_ascii=False, indent=2))
+        raise SystemExit(2)

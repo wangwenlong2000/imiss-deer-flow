@@ -1,0 +1,17 @@
+{
+  "model_calls": 0,
+  "source_csv_sha256": "d0f94b2b9999fc069144b45f2b13e5fc3fadc8ed7b49535a18641ab1124163dc",
+  "rows": [
+    {
+      "id": "original_wrong_answer",
+      "issues": [
+        "答复中的“主路甲的流量和车速均高于支路乙”与本轮已核验CSV road_traffic_summary.csv矛盾。实际算术平均车速：主路甲=30.00，支路乙=40.00"
+      ]
+    },
+    {
+      "id": "corrected_answer",
+      "issues": []
+    }
+  ],
+  "passed": true
+}

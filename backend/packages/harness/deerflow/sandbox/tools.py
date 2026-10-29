@@ -529,8 +529,8 @@ def bash_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, com
     - Use `python -m pip` (inside the virtual environment) to install Python packages.
 
     Args:
-        description: 中文动作摘要。必须用简体中文简要说明本次命令的业务目的，例如“检查是否已有历史筛选结果”“执行重点号码筛选分析”“读取筛选结果文件”。不要使用英文句子，不要写入完整命令、代码、绝对路径或原始日志。ALWAYS PROVIDE THIS PARAMETER FIRST.
-        command: The bash command to execute. Always use absolute paths for files and directories.
+        description: 简体中文动作摘要，例如“计算均值”。这是独立的JSON参数，不得拼入command字符串。
+        command: Raw bash command to execute. Pass description and command as separate JSON fields, e.g. {"description":"计算均值","command":"python3 -c 'print((100+300)/2)'"}. Never embed parameter names or a command= wrapper in this string. Use absolute paths for files and directories.
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)

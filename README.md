@@ -35,15 +35,15 @@ UrbanBrain 聚焦以下能力建设：
 - 多技能统一调用与结果聚合
 - 场景过滤与 Reranker 精排
 
-The current deployment intentionally keeps the external SkillRouter disabled
-and uses recognized scenes as a lightweight custom-skill filter. The ten
-business scenes therefore require explicit domain evidence before they may
-filter skills. Generic action words such as "提取", "分析", "报告", and
-"风险" cannot activate a specialist scene by themselves. Weak entities use
-composite evidence—for example, a phone number plus an extraction, screening,
-profile, contact, device, or list action routes to `phone_network`, while an
-incidental phone number in a contract does not override `policy_regulation`.
-LLM-selected scenes are validated against the same evidence rules.
+当前部署保持外部SkillRouter关闭，使用十类业务场景过滤技能。普通业务请求通常由
+Qwen3.6-35B-A3B进行一次结构化语义识别，同时输出任务、场景、参数和规划；十类场景
+均参与判断，不再通过关键词硬裁剪候选。信息不足时具体澄清，多轮对话更新本轮计算、
+工具和交付要求。意图识别关闭思考，业务按模式控制思考，子任务继承该设置。
+
+配置示例仅启用Qwen3.6-35B-A3B，使用环境变量QWEN_BASE_URL和QWEN_API_KEY，
+不包含真实凭证。最新24轮核心任务回归符合预期，仍有3处扩展说明偏差。
+详见[优化汇总](docs/optimization-summary-20261028.md)和
+[本次提交说明及复现方法](docs/releases/20261028-intent-full-flow.md)。
 
 ---
 
@@ -209,6 +209,16 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
    ```
 
 5. **Access**: http://localhost:2026
+
+### 轻量多会话并发
+
+网页和手机端继续使用原有会话/任务接口。启动入口默认显式配置两个图任务并行，其他任务进入原有队列；运行中与排队任务合计默认最多10个，满载返回429及稍后重试提示。网页显示当前任务实际的排队/处理状态。
+
+`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。此功能用于单机多会话演示，未增加账号或用户权限隔离。实现、测试范围及两台电脑的演示步骤见[并发实现记录](docs/concurrency-implementation-20261029.md)。
+
+已补做三会话真实模型、工具和沙箱验证：两个任务重叠执行，第三个等待后自动开始；三个同名CSV输入各自得到正确回答和下载件，同会话解释追问也通过。该结果仅覆盖本次小型道路CSV样例。
+
+文件交付阶段只展示下载卡片，分析正文统一展示后续正式答复，避免工具调用时附带的分析文字与最终答案重复。[显示修复记录](docs/duplicate-answer-display-fix-20261029.md)
 
 ### Advanced
 #### Sandbox Mode
@@ -612,6 +622,11 @@ Your unwavering commitment and expertise have been the driving force behind Deer
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=bytedance/deer-flow&type=Date)](https://star-history.com/#bytedance/deer-flow&Date)
-# Type 7 confidential rule regression
+
+### 场景服务修复（2026-10-28）
+
+绿地评估按真实分辨率和边界有效像元计算；视频缺少拍摄时间时使用相对时间，逐帧检测需设置 `every_frame=true`。工具会导出完整计数和检测框CSV，20帧预览不代表只处理了20帧。街景技能使用 `/mnt/skills/custom/street_view_image/location-matcher` 和 `/opt/rs-venv/bin/python`，嵌入地址可用 `STREETMODEL_BASE_URL` 配置；服务故障会明确返回连接错误。发布范围与运行限制见 [版本说明](docs/release-concurrency-20261029.md)。
+
+## Type 7 confidential rule regression
 
 Run `scripts/build_eval_confidential.py --evaluate dev` to check the 20% rule-development partition, then `--evaluate test` once the rule is fixed. The source-preserving corpus and the latest rule-only predictions/metrics are in `合规检测/类型7-confidential整改/`. Confidential LLM boundary review is disabled unless both `COMPLIANCE_CONFIDENTIAL_MODEL_NAME` and `COMPLIANCE_CONFIDENTIAL_MODEL_VERSION` are configured; the rule-only evaluation does not use an LLM.

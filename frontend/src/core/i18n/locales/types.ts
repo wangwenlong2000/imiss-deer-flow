@@ -33,6 +33,10 @@ export interface Translations {
     custom: string;
     notAvailableInDemoMode: string;
     loading: string;
+    taskQueued: string;
+    taskRunning: string;
+    taskWaiting: string;
+    taskFailed: string;
     version: string;
     lastUpdated: string;
     code: string;

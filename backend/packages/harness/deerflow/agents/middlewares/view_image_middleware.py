@@ -91,7 +91,7 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
         # Check if all tool calls have been completed
         return tool_call_ids.issubset(completed_tool_ids)
 
-    def _create_image_details_message(self, state: ViewImageMiddlewareState) -> list[str | dict]:
+    def _create_image_details_message(self, state: ViewImageMiddlewareState) -> list[dict]:
         """Create a formatted message with all viewed image details.
 
         Args:
@@ -102,10 +102,10 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
         """
         viewed_images = state.get("viewed_images", {})
         if not viewed_images:
-            return ["No images have been viewed."]
+            return []
 
         # Build the message with image information
-        content_blocks: list[str | dict] = [{"type": "text", "text": "Here are the images you've viewed:"}]
+        content_blocks: list[dict] = [{"type": "text", "text": "Here are the images you've viewed:"}]
 
         for image_path, image_data in viewed_images.items():
             mime_type = image_data.get("mime_type", "unknown")
@@ -136,6 +136,11 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
         """
         messages = state.get("messages", [])
         if not messages:
+            return False
+
+        # A failed view_image call does not add a viewed image. Do not inject
+        # an empty or malformed multimodal message into the next model call.
+        if not state.get("viewed_images"):
             return False
 
         # Get the last assistant message
@@ -177,6 +182,8 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
 
         # Create the image details message with text and image content
         image_content = self._create_image_details_message(state)
+        if not image_content:
+            return None
 
         # Create a model-only human message with mixed content (text + images).
         # The frontend filters this internal message; it is only needed so the

@@ -5,6 +5,8 @@ from enum import Enum
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import pytest
+
 from deerflow.subagents.config import SubagentConfig
 
 # Use module import so tests can patch the exact symbols referenced inside task_tool().
@@ -75,9 +77,13 @@ def test_task_tool_returns_error_for_unknown_subagent(monkeypatch):
     assert result.startswith("Error: Unknown subagent type")
 
 
-def test_task_tool_emits_running_and_completed_events(monkeypatch):
+@pytest.mark.parametrize("parent_thinking", [None, False, True])
+def test_task_tool_emits_running_and_completed_events(monkeypatch, parent_thinking):
     config = _make_subagent_config()
     runtime = _make_runtime()
+    if parent_thinking is not None:
+        runtime.config["metadata"]["thinking_enabled"] = parent_thinking
+        runtime.config["configurable"] = {"thinking_enabled": not parent_thinking}
     events = []
     captured = {}
     get_available_tools = MagicMock(return_value=["tool-a", "tool-b"])
@@ -127,6 +133,7 @@ def test_task_tool_emits_running_and_completed_events(monkeypatch):
     assert captured["task_id"] == "tc-123"
     assert captured["executor_kwargs"]["thread_id"] == "thread-1"
     assert captured["executor_kwargs"]["parent_model"] == "ark-model"
+    assert captured["executor_kwargs"]["thinking_enabled"] is (True if parent_thinking is None else parent_thinking)
     assert captured["executor_kwargs"]["config"].max_turns == 7
     assert "Skills Appendix" in captured["executor_kwargs"]["config"].system_prompt
 

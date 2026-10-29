@@ -198,7 +198,8 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
             last_msg = messages[-1]
             stripped_msg = last_msg.model_copy(update={
                 "tool_calls": [],
-                "content": (last_msg.content or "") + f"\n\n{_HARD_STOP_MSG}",
+                "content": '本轮因重复工具调用而停止，部分计算或交付可能尚未完成，请根据已取得的结果调整请求后重试。',
+                'response_metadata': {**last_msg.response_metadata, 'execution_status': 'failed'},
             })
             return {"messages": [stripped_msg]}
 

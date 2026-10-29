@@ -80,6 +80,7 @@ def task_tool(
     thread_data = None
     thread_id = None
     parent_model = None
+    thinking_enabled = True
     trace_id = None
 
     if runtime is not None:
@@ -90,6 +91,7 @@ def task_tool(
         # Try to get parent model from configurable
         metadata = runtime.config.get("metadata", {})
         parent_model = metadata.get("model_name")
+        thinking_enabled = metadata.get("thinking_enabled", runtime.config.get("configurable", {}).get("thinking_enabled", True))
 
         # Get or generate trace_id for distributed tracing
         trace_id = metadata.get("trace_id") or str(uuid.uuid4())[:8]
@@ -110,6 +112,7 @@ def task_tool(
         thread_data=thread_data,
         thread_id=thread_id,
         trace_id=trace_id,
+        thinking_enabled=thinking_enabled,
     )
 
     # Start background execution (always async to prevent blocking)

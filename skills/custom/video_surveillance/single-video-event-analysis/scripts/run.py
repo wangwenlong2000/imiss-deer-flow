@@ -181,7 +181,9 @@ def build_manifest(
         "schema": "single_video_event_review_manifest",
         "version": VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "camera_id": input_value(payload, "camera_id", default="CAM_DEERFLOW_001"),
+        "camera_id": input_value(payload, "camera_id"),
+        "time_reference": "relative",
+        "shooting_started_at": input_value(payload, "started_at"),
         "video": metadata.get("video", {}),
         "target_events": target_events,
         "metadata_uri": str(metadata_path),
@@ -194,7 +196,10 @@ def build_manifest(
             "Inspect only the listed review frames first, in chronological order.",
             "Do not inspect more than 8 frames total unless a listed frame visibly suggests a possible event or is too ambiguous to classify.",
             "Read all_frames_uri only when the listed review frames reveal a candidate moment that needs denser confirmation.",
-            "Base every event on visible evidence only.",
+            "Base every event and timeline observation on listed frame_id and timestamp_display pairs.",
+            "Describe only the visible state at each timestamp. Being near the image edge does not prove that a subject exited.",
+            "An exit/completion claim requires a later reviewed frame showing that the subject is absent; otherwise state last_seen and leave completion unknown.",
+            "Do not replace video-relative timestamps with created_at or an example shooting date.",
             "Mark requires_review=true for serious or ambiguous events.",
         ],
         "output_schema": {
@@ -222,6 +227,8 @@ def main() -> int:
     args = parser.parse_args()
 
     payload = load_json(args.input)
+    if args.camera_id:
+        payload["camera_id"] = args.camera_id
     config = load_json(args.config)
     review_config = config.get("video_event_review", {}) if isinstance(config.get("video_event_review"), dict) else {}
     video = args.video or input_value(payload, "video_path", "file_path", "raw_segment_uri", "video")
@@ -233,6 +240,9 @@ def main() -> int:
         return emit(failed("VIDEO_NOT_FOUND", f"Video not found: {video_path}"), args.output)
 
     output_dir = Path(args.output_dir or input_value(payload, "output_dir", default=default_output_dir()))
+    # view_image can only resolve persistent user-data paths in a business sandbox.
+    if Path("/mnt/user-data").exists() and not output_dir.is_relative_to("/mnt/user-data"):
+        output_dir = Path(default_output_dir())
     output_dir.mkdir(parents=True, exist_ok=True)
 
     extractor = Path(__file__).resolve().parents[2] / "analyze-video" / "scripts" / "extract_frames.py"
@@ -270,6 +280,8 @@ def main() -> int:
 
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     all_frames = collect_frames(output_dir, metadata)
+    if not all_frames:
+        return emit(failed("NO_FRAMES_EXTRACTED", "No review frames were created; cannot claim event analysis completed"), args.output)
     review_frames = select_review_frames(all_frames)
     all_frames_path = output_dir / "all_frames.json"
     all_frames_path.write_text(json.dumps({"frames": all_frames}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -19,7 +19,7 @@ Do not edit this skill's files or scripts during business execution. If the scri
 
 ## Execution Priority
 
-1. Use `write_file` to create a small input JSON file, then run `scripts/run.py` with `--input <file>`. Do not use shell heredocs or pass an inline JSON string to `--input`.
+1. You MUST execute this skill’s `scripts/run.py` and use its returned manifest; `frame-sampling` alone does not execute event review. Use `write_file` to create a small input JSON file, then run `scripts/run.py` with `--input <file>`. Do not use shell heredocs or pass an inline JSON string to `--input`.
 2. Read the returned `review_manifest_uri` and use the listed `frames` as the review set.
 3. Inspect only the listed review frames in chronological order. Default maximum is 8 images.
 4. Read `all_frames_uri` or inspect denser frames only if a reviewed frame visibly suggests a possible event or is too ambiguous to classify.
@@ -62,7 +62,8 @@ from memory, from other videos, or from files under `examples/`.
 
 ## Review Rules
 
-- Only report events that are visible in the sampled frames.
+- Only report events that are visible in the sampled frames. Bind every timeline row to an actually viewed `frame_id` and its manifest timestamp.
+- A subject near the edge is still visible. Claim an exit or completed action only when a later reviewed frame proves it; otherwise state “最后审阅帧中仍可见，离开时间未确定”.
 - Use `unknown` or `requires_review=true` when evidence is blurry, occluded, sparse, or ambiguous.
 - Use at least two timestamps for temporal claims unless a single frame clearly shows aftermath, smoke, fire, a crash scene, or a fallen person.
 - Do not let YOLO output decide events. YOLO can only provide optional object context such as "person", "car", or "truck".
@@ -111,3 +112,5 @@ Return a JSON-compatible result with:
 - Do not fabricate exact counts when the frame only supports a range.
 - Do not copy metadata, camera identity, location, or timestamps from `examples/` or from any file
   marked `"_example": true`.
+
+审阅帧必须大于0，零帧返回 NO_FRAMES_EXTRACTED。沙箱中的帧输出使用 /mnt/user-data/outputs/single-video-event-analysis，避免 /tmp 中的图片无法被 view_image 读取；逐行时间线必须有对应审阅 frame_id。

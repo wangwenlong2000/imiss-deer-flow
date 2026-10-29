@@ -1,0 +1,3 @@
+road,sum_flow,mean_flow,mean_speed_kmh
+样例C主路,1200,600.0,22.0
+样例C支路,1200,600.0,32.0

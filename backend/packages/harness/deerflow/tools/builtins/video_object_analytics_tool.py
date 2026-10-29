@@ -57,6 +57,8 @@ def _run_in_sandbox(runtime: ToolRuntime[ContextT, ThreadState], sandbox, comman
 
 def _summarize_detection(result: dict) -> dict:
     data = result.get("data") if isinstance(result.get("data"), dict) else {}
+    if isinstance(data.get("summary"), dict):
+        return data["summary"]
     detections = data.get("detections") if isinstance(data.get("detections"), list) else []
     per_frame = []
     aggregate = Counter()
@@ -68,6 +70,9 @@ def _summarize_detection(result: dict) -> dict:
             {
                 "frame_id": detection.get("frame_id"),
                 "timestamp": detection.get("timestamp"),
+                "source_elapsed_seconds": detection.get("source_elapsed_seconds"),
+                "timestamp_display": detection.get("timestamp_display"),
+                "time_reference": detection.get("time_reference"),
                 "counts": dict(sorted(labels.items())),
                 "object_count": sum(labels.values()),
             }
@@ -90,7 +95,7 @@ def _normalize_labels(labels: list[str] | str | None) -> list[str]:
         try:
             parsed = json.loads(labels)
         except json.JSONDecodeError:
-            parsed = [part.strip() for part in labels.split(",") if part.strip()]
+            parsed = [part for part in re.split(r"[,\s]+", labels.strip()) if part]
         labels = parsed
     if not isinstance(labels, list):
         raise ValueError("labels must be a list of label names")
@@ -99,6 +104,8 @@ def _normalize_labels(labels: list[str] | str | None) -> list[str]:
 
 def _summarize_tracks(result: dict) -> dict:
     data = result.get("data") if isinstance(result.get("data"), dict) else {}
+    if isinstance(data.get("summary"), dict):
+        return data["summary"]
     tracks = data.get("tracks") if isinstance(data.get("tracks"), list) else []
     labels = Counter(track.get("label") for track in tracks if isinstance(track, dict) and track.get("label"))
     movement = Counter(track.get("movement_state") for track in tracks if isinstance(track, dict) and track.get("movement_state"))
@@ -110,9 +117,11 @@ def video_object_analytics_tool(
     runtime: ToolRuntime[ContextT, ThreadState],
     video_path: str,
     operation: Literal["detect", "track"] = "detect",
-    camera_id: str = "CAM_DEERFLOW_001",
+    camera_id: str | None = None,
     capture_seconds: float = 2.0,
     interval_seconds: float = 1.0,
+    every_frame: bool = False,
+    started_at: str | None = None,
     labels: list[str] | str | None = None,
 ) -> str:
     """Run deterministic video object detection or tracking.
@@ -125,9 +134,11 @@ def video_object_analytics_tool(
     Args:
         video_path: Absolute path to the local video file.
         operation: Use "detect" for frame-level objects or "track" for cross-frame tracks.
-        camera_id: Camera identifier used in frame and track records.
+        camera_id: Known business camera identifier; omit when unknown.
         capture_seconds: Number of seconds from the start of the video to process.
-        interval_seconds: Sampling interval in seconds.
+        interval_seconds: Sampling interval in seconds when every_frame is false.
+        every_frame: Set true for native frame-by-frame requests; processes [0, capture_seconds).
+        started_at: Authoritative ISO 8601 shooting start time; omit to use relative video times.
         labels: Optional COCO labels to keep, such as person, car, bus, and truck.
     """
     try:
@@ -136,7 +147,7 @@ def video_object_analytics_tool(
         video_path = _validate_video_path(video_path)
         if operation not in {"detect", "track"}:
             raise ValueError("operation must be detect or track")
-        if not CAMERA_ID_RE.fullmatch(camera_id):
+        if camera_id is not None and not CAMERA_ID_RE.fullmatch(camera_id):
             raise ValueError("camera_id contains unsupported characters")
         if not 0 < float(capture_seconds) <= 3600:
             raise ValueError("capture_seconds must be between 0 and 3600")
@@ -162,12 +173,13 @@ def video_object_analytics_tool(
                 f"{SKILLS_ROOT}/frame-sampling/scripts/run.py",
                 "--video",
                 video_path,
-                "--camera-id",
-                camera_id,
+                *(["--camera-id", camera_id] if camera_id else []),
                 "--capture-seconds",
                 str(float(capture_seconds)),
                 "--interval-seconds",
                 str(float(interval_seconds)),
+                *(["--every-frame"] if every_frame else []),
+                *(["--started-at", started_at] if started_at else []),
                 "--output-dir",
                 frames_dir,
                 "--config",
@@ -205,8 +217,7 @@ def video_object_analytics_tool(
                     f"{SKILLS_ROOT}/object-tracking/scripts/run.py",
                     "--detections-json",
                     detections_json,
-                    "--camera-id",
-                    camera_id,
+                    *(["--camera-id", camera_id] if camera_id else []),
                     "--config",
                     CONFIG_PATH,
                     "--output",
@@ -218,13 +229,12 @@ def video_object_analytics_tool(
         # Keep execution and result retrieval in one sandbox request. AIO
         # sandbox implementations may rotate the backing container between
         # API calls, while files inside a single shell invocation are stable.
-        result_code = (
-            "import json; "
-            f"result={{'detection': json.load(open({detections_json!r}))}}; "
-            + (f"result['tracking'] = json.load(open({tracks_json!r})); " if operation == "track" else "")
-            + "print(json.dumps(result, ensure_ascii=False, separators=(',', ':')));"
-        )
-        commands.append(_quote_command(["python", "-c", result_code]))
+        export_dir = f"/mnt/user-data/outputs/video-object-analytics/{run_id}"
+        commands.append(_quote_command([
+            "python", f"{SKILLS_ROOT}/video-object-analytics/scripts/export_results.py",
+            "--detections", detections_json, "--output-dir", export_dir,
+            *(["--tracks", tracks_json] if operation == "track" else []),
+        ]))
         # Keep this a single POSIX command chain. The AIO shell endpoint has
         # returned opaque ErrorObservation objects for some multiline shell
         # payloads, while the same commands are reliable with `&&` chaining.
@@ -255,9 +265,12 @@ def video_object_analytics_tool(
             "skill": "video-object-analytics",
             "status": "success",
             "operation": operation,
+            "sampling_mode": "every_frame" if every_frame else "interval",
+            "time_reference": "absolute" if started_at else "relative",
+            "camera_id": camera_id,
             "executed_skills": ["video-object-analytics", "frame-sampling", "object-detection"],
             "model": MODEL_PATH,
-            "artifacts": {"frames_json": frames_json, "detections_json": detections_json},
+            "artifacts": {"frames_json": frames_json, "detections_json": detections_json, **command_result.get("artifacts", {})},
             "summary": _summarize_detection(detection_result),
         }
         if operation == "track":

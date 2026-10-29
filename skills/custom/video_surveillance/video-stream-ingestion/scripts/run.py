@@ -249,21 +249,21 @@ def main() -> int:
     p.add_argument("--raw-segment-uri")
     p.add_argument("--camera-id")
     p.add_argument("--source-type", choices=["local_file"])
-    p.add_argument("--capture-seconds", type=int)
+    p.add_argument("--capture-seconds", type=float)
     p.add_argument("--started-at")
     p.add_argument("--config")
     p.add_argument("--output")
     args = p.parse_args()
     input_data = load_input(args.input)
     config = load_config(args.config)
-    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    camera_id = args.camera_id or input_value(input_data, "camera_id")
     file_path = args.file_path or input_value(input_data, "video", "video_path", "file_path")
     raw_uri = args.raw_segment_uri or input_value(input_data, "raw_segment_uri")
     source_type = args.source_type or input_value(input_data, "source_type") or "local_file"
     if source_type != "local_file":
         return emit(failed(SKILL, "UNSUPPORTED_SOURCE", f"Only local_file video input is supported: {source_type}"), args.output)
-    duration = args.capture_seconds if args.capture_seconds is not None else int(input_value(input_data, "capture_seconds", default=10))
-    started_at = args.started_at or input_value(input_data, "started_at") or config.get("now") or "2026-05-20T10:00:00+08:00"
+    duration = args.capture_seconds if args.capture_seconds is not None else input_value(input_data, "capture_seconds")
+    started_at = args.started_at or input_value(input_data, "started_at")
     session_id = f"VS_{uuid4().hex[:8]}"
     width = height = None
     path = Path(file_path or raw_uri or "")
@@ -275,8 +275,14 @@ def main() -> int:
     except FileNotFoundError:
         return emit(failed(SKILL, "FFPROBE_MISSING", "ffprobe is required but was not found in PATH", False), args.output)
     video_duration = round(float(meta["duration"]), 3) if meta.get("duration") else None
-    if video_duration:
-        duration = min(duration, int(video_duration))
+    duration = min(float(duration), video_duration) if duration is not None and video_duration else (video_duration if duration is None else float(duration))
+    if duration is None or not math.isfinite(duration) or duration <= 0:
+        return emit(failed(SKILL, "INVALID_DURATION", "A positive video duration or capture_seconds is required"), args.output)
+    if started_at:
+        try:
+            parse_time(started_at)
+        except (TypeError, ValueError):
+            return emit(failed(SKILL, "INVALID_STARTED_AT", "started_at must be an ISO 8601 timestamp"), args.output)
     width, height = meta.get("width"), meta.get("height")
     if not raw_uri:
         return emit(failed(SKILL, "SOURCE_NOT_FOUND", "A local video path is required"), args.output)
@@ -287,7 +293,9 @@ def main() -> int:
         "file_status": "ok",
         "video_session_id": session_id,
         "started_at": started_at,
-        "ended_at": iso_add_seconds(started_at, duration),
+        "ended_at": iso_add_seconds(started_at, duration) if started_at else None,
+        "time_reference": "absolute" if started_at else "relative",
+        "source_elapsed_seconds": 0.0,
         "raw_segment_uri": raw_uri,
         # duration_seconds 是本次接入的采集窗口，video_duration_seconds 是文件的完整时长
         "duration_seconds": duration,

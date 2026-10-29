@@ -4,6 +4,23 @@ from deerflow.agents.middlewares import intent_recognition_middleware as intent_
 from deerflow.agents.middlewares.intent_recognition_middleware import IntentRecognitionMiddleware
 
 
+def test_intent_model_stays_non_thinking_even_when_business_thinking_is_on(monkeypatch):
+    from types import SimpleNamespace
+
+    from deerflow.routing.dialogue_act import DialogueActResult
+    from deerflow.routing.intent import RoutingIntentResult
+
+    captured = []
+    monkeypatch.setattr(intent_module, "create_chat_model", lambda **kwargs: captured.append(kwargs) or object())
+    monkeypatch.setattr(intent_module, "classify_dialogue_act", lambda *args, **kwargs: DialogueActResult(act="new_task", confidence=1, reason="test"))
+    monkeypatch.setattr(IntentRecognitionMiddleware, "_compliance_intent", staticmethod(lambda _: None))
+    monkeypatch.setattr(intent_module, "classify_routing_intent_with_llm", lambda query, **kwargs: RoutingIntentResult(intent="task", original_query=query, normalized_query=query, routing_query=query))
+    runtime = SimpleNamespace(context={"thinking_enabled": True})
+    result = IntentRecognitionMiddleware(model_name="qwen3.6-35b-a3b").before_agent({"messages": [HumanMessage(content="分析这张年鉴表", id="u")]}, runtime)
+    assert result is not None
+    assert captured == [{"name": "qwen3.6-35b-a3b", "thinking_enabled": False}]
+
+
 def test_intent_recognition_ignores_internal_view_image_context_for_same_user_message():
     middleware = IntentRecognitionMiddleware(model_name="unused")
 
@@ -86,8 +103,12 @@ def test_intent_recognition_marks_clarification_answer_hidden_steps_suppressed(m
 
 
 def test_intent_recognition_reuses_previous_intent_for_task_followup(monkeypatch):
+    from types import SimpleNamespace
+
     middleware = IntentRecognitionMiddleware(model_name="unused")
-    monkeypatch.setattr(intent_module, "create_chat_model", lambda **_kwargs: None)
+    response = '{"act":"task_followup","confidence":0.93,"turn_requirements":{"requires_computation":false,"allow_tools":true,"required_csv_metrics":[],"csv_precision":{},"csv_missing_values":[],"required_artifact_types":[]}}'
+    model = SimpleNamespace(with_config=lambda _: SimpleNamespace(invoke=lambda _: SimpleNamespace(content=response)))
+    monkeypatch.setattr(intent_module, "create_chat_model", lambda **_kwargs: model)
 
     previous_intent = {
         "intent": "task",

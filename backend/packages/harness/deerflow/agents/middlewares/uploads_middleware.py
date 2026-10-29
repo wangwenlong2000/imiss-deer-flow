@@ -169,7 +169,7 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
                     )
 
         if not new_files and not historical_files:
-            return None
+            return {"uploaded_files": []} if state.get("uploaded_files") else None
 
         logger.debug(f"New files: {[f['filename'] for f in new_files]}, historical: {[f['filename'] for f in historical_files]}")
 
@@ -199,6 +199,8 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
         messages[last_message_index] = updated_message
 
         return {
-            "uploaded_files": new_files,
+            # Intent recognition consumes structured metadata, not the injected
+            # attachment text. Keep earlier files available on follow-up turns.
+            "uploaded_files": new_files + historical_files,
             "messages": messages,
         }

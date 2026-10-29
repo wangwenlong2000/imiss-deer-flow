@@ -1,0 +1,123 @@
+{
+  "base_url": "http://127.0.0.1:3328/api/langgraph",
+  "concurrency": 2,
+  "measurement_notes": [
+    "Calls count only unique streamed message IDs with nonempty ls_model_name; synthetic HumanMessage guidance is excluded.",
+    "One blocked run was recovered by reading its checkpoint; its LLM trace count is unavailable, not zero.",
+    "Intent stage is the interval between the preceding middleware update and intent update, including scheduling/transport observation overhead.",
+    "Intent accuracy is independent of downstream compliance refusal; all failed labels remain in the denominator."
+  ],
+  "overall": {
+    "count": 35,
+    "intent_correct": 30,
+    "intent_accuracy": 0.8571428571428571,
+    "mean_request_seconds": 4.029187423323414,
+    "p95_request_seconds": 5.932509912876412,
+    "mean_observed_intent_stage_seconds": 1.7584217064149146,
+    "stopped_before_business_model": 34,
+    "business_model_executions": 0,
+    "input_gate_refusals": 1,
+    "planning_generated": 35,
+    "planning_guidance_present": 34,
+    "transport_errors": 0,
+    "observed_llm_calls": 38,
+    "trace_complete_cases": 34,
+    "observed_llm_nodes": {
+      "IntentRecognitionMiddleware.before_agent": 34,
+      "ComplianceInputGateMiddleware.before_agent": 4
+    },
+    "observed_models": [
+      "qwen3.6-35b-a3b"
+    ]
+  },
+  "ambiguity_and_multi_smoke": {
+    "count": 3,
+    "intent_correct": 3,
+    "intent_accuracy": 1.0,
+    "mean_request_seconds": 2.9421806949346014,
+    "p95_request_seconds": 3.0588065430056304,
+    "mean_observed_intent_stage_seconds": 1.2603957365887861,
+    "stopped_before_business_model": 3,
+    "business_model_executions": 0,
+    "input_gate_refusals": 0,
+    "planning_generated": 3,
+    "planning_guidance_present": 3,
+    "transport_errors": 0,
+    "observed_llm_calls": 3,
+    "trace_complete_cases": 3,
+    "observed_llm_nodes": {
+      "IntentRecognitionMiddleware.before_agent": 3
+    },
+    "observed_models": [
+      "qwen3.6-35b-a3b"
+    ]
+  },
+  "disabled_scene_smoke": {
+    "count": 1,
+    "intent_correct": 0,
+    "intent_accuracy": 0.0,
+    "mean_request_seconds": 3.4908250821754336,
+    "p95_request_seconds": 3.4908250821754336,
+    "mean_observed_intent_stage_seconds": 1.5941273919306695,
+    "stopped_before_business_model": 1,
+    "business_model_executions": 0,
+    "input_gate_refusals": 0,
+    "planning_generated": 1,
+    "planning_guidance_present": 1,
+    "transport_errors": 0,
+    "observed_llm_calls": 2,
+    "trace_complete_cases": 1,
+    "observed_llm_nodes": {
+      "IntentRecognitionMiddleware.before_agent": 1,
+      "ComplianceInputGateMiddleware.before_agent": 1
+    },
+    "observed_models": [
+      "qwen3.6-35b-a3b"
+    ]
+  },
+  "provided_original_text": {
+    "count": 28,
+    "intent_correct": 24,
+    "intent_accuracy": 0.8571428571428571,
+    "mean_request_seconds": 4.169958634825889,
+    "p95_request_seconds": 5.932509912876412,
+    "mean_observed_intent_stage_seconds": 1.8195425292776366,
+    "stopped_before_business_model": 27,
+    "business_model_executions": 0,
+    "input_gate_refusals": 1,
+    "planning_generated": 28,
+    "planning_guidance_present": 27,
+    "transport_errors": 0,
+    "observed_llm_calls": 30,
+    "trace_complete_cases": 27,
+    "observed_llm_nodes": {
+      "IntentRecognitionMiddleware.before_agent": 27,
+      "ComplianceInputGateMiddleware.before_agent": 3
+    },
+    "observed_models": [
+      "qwen3.6-35b-a3b"
+    ]
+  },
+  "ten_scene_smoke": {
+    "count": 3,
+    "intent_correct": 3,
+    "intent_accuracy": 1.0,
+    "mean_request_seconds": 3.981783624738455,
+    "p95_request_seconds": 4.572560210945085,
+    "mean_observed_intent_stage_seconds": 1.7407514343503863,
+    "stopped_before_business_model": 3,
+    "business_model_executions": 0,
+    "input_gate_refusals": 0,
+    "planning_generated": 3,
+    "planning_guidance_present": 3,
+    "transport_errors": 0,
+    "observed_llm_calls": 3,
+    "trace_complete_cases": 3,
+    "observed_llm_nodes": {
+      "IntentRecognitionMiddleware.before_agent": 3
+    },
+    "observed_models": [
+      "qwen3.6-35b-a3b"
+    ]
+  }
+}

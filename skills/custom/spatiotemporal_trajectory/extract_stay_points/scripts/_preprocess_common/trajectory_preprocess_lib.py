@@ -339,10 +339,11 @@ def extract_staypoints(
             found = False
             while j < len(group):
                 dist = haversine_km(group[i].lat, group[i].lon, group[j].lat, group[j].lon)
-                if dist > radius_km:
-                    dwell = (group[j - 1].timestamp - group[i].timestamp).total_seconds() / 60
+                if dist > radius_km or j == len(group) - 1:
+                    end = j - 1 if dist > radius_km else j
+                    dwell = (group[end].timestamp - group[i].timestamp).total_seconds() / 60
                     if dwell >= stay_min_minutes:
-                        window = group[i:j]
+                        window = group[i:end + 1]
                         lat = sum(p.lat for p in window) / len(window)
                         lon = sum(p.lon for p in window) / len(window)
                         staypoints.append({
@@ -350,7 +351,7 @@ def extract_staypoints(
                             "user_id": user_id,
                             "trajectory_id": trajectory_id,
                             "start_time": group[i].timestamp.isoformat(),
-                            "end_time": group[j - 1].timestamp.isoformat(),
+                            "end_time": group[end].timestamp.isoformat(),
                             "duration_minutes": round(dwell, 3),
                             "centroid_lat": lat,
                             "centroid_lon": lon,
@@ -358,7 +359,7 @@ def extract_staypoints(
                             "point_count": len(window),
                         })
                         stay_id += 1
-                        i = j
+                        i = end + 1
                         found = True
                     break
                 j += 1

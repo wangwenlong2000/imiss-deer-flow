@@ -40,7 +40,7 @@ export function MessageList({
 }: {
   className?: string;
   threadId: string;
-  thread: BaseStream<AgentThreadState>;
+  thread: BaseStream<AgentThreadState> & { runStatus?: string };
   paddingBottom?: number;
 }) {
   const { t } = useI18n();
@@ -95,14 +95,7 @@ export function MessageList({
             }
             return (
               <div className="w-full" key={group.id}>
-                {group.messages[0] && hasContent(group.messages[0]) && (
-                  <MarkdownContent
-                    content={extractContentFromMessage(group.messages[0])}
-                    isLoading={thread.isLoading}
-                    rehypePlugins={rehypePlugins}
-                    className="mb-4"
-                  />
-                )}
+                {/* Tool-call text is a draft; the final answer is rendered separately. */}
                 <ArtifactFileList files={files} threadId={threadId} />
               </div>
             );
@@ -213,7 +206,18 @@ export function MessageList({
             className="mt-1 mb-2"
           />
         )}
-        {thread.isLoading && <StreamingIndicator className="my-4" />}
+        {thread.isLoading && (
+          <div className="text-muted-foreground my-4 flex items-center gap-3" role="status">
+            <StreamingIndicator />
+            <span className="text-sm">
+              {thread.runStatus === "pending"
+                ? t.common.taskQueued
+                : thread.runStatus === "running"
+                  ? t.common.taskRunning
+                  : t.common.taskWaiting}
+            </span>
+          </div>
+        )}
         <div style={{ height: `${paddingBottom}px` }} />
       </ConversationContent>
     </Conversation>

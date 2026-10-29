@@ -95,6 +95,15 @@ class AioSandboxProvider(SandboxProvider):
         if self._config.get("idle_timeout", DEFAULT_IDLE_TIMEOUT) > 0:
             self._start_idle_checker()
 
+    @property
+    def uploads_are_shared(self) -> bool:
+        """Local containers bind the thread upload directory when acquired.
+
+        Saving a file therefore does not require starting a container. Remote
+        sandboxes still need explicit file synchronization.
+        """
+        return isinstance(self._backend, LocalContainerBackend)
+
     # ── Factory methods ──────────────────────────────────────────────────
 
     def _create_backend(self) -> SandboxBackend:

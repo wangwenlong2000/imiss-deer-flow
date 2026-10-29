@@ -74,7 +74,8 @@ def test_resolve_model_name_raises_when_no_models_configured(monkeypatch):
         lead_agent_module._resolve_model_name("missing-model")
 
 
-def test_make_lead_agent_disables_thinking_when_model_does_not_support_it(monkeypatch):
+@pytest.mark.parametrize("requested_model", ["safe-model", "removed-model"])
+def test_make_lead_agent_disables_thinking_when_model_does_not_support_it(monkeypatch, requested_model):
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
 
     import deerflow.tools as tools_module
@@ -97,7 +98,7 @@ def test_make_lead_agent_disables_thinking_when_model_does_not_support_it(monkey
     result = lead_agent_module.make_lead_agent(
         {
             "configurable": {
-                "model_name": "safe-model",
+                "model_name": requested_model,
                 "thinking_enabled": True,
                 "is_plan_mode": False,
                 "subagent_enabled": False,
@@ -108,6 +109,26 @@ def test_make_lead_agent_disables_thinking_when_model_does_not_support_it(monkey
     assert captured["name"] == "safe-model"
     assert captured["thinking_enabled"] is False
     assert result["model"] is not None
+
+
+@pytest.mark.parametrize("requested", [None, False, True])
+def test_lead_business_thinking_defaults_on_and_respects_explicit_off(monkeypatch, requested):
+    import deerflow.tools as tools_module
+
+    app_config = _make_app_config([_make_model("qwen3.6-35b-a3b", supports_thinking=True)])
+    monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
+    monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr(lead_agent_module, "_build_middlewares", lambda *args, **kwargs: [])
+    monkeypatch.setattr(lead_agent_module, "apply_prompt_template", lambda **kwargs: "prompt")
+    monkeypatch.setattr(lead_agent_module, "create_chat_model", lambda **kwargs: kwargs)
+    monkeypatch.setattr(lead_agent_module, "create_agent", lambda **kwargs: kwargs)
+    config = {"configurable": {}}
+    if requested is not None:
+        config["configurable"]["thinking_enabled"] = requested
+    result = lead_agent_module.make_lead_agent(config)
+    expected = True if requested is None else requested
+    assert result["model"]["thinking_enabled"] is expected
+    assert config["metadata"]["thinking_enabled"] is expected
 
 
 def test_build_middlewares_uses_resolved_model_name_for_vision(monkeypatch):

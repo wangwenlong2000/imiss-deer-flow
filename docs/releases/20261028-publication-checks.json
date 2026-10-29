@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-28",
+  "scope": "Local pre-publication checks; earlier full-flow data was not rerun for publication",
+  "tests": {
+    "main_and_evaluator_passed": 573,
+    "main_skipped": 1,
+    "main_warnings": 9,
+    "supplemental_compliance_passed": 116,
+    "isolated_subagent_passed": 25,
+    "total_passed": 714
+  },
+  "model_example": {
+    "model": "qwen3.6-35b-a3b",
+    "model_count": 1,
+    "endpoint_environment": "QWEN_BASE_URL",
+    "api_key_environment": "QWEN_API_KEY",
+    "yaml_validation": "passed"
+  },
+  "historical_full_flow": {
+    "core_task_correct": 24,
+    "planned_turns": 24,
+    "supplemental_prose_issues_unresolved": 3
+  },
+  "publication": {
+    "raw_provider_traces": "local only",
+    "populated_runtime_config": "excluded",
+    "original_provided_materials": "excluded",
+    "code_backup_archives": "excluded",
+    "unrelated_NDBC_materials": "excluded",
+    "selected_files": 127,
+    "synthetic_csv_byte_preservation": true
+  }
+}

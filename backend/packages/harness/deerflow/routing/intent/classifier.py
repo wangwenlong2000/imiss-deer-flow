@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 
 from deerflow.routing.intent_policy import policy_float, policy_int, policy_list, policy_value
 from deerflow.routing.query_segmenter import is_obvious_chitchat
+from deerflow.routing.turn_requirements import TurnRequirements
 
 _UPLOAD_BLOCK_RE = re.compile(r"<uploaded_files>[\s\S]*?</uploaded_files>\s*", re.IGNORECASE)
 
@@ -49,7 +50,7 @@ class TaskSpan(BaseModel):
     text: str
 
 
-class RoutingIntentResult(BaseModel):
+class RoutingIntentResult(TurnRequirements):
     intent: RoutingIntent
     original_query: str
     normalized_query: str
@@ -69,10 +70,17 @@ class RoutingIntentResult(BaseModel):
     task_hints: list[str] = Field(default_factory=list)
     mentioned_skill_ids: list[str] = Field(default_factory=list)
     confidence: float = 0.0
+    clarification_question: str | None = None
+    recognition_status: str = 'ok'
     reason: str | None = None
 
 
 def _default_scene_templates_path() -> Path:
+    # A deployment's registry is authoritative, not an extension of the demo
+    # scenes shipped with the library. This project enables ten business scenes.
+    deployment = Path(__file__).resolve().parents[5] / "config" / "intent_scene_templates.json"
+    if deployment.is_file():
+        return deployment
     return Path(__file__).with_name("scene_templates.json")
 
 
@@ -85,8 +93,8 @@ def _custom_scene_templates_paths() -> list[Path]:
             if item.strip():
                 paths.append(Path(item.strip()))
 
-    # Repo-local user extension file.  This keeps packaged defaults stable and
-    # lets deployments add or replace scenes with a single JSON file.
+    # Repo-local deployment registry. Packaged examples are only used when it
+    # is absent; they must not silently introduce extra business scenes.
     backend_root = Path(__file__).resolve().parents[5]
     paths.append(backend_root / "config" / "intent_scene_templates.json")
     return paths
@@ -1597,11 +1605,16 @@ def _extract_json_value(raw: str) -> Any:
     for candidate in candidates:
         if not candidate:
             continue
-        fixed = candidate.replace("'", '"')
         try:
-            return json.loads(fixed)
+            return json.loads(candidate)
         except json.JSONDecodeError:
-            continue
+            # Legacy prompts sometimes returned Python-style single quotes.
+            # Try that repair only after valid JSON: apostrophes inside JSON
+            # strings (e.g. a quoted location in a plan) must stay untouched.
+            try:
+                return json.loads(candidate.replace("'", '"'))
+            except json.JSONDecodeError:
+                continue
     return None
 
 

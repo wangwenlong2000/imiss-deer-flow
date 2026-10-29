@@ -56,7 +56,17 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         # gateways reject "thinking.type=disabled + reasoning_effort".
         kwargs.pop("reasoning_effort", None)
 
-        if effective_wte.get("extra_body", {}).get("thinking", {}).get("type"):
+        thinking_body = effective_wte.get("extra_body", {})
+        if "enable_thinking" in thinking_body or "enable_thinking" in thinking_body.get("chat_template_kwargs", {}):
+            # Qwen uses a boolean switch (DashScope) or a chat-template
+            # option (local vLLM/SGLang), rather than thinking.type.
+            extra_body = {**(model_settings_from_config.get("extra_body") or {}), **kwargs.pop("extra_body", {})}
+            if "enable_thinking" in thinking_body:
+                extra_body["enable_thinking"] = False
+            if "enable_thinking" in thinking_body.get("chat_template_kwargs", {}):
+                extra_body["chat_template_kwargs"] = {**extra_body.get("chat_template_kwargs", {}), "enable_thinking": False}
+            model_settings_from_config["extra_body"] = extra_body
+        elif thinking_body.get("thinking", {}).get("type"):
             kwargs.update({"extra_body": {"thinking": {"type": "disabled"}}})
         elif effective_wte.get("thinking", {}).get("type"):
             kwargs.update({"thinking": {"type": "disabled"}})

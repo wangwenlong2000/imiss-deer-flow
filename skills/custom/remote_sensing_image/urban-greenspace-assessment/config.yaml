@@ -19,7 +19,7 @@ extraction:
   morph_kernel: 3
 
 landscape:
-  # A patch larger than this is considered a large park/major greenspace.
+  # A patch at least this large is considered a large park/major greenspace.
   large_patch_area_m2: 10000
   # Reserved corridor search radius.
   connectivity_radius_m: 300
@@ -31,7 +31,6 @@ equity:
   target_per_capita_m2: 15
 
 quality:
-  assumed_pixel_size_m: 10
   warn_if_synthetic_fallback: true
   require_report_files:
     - metrics.json

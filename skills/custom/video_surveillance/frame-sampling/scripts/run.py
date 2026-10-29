@@ -216,6 +216,7 @@ def main() -> int:
     p.add_argument("--end-time", type=float)
     p.add_argument("--interval-seconds", type=float)
     p.add_argument("--fps", type=float)
+    p.add_argument("--every-frame", action="store_true", help="Decode every native video frame in the requested half-open time range")
     p.add_argument("--started-at")
     p.add_argument("--output-dir")
     p.add_argument("--config")
@@ -225,7 +226,7 @@ def main() -> int:
     output_path = args.output or args.output_json_alias
     input_data = load_input(args.input)
     config = load_config(args.config)
-    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    camera_id = args.camera_id or input_value(input_data, "camera_id")
     frames = load_list(args.frames_json, "frames") if args.frames_json else input_list(input_data, "frames")
     if frames:
         return emit(success(SKILL, {"camera_id": camera_id, "frames": frames}), output_path)
@@ -253,37 +254,81 @@ def main() -> int:
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
         return emit(failed(SKILL, "VIDEO_OPEN_FAILED", f"Could not open video: {path}", True), output_path)
-    video_fps = cap.get(cv2.CAP_PROP_FPS) or 25
+    video_fps = cap.get(cv2.CAP_PROP_FPS)
+    if not video_fps or not math.isfinite(video_fps) or video_fps <= 0:
+        cap.release()
+        return emit(failed(SKILL, "INVALID_VIDEO_FPS", "Video FPS is unknown; cannot assign frame times"), output_path)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration = capture_seconds if capture_seconds is not None else (total / video_fps if total else config.get("default_capture_seconds", 10))
     end_elapsed = float(start_offset) + float(duration)
-    step = 1 / max(float(fps), 0.001) if fps else interval_seconds
-    start = started_at or config.get("now") or "2026-05-20T10:00:00+08:00"
-    out_dir = Path(output_dir or config.get("output_dir", "outputs")) / "frames" / camera_id
+    every_frame = args.every_frame or sampling.get("mode") == "every_frame"
+    step = 1 / float(fps) if fps else float(interval_seconds)
+    if not all(math.isfinite(value) for value in [float(start_offset), float(duration), step]) or start_offset < 0 or duration <= 0 or step <= 0:
+        cap.release()
+        return emit(failed(SKILL, "INVALID_TIME_RANGE", "Offsets, duration and sampling interval must be finite and positive (start >= 0)"), output_path)
+    start = started_at
+    if start:
+        try:
+            parse_time(start)
+        except (ValueError, TypeError):
+            cap.release()
+            return emit(failed(SKILL, "INVALID_STARTED_AT", "started_at must be an ISO 8601 timestamp"), output_path)
+    source_key = camera_id or "local_" + sha1(str(path.resolve()).encode()).hexdigest()[:10]
+    out_dir = Path(output_dir or config.get("output_dir", "outputs")) / "frames" / source_key
     
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         return emit(failed(SKILL, "OUTPUT_DIR_UNAVAILABLE", f"Could not create output directory: {out_dir}: {exc}", True), output_path)
+    # Some AVI streams expose a non-zero first decoded PTS (e.g. 80 ms).
+    # Video-relative time starts at the first decoded frame, not that raw PTS.
+    first_ok, _ = cap.read()
+    pts_origin = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000 if first_ok else 0.0
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
     frames = []
     elapsed = float(start_offset)
     seq = 1
-    while elapsed <= end_elapsed + 1e-9:
-        cap.set(cv2.CAP_PROP_POS_MSEC, elapsed * 1000)
+    if every_frame:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, math.ceil(start_offset * video_fps - 1e-9))
+    while elapsed < end_elapsed - 1e-9:
+        if not every_frame:
+            cap.set(cv2.CAP_PROP_POS_MSEC, elapsed * 1000)
         ok, frame = cap.read()
         if not ok:
             break
-        ts = iso_add_seconds(start, elapsed)
-        frame_id = f"{camera_id}_{ts.replace('-', '').replace(':', '').replace('+', '').replace('T', '')}_{seq:04d}"
+        frame_index = max(0, int(cap.get(cv2.CAP_PROP_POS_FRAMES)) - 1)
+        raw_pts = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000
+        actual_elapsed = max(0.0, raw_pts - pts_origin)
+        if not raw_pts and frame_index:
+            actual_elapsed = frame_index / video_fps
+        if actual_elapsed >= end_elapsed - 1e-9:
+            break
+        ts = iso_add_seconds(start, actual_elapsed) if start else None
+        milliseconds = round(actual_elapsed * 1000)
+        hours, remainder = divmod(milliseconds, 3600000)
+        minutes, remainder = divmod(remainder, 60000)
+        seconds, millis = divmod(remainder, 1000)
+        display = f"{hours:02d}:{minutes:02d}:{seconds:02d}.{millis:03d}"
+        frame_id = f"{source_key}_{milliseconds:012d}ms_{seq:06d}"
         image_path = out_dir / f"{frame_id}.jpg"
-        cv2.imwrite(str(image_path), frame)
-        frames.append({"frame_id": frame_id, "camera_id": camera_id, "timestamp": ts, "image_uri": str(image_path), "width": width, "height": height, "sequence": seq, "source_elapsed_seconds": round(elapsed, 3)})
+        if not cv2.imwrite(str(image_path), frame):
+            cap.release()
+            return emit(failed(SKILL, "FRAME_WRITE_FAILED", f"Could not save frame: {image_path}"), output_path)
+        frames.append({"frame_id": frame_id, "camera_id": camera_id, "timestamp": ts,
+                       "time_reference": "absolute" if start else "relative", "timestamp_display": display,
+                       "image_uri": str(image_path), "width": width, "height": height,
+                       "sequence": seq, "source_frame_index": frame_index, "source_pts_seconds": round(raw_pts, 6),
+                       "source_elapsed_seconds": round(actual_elapsed, 6)})
         seq += 1
-        elapsed += step
+        elapsed = (frame_index + 1) / video_fps if every_frame else start_offset + (seq - 1) * step
     cap.release()
-    return emit(success(SKILL, {"camera_id": camera_id, "frames": frames, "source_video_uri": str(path), "fps": video_fps}), output_path)
+    return emit(success(SKILL, {"camera_id": camera_id, "frames": frames, "source_video_uri": str(path),
+                "fps": video_fps, "sampling_mode": "every_frame" if every_frame else "interval",
+                "time_reference": "absolute" if start else "relative", "started_at": start,
+                "pts_origin_seconds": pts_origin,
+                "requested_start_seconds": start_offset, "requested_end_seconds": end_elapsed}), output_path)
 
 if __name__ == "__main__":
     try:

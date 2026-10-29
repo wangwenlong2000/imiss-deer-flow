@@ -18,6 +18,7 @@ from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langgraph.runtime import Runtime
 
 from deerflow.agents.lead_agent.prompt import _render_skill_system_section
+from deerflow.routing.intent import load_scene_templates
 from deerflow.routing.schema import RoutingContext, SceneTask, SelectedSkill
 from deerflow.skills.loader import load_custom_skills
 
@@ -123,7 +124,8 @@ class SceneSkillFilterMiddleware(AgentMiddleware[AgentState]):
             for item in raw_scenes:
                 if isinstance(item, str) and item.strip() and item.strip() not in scenes:
                     scenes.append(item.strip())
-        return scenes
+        enabled = {str(config.get("scene") or key) for key, config in load_scene_templates().items()}
+        return [scene for scene in scenes if scene in enabled]
 
     @staticmethod
     def _last_user_text(messages: list[Any]) -> str | None:
