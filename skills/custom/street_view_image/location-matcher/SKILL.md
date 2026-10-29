@@ -22,7 +22,7 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 
 执行以下脚本：
 ```bash
-conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/geocoding.py --address "提取的地址文本"
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/geocoding.py --address "提取的地址文本"
 ```
 
 输出结果示例：
@@ -37,7 +37,7 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 执行 es_get_mapping 脚本查看索引字段结构，确定可用的目标字段和坐标字段。
 
 ```bash
-conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/es_get_mapping.py --index street
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_get_mapping.py --index street
 ```
 
 - 根据需要动态确定返回字段
@@ -48,12 +48,12 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 
 **基于图片检索**示例命令：
 ```bash
-conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000 --image-path /path/to/image.jpg
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000 --image-path /path/to/image.jpg
 ```
 
 **基于文本描述检索**示例命令：
 ```bash
-conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --description "A Japanese urban street scene with LAFORET SELECT signage" --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --description "A Japanese urban street scene with LAFORET SELECT signage" --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000
 ```
 
 **参数说明：**
@@ -86,7 +86,7 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 调用反向地理编码脚本：
 
 ```bash
-conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/reverse_geocoding.py --latitude 35.654008 --longitude 139.705398
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/reverse_geocoding.py --latitude 35.654008 --longitude 139.705398
 ```
 
 输出结果示例：
@@ -110,7 +110,15 @@ conda run -n deerflow-street python /mnt/skills/custom/location-matcher/scripts/
 
 ## 重要提醒
 
-1. **执行环境：** 必须使用 `conda run -n deerflow-street` 执行所有 Python 脚本，确保在正确的 Conda 环境中运行
-2. **路径格式：** 所有脚本路径必须使用绝对路径格式 `/mnt/skills/custom/location-matcher/scripts/...`
+1. **执行环境：** 沙箱使用 `/opt/rs-venv/bin/python`，其中已安装 requests 和 Elasticsearch 客户端；不要调用不存在的 Conda 环境。宿主机开发时使用安装了本技能 pyproject.toml 依赖的 Python
+2. **路径格式：** 所有脚本路径必须使用绝对路径格式 `/mnt/skills/custom/street_view_image/location-matcher/scripts/...`
 3. **工具调用规范：** 调用工具时的 `description` 字段一律使用**中文**描述
 4. **结果验证：** **必须在答案中引用匹配图片， **推荐输出方式：** 为了确保前端可点击，优先在最终回答中输出 Markdown 链接，例如 `[查看原图](/mnt/nas/streetview_meta/queries/247query/247query/01125.jpg)`
+
+## 服务连接与失败处理
+
+- 嵌入服务地址：`--model-service-url` 参数优先，其次 `STREETMODEL_BASE_URL`、`MODEL_SERVICE_URL`，默认 `http://localhost:3130`。
+- `localhost` 仅在服务与沙箱共享网络命名空间，或主机网络沙箱已建立本机 SSH 转发时可用。桥接网络应配置实际可达的服务地址；不能直接照抄 localhost。
+- 服务地址可通过项目 `sandbox.environment.STREETMODEL_BASE_URL` 注入。确认真实运维地址后再配置；不要轮询猜测服务器或改动索引。
+- 脚本返回 `MODEL_SERVICE_CONNECTION_FAILED`、`MODEL_SERVICE_TIMEOUT` 或 HTTP 错误时，报告连接失败及具体服务地址。不得把连接失败说成“未检索到匹配地点”，也不得仅凭招牌猜精确位置。
+- 检索出的候选必须逐一查看原图；不能查看时说明尚未完成视觉核验。

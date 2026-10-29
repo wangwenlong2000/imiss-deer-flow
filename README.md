@@ -200,6 +200,16 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
 
 5. **Access**: http://localhost:2026
 
+### 轻量多会话并发
+
+网页和手机端继续使用原有会话/任务接口。启动入口默认显式配置两个图任务并行，其他任务进入原有队列；运行中与排队任务合计默认最多10个，满载返回429及稍后重试提示。网页显示当前任务实际的排队/处理状态。
+
+`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。此功能用于单机多会话演示，未增加账号或用户权限隔离。实现、测试范围及两台电脑的演示步骤见[并发实现记录](docs/concurrency-implementation-20261029.md)。
+
+已补做三会话真实模型、工具和沙箱验证：两个任务重叠执行，第三个等待后自动开始；三个同名CSV输入各自得到正确回答和下载件，同会话解释追问也通过。该结果仅覆盖本次小型道路CSV样例。
+
+文件交付阶段只展示下载卡片，分析正文统一展示后续正式答复，避免工具调用时附带的分析文字与最终答案重复。[显示修复记录](docs/duplicate-answer-display-fix-20261029.md)
+
 ### Advanced
 #### Sandbox Mode
 
@@ -593,3 +603,7 @@ Your unwavering commitment and expertise have been the driving force behind Deer
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=bytedance/deer-flow&type=Date)](https://star-history.com/#bytedance/deer-flow&Date)
+
+### 场景服务修复（2026-10-28）
+
+绿地评估按真实分辨率和边界有效像元计算；视频缺少拍摄时间时使用相对时间，逐帧检测需设置 `every_frame=true`。工具会导出完整计数和检测框CSV，20帧预览不代表只处理了20帧。街景技能使用 `/mnt/skills/custom/street_view_image/location-matcher` 和 `/opt/rs-venv/bin/python`，嵌入地址可用 `STREETMODEL_BASE_URL` 配置；服务故障会明确返回连接错误。发布范围与运行限制见 [版本说明](docs/release-concurrency-20261029.md)。

@@ -154,7 +154,7 @@ start_services() {
     echo "Starting LangGraph on port $LANGGRAPH_PORT..."
     (
         cd "$REPO_ROOT/backend"
-        NO_COLOR=1 "$uv_bin" run langgraph dev --host 127.0.0.1 --port "$LANGGRAPH_PORT" --no-browser --allow-blocking > "$LOG_DIR/langgraph.log" 2>&1
+        NO_COLOR=1 "$uv_bin" run langgraph dev --host 127.0.0.1 --port "$LANGGRAPH_PORT" --no-browser --allow-blocking --n-jobs-per-worker "${DEER_FLOW_GRAPH_JOBS:-2}" > "$LOG_DIR/langgraph.log" 2>&1
     ) &
     echo $! > "$PID_DIR/langgraph.pid"
 

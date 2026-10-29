@@ -274,8 +274,8 @@ def extract_coarse_frames(
         # Use ffmpeg to extract frames for this chapter
         cmd = [
             "ffmpeg", "-y",
-            "-ss", str(ch_start),
             "-i", video_path,
+            "-ss", str(ch_start),
             "-t", str(ch_duration),
             "-vf", f"fps={fps}",
             "-qmin", "1", "-q:v", "2",
@@ -395,8 +395,8 @@ def extract_dense_frames(
         # Use a temp prefix for dense frames
         cmd = [
             "ffmpeg", "-y",
-            "-ss", str(win_start),
             "-i", video_path,
+            "-ss", str(win_start),
             "-t", str(win_duration),
             "-vf", f"fps={dense_fps}",
             "-qmin", "1", "-q:v", "2",
@@ -501,8 +501,8 @@ def extract_offset_frames(
 
         cmd = [
             "ffmpeg", "-y",
-            "-ss", str(ch_start),
             "-i", video_path,
+            "-ss", str(ch_start),
             "-t", str(ch_duration),
             "-vf", f"fps={coarse_fps}",
             "-qmin", "1", "-q:v", "2",
@@ -770,6 +770,9 @@ def main():
         fail("EXTRACTION_FAILED", f"Extraction failed: {e}")
 
     elapsed = time.time() - start_time
+
+    if not all_frames:
+        fail("NO_FRAMES_EXTRACTED", "No frames were decoded; event review cannot proceed. Check FFmpeg extraction logs.")
 
     # --- Sort all frames by timestamp ---
     all_frames.sort(key=lambda f: f["timestamp_ms"])

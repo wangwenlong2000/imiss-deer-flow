@@ -5,8 +5,6 @@ USER root
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
     NODE_PATH=/opt/node-deps/node_modules \
-    GDAL_DATA=/usr/share/gdal \
-    PROJ_LIB=/usr/share/proj \
     VIRTUAL_ENV=/opt/rs-venv \
     PATH="/opt/rs-venv/bin:${PATH}"
 

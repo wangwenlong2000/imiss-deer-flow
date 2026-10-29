@@ -5,6 +5,9 @@
     "."
   ],
   "env": ".env",
+  "http": {
+    "app": "./app/graph_http.py:app"
+  },
   "graphs": {
     "lead_agent": "deerflow.agents:make_lead_agent"
   },

@@ -142,6 +142,8 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
         if not (requirements.required_artifact_types or requirements.required_csv_metrics or cls._promised_paths(state)):
             return False
         turn = cls._current_turn(state)
+        if cls._video_review_gaps(turn):
+            return False
         if requirements.requires_computation and not cls._has_execution(turn):
             return False
         if cls._missing_delivery(state, requirements):
@@ -185,6 +187,45 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
                 if message.status != "error" and text and not text.startswith(("Error", "Traceback", "usage:")):
                     return True
         return False
+
+    @staticmethod
+    def _video_review_gaps(turn):
+        """A successful video plan must execute its event review, then inspect its frames."""
+        payloads = []
+        calls = {call["id"]: call for m in turn if isinstance(m, AIMessage) for call in m.tool_calls}
+        viewed = set()
+        for message in turn:
+            if not isinstance(message, ToolMessage) or message.status == "error":
+                continue
+            if message.name == "view_image" and str(message.content).startswith("Successfully read image"):
+                call = calls.get(message.tool_call_id, {})
+                viewed.add(call.get("args", {}).get("image_path"))
+            if message.name == "bash":
+                try:
+                    data = json.loads(str(message.content))
+                except (ValueError, TypeError):
+                    continue
+                if isinstance(data, dict):
+                    payloads.append(data)
+        planned = any(p.get("skill") == "city-video-intelligence" and p.get("status") == "success"
+                      and "single-video-event-analysis" in p.get("recommended_skill_chain", []) for p in payloads)
+        if not planned:
+            return []
+        plans = [p for p in payloads if p.get("skill") == "city-video-intelligence"]
+        if all(p.get("follow_up_question") for p in plans) and not any(
+            p.get("skill") in {"frame-sampling", "single-video-event-analysis"} for p in payloads
+        ):
+            return []  # Asking for the missing source is a valid terminal response.
+        reviews = [p for p in payloads if p.get("skill") == "single-video-event-analysis"]
+        if not reviews:
+            return ["视频事件计划尚未执行 single-video-event-analysis/scripts/run.py；不能仅用 frame-sampling 代替"]
+        if reviews[-1].get("status") != "success":
+            return []  # Concrete dependency failures can be reported without further visual review.
+        frames = reviews[-1].get("data", {}).get("frames", [])
+        missing = [f for f in frames if f.get("image_uri") not in viewed]
+        if not frames or missing:
+            return [f"视频事件审阅帧尚未全部通过 view_image 核验（未审阅 {len(missing)}/{len(frames)}）；按返回的 image_uri 审阅并引用 frame_id 与相对时间"]
+        return []
 
     @classmethod
     def _promised_paths(cls, state):
@@ -238,6 +279,8 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
         if automatic := cls._delivery_message(state, last, requirements, turn):
             return {"messages": [automatic]}
         missing = []
+        if requirements.allow_tools:
+            missing.extend(cls._video_review_gaps(turn))
         if requirements.requires_computation and not cls._has_execution(turn):
             missing.append("尚无本轮实际计算工具结果")
         missing.extend(cls._missing_delivery(state, requirements))

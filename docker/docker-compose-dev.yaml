@@ -195,6 +195,7 @@ services:
     working_dir: /app
     environment:
       - CI=true
+      - DEER_FLOW_MAX_INFLIGHT_RUNS=${DEER_FLOW_MAX_INFLIGHT_RUNS:-10}
       # The .env file contains host paths; use the mounted container paths here.
       - DEER_FLOW_CONFIG_PATH=/app/config.yaml
       - DEER_FLOW_EXTENSIONS_CONFIG_PATH=/app/extensions_config.json

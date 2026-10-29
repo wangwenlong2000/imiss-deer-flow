@@ -116,6 +116,27 @@ CI runs these regression tests for every pull request via [.github/workflows/bac
 
 ## Architecture
 
+`app/graph_http.py` is the custom HTTP app loaded by `langgraph.json`. Its
+single-process admission middleware uses the installed runtime's `Runs.stats`
+to bound pending + running runs (`DEER_FLOW_MAX_INFLIGHT_RUNS`, default 10).
+The native worker queue still controls execution (`DEER_FLOW_GRAPH_JOBS`,
+default 2 in startup commands). The creation lock ends at response headers,
+after native persistence, not after SSE completion. Reads, cancellation and GET
+stream joins bypass admission; stateful/stateless create, wait, stream and batch
+submissions are checked. Do not replace this with an HTTP connection counter:
+background runs may outlive disconnects. This is a single graph-server demo
+limit, not distributed quota enforcement or a limit on internal tool/subagent
+fan-out. Cron scheduling is outside this admission path. Run
+`python ../scripts/verify_concurrency_runtime.py` using the backend environment
+for an isolated real-runtime queue/CSV-file integration check without LLM calls.
+For an opt-in live business check, run
+`python ../scripts/verify_concurrency_business.py --base-url http://localhost:3328 --output /tmp/concurrency-business-new-run`.
+It creates three synthetic CSV conversations through the original model/tools
+and validates final tables, downloads and pending/running states. It consumes
+model requests; keep its raw SSE/state private and publish only sanitized
+metrics and synthetic CSVs. The real three-conversation validation and follow-up
+results are documented in `docs/concurrency-implementation-20261029.md` at repo root.
+
 `routing/turn_requirements.py` defines the shared per-turn contract consumed by
 structured recognition, dialogue resume, the completion guard and CSV delivery.
 Do not inherit computation/export requirements unchanged on explanation turns.
@@ -807,3 +828,9 @@ See `docs/` directory for detailed documentation:
 - [plan_mode_usage.md](docs/plan_mode_usage.md) - Plan mode with TodoList
 
 Small-table data inspection includes every input row up to 20 rows; larger tables retain a five-row preview explicitly marked incomplete. Explanation-only turns must use observed rows rather than reconstructing records from aggregates. This adds no model or tool call.
+
+## Scene service regression checks (2026-10-28)
+
+`tests/test_scene_service_fixes.py` covers native-frame tool parameters and the computation guard: a successful city-video event plan must execute single-video-event-analysis and actually view its returned review frames. Frame sampling, detections and tracks preserve relative offsets when shooting time is unknown; `every_frame` uses a half-open time window. Additional GIS/media integration checks and source-video fixtures are retained locally; the released self-contained backend tests cover the tool contracts. Older sandbox images require their wheel-bundled PROJ/GDAL paths in sandbox.environment; new images no longer force the older system databases. Do not publish populated config.yaml or raw live traces.
+
+Video object analytics exports full CSVs inside the sandbox and returns only a bounded frame preview; do not print complete detection JSON through the shell API (large results are truncated). The event extractor uses output-side FFmpeg seeking for AVI compatibility and rejects zero-frame results. Local integration checks include the original AVI and 125-row lossless export; the original media is not published.

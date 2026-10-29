@@ -94,7 +94,7 @@ services:
       context: ../
       dockerfile: backend/Dockerfile
     container_name: gaozhuohui-deer-flow-langgraph
-    command: sh -c "cd /app/backend && uv run langgraph dev --no-browser --allow-blocking --no-reload --host 0.0.0.0 --port 3329"
+    command: sh -c "cd /app/backend && uv run langgraph dev --no-browser --allow-blocking --no-reload --n-jobs-per-worker ${DEER_FLOW_GRAPH_JOBS:-2} --host 0.0.0.0 --port 3329"
     volumes:
       - ${DEER_FLOW_CONFIG_PATH}:/app/config.yaml:ro
       - ${DEER_FLOW_EXTENSIONS_CONFIG_PATH}:/app/extensions_config.json:ro
@@ -105,6 +105,7 @@ services:
       - ${DEER_FLOW_DOCKER_SOCKET}:/var/run/docker.sock
     environment:
       - CI=true
+      - DEER_FLOW_MAX_INFLIGHT_RUNS=${DEER_FLOW_MAX_INFLIGHT_RUNS:-10}
       - DEER_FLOW_HOME=/app/backend/.deer-flow
       - DEER_FLOW_CONFIG_PATH=/app/config.yaml
       - DEER_FLOW_EXTENSIONS_CONFIG_PATH=/app/extensions_config.json

@@ -1,5 +1,4 @@
 {
-  "now": "2026-05-20T10:00:00+08:00",
   "output_dir": "/mnt/data/video-monitoring-runs/default",
   "default_capture_seconds": 10,
   "cameras": {

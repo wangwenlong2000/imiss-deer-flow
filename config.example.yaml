@@ -334,6 +334,10 @@ sandbox:
 #   #   DEBUG: "false"
 #   #   API_KEY: $MY_API_KEY        # Reads from host's MY_API_KEY env var
 #   #   DATABASE_URL: $DATABASE_URL  # Reads from host's DATABASE_URL env var
+#   #   STREETMODEL_BASE_URL: http://reachable-model-host:3130
+#   # If an older sandbox image sets PROJ_LIB=/usr/share/proj, override PROJ_LIB
+#   # and PROJ_DATA with that image's rasterio/proj_data directory, and GDAL_DATA
+#   # with rasterio/gdal_data. Newly built images omit these global overrides.
 
 # Option 3: Provisioner-managed AIO Sandbox (docker-compose-dev)
 # Each sandbox_id gets a dedicated Pod in k3s, managed by the provisioner.

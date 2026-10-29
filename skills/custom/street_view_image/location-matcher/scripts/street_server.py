@@ -50,7 +50,7 @@ from typing import Any
 
 import requests
 
-_BASE_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:3130")
+_BASE_URL = os.getenv("STREETMODEL_BASE_URL") or os.getenv("MODEL_SERVICE_URL") or "http://localhost:3130"
 _DEFAULT_TIMEOUT = int(os.getenv("MODEL_SERVICE_TIMEOUT", "120"))
 MultiModalItem = dict[str, Any]
 
@@ -63,6 +63,37 @@ _INSTRUCTION_MAP = {
     "street_appearance": "Represent this street-view image as a semantic embedding for street appearance issue retrieval, focusing on unauthorized outdoor business operations, road encroachments, illegal postings or banners, unauthorized advertisements, and phenomena affecting street tidiness and order.",
     "municipal_facility": "Represent this street-view image as a semantic embedding for municipal facility issue retrieval, focusing on the absence, damage, tilting, or abnormal condition of public infrastructure such as streetlights, signage, guardrails, bus shelters, and manhole covers.",
 }
+
+
+class ModelServiceError(RuntimeError):
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+
+
+def configure_base_url(base_url: str) -> None:
+    from urllib.parse import urlsplit
+    parsed = urlsplit(base_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("Model service URL must be an absolute http(s) URL")
+    global _BASE_URL
+    _BASE_URL = base_url.rstrip("/")
+
+
+def _request(method: str, path: str, timeout: int, **kwargs):
+    url = _url(path)
+    try:
+        request = requests.get if method == "get" else requests.post
+        response = request(url, timeout=(min(5, timeout), timeout), **kwargs)
+        response.raise_for_status()
+        return response
+    except requests.Timeout as exc:
+        raise ModelServiceError("MODEL_SERVICE_TIMEOUT", f"街景嵌入服务超时: {url}") from exc
+    except requests.ConnectionError as exc:
+        raise ModelServiceError("MODEL_SERVICE_CONNECTION_FAILED", f"无法连接街景嵌入服务: {url}；请核对服务地址或 SSH 转发") from exc
+    except requests.HTTPError as exc:
+        code = exc.response.status_code if exc.response is not None else "unknown"
+        raise ModelServiceError("MODEL_SERVICE_HTTP_ERROR", f"街景嵌入服务返回 HTTP {code}: {url}") from exc
 
 
 def _url(path: str) -> str:
@@ -87,7 +118,7 @@ def health(timeout: int = _DEFAULT_TIMEOUT) -> dict[str, Any]:
     Raises:
         requests.HTTPError: on non-2xx response.
     """
-    resp = requests.get(_url("/health"), timeout=timeout)
+    resp = _request("get", "/health", timeout)
     resp.raise_for_status()
     return resp.json()
 
@@ -106,7 +137,7 @@ def list_models(timeout: int = _DEFAULT_TIMEOUT) -> list[dict[str, Any]]:
     Raises:
         requests.HTTPError: on non-2xx response.
     """
-    resp = requests.get(_url("/models"), timeout=timeout)
+    resp = _request("get", "/models", timeout)
     resp.raise_for_status()
     return resp.json().get("models", [])
 
@@ -162,7 +193,7 @@ def embed(
     if instruction is not None:
         payload["instruction"] = instruction
 
-    resp = requests.post(_url("/embed"), json=payload, timeout=timeout)
+    resp = _request("post", "/embed", timeout, json=payload)
     resp.raise_for_status()
     return resp.json()["embeddings"]
 
@@ -283,7 +314,7 @@ def rerank(
     if instruction is not None:
         payload["instruction"] = instruction
 
-    resp = requests.post(_url("/rerank"), json=payload, timeout=timeout)
+    resp = _request("post", "/rerank", timeout, json=payload)
     resp.raise_for_status()
     return resp.json()["scores"]
 
@@ -364,7 +395,7 @@ def batch(
     if output_dir is not None:
         payload["output_dir"] = output_dir
 
-    resp = requests.post(_url("/batch"), json=payload, timeout=timeout)
+    resp = _request("post", "/batch", timeout, json=payload)
     resp.raise_for_status()
     return resp.json()
 

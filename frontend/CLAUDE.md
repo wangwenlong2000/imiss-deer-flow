@@ -32,6 +32,24 @@ Frontend (Next.js) ──▶ LangGraph SDK ──▶ LangGraph Backend (lead_age
 
 The frontend is a stateful chat application. Users create **threads** (conversations), send messages, and receive streamed AI responses. The backend orchestrates agents that can produce **artifacts** (files/code) and **todos**.
 
+`useThreadStream` records the SDK's created thread/run IDs and polls that exact
+run once per second while its stream is loading. `MessageList` displays pending
+or running status beside the existing indicator. Polling is disabled for mock
+mode and finished streams; failed status queries do not interrupt SSE. Before
+run metadata arrives (or after a reconnect without metadata), use a neutral
+waiting label rather than claiming execution has begun. Run errors appear in a
+toast, including the graph server's queue-full message. Preserve the existing
+compliance/custom events, upload and resumable streaming options.
+
+`MessageList` renders `assistant:present-files` groups as file cards only. Text
+attached to the `present_files` AI tool call is an intermediate draft, not a
+second answer; it must not be rendered as Markdown beside the separately
+rendered final message. Keep tool results and filepaths intact. The final
+message continues through the normal compliance-aware `MessageListItem` path.
+`message-list.test.ts` renders the real list and grouping/history merge code
+with mocked visual primitives; run it with Node's `--experimental-strip-types
+--test` alongside the existing frontend tests.
+
 ### Source Layout (`src/`)
 
 - **`app/`** — Next.js App Router. Routes: `/` (landing), `/workspace/chats/[thread_id]` (chat).

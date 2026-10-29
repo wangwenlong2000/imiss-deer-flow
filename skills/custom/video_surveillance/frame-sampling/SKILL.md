@@ -22,7 +22,7 @@ Run this skill directly with its own script. The script does not call other skil
 python frame-sampling/scripts/run.py --video <video.mp4> --camera-id <camera_id> --capture-seconds 10 --interval-seconds 1 --output-dir <run_dir> --config <config.json> --output <frames.json>
 ```
 
-Parameters: `--video`, `--frames-json`, `--camera-id`, `--capture-seconds`, `--interval-seconds`, `--fps`, `--output-dir`, `--config`, `--output`.
+Parameters: `--every-frame`, `--started-at`, `--video`, `--frames-json`, `--camera-id`, `--capture-seconds`, `--interval-seconds`, `--fps`, `--output-dir`, `--config`, `--output`.
 
 ## Workflow
 
@@ -38,7 +38,7 @@ This skill is implemented as an atomic standalone script in its own `scripts/run
 ## Inputs
 
 Required:
-- `camera_id`
+- 本地视频路径；`camera_id` 未知时可留空。
 
 Common fields:
 - `raw_segment_uri`
@@ -61,3 +61,5 @@ Returns `frames`, each with `frame_id`, `camera_id`, `timestamp`, `image_uri`, `
 ## Constraints
 
 Do not run detection, tracking, event recognition, or evidence annotation.
+
+未提供 started_at 时，timestamp 为 null，time_reference 为 relative，使用 source_elapsed_seconds 和 timestamp_display；忽略配置文件中的示例 now。相对时间以第一解码帧的 PTS 为零，另保存 source_pts_seconds。逐帧请求使用 --every-frame，时间窗是左闭右开；间隔抽样不能称作逐帧检测。

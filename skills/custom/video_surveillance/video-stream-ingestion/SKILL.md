@@ -73,3 +73,5 @@ These cover the usual "duration / resolution / frame rate / codec" request, so t
 Do not detect objects, sample frames, create events, or generate evidence.
 
 This skill's output is the authoritative source of video metadata. Report only the fields it returns. Camera ID must come from the request; location and shooting time are external business records that this skill cannot determine — leave them out rather than inferring them. Never fill metadata from `skills/custom/video_surveillance/examples/` or from any file marked `"_example": true`.
+
+未知拍摄时间和摄像头时 started_at/ended_at/camera_id 保持 null；不得从 config.now 或示例填入。duration_seconds 保留小数，默认读取完整文件时长。只有输入中的 started_at 才能建立绝对时间；未提供时 time_reference=relative。

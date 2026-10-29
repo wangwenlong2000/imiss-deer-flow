@@ -68,6 +68,10 @@ export function useThreadStream({
   // and to allow access to the current thread id in onUpdateEvent
   const threadIdRef = useRef<string | null>(threadId ?? null);
   const startedRef = useRef(false);
+  const [activeRun, setActiveRun] = useState<{
+    threadId: string;
+    runId: string;
+  } | null>(null);
 
   const listeners = useRef({
     onStart,
@@ -126,6 +130,7 @@ export function useThreadStream({
     reconnectOnMount: true,
     fetchStateHistory: { limit: 1 },
     onCreated(meta) {
+      setActiveRun({ threadId: meta.thread_id, runId: meta.run_id });
       handleStreamStart(meta.thread_id);
       setOnStreamThreadId(meta.thread_id);
     },
@@ -192,6 +197,26 @@ export function useThreadStream({
       listeners.current.onFinish?.(state.values);
       void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
     },
+    onError(error) {
+      setOptimisticMessages([]);
+      toast.error(error instanceof Error ? error.message : t.common.taskFailed);
+    },
+  });
+
+  // Query the exact run, never the latest run of another/current thread. A
+  // pending native run is genuinely queued; an open SSE connection is not proof
+  // that execution has started. Failure to poll must not interrupt chat/SSE.
+  const { data: run } = useQuery({
+    queryKey: ["run-status", activeRun?.threadId, activeRun?.runId],
+    queryFn: () =>
+      getAPIClient(isMock).runs.get(activeRun!.threadId, activeRun!.runId),
+    enabled:
+      !isMock &&
+      thread.isLoading &&
+      activeRun !== null &&
+      activeRun.threadId === onStreamThreadId,
+    refetchInterval: 1000,
+    retry: false,
   });
 
   const displayMessages = displayMessagesOfThread(thread);
@@ -218,6 +243,7 @@ export function useThreadStream({
       extraContext?: Record<string, unknown>,
     ) => {
       const text = message.text.trim();
+      setActiveRun(null);
 
       // Capture current count before showing optimistic messages
       prevMsgCountRef.current = displayMessages.length;
@@ -408,7 +434,14 @@ export function useThreadStream({
           messages: displayMessages,
         } as typeof thread);
 
-  return [mergedThread, sendMessage] as const;
+  return [
+    {
+      ...mergedThread,
+      runStatus:
+        activeRun?.threadId === onStreamThreadId ? run?.status : undefined,
+    },
+    sendMessage,
+  ] as const;
 }
 
 export function useThreads(

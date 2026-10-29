@@ -215,7 +215,7 @@ def main() -> int:
     input_data = load_input(args.input)
     config_path = args.config or (str(DEFAULT_CONFIG_PATH) if DEFAULT_CONFIG_PATH.is_file() else None)
     config = load_config(config_path)
-    camera_id = args.camera_id or input_value(input_data, "camera_id", default="CAM_DEERFLOW_001")
+    camera_id = args.camera_id or input_value(input_data, "camera_id")
     tracking = config.get("tracking", {})
     max_dist = args.association_distance_pixels or input_value(input_data, "association_distance_pixels") or tracking.get("association_distance_pixels", 80)
     stationary = args.stationary_distance_pixels or input_value(input_data, "stationary_distance_pixels") or tracking.get("stationary_distance_pixels", 20)
@@ -223,7 +223,7 @@ def main() -> int:
     precomputed_tracks = input_list(input_data, "tracks")
     if precomputed_tracks and not detections_source:
         return emit(success(SKILL, {"tracks": precomputed_tracks}), args.output)
-    detections = sorted(detections_source, key=lambda d: d.get("timestamp") or "")
+    detections = sorted(detections_source, key=lambda d: (0, float(d["source_elapsed_seconds"])) if d.get("source_elapsed_seconds") is not None else (1, d.get("timestamp") or ""))
     active = []
     for det in detections:
         for obj in det.get("objects", []):
@@ -232,9 +232,10 @@ def main() -> int:
             if candidates:
                 track = min(candidates, key=lambda t: distance(t["trajectory"][-1], center))
             else:
-                track = {"track_id": f"track_{len(active)+1:04d}", "camera_id": camera_id, "label": obj.get("label"), "start_time": det.get("timestamp"), "trajectory": [], "confidences": [], "evidence_frame_ids": []}
+                track = {"track_id": f"track_{len(active)+1:04d}", "camera_id": camera_id, "label": obj.get("label"), "start_time": det.get("timestamp"), "start_elapsed_seconds": det.get("source_elapsed_seconds"), "trajectory": [], "confidences": [], "evidence_frame_ids": []}
                 active.append(track)
             track["end_time"] = det.get("timestamp")
+            track["end_elapsed_seconds"] = det.get("source_elapsed_seconds")
             track["last_bbox"] = obj.get("bbox")
             track["trajectory"].append(center)
             track["confidences"].append(float(obj.get("confidence", 0)))
@@ -242,10 +243,14 @@ def main() -> int:
                 track["evidence_frame_ids"].append(det["frame_id"])
     tracks = []
     for t in active:
-        start = parse_time(t.get("start_time"))
-        end = parse_time(t.get("end_time"), start)
+        if t.get("start_elapsed_seconds") is not None and t.get("end_elapsed_seconds") is not None:
+            duration = max(0, float(t["end_elapsed_seconds"]) - float(t["start_elapsed_seconds"]))
+        elif t.get("start_time") and t.get("end_time"):
+            duration = max(0, (parse_time(t["end_time"]) - parse_time(t["start_time"])).total_seconds())
+        else:
+            duration = None
         disp = distance(t["trajectory"][0], t["trajectory"][-1]) if len(t["trajectory"]) > 1 else 0
-        tracks.append({"track_id": t["track_id"], "camera_id": t["camera_id"], "label": t["label"], "start_time": t.get("start_time"), "end_time": t.get("end_time"), "duration_seconds": max(0, int((end-start).total_seconds())), "last_bbox": t.get("last_bbox"), "trajectory": [[round(x,2), round(y,2)] for x,y in t["trajectory"]], "movement_state": "stationary" if disp <= stationary else "moving", "confidence": round(sum(t["confidences"])/max(len(t["confidences"]),1),4), "evidence_frame_ids": t["evidence_frame_ids"]})
+        tracks.append({"track_id": t["track_id"], "camera_id": t["camera_id"], "label": t["label"], "start_time": t.get("start_time"), "end_time": t.get("end_time"), "start_elapsed_seconds": t.get("start_elapsed_seconds"), "end_elapsed_seconds": t.get("end_elapsed_seconds"), "time_reference": "absolute" if t.get("start_time") else "relative", "duration_seconds": duration, "last_bbox": t.get("last_bbox"), "trajectory": [[round(x,2), round(y,2)] for x,y in t["trajectory"]], "movement_state": "stationary" if disp <= stationary else "moving", "confidence": round(sum(t["confidences"])/max(len(t["confidences"]),1),4), "evidence_frame_ids": t["evidence_frame_ids"]})
     return emit(success(SKILL, {"tracks": tracks}), args.output)
 
 if __name__ == "__main__":
