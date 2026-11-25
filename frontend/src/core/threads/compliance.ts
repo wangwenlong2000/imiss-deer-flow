@@ -1,27 +1,17 @@
 import type { Message } from "@langchain/langgraph-sdk";
 
 /**
- * Compliance OutputGate retraction.
+ * Compliance OutputGate display metadata and compatibility retractions.
  *
- * Strict scenes buffer and inspect before delivery. Compatibility scenes keep
- * streaming and retract on a hit. When a violation lands the backend:
- *
- *   1. emits a `compliance_retract` custom stream event — handled here, so the
- *      offending text leaves the screen immediately;
- *   2. rewrites the `AIMessage` in `after_model` — which arrives through the
- *      normal `values` / `messages` stream a moment later.
- *
- * Step 2 alone would leave the violation visible until the run finishes; step 1
- * alone would let a page refresh bring it back. Both are needed.
+ * First-party streams request only `values` and `updates`. The OutputGate
+ * rewrites the model response before it enters graph state, so those snapshots
+ * contain only checked text. This module retains support for a
+ * `compliance_retract` event if an integration explicitly consumes that legacy
+ * protocol; the first-party client does not subscribe to arbitrary custom
+ * events because they can carry unchecked tool or subagent text.
  *
  * Retractions are held in a module-level store because `displayMessagesOfThread`
  * is a pure function called from several places (message list, artifact loader).
- * Routing the replacement through the store means every caller sees the
- * retracted content without threading extra props through the tree.
- *
- * The after-the-fact window applies only to compatibility scenes. Strict
- * `cross_org`, `public_release`, and `research_anon` suppress original model
- * chunks before this parser can observe them.
  */
 export type ComplianceRetractEvent = {
   type: "compliance_retract";

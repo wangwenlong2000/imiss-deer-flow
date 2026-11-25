@@ -5,9 +5,11 @@ import shlex
 from dataclasses import dataclass
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
+from app.gateway.thread_access import require_thread_access
+from app.gateway.upload_transaction import thread_upload_transaction
 from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
 from deerflow.sandbox.sandbox_provider import get_sandbox_provider
 from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
@@ -29,8 +31,25 @@ class _UploadArtifactSnapshot:
     content: bytes | None
 
 
+def _check_upload_path(path: Path, uploads_dir: Path) -> None:
+    """Reject redirected upload directories and symlink file targets.
+
+    Paths are derived from the authorized thread, never from a resolved target
+    that might already point into another thread's files.
+    """
+    root = uploads_dir.absolute()
+    target = path.absolute()
+    try:
+        safe = root == root.resolve() and target == target.resolve() and target.is_relative_to(root)
+    except (OSError, RuntimeError):
+        safe = False
+    if not safe:
+        raise HTTPException(status_code=403, detail="Upload path is outside the thread upload directory")
+
+
 def _snapshot_artifact(path: Path, virtual_path: str) -> _UploadArtifactSnapshot:
     """Capture one file before an upload can overwrite or create it."""
+    _check_upload_path(path, path.parent)
     if path.is_file():
         return _UploadArtifactSnapshot(
             path=path,
@@ -43,6 +62,7 @@ def _snapshot_artifact(path: Path, virtual_path: str) -> _UploadArtifactSnapshot
 
 def _restore_artifact(snapshot: _UploadArtifactSnapshot) -> None:
     """Restore the host-side artifact without following an unexpected path."""
+    _check_upload_path(snapshot.path, snapshot.path.parent)
     if snapshot.existed:
         snapshot.path.write_bytes(snapshot.content or b"")
     else:
@@ -59,10 +79,12 @@ def _rollback_uploads(thread_id: str, snapshots: list[_UploadArtifactSnapshot]) 
     from a basename validated by ``save_thread_upload_from_bytes``; quoting it
     here keeps the fallback shell operation bounded to that exact file.
     """
+    restored = []
     for snapshot in reversed(snapshots):
         try:
             _restore_artifact(snapshot)
-        except OSError:
+            restored.append(snapshot)
+        except (OSError, HTTPException):
             logger.exception("compliance: failed to restore upload artifact %s", snapshot.path)
 
     try:
@@ -71,7 +93,7 @@ def _rollback_uploads(thread_id: str, snapshots: list[_UploadArtifactSnapshot]) 
         sandbox = sandbox_provider.get(sandbox_id)
         if sandbox_id == "local" or sandbox is None:
             return
-        for snapshot in reversed(snapshots):
+        for snapshot in restored:
             try:
                 if snapshot.existed:
                     sandbox.update_file(snapshot.virtual_path, snapshot.content or b"")
@@ -101,6 +123,7 @@ def get_uploads_dir(thread_id: str) -> Path:
         Path to the uploads directory.
     """
     base_dir = get_paths().sandbox_uploads_dir(thread_id)
+    _check_upload_path(base_dir, base_dir)
     base_dir.mkdir(parents=True, exist_ok=True)
     return base_dir
 
@@ -135,6 +158,13 @@ async def save_thread_upload_from_bytes(
 
     uploads_dir = get_uploads_dir(thread_id)
     paths = get_paths()
+    file_path = uploads_dir / safe_filename
+    _check_upload_path(file_path, uploads_dir)
+    file_ext = file_path.suffix.lower()
+    if file_ext in CONVERTIBLE_EXTENSIONS:
+        # The converter writes its sibling markdown file. Check that target
+        # before conversion, including when the input file itself is safe.
+        _check_upload_path(file_path.with_suffix(".md"), uploads_dir)
 
     sandbox_provider = get_sandbox_provider()
     sandbox_id, sandbox = None, None
@@ -142,7 +172,6 @@ async def save_thread_upload_from_bytes(
         sandbox_id = sandbox_provider.acquire(thread_id)
         sandbox = sandbox_provider.get(sandbox_id)
 
-    file_path = uploads_dir / safe_filename
     if rollback is not None:
         rollback.append(_snapshot_artifact(file_path, f"{VIRTUAL_PATH_PREFIX}/uploads/{safe_filename}"))
     file_path.write_bytes(content)
@@ -164,13 +193,13 @@ async def save_thread_upload_from_bytes(
 
     logger.info(f"Saved file: {safe_filename} ({len(content)} bytes) to {relative_path}")
 
-    file_ext = file_path.suffix.lower()
     if file_ext in CONVERTIBLE_EXTENSIONS:
         md_path = file_path.with_suffix(".md")
         if rollback is not None:
             rollback.append(_snapshot_artifact(md_path, f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"))
         md_path = await convert_file_to_markdown(file_path)
         if md_path:
+            _check_upload_path(md_path, uploads_dir)
             _set_cross_user_writable(md_path)
             md_relative_path = str(paths.sandbox_uploads_dir(thread_id) / md_path.name)
             md_virtual_path = f"{VIRTUAL_PATH_PREFIX}/uploads/{md_path.name}"
@@ -191,8 +220,15 @@ async def save_thread_upload_from_bytes(
 @router.post("", response_model=UploadResponse)
 async def upload_files(
     thread_id: str,
+    request: Request = None,
     files: list[UploadFile] = File(...),
 ) -> UploadResponse:
+    await require_thread_access(request, thread_id, operation_type="upload")
+    async with thread_upload_transaction(thread_id):
+        return await _upload_files_locked(thread_id, files)
+
+
+async def _upload_files_locked(thread_id: str, files: list[UploadFile]) -> UploadResponse:
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
 
@@ -218,13 +254,16 @@ async def upload_files(
         except HTTPException:
             _rollback_uploads(thread_id, rollback)
             raise
-        except Exception as e:
+        except BaseException as exc:
+            if not isinstance(exc, Exception):
+                _rollback_uploads(thread_id, rollback)
+                raise
             _rollback_uploads(thread_id, rollback)
-            logger.error(f"Failed to upload {file.filename}: {e}")
+            logger.error(f"Failed to upload {file.filename}: {exc}")
             raise HTTPException(
                 status_code=500,
-                detail=f"Failed to upload {file.filename}: {str(e)}",
-            )
+                detail=f"Failed to upload {file.filename}: {str(exc)}",
+            ) from exc
 
     # Compliance InputGate: scan after the files land and any conversion has run,
     # but BEFORE reporting success — a violating upload must never be acknowledged
@@ -250,16 +289,41 @@ def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> 
     """
     try:
         from deerflow.agents.middlewares.compliance_input_gate_middleware import scan_upload_paths
-        from deerflow.compliance.runtime import gate_enabled, user_notice
+        from deerflow.compliance.normalizers.user_input import IMAGE_SUFFIXES, TEXT_SUFFIXES
+        from deerflow.compliance.runtime import INCOMPLETE_SCAN_NOTICE, gate_enabled, user_notice
 
         if not gate_enabled("InputGate"):
             return None
 
-        paths = [str(info["path"]) for info in uploaded_files if info.get("path")]
+        paths: list[str] = []
+        unsupported: list[str] = []
+        for info in uploaded_files:
+            original_path = str(info.get("path") or "")
+            filename = str(info.get("filename") or original_path)
+            suffix = Path(filename).suffix.lower()
+            markdown_path = str(info.get("markdown_path") or "")
+
+            if suffix in IMAGE_SUFFIXES:
+                # Image contents are outside this scanner's scope.
+                continue
+            if suffix in TEXT_SUFFIXES:
+                if original_path:
+                    paths.append(original_path)
+                continue
+            if markdown_path and Path(markdown_path).is_file():
+                paths.append(markdown_path)
+            else:
+                unsupported.append(filename)
+
+        if unsupported:
+            names = ", ".join(unsupported[:5])
+            return f"【合规检查未完成】未能从以下文件提取可检查文本，已拒绝上传：{names}。"
         if not paths:
             return None
 
         decision = scan_upload_paths(paths, thread_id=thread_id)
+        if decision.diagnostics.truncated:
+            return INCOMPLETE_SCAN_NOTICE
         if "refuse" in decision.actions:
             logger.warning("compliance: rejected upload for thread %s: %s", thread_id, decision.actions)
             return user_notice(decision)
@@ -280,7 +344,7 @@ def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> 
 
 
 @router.get("/list", response_model=dict)
-async def list_uploaded_files(thread_id: str) -> dict:
+async def list_uploaded_files(thread_id: str, request: Request = None) -> dict:
     """List all files in a thread's uploads directory.
 
     Args:
@@ -289,14 +353,17 @@ async def list_uploaded_files(thread_id: str) -> dict:
     Returns:
         Dictionary containing list of files with their metadata.
     """
+    await require_thread_access(request, thread_id, operation_type="analysis")
     uploads_dir = get_uploads_dir(thread_id)
+    _check_upload_path(uploads_dir, uploads_dir)
 
     if not uploads_dir.exists():
         return {"files": [], "count": 0}
 
     files = []
     for file_path in sorted(uploads_dir.iterdir()):
-        if file_path.is_file():
+        if not file_path.is_symlink() and file_path.is_file():
+            _check_upload_path(file_path, uploads_dir)
             stat = file_path.stat()
             relative_path = str(get_paths().sandbox_uploads_dir(thread_id) / file_path.name)
             files.append(
@@ -315,7 +382,7 @@ async def list_uploaded_files(thread_id: str) -> dict:
 
 
 @router.delete("/{filename}")
-async def delete_uploaded_file(thread_id: str, filename: str) -> dict:
+async def delete_uploaded_file(thread_id: str, filename: str, request: Request = None) -> dict:
     """Delete a file from a thread's uploads directory.
 
     Args:
@@ -325,8 +392,10 @@ async def delete_uploaded_file(thread_id: str, filename: str) -> dict:
     Returns:
         Success message.
     """
+    await require_thread_access(request, thread_id, operation_type="upload")
     uploads_dir = get_uploads_dir(thread_id)
     file_path = uploads_dir / filename
+    _check_upload_path(file_path, uploads_dir)
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail=f"File not found: {filename}")

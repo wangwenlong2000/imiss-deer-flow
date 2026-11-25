@@ -1,9 +1,8 @@
-"""ContextGate — inspect retrieval results before they enter the LLM context.
+"""ContextGate — inspect tool results before they enter the LLM context.
 
-Wraps every tool call. When the result is a ``SkillResult``, its evidence is
-normalized into detection units, checked, and rewritten in place if the
-disposition matrix says so. Anything that is not a ``SkillResult`` passes through
-completely untouched.
+Wraps every tool call. ``SkillResult`` evidence is normalized and rewritten in
+place if the disposition matrix says so. Plain text tool results are also
+checked; image blocks are ignored.
 
 Three things this middleware exists to get right
 ------------------------------------------------
@@ -53,8 +52,11 @@ from deerflow.compliance.normalizers.skill_result import (
     evidence_scores,
     try_parse_skill_result,
 )
+from deerflow.compliance.normalizers.base import MAX_FIELD_CHARS, stringify
+from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    INCOMPLETE_SCAN_NOTICE,
     compliance_context,
     decision_types,
     failure_decision,
@@ -82,6 +84,7 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         self._engine = engine  # injected in tests; resolved lazily in production
         self._model_name = model_name
         self._normalizer = SkillResultNormalizer()
+        self._text_normalizer = LlmOutputNormalizer()
 
     # ── hooks ───────────────────────────────────────────────────────────────
 
@@ -112,12 +115,38 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             # Command and friends are control flow, not retrieved content.
             return message
 
-        payload = try_parse_skill_result(message.content)
-        if payload is None:
-            return message
-
         tool_name = str(request.tool_call.get("name") or "unknown_tool")
         request_id = f"ctx-{uuid.uuid4().hex[:12]}"
+
+        payload = try_parse_skill_result(message.content)
+        if payload is None:
+            text = self._plain_tool_text(message.content)
+            if not text.strip():
+                return message
+            try:
+                decision = self._check_text(text, request_id, tool_name, request)
+            except GraphBubbleUp:
+                raise
+            except Exception as exc:
+                logger.exception("compliance: ContextGate detection failed for tool %s", tool_name)
+                decision = failure_decision(GATE, request_id, exc)
+                if not decision.actions:
+                    return message
+                return self._replace_text(message, FAIL_CLOSED_NOTICE)
+
+            if decision.diagnostics.truncated:
+                return self._replace_text(message, INCOMPLETE_SCAN_NOTICE)
+            if not decision.actions or set(decision.actions) <= {"allow"}:
+                return message
+            if has_terminal_refusal(decision.actions, decision.per_violation_actions):
+                return self._replace_text(message, REFUSAL_TEXT)
+
+            replacement = apply_actions(text, decision.actions, decision.hits)
+            if replacement is not None:
+                return self._replace_text(message, replacement)
+            if decision.actions or decision.hits:
+                return self._replace_text(message, f"{text}\n\n{user_notice(decision)}")
+            return message
 
         try:
             decision = self._check(payload, request_id, tool_name, request)
@@ -129,6 +158,15 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             if not decision.actions:
                 return self._annotate_only(message, payload, decision)
             return self._rewrite(message, payload, decision, fail_closed=True)
+
+        if decision.diagnostics.truncated:
+            return self._rewrite(
+                message,
+                payload,
+                decision,
+                fail_closed=True,
+                failure_notice=INCOMPLETE_SCAN_NOTICE,
+            )
 
         # `allow` is a real matrix disposition, not a warning-only result.  A
         # self-use hit must remain byte-for-byte unchanged at this gate.
@@ -142,6 +180,66 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
             return message
 
         return self._rewrite(message, payload, decision, fail_closed=False)
+
+    def _check_text(self, text: str, request_id: str, tool_name: str, request: Any) -> ComplianceDecision:
+        config = gate_config(GATE)
+        message_id = str(getattr(request, "id", None) or request_id)
+        units = self._text_normalizer.to_units(text, gate=GATE, message_id=message_id)
+        if not units:
+            return ComplianceDecision(request_id=request_id, gate=GATE, scene_key="_unknown")
+
+        engine = self._engine or get_engine()
+        manual_context = compliance_context(request)
+        scene_origin, _ = scene_origin_from_state(
+            getattr(request, "state", None),
+            manual_context=manual_context,
+        )
+        return engine.check(
+            units,
+            gate=GATE,
+            request_id=request_id,
+            user=user_context(request),
+            model_name=self._model_name,
+            budget_ms=config.budget_ms,
+            max_units=config.max_units,
+            origin={
+                "tool_name": tool_name,
+                "compliance_context": manual_context,
+                **scene_origin,
+            },
+        )
+
+    @staticmethod
+    def _plain_tool_text(content: Any) -> str:
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            non_image = [
+                block
+                for block in content
+                if not (
+                    isinstance(block, dict)
+                    and (
+                        str(block.get("type") or "").lower() in {"image", "image_url"}
+                        or "image_url" in block
+                        or str(block.get("mime_type") or "").lower().startswith("image/")
+                    )
+                )
+            ]
+            # Preserve a sentinel character past the normalization bound so
+            # the engine can mark this result incomplete and fail closed.
+            return stringify(non_image, limit=MAX_FIELD_CHARS + 1)
+        return stringify(content, limit=MAX_FIELD_CHARS + 1)
+
+    @staticmethod
+    def _replace_text(message: ToolMessage, content: str) -> ToolMessage:
+        return ToolMessage(
+            content=content,
+            tool_call_id=message.tool_call_id,
+            name=message.name,
+            status=message.status,
+            id=message.id,
+        )
 
     def _check(
         self,
@@ -210,14 +308,22 @@ class ComplianceContextGateMiddleware(AgentMiddleware[ThreadState]):
         self._append_warnings(mutated, decision)
         return self._replace_content(message, mutated)
 
-    def _rewrite(self, message: ToolMessage, payload: dict[str, Any], decision: ComplianceDecision, *, fail_closed: bool) -> ToolMessage:
+    def _rewrite(
+        self,
+        message: ToolMessage,
+        payload: dict[str, Any],
+        decision: ComplianceDecision,
+        *,
+        fail_closed: bool,
+        failure_notice: str = FAIL_CLOSED_NOTICE,
+    ) -> ToolMessage:
         """Apply the disposition to the ``SkillResult`` and rebuild the message."""
         mutated = copy.deepcopy(payload)
         result = mutated.get("result")
         if isinstance(result, dict):
             transform_actions = set(decision.actions) & {"aggregate", "desensitize", "rewrite"}
             if fail_closed or has_terminal_refusal(decision.actions, decision.per_violation_actions):
-                self._blank_result(result, FAIL_CLOSED_NOTICE if fail_closed else REFUSAL_TEXT)
+                self._blank_result(result, failure_notice if fail_closed else REFUSAL_TEXT)
             elif transform_actions:
                 changed = self._mask_result(result, decision)
                 if not changed:

@@ -214,7 +214,15 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
 
 网页和手机端继续使用原有会话/任务接口。启动入口默认显式配置两个图任务并行，其他任务进入原有队列；运行中与排队任务合计默认最多10个，满载返回429及稍后重试提示。网页显示当前任务实际的排队/处理状态。
 
-`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。此功能用于单机多会话演示，未增加账号或用户权限隔离。实现、测试范围及两台电脑的演示步骤见[并发实现记录](docs/concurrency-implementation-20261029.md)。
+`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。现已支持以服务端验证的 IAM 身份类别和授权任务类别施加可配置的逐用户并发上限；这不替代账号认证或数据权限隔离，需配置 IAM 与签名密钥后启用，详见[多用户并发说明](docs/multi-user-concurrency-20261029.md)。原有实现范围及两台电脑演示步骤见[并发实现记录](docs/concurrency-implementation-20261029.md)。
+
+用户权限改进已加入统一 API 认证、组织与用户归属检查、会话及数据源 SQLite 持久化、记忆全链路隔离，以及上传并发回滚保护。IAM 模式的新任务必须经已认证 Gateway 创建；独立网页直接创建原生任务的流程仍需接入，当前可使用 OneCity 入口。数据中心需显式操作权限，共享平台管理需 `platform:admin`。部署、旧数据迁移和隔离验证见[用户权限与并发改进记录](docs/user-access-and-concurrency-20261112.md)。
+
+多用户权限和并发的前端演示视频及可复现步骤见[录制说明](docs/user-access-concurrency-demo.md)。视频使用独立测试身份和确定性CSV图，不连接生产IAM登录或调用模型。
+
+OneCity 跨平台适配已加入有效账号和工作区校验、本人会话与文件授权、账号切换缓存隔离、令牌退出撤销及角色写入限制。SSE 展示真实提交、排队和执行状态，并保留限额错误。真实 HTTP 双向 IAM 与确定性 CSV 并发验证可运行 `scripts/verify_onecity_multiuser.py`；生产采用独立内网后端，部署和回退见[专用服务说明](docs/onecity-private-multiuser-deployment.md)。
+
+OneCityAgent 可通过[专用多用户服务部署脚本](docs/onecity-private-multiuser-deployment.md)准备独立 Gateway、LangGraph 和数据目录；`prepare` 仅读取现网配置并生成私有部署包，实际启动及 OneCity 流量切换分别执行，不覆盖已有 3328 服务。
 
 已补做三会话真实模型、工具和沙箱验证：两个任务重叠执行，第三个等待后自动开始；三个同名CSV输入各自得到正确回答和下载件，同会话解释追问也通过。该结果仅覆盖本次小型道路CSV样例。
 
@@ -507,9 +515,31 @@ and the message is rewritten so the checkpoint never holds the original. This is
 recovery, not prevention — there is a visible window between a violating token being rendered and
 the retraction arriving, tunable via `incremental_scan.interval_chars`.
 
-The mobile adapter accepts `compliance_identity`, `compliance_context`, and the
-trusted `compliance_request` contract. Runtime identity is forwarded through
-LangGraph `run_context`, while `compliance_request` is written into graph state.
+The mobile adapter accepts `compliance_identity`, `compliance_context`, and
+`compliance_request` compatibility fields. It treats caller-supplied identity
+and request data as hints. A configured server-side IAM provider authenticates
+the caller, checks the requested operation against authoritative resource
+ownership/classification, and builds the trusted contract written into graph
+state. The runtime identity is forwarded through LangGraph `run_context`.
+The checked-in OneCityAgent adapter uses
+`MOBILE_IAM_PROVIDER=app.gateway.onecity_iam:OneCityIAMProvider`,
+`MOBILE_IAM_ENDPOINT=http://<onecity-internal-host>:<A2A_COORDINATOR_PORT>/internal/deerflow/iam`, and
+`MOBILE_IAM_REQUIRED=true`. OneCityAgent validates its login token and confirms
+that the caller owns the requested dialog before DeerFlow accepts a run, upload,
+or artifact request. User and role fields in the request body are hints only.
+The endpoint must reach the Coordinator's internal listener; the IAM bridge is
+not exposed through the public Nginx routes.
+Configure `DEER_FLOW_ADMISSION_SIGNING_KEY` with the same random secret in the
+Gateway and LangGraph services to enable signed per-user and per-task queue
+limits. The [OneCity/IAM contract](docs/compliance/onecity_deerflow_compliance_contract.md)
+documents the bridge and deployment settings.
+
+IAM identity classes use the compliance profiles already defined by the
+project: `ordinary_user`, `internal_operator`, `cross_org_operator`, `publisher`,
+and `researcher`. The policy scene is still derived from the verified
+permission decision, operation, audience, resource ownership, classification,
+and anonymization status. Missing or invalid authorization data resolves to the
+existing `_unknown` policy column.
 InputGate, ContextGate, and OutputGate determinations use one mobile contract:
 `gate`, `scene`, `violation_types`, `actions`, `audit_ref`, `basis`, and
 `final_disposition`. SSE clients receive each new determination as a

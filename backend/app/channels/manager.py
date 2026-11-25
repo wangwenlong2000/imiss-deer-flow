@@ -153,98 +153,6 @@ def _extract_invoke_skill_summary(content: Any) -> str:
     return ""
 
 
-def _extract_text_content(content: Any) -> str:
-    """Extract text from a streaming payload content field."""
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for block in content:
-            if isinstance(block, str):
-                parts.append(block)
-            elif isinstance(block, Mapping):
-                text = block.get("text")
-                if isinstance(text, str):
-                    parts.append(text)
-                else:
-                    nested = block.get("content")
-                    if isinstance(nested, str):
-                        parts.append(nested)
-        return "".join(parts)
-    if isinstance(content, Mapping):
-        for key in ("text", "content"):
-            value = content.get(key)
-            if isinstance(value, str):
-                return value
-    return ""
-
-
-def _merge_stream_text(existing: str, chunk: str) -> str:
-    """Merge either delta text or cumulative text into a single snapshot."""
-    if not chunk:
-        return existing
-    if not existing or chunk == existing:
-        return chunk or existing
-    if chunk.startswith(existing):
-        return chunk
-    if existing.endswith(chunk):
-        return existing
-    return existing + chunk
-
-
-def _extract_stream_message_id(payload: Any, metadata: Any) -> str | None:
-    """Best-effort extraction of the streamed AI message identifier."""
-    candidates = [payload, metadata]
-    if isinstance(payload, Mapping):
-        candidates.append(payload.get("kwargs"))
-
-    for candidate in candidates:
-        if not isinstance(candidate, Mapping):
-            continue
-        for key in ("id", "message_id"):
-            value = candidate.get(key)
-            if isinstance(value, str) and value:
-                return value
-    return None
-
-
-def _accumulate_stream_text(
-    buffers: dict[str, str],
-    current_message_id: str | None,
-    event_data: Any,
-) -> tuple[str | None, str | None]:
-    """Convert a ``messages-tuple`` event into the latest displayable AI text."""
-    payload = event_data
-    metadata: Any = None
-    if isinstance(event_data, (list, tuple)):
-        if event_data:
-            payload = event_data[0]
-        if len(event_data) > 1:
-            metadata = event_data[1]
-
-    if isinstance(payload, str):
-        message_id = current_message_id or "__default__"
-        buffers[message_id] = _merge_stream_text(buffers.get(message_id, ""), payload)
-        return buffers[message_id], message_id
-
-    if not isinstance(payload, Mapping):
-        return None, current_message_id
-
-    payload_type = str(payload.get("type", "")).lower()
-    if "tool" in payload_type:
-        return None, current_message_id
-
-    text = _extract_text_content(payload.get("content"))
-    if not text and isinstance(payload.get("kwargs"), Mapping):
-        text = _extract_text_content(payload["kwargs"].get("content"))
-    if not text:
-        return None, current_message_id
-
-    message_id = _extract_stream_message_id(payload, metadata) or current_message_id or "__default__"
-    buffers[message_id] = _merge_stream_text(buffers.get(message_id, ""), text)
-    return buffers[message_id], message_id
-
-
 def _extract_artifacts(result: dict | list) -> list[str]:
     """Extract artifact paths from the last AI response cycle only.
 
@@ -616,8 +524,6 @@ class ChannelManager:
         logger.info("[Manager] invoking runs.stream(thread_id=%s, text=%r)", thread_id, msg.text[:100])
 
         last_values: dict[str, Any] | list | None = None
-        streamed_buffers: dict[str, str] = {}
-        current_message_id: str | None = None
         latest_text = ""
         last_published_text = ""
         last_publish_at = 0.0
@@ -645,33 +551,20 @@ class ChannelManager:
                 input={"messages": [{"role": "human", "content": msg.text}]},
                 config=run_config,
                 context=run_context,
-                # `custom` carries the compliance OutputGate retract event. Feishu
-                # patches the same card in place, so a retraction lands as an edit of
-                # what the user is already looking at.
-                stream_mode=["messages-tuple", "values", "custom"],
+                # Do not publish token chunks before OutputGate has checked the
+                # complete answer. State snapshots contain the rewritten
+                # message; arbitrary custom payloads may contain unchecked text.
+                stream_mode=["values"],
             ):
                 chunk_index += 1
                 event = getattr(chunk, "event", "")
                 data = getattr(chunk, "data", None)
 
-                if event == "messages-tuple":
-                    accumulated_text, current_message_id = _accumulate_stream_text(streamed_buffers, current_message_id, data)
-                    if accumulated_text:
-                        latest_text = accumulated_text
-                elif event == "values" and isinstance(data, (dict, list)):
+                if event == "values" and isinstance(data, (dict, list)):
                     last_values = data
                     snapshot_text = _extract_response_text(data)
                     if snapshot_text:
                         latest_text = snapshot_text
-                elif event == "custom" and isinstance(data, dict) and data.get("type") == "compliance_retract":
-                    # Replace what has been streamed so far. The rewritten AIMessage
-                    # arrives via `values` too, so this is about retracting sooner,
-                    # not about correctness of the final card.
-                    replacement = data.get("replacement")
-                    if isinstance(replacement, str) and replacement:
-                        latest_text = replacement
-                        streamed_buffers.clear()
-
                 write_run_event_log(
                     thread_id,
                     "runs.stream.chunk",
@@ -683,7 +576,6 @@ class ChannelManager:
                         "event": event,
                         "data": data,
                         "latest_text": latest_text,
-                        "current_message_id": current_message_id,
                     },
                     source="channels.manager",
                 )

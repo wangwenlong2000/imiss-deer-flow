@@ -19,11 +19,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # ⚠️ `_unknown` 列是**临时状态**，不是正式场景。
 #
-# 系统优先从可信的 manual_ui/trusted_upstream 上下文解析使用权限和公开程度；
-# 缺少或无法验证时才落到这一列。填法遵循一条原则：**宁可漏处置，不可误伤**——
+# 系统只从绑定到当前请求的 trusted_upstream 上下文解析使用权限和公开程度；
+# 手工 UI 选择不是身份或权限证明。缺少或无法验证时落到这一列。填法遵循一条原则：
+# **在无法证明合规处置条件时，不向下游放行未审内容**——
 #   · 底线三类（hardcoded_cred / illegal_content / political）：[refuse, warn]
 #     指南 §3 核心规则明写"不分场景……任何场景下都拒答"，场景未知也照拦。
-#   · 其余七类：[warn, manual_review]
+#   · domain 类：[refuse]
+#     场景未知时无法证明是否具备业务权限，拒绝把相关内容传给后续模型。
+#   · 其余六类：[warn, manual_review]
 #     只告警 + 留痕 + 进人工队列，不自动脱敏、不自动拒答。理由：场景未知时
 #     自动脱敏会在 self_use（可能本该放行）下大面积误伤，可用性代价远大于收益；
 #     而告警 + 留痕保留了全部审计能力，可信 scene 到位后切正式列即可。
@@ -276,21 +279,21 @@ matrix:
   # docx 核心规则：第 10 类在 self_use 下为 N/A —— 普通用户无业务权限接触此类信息
   domain:
     InputGate:
-      _unknown: [warn, manual_review]
+      _unknown: [refuse]
       self_use: null
       internal_org: [role_check]
       cross_org: [desensitize]
       public_release: [refuse]
       research_anon: [desensitize]
     ContextGate:
-      _unknown: [warn, manual_review]
+      _unknown: [refuse]
       self_use: null
       internal_org: [role_check]
       cross_org: [refuse]
       public_release: [refuse]
       research_anon: [desensitize]
     OutputGate:
-      _unknown: [warn, manual_review]
+      _unknown: [refuse]
       self_use: null
       internal_org: [role_check]
       cross_org: [desensitize]

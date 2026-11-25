@@ -27,19 +27,19 @@ import copy
 import logging
 import time
 import uuid
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
 from deerflow.compliance.audit import Auditor, NullAuditor
-from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, Gate
+from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, Gate, UNKNOWN_SCENE_KEY
 from deerflow.compliance.intent import IntentGuard
 from deerflow.compliance.policy import PolicyMatrix, get_policy_matrix
 from deerflow.compliance.registry import DetectorRegistry, build_registry
 from deerflow.compliance.router import DetectorRouter
-from deerflow.compliance.scene import ManualSceneResolver, NullSceneResolver, SceneResolver, resolve_scene_key
-from deerflow.compliance.types import ComplianceDecision, DetectionRequest, Diagnostics
+from deerflow.compliance.scene import ManualSceneResolver, NullSceneResolver, SceneResolver, TrustedSceneResolver, resolve_scene_key
+from deerflow.compliance.types import ComplianceDecision, DetectionRequest, Diagnostics, rank_action
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +116,30 @@ class ComplianceEngine:
         diagnostics = Diagnostics(units_total=len(request.units))
 
         scene_key, scenes = resolve_scene_key(self._scene_resolver, request, self._fallback_scene_key)
+        origin = request.origin if isinstance(request.origin, Mapping) else {}
+        scene_resolution = origin.get("scene_resolution")
+        compliance_context = origin.get("compliance_context")
+        manual_scene = (
+            isinstance(scene_resolution, dict) and scene_resolution.get("source") == "manual_ui"
+        ) or (isinstance(compliance_context, dict) and compliance_context.get("source") == "manual_ui")
+        if manual_scene:
+            # A UI-selected profile is useful for exercising policy flows, but
+            # it is not an identity or permission assertion. Never let it select
+            # a less restrictive policy cell.
+            scene_key, scenes = UNKNOWN_SCENE_KEY, ()
+            diagnostics.warn("manual_ui scene is not authoritative; using the conservative fallback policy")
+
+        incomplete_units = tuple(
+            unit
+            for unit in request.units
+            if bool(unit.raw.get("truncated")) or any(item.truncated for item in unit.text_items)
+        )
+        if incomplete_units:
+            diagnostics.truncated = True
+            diagnostics.warn(
+                f"normalization: {len(incomplete_units)} unit(s) contain truncated text; "
+                f"the full payload was not inspected at {request.gate}"
+            )
 
         units = self._apply_budget(request, diagnostics)
         diagnostics.units_checked = len(units)
@@ -147,11 +171,31 @@ class ComplianceEngine:
         for warning in policy_warnings:
             diagnostics.warn(warning)
 
-        # role_check has no auth module behind it in phase 1; say so out loud.
+        # `role_check` must be backed by an upstream IAM decision. Presence of
+        # role strings in request context is not proof of authorization.
         if "role_check" in actions:
-            verified, reason = self._intent_guard.role_check(request.user)
-            if not verified and reason:
-                diagnostics.warn(reason)
+            verified = (
+                isinstance(scene_resolution, dict)
+                and scene_resolution.get("source") == "trusted_upstream"
+                and scene_resolution.get("permission_checked") is True
+            )
+            replacement = "allow" if verified else "refuse"
+            if not verified:
+                diagnostics.warn("role_check could not be verified by trusted upstream IAM; refusing the content")
+            per_violation = {
+                violation_type: tuple(replacement if action == "role_check" else action for action in cell_actions)
+                for violation_type, cell_actions in per_violation.items()
+            }
+            merged_actions = {
+                replacement if action == "role_check" else action
+                for action in actions
+            }
+            if len(merged_actions) > 1:
+                merged_actions.discard("allow")
+            actions = tuple(sorted(merged_actions, key=rank_action))
+
+        if diagnostics.truncated and "refuse" not in actions:
+            actions = tuple(sorted({*actions, "refuse"}, key=rank_action))
 
         diagnostics.elapsed_ms = (time.perf_counter() - started) * 1000.0
 
@@ -172,7 +216,7 @@ class ComplianceEngine:
         # A downgraded finding is still a detector result and must remain
         # traceable; otherwise the UI can explain it while the audit trail
         # silently loses the original detection.
-        if hits or raw_hits or request.audit_clean:
+        if hits or raw_hits or request.audit_clean or diagnostics.truncated:
             decision.audit_ref = self._auditor.record(request, decision)
         return decision
 
@@ -313,12 +357,15 @@ def build_engine(config: Any = None) -> ComplianceEngine:
     resolver_mode = getattr(config, "scene_resolver_mode", None) or "null"
     if resolver_mode == "manual_ui":
         scene_resolver = ManualSceneResolver()
-    elif resolver_mode == "trusted_upstream" and config.scene.resolver:
-        # Same reflective-load path as detectors: configured by data, not code.
-        from deerflow.compliance.adapters.inprocess import _resolve_entry
+    elif resolver_mode == "trusted_upstream":
+        if config.scene.resolver:
+            # Same reflective-load path as detectors: configured by data, not code.
+            from deerflow.compliance.adapters.inprocess import _resolve_entry
 
-        target = _resolve_entry(config.scene.resolver)
-        scene_resolver = target() if isinstance(target, type) else target
+            target = _resolve_entry(config.scene.resolver)
+            scene_resolver = target() if isinstance(target, type) else target
+        else:
+            scene_resolver = TrustedSceneResolver()
 
     return ComplianceEngine(
         registry=registry,

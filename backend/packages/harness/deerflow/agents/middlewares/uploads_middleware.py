@@ -102,9 +102,9 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
             if not isinstance(f, dict):
                 continue
             filename = f.get("filename") or ""
-            if not filename or Path(filename).name != filename:
+            if not isinstance(filename, str) or not filename or Path(filename).name != filename or "\\" in filename:
                 continue
-            if uploads_dir is not None and not (uploads_dir / filename).is_file():
+            if uploads_dir is not None and not self._safe_upload_file(uploads_dir / filename, uploads_dir):
                 continue
             files.append(
                 {
@@ -115,6 +115,15 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
                 }
             )
         return files if files else None
+
+    @staticmethod
+    def _safe_upload_file(path: Path, uploads_dir: Path) -> bool:
+        root = uploads_dir.absolute()
+        target = path.absolute()
+        try:
+            return root == root.resolve() and target == target.resolve() and target.is_relative_to(root) and target.is_file()
+        except (OSError, RuntimeError):
+            return False
 
     @override
     def before_agent(self, state: UploadsMiddlewareState, runtime: Runtime) -> dict | None:
@@ -157,7 +166,7 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
         historical_files: list[dict] = []
         if uploads_dir and uploads_dir.exists():
             for file_path in sorted(uploads_dir.iterdir()):
-                if file_path.is_file() and file_path.name not in new_filenames:
+                if self._safe_upload_file(file_path, uploads_dir) and file_path.name not in new_filenames:
                     stat = file_path.stat()
                     historical_files.append(
                         {

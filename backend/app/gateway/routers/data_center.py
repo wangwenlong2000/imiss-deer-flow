@@ -11,17 +11,18 @@ from pathlib import Path
 from typing import Any, Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+import httpx
+from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse
-
-import requests
-from requests.auth import HTTPBasicAuth
-
 from pydantic import BaseModel, Field
 
+from app.gateway.data_source_store import DataSourceStore
+from app.gateway.mobile_iam import MobileIAMPrincipal, authenticate_mobile_request
+from app.gateway.thread_access import require_thread_access
+from app.gateway.upload_transaction import thread_upload_transaction
 from deerflow.config.paths import get_paths
 
-from .uploads import save_thread_upload_from_bytes
+from .uploads import _rollback_uploads, _scan_uploads_for_compliance, save_thread_upload_from_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,8 @@ class DataSourceRecord(BaseModel):
     owner_scope: OwnerScope = "workspace"
     selectable_in_chat: bool = True
     thread_id: str | None = None
+    owner_user_id: str | None = None
+    owner_org_id: str | None = None
     metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
 
 
@@ -155,37 +158,96 @@ def _workspace_uploads_dir() -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def _read_registry() -> list[DataSourceRecord]:
+def _store() -> DataSourceStore:
     try:
-        registry_file = _registry_file()
-        if not registry_file.exists():
-            return []
-
-        try:
-            raw = json.loads(registry_file.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            logger.warning("Invalid data-center registry, resetting: %s", exc)
-            return []
-
-        records = []
-        for item in raw if isinstance(raw, list) else []:
-            try:
-                records.append(DataSourceRecord.model_validate(item))
-            except Exception as exc:
-                logger.warning("Skipping malformed data-center record: %s", exc)
-        return records
-
+        return DataSourceStore(get_paths().base_dir / "gateway.sqlite3", _registry_file())
     except Exception as exc:
-        logger.exception("Failed to read data-center registry")
-        return []
+        logger.exception("Data-source catalogue is unavailable")
+        raise HTTPException(status_code=503, detail="Data-source catalogue is unavailable") from exc
 
 
-def _write_registry(records: list[DataSourceRecord]) -> None:
-    payload = [record.model_dump(mode="json") for record in records]
-    _registry_file().write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+def _read_registry() -> list[DataSourceRecord]:
+    records = []
+    for raw in _store().list():
+        try:
+            records.append(DataSourceRecord.model_validate(raw))
+        except ValueError:
+            logger.warning("Skipping malformed legacy data-source record")
+    return records
+
+
+async def _principal(request: Request, operation: str) -> MobileIAMPrincipal | None:
+    _, principal = await authenticate_mobile_request(request)
+    # These permissions are trusted IAM attributes. They authorize an operation;
+    # resource ownership is checked independently below, including for '*'.
+    if principal and not {"data_center:*", f"data_center:{operation}"}.intersection(principal.permissions):
+        raise HTTPException(status_code=403, detail="Data-center operation is not authorized")
+    return principal
+
+
+def _org_configuration(name: str) -> dict[str, list[str]]:
+    try:
+        values = json.loads(os.getenv(name, "{}"))
+        if not isinstance(values, dict) or any(
+            not isinstance(key, str) or not isinstance(items, list) or any(not isinstance(item, str) for item in items)
+            for key, items in values.items()
+        ):
+            raise ValueError("Invalid organization resource map")
+        return values
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="Data-center access configuration is invalid") from exc
+
+
+def _visible(source: DataSourceRecord, principal: MobileIAMPrincipal | None, *, shared: bool = True) -> bool:
+    if principal is None:
+        return True
+    if not source.owner_user_id or source.owner_org_id != principal.org_id:
+        return False
+    if source.owner_user_id == principal.user_id:
+        return True
+    return shared and source.id in _org_configuration("DATA_CENTER_ORG_SHARED_SOURCES").get(principal.org_id, [])
+
+
+async def _source_access(
+    request: Request, source_id: str, principal: MobileIAMPrincipal | None, operation: str,
+) -> DataSourceRecord:
+    source = _find_registered_source(source_id)
+    if source is None or not _visible(source, principal, shared=operation != "delete"):
+        raise HTTPException(status_code=404, detail="Data source not found")
+    if source.thread_id:
+        await require_thread_access(
+            request, source.thread_id,
+            operation_type="export" if operation in {"export", "attach"} else "upload" if operation == "delete" else "analysis",
+        )
+    return source
+
+
+def _source_file(source: DataSourceRecord) -> Path:
+    if source.type != "uploaded_file":
+        raise HTTPException(status_code=400, detail="Only uploaded files support this operation")
+    if not source.path:
+        raise HTTPException(status_code=404, detail="Data source has no file path")
+    try:
+        root = get_paths().sandbox_uploads_dir(source.thread_id) if source.thread_id else _workspace_uploads_dir()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid data-source thread") from exc
+    file_path = Path(source.path).absolute()
+    # Reject redirected directories and symlinks, including links into another
+    # user's thread, rather than treating their target as owned by this record.
+    if root.absolute() != root.resolve() or file_path != file_path.resolve() or not file_path.is_relative_to(root.resolve()):
+        raise HTTPException(status_code=400, detail="Data-source file is outside its upload directory")
+    if not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Original file not found")
+    return file_path
+
+
+async def _es_access(request: Request, index_name: str | None = None) -> MobileIAMPrincipal | None:
+    principal = await _principal(request, "es_read")
+    if principal:
+        allowed = _org_configuration("DATA_CENTER_ORG_ES_INDICES").get(principal.org_id, [])
+        if not allowed or (index_name is not None and index_name not in allowed):
+            raise HTTPException(status_code=403, detail="Elasticsearch resource is not authorized")
+    return principal
 
 
 def _iso_now() -> str:
@@ -229,7 +291,7 @@ def _data_center_es_auth():
     password = _data_center_es_password()
 
     if username and password:
-        return HTTPBasicAuth(username, password)
+        return (username, password)
 
     return None
 
@@ -293,51 +355,39 @@ def _es_display_name(index_name: str) -> str:
     return display_names.get(index_name, index_name)
 
 
-def _es_get(path: str, params: dict | None = None):
+async def _es_get(path: str, params: dict | None = None):
     es_url = _check_data_center_es_config()
     url = f"{es_url}/{path.lstrip('/')}"
 
     try:
-        response = requests.get(
-            url,
-            auth=_data_center_es_auth(),
-            params=params,
-            timeout=15,
-        )
+        async with httpx.AsyncClient(timeout=15, auth=_data_center_es_auth()) as client:
+            response = await client.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
-    except requests.exceptions.HTTPError as exc:
-        status_code = exc.response.status_code if exc.response is not None else 500
-        detail = exc.response.text if exc.response is not None else str(exc)
-        raise HTTPException(status_code=status_code, detail=detail) from exc
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=502, detail="Elasticsearch request failed") from exc
 
     except Exception as exc:
         logger.exception("Failed to request Elasticsearch")
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code=502, detail="Elasticsearch is unavailable") from exc
 
-def _es_post(path: str, json_body: dict[str, Any]):
+async def _es_post(path: str, json_body: dict[str, Any]):
     es_url = _check_data_center_es_config()
     url = f"{es_url}/{path.lstrip('/')}"
 
     try:
-        response = requests.post(
-            url,
-            auth=_data_center_es_auth(),
-            json=json_body,
-            timeout=20,
-        )
+        async with httpx.AsyncClient(timeout=20, auth=_data_center_es_auth()) as client:
+            response = await client.post(url, json=json_body)
         response.raise_for_status()
         return response.json()
 
-    except requests.exceptions.HTTPError as exc:
-        status_code = exc.response.status_code if exc.response is not None else 500
-        detail = exc.response.text if exc.response is not None else str(exc)
-        raise HTTPException(status_code=status_code, detail=detail) from exc
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=502, detail="Elasticsearch request failed") from exc
 
     except Exception as exc:
         logger.exception("Failed to post request to Elasticsearch")
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code=502, detail="Elasticsearch is unavailable") from exc
 
 
 def _flatten_es_mapping(properties: dict[str, Any], prefix: str = "") -> list[EsFieldItem]:
@@ -406,21 +456,6 @@ def _normalize_filename(filename: str) -> str:
     return safe_name
 
 
-def _deduplicated_path(base_dir: Path, filename: str) -> Path:
-    candidate = base_dir / filename
-    if not candidate.exists():
-        return candidate
-
-    stem = candidate.stem
-    suffix = candidate.suffix
-    index = 1
-    while True:
-        next_candidate = base_dir / f"{stem}_{index}{suffix}"
-        if not next_candidate.exists():
-            return next_candidate
-        index += 1
-
-
 def _enumerate_local_datasets() -> list[DataSourceRecord]:
     datasets_root = _datasets_root()
     if not datasets_root.exists():
@@ -453,20 +488,19 @@ def _enumerate_local_datasets() -> list[DataSourceRecord]:
 
 
 def _find_registered_source(source_id: str) -> DataSourceRecord | None:
-    all_sources = {source.id: source for source in [*_enumerate_local_datasets(), *_read_registry()]}
-    return all_sources.get(source_id)
-
-def _is_relative_to(path: Path, parent: Path) -> bool: #删除保护
+    raw = _store().get(source_id)
+    if raw is None:
+        return next((source for source in _enumerate_local_datasets() if source.id == source_id), None)
     try:
-        path.relative_to(parent)
-        return True
+        return DataSourceRecord.model_validate(raw)
     except ValueError:
-        return False
+        return None
 
 
 @router.get("/es/health", response_model=EsHealthResponse)
-async def get_es_health() -> EsHealthResponse:
-    data = _es_get("/_cluster/health")
+async def get_es_health(request: Request) -> EsHealthResponse:
+    await _es_access(request)
+    data = await _es_get("/_cluster/health")
 
     return EsHealthResponse(
         status=data.get("status"),
@@ -477,8 +511,10 @@ async def get_es_health() -> EsHealthResponse:
 
 
 @router.get("/es/indices", response_model=EsIndexListResponse)
-async def list_es_indices() -> EsIndexListResponse:
-    data = _es_get(
+async def list_es_indices(request: Request) -> EsIndexListResponse:
+    principal = await _es_access(request)
+    allowed = _org_configuration("DATA_CENTER_ORG_ES_INDICES").get(principal.org_id, []) if principal else None
+    data = await _es_get(
         "/_cat/indices",
         params={
             "format": "json",
@@ -490,7 +526,7 @@ async def list_es_indices() -> EsIndexListResponse:
 
     for item in data:
         index_name = item.get("index")
-        if not index_name or not _is_allowed_es_index(index_name):
+        if not index_name or not _is_allowed_es_index(index_name) or (allowed is not None and index_name not in allowed):
             continue
 
         items.append(
@@ -517,11 +553,12 @@ async def list_es_indices() -> EsIndexListResponse:
     )
 
 @router.get("/es/indices/{index_name}", response_model=EsIndexDetailResponse)
-async def get_es_index_detail(index_name: str) -> EsIndexDetailResponse:
+async def get_es_index_detail(index_name: str, request: Request) -> EsIndexDetailResponse:
+    await _es_access(request, index_name)
     _validate_es_index_name(index_name)
 
-    mapping = _es_get(f"/{index_name}/_mapping")
-    stats = _es_get(f"/{index_name}/_stats/docs,store")
+    mapping = await _es_get(f"/{index_name}/_mapping")
+    stats = await _es_get(f"/{index_name}/_stats/docs,store")
 
     index_mapping = mapping.get(index_name, {}).get("mappings", {})
     properties = index_mapping.get("properties", {})
@@ -547,8 +584,10 @@ async def get_es_index_detail(index_name: str) -> EsIndexDetailResponse:
 @router.get("/es/indices/{index_name}/samples", response_model=EsSamplesResponse)
 async def get_es_index_samples(
     index_name: str,
+    request: Request,
     size: int = Query(default=5, ge=1, le=20),
 ) -> EsSamplesResponse:
+    await _es_access(request, index_name)
     _validate_es_index_name(index_name)
 
     body = {
@@ -565,7 +604,7 @@ async def get_es_index_samples(
         },
     }
 
-    data = _es_post(f"/{index_name}/_search", body)
+    data = await _es_post(f"/{index_name}/_search", body)
 
     hits = data.get("hits", {}).get("hits", [])
 
@@ -588,104 +627,82 @@ async def get_es_index_samples(
 
 
 @router.get("/sources", response_model=DataSourceListResponse)
-async def list_data_sources() -> DataSourceListResponse:
-    sources = _read_registry()
-    # sources = [*_enumerate_local_datasets(), *_read_registry()]  #显示本地dataset目录，待测试
-    return DataSourceListResponse(
-        sources=sources,
-        count=len(sources),
-    )
+async def list_data_sources(request: Request) -> DataSourceListResponse:
+    principal = await _principal(request, "read")
+    sources = [source for source in _read_registry() if _visible(source, principal)]
+    return DataSourceListResponse(sources=sources, count=len(sources))
 
 
-@router.get("/sources/{source_id}/download")   #新增下载接口
-async def download_data_source(source_id: str):
-    source = _find_registered_source(source_id)
-
-    if not source:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Data source not found: {source_id}",
-        )
-
-    if source.type != "uploaded_file":
-        raise HTTPException(
-            status_code=400,
-            detail="Only uploaded files can be downloaded",
-        )
-
-    if not source.path:
-        raise HTTPException(
-            status_code=404,
-            detail="Data source has no file path",
-        )
-
-    file_path = Path(source.path)
-
-    if not file_path.exists() or not file_path.is_file():
-        raise HTTPException(
-            status_code=404,
-            detail="Original file not found",
-        )
-
-    filename = str(source.metadata.get("filename") or file_path.name)
-
+@router.get("/sources/{source_id}/download")
+async def download_data_source(source_id: str, request: Request):
+    principal = await _principal(request, "export")
+    source = await _source_access(request, source_id, principal, "export")
+    file_path = _source_file(source)
     return FileResponse(
         path=file_path,
-        filename=filename,
+        filename=_normalize_filename(str(source.metadata.get("filename") or file_path.name)),
         media_type="application/octet-stream",
     )
 
 
 @router.get("/sources/{source_id}", response_model=DataSourceRecord)
-async def get_data_source_detail(source_id: str) -> DataSourceRecord:
-    source = _find_registered_source(source_id)
-    if not source:
-        raise HTTPException(status_code=404, detail=f"Data source not found: {source_id}")
-    return source
+async def get_data_source_detail(source_id: str, request: Request) -> DataSourceRecord:
+    principal = await _principal(request, "read")
+    return await _source_access(request, source_id, principal, "read")
 
 
 @router.post("/sources/upload", response_model=UploadDataSourceResponse)
 async def upload_data_sources(
+    request: Request,
     files: list[UploadFile] = File(...),
 ) -> UploadDataSourceResponse:
-    if not files:
+    principal = await _principal(request, "upload")
+    if not files or not any(file.filename for file in files):
         raise HTTPException(status_code=400, detail="No files provided")
 
+    store = _store()
     upload_dir = _workspace_uploads_dir()
-    records = _read_registry()
+    if upload_dir.absolute() != upload_dir.resolve():
+        raise HTTPException(status_code=400, detail="Invalid data-center upload directory")
     created: list[DataSourceRecord] = []
-
-    for file in files:
-        if not file.filename:
-            continue
-
-        safe_name = _normalize_filename(file.filename)
-        target_path = _deduplicated_path(upload_dir, safe_name)
-        content = await file.read()
-        target_path.write_bytes(content)
-
-        record = DataSourceRecord(
-            id=f"upload-{uuid4().hex[:12]}",
-            name=target_path.stem,
-            type="uploaded_file",
-            status="ready",
-            description=f"Uploaded from data center: {target_path.name}",
-            path=str(target_path),
-            virtual_path=None,
-            updated_at=_iso_now(),
-            owner_scope="workspace",
-            selectable_in_chat=True,
-            thread_id=None,
-            metadata={
-                "filename": target_path.name,
-                "size_bytes": len(content),
-                "source_kind": "workspace_upload",
-            },
-        )
-        records.append(record)
-        created.append(record)
-
-    _write_registry(records)
+    created_paths: list[Path] = []
+    try:
+        for file in files:
+            if not file.filename:
+                continue
+            safe_name = _normalize_filename(file.filename)
+            source_id = f"upload-{uuid4().hex}"
+            # Each upload owns a unique directory; concurrent requests with the
+            # same filename can never overwrite one another's bytes.
+            target_dir = upload_dir / source_id
+            target_dir.mkdir()
+            target_path = target_dir / safe_name
+            created_paths.append(target_path)
+            content = await file.read()
+            with target_path.open("xb") as stream:
+                stream.write(content)
+            created.append(DataSourceRecord(
+                id=source_id,
+                name=Path(safe_name).stem,
+                type="uploaded_file",
+                status="ready",
+                description=f"Uploaded from data center: {safe_name}",
+                path=str(target_path),
+                updated_at=_iso_now(),
+                owner_scope="workspace",
+                owner_user_id=principal.user_id if principal else None,
+                owner_org_id=principal.org_id if principal else None,
+                metadata={"filename": safe_name, "size_bytes": len(content), "source_kind": "workspace_upload"},
+            ))
+        store.insert_many([record.model_dump(mode="json") for record in created])
+    except BaseException:
+        for target in created_paths:
+            try:
+                target.unlink(missing_ok=True)
+                target.parent.rmdir()
+            except OSError:
+                logger.exception("Failed to clean up an unregistered data-source upload")
+        raise
     return UploadDataSourceResponse(
         success=True,
         sources=created,
@@ -694,178 +711,123 @@ async def upload_data_sources(
 
 
 @router.post("/sources/register-upload", response_model=DataSourceRecord)
-async def register_uploaded_file(payload: RegisterUploadRequest) -> DataSourceRecord:
-    uploads_dir = get_paths().sandbox_uploads_dir(payload.thread_id)
-    file_path = uploads_dir / payload.filename
-
-    if not file_path.exists() or not file_path.is_file():
-        raise HTTPException(status_code=404, detail=f"Uploaded file not found: {payload.filename}")
-
-    records = _read_registry()
-    existing = next(
-        (
-            record
-            for record in records
-            if record.type == "uploaded_file"
-            and record.thread_id == payload.thread_id
-            and Path(record.path or "").name == payload.filename
-        ),
-        None,
-    )
-    if existing:
-        return existing
-
+async def register_uploaded_file(payload: RegisterUploadRequest, request: Request) -> DataSourceRecord:
+    principal = await _principal(request, "upload")
+    await require_thread_access(request, payload.thread_id, operation_type="upload")
+    safe_name = _normalize_filename(payload.filename)
+    # Registration accepts a single filename, never a path supplied by a client.
+    if safe_name != payload.filename or "\\" in payload.filename:
+        raise HTTPException(status_code=400, detail="A plain upload filename is required")
+    try:
+        uploads_dir = get_paths().sandbox_uploads_dir(payload.thread_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid thread ID") from exc
     record = DataSourceRecord(
-        id=f"upload-{uuid4().hex[:12]}",
-        name=payload.name or file_path.stem,
+        id=f"upload-{uuid4().hex}",
+        name=payload.name or Path(safe_name).stem,
         type="uploaded_file",
         status="ready",
-        description=payload.description or f"Registered from thread upload: {payload.filename}",
-        path=str(file_path),
-        virtual_path=f"/mnt/user-data/uploads/{payload.filename}",
+        description=payload.description or f"Registered from thread upload: {safe_name}",
+        path=str(uploads_dir / safe_name),
+        virtual_path=f"/mnt/user-data/uploads/{safe_name}",
         updated_at=_iso_now(),
         owner_scope="workspace",
-        selectable_in_chat=True,
         thread_id=payload.thread_id,
-        metadata={
-            "filename": payload.filename,
-            "size_bytes": file_path.stat().st_size,
-        },
+        owner_user_id=principal.user_id if principal else None,
+        owner_org_id=principal.org_id if principal else None,
+        metadata={"filename": safe_name},
     )
-    records.append(record)
-    _write_registry(records)
-    return record
+    file_path = _source_file(record)
+    record.metadata["size_bytes"] = file_path.stat().st_size
+    stored = DataSourceRecord.model_validate(_store().register_file(
+        record.model_dump(mode="json"), str(file_path),
+    ))
+    # Existing records are never re-owned or silently shared on registration.
+    if not _visible(stored, principal, shared=False):
+        raise HTTPException(status_code=404, detail="Data source not found")
+    return stored
 
 
-
-@router.delete("/sources/{source_id}", response_model=DeleteDataSourceResponse)   #删除数据源接口
-async def delete_data_source(source_id: str) -> DeleteDataSourceResponse:
-    records = _read_registry()
-    target = next((record for record in records if record.id == source_id), None)
-
-    if not target:
-        local_source = next(
-            (source for source in _enumerate_local_datasets() if source.id == source_id),
-            None,
-        )
-        if local_source:
-            raise HTTPException(
-                status_code=400,
-                detail="Built-in local datasets cannot be deleted",
-            )
-
-        raise HTTPException(
-            status_code=404,
-            detail=f"Data source not found: {source_id}",
-        )
-
+@router.delete("/sources/{source_id}", response_model=DeleteDataSourceResponse)
+async def delete_data_source(source_id: str, request: Request) -> DeleteDataSourceResponse:
+    principal = await _principal(request, "delete")
+    target = await _source_access(request, source_id, principal, "delete")
     if target.type != "uploaded_file":
-        raise HTTPException(
-            status_code=400,
-            detail="Only uploaded files can be deleted from the data center",
-        )
+        raise HTTPException(status_code=400, detail="Only uploaded files can be deleted")
 
-    file_deleted = False
-
-    if target.path:
-        file_path = Path(target.path)
-        uploads_root = _workspace_uploads_dir().resolve()
-
+    staged: tuple[Path, Path] | None = None
+    try:
+        with _store().deleting(source_id) as raw:
+            if raw is None:
+                raise HTTPException(status_code=404, detail="Data source not found")
+            current = DataSourceRecord.model_validate(raw)
+            if not _visible(current, principal, shared=False):
+                raise HTTPException(status_code=404, detail="Data source not found")
+            if current.path and Path(current.path).exists():
+                file_path = _source_file(current)
+                # Stage deletion on the same filesystem. Restore on transaction
+                # failure; never leave a committed record pointing at removed bytes.
+                trash_path = file_path.with_name(f".deleted-{uuid4().hex}")
+                file_path.rename(trash_path)
+                staged = (file_path, trash_path)
+    except BaseException:
+        if staged:
+            staged[1].rename(staged[0])
+        raise
+    file_deleted = staged is not None
+    if staged:
         try:
-            resolved_file_path = file_path.resolve()
-
-            if resolved_file_path.exists():
-                if not _is_relative_to(resolved_file_path, uploads_root):
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Refusing to delete file outside data-center uploads directory",
-                    )
-
-                if resolved_file_path.is_file():
-                    resolved_file_path.unlink()
-                    file_deleted = True
-                else:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Data source path is not a file",
-                    )
-        except HTTPException:
-            raise
-        except Exception as exc:
-            logger.exception("Failed to delete data source file: %s", target.path)
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to delete data source file: {exc}",
-            ) from exc
-
-    remaining_records = [record for record in records if record.id != source_id]
-    _write_registry(remaining_records)
-
+            staged[1].unlink()
+            # UUID upload directories are disposable. Registered thread uploads
+            # and legacy shared upload directories must remain in place.
+            if staged[0].parent.name == source_id:
+                staged[0].parent.rmdir()
+        except OSError:
+            logger.warning("Deferred cleanup of a deleted data-source file")
     return DeleteDataSourceResponse(
-        success=True,
-        source_id=source_id,
-        file_deleted=file_deleted,
+        success=True, source_id=source_id, file_deleted=file_deleted,
         message=f"Deleted data source: {target.name}",
     )
+
 
 @router.post("/sources/attach-to-thread", response_model=AttachDataSourcesToThreadResponse)
 async def attach_data_sources_to_thread(
     payload: AttachDataSourcesToThreadRequest,
+    request: Request,
 ) -> AttachDataSourcesToThreadResponse:
-    if not payload.thread_id:
-        raise HTTPException(status_code=400, detail="thread_id is required")
-
-    if not payload.source_ids:
-        return AttachDataSourcesToThreadResponse(
-            success=True,
-            files=[],
-            message="No data sources selected",
-        )
-
+    principal = await _principal(request, "attach")
+    await require_thread_access(request, payload.thread_id, operation_type="upload")
+    # Authorize every selected source before copying any file into the target.
+    sources = [await _source_access(request, source_id, principal, "attach") for source_id in payload.source_ids]
+    paths = [(source, _source_file(source)) for source in sources]
     attached_files: list[dict[str, str]] = []
-
-    for source_id in payload.source_ids:
-        source = _find_registered_source(source_id)
-
-        if not source:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Data source not found: {source_id}",
-            )
-
-        if source.type != "uploaded_file":
-            raise HTTPException(
-                status_code=400,
-                detail=f"Only uploaded files can be attached to chat: {source_id}",
-            )
-
-        if not source.path:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Data source has no file path: {source_id}",
-            )
-
-        source_path = Path(source.path)
-
-        if not source_path.exists() or not source_path.is_file():
-            raise HTTPException(
-                status_code=404,
-                detail=f"Original file not found: {source_id}",
-            )
-
-        filename = str(source.metadata.get("filename") or source_path.name)
-        content = source_path.read_bytes()
-
-        file_info = await save_thread_upload_from_bytes(
-            thread_id=payload.thread_id,
-            filename=filename,
-            content=content,
-        )
-
-        attached_files.append(file_info)
-
+    async with thread_upload_transaction(payload.thread_id, base_dir=get_paths().base_dir):
+        rollback = []
+        occupied_names: set[str] = set()
+        try:
+            for source, source_path in paths:
+                original_name = _normalize_filename(str(source.metadata.get("filename") or source_path.name))
+                filename = original_name
+                target_dir = get_paths().sandbox_uploads_dir(payload.thread_id)
+                index = 1
+                while filename in occupied_names or (target_dir / filename).exists() or (target_dir / filename).is_symlink():
+                    filename = f"{Path(original_name).stem}_{index}{Path(original_name).suffix}"
+                    index += 1
+                occupied_names.add(filename)
+                file_info = await save_thread_upload_from_bytes(
+                    thread_id=payload.thread_id,
+                    filename=filename,
+                    content=source_path.read_bytes(),
+                    rollback=rollback,
+                )
+                attached_files.append(file_info)
+            warning = _scan_uploads_for_compliance(payload.thread_id, attached_files)
+            if warning:
+                raise HTTPException(status_code=400, detail=warning)
+        except BaseException:
+            _rollback_uploads(payload.thread_id, rollback)
+            raise
     return AttachDataSourcesToThreadResponse(
-        success=True,
-        files=attached_files,
+        success=True, files=attached_files,
         message=f"Attached {len(attached_files)} data source file(s) to thread",
     )

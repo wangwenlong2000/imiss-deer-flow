@@ -15,16 +15,34 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
+from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
+from app.admission_claims import (
+    AdmissionSigningConfigurationError,
+    build_admission_metadata,
+    ensure_admission_signing_available,
+)
+from app.gateway.conversation_store import get_or_create_conversation_thread
+from app.gateway.mobile_iam import (
+    MobileAuthorizationInput,
+    authenticate_mobile_request,
+    authorize_mobile_request,
+    build_trusted_compliance_request,
+)
+from app.gateway.thread_access import require_thread_access, thread_error_status
+from app.internal_auth import internal_graph_headers
+
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["mobile"])
 
 
@@ -46,8 +64,7 @@ DEFAULT_RUN_CONTEXT: dict[str, Any] = {
     "subagent_enabled": False,
 }
 MOBILE_STREAM_HEARTBEAT_SECONDS = 15.0
-
-CONVERSATION_THREAD_MAP: dict[str, str] = {}
+MOBILE_RUN_STATUS_POLL_SECONDS = 1.0
 
 AGENT_NAMES = {
     "intent": "意图识别智能体",
@@ -63,6 +80,8 @@ DEERFLOW_PUBLIC_BASE_URL = os.getenv("DEERFLOW_PUBLIC_BASE_URL", "http://219.245
 
 
 class MobileChatRequest(BaseModel):
+    _iam_authenticated: bool = PrivateAttr(default=False)
+
     query: str = Field(..., description="User query from mobile platform")
     user_id: str | None = Field(default=None, description="Mobile platform user id")
     session_id: str | None = Field(default=None, description="Mobile platform session id")
@@ -75,7 +94,7 @@ class MobileChatRequest(BaseModel):
     )
     compliance_identity: dict[str, Any] | None = Field(
         default=None,
-        description="Authenticated mobile identity mapped to compliance_context.user_context",
+        description="Compatibility field; trusted mobile identity is supplied by the server-side IAM provider",
     )
     compliance_context: dict[str, Any] | None = Field(
         default=None,
@@ -83,7 +102,7 @@ class MobileChatRequest(BaseModel):
     )
     compliance_request: dict[str, Any] | None = Field(
         default=None,
-        description="Trusted compliance request contract written to LangGraph state",
+        description="Untrusted operation/resource hints; the server rebuilds the trusted contract after IAM authorization",
     )
 
 
@@ -101,7 +120,7 @@ class DeerFlowMobileRunRequest(BaseModel):
     )
     compliance_identity: dict[str, Any] | None = Field(
         default=None,
-        description="Authenticated mobile identity mapped to compliance_context.user_context",
+        description="Compatibility field; trusted mobile identity is supplied by the server-side IAM provider",
     )
     compliance_context: dict[str, Any] | None = Field(
         default=None,
@@ -109,7 +128,7 @@ class DeerFlowMobileRunRequest(BaseModel):
     )
     compliance_request: dict[str, Any] | None = Field(
         default=None,
-        description="Trusted compliance request contract written to LangGraph state",
+        description="Untrusted operation/resource hints; the server rebuilds the trusted contract after IAM authorization",
     )
 
 
@@ -123,6 +142,18 @@ class DeerFlowMobileEnsureThreadRequest(BaseModel):
 
 def _mapping(value: Any) -> dict[str, Any]:
     return dict(value) if isinstance(value, dict) else {}
+
+
+def _mobile_authorization_hints(req: MobileChatRequest) -> tuple[str | None, str | None, str | None, str | None]:
+    raw = _mapping(req.compliance_request)
+    operation = _mapping(raw.get("operation"))
+    resource = _mapping(raw.get("resource"))
+    return (
+        str(operation["type"]) if operation.get("type") else None,
+        str(operation["target_audience"]) if operation.get("target_audience") else None,
+        str(resource["resource_id"]) if resource.get("resource_id") else None,
+        str(resource["target_org_id"]) if resource.get("target_org_id") else None,
+    )
 
 
 def _mobile_chat_request(req: DeerFlowMobileRunRequest) -> MobileChatRequest:
@@ -166,7 +197,41 @@ def _build_mobile_run_context(req: MobileChatRequest, thread_id: str) -> dict[st
         run_context["session_id"] = req.session_id
     if req.compliance_context:
         run_context["compliance_context"] = dict(req.compliance_context)
+    if req._iam_authenticated:
+        from deerflow.agents.memory.scope import build_memory_scope_context
+
+        identity = _mapping(req.compliance_identity)
+        run_context["memory_scope"] = build_memory_scope_context(
+            org_id=str(identity.get("org_id") or ""),
+            user_id=str(identity.get("user_id") or ""),
+            thread_id=thread_id,
+        )
     return run_context
+
+
+def _build_mobile_admission_metadata(req: MobileChatRequest, thread_id: str) -> dict[str, Any] | None:
+    """Sign scheduler dimensions only after `_prepare_mobile_chat_request` IAM verification."""
+    if not req._iam_authenticated:
+        return None
+    identity = _mapping(req.compliance_identity)
+    request_context = _mapping(req.compliance_request)
+    operation = _mapping(request_context.get("operation"))
+    if not identity:
+        return None
+    try:
+        return build_admission_metadata(
+            user_id=str(identity.get("user_id") or ""),
+            org_id=str(identity.get("org_id") or ""),
+            identity_class=str(identity.get("identity_class") or ""),
+            task_type=str(operation.get("type") or ""),
+            thread_id=thread_id,
+        )
+    except (AdmissionSigningConfigurationError, ValueError) as exc:
+        logger.error("Unable to sign trusted run admission metadata (%s)", type(exc).__name__)
+        raise HTTPException(
+            status_code=503,
+            detail="Trusted user concurrency admission is unavailable",
+        ) from exc
 
 
 def make_segment(
@@ -1617,9 +1682,13 @@ def _mobile_run_error_response(
     thread_id: str | None,
     exc: Exception,
 ) -> dict[str, Any]:
-    message = f"DeerFlow execution failed: {type(exc).__name__}: {exc}"
-    return {
-        "code": 500,
+    status_code, retry_after = _upstream_admission_error(exc)
+    if status_code == 429:
+        message = "当前用户、任务类别或全局并发名额已满，请稍后重试。"
+    else:
+        message = f"DeerFlow execution failed: {type(exc).__name__}: {exc}"
+    payload = {
+        "code": status_code or 500,
         "message": message,
         "conversation_id": conversation_id,
         "thread_id": thread_id,
@@ -1638,6 +1707,23 @@ def _mobile_run_error_response(
             },
         ],
     }
+    if retry_after:
+        payload["retry_after"] = retry_after
+    return payload
+
+
+def _upstream_admission_error(exc: Exception) -> tuple[int | None, str | None]:
+    """Preserve LangGraph admission responses across the mobile adapter."""
+    response = getattr(exc, "response", None)
+    status_code = getattr(exc, "status_code", None)
+    if not isinstance(status_code, int) and response is not None:
+        status_code = getattr(response, "status_code", None)
+    if not isinstance(status_code, int) or status_code != 429:
+        return None, None
+
+    headers = getattr(response, "headers", None)
+    retry_after = headers.get("retry-after") if hasattr(headers, "get") else None
+    return 429, str(retry_after).strip() if retry_after else None
 
 
 def _build_mobile_download_url(thread_id: str, filename: str) -> str | None:
@@ -1742,69 +1828,187 @@ def _build_langgraph_input(
     return graph_input
 
 
-async def ensure_mobile_thread(req: DeerFlowMobileEnsureThreadRequest) -> tuple[str, bool]:
-    """Ensure a real LangGraph thread for a mobile conversation.
+async def ensure_mobile_thread(
+    req: DeerFlowMobileEnsureThreadRequest,
+    *,
+    org_id: str | None = None,
+    user_id: str | None = None,
+) -> tuple[str, bool]:
+    """Ensure a persistent conversation binding and recover upstream creates.
 
-    Returns:
-        (thread_id, created)
+    ``org_id`` and ``user_id`` are passed only from the verified IAM principal.
+    Caller metadata cannot select ownership or the thread ID. SQLite reserves
+    the ID before the network request and releases its transaction immediately.
     """
     from langgraph_sdk import get_client
 
     conversation_id = str(req.conversation_id or "").strip()
     if not conversation_id:
         raise ValueError("conversation_id is required")
+    authenticated = org_id is not None
+    if authenticated and (not org_id.strip() or not user_id or not user_id.strip()):
+        raise HTTPException(status_code=503, detail="Verified thread ownership is unavailable")
+    owner_org_id = org_id if authenticated else ""
+    owner_user_id = user_id if authenticated else req.user_id or ""
+    try:
+        thread_id = await asyncio.to_thread(
+            get_or_create_conversation_thread,
+            org_id=owner_org_id,
+            user_id=owner_user_id,
+            conversation_id=conversation_id,
+        )
+    except Exception as exc:
+        logger.error("Mobile conversation store is unavailable (%s)", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Conversation store is unavailable") from exc
 
-    existing_thread_id = CONVERSATION_THREAD_MAP.get(conversation_id)
-    if existing_thread_id:
-        return existing_thread_id, False
+    metadata = dict(req.metadata or {})
+    for key in ("org_id", "user_id", "owner_user_id", "owner_org_id", "tenant_id", "conversation_id"):
+        metadata.pop(key, None)
+    metadata.update(
+        conversation_id=conversation_id,
+        source="trusted_upstream" if authenticated else req.source or "citybrain",
+        org_id=owner_org_id,
+        user_id=owner_user_id,
+    )
 
-    client = get_client(url=DEFAULT_LANGGRAPH_URL)
-
-    metadata: dict[str, Any] = {
-        "conversation_id": conversation_id,
-        "source": req.source or "citybrain",
-    }
-    if req.user_id:
-        metadata["user_id"] = req.user_id
-    if isinstance(req.metadata, dict):
-        metadata.update(req.metadata)
+    def validate_thread(thread: Any) -> None:
+        if not isinstance(thread, dict) or str(thread.get("thread_id") or "") != thread_id:
+            raise HTTPException(status_code=503, detail="Thread service returned invalid data")
+        if authenticated:
+            actual = thread.get("metadata")
+            if not isinstance(actual, dict) or any(
+                actual.get(key) != value
+                for key, value in (("org_id", owner_org_id), ("user_id", owner_user_id), ("conversation_id", conversation_id))
+            ):
+                raise HTTPException(status_code=404, detail="Thread not found")
 
     try:
-        thread = await client.threads.create(metadata=metadata)
-    except TypeError:
-        # Compatible with older langgraph_sdk versions that do not accept metadata.
-        thread = await client.threads.create()
+        client = get_client(url=DEFAULT_LANGGRAPH_URL, headers=internal_graph_headers())
+        try:
+            thread = await client.threads.get(thread_id)
+        except Exception as exc:
+            if thread_error_status(exc) != 404:
+                raise
+        else:
+            validate_thread(thread)
+            return thread_id, False
 
-    thread_id = str(thread.get("thread_id") or "")
-    if not thread_id:
-        raise RuntimeError(f"LangGraph thread create returned no thread_id: {thread}")
+        try:
+            thread = await client.threads.create(thread_id=thread_id, metadata=metadata, if_exists="raise")
+        except Exception as exc:
+            if thread_error_status(exc) != 409:
+                raise
+            # Another request created the reserved thread after our lookup.
+            thread = await client.threads.get(thread_id)
+            validate_thread(thread)
+            return thread_id, False
+        validate_thread(thread)
+        return thread_id, True
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Mobile thread service is unavailable (%s)", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Thread service is unavailable") from exc
 
-    CONVERSATION_THREAD_MAP[conversation_id] = thread_id
-    return thread_id, True
+
+async def _resolve_mobile_thread(req: MobileChatRequest, client: Any) -> str:
+    """Reuse verified preparation or the development caller's explicit thread."""
+    if req.thread_id:
+        return req.thread_id
+    if req._iam_authenticated:
+        identity = _mapping(req.compliance_identity)
+        thread_id, _ = await ensure_mobile_thread(
+            DeerFlowMobileEnsureThreadRequest(conversation_id=req.session_id or str(uuid4())),
+            org_id=str(identity.get("org_id") or ""),
+            user_id=str(identity.get("user_id") or ""),
+        )
+        return thread_id
+    if req.session_id:
+        thread_id, _ = await ensure_mobile_thread(
+            DeerFlowMobileEnsureThreadRequest(conversation_id=req.session_id, user_id=req.user_id)
+        )
+        return thread_id
+    thread = await client.threads.create()
+    return str(thread["thread_id"])
+
+
+async def _prepare_mobile_chat_request(chat_req: MobileChatRequest, request: Request) -> MobileChatRequest:
+    """Replace caller identity claims with a server-verified IAM decision."""
+    provider, principal = await authenticate_mobile_request(request)
+    if provider is None or principal is None:
+        # Caller-supplied compliance_request is never an authorization proof.
+        # Manual UI context may remain for diagnostics; trusted_upstream
+        # requires a provider and otherwise uses the conservative fallback.
+        chat_req.compliance_identity = None
+        chat_req.compliance_request = None
+        chat_req._iam_authenticated = False
+        return chat_req
+
+    try:
+        ensure_admission_signing_available()
+    except AdmissionSigningConfigurationError as exc:
+        logger.error("Authenticated mobile concurrency signing is not configured")
+        raise HTTPException(
+            status_code=503,
+            detail="Trusted user concurrency admission is unavailable",
+        ) from exc
+
+    operation_type, target_audience, resource_id, target_org_id = _mobile_authorization_hints(chat_req)
+    if not operation_type or not target_audience or not resource_id:
+        raise HTTPException(
+            status_code=422,
+            detail="IAM authorization requires operation type, target audience, and resource ID",
+        )
+    request_id = str(uuid4())
+    turn_id = str(uuid4())
+    conversation_id = chat_req.session_id or str(uuid4())
+    decision = await authorize_mobile_request(
+        provider,
+        principal,
+        MobileAuthorizationInput(
+            request_id=request_id,
+            turn_id=turn_id,
+            conversation_id=conversation_id,
+            operation_type=operation_type,
+            target_audience=target_audience,
+            resource_id=resource_id,
+            target_org_id=target_org_id,
+        ),
+    )
+
+    # Caller-supplied thread IDs never select an authenticated conversation.
+    thread_id, _ = await ensure_mobile_thread(
+        DeerFlowMobileEnsureThreadRequest(conversation_id=conversation_id, source="trusted_upstream"),
+        org_id=principal.org_id,
+        user_id=principal.user_id,
+    )
+
+    chat_req.session_id = conversation_id
+    chat_req.thread_id = thread_id
+    chat_req.user_id = principal.user_id
+    chat_req.compliance_identity = principal.model_dump(mode="json")
+    chat_req.compliance_context = {"user_context": principal.model_dump(mode="json")}
+    chat_req.compliance_request = build_trusted_compliance_request(
+        principal=principal,
+        decision=decision,
+        request_id=request_id,
+        thread_id=thread_id,
+        turn_id=turn_id,
+    )
+    chat_req._iam_authenticated = True
+    return chat_req
 
 
 async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, list[Any]]:
     """Call LangGraph Server and collect current-run events.
 
-    We intentionally do not request messages-tuple here. messages-tuple contains
-    token-level chunks and is too verbose for the mobile platform.
+    Compliance-safe mode omits token and raw-event streams. Only state snapshots
+    are forwarded; the OutputGate rewrites the answer before it enters state.
     """
     from langgraph_sdk import get_client
 
-    client = get_client(url=DEFAULT_LANGGRAPH_URL)
-
-    conversation_key = req.session_id or req.thread_id or ""
-    thread_id = req.thread_id
-
-    if not thread_id and conversation_key:
-        thread_id = CONVERSATION_THREAD_MAP.get(conversation_key)
-
-    if not thread_id:
-        thread = await client.threads.create()
-        thread_id = thread["thread_id"]
-
-    if conversation_key:
-        CONVERSATION_THREAD_MAP[conversation_key] = thread_id
+    client = get_client(url=DEFAULT_LANGGRAPH_URL, headers=internal_graph_headers())
+    thread_id = await _resolve_mobile_thread(req, client)
 
     assistant_id = req.assistant_id or DEFAULT_ASSISTANT_ID
 
@@ -1816,10 +2020,13 @@ async def run_deerflow_and_collect_events(req: MobileChatRequest) -> tuple[str, 
         thread_id,
         assistant_id,
         input=_build_langgraph_input(req.query, req.attachments, req.compliance_request),
+        metadata=_build_mobile_admission_metadata(req, thread_id),
         config=DEFAULT_RUN_CONFIG,
         context=run_context,
-        # `custom` carries the compliance OutputGate retract event.
-        stream_mode=["updates", "values", "messages-tuple", "custom"],
+        # Do not forward token chunks before OutputGate has checked the complete
+        # State snapshots contain the OutputGate-checked answer. Do not forward
+        # token, raw-event, or arbitrary custom payloads.
+        stream_mode=["updates", "values"],
     ):
         raw_events.append(
             {
@@ -1837,21 +2044,10 @@ async def _produce_langgraph_stream(
 ) -> None:
     from langgraph_sdk import get_client
 
+    status_task: asyncio.Task | None = None
     try:
-        client = get_client(url=DEFAULT_LANGGRAPH_URL)
-
-        conversation_key = chat_req.session_id or chat_req.thread_id or ""
-        thread_id = chat_req.thread_id
-
-        if not thread_id and conversation_key:
-            thread_id = CONVERSATION_THREAD_MAP.get(conversation_key)
-
-        if not thread_id:
-            thread = await client.threads.create()
-            thread_id = thread["thread_id"]
-
-        if conversation_key:
-            CONVERSATION_THREAD_MAP[conversation_key] = thread_id
+        client = get_client(url=DEFAULT_LANGGRAPH_URL, headers=internal_graph_headers())
+        thread_id = await _resolve_mobile_thread(chat_req, client)
 
         assistant_id = chat_req.assistant_id or DEFAULT_ASSISTANT_ID
 
@@ -1871,15 +2067,34 @@ async def _produce_langgraph_stream(
             }
         )
 
+        def on_run_created(metadata: dict[str, Any]) -> None:
+            nonlocal status_task
+            run_id = metadata.get("run_id")
+            if run_id and status_task is None:
+                status_task = asyncio.create_task(
+                    _produce_mobile_run_status(client, thread_id, str(run_id), queue)
+                )
+
         async for chunk in client.runs.stream(
             thread_id,
             assistant_id,
             input=_build_langgraph_input(chat_req.query, chat_req.attachments, chat_req.compliance_request),
+            metadata=_build_mobile_admission_metadata(chat_req, thread_id),
             config=DEFAULT_RUN_CONFIG,
             context=run_context,
-            # `custom` carries the compliance OutputGate retract event.
-            stream_mode=["updates", "values", "messages-tuple", "custom"],
+            # Do not forward token chunks before OutputGate has checked the complete
+            # State snapshots contain the OutputGate-checked answer. Do not
+            # forward token, raw-event, or arbitrary custom payloads.
+            stream_mode=["updates", "values"],
+            on_disconnect="continue",
+            # The response headers contain the admitted run ID before a queued
+            # worker emits its first metadata event.
+            on_run_created=on_run_created,
         ):
+            event_name = getattr(chunk, "event", "")
+            event_data = getattr(chunk, "data", None)
+            if event_name == "metadata" and isinstance(event_data, dict) and event_data.get("run_id") and status_task is None:
+                on_run_created(event_data)
             await queue.put(
                 {
                     "kind": "chunk",
@@ -1893,13 +2108,45 @@ async def _produce_langgraph_stream(
         await queue.put({"kind": "done"})
 
     except Exception as exc:
+        status_code, retry_after = _upstream_admission_error(exc)
+        message = (
+            "当前用户、任务类别或全局并发名额已满，请稍后重试。"
+            if status_code == 429
+            else "任务服务暂时不可用，请稍后重试。"
+        )
         await queue.put(
             {
                 "kind": "error",
                 "error_type": type(exc).__name__,
-                "message": str(exc),
+                "message": message,
+                "status_code": status_code or 500,
+                "retry_after": retry_after,
             }
         )
+    finally:
+        if status_task is not None:
+            status_task.cancel()
+            await asyncio.gather(status_task, return_exceptions=True)
+
+
+async def _produce_mobile_run_status(client: Any, thread_id: str, run_id: str, queue: asyncio.Queue) -> None:
+    """Report the exact submitted run's queue state without guessing from SSE."""
+    previous = None
+    while True:
+        try:
+            run = await client.runs.get(thread_id, run_id)
+        except Exception:
+            # Polling is supplementary; a temporary lookup failure must not
+            # interrupt the actual stream or assert that execution has begun.
+            await asyncio.sleep(MOBILE_RUN_STATUS_POLL_SECONDS)
+            continue
+        status = run.get("status") if isinstance(run, dict) else None
+        if status in {"pending", "running"} and status != previous:
+            await queue.put({"kind": "status", "thread_id": thread_id, "run_id": run_id, "status": status})
+            previous = status
+        elif status in {"success", "error", "timeout", "interrupted"}:
+            return
+        await asyncio.sleep(MOBILE_RUN_STATUS_POLL_SECONDS)
 
 
 def _checkpoint_id(state: Any) -> str:
@@ -1960,7 +2207,7 @@ async def _load_terminal_state_event(
     if not thread_id:
         return None
     try:
-        state = await get_client(url=DEFAULT_LANGGRAPH_URL).threads.get_state(thread_id)
+        state = await get_client(url=DEFAULT_LANGGRAPH_URL, headers=internal_graph_headers()).threads.get_state(thread_id)
     except Exception:
         return None
     return _terminal_state_event(
@@ -1972,8 +2219,9 @@ async def _load_terminal_state_event(
 
 async def _stream_deerflow_mobile_run(
     req: DeerFlowMobileRunRequest,
+    prepared_chat_req: MobileChatRequest | None = None,
 ) -> AsyncIterator[str]:
-    chat_req = _mobile_chat_request(req)
+    chat_req = prepared_chat_req or _mobile_chat_request(req)
     thread_id = chat_req.thread_id
 
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
@@ -1981,6 +2229,7 @@ async def _stream_deerflow_mobile_run(
 
     raw_events: list[Any] = []
     current_thread_id = thread_id or ""
+    current_run_status = "submitted"
     initial_checkpoint_id = ""
     emitted_keys: set[tuple[str, str, str]] = set()
     emitted_segments: list[dict[str, Any]] = []
@@ -2050,7 +2299,7 @@ async def _stream_deerflow_mobile_run(
                 "code": 0,
                 "message": "accepted",
                 "conversation_id": req.conversation_id,
-                "status": "running",
+                "status": "submitted",
             },
         )
 
@@ -2076,7 +2325,7 @@ async def _stream_deerflow_mobile_run(
                             "type": "heartbeat",
                             "conversation_id": req.conversation_id,
                             "thread_id": current_thread_id,
-                            "status": "running",
+                            "status": current_run_status,
                         },
                     )
                     continue
@@ -2101,10 +2350,23 @@ async def _stream_deerflow_mobile_run(
                     "start",
                     {
                         "code": 0,
-                        "message": "started",
+                        "message": "preparing",
                         "conversation_id": req.conversation_id,
                         "thread_id": current_thread_id,
-                        "status": "running",
+                        "status": "submitted",
+                    },
+                )
+
+            elif kind == "status":
+                current_run_status = str(item["status"])
+                yield _sse_event(
+                    "status",
+                    {
+                        "code": 0,
+                        "conversation_id": req.conversation_id,
+                        "thread_id": current_thread_id,
+                        "run_id": item["run_id"],
+                        "status": current_run_status,
                     },
                 )
 
@@ -2139,16 +2401,20 @@ async def _stream_deerflow_mobile_run(
                         yield _sse_event("segment", segment)
 
             elif kind == "error":
-                yield _sse_event(
-                    "error",
-                    {
-                        "code": 500,
-                        "message": f"{item.get('error_type')}: {item.get('message')}",
-                        "conversation_id": req.conversation_id,
-                        "thread_id": current_thread_id,
-                        "status": "failed",
-                    },
-                )
+                error_payload = {
+                    "code": item.get("status_code") or 500,
+                    "message": (
+                        item.get("message")
+                        if item.get("status_code") == 429
+                        else f"{item.get('error_type')}: {item.get('message')}"
+                    ),
+                    "conversation_id": req.conversation_id,
+                    "thread_id": current_thread_id,
+                    "status": "failed",
+                }
+                if item.get("retry_after"):
+                    error_payload["retry_after"] = item["retry_after"]
+                yield _sse_event("error", error_payload)
 
                 yield "data: [DONE]\n\n"
 
@@ -2201,9 +2467,30 @@ async def _stream_deerflow_mobile_run(
 
 
 @router.post("/api/deerflow/mobile/threads/ensure")
-async def deerflow_mobile_ensure_thread(req: DeerFlowMobileEnsureThreadRequest) -> dict[str, Any]:
+async def deerflow_mobile_ensure_thread(req: DeerFlowMobileEnsureThreadRequest, request: Request) -> dict[str, Any]:
     try:
-        thread_id, created = await ensure_mobile_thread(req)
+        provider, principal = await authenticate_mobile_request(request)
+        if principal is not None:
+            if provider is None:
+                raise HTTPException(status_code=503, detail="Mobile IAM provider is unavailable")
+            req.user_id = principal.user_id
+            await authorize_mobile_request(
+                provider,
+                principal,
+                MobileAuthorizationInput(
+                    request_id=str(uuid4()),
+                    turn_id=str(uuid4()),
+                    conversation_id=req.conversation_id,
+                    operation_type="analysis",
+                    target_audience="self",
+                    resource_id=req.conversation_id,
+                ),
+            )
+        thread_id, created = await ensure_mobile_thread(
+            req,
+            org_id=principal.org_id if principal is not None else None,
+            user_id=principal.user_id if principal is not None else None,
+        )
         assistant_id = req.assistant_id or DEFAULT_ASSISTANT_ID
 
         return {
@@ -2218,6 +2505,8 @@ async def deerflow_mobile_ensure_thread(req: DeerFlowMobileEnsureThreadRequest) 
         }
 
     except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise
         return {
             "code": 500,
             "message": f"ensure thread failed: {type(exc).__name__}: {exc}",
@@ -2231,35 +2520,48 @@ async def deerflow_mobile_ensure_thread(req: DeerFlowMobileEnsureThreadRequest) 
 
 
 @router.post("/api/mobile/chat")
-async def mobile_chat(req: MobileChatRequest) -> dict[str, Any]:
+async def mobile_chat(req: MobileChatRequest, request: Request) -> dict[str, Any]:
+    chat_req = await _prepare_mobile_chat_request(req, request)
     try:
-        thread_id, raw_events = await run_deerflow_and_collect_events(req)
+        thread_id, raw_events = await run_deerflow_and_collect_events(chat_req)
         return adapt_events_to_mobile(
-            session_id=req.session_id,
+            session_id=chat_req.session_id,
             thread_id=thread_id,
             raw_events=raw_events,
-            current_query=req.query,
+            current_query=chat_req.query,
         )
     except Exception as exc:
-        return {
+        status_code, retry_after = _upstream_admission_error(exc)
+        message = (
+            "当前用户、任务类别或全局并发名额已满，请稍后重试。"
+            if status_code == 429
+            else f"DeerFlow mobile adapter 调用失败：{type(exc).__name__}: {exc}"
+        )
+        result = {
+            "code": status_code or 500,
+            "message": message,
             "session_id": req.session_id,
             "thread_id": req.thread_id,
             "segments": [
                 make_segment(
                     agent_id="system",
-                    content=f"DeerFlow mobile adapter 调用失败：{type(exc).__name__}: {exc}",
+                    content=message,
                     status="failed",
                     source_event="exception",
                 )
             ],
         }
+        if retry_after:
+            result["retry_after"] = retry_after
+        return result
 
 
 @router.post("/api/deerflow/mobile/run")
-async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
+async def deerflow_mobile_run(req: DeerFlowMobileRunRequest, request: Request):
+    chat_req = await _prepare_mobile_chat_request(_mobile_chat_request(req), request)
     if req.stream:
         return StreamingResponse(
-            _stream_deerflow_mobile_run(req),
+            _stream_deerflow_mobile_run(req, chat_req),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -2268,13 +2570,12 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
             },
         )
 
-    chat_req = _mobile_chat_request(req)
     thread_id = chat_req.thread_id
 
     try:
         deerflow_thread_id, raw_events = await run_deerflow_and_collect_events(chat_req)
         adapted = adapt_events_to_mobile(
-            session_id=req.conversation_id,
+            session_id=chat_req.session_id,
             thread_id=deerflow_thread_id,
             raw_events=raw_events,
             current_query=req.query,
@@ -2285,7 +2586,7 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
         return {
             "code": 0,
             "message": "success",
-            "conversation_id": req.conversation_id,
+            "conversation_id": chat_req.session_id,
             "thread_id": deerflow_thread_id,
             "ordered_segments": ordered_segments,
             "compliance_results": adapted.get("compliance_results", []),
@@ -2293,14 +2594,16 @@ async def deerflow_mobile_run(req: DeerFlowMobileRunRequest):
 
     except Exception as exc:
         return _mobile_run_error_response(
-            conversation_id=req.conversation_id,
+            conversation_id=chat_req.session_id,
             thread_id=thread_id,
             exc=exc,
         )
 
 
 @router.get("/api/deerflow/mobile/files/{thread_id}/{filename:path}")
-async def deerflow_mobile_download_file(thread_id: str, filename: str):
+async def deerflow_mobile_download_file(thread_id: str, filename: str, request: Request):
+    await require_thread_access(request, thread_id, operation_type="analysis")
+
     safe_filename = Path(filename).name
 
     candidates = [

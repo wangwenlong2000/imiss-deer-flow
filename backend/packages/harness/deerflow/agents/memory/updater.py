@@ -1,8 +1,13 @@
 """Memory updater for reading, writing, and updating memory data."""
 
+import copy
+import hashlib
 import json
 import re
+import tempfile
+import threading
 import uuid
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,12 +16,13 @@ from deerflow.agents.memory.prompt import (
     MEMORY_UPDATE_PROMPT,
     format_conversation_for_update,
 )
+from deerflow.agents.memory.scope import MemoryScope, memory_isolation_required
 from deerflow.config.memory_config import get_memory_config
 from deerflow.config.paths import get_paths
 from deerflow.models import create_chat_model
 
 
-def _get_memory_file_path(agent_name: str | None = None) -> Path:
+def _get_memory_file_path(agent_name: str | None = None, *, scope: MemoryScope | None = None) -> Path:
     """Get the path to the memory file.
 
     Args:
@@ -26,6 +32,14 @@ def _get_memory_file_path(agent_name: str | None = None) -> Path:
     Returns:
         Path to the memory file.
     """
+    if scope is not None:
+        base = get_paths().base_dir / "users" / scope.key
+        if agent_name is not None:
+            # Agent names are not allowed to influence path traversal.
+            base = base / "agents" / hashlib.sha256(agent_name.encode("utf-8")).hexdigest()
+        return base / "memory.json"
+    if memory_isolation_required():
+        raise PermissionError("Authenticated memory scope is required")
     if agent_name is not None:
         return get_paths().agent_memory_file(agent_name)
 
@@ -56,12 +70,32 @@ def _create_empty_memory() -> dict[str, Any]:
     }
 
 
-# Per-agent memory cache: keyed by agent_name (None = global)
+# Cache keys include the complete path, hence organization, user and agent.
 # Value: (memory_data, file_mtime)
-_memory_cache: dict[str | None, tuple[dict[str, Any], float | None]] = {}
+_memory_cache: dict[str, tuple[dict[str, Any], int | None]] = {}
+_memory_locks: dict[str, threading.RLock] = {}
+_memory_locks_guard = threading.Lock()
 
 
-def get_memory_data(agent_name: str | None = None) -> dict[str, Any]:
+@contextmanager
+def _memory_update_lock(file_path: Path):
+    """Serialize a complete read/update/write, including across local workers."""
+    import fcntl
+
+    key = str(file_path)
+    with _memory_locks_guard:
+        lock = _memory_locks.setdefault(key, threading.RLock())
+    with lock:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with file_path.with_suffix(".lock").open("a", encoding="utf-8") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+def get_memory_data(agent_name: str | None = None, *, scope: MemoryScope | None = None) -> dict[str, Any]:
     """Get the current memory data (cached with file modification time check).
 
     The cache is automatically invalidated if the memory file has been modified
@@ -73,26 +107,27 @@ def get_memory_data(agent_name: str | None = None) -> dict[str, Any]:
     Returns:
         The memory data dictionary.
     """
-    file_path = _get_memory_file_path(agent_name)
+    file_path = _get_memory_file_path(agent_name, scope=scope)
+    cache_key = str(file_path)
 
     # Get current file modification time
     try:
-        current_mtime = file_path.stat().st_mtime if file_path.exists() else None
+        current_mtime = file_path.stat().st_mtime_ns if file_path.exists() else None
     except OSError:
         current_mtime = None
 
-    cached = _memory_cache.get(agent_name)
+    cached = _memory_cache.get(cache_key)
 
     # Invalidate cache if file has been modified or doesn't exist
     if cached is None or cached[1] != current_mtime:
-        memory_data = _load_memory_from_file(agent_name)
-        _memory_cache[agent_name] = (memory_data, current_mtime)
-        return memory_data
+        memory_data = _load_memory_from_file(agent_name, scope=scope)
+        _memory_cache[cache_key] = (memory_data, current_mtime)
+        return copy.deepcopy(memory_data)
 
-    return cached[0]
+    return copy.deepcopy(cached[0])
 
 
-def reload_memory_data(agent_name: str | None = None) -> dict[str, Any]:
+def reload_memory_data(agent_name: str | None = None, *, scope: MemoryScope | None = None) -> dict[str, Any]:
     """Reload memory data from file, forcing cache invalidation.
 
     Args:
@@ -101,19 +136,19 @@ def reload_memory_data(agent_name: str | None = None) -> dict[str, Any]:
     Returns:
         The reloaded memory data dictionary.
     """
-    file_path = _get_memory_file_path(agent_name)
-    memory_data = _load_memory_from_file(agent_name)
+    file_path = _get_memory_file_path(agent_name, scope=scope)
+    memory_data = _load_memory_from_file(agent_name, scope=scope)
 
     try:
-        mtime = file_path.stat().st_mtime if file_path.exists() else None
+        mtime = file_path.stat().st_mtime_ns if file_path.exists() else None
     except OSError:
         mtime = None
 
-    _memory_cache[agent_name] = (memory_data, mtime)
-    return memory_data
+    _memory_cache[str(file_path)] = (memory_data, mtime)
+    return copy.deepcopy(memory_data)
 
 
-def _load_memory_from_file(agent_name: str | None = None) -> dict[str, Any]:
+def _load_memory_from_file(agent_name: str | None = None, *, scope: MemoryScope | None = None) -> dict[str, Any]:
     """Load memory data from file.
 
     Args:
@@ -122,7 +157,7 @@ def _load_memory_from_file(agent_name: str | None = None) -> dict[str, Any]:
     Returns:
         The memory data dictionary.
     """
-    file_path = _get_memory_file_path(agent_name)
+    file_path = _get_memory_file_path(agent_name, scope=scope)
 
     if not file_path.exists():
         return _create_empty_memory()
@@ -173,7 +208,7 @@ def _strip_upload_mentions_from_memory(memory_data: dict[str, Any]) -> dict[str,
     return memory_data
 
 
-def _save_memory_to_file(memory_data: dict[str, Any], agent_name: str | None = None) -> bool:
+def _save_memory_to_file(memory_data: dict[str, Any], agent_name: str | None = None, *, scope: MemoryScope | None = None) -> bool:
     """Save memory data to file and update cache.
 
     Args:
@@ -183,7 +218,8 @@ def _save_memory_to_file(memory_data: dict[str, Any], agent_name: str | None = N
     Returns:
         True if successful, False otherwise.
     """
-    file_path = _get_memory_file_path(agent_name)
+    file_path = _get_memory_file_path(agent_name, scope=scope)
+    temp_path: Path | None = None
 
     try:
         # Ensure directory exists
@@ -193,8 +229,8 @@ def _save_memory_to_file(memory_data: dict[str, Any], agent_name: str | None = N
         memory_data["lastUpdated"] = datetime.utcnow().isoformat() + "Z"
 
         # Write atomically using temp file
-        temp_path = file_path.with_suffix(".tmp")
-        with open(temp_path, "w", encoding="utf-8") as f:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=file_path.parent, prefix=".memory-", suffix=".tmp", delete=False) as f:
+            temp_path = Path(f.name)
             json.dump(memory_data, f, indent=2, ensure_ascii=False)
 
         # Rename temp file to actual file (atomic on most systems)
@@ -202,17 +238,20 @@ def _save_memory_to_file(memory_data: dict[str, Any], agent_name: str | None = N
 
         # Update cache and file modification time
         try:
-            mtime = file_path.stat().st_mtime
+            mtime = file_path.stat().st_mtime_ns
         except OSError:
             mtime = None
 
-        _memory_cache[agent_name] = (memory_data, mtime)
+        _memory_cache[str(file_path)] = (copy.deepcopy(memory_data), mtime)
 
         print(f"Memory saved to {file_path}")
         return True
     except OSError as e:
         print(f"Failed to save memory file: {e}")
         return False
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 class MemoryUpdater:
@@ -232,7 +271,19 @@ class MemoryUpdater:
         model_name = self._model_name or config.model_name
         return create_chat_model(name=model_name, thinking_enabled=False)
 
-    def update_memory(self, messages: list[Any], thread_id: str | None = None, agent_name: str | None = None) -> bool:
+    def update_memory(self, messages: list[Any], thread_id: str | None = None, agent_name: str | None = None, *, scope: MemoryScope | None = None) -> bool:
+        """Update one namespace atomically; callers cannot fall back to global."""
+        if not get_memory_config().enabled or not messages:
+            return False
+        try:
+            file_path = _get_memory_file_path(agent_name, scope=scope)
+            with _memory_update_lock(file_path):
+                return self._update_memory(messages, thread_id, agent_name, scope=scope)
+        except (OSError, PermissionError) as exc:
+            print(f"Memory update unavailable: {type(exc).__name__}")
+            return False
+
+    def _update_memory(self, messages: list[Any], thread_id: str | None = None, agent_name: str | None = None, *, scope: MemoryScope | None = None) -> bool:
         """Update memory based on conversation messages.
 
         Args:
@@ -252,7 +303,7 @@ class MemoryUpdater:
 
         try:
             # Get current memory
-            current_memory = get_memory_data(agent_name)
+            current_memory = reload_memory_data(agent_name, scope=scope)
 
             # Format conversation for prompt
             conversation_text = format_conversation_for_update(messages)
@@ -289,7 +340,7 @@ class MemoryUpdater:
             updated_memory = _strip_upload_mentions_from_memory(updated_memory)
 
             # Save
-            return _save_memory_to_file(updated_memory, agent_name)
+            return _save_memory_to_file(updated_memory, agent_name, scope=scope)
 
         except json.JSONDecodeError as e:
             print(f"Failed to parse LLM response for memory update: {e}")
@@ -369,7 +420,7 @@ class MemoryUpdater:
         return current_memory
 
 
-def update_memory_from_conversation(messages: list[Any], thread_id: str | None = None, agent_name: str | None = None) -> bool:
+def update_memory_from_conversation(messages: list[Any], thread_id: str | None = None, agent_name: str | None = None, *, scope: MemoryScope | None = None) -> bool:
     """Convenience function to update memory from a conversation.
 
     Args:
@@ -381,4 +432,4 @@ def update_memory_from_conversation(messages: list[Any], thread_id: str | None =
         True if successful, False otherwise.
     """
     updater = MemoryUpdater()
-    return updater.update_memory(messages, thread_id, agent_name)
+    return updater.update_memory(messages, thread_id, agent_name, scope=scope)

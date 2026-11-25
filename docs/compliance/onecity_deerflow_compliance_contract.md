@@ -2,17 +2,16 @@
 
 ## Trust boundary
 
-OneCityAgent should eventually populate `compliance_request` from its
-authenticated user, authorization service, resource catalogue, and requested
-business operation. DeerFlow derives the policy scene from those facts only
-when a trusted upstream/IAM decision is explicitly bound to the request.
+OneCityAgent populates `compliance_request` from the current authenticated
+account and the requested dialog. DeerFlow derives the policy scene from those
+facts only when the trusted upstream/IAM decision is explicitly bound to the
+request.
 `scene_hint` is advisory only and never selects a policy cell.
 
-The current DeerFlow development endpoint has no tenant IAM lookup of its own.
-For production, direct public access to LangGraph must be blocked and the
-Gateway must accept these facts only from an authenticated OneCity integration.
-Until that integration exists, `scene_resolver_mode: null` is the default and
-all real requests resolve to `_unknown`.
+The DeerFlow Gateway does not validate OneCity tokens itself. Its built-in
+provider calls the OneCityAgent `/internal/deerflow/iam` bridge, which checks
+the login token against the active OneCity user and verifies ownership of the
+requested dialog. Direct public access to LangGraph must still be blocked.
 
 For local policy-matrix verification, `scene_resolver_mode: manual_ui` enables
 the front-end's explicit `compliance_context` selection. This mode is marked
@@ -37,6 +36,7 @@ authorization decision: a client can forge it. Production must use
       "user_id": "user-001",
       "org_id": "org-001",
       "department_id": "dept-001",
+      "identity_class": "internal_operator",
       "roles": ["analyst"],
       "permissions": ["traffic.read"]
     },
@@ -72,9 +72,18 @@ default configuration omits the trust binding and therefore remains `_unknown`.
 ### Actor
 
 - `user_id`, `org_id`, and `department_id` identify the authenticated actor.
-- `roles` are server-issued role names.
-- `permissions` are server-issued entitlements. An empty or missing list does
-  not prove access and resolves ordinary scenes to `_unknown`.
+- `identity_class` uses the compliance profile vocabulary: `ordinary_user`,
+  `internal_operator`, `cross_org_operator`, `publisher`, or `researcher`.
+- `roles` are server-issued role names and `permissions` are server-issued
+  entitlements.
+- An empty or missing permissions list does not prove access and resolves
+  ordinary scenes to `_unknown`.
+
+The identity class records the platform's user classification for the request
+and audit. The policy scene remains the existing five-scene usage classification
+(`self_use`, `internal_org`, `cross_org`, `public_release`, `research_anon`) and
+is derived from the verified permission decision, operation, audience, resource
+ownership/classification, and anonymization facts.
 
 ### Operation
 
@@ -92,9 +101,10 @@ Unknown classification or ownership is a fallback condition.
 
 ### Untrusted fields
 
-`scene_hint`, natural-language ownership claims, client-created role names, and
-client-created permission strings are not authorization. DeerFlow ignores the
-hint for resolution. A non-empty permissions array is not a permission check;
+`scene_hint`, natural-language ownership claims, client-created identity
+classes, role names, and permission strings are not authorization. DeerFlow
+ignores the hint for resolution. A non-empty permissions array is not a
+permission check;
 `permission_checked` becomes true only for a server-side verified decision
 bound to request ID, thread ID, turn ID, actor, resource and operation.
 
@@ -243,12 +253,110 @@ An invalid enum, missing ownership, or missing operation is not a request error
 that crashes the graph. It is an explicit conservative fallback and is visible
 in state, policy selection, diagnostics, and audit when a finding exists.
 
+## Gateway IAM provider contract
+
+The 2026-11-12 access update also protects native graph reads and control APIs,
+binds threads to verified organization and user IDs, persists conversation and
+data-source mappings in SQLite, and isolates memory. New native runs/state
+writes must use the authenticated Gateway. Data-centre operation permissions,
+legacy ownership migration, browser compatibility, and deterministic runtime
+verification are documented in [the access rollout notes](../user-access-and-concurrency-20261112.md).
+
+The Gateway keeps a provider-neutral extension point and includes an adapter for
+the OneCityAgent bridge. Configure it in the Gateway and LangGraph environment:
+
+```dotenv
+MOBILE_IAM_PROVIDER=app.gateway.onecity_iam:OneCityIAMProvider
+MOBILE_IAM_ENDPOINT=http://<onecity-internal-host>:<A2A_COORDINATOR_PORT>/internal/deerflow/iam
+MOBILE_IAM_REQUIRED=true
+```
+
+The endpoint must reach the OneCityAgent Coordinator's internal listener. The
+IAM bridge is not exposed through the public Nginx routes.
+
+The provider implements two async methods:
+
+```python
+async def authenticate(authorization_header) -> {
+    "user_id": "user-001",
+    "org_id": "org-001",
+    "department_id": "dept-001",
+    "identity_class": "internal_operator",
+    "roles": ["analyst"],
+    "permissions": ["traffic.read"],
+}
+
+async def authorize(principal, request) -> {
+    "allowed": True,
+    "permission_verified": True,
+    "operation": {"type": "analysis", "target_audience": "organization"},
+    "resource": {
+        "resource_id": "resource-001",
+        "owner_user_id": "user-001",
+        "owner_org_id": "org-001",
+        "owner_department_id": "dept-001",
+        "target_org_id": None,
+        "classification": "internal",
+        "is_anonymized": False,
+    },
+}
+```
+
+`request` contains a Gateway-generated `request_id` and `turn_id`, the
+conversation ID, and caller-supplied operation/resource identifiers as lookup
+hints. With a provider enabled, operation type, target audience, and resource ID
+must be present. The provider authenticates the Authorization credential, maps
+the platform user to one of the five compliance identity classes, checks
+permission for the requested operation, and loads authoritative ownership and
+classification from the resource catalogue. The Gateway rejects denied or
+unverified decisions,
+creates the LangGraph thread, and builds the trusted `compliance_request` with
+its own request/thread/turn binding. Caller-supplied `compliance_identity` and
+`compliance_request` never become trusted claims.
+
+When `MOBILE_IAM_REQUIRED=true`, mobile chat, thread creation, upload, file
+listing, artifact reads, and downloads require a valid provider. Without a
+provider and without required IAM, development calls may run, but
+caller-supplied trusted request data is discarded and policy selection uses
+`_unknown`. `manual_ui` remains an untrusted development/diagnostic path and
+does not establish IAM authority.
+
+After installing the tenant provider, enable trusted scene resolution:
+
+```yaml
+compliance:
+  scene_resolver_mode: trusted_upstream
+  scene:
+    resolver: null # use the built-in TrustedSceneResolver
+```
+
+The repository keeps this mode disabled until the provider and its IAM
+configuration are available.
+
+The included bridge validates `Authorization` against the current
+`User.access_token` record and requires an active account. Dialog ownership is
+read from the OneCity `dialog` row (`creator_id` and `tenant_id`). By default,
+the bridge allows only self-audience `analysis` and `upload` on owned dialogs.
+`ONECITY_DEERFLOW_IDENTITY_CLASS_MAP` maps role codes to the five compliance
+identity classes, and `ONECITY_DEERFLOW_ROLE_PERMISSIONS` can add operation
+types. These mappings are server-side configuration; browser role and profile
+fields never grant access. The current dialog schema has no classification
+field, so resources are reported as `internal` and cross-organization or public
+audiences stay unavailable until the platform adds authoritative grant data.
+
+The OneCity browser uses fetch-based SSE to send the login `Authorization`
+header. Upload, preview, and download requests use the same token. Artifact
+downloads are proxied through OneCityAgent so tokens never appear in URLs.
+Gateway upload and artifact routes check persisted LangGraph thread owner
+metadata and then re-check dialog authorization.
+
 ## OneCityAgent handoff checklist
 
 For every turn OneCityAgent must supply:
 
 - a stable request ID;
 - authenticated user/org/department IDs;
+- one of the five canonical `identity_class` values;
 - server-issued roles and permissions relevant to the resource;
 - operation and intended audience;
 - authoritative resource owner user/org/department;

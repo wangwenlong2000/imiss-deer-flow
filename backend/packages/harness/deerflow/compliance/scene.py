@@ -16,7 +16,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
 from deerflow.compliance.contract import SCENES, UNKNOWN_SCENE_KEY, Scene
-from deerflow.compliance.manual_context import validate_manual_context
+from deerflow.compliance.manual_context import MANUAL_COMPLIANCE_PROFILES, validate_manual_context
 from deerflow.compliance.types import DetectionRequest
 
 logger = logging.getLogger(__name__)
@@ -30,6 +30,7 @@ class ActorContext:
     user_id: str | None = None
     org_id: str | None = None
     department_id: str | None = None
+    identity_class: str | None = None
     roles: tuple[str, ...] = ()
     permissions: tuple[str, ...] = ()
 
@@ -103,6 +104,7 @@ def parse_compliance_request(raw: Any) -> ComplianceRequestContext:
     resource = _mapping(data.get("resource"))
     roles = actor.get("roles") if isinstance(actor.get("roles"), (list, tuple)) else ()
     permissions = actor.get("permissions") if isinstance(actor.get("permissions"), (list, tuple)) else ()
+    identity_class = actor.get("identity_class")
     return ComplianceRequestContext(
         request_id=str(data["request_id"]) if data.get("request_id") else None,
         thread_id=str(data["thread_id"]) if data.get("thread_id") else None,
@@ -113,6 +115,11 @@ def parse_compliance_request(raw: Any) -> ComplianceRequestContext:
             user_id=str(actor["user_id"]) if actor.get("user_id") else None,
             org_id=str(actor["org_id"]) if actor.get("org_id") else None,
             department_id=str(actor["department_id"]) if actor.get("department_id") else None,
+            identity_class=(
+                identity_class
+                if isinstance(identity_class, str) and identity_class in MANUAL_COMPLIANCE_PROFILES
+                else None
+            ),
             roles=tuple(str(item) for item in roles),
             permissions=tuple(str(item) for item in permissions),
         ),

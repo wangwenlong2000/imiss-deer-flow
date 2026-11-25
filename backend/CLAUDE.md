@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+## Authenticated user isolation (2026-11-12)
+
+The optional `scripts/deploy_onecity_multiuser.py` prepares a private deployment bundle for a separate OneCity Gateway/LangGraph pair without mutating the existing 3328 stack. `prepare` only inspects Docker and reads the live YAML; `start` explicitly creates new named containers and never replaces existing ones. A hashed backend source snapshot and existing venv/assets are read-only, so later development edits do not change running code. A shared new `DEER_FLOW_HOME` must correspond to `DEER_FLOW_HOST_BASE_DIR`, with an additional writable `.langgraph_api` mount because the installed in-memory runtime writes relative to CWD. Dedicated config uses trusted IAM scenes, an absolute private audit/checkpoint path, a distinct sandbox prefix/port and no duplicate IM subscriptions. OneCity source/frontend deployment and URL switching remain separate operations; see `docs/onecity-private-multiuser-deployment.md`. Run `python3 -m unittest discover -s backend/tests -p test_onecity_deployment_plan.py -v` for credential/state/operation boundary checks without Docker.
+
+`GatewayAccessMiddleware` authenticates every `/api/*` request and applies thread ownership and platform administration checks. `GraphAccessMiddleware` protects native APIs, permits owner-scoped reads/cancel/delete and IAM-filtered search, and reserves task creation/state writes for the authenticated Gateway. Internal SDK calls use `app.internal_auth.internal_graph_headers()`; consume the credential before forwarding and never expose it to browsers or graph configuration. IAM deployments automatically require signed run admission. This protects one graph process; distributed admission is not implemented.
+
+Thread metadata and conversation uniqueness use the exact verified `(org_id, user_id, conversation_id)`. `conversation_store.py` and `data_source_store.py` share `${DEER_FLOW_HOME}/gateway.sqlite3` in separate tables. Keep SQLite transactions short and network calls outside them. Data-source JSON migration is one-time and does not assign legacy owners. Data-center permissions use `data_center:<operation>` / `data_center:*`, with independent ownership and server-configured sharing/ES index checks. Global Agent/profile, MCP/channel/router administration requires explicit `platform:admin`.
+
+Memory scope is a thread-bound HMAC assertion built only after IAM authentication. Persisted files, cache, queue, and model-time injection use organization/user/agent namespaces; IAM must never fall back to global memory. Thread uploads and data-source attachments share `thread_upload_transaction` across local workers so rollback cannot overwrite another request. Reject redirected upload files/directories in writes, conversion, rollback and model attachment injection. Access logs omit tokens, query parameters and payloads.
+
+Run `python ../scripts/verify_user_access_runtime.py` in the backend environment for the isolated, deterministic real-LangGraph authorization/concurrency check. Unit/regression suites include `test_api_access_control`, `test_mobile_iam_validation`, `test_mobile_conversation_ownership`, `test_data_center_access`, `test_memory_user_isolation`, `test_onecity_iam` and `test_upload_path_isolation`. Full rollout notes and limitations: `docs/user-access-and-concurrency-20261112.md`. The standalone browser and IM task-creation flows still need trusted IAM integration before use in an IAM deployment; preserve legacy behavior only when IAM is unconfigured.
+
+The UI recording fixture is documented in `docs/user-access-concurrency-demo.md`. `scripts/serve_user_access_demo.py` supplies isolated test identities and a deterministic CSV graph; `scripts/serve_user_access_demo_frontend.py` serves a temporary copy of the original frontend; `scripts/record_user_access_demo.mjs` drives independent real browser sessions and records assertions; `scripts/render_user_access_demo.mjs` renders a successful timeline. The fixture exercises the real access/admission middleware with two graph workers, four total in-flight slots and one active run per user. Its test-login bridge is not production IAM login, and its graph does not call an LLM or tools.
+
 ## Type 7 confidential regression (2026-09-17)
 
 `scripts/build_eval_confidential.py` copies all confidential-targeted records from the three source files, appends fictional boundary examples, and assigns a stable stratified 20/80 development/test split. Use `--evaluate dev` while adjusting rules and `--evaluate test` only after freezing the rule. `latest_metrics.json` records source and rule hashes, Git HEAD, FP/FN IDs, and rule-only configuration. The initial full-corpus exploration occurred before the split request, so the 80% result is not a blind independent acceptance score. Confidential LLM review requires explicit `COMPLIANCE_CONFIDENTIAL_MODEL_NAME` and `COMPLIANCE_CONFIDENTIAL_MODEL_VERSION` settings; prompt version is `confidential-boundary-v2-20260917` and temperature is 0. Without those pins it stays disabled.
@@ -12,7 +26,7 @@ For the fresh independent batch, run `scripts/text_id_fresh_holdout.py` with act
 
 ## Type 3 credential regression (2026-09-17)
 
-`scripts/build_eval_hardcoded_cred_program_code.py` copies all 250 source program-code annotations, adds 20 placeholder negatives and 20 synthetic nonstandard credential positives, then evaluates the delivered hardcoded-credential rule. The generated data and ID-only metrics live in `合规检测/类型3-hardcoded_cred整改/`. The rule now filters placeholder credentials per match and recognizes cloud-token, JWT, private-key and connection-string forms. Keep the type-3 manifest on InputGate until the annotation guide's OutputGate conflict is resolved by the compliance owner. The generated score is a development regression, not an independent holdout.
+`scripts/build_eval_hardcoded_cred_program_code.py` copies all 250 source program-code annotations, adds 20 placeholder negatives and 20 synthetic nonstandard credential positives, then evaluates the delivered hardcoded-credential rule. The generated data and ID-only metrics live in `合规检测/类型3-hardcoded_cred整改/`. The rule now filters placeholder credentials per match and recognizes cloud-token, JWT, private-key and connection-string forms. The type-3 manifest supports InputGate as the primary detector and OutputGate as the model/Skill-output backstop; ContextGate is intentionally not repeated in phase one. The generated score is a development regression, not an independent holdout.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -421,11 +435,19 @@ Full-flow regression fixes (`tests/test_full_flow_regressions.py`):
   each `compliance_retract` event to one `反馈智能体` segment containing only the
   safe replacement/refusal. It forwards disposition metadata and suppresses
   the rewritten final answer so JSON and SSE clients do not receive duplicates.
-- `/api/deerflow/mobile/run` accepts explicit `compliance_identity`,
-  `compliance_context`, and `compliance_request` fields (plus their legacy
-  nested forms under `context`). Identity becomes
-  `run_context.compliance_context.user_context`; `compliance_request` is part
-  of LangGraph input/state. Never forward arbitrary client `context` keys.
+- `/api/deerflow/mobile/run` accepts legacy `compliance_identity`,
+  `compliance_context`, and `compliance_request` fields (plus their nested
+  forms under `context`). Treat caller-provided identity and request values as
+  hints. `app/gateway/mobile_iam.py` defines the server-side provider contract:
+  authenticate the bearer credential, authorize the operation, and resolve
+  resource ownership/classification. The gateway builds the trusted request
+  only from that provider result. Without a configured provider, discard the
+  caller's trusted request; `trusted_upstream` mode requires the provider.
+- The IAM `identity_class` vocabulary is sourced from the existing compliance
+  profiles: `ordinary_user`, `internal_operator`, `cross_org_operator`,
+  `publisher`, and `researcher`. These are audit/user categories. Policy scenes
+  remain the existing usage classifications and are derived from authorization,
+  operation, audience, and resource facts.
 - Mobile compliance results from InputGate, ContextGate, and OutputGate are
   normalized to `gate`, `scene`, `violation_types`, `actions`, `audit_ref`,
   `basis`, and `final_disposition`. SSE emits incremental `compliance` events
@@ -627,6 +649,20 @@ The resolver deliberately reports `permission_checked=false`: this validates a
 test profile, not real IAM authority. Production authorization must use
 `trusted_upstream` and bind actor, resource ownership, operation, audience and
 the IAM decision to the request.
+
+The OneCityAgent IAM adapter is configured with
+`MOBILE_IAM_PROVIDER=app.gateway.onecity_iam:OneCityIAMProvider`,
+`MOBILE_IAM_ENDPOINT=http://<onecity-internal-host>:<A2A_COORDINATOR_PORT>/internal/deerflow/iam`, and
+`MOBILE_IAM_REQUIRED=true`. The Gateway passes the OneCity login token to this
+server-side provider; the OneCityAgent bridge resolves the active account and
+authorizes the requested operation against the owned dialog. `thread_access.py`
+checks persisted thread owner metadata before upload, listing, download, or
+artifact reads. Never trust caller-supplied user, role, owner, or classification
+fields. The adapter credential remains request-scoped and is excluded from
+serialized principal and graph state. See
+`docs/compliance/onecity_deerflow_compliance_contract.md` for setup details.
+The endpoint must reach the Coordinator's internal listener; the IAM bridge is
+not exposed through the public Nginx routes.
 
 Violation detection across three gates, sharing one engine, one detector set and one disposition matrix. **Disabled by default** (`compliance.enabled: false`).
 
@@ -858,3 +894,11 @@ Small-table data inspection includes every input row up to 20 rows; larger table
 `tests/test_scene_service_fixes.py` covers native-frame tool parameters and the computation guard: a successful city-video event plan must execute single-video-event-analysis and actually view its returned review frames. Frame sampling, detections and tracks preserve relative offsets when shooting time is unknown; `every_frame` uses a half-open time window. Additional GIS/media integration checks and source-video fixtures are retained locally; the released self-contained backend tests cover the tool contracts. Older sandbox images require their wheel-bundled PROJ/GDAL paths in sandbox.environment; new images no longer force the older system databases. Do not publish populated config.yaml or raw live traces.
 
 Video object analytics exports full CSVs inside the sandbox and returns only a bounded frame preview; do not print complete detection JSON through the shell API (large results are truncated). The event extractor uses output-side FFmpeg seeking for AVI compatibility and rejects zero-frame results. Local integration checks include the original AVI and 125-row lossless export; the original media is not published.
+
+## OneCity adapter queue status (2026-11-12)
+
+Mobile SSE distinguishes `submitted`, `pending`, and `running`. Start the exact-run status poll from LangGraph SDK `on_run_created` (Content-Location response metadata), retaining SSE metadata as a fallback; waiting for the first graph event hides the queued phase. Cancel supplementary polling when the producer ends and preserve `on_disconnect="continue"`. The OneCity bridge consumes streaming lines without a 512-byte buffer. `test_mobile_run_status.py` covers both run-ID paths. The real HTTP integration command is `python scripts/verify_onecity_multiuser.py --onecity-root <OneCity checkout>` in an environment with Flask, Peewee and the backend runtime; it creates isolated SQLite accounts and three deterministic CSV jobs, never imports production app startup or calls a model. Its scheduler limits (2 workers/4 total/1 per user) are fixture settings, independent of production.
+
+`scripts/deploy_onecity_entry.py` backs up the affected OneCity source, compiled UI and launch environments inside the target container, restarts only API/Coordinator, persists the new connection environment and rolls back a failed cutover. `scripts/verify_onecity_production.py` uses disposable ordinary accounts for live auth/thread/file checks and disables them afterward; it does not execute the business graph. Both OneCity Flask servers use `PathOnlyRequestHandler` so default Werkzeug request logging cannot expose GET prompts or nested artifact URLs.
+
+The 2026-11-12 OneCity rollout is recorded in `docs/onecity-private-multiuser-deployment.md`: live entry checks use real disposable registration/login and no model execution. The two private services are active with 3 workers/10 total/2 per-user. The OneCity deployment helper copies assets in place and replaces index.html last because Docker OverlayFS may reject renaming a lower-layer directory; rollback restores the original files and recorded health signature. Keep the original backup separate from intermediate authenticated releases when choosing a rollback target.

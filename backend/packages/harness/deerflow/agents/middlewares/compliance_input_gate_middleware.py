@@ -41,6 +41,7 @@ from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, IntentInfo, UserCont
 from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer, UserInputNormalizer
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    INCOMPLETE_SCAN_NOTICE,
     compliance_context,
     decision_check,
     decision_types,
@@ -167,6 +168,13 @@ class ComplianceInputGateMiddleware(AgentMiddleware[ThreadState]):
                 decision,
                 scene_resolution.to_dict() if has_scene_context else None,
                 content=FAIL_CLOSED_NOTICE,
+            )
+
+        if decision.diagnostics.truncated:
+            return self._block(
+                decision,
+                scene_resolution.to_dict() if has_scene_context else None,
+                content=INCOMPLETE_SCAN_NOTICE,
             )
 
         if self._input_refusal_is_terminal(decision):

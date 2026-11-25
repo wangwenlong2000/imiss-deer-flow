@@ -22,6 +22,7 @@ from deerflow.compliance.normalizers.base import Normalizer, build_unit, make_te
 
 #: Only text-ish uploads are scanned inline; binaries need a dedicated detector.
 TEXT_SUFFIXES = {".txt", ".md", ".csv", ".tsv", ".json", ".jsonl", ".yaml", ".yml", ".log", ".py", ".sql", ".xml", ".html"}
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".heic", ".svg"}
 
 #: Bytes read per uploaded file. A whole file would blow the latency budget; the
 #: caller is told when a file was only partially scanned.
@@ -244,7 +245,8 @@ class UploadedFileNormalizer(Normalizer):
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
             return None
         try:
-            raw = path.read_bytes()[:MAX_UPLOAD_BYTES]
+            with path.open("rb") as handle:
+                raw = handle.read(MAX_UPLOAD_BYTES)
             text = raw.decode("utf-8", errors="replace")
         except OSError:
             return None
@@ -315,6 +317,7 @@ __all__ = [
     "MAX_STRUCTURED_FIELDS",
     "MAX_EMBEDDED_JSON_VALUES",
     "MAX_UPLOAD_BYTES",
+    "IMAGE_SUFFIXES",
     "MediaPreprocessedNormalizer",
     "TEXT_SUFFIXES",
     "UploadedFileNormalizer",

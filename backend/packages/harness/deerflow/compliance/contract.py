@@ -132,6 +132,7 @@ class TextItem:
     item_id: str
     text: str
     source: str  # evidence_id / "query" / "output" / file path
+    truncated: bool = False
 
 
 @dataclass(frozen=True)

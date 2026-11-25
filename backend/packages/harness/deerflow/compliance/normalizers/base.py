@@ -14,10 +14,10 @@ from typing import Any
 
 from deerflow.compliance.contract import DetectionUnit, FieldItem, Gate, TextItem
 
-#: Values longer than this are truncated before detection. Guards against a
-#: single enormous field blowing the latency budget; truncation is reported by
-#: the caller rather than hidden.
-MAX_FIELD_CHARS = 20000
+#: Text is scanned in full up to this bound. Larger values are marked as
+#: truncated and the gates fail closed instead of treating the inspected prefix
+#: as a clean result.
+MAX_FIELD_CHARS = 200_000
 
 
 class Normalizer(ABC):
@@ -93,9 +93,21 @@ def make_text_items(texts: Iterable[tuple[str, str]], *, counter: itertools.coun
     counter = counter if counter is not None else itertools.count(1)
     items: list[TextItem] = []
     for source, text in texts:
-        rendered = stringify(text)
+        # Keep one extra character so callers can distinguish a complete field
+        # exactly at the limit from a clipped field.
+        rendered = stringify(text, limit=MAX_FIELD_CHARS + 1)
+        truncated = len(rendered) > MAX_FIELD_CHARS
+        if truncated:
+            rendered = rendered[:MAX_FIELD_CHARS]
         if rendered.strip():
-            items.append(TextItem(item_id=f"t-{next(counter):04d}", text=rendered, source=source))
+            items.append(
+                TextItem(
+                    item_id=f"t-{next(counter):04d}",
+                    text=rendered,
+                    source=source,
+                    truncated=truncated,
+                )
+            )
     return tuple(items)
 
 

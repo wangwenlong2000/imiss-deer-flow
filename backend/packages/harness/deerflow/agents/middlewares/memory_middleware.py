@@ -1,13 +1,18 @@
 """Middleware for memory mechanism."""
 
 import re
+from collections.abc import Awaitable, Callable
 from typing import Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
+from langchain.agents.middleware.types import ModelCallResult, ModelRequest, ModelResponse
+from langchain_core.messages import SystemMessage
 from langgraph.runtime import Runtime
 
 from deerflow.agents.memory.queue import get_memory_queue
+from deerflow.agents.memory.scope import memory_scope_from_context
+from deerflow.compliance.runtime import runtime_context
 from deerflow.config.memory_config import get_memory_config
 
 
@@ -104,6 +109,51 @@ class MemoryMiddleware(AgentMiddleware[MemoryMiddlewareState]):
         super().__init__()
         self._agent_name = agent_name
 
+    def _scoped_model_request(self, request: ModelRequest) -> ModelRequest:
+        """Resolve memory at model-call time, never in a shared graph instance."""
+        from deerflow.agents.lead_agent.prompt import _get_memory_context
+
+        try:
+            scope = memory_scope_from_context(runtime_context(request))
+            if scope is None:
+                # Legacy development prompts already contain global memory.
+                return request
+            memory_context = _get_memory_context(self._agent_name, scope=scope)
+        except PermissionError:
+            memory_context = ""
+
+        # A factory-created prompt must never retain global memory in an IAM
+        # run, including one missing its signed scope. Preserve non-text blocks.
+        system_message = request.system_message
+        content = system_message.content if system_message is not None else ""
+        memory_block = re.compile(r"<memory>[\s\S]*?</memory>\s*")
+        if isinstance(content, str):
+            updated_content = memory_block.sub("", content)
+            if memory_context:
+                updated_content += "\n" + memory_context
+        else:
+            updated_content = []
+            for block in content:
+                if isinstance(block, str):
+                    updated_content.append(memory_block.sub("", block))
+                elif isinstance(block, dict) and isinstance(block.get("text"), str):
+                    updated_content.append({**block, "text": memory_block.sub("", block["text"])})
+                else:
+                    updated_content.append(block)
+            if memory_context:
+                updated_content.append({"type": "text", "text": memory_context})
+
+        message = system_message.model_copy(update={"content": updated_content}) if system_message is not None else SystemMessage(content=updated_content)
+        return request.override(system_message=message)
+
+    @override
+    def wrap_model_call(self, request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]) -> ModelCallResult:
+        return handler(self._scoped_model_request(request))
+
+    @override
+    async def awrap_model_call(self, request: ModelRequest, handler: Callable[[ModelRequest], Awaitable[ModelResponse]]) -> ModelCallResult:
+        return await handler(self._scoped_model_request(request))
+
     @override
     def after_agent(self, state: MemoryMiddlewareState, runtime: Runtime) -> dict | None:
         """Queue conversation for memory update after agent completes.
@@ -117,6 +167,11 @@ class MemoryMiddleware(AgentMiddleware[MemoryMiddlewareState]):
         """
         config = get_memory_config()
         if not config.enabled:
+            return None
+
+        try:
+            scope = memory_scope_from_context(runtime_context(runtime))
+        except PermissionError:
             return None
 
         # Get thread ID from runtime context
@@ -144,6 +199,6 @@ class MemoryMiddleware(AgentMiddleware[MemoryMiddlewareState]):
 
         # Queue the filtered conversation for memory update
         queue = get_memory_queue()
-        queue.add(thread_id=thread_id, messages=filtered_messages, agent_name=self._agent_name)
+        queue.add(thread_id=thread_id, messages=filtered_messages, agent_name=self._agent_name, scope=scope)
 
         return None

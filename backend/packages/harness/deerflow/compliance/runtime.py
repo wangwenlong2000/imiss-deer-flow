@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 #: Shown when `fail_mode: closed` blocks content because detection itself broke.
 FAIL_CLOSED_NOTICE = "【合规检查失败】合规检测未能完成，按 fail_mode=closed 策略拦截本次内容。请联系管理员查看合规检测服务状态。"
+INCOMPLETE_SCAN_NOTICE = "【合规检查未完成】内容超过当前可检查范围或检测预算，未能完整审查，因此已拦截。请缩小内容范围后重试。"
 
 
 def get_compliance_config() -> Any:
@@ -131,7 +132,9 @@ def decision_types(decision: ComplianceDecision) -> dict[str, list[str]]:
 
 def decision_check(decision: ComplianceDecision) -> dict[str, Any]:
     """Serialize one gate decision for the per-turn frontend summary."""
-    if not decision.hits and not decision.raw_hits and not decision.downgraded_hits:
+    if decision.diagnostics.truncated or decision.diagnostics.failed_closed:
+        status = "handled"
+    elif not decision.hits and not decision.raw_hits and not decision.downgraded_hits:
         status = "passed"
     elif decision.actions and set(decision.actions) <= {"allow"}:
         status = "allowed"
@@ -152,6 +155,7 @@ def decision_check(decision: ComplianceDecision) -> dict[str, Any]:
 
 __all__ = [
     "FAIL_CLOSED_NOTICE",
+    "INCOMPLETE_SCAN_NOTICE",
     "failure_decision",
     "gate_config",
     "gate_enabled",

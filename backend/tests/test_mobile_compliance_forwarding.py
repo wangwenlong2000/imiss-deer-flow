@@ -6,7 +6,14 @@ import asyncio
 import json
 
 import pytest
+from starlette.requests import Request
 
+from app.gateway.mobile_iam import (
+    MobileAuthorizationDecision,
+    MobileAuthorizedOperation,
+    MobileAuthorizedResource,
+    MobileIAMPrincipal,
+)
 from app.gateway.routers import mobile
 
 REFUSAL = "该回答包含受限信息，已根据合规策略拒绝提供。"
@@ -99,6 +106,106 @@ def test_mobile_request_builds_compliance_run_context_and_graph_input() -> None:
         "user_context": {"user_id": "user-1", "org_id": "org-1", "roles": ["analyst"]},
     }
     assert graph_input["compliance_request"]["request_id"] == "request-1"
+    assert mobile._build_mobile_admission_metadata(chat_request, "thread-1") is None
+
+
+def test_mobile_admission_metadata_uses_only_server_verified_iam_identity(monkeypatch) -> None:
+    from app.admission_claims import verify_admission_metadata
+
+    monkeypatch.setenv("DEER_FLOW_ADMISSION_SIGNING_KEY", "test-signing-key-with-at-least-32-bytes")
+    principal = MobileIAMPrincipal(
+        user_id="verified-user",
+        org_id="verified-org",
+        identity_class="cross_org_operator",
+        roles=["operator"],
+    )
+    decision = MobileAuthorizationDecision(
+        allowed=True,
+        permission_verified=True,
+        operation=MobileAuthorizedOperation(type="analysis", target_audience="organization"),
+        resource=MobileAuthorizedResource(
+            resource_id="resource-1",
+            owner_org_id="verified-org",
+            classification="internal",
+        ),
+    )
+
+    async def authenticate(_request):
+        return object(), principal
+
+    async def authorize(_provider, _principal, _authorization_input):
+        return decision
+
+    async def ensure_thread(_request, **identity):
+        assert identity == {"org_id": "verified-org", "user_id": "verified-user"}
+        return "verified-thread", True
+
+    monkeypatch.setattr(mobile, "authenticate_mobile_request", authenticate)
+    monkeypatch.setattr(mobile, "authorize_mobile_request", authorize)
+    monkeypatch.setattr(mobile, "ensure_mobile_thread", ensure_thread)
+
+    chat_request = mobile.MobileChatRequest(
+        query="run analysis",
+        session_id="conversation-1",
+        compliance_identity={"user_id": "caller-forgery", "identity_class": "publisher"},
+        compliance_request={
+            "operation": {"type": "analysis", "target_audience": "organization"},
+            "resource": {"resource_id": "resource-1"},
+        },
+    )
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/api/mobile/chat",
+        "raw_path": b"/api/mobile/chat",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [],
+        "client": ("127.0.0.1", 1),
+        "server": ("test", 80),
+    }
+    prepared = asyncio.run(mobile._prepare_mobile_chat_request(chat_request, Request(scope)))
+    metadata = mobile._build_mobile_admission_metadata(prepared, "verified-thread")
+
+    assert metadata is not None
+    claims = verify_admission_metadata(metadata, expected_thread_id="verified-thread")
+    assert claims is not None
+    assert claims["identity_class"] == "cross_org_operator"
+    assert claims["task_type"] == "analysis"
+    assert "caller-forgery" not in str(metadata)
+
+
+def test_mobile_without_iam_does_not_schedule_by_caller_identity(monkeypatch) -> None:
+    async def no_iam(_request):
+        return None, None
+
+    monkeypatch.setattr(mobile, "authenticate_mobile_request", no_iam)
+    chat_request = mobile.MobileChatRequest(
+        query="hello",
+        compliance_identity={"user_id": "caller-forgery", "identity_class": "internal_operator"},
+    )
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/api/mobile/chat",
+        "raw_path": b"/api/mobile/chat",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [],
+        "client": ("127.0.0.1", 1),
+        "server": ("test", 80),
+    }
+
+    prepared = asyncio.run(mobile._prepare_mobile_chat_request(chat_request, Request(scope)))
+
+    assert prepared.compliance_identity is None
+    assert mobile._build_mobile_admission_metadata(prepared, "thread-1") is None
 
 
 def test_legacy_nested_context_accepts_compliance_fields() -> None:

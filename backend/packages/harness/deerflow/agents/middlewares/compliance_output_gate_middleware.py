@@ -1,70 +1,17 @@
-"""OutputGate — streaming with retract-on-hit. Never buffered.
+"""OutputGate — sanitize complete answers before they enter graph state.
 
-The answer keeps streaming token by token, exactly as before. When a violation
-lands, it is *retracted* rather than having been withheld.
+The first-party web, mobile and channel stream relays request state snapshots,
+not token or raw-event streams. ``wrap_model_call`` checks and rewrites the
+complete answer before LangGraph can persist or expose it. A retract event is
+still emitted for integrations that explicitly subscribe to that protocol.
 
-Two layers, and both are required
----------------------------------
+``after_model`` is a backstop for messages changed after the model node. It
+skips an exact answer already checked by ``wrap_model_call`` and rechecks any
+later mutation before returning it to graph state.
 
-::
-
-    LLM streams tokens ──► frontend renders as they arrive
-            │
-            ├─ layer 1: incremental scan (configurable)
-            │    every N characters, run the gate; retract as early as possible
-            │
-            └─ layer 2: after_model on the complete message (always on)
-                  │
-                  hit ──┬──► a `compliance_retract` custom stream event
-                        │      the frontend clears the message and shows the
-                        │      replacement immediately
-                        │
-                        └──► a rewritten AIMessage returned from after_model
-                               so the checkpoint / values snapshot never holds
-                               the original
-
-They solve different problems. Layer 1+2's event gets it **off the screen the
-user is looking at**. The rewritten message keeps it **out of the persisted
-state**, so reloading the page, browsing history or exporting a report does not
-resurrect it. Layer 1 alone means a refresh brings the violation back; layer 2
-alone leaves it sitting on screen.
-
-Where the rewrite happens, and why not in ``after_model``
----------------------------------------------------------
-The authoritative rewrite is in **``wrap_model_call``**, not ``after_model``.
-
-``after_model`` looked like the natural place and was wrong. It runs in
-**reverse** middleware order, so this gate — mounted first — ran *last*, and
-every other ``after_model`` middleware saw the violating text first. Two of them
-kept it:
-
-* ``RawTranscriptMiddleware`` snapshots into ``raw_messages``, whose reducer
-  dedups by id **keeping the first** — so the original was locked in permanently
-  and the frontend, which reads ``raw_messages`` first, showed it again after a
-  page reload.
-* ``TitleMiddleware`` feeds the first assistant answer into a prompt and sends it
-  to an **external model**, then persists the returned title.
-
-``wrap_model_call`` composes first-in-list = **outermost**, and langchain's
-``_build_commands`` does ``{"messages": response.result}``. Sanitizing there means
-the original never enters graph state at all — no reducer, no transcript, no
-title, no checkpoint, no SSE frame can observe it. The guarantee becomes
-structural instead of order-dependent, and it is the same
-"compliance gates go first" rule that ``wrap_tool_call`` already follows.
-
-``after_model`` is kept as a **backstop**, gated on a digest of the text already
-cleared. On the normal path it costs nothing. It earns its place when something
-mutates the message after the model node — ``LoopDetectionMiddleware`` appends a
-hard-stop notice to the content, turning a tool-calling message (which this gate
-skips by design) into a user-facing answer.
-
-``test_compliance_gates.py`` and ``test_compliance_output_gate_isolation.py``
-assert both properties rather than trusting this comment.
-
-Retraction is intentionally the existing public transport protocol. A violating
-chunk may be visible briefly before the ``compliance_retract`` event arrives;
-``interval_chars`` controls that bounded window. Buffered generation is a
-separate framework change and is not enabled by this detector integration.
+``scan_increment`` remains a bounded helper for a future transport that can
+inspect chunks before publishing them. First-party transports do not rely on
+post-display retraction for safety.
 """
 
 from __future__ import annotations
@@ -87,6 +34,7 @@ from deerflow.compliance.actions import REFUSAL_TEXT, apply_actions, has_termina
 from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer, extract_text
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
+    INCOMPLETE_SCAN_NOTICE,
     compliance_context,
     decision_types,
     decision_check,
@@ -165,20 +113,54 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
         if not isinstance(result, list) or not result:
             return response
 
-        index = next((i for i in range(len(result) - 1, -1, -1) if isinstance(result[i], AIMessage)), None)
-        if index is None:
-            return response
-
-        check_state = dict(state or {})
-        check_state["messages"] = list(result)
-        update = self._process(check_state, request)
-        if update is None:
-            return response
-
         new_result = list(result)
-        new_result[index] = update["messages"][0]
+        changed = False
+        for index, message in enumerate(result):
+            if not isinstance(message, AIMessage):
+                continue
+
+            if getattr(message, "tool_calls", None):
+                # Tool-call messages can include an unreviewed natural-language
+                # preamble. They are intermediate protocol state, so keep the
+                # tool calls and non-text blocks but do not expose that text in
+                # snapshots.
+                if gate_enabled(GATE):
+                    safe_content = self._without_tool_call_text(message.content)
+                    if safe_content != message.content:
+                        new_result[index] = message.model_copy(update={"content": safe_content})
+                        changed = True
+                continue
+
+            check_state = dict(state or {})
+            check_state["messages"] = list(new_result[: index + 1])
+            update = self._process(check_state, request)
+            if update is not None:
+                new_result[index] = update["messages"][0]
+                changed = True
+
+        if not changed:
+            return response
         # dataclasses.replace keeps structured_response and any sibling messages.
         return dataclasses.replace(response, result=new_result)
+
+    @staticmethod
+    def _without_tool_call_text(content: Any) -> Any:
+        if isinstance(content, str):
+            return ""
+        if isinstance(content, list):
+            return [
+                block
+                for block in content
+                if not (
+                    isinstance(block, str)
+                    or (
+                        isinstance(block, dict)
+                        and block.get("type") == "text"
+                        and isinstance(block.get("text"), str)
+                    )
+                )
+            ]
+        return content
 
     # ── core ────────────────────────────────────────────────────────────────
 
@@ -216,6 +198,9 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
             if not decision.actions:
                 return None
             return self._retract(message, FAIL_CLOSED_NOTICE, decision, state)
+
+        if decision.diagnostics.truncated:
+            return self._retract(message, INCOMPLETE_SCAN_NOTICE, decision, state)
 
         # `allow` is an explicit policy result for self_use.  Do not turn it
         # into a warning/retraction merely because a detector found an entity
@@ -422,8 +407,8 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
             "evaluated": True,
             "gate": GATE,
             "scene": decision.scene_key,
-            "streaming_mode": "compatible_retract",
-            "transient_exposure_possible": True,
+            "streaming_mode": "buffered_snapshot",
+            "transient_exposure_possible": False,
             "actions": list(decision.actions),
             "violation_types": sorted({hit.violation_type for hit in decision.hits}),
             **decision_types(decision),

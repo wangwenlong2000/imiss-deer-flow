@@ -75,9 +75,9 @@ class SceneConfig(BaseModel):
     resolver: str | None = Field(
         default=None,
         description=(
-            "Entry point (`module.path:ClassName`) of a trusted SceneResolver. "
-            "`manual_ui` uses the built-in front-end resolver and does not require this field; "
-            "null = NullSceneResolver, everything falls back to `_unknown`."
+            "Optional entry point (`module.path:ClassName`) for a custom trusted SceneResolver. "
+            "`trusted_upstream` uses the built-in TrustedSceneResolver when omitted; "
+            "`manual_ui` uses the built-in test-profile resolver; `null` always falls back to `_unknown`."
         ),
     )
     fallback_key: str = Field(default="_unknown", description="Matrix column used when the scene cannot be resolved.")

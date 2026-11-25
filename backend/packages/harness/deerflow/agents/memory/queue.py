@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from deerflow.agents.memory.scope import MemoryScope, memory_isolation_required
 from deerflow.config.memory_config import get_memory_config
 
 
@@ -17,6 +18,7 @@ class ConversationContext:
     messages: list[Any]
     timestamp: datetime = field(default_factory=datetime.utcnow)
     agent_name: str | None = None
+    scope: MemoryScope | None = None
 
 
 class MemoryUpdateQueue:
@@ -34,7 +36,7 @@ class MemoryUpdateQueue:
         self._timer: threading.Timer | None = None
         self._processing = False
 
-    def add(self, thread_id: str, messages: list[Any], agent_name: str | None = None) -> None:
+    def add(self, thread_id: str, messages: list[Any], agent_name: str | None = None, *, scope: MemoryScope | None = None) -> None:
         """Add a conversation to the update queue.
 
         Args:
@@ -45,17 +47,20 @@ class MemoryUpdateQueue:
         config = get_memory_config()
         if not config.enabled:
             return
+        if scope is None and memory_isolation_required():
+            return
 
         context = ConversationContext(
             thread_id=thread_id,
             messages=messages,
             agent_name=agent_name,
+            scope=scope,
         )
 
         with self._lock:
             # Check if this thread already has a pending update
             # If so, replace it with the newer one
-            self._queue = [c for c in self._queue if c.thread_id != thread_id]
+            self._queue = [c for c in self._queue if (c.thread_id, c.agent_name, c.scope) != (thread_id, agent_name, scope)]
             self._queue.append(context)
 
             # Reset or start the debounce timer
@@ -112,6 +117,7 @@ class MemoryUpdateQueue:
                         messages=context.messages,
                         thread_id=context.thread_id,
                         agent_name=context.agent_name,
+                        scope=context.scope,
                     )
                     if success:
                         print(f"Memory updated successfully for thread {context.thread_id}")

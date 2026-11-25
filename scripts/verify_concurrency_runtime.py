@@ -12,6 +12,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -62,6 +63,11 @@ app.include_router(artifacts.router)
 
 
 async def exercise(base_url: str, process: subprocess.Popen) -> dict:
+    backend_path = str(Path(__file__).resolve().parents[1] / "backend")
+    if backend_path not in sys.path:
+        sys.path.insert(0, backend_path)
+    from app.admission_claims import build_admission_metadata
+
     async with httpx.AsyncClient(base_url=base_url, timeout=25) as client:
         for _ in range(100):
             if process.poll() is not None:
@@ -89,10 +95,27 @@ async def exercise(base_url: str, process: subprocess.Popen) -> dict:
 
         threads = await asyncio.gather(*(create_thread(i) for i in [1, 2, 3, 4]))
 
-        async def submit(index, suffix="", delay=4):
+        async def submit(
+            index,
+            suffix="",
+            delay=4,
+            user_id="user-a",
+            identity_class="ordinary_user",
+            task_type="analysis",
+        ):
             return await client.post(
                 f"/threads/{threads[index]}/runs{suffix}",
-                json={"assistant_id": "test", "input": {"marker": f"task-{index}", "delay": delay}},
+                json={
+                    "assistant_id": "test",
+                    "input": {"marker": f"task-{index}", "delay": delay},
+                    "metadata": build_admission_metadata(
+                        user_id=user_id,
+                        org_id="test-organization",
+                        identity_class=identity_class,
+                        task_type=task_type,
+                        thread_id=threads[index],
+                    ),
+                },
             )
 
         async def wait_status(thread_id, run_id, expected):
@@ -107,16 +130,29 @@ async def exercise(base_url: str, process: subprocess.Popen) -> dict:
                 await asyncio.sleep(0.1)
             raise TimeoutError(f"Task did not reach {expected}")
 
-        initial = await asyncio.gather(submit(0), submit(1))
+        initial = await asyncio.gather(
+            submit(0, user_id="user-a", identity_class="ordinary_user", task_type="analysis"),
+            submit(1, user_id="user-b", identity_class="internal_operator", task_type="research"),
+        )
         for response in initial:
             response.raise_for_status()
         runs = [response.json()["run_id"] for response in initial]
         await asyncio.gather(*(wait_status(t, r, {"running"}) for t, r in zip(threads, runs)))
-        queued = await submit(2)
+        same_user_rejected = await submit(2, user_id="user-a", identity_class="ordinary_user", task_type="analysis")
+        assert same_user_rejected.status_code == 429, same_user_rejected.text
+        same_task_type_rejected = await submit(
+            2,
+            user_id="user-c",
+            identity_class="cross_org_operator",
+            task_type="research",
+        )
+        assert same_task_type_rejected.status_code == 429, same_task_type_rejected.text
+
+        queued = await submit(2, user_id="user-c", identity_class="cross_org_operator", task_type="analysis")
         queued.raise_for_status()
         runs.append(queued.json()["run_id"])
         assert await wait_status(threads[2], runs[2], {"pending"}) == "pending"
-        rejected = await submit(3)
+        rejected = await submit(3, user_id="user-d", identity_class="publisher", task_type="analysis")
         assert rejected.status_code == 429, rejected.text
 
         # Joining a queued stream must work even when admission is full.
@@ -137,7 +173,7 @@ async def exercise(base_url: str, process: subprocess.Popen) -> dict:
         assert max(r["started"] for r in results[:2]) < min(r["ended"] for r in results[:2])
         assert results[2]["started"] >= min(r["ended"] for r in results[:2])
 
-        cancelled = await submit(3)
+        cancelled = await submit(3, user_id="user-d", identity_class="publisher", task_type="analysis")
         cancelled.raise_for_status()
         run_id = cancelled.json()["run_id"]
         await wait_status(threads[3], run_id, {"running"})
@@ -145,10 +181,17 @@ async def exercise(base_url: str, process: subprocess.Popen) -> dict:
         response.raise_for_status()
         await wait_status(threads[3], run_id, {"interrupted"})
         # Continue an existing thread through both native wait and POST SSE APIs.
-        continuation = await submit(0, "/wait", delay=0.01)
+        continuation = await submit(0, "/wait", delay=0.01, user_id="user-a", identity_class="ordinary_user")
         continuation.raise_for_status()
         assert continuation.json()["result"]["total"] == 11
-        streamed = await submit(1, "/stream", delay=0.01)
+        streamed = await submit(
+            1,
+            "/stream",
+            delay=0.01,
+            user_id="user-b",
+            identity_class="internal_operator",
+            task_type="research",
+        )
         streamed.raise_for_status()
         assert "event: metadata" in streamed.text and "task-1" in streamed.text
         return {
@@ -156,6 +199,9 @@ async def exercise(base_url: str, process: subprocess.Popen) -> dict:
             "worker_jobs": 2,
             "max_inflight": 3,
             "two_runs_overlap": True,
+            "different_authenticated_users_run_concurrently": True,
+            "same_user_limit_enforced": same_user_rejected.status_code,
+            "task_type_limit_enforced": same_task_type_rejected.status_code,
             "third_run_queues": True,
             "fourth_run_http_status": rejected.status_code,
             "queued_stream_reconnect": True,
@@ -170,6 +216,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+    os.environ["DEER_FLOW_ADMISSION_SIGNING_KEY"] = "isolated-runtime-test-key-at-least-32-bytes"
     backend = Path(__file__).resolve().parents[1] / "backend"
     cli = shutil.which("langgraph") or str(backend / ".venv/bin/langgraph")
     with tempfile.TemporaryDirectory(prefix="deerflow-concurrency-") as temporary:
@@ -185,7 +232,10 @@ def main():
             sock.bind(("127.0.0.1", 0))
             port = sock.getsockname()[1]
         env = {**os.environ, "DEER_FLOW_HOME": str(root / "data"), "DEER_FLOW_CONFIG_PATH": str(root / "config.yaml"),
-               "DEER_FLOW_MAX_INFLIGHT_RUNS": "3", "LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false",
+               "DEER_FLOW_MAX_INFLIGHT_RUNS": "3", "DEER_FLOW_MAX_INFLIGHT_PER_USER": "1",
+               "DEER_FLOW_TASK_TYPE_LIMITS": json.dumps({"analysis": 3, "research": 1}),
+               "DEER_FLOW_REQUIRE_SIGNED_ADMISSION": "true",
+               "LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false",
                "PYTHONPATH": str(backend) + os.pathsep + os.environ.get("PYTHONPATH", ""), "PYTHONDONTWRITEBYTECODE": "1"}
         with (root / "server.log").open("w+") as log:
             process = subprocess.Popen([cli, "dev", "--config", str(root / "langgraph.json"), "--host", "127.0.0.1", "--port", str(port),
