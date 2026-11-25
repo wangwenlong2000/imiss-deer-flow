@@ -3,18 +3,26 @@
   width: 100%;
 
   .boxWapper {
+    display: flex;
+    flex-direction: column;
     width: 4rem;
+    min-height: 0;
     padding: 0.26rem 0.16rem;
     border-radius: 0.1rem;
     background: #fff;
     box-shadow: 0px 1px 2px 0px #e9eefd;
-    overflow-y: scroll;
+    overflow: hidden;
   }
 
   .chatAppWrapper {
-    height: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
 
     .chatAppContent {
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
       width: 100%;
     }
@@ -262,8 +270,9 @@
 }
 
 .complianceIdentityPanel {
-  margin-top: 10px;
-  padding: 10px 12px;
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding: 8px 10px;
   border: 1px solid #dbe8ff;
   border-radius: 10px;
   background: rgba(248, 251, 255, 0.92);
@@ -290,6 +299,34 @@
 .complianceIdentityDescription {
   margin-top: 6px;
   color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.complianceIdentityGrid {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 5px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+
+  span {
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  b {
+    overflow-wrap: anywhere;
+  }
+}
+
+.complianceIdentityNotice {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border: 1px solid #ffe58f;
+  border-radius: 6px;
+  background: #fffbe6;
+  color: #874d00;
   font-size: 12px;
   line-height: 1.6;
 }

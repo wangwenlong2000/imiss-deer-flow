@@ -74,9 +74,12 @@ OneCityAgent 在此链路中不只是 iframe 或单纯转发器：它负责自�
 
 ### 当前 OneCityAgent 侧接口
 
-- `GET /query/deerflow`：SSE 问答入口。主要 query 参数为 `query`、`conversation_id`、`user_id`、`compliance_identity`，可带真实 `thread_id` 和附件元数据。身份值必须在白名单中。
-- `POST /query/deerflow/upload`：multipart 文件上传，文件字段名为 `files`，需传会话/线程信息；Coordinator 先确保 DeerFlow thread，再把文件转交给 DeerFlow。
-- `GET /query/deerflow/file/preview?url=...&filename=...`：请求 Markdown/文本等产物的预览；其他格式会返回下载提示/链接。
+- `GET /query/deerflow`：SSE 问答入口。必须带 OneCityAgent 登录后返回的 `Authorization` 请求头；`conversation_id` 必须属于当前登录用户。`user_id` 和 `compliance_identity` 只作兼容参数，不参与身份认证或权限判定。
+- `POST /query/deerflow/dialog`：认证后在 OneCityAgent 数据库创建当前用户拥有的城市超脑会话；前端只在服务端创建成功后保存本地会话状态。
+- `POST /query/deerflow/upload`：multipart 文件上传，文件字段名为 `files`，必须带 `Authorization` 并传当前用户拥有的 `conversation_id`；Coordinator 会把登录凭据转交给 DeerFlow 校验线程归属。
+- `GET /query/deerflow/file/preview?url=...&filename=...&conversation_id=...`：必须带 `Authorization` 和当前用户拥有的会话 ID。文件地址仅接受配置的 DeerFlow artifact 服务。
+- `GET /query/deerflow/file/download?url=...&conversation_id=...`：经 OneCityAgent 认证并代理下载，前端 fetch 必须带 `Authorization`。
+- `POST /internal/deerflow/iam`：DeerFlow IAM provider 调用的令牌校验和会话授权接口；只接受 OneCityAgent 的有效登录令牌。
 - DeerFlow thread ensure：`/api/deerflow/mobile/threads/ensure`。
 - DeerFlow thread 文件上传：`/api/threads/{thread_id}/uploads`。
 - DeerFlow 流式运行路径：由 `DEERFLOW_API_URL` 提供完整地址；不要假定公开域名或固定端口。
@@ -95,9 +98,13 @@ cp config/config.example.toml config/config.toml
 `.env` 中需要由 DeerFlow 部署负责人提供：
 
 - `DEERFLOW_API_URL`：后端可访问的 mobile run SSE API 完整地址。
-- `DEERFLOW_PUBLIC_BASE_URL`：浏览器可访问的 DeerFlow 文件服务基地址，用于报告、图表和附件下载；若后端返回的文件链接已是浏览器可访问绝对地址，可按实际实现配置。
+- `DEERFLOW_PUBLIC_BASE_URL`：用于解析 DeerFlow 返回的相对文件路径。认证部署的文件统一经 OneCity 同源认证代理，浏览器不直接访问该服务；可与后端基地址一致。
 - `SECRET_KEY`：本项目独立随机值，不能复用模型 API key。
 - `DEERFLOW_*_TIMEOUT`：按任务最长执行时间调整。
+- `ONECITY_DEERFLOW_IDENTITY_CLASS_MAP`：可选 JSON 对象，按 OneCityAgent 权限角色代码映射到 `ordinary_user`、`internal_operator`、`cross_org_operator`、`publisher` 或 `researcher`。未配置时统一使用 `ordinary_user`。
+- `ONECITY_DEERFLOW_ROLE_PERMISSIONS`：可选 JSON 对象，按角色代码增加 `export`、`share`、`public_release` 或 `research` 权限。每个有效用户默认只有本人会话的 `analysis` 和 `upload` 权限；跨用户分享默认拒绝。
+
+DeerFlow Gateway 部署需设置 `MOBILE_IAM_PROVIDER=app.gateway.onecity_iam:OneCityIAMProvider`、`MOBILE_IAM_ENDPOINT=http://<onecity-internal-host>:<A2A_COORDINATOR_PORT>/internal/deerflow/iam` 和 `MOBILE_IAM_REQUIRED=true`。该地址必须直连 OneCityAgent Coordinator 的内网监听端口；IAM bridge 当前不经公开 Nginx 路由。OneCityAgent 登录得到的 `Authorization` 值经 SSE fetch、上传和文件代理请求传递；不要把令牌放入 URL、日志或 SSE 内容。平台角色与额外权限由 OneCityAgent 的服务端环境变量映射，浏览器传入的 `user_id`、身份类别和角色字段不会授予权限。
 
 本地 `config/config.toml` 负责模型、RAG、数据库、A2A 智能体等配置。API key、DB 凭据和私钥只写到被 `.gitignore` 排除的文件，不要复制到 README、Issue、截图或聊天记录。A2A/MCP 服务地址应由本地部署拓扑决定。
 
@@ -181,3 +188,17 @@ npm run dev
 - 没有复制运行中的 `.env`、真实配置、私钥、数据库数据、日志、上传数据、旧版备份或编译目录。
 - 源码中的 DeerFlow 固定主机/外部端口兜底已移除；运行时必须通过本地部署配置提供连接地址。
 - 仍需项目负责人核实源项目授权/许可证、依赖来源、数据库初始化脚本及生产部署安全策略后，才能用于团队外部分发或正式部署。
+
+## 2026-11-12 多用户联调与发布
+
+本次范围为 OneCity 入口与 DeerFlow 后端。每次会话解析均调用持久化 ensure，客户端 UUID 不能绕过归属。通用 dialog/conversation 的列表、读写和批量删除也核验本人权限。前端按服务端确认的 org_id/user_id 隔离 localStorage、React Query 缓存与 SSE；不自动导入旧 userId-only 本地历史。
+
+运行事件区分 submitted（已提交）、pending（排队）和 running（执行）。DeerFlow 通过原生提交响应头提前取得 run_id 并轮询实际任务状态；Coordinator 逐行及时转发。流开始后发生的限额拒绝通过 SSE error 的 code=429/retry_after 表示，不能将 HTTP 200 误判为任务成功。
+
+生产采用 OneCity 专用的 IAM Gateway/LangGraph，保留原独立实例与无法权威归属的历史。两后端共享认证配置、签名密钥和新数据目录；单图进程可配置执行 3、运行与排队合计 10、单用户 2。此为调度配置，不是模型吞吐压测结论。IAM 与原生运行端口只走内网。
+
+发布时先准备私有部署包与前端生产构建，备份受影响源码、dist、Nginx 和两个目标进程的环境；仅重启 API/Coordinator。启动失败自动恢复备份。部署包、密钥和备份均留在仓库外受限目录；不要复制到交接仓库。永久启动环境须同步写入本实例的受限环境文件，防止重新运行旧 start.sh 回退后端地址。
+
+验证使用隔离 SQLite、三个合成账号与真实 HTTP 双向 IAM callback、原生 LangGraph 和确定性 CSV 图。已覆盖双任务并行、第三任务排队、同用户超限、同名文件独立结果、跨用户/组织拒绝以及双端令牌撤销；不调用付费模型。独立 DeerFlow 网页登录、历史归属迁移和多图进程共享配额不在本次范围。
+
+实际现网验收已通过 44 项，使用真实注册/RSA 登录及两个临时普通账号；测试账号已撤销并停用。城市会话 ID 总长上限为 32 字符（包含 `citybrain-` 前缀），超长返回 400，避免现网旧字段截断；注册初始化补齐工作区必填空模型字段与 credit=0。当前配置为执行 3、运行及排队合计 10、单用户 2。真实模型未做本轮容量压测。发布在 Docker OverlayFS 中先复制静态资源、最后原子替换 index.html，避免重命名旧目录失败；备份及实际发布记录保存在 DeerFlow 仓库的部署说明中。

@@ -1,4 +1,4 @@
-import { Authorization } from '@/constants/authorization';
+import { Authorization, Token, UserInfo } from '@/constants/authorization';
 import userService from '@/services/user-service';
 import authorizationUtil from '@/utils/authorization-util';
 import { useMutation } from '@tanstack/react-query';
@@ -33,15 +33,18 @@ export const useLogin = () => {
         message.success(t('message.logged'));
         const authorization = response.headers.get(Authorization);
         const token = data.access_token;
+        if (!authorization || !token) {
+          throw new Error('登录响应缺少有效凭证，请重新登录');
+        }
         const userInfo = {
           avatar: data.avatar,
           name: data.nickname,
           email: data.email,
         };
         authorizationUtil.setItems({
-          Authorization: authorization,
-          userInfo: JSON.stringify(userInfo),
-          Token: token,
+          [Authorization]: authorization,
+          [UserInfo]: JSON.stringify(userInfo),
+          [Token]: token,
         });
       }
       return res.code;

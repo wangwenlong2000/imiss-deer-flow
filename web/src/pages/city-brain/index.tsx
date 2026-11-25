@@ -2,6 +2,9 @@ import { ReactComponent as Frame } from '@/assets/picture/Frame.svg';
 import defaultPng from '@/assets/picture/default.png';
 import { ReactComponent as ChatAppCube } from '@/assets/picture/shenglue.svg';
 import { useFetchUserInfo } from '@/hooks/user-setting-hooks';
+import { getPlatformAuthorization } from '@/utils/authorization-util';
+import { buildDeerFlowDownloadUrl, isDeerFlowArtifactUrl } from '@/utils/session';
+import { SseClient } from '@/utils/sse';
 import { CopyOutlined, DeleteOutlined, EditOutlined, PaperClipOutlined } from '@ant-design/icons';
 import {
   Avatar,
@@ -14,7 +17,6 @@ import {
   Input,
   message,
   Modal,
-  Select,
   Space,
   Spin,
   Typography,
@@ -32,42 +34,21 @@ const { TextArea } = Input;
 const CITY_BRAIN_DIALOGS_STORAGE_KEY = 'onecityagent_city_brain_dialogs_v1';
 const CITY_BRAIN_MESSAGES_STORAGE_KEY = 'onecityagent_city_brain_messages_v1';
 const CITY_BRAIN_STEP_FEEDBACK_CONTENT = '当前步骤已完成，系统将继续执行下一步任务。';
-const CITY_BRAIN_COMPLIANCE_IDENTITY_KEY = 'onecityagent_city_brain_compliance_identity_v1';
 
-const COMPLIANCE_PROFILES = {
-  ordinary_user: {
-    label: '个人自查用户',
-    scene: 'self_use',
-    sceneLabel: '自用',
-    description: '本人数据所有者或上传者，用于查询、核对或分析本人有权访问的数据。',
-  },
-  internal_operator: {
-    label: '同组织内部工作人员',
-    scene: 'internal_org',
-    sceneLabel: '组织内部',
-    description: '同一单位、部门或项目组人员，用于组织内部分析和协作。',
-  },
-  cross_org_operator: {
-    label: '已授权跨组织协作人员',
-    scene: 'cross_org',
-    sceneLabel: '跨组织',
-    description: '已获授权的外部协作或合作单位人员，用于跨组织协作。',
-  },
-  publisher: {
-    label: '公开发布操作人员',
-    scene: 'public_release',
-    sceneLabel: '公开发布',
-    description: '负责公开报告、新闻、公众查询服务或互联网发布的操作人员。',
-  },
-  researcher: {
-    label: '科研人员（匿名化数据）',
-    scene: 'research_anon',
-    sceneLabel: '科研匿名化',
-    description: '使用已匿名化数据开展宏观规律、统计分析和模型训练。',
-  },
-} as const;
+interface AuthenticatedComplianceIdentity {
+  user_id: string;
+  org_id: string;
+  role_code: string;
+  identity_class: string;
+  roles: string[];
+  permissions: string[];
+  identity_mapping_configured: boolean;
+}
 
-type ComplianceIdentity = keyof typeof COMPLIANCE_PROFILES;
+interface IdentityPanelState {
+  status: 'loading' | 'ready' | 'error';
+  identity?: AuthenticatedComplianceIdentity;
+}
 
 interface ComplianceResult {
   gate: 'InputGate' | 'ContextGate' | 'OutputGate' | string;
@@ -100,7 +81,6 @@ interface CityBrainMessage {
   plan?: string | string[];
   metadata?: Record<string, any>;
   complianceResult?: ComplianceResult;
-  complianceIdentity?: ComplianceIdentity;
 }
 
 type CityBrainMessageMap = Record<string, CityBrainMessage[]>;
@@ -123,10 +103,12 @@ const sanitizeDialogName = (name?: string) => {
   return (name || '').replace(/[/:]/g, '-').replace(/\s/g, '_');
 };
 
-const loadCityBrainDialogs = (): CityBrainDialog[] => {
-  if (typeof window === 'undefined') return [];
+const cityBrainStorageKey = (key: string, userId: string) => `${key}:${userId}`;
+
+const loadCityBrainDialogs = (userId: string): CityBrainDialog[] => {
+  if (typeof window === 'undefined' || !userId) return [];
   const dialogs = safeJsonParse<CityBrainDialog[]>(
-    window.localStorage.getItem(CITY_BRAIN_DIALOGS_STORAGE_KEY),
+    window.localStorage.getItem(cityBrainStorageKey(CITY_BRAIN_DIALOGS_STORAGE_KEY, userId)),
     [],
   );
 
@@ -142,19 +124,19 @@ const loadCityBrainDialogs = (): CityBrainDialog[] => {
   );
 };
 
-const saveCityBrainDialogs = (dialogs: CityBrainDialog[]) => {
-  if (typeof window === 'undefined') return;
+const saveCityBrainDialogs = (userId: string, dialogs: CityBrainDialog[]) => {
+  if (typeof window === 'undefined' || !userId) return;
   const safeDialogs = dialogs.filter((item) => isCityBrainDialogId(item.dialog_id));
   window.localStorage.setItem(
-    CITY_BRAIN_DIALOGS_STORAGE_KEY,
+    cityBrainStorageKey(CITY_BRAIN_DIALOGS_STORAGE_KEY, userId),
     JSON.stringify(safeDialogs),
   );
 };
 
-const loadCityBrainMessageMap = (): CityBrainMessageMap => {
-  if (typeof window === 'undefined') return {};
+const loadCityBrainMessageMap = (userId: string): CityBrainMessageMap => {
+  if (typeof window === 'undefined' || !userId) return {};
   const messageMap = safeJsonParse<CityBrainMessageMap>(
-    window.localStorage.getItem(CITY_BRAIN_MESSAGES_STORAGE_KEY),
+    window.localStorage.getItem(cityBrainStorageKey(CITY_BRAIN_MESSAGES_STORAGE_KEY, userId)),
     {},
   );
 
@@ -163,13 +145,13 @@ const loadCityBrainMessageMap = (): CityBrainMessageMap => {
   );
 };
 
-const saveCityBrainMessageMap = (messageMap: CityBrainMessageMap) => {
-  if (typeof window === 'undefined') return;
+const saveCityBrainMessageMap = (userId: string, messageMap: CityBrainMessageMap) => {
+  if (typeof window === 'undefined' || !userId) return;
   const safeMessageMap = Object.fromEntries(
     Object.entries(messageMap).filter(([dialogId]) => isCityBrainDialogId(dialogId)),
   );
   window.localStorage.setItem(
-    CITY_BRAIN_MESSAGES_STORAGE_KEY,
+    cityBrainStorageKey(CITY_BRAIN_MESSAGES_STORAGE_KEY, userId),
     JSON.stringify(safeMessageMap),
   );
 };
@@ -238,16 +220,12 @@ const normalizeContent = (content: unknown) => {
 const buildDeerFlowSseUrl = (
   query: string,
   dialogId: string,
-  userId?: string | number,
   attachments: UploadedAttachment[] = [],
   deerflowThreadId?: string,
-  complianceIdentity: ComplianceIdentity = 'ordinary_user',
 ) => {
   const params = new URLSearchParams({
     query,
     conversation_id: dialogId,
-    user_id: String(userId || 'admin'),
-    compliance_identity: complianceIdentity,
   });
 
   if (isDeerFlowUuidThreadId(deerflowThreadId)) {
@@ -385,11 +363,64 @@ const isDownloadUrl = (text: string) => {
   return /^(https?:\/\/|\/api\/)[^\s]+$/.test(rawText);
 };
 
-const renderReportImage = (src: string, alt?: string, key?: string | number) => {
+const AuthenticatedArtifactImage = ({ url, alt, onPreview }: {
+  url: string;
+  alt: string;
+  onPreview?: () => void;
+}) => {
+  const [source, setSource] = useState('');
+  const [failed, setFailed] = useState(false);
+  const authorization = getPlatformAuthorization();
+  const conversationId = getDialogIdFromSearch(window.location.search);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let objectUrl = '';
+    if (!conversationId || !authorization) {
+      setFailed(true);
+      return;
+    }
+    void fetch(buildDeerFlowDownloadUrl(url, conversationId, window.location.origin), {
+      headers: { Authorization: authorization },
+      signal: controller.signal,
+    }).then(async (response) => {
+      if (!response.ok) throw new Error('图片读取失败');
+      const blob = await response.blob();
+      if (controller.signal.aborted) return;
+      objectUrl = URL.createObjectURL(blob);
+      setSource(objectUrl);
+    }).catch(() => {
+      if (!controller.signal.aborted) setFailed(true);
+    });
+    return () => {
+      controller.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [url, conversationId, authorization]);
+
+  return source
+    ? <img className={styles.markdownImage} src={source} alt={alt} onClick={onPreview} />
+    : <span>{failed ? '图片暂不可用，请通过文件卡片重试' : '正在加载图片…'}</span>;
+};
+
+const renderReportImage = (src: string, alt?: string, key?: string | number, options: RenderCityBrainContentOptions = {}) => {
   const { href, tail } = trimUrlTail(src);
   const imageUrl = normalizeArtifactUrl(href);
   const caption = (alt || '').trim();
   const shouldShowCaption = Boolean(caption && !/^original$/i.test(caption));
+  if (isDeerFlowArtifactUrl(imageUrl, window.location.origin)) {
+    return (
+      <span className={styles.markdownImageBlock} key={key ?? imageUrl}>
+        <AuthenticatedArtifactImage
+          url={imageUrl}
+          alt={caption || '图片'}
+          onPreview={() => options.onDownloadFile?.({ url: imageUrl, name: getFileNameFromUrl(imageUrl) })}
+        />
+        {shouldShowCaption && <span className={styles.markdownImageCaption}>{caption}</span>}
+        {tail}
+      </span>
+    );
+  }
 
   return (
     <span className={styles.markdownImageBlock} key={key ?? imageUrl}>
@@ -424,7 +455,7 @@ const parseMarkdownLink = (text: string) => {
   };
 };
 
-const renderDownloadLink = (href: string, label?: string, key?: string | number) => {
+const renderDownloadLink = (href: string, label?: string, key?: string | number, options: RenderCityBrainContentOptions = {}) => {
   const { href: cleanHref, tail } = trimUrlTail(href);
   const normalizedHref = normalizeArtifactUrl(cleanHref);
   const displayText = label?.trim() || getFileNameFromUrl(normalizedHref);
@@ -439,6 +470,10 @@ const renderDownloadLink = (href: string, label?: string, key?: string | number)
         className={styles.downloadLink}
         onClick={(event) => {
           event.stopPropagation();
+          if (isDeerFlowArtifactUrl(normalizedHref, window.location.origin)) {
+            event.preventDefault();
+            options.onDownloadFile?.({ url: normalizedHref, name: displayText });
+          }
         }}
       >
         {displayText}
@@ -448,7 +483,7 @@ const renderDownloadLink = (href: string, label?: string, key?: string | number)
   );
 };
 
-const renderInlineText = (line: string, keyPrefix: string) => {
+const renderInlineText = (line: string, keyPrefix: string, options: RenderCityBrainContentOptions = {}) => {
   const tokenReg = /(!?\[[^\]]*?\]\([^)]+?\)|https?:\/\/[^\s]+|\/api\/threads\/[^\s]+|`[^`]+`|\*\*[^*]+\*\*)/g;
   const parts = line.split(tokenReg);
 
@@ -458,18 +493,18 @@ const renderInlineText = (line: string, keyPrefix: string) => {
     const markdownLink = parseMarkdownLink(part);
     if (markdownLink) {
       if (markdownLink.isExplicitImage || isImageUrl(markdownLink.href)) {
-        return renderReportImage(markdownLink.href, markdownLink.label, `${keyPrefix}-image-link-${index}`);
+        return renderReportImage(markdownLink.href, markdownLink.label, `${keyPrefix}-image-link-${index}`, options);
       }
 
-      return renderDownloadLink(markdownLink.href, markdownLink.label, `${keyPrefix}-md-link-${index}`);
+      return renderDownloadLink(markdownLink.href, markdownLink.label, `${keyPrefix}-md-link-${index}`, options);
     }
 
     if (isDownloadUrl(part)) {
       if (isImageUrl(part)) {
-        return renderReportImage(part, undefined, `${keyPrefix}-image-url-${index}`);
+        return renderReportImage(part, undefined, `${keyPrefix}-image-url-${index}`, options);
       }
 
-      return renderDownloadLink(part, undefined, `${keyPrefix}-url-${index}`);
+      return renderDownloadLink(part, undefined, `${keyPrefix}-url-${index}`, options);
     }
 
     if (/^`[^`]+`$/.test(part)) {
@@ -488,21 +523,21 @@ const renderInlineText = (line: string, keyPrefix: string) => {
   });
 };
 
-const renderImageOnlyLine = (line: string, key: string) => {
+const renderImageOnlyLine = (line: string, key: string, options: RenderCityBrainContentOptions = {}) => {
   const trimmed = line.trim();
 
   const markdownLink = parseMarkdownLink(trimmed);
   if (markdownLink && (markdownLink.isExplicitImage || isImageUrl(markdownLink.href))) {
-    return renderReportImage(markdownLink.href, markdownLink.label, key);
+    return renderReportImage(markdownLink.href, markdownLink.label, key, options);
   }
 
   const htmlImageMatch = trimmed.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
   if (htmlImageMatch && isImageUrl(htmlImageMatch[1])) {
-    return renderReportImage(htmlImageMatch[1], '图片', key);
+    return renderReportImage(htmlImageMatch[1], '图片', key, options);
   }
 
   if (isDownloadUrl(trimmed) && isImageUrl(trimmed)) {
-    return renderReportImage(trimmed, undefined, key);
+    return renderReportImage(trimmed, undefined, key, options);
   }
 
   return null;
@@ -544,6 +579,7 @@ interface FilePreviewState {
 
 interface RenderCityBrainContentOptions {
   onPreviewFile?: (file: DownloadFileItem) => void;
+  onDownloadFile?: (file: DownloadFileItem) => void;
 }
 
 interface ContentSection {
@@ -648,7 +684,7 @@ const splitTableRow = (line: string) => {
     .map((item) => item.trim());
 };
 
-const renderMarkdownTable = (lines: string[], startIndex: number, keyPrefix: string) => {
+const renderMarkdownTable = (lines: string[], startIndex: number, keyPrefix: string, options: RenderCityBrainContentOptions = {}) => {
   const header = splitTableRow(lines[startIndex]);
   const bodyRows: string[][] = [];
   let cursor = startIndex + 2;
@@ -667,7 +703,7 @@ const renderMarkdownTable = (lines: string[], startIndex: number, keyPrefix: str
             <tr>
               {header.map((cell, cellIndex) => (
                 <th key={`${keyPrefix}-th-${cellIndex}`}>
-                  {renderInlineText(cell, `${keyPrefix}-th-${cellIndex}`)}
+                  {renderInlineText(cell, `${keyPrefix}-th-${cellIndex}`, options)}
                 </th>
               ))}
             </tr>
@@ -677,7 +713,7 @@ const renderMarkdownTable = (lines: string[], startIndex: number, keyPrefix: str
               <tr key={`${keyPrefix}-tr-${rowIndex}`}>
                 {row.map((cell, cellIndex) => (
                   <td key={`${keyPrefix}-td-${rowIndex}-${cellIndex}`}>
-                    {renderInlineText(cell, `${keyPrefix}-td-${rowIndex}-${cellIndex}`)}
+                    {renderInlineText(cell, `${keyPrefix}-td-${rowIndex}-${cellIndex}`, options)}
                   </td>
                 ))}
               </tr>
@@ -689,7 +725,7 @@ const renderMarkdownTable = (lines: string[], startIndex: number, keyPrefix: str
   };
 };
 
-const renderMarkdownLikeText = (text?: string) => {
+const renderMarkdownLikeText = (text?: string, options: RenderCityBrainContentOptions = {}) => {
   const lines = String(text || '').split('\n');
   const nodes: ReactNode[] = [];
   let index = 0;
@@ -704,7 +740,7 @@ const renderMarkdownLikeText = (text?: string) => {
       continue;
     }
 
-    const imageLineNode = renderImageOnlyLine(trimmed, `image-line-${index}`);
+    const imageLineNode = renderImageOnlyLine(trimmed, `image-line-${index}`, options);
     if (imageLineNode) {
       nodes.push(imageLineNode);
       index += 1;
@@ -712,7 +748,7 @@ const renderMarkdownLikeText = (text?: string) => {
     }
 
     if (isMarkdownTableStart(lines, index)) {
-      const tableResult = renderMarkdownTable(lines, index, `table-${index}`);
+      const tableResult = renderMarkdownTable(lines, index, `table-${index}`, options);
       nodes.push(tableResult.node);
       index = tableResult.nextIndex;
       continue;
@@ -721,7 +757,7 @@ const renderMarkdownLikeText = (text?: string) => {
     const headingMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
-      const headingContent = renderInlineText(headingMatch[2], `heading-${index}`);
+      const headingContent = renderInlineText(headingMatch[2], `heading-${index}`, options);
 
       if (level === 1) {
         nodes.push(
@@ -752,7 +788,7 @@ const renderMarkdownLikeText = (text?: string) => {
       nodes.push(
         <div key={`bullet-${index}`} className={styles.markdownListItem}>
           <span className={styles.markdownListMarker}>•</span>
-          <span>{renderInlineText(bulletMatch[1], `bullet-${index}`)}</span>
+          <span>{renderInlineText(bulletMatch[1], `bullet-${index}`, options)}</span>
         </div>,
       );
       index += 1;
@@ -764,7 +800,7 @@ const renderMarkdownLikeText = (text?: string) => {
       nodes.push(
         <div key={`ordered-${index}`} className={styles.markdownListItem}>
           <span className={styles.markdownListMarker}>{orderedMatch[1]}.</span>
-          <span>{renderInlineText(orderedMatch[2], `ordered-${index}`)}</span>
+          <span>{renderInlineText(orderedMatch[2], `ordered-${index}`, options)}</span>
         </div>,
       );
       index += 1;
@@ -773,7 +809,7 @@ const renderMarkdownLikeText = (text?: string) => {
 
     nodes.push(
       <div key={`paragraph-${index}`} className={styles.markdownParagraph}>
-        {renderInlineText(line, `paragraph-${index}`)}
+        {renderInlineText(line, `paragraph-${index}`, options)}
       </div>,
     );
     index += 1;
@@ -817,17 +853,16 @@ const renderFileListBlock = (
             >
               <span className={styles.fileIcon}>{extension || 'FILE'}</span>
               <span className={styles.fileName}>{fileName}</span>
-              <a
-                href={file.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 className={styles.fileDownloadAction}
                 onClick={(event) => {
                   event.stopPropagation();
+                  options.onDownloadFile?.(file);
                 }}
               >
                 下载
-              </a>
+              </button>
             </div>
           );
         })}
@@ -849,7 +884,7 @@ const renderCityBrainContent = (
 
     return (
       <div className={styles.markdownBody} key={`markdown-${sectionIndex}`}>
-        {renderMarkdownLikeText(section.text)}
+        {renderMarkdownLikeText(section.text, options)}
       </div>
     );
   });
@@ -892,12 +927,45 @@ const COMPLIANCE_GATE_LABELS: Record<string, string> = {
 const COMPLIANCE_ACTION_LABELS: Record<string, string> = {
   allow: '放行',
   warn: '警告',
+  report: '上报留痕',
   role_check: '权限核验',
   desensitize: '脱敏',
   aggregate: '聚合',
   rewrite: '改写',
   manual_review: '人工复核',
+  block_storage: '阻止存储',
   refuse: '拒绝',
+};
+
+const COMPLIANCE_SCENE_LABELS: Record<string, string> = {
+  self_use: '个人自用',
+  internal_org: '组织内部',
+  cross_org: '跨组织协作',
+  public_release: '公开发布',
+  research_anon: '科研匿名化',
+  _unknown: '未能确认场景',
+};
+
+const COMPLIANCE_IDENTITY_LABELS: Record<string, string> = {
+  ordinary_user: '个人自查用户',
+  internal_operator: '同组织工作人员',
+  cross_org_operator: '跨组织协作人员',
+  publisher: '公开发布操作人员',
+  researcher: '科研人员（匿名化数据）',
+};
+
+const COMPLIANCE_PERMISSION_LABELS: Record<string, string> = {
+  analysis: '分析',
+  upload: '上传',
+  export: '导出',
+  share: '分享',
+  public_release: '公开发布',
+  research: '科研',
+};
+
+const formatComplianceScene = (scene: string) => {
+  const label = COMPLIANCE_SCENE_LABELS[scene] || '未识别场景';
+  return `${label}（${scene || '_unknown'}）`;
 };
 
 const CityBrainComplianceMessage = ({ item }: { item: CityBrainMessage }) => {
@@ -922,8 +990,8 @@ const CityBrainComplianceMessage = ({ item }: { item: CityBrainMessage }) => {
       <div className={styles.complianceGrid}>
         <span>检查闸门</span>
         <b>{COMPLIANCE_GATE_LABELS[result.gate] || result.gate}</b>
-        <span>权限场景</span>
-        <b>{result.scene}</b>
+        <span>矩阵场景</span>
+        <b>{formatComplianceScene(result.scene)}</b>
         <span>风险类型</span>
         <b>{result.violation_types.length ? result.violation_types.join('、') : '未检出'}</b>
         <span>处置动作</span>
@@ -952,9 +1020,11 @@ const CityBrainComplianceMessage = ({ item }: { item: CityBrainMessage }) => {
 const CityBrainAgentMessage = ({
   item,
   onPreviewFile,
+  onDownloadFile,
 }: {
   item: CityBrainMessage;
   onPreviewFile?: (file: DownloadFileItem) => void;
+  onDownloadFile?: (file: DownloadFileItem) => void;
 }) => {
   if (item.complianceResult) {
     return <CityBrainComplianceMessage item={item} />;
@@ -984,7 +1054,7 @@ const CityBrainAgentMessage = ({
             [styles.complianceRefusalBubble]: item.metadata?.source_event === 'compliance_retract',
           })}
         >
-          {renderCityBrainContent(item.content, { onPreviewFile })}
+          {renderCityBrainContent(item.content, { onPreviewFile, onDownloadFile })}
         </div>
       </div>
     </div>
@@ -1012,12 +1082,6 @@ const CityBrainUserMessage = ({
       <div className={styles.userContentWrapper}>
         <Button size="small" icon={<CopyOutlined />} onClick={handleCopy} />
         <div>
-          {item.complianceIdentity && COMPLIANCE_PROFILES[item.complianceIdentity] && (
-            <div className={styles.userIdentityLabel}>
-              {COMPLIANCE_PROFILES[item.complianceIdentity].label} ·{' '}
-              {COMPLIANCE_PROFILES[item.complianceIdentity].sceneLabel}
-            </div>
-          )}
           <div className={styles.userBubble}>{item.content}</div>
         </div>
       </div>
@@ -1039,14 +1103,6 @@ const renderPreviewContent = (previewFile: FilePreviewState | null) => {
     return (
       <div className={styles.previewUnsupported}>
         <div>{previewFile.content || '该类型文件暂不支持在线预览，请下载后查看。'}</div>
-        <a
-          href={previewFile.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.previewDownloadButton}
-        >
-          下载文件
-        </a>
       </div>
     );
   }
@@ -1099,12 +1155,15 @@ const renderPreviewContent = (previewFile: FilePreviewState | null) => {
 
 const CityBrain = () => {
   const { data: userInfo } = useFetchUserInfo();
+  const userId = String(userInfo?.id || '');
+  const authorization = getPlatformAuthorization();
   const routeLocation = useLocation();
   const [dialogs, setDialogs] = useState<CityBrainDialog[]>([]);
   const [currentDialogId, setCurrentDialogId] = useState('');
   const [messages, setMessages] = useState<CityBrainMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [sendLoading, setSendLoading] = useState(false);
+  const [runStatus, setRunStatus] = useState<'submitting' | 'pending' | 'running' | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -1114,48 +1173,74 @@ const CityBrain = () => {
   const [renameVisible, setRenameVisible] = useState(false);
   const [renamingDialogId, setRenamingDialogId] = useState('');
   const [renameValue, setRenameValue] = useState('');
-  const [complianceIdentity, setComplianceIdentity] = useState<ComplianceIdentity>(() => {
-    if (typeof window === 'undefined') return 'ordinary_user';
-    const stored = window.localStorage.getItem(CITY_BRAIN_COMPLIANCE_IDENTITY_KEY);
-    return stored && stored in COMPLIANCE_PROFILES
-      ? (stored as ComplianceIdentity)
-      : 'ordinary_user';
+  const [identityPanel, setIdentityPanel] = useState<IdentityPanelState>({
+    status: 'loading',
   });
   const messageListRef = useRef<HTMLDivElement>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const eventSourceRef = useRef<SseClient | null>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const activeSessionRef = useRef(true);
+  const storageUserId = identityPanel.status === 'ready' && identityPanel.identity
+    ? JSON.stringify([identityPanel.identity.org_id, identityPanel.identity.user_id])
+    : '';
+  const isCurrentSession = () =>
+    activeSessionRef.current && getPlatformAuthorization() === authorization;
+
+  useEffect(() => {
+    if (!userId || !authorization) {
+      setIdentityPanel({ status: 'loading' });
+      return;
+    }
+
+    const controller = new AbortController();
+    setIdentityPanel({ status: 'loading' });
+    fetch('/query/deerflow/identity', {
+      headers: { Authorization: authorization },
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const result = await response.json();
+        if (
+          !response.ok || result?.code !== 0 || !result?.data ||
+          String(result.data.user_id) !== userId || !result.data.org_id
+        ) {
+          throw new Error('authenticated identity unavailable');
+        }
+        if (!isCurrentSession()) return;
+        setIdentityPanel({ status: 'ready', identity: result.data });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted && isCurrentSession()) {
+          setIdentityPanel({ status: 'error' });
+        }
+      });
+
+    return () => controller.abort();
+  }, [userId, authorization]);
 
   const currentDialog = useMemo(
     () => dialogs.find((item) => item.dialog_id === currentDialogId),
     [dialogs, currentDialogId],
   );
 
-  const selectedComplianceProfile = COMPLIANCE_PROFILES[complianceIdentity];
-
-  const handleComplianceIdentityChange = (value: ComplianceIdentity) => {
-    setComplianceIdentity(value);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CITY_BRAIN_COMPLIANCE_IDENTITY_KEY, value);
-    }
-  };
-
   const hasPlan = useMemo(() => {
     return messages.some((item) => item.agentRole === '规划智能体');
   }, [messages]);
 
   const persistMessages = (dialogId: string, nextMessages: CityBrainMessage[]) => {
-    if (!isCityBrainDialogId(dialogId)) return;
-    const messageMap = loadCityBrainMessageMap();
+    if (!isCurrentSession() || !storageUserId || !isCityBrainDialogId(dialogId)) return;
+    const messageMap = loadCityBrainMessageMap(storageUserId);
     messageMap[dialogId] = nextMessages;
-    saveCityBrainMessageMap(messageMap);
+    saveCityBrainMessageMap(storageUserId, messageMap);
   };
 
   const updateDialogs = (updater: (prev: CityBrainDialog[]) => CityBrainDialog[]) => {
+    if (!isCurrentSession()) return;
     setDialogs((prev) => {
       const next = updater(prev)
         .filter((item) => isCityBrainDialogId(item.dialog_id))
         .sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
-      saveCityBrainDialogs(next);
+      saveCityBrainDialogs(storageUserId, next);
       return next;
     });
   };
@@ -1208,9 +1293,16 @@ const CityBrain = () => {
   };
 
   useEffect(() => {
-    const storedDialogs = loadCityBrainDialogs();
+    if (!storageUserId) {
+      setDialogs([]);
+      setCurrentDialogId('');
+      setMessages([]);
+      return;
+    }
+
+    const storedDialogs = loadCityBrainDialogs(storageUserId);
     const urlDialogId = getDialogIdFromSearch(routeLocation.search || '');
-    const messageMap = loadCityBrainMessageMap();
+    const messageMap = loadCityBrainMessageMap(storageUserId);
 
     setDialogs(storedDialogs);
 
@@ -1233,10 +1325,12 @@ const CityBrain = () => {
         history.replace('/city-brain');
       }
     }
-  }, [routeLocation.search]);
+  }, [routeLocation.search, storageUserId]);
 
   useEffect(() => {
+    activeSessionRef.current = true;
     return () => {
+      activeSessionRef.current = false;
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
     };
@@ -1248,7 +1342,11 @@ const CityBrain = () => {
     scrollContainer.scrollTo({ top: scrollContainer.scrollHeight });
   }, [messages]);
 
-  const handleCreateDialog = () => {
+  const handleCreateDialog = async () => {
+    if (!storageUserId || !isCurrentSession()) {
+      message.warning('请等待登录身份验证完成后重试');
+      return;
+    }
     if (sendLoading) {
       message.warning('当前有请求正在处理，请稍后');
       return;
@@ -1256,18 +1354,39 @@ const CityBrain = () => {
 
     const now = Date.now();
     const dialogId = createCityBrainDialogId();
+    const dialogName = formatDialogName(now);
+    try {
+      const response = await fetch('/query/deerflow/dialog', {
+        method: 'POST',
+        headers: {
+          Authorization: authorization,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ conversation_id: dialogId, name: dialogName }),
+      });
+      const result = await response.json();
+      if (!isCurrentSession()) return;
+      if (!response.ok || result.code !== 0) {
+        throw new Error(result.message || '会话创建失败');
+      }
+    } catch (error: any) {
+      if (!isCurrentSession()) return;
+      message.error(error?.message || '会话创建失败');
+      return;
+    }
+
     const newDialog: CityBrainDialog = {
       dialog_id: dialogId,
-      name: formatDialogName(now),
+      name: dialogName,
       created_at: now,
       updated_at: now,
       finished: true,
     };
 
     updateDialogs((prev) => [newDialog, ...prev]);
-    const messageMap = loadCityBrainMessageMap();
+    const messageMap = loadCityBrainMessageMap(storageUserId);
     messageMap[dialogId] = [];
-    saveCityBrainMessageMap(messageMap);
+    saveCityBrainMessageMap(storageUserId, messageMap);
 
     setCurrentDialogId(dialogId);
     setMessages([]);
@@ -1288,7 +1407,7 @@ const CityBrain = () => {
       return;
     }
 
-    const messageMap = loadCityBrainMessageMap();
+    const messageMap = loadCityBrainMessageMap(storageUserId);
     setCurrentDialogId(dialogId);
     setMessages(messageMap[dialogId] || []);
     setInputValue('');
@@ -1300,9 +1419,9 @@ const CityBrain = () => {
     if (!isCityBrainDialogId(dialogId)) return;
 
     updateDialogs((prev) => prev.filter((item) => item.dialog_id !== dialogId));
-    const messageMap = loadCityBrainMessageMap();
+    const messageMap = loadCityBrainMessageMap(storageUserId);
     delete messageMap[dialogId];
-    saveCityBrainMessageMap(messageMap);
+    saveCityBrainMessageMap(storageUserId, messageMap);
 
     if (dialogId === currentDialogId) {
       eventSourceRef.current?.close();
@@ -1436,7 +1555,7 @@ const CityBrain = () => {
     const files = Array.from(event.target.files || []);
     event.target.value = '';
 
-    if (!files.length) return;
+    if (!files.length || !storageUserId || !isCurrentSession()) return;
     if (!currentDialogId) {
       message.warning('请先新建城市超脑平台会话');
       return;
@@ -1446,7 +1565,6 @@ const CityBrain = () => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
     formData.append('conversation_id', currentDialogId);
-    formData.append('user_id', String(userInfo?.id || 'admin'));
     if (knownThreadId) {
       formData.append('thread_id', knownThreadId);
     }
@@ -1455,16 +1573,17 @@ const CityBrain = () => {
     try {
       const params = new URLSearchParams({
         conversation_id: currentDialogId,
-        user_id: String(userInfo?.id || 'admin'),
       });
       if (knownThreadId) {
         params.set('thread_id', knownThreadId);
       }
       const response = await fetch(`/query/deerflow/upload?${params.toString()}`, {
         method: 'POST',
+        headers: { Authorization: authorization },
         body: formData,
       });
       const result = await response.json();
+      if (!isCurrentSession()) return;
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || '文件上传失败');
       }
@@ -1494,10 +1613,11 @@ const CityBrain = () => {
       });
       message.success(`已上传 ${nextFiles.length} 个文件`);
     } catch (error: any) {
+      if (!isCurrentSession()) return;
       console.error('[city-brain] upload failed:', error);
       message.error(error?.message || '文件上传失败');
     } finally {
-      setUploadLoading(false);
+      if (isCurrentSession()) setUploadLoading(false);
     }
   };
 
@@ -1508,7 +1628,39 @@ const CityBrain = () => {
     );
   };
 
+  const handleDownloadFile = async (url: string, filename: string) => {
+    if (!url || !storageUserId || !isCurrentSession()) return;
+
+    try {
+      const downloadUrl = buildDeerFlowDownloadUrl(url, currentDialogId, window.location.origin);
+      const response = await fetch(downloadUrl, {
+        headers: { Authorization: authorization },
+      });
+      if (!response.ok) {
+        throw new Error(`文件下载失败（HTTP ${response.status}）`);
+      }
+      const blob = await response.blob();
+      if (!isCurrentSession()) return;
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = objectUrl;
+      anchor.download = filename || getFileNameFromUrl(url);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error: any) {
+      if (!isCurrentSession()) return;
+      message.error(error?.message || '文件下载失败');
+    }
+  };
+
+  const handleDownloadFileItem = (file: DownloadFileItem) => {
+    void handleDownloadFile(file.url, file.name || getFileNameFromUrl(file.url));
+  };
+
   const handlePreviewFile = async (file: DownloadFileItem) => {
+    if (!storageUserId || !isCurrentSession()) return;
     const fileName = file.name || getFileNameFromUrl(file.url);
     const previewUrl = file.previewUrl || file.url;
     const fileType = getFileExtension(previewUrl || fileName).toLowerCase();
@@ -1539,9 +1691,13 @@ const CityBrain = () => {
       const params = new URLSearchParams({
         url: previewUrl,
         filename: fileName,
+        conversation_id: currentDialogId,
       });
-      const response = await fetch(`/query/deerflow/file/preview?${params.toString()}`);
+      const response = await fetch(`/query/deerflow/file/preview?${params.toString()}`, {
+        headers: { Authorization: authorization },
+      });
       const result = await response.json();
+      if (!isCurrentSession()) return;
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || '文件预览失败');
       }
@@ -1556,6 +1712,7 @@ const CityBrain = () => {
         truncated: data.truncated,
       });
     } catch (error: any) {
+      if (!isCurrentSession()) return;
       console.error('[city-brain] preview failed:', error);
       setPreviewFile({
         filename: fileName,
@@ -1566,11 +1723,15 @@ const CityBrain = () => {
         error: error?.message || '文件预览失败，请下载后查看。',
       });
     } finally {
-      setPreviewLoading(false);
+      if (isCurrentSession()) setPreviewLoading(false);
     }
   };
 
   const handleSend = () => {
+    if (!storageUserId || !isCurrentSession()) {
+      message.warning('请等待登录身份验证完成后重试');
+      return;
+    }
     const query = inputValue.trim();
     if (!currentDialogId) {
       message.warning('请先新建城市超脑平台会话');
@@ -1609,7 +1770,6 @@ const CityBrain = () => {
         : query,
       timestamp: Date.now(),
       order_id: orderBase,
-      complianceIdentity,
     };
 
     appendMessage(activeDialogId, userMessage);
@@ -1617,17 +1777,18 @@ const CityBrain = () => {
     setInputValue('');
     setUploadedAttachments([]);
     setSendLoading(true);
+    setRunStatus('submitting');
 
     eventSourceRef.current?.close();
     const sseUrl = buildDeerFlowSseUrl(
       query,
       activeDialogId,
-      userInfo?.id,
       activeAttachments,
       activeThreadId,
-      complianceIdentity,
     );
-    const eventSource = new EventSource(sseUrl);
+    const eventSource = new SseClient(sseUrl, {
+      Authorization: authorization,
+    });
     eventSourceRef.current = eventSource;
 
     const upsertComplianceResults = (rawResults: any[]) => {
@@ -1689,14 +1850,16 @@ const CityBrain = () => {
       touchDialog(activeDialogId, false);
     };
 
-    eventSource.onmessage = (event) => {
-      if (!event.data) return;
+    eventSource.connect((eventData) => {
+      if (!isCurrentSession()) return;
+      const rawData = typeof eventData === 'string' ? eventData : eventData?.data;
+      if (!rawData) return;
 
       let parsedData: any;
       try {
-        parsedData = JSON.parse(event.data);
+        parsedData = JSON.parse(rawData);
       } catch (error) {
-        console.error('[city-brain] SSE parse error:', event.data, error);
+        console.error('[city-brain] SSE parse error:', rawData, error);
         return;
       }
 
@@ -1707,8 +1870,16 @@ const CityBrain = () => {
         eventSource.close();
         eventSourceRef.current = null;
         setSendLoading(false);
+        setRunStatus(null);
         touchDialog(activeDialogId, true);
         return;
+      }
+
+      const reportedStatus = parsedData.status || parsedData.data?.status;
+      if (reportedStatus === 'pending' || reportedStatus === 'queued') {
+        setRunStatus('pending');
+      } else if (reportedStatus === 'running') {
+        setRunStatus('running');
       }
 
       if (parsedData.type === 'compliance') {
@@ -1729,6 +1900,10 @@ const CityBrain = () => {
 
       const agentRole = parsedData.role || parsedData.type || '系统';
       const content = normalizeContent(parsedData.content);
+      if (parsedData.type === 'error') {
+        setRunStatus(null);
+        message.error(content || '任务未能完成，请稍后重试');
+      }
       const now = Date.now();
       const agentMessage: CityBrainMessage = {
         id: `agent-${now}-${Math.random().toString(36).slice(2, 9)}`,
@@ -1766,16 +1941,16 @@ const CityBrain = () => {
         return next;
       });
       touchDialog(activeDialogId, false);
-    };
-
-    eventSource.onerror = (error) => {
+    }, (error) => {
+      if (!isCurrentSession()) return;
       console.error('[city-brain] SSE error:', error);
       eventSource.close();
       eventSourceRef.current = null;
       setSendLoading(false);
+      setRunStatus(null);
       touchDialog(activeDialogId, true);
-      message.error('城市超脑平台请求失败，请检查 /query/deerflow 服务');
-    };
+      message.error(error?.message || '城市超脑平台请求失败，请稍后重试');
+    });
   };
 
   const handleSavePlan = () => {
@@ -1844,6 +2019,56 @@ const CityBrain = () => {
             </Flex>
           </Flex>
         </Flex>
+
+        <div className={styles.complianceIdentityPanel}>
+          <div className={styles.complianceIdentityControl}>
+            <span className={styles.complianceIdentityTitle}>当前账号与合规身份</span>
+          </div>
+          <div className={styles.complianceIdentityGrid}>
+            <span>登录账号</span>
+            <b>
+              {userInfo?.nickname || '—'}
+              {userInfo?.email ? `（${userInfo.email}）` : ''}
+            </b>
+            <span>服务端身份</span>
+            <b>
+              {identityPanel.status === 'ready' && identityPanel.identity
+                ? `${COMPLIANCE_IDENTITY_LABELS[identityPanel.identity.identity_class] || '未识别身份'}（${identityPanel.identity.identity_class}）`
+                : identityPanel.status === 'error'
+                  ? '身份读取失败'
+                  : '读取中…'}
+            </b>
+            <span>OneCity 角色</span>
+            <b>
+              {identityPanel.status === 'ready'
+                ? identityPanel.identity?.role_code || '未配置角色代码'
+                : '—'}
+            </b>
+            <span>允许操作</span>
+            <b>
+              {identityPanel.status === 'ready' && identityPanel.identity?.permissions.length
+                ? identityPanel.identity.permissions
+                    .map((permission) => COMPLIANCE_PERMISSION_LABELS[permission] || permission)
+                    .join('、')
+                : identityPanel.status === 'ready'
+                  ? '未配置'
+                  : '—'}
+            </b>
+          </div>
+          {identityPanel.status === 'ready' && identityPanel.identity && !identityPanel.identity.identity_mapping_configured && (
+            <div className={styles.complianceIdentityNotice}>
+              当前 OneCity 角色未配置显式身份映射，服务端按“个人自查用户”默认身份处理；这不代表其他合规场景已获授权。
+            </div>
+          )}
+          {identityPanel.status === 'error' && (
+            <div className={styles.complianceIdentityNotice}>
+              无法读取服务端 IAM 身份。请确认当前账号已登录，且 OneCityAgent 授权桥接可用。
+            </div>
+          )}
+          <div className={styles.complianceIdentityDescription}>
+            登录认证确认账号；资源授权确认当前账号能否访问会话。合规矩阵场景由服务端结合操作、目标受众和资源归属计算，下面的检查卡展示各闸门实际命中的场景与处置动作。客户端不能自行声明身份或场景。
+          </div>
+        </div>
       </div>
 
       <Flex flex={1} className={styles.cityBrainContainer} vertical>
@@ -1865,7 +2090,10 @@ const CityBrain = () => {
           className={styles.messageContainer}
           ref={messageListRef}
         >
-          <Spin spinning={sendLoading}>
+          <Spin
+            spinning={sendLoading}
+            tip={runStatus === 'pending' ? '任务排队中，轮到后自动执行' : runStatus === 'running' ? '正在执行任务' : '正在提交任务'}
+          >
             <div className={styles.messageList}>
               {messages.map((item) =>
                 item.role === 'user' ? (
@@ -1879,6 +2107,7 @@ const CityBrain = () => {
                     key={item.id}
                     item={item}
                     onPreviewFile={handlePreviewFile}
+                    onDownloadFile={handleDownloadFileItem}
                   />
                 ),
               )}
@@ -1890,26 +2119,6 @@ const CityBrain = () => {
             </div>
           </Spin>
         </Flex>
-
-        <div className={styles.complianceIdentityPanel}>
-          <div className={styles.complianceIdentityControl}>
-            <span className={styles.complianceIdentityTitle}>合规身份与使用场景</span>
-            <Select<ComplianceIdentity>
-              value={complianceIdentity}
-              disabled={sendLoading}
-              onChange={handleComplianceIdentityChange}
-              className={styles.complianceIdentitySelect}
-              options={Object.entries(COMPLIANCE_PROFILES).map(([value, profile]) => ({
-                value: value as ComplianceIdentity,
-                label: `${profile.label} · ${profile.sceneLabel}`,
-              }))}
-            />
-          </div>
-          <div className={styles.complianceIdentityDescription}>
-            {selectedComplianceProfile.description}
-            <span> 身份与场景固定绑定，并由 DeerFlow 再次校验。</span>
-          </div>
-        </div>
 
         <div className={styles.inputWrapper}>
           <div className={styles.inputMainArea}>
@@ -1981,7 +2190,10 @@ const CityBrain = () => {
         onClose={() => setPreviewVisible(false)}
         extra={
           previewFile?.url ? (
-            <Button href={previewFile.url} target="_blank" rel="noopener noreferrer" type="primary">
+            <Button
+              onClick={() => void handleDownloadFile(previewFile.url, previewFile.filename)}
+              type="primary"
+            >
               下载
             </Button>
           ) : null

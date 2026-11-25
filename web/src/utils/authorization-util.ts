@@ -1,5 +1,6 @@
 import { Authorization, Token, UserInfo } from '@/constants/authorization';
 import { getSearchValue } from './common-util';
+import { notifyAuthorizationChanged } from './session';
 const KeySet = [Authorization, Token, UserInfo];
 
 const storage = {
@@ -16,7 +17,9 @@ const storage = {
     return JSON.parse(localStorage.getItem('userInfo') || '');
   },
   setAuthorization: (value: string) => {
+    const previous = localStorage.getItem(Authorization);
     localStorage.setItem(Authorization, value);
+    if (previous !== value) notifyAuthorizationChanged();
   },
   setToken: (value: string) => {
     localStorage.setItem(Token, value);
@@ -26,17 +29,24 @@ const storage = {
     localStorage.setItem(UserInfo, valueStr);
   },
   setItems: (pairs: Record<string, string>) => {
+    const previous = localStorage.getItem(Authorization);
     Object.entries(pairs).forEach(([key, value]) => {
       localStorage.setItem(key, value);
     });
+    if (previous !== localStorage.getItem(Authorization)) notifyAuthorizationChanged();
   },
   removeAuthorization: () => {
+    const previous = localStorage.getItem(Authorization);
     localStorage.removeItem(Authorization);
+    if (previous !== null) notifyAuthorizationChanged();
   },
   removeAll: () => {
+    const previous = localStorage.getItem(Authorization);
     KeySet.forEach((x) => {
       localStorage.removeItem(x);
     });
+    localStorage.removeItem('Token'); // Remove the old login key as well.
+    if (previous !== null) notifyAuthorizationChanged();
   },
   setLanguage: (lng: string) => {
     localStorage.setItem('lng', lng);
@@ -54,6 +64,9 @@ export const getAuthorization = () => {
 
   return authorization;
 };
+
+// A public shared-dialog token must never replace the platform login identity.
+export const getPlatformAuthorization = () => storage.getAuthorization() || '';
 
 export const getUserInfoObject = () => {
   if (storage.getUserInfo()) {

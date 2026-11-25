@@ -1,14 +1,24 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from flasgger import swag_from
 
 from onecityagent.service.dialog_service.dialog_service import DialogService
+from onecityagent.service.dialog_service.access import owns_dialog
 from onecityagent.service.user_service import TenantService
 from ..utils.api_utils import get_json_result, get_data_error_result, server_error_response
 
 
 dialog_bp = Blueprint('dialog', __name__, url_prefix='/api/dialog')
 dialog_service = DialogService()
+
+
+@dialog_bp.before_request
+def authorize_dialog_resource():
+    """A login alone never authorizes another user's dialog identifier."""
+    dialog_id = (request.view_args or {}).get("dialog_id")
+    if dialog_id and current_user.is_authenticated and not owns_dialog(current_user.id, dialog_id):
+        return jsonify({"code": 404, "message": "对话会话不存在", "data": None}), 404
+    return None
 
 
 @dialog_bp.route('/create', methods=['POST'])
@@ -60,26 +70,26 @@ def create_dialog():
         data = request.get_json()
         if not data:
             return get_data_error_result("请求数据不能为空")
-        
+
         name = data.get('name')
         description = data.get('description')
-        
+
         if not name:
             return get_data_error_result("name为必填字段")
-        
+
         # 使用当前登录用户信息
         creator_id = current_user.id
-        
+
         # 获取当前用户作为owner的租户信息
         tenant_info = TenantService.get_info_by(current_user.id)
         if not tenant_info:
             return get_data_error_result(message="用户没有关联的租户空间")
-        
+
         tenant_id = tenant_info[0]['tenant_id']
-        
+
         result = dialog_service.create_dialog(name, creator_id, tenant_id, description)
         return get_json_result(data=result, message="对话会话创建成功")
-        
+
     except Exception as e:
         return server_error_response(e)
 
@@ -129,7 +139,7 @@ def get_dialog(dialog_id: str):
             return get_json_result(data=result, message="获取对话会话成功")
         else:
             return get_json_result(data=None, code=404, message="对话会话不存在")
-        
+
     except Exception as e:
         return server_error_response(e)
 
@@ -257,16 +267,16 @@ def update_dialog(dialog_id: str):
         data = request.get_json()
         if not data:
             return get_data_error_result("请求数据不能为空")
-        
+
         name = data.get('name')
         description = data.get('description')
-        
+
         result = dialog_service.update_dialog(dialog_id, name, description)
         if result:
             return get_json_result(data=result, message="更新对话会话成功")
         else:
             return get_json_result(data=None, code=404, message="对话会话不存在")
-        
+
     except Exception as e:
         return server_error_response(e)
 
@@ -313,7 +323,7 @@ def finish_dialog(dialog_id: str):
             return get_json_result(data=result, message="对话会话已标记为完成")
         else:
             return get_json_result(data=None, code=404, message="对话会话不存在")
-        
+
     except Exception as e:
         return server_error_response(e)
 
@@ -361,6 +371,6 @@ def delete_dialog(dialog_id: str):
             return get_json_result(data=None, message="删除对话会话成功")
         else:
             return get_json_result(data=None, code=404, message="对话会话不存在")
-        
+
     except Exception as e:
         return server_error_response(e)

@@ -8,10 +8,10 @@ import secrets
 import sys
 from functools import wraps
 
-from flask import Flask, jsonify, request
+from flask import Flask, g, jsonify, request
 from flasgger import Swagger
 from flask_cors import CORS
-from flask_login import LoginManager
+from flask_login import AnonymousUserMixin, LoginManager
 from playhouse.flask_utils import FlaskDB
 from onecityagent.models.db_models import DB
 
@@ -27,10 +27,12 @@ from onecityagent.controller.conversation_controller import conversation_bp
 from onecityagent.controller.dialog_controller import dialog_bp
 from onecityagent.controller.plan_controller import plan_bp
 from onecityagent.models import User, create_tables
+from onecityagent.service.authentication import load_active_user, token_from_header
+from onecityagent.utils.http_logging import PathOnlyRequestHandler
 
 # 创建Flask应用
 app = Flask(__name__)
-db = DB.get_instance() 
+db = DB.get_instance()
 FlaskDB(app, db)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_urlsafe(32)
@@ -68,7 +70,21 @@ login_manager.login_view = 'user.login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get_or_none(User.access_token == user_id)
+    return load_active_user(user_id)
+
+
+@login_manager.request_loader
+def load_user_from_request(incoming_request):
+    return load_active_user(token_from_header(incoming_request.headers.get("Authorization")))
+
+
+@app.before_request
+def bind_explicit_authorization():
+    # An explicit header selects the caller even if another account's cookie
+    # remains in the browser. Invalid headers must not fall back to that cookie.
+    if "Authorization" in request.headers:
+        user = load_user_from_request(request)
+        g._login_user = user if user is not None else AnonymousUserMixin()
 
 # 注册蓝图，添加v1前缀
 app.register_blueprint(config_controller, url_prefix='/v1/config')
@@ -132,10 +148,10 @@ class MCPRunner:
         """清理资源"""
         await self.agent.cleanup()
         self.initialized = False
-        
+
     async def reload_mcp_config(self, server_id=None) -> None:
         """重新加载MCP配置并重新连接MCP服务器
-        
+
         Args:
             server_id: 要重新加载的服务器ID，如果为None则重新加载所有服务器
         """
@@ -147,7 +163,7 @@ class MCPRunner:
             except Exception as e:
                 logger.error(f"Agent初始化失败: {e}")
                 return
-            
+
         try:
             # 重新加载MCPSettings中的服务器配置
             from onecityagent.config import MCPSettings, IntentConfig, config
@@ -172,7 +188,7 @@ class MCPRunner:
                     except Exception as e:
                         logger.warning(f"断开MCP服务器 {server_id} 连接时出错: {e}")
                         # 继续执行，不中断重新加载过程
-                    
+
                     # 重新连接指定的服务器
                     server_config = updated_servers[server_id]
                     if server_config.type == "sse" and server_config.url:
@@ -201,7 +217,7 @@ class MCPRunner:
                 except Exception as e:
                     logger.warning(f"断开所有MCP服务器连接时出错: {e}")
                     # 继续执行，不中断重新加载过程
-                
+
                 # 重新连接所有服务器
                 for srv_id, srv_config in updated_servers.items():
                     try:
@@ -222,7 +238,7 @@ class MCPRunner:
                             logger.info(f"已重新连接到MCP服务器 {srv_id} 使用命令 {srv_config.command}")
                     except Exception as e:
                         logger.error(f"重新连接到MCP服务器 {srv_id} 失败: {e}")
-            
+
             # 更新工具列表
             #await self.agent._refresh_tools()
             logger.info("MCP配置重新加载完成")
@@ -240,25 +256,19 @@ set_runner(runner)
 # 请求日志中间件
 @app.before_request
 def log_request_info():
-    logger.info(f"Request: {request.method} {request.url} - IP: {request.remote_addr}")
-    if request.is_json and request.get_json():
-        # 记录请求体，但要小心敏感信息
-        request_data = request.get_json()
-        # 过滤敏感字段
-        filtered_data = {k: v if k not in ['password', 'api_key', 'secret'] else '***' for k, v in request_data.items()}
-        logger.debug(f"Request body: {filtered_data}")
+    logger.info("Request: %s %s", request.method, request.path)
 
 
 @app.after_request
 def log_response_info(response):
-    logger.info(f"Response: {response.status_code} - {request.method} {request.url}")
+    logger.info("Response: %s - %s %s", response.status_code, request.method, request.path)
     return response
 
 
 # 全局错误处理器
 @app.errorhandler(404)
 def not_found(error):
-    logger.warning(f"404 Not Found: {request.url}")
+    logger.warning("404 Not Found: %s", request.path)
     return jsonify({
         'code': 404,
         'message': 'Resource not found',
@@ -268,7 +278,7 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    logger.error(f"500 Internal Server Error: {str(error)}", exc_info=True)
+    logger.error("500 Internal Server Error (%s)", type(error).__name__)
     return jsonify({
         'code': 500,
         'message': 'Internal server error',
@@ -278,7 +288,7 @@ def internal_error(error):
 
 @app.errorhandler(Exception)
 def handle_exception(error):
-    logger.error(f"Unhandled exception: {str(error)}", exc_info=True)
+    logger.error("Unhandled exception (%s)", type(error).__name__)
     return jsonify({
         'code': 500,
         'message': 'An unexpected error occurred',
@@ -296,4 +306,4 @@ if __name__ == "__main__":
     # 监听端口由部署环境提供；调试模式默认关闭。
     app_port = int(os.environ["ONECITY_APP_PORT"])
     app_debug = os.environ.get("ONECITY_DEBUG", "false").strip().lower() in {"1", "true", "yes"}
-    app.run(host="0.0.0.0", port=app_port, debug=app_debug)
+    app.run(host="0.0.0.0", port=app_port, debug=app_debug, request_handler=PathOnlyRequestHandler)

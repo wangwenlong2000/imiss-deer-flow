@@ -26,6 +26,7 @@ import { IConversation, IDialog, Message } from '@/interfaces/database/chat';
 import { getFileExtension } from '@/utils';
 import { getConversationId } from '@/utils/chat';
 import { SseClient } from '@/utils/sse';
+import { getPlatformAuthorization } from '@/utils/authorization-util';
 import { useMutationState } from '@tanstack/react-query';
 import { get } from 'lodash';
 import trim from 'lodash/trim';
@@ -599,7 +600,13 @@ export const useSendNextMessage = (controller: AbortController) => {
       const derivedMessage = derivedMessages.find(
         (item) => item.id === `${MessageType.Assistant}_currentId`,
       );
-      const sseClient = new SseClient(getCityBrainQueryUrl(value, dialogId));
+      const sseUrl = getCityBrainQueryUrl(value, dialogId);
+      const sseClient = new SseClient(
+        sseUrl,
+        sseUrl.startsWith('/query/deerflow')
+          ? { Authorization: getPlatformAuthorization() }
+          : undefined,
+      );
       sseClient.connect((res) => {
         const value = JSON.parse(res);
         if (derivedMessage?.content === '搜索中') {

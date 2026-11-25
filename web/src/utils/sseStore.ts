@@ -1,6 +1,7 @@
 import { MessageType } from '@/constants/chat';
 import chatService, { paramsMethod } from '@/services/chat-service';
 import { SseClient } from '@/utils/sse';
+import { getPlatformAuthorization } from '@/utils/authorization-util';
 import { message } from 'antd';
 import { create } from 'zustand';
 
@@ -157,7 +158,7 @@ export const useSseStore = create<SseState>((set, get) => ({
   },
 
   // 启动SSE连接
-  startSSE: (dialogId, userId) => {
+  startSSE: (dialogId, _userId) => {
     const { sseConnections, tempState } = get();
     const { currentQuestion } = tempState[dialogId] || { currentQuestion: '' };
 
@@ -179,8 +180,13 @@ export const useSseStore = create<SseState>((set, get) => ({
       queryEndpoint,
       dialogId,
     });
-    const sseUrl = `${queryEndpoint}?query=${encodeURIComponent(currentQuestion)}&conversation_id=${dialogId}&user_id=${userId}`;
-    const sseClient = new SseClient(sseUrl);
+    const sseUrl = `${queryEndpoint}?query=${encodeURIComponent(currentQuestion)}&conversation_id=${dialogId}`;
+    const sseClient = new SseClient(
+      sseUrl,
+      queryEndpoint === '/query/deerflow'
+        ? { Authorization: getPlatformAuthorization() }
+        : undefined,
+    );
 
     set({
       sseConnections: {
@@ -226,7 +232,7 @@ export const useSseStore = create<SseState>((set, get) => ({
 
   // 启动城市超脑平台 DeerFlow SSE 连接
   // 保留原 startSSE 走 /query；该方法只给 /city-brain 页面使用，走 /query/deerflow。
-  startDeerFlowSSE: (dialogId, userId) => {
+  startDeerFlowSSE: (dialogId, _userId) => {
     const { sseConnections, tempState } = get();
     const { currentQuestion } = tempState[dialogId] || { currentQuestion: '' };
 
@@ -234,8 +240,10 @@ export const useSseStore = create<SseState>((set, get) => ({
       get().closeSSE(dialogId);
     }
 
-    const sseUrl = `/query/deerflow?query=${encodeURIComponent(currentQuestion)}&conversation_id=${dialogId}&user_id=${userId}`;
-    const sseClient = new SseClient(sseUrl);
+    const sseUrl = `/query/deerflow?query=${encodeURIComponent(currentQuestion)}&conversation_id=${dialogId}`;
+    const sseClient = new SseClient(sseUrl, {
+      Authorization: getPlatformAuthorization(),
+    });
 
     set({
       sseConnections: {
@@ -466,3 +474,17 @@ export const useSseStore = create<SseState>((set, get) => ({
     set({ sseDoneCallbacks: newCallbacks });
   },
 }));
+
+export const resetSseSession = () => {
+  Object.values(useSseStore.getState().sseConnections).forEach((connection) => {
+    connection.client?.close();
+  });
+  useSseStore.setState({
+    conversationMap: {},
+    sseConnections: {},
+    planningAgents: {},
+    tempState: {},
+    sendLoading: {},
+    sseDoneCallbacks: {},
+  });
+};

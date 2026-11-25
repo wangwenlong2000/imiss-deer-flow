@@ -15,6 +15,8 @@ import weekday from 'dayjs/plugin/weekday';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { ThemeProvider } from './components/theme-provider';
 import storage from './utils/authorization-util';
+import { subscribeAuthorizationChange } from './utils/session';
+import { resetSseSession } from './utils/sseStore';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -39,6 +41,16 @@ const RootProvider = ({ children }: React.PropsWithChildren) => {
     AntLanguageMap[lng as keyof typeof AntLanguageMap] ?? enUS;
 
   const [locale, setLocal] = useState<Locale>(getLocale(storage.getLanguage()));
+  const [sessionVersion, setSessionVersion] = useState(0);
+
+  useEffect(() => subscribeAuthorizationChange(() => {
+    resetSseSession();
+    void queryClient.cancelQueries();
+    queryClient.clear();
+    // Remount account-owned views so pending file/stream callbacks cannot
+    // carry their previous user's state into the next authenticated session.
+    setSessionVersion((version) => version + 1);
+  }), []);
 
   i18n.on('languageChanged', function (lng: string) {
     storage.setLanguage(lng);
@@ -78,7 +90,7 @@ const RootProvider = ({ children }: React.PropsWithChildren) => {
           }}
           locale={locale}
         >
-          <App> {children}</App>
+          <App key={sessionVersion}> {children}</App>
         </ConfigProvider>
         {/* <ReactQueryDevtools buttonPosition={'top-left'} /> tys react Devtools*/}
       </ThemeProvider>

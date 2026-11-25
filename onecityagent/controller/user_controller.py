@@ -15,6 +15,7 @@ from flask_login import login_required, current_user, login_user, logout_user
 from onecityagent.service.user_service import UserService, TenantService, UserTenantService
 from onecityagent.service.tool_service.save_plan import PlanDataService
 from onecityagent.models.db_models import UserTenant
+from onecityagent.service.authentication import revoke_login_token, self_registration_role_id
 from onecityagent.utils.api_utils import (
     get_json_result,
     validate_request,
@@ -75,11 +76,11 @@ def login():
     # 处理GET请求（重定向到登录页面时）
     if request.method == "GET":
         return get_json_result(
-            data=False, 
-            code=RetCode.AUTHENTICATION_ERROR, 
+            data=False,
+            code=RetCode.AUTHENTICATION_ERROR,
             message="请提供邮箱和密码进行登录"
         )
-    
+
     if not request.json:
         return get_json_result(
             data=False, code=RetCode.AUTHENTICATION_ERROR, message="未授权访问！"
@@ -103,14 +104,15 @@ def login():
         )
 
     user = UserService.query_user(email, password)
-    if user:
-        response_data = user.to_json()
+    if user and str(user.is_active) == "1" and str(user.is_authenticated) == "1":
         user.access_token = get_uuid()
         login_user(user)
         user.update_date = datetime_format(datetime.now())
         user.save()
+        response_data = dict(user.to_json())
+        response_data.pop("password", None)
         msg = "登录成功！"
-        
+
         # 获取用户角色信息
         role = UserService.get_user_role(user.role)
         if role:
@@ -143,6 +145,11 @@ def logout():
         schema:
           type: object
     """
+    try:
+        revoke_login_token(current_user.id, current_user.access_token)
+    except Exception as error:
+        logger.error("Unable to revoke login token (%s)", type(error).__name__)
+        return get_json_result(data=False, code=RetCode.SERVER_ERROR, message="登出失败，请稍后重试"), 503
     logout_user()
     return get_json_result(data=True, message="登出成功")
 
@@ -189,7 +196,10 @@ def register():
     email = request.json.get("email", "")
     password = request.json.get("password", "")
     nickname = request.json.get("nickname", "")
-    role = request.json.get("role", "")
+    try:
+        role = self_registration_role_id()
+    except ValueError:
+        return get_json_result(data=False, code=RetCode.SERVER_ERROR, message="注册角色尚未配置"), 503
 
     # 验证邮箱格式
     if not email or '@' not in email:
@@ -214,7 +224,7 @@ def register():
     # 创建新用户
     user_id = get_uuid()
     hashed_password = generate_password_hash(password)
-    
+
     # 创建用户数据，添加默认值
     user_data = {
         "id": user_id,
@@ -233,7 +243,7 @@ def register():
         "timezone": "UTC+8\tAsia/Shanghai",
         "login_channel": "password"
     }
-    
+
     # 使用 UserService 类方法
     success = UserService.save(**user_data)
     if not success:
@@ -246,11 +256,15 @@ def register():
     tenant_data = {
         "id": tenant_id,
         "name": f"{nickname}'s Workspace",
+        # A new workspace has no platform model selection yet. Supply all
+        # required catalogue fields rather than relying on database defaults.
+        "llm_id": "", "embd_id": "", "asr_id": "", "img2txt_id": "",
+        "rerank_id": "", "tts_id": "", "parser_ids": "", "credit": 0,
         "status": StatusEnum.VALID.value,
         "create_date": datetime_format(datetime.now()),
         "update_date": datetime_format(datetime.now())
     }
-    
+
     # 使用模块级的 tenant_service 实例
     success = TenantService.save(**tenant_data)
     if not success:
@@ -266,11 +280,12 @@ def register():
         "user_id": user_id,
         "tenant_id": tenant_id,
         "role": UserTenantRole.OWNER.value,
+        "invited_by": user_id,
         "status": StatusEnum.VALID.value,
         "create_date": datetime_format(datetime.now()),
         "update_date": datetime_format(datetime.now())
     }
-    
+
     # 使用模块级的 user_tenant_service 实例
     success = UserTenantService.save(**user_tenant_data)
     if not success:
@@ -370,7 +385,7 @@ def create_tenant():
             "create_date": datetime_format(datetime.now()),
             "update_date": datetime_format(datetime.now())
         }
-        
+
         # 使用模块级的 user_tenant_service 实例
         if not UserTenantService.save(**user_tenant_data):
             # 回滚租户创建
@@ -405,7 +420,10 @@ def user_info():
         schema:
           type: object
     """
-    return get_json_result(data=current_user.to_dict())
+    user_data = dict(current_user.to_dict())
+    user_data.pop("password", None)
+    user_data.pop("access_token", None)
+    return get_json_result(data=user_data)
 
 
 @user_bp.route("/setting", methods=["POST"])
@@ -443,7 +461,7 @@ def setting():
     """
     update_dict = {}
     request_data = request.json or {}
-    
+
     if request_data.get("password"):
         new_password = request_data.get("new_password")
         if not check_password_hash(
@@ -458,17 +476,12 @@ def setting():
         if new_password:
             update_dict["password"] = generate_password_hash(decrypt(new_password))
 
-    for k in request_data.keys():
-        if k in [
-            "password",
-            "new_password",
-            "email",
-            "status",
-            "id",
-            "create_date",
-        ]:
-            continue
-        update_dict[k] = request_data[k]
+    # Only personal preferences are writable here. Role, account state and
+    # credentials must never be accepted from the profile editor.
+    editable_fields = {"nickname", "avatar", "language", "color_schema", "timezone"}
+    for key in editable_fields:
+        if key in request_data:
+            update_dict[key] = request_data[key]
 
     try:
         update_dict["update_date"] = datetime_format(datetime.now())
@@ -541,27 +554,27 @@ def set_tenant_info():
     try:
         req = request.json or {}
         tenant_id = req.get("tenant_id")
-        
+
         if not tenant_id:
             return get_json_result(
                 data=False, code=RetCode.PARAMS_ERROR, message="Tenant ID is required"
             )
-        
+
         # 检查用户是否有权限修改该租户
         user_tenant = UserTenantService.query(user_id=current_user.id, tenant_id=tenant_id)
         if not user_tenant:
             return get_json_result(
                 data=False, code=RetCode.AUTHENTICATION_ERROR, message="No permission"
             )
-        
+
         update_dict = {}
         for k in req.keys():
             if k in ["id", "create_time", "create_date"]:
                 continue
             update_dict[k] = req[k]
-        
+
         update_dict["update_date"] = datetime_format(datetime.now())
-        
+
         TenantService.update_by_id(tenant_id, update_dict)
         return get_json_result(data=True)
     except Exception as e:
@@ -633,7 +646,7 @@ def user_role():
                         "role_name": role.name,
                         "role_code": role.code
                     })
-        
+
         # 如果没有指定邮箱或用户不存在，返回当前用户角色
         role = UserService.get_user_role(current_user.role)
         if role:
@@ -754,13 +767,13 @@ def add_tenant_user(tenant_id):
             "create_date": datetime_format(datetime.now()),
             "update_date": datetime_format(datetime.now())
         }
-        
+
         # 使用模块级的 user_tenant_service 实例
         UserTenantService.save(**user_tenant_data)
-        
+
         usr = users[0].to_dict()
         usr = {k: v for k, v in usr.items() if k in ["id", "avatar", "email", "nickname"]}
-        
+
         return get_json_result(data=usr)
     except Exception as e:
         return server_error_response(e)
@@ -802,7 +815,7 @@ def delete_tenant_user(tenant_id, user_id):
                 message='没有授权。',
                 code=RetCode.AUTHENTICATION_ERROR
             )
-        
+
         # 租户owner可以删除任何用户，普通用户只能删除自己
         if current_user.id != user_id and user_tenant[0].role != UserTenantRole.OWNER.value:
             return get_json_result(

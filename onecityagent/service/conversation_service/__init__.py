@@ -14,11 +14,11 @@ from onecityagent.logger import logger
 
 class ConversationService:
     """会话服务类，提供会话管理的数据库操作封装"""
-    
+
     def __init__(self):
         """初始化会话服务"""
         pass
-    
+
     def save(self, **kwargs):
         """保存会话数据"""
         try:
@@ -28,7 +28,7 @@ class ConversationService:
         except Exception as e:
             logger.exception(f"保存失败 - 模型: Conversation, 数据: {kwargs}, 错误: {str(e)}")
             return False
-    
+
     def get_by_id(self, id_):
         """根据ID获取对象"""
         try:
@@ -39,7 +39,7 @@ class ConversationService:
         except Exception as e:
             logger.exception(f"查询失败 - 模型: Conversation, ID: {id_}, 错误: {str(e)}")
             return None
-    
+
     def delete(self, id_):
         """根据ID删除对象"""
         try:
@@ -99,13 +99,14 @@ class ConversationService:
             logger.exception(f"删除失败 - 模型: Conversation, ID: {id_}, 错误: {str(e)}")
             return False
 
-    def get_list(self, page_number: int = 1, items_per_page: int = 10, 
+    def get_list(self, page_number: int = 1, items_per_page: int = 10,
                  orderby: str = 'create_date', desc: bool = True,
                  conversation_id: Optional[str] = None,
-                 dialog_id: Optional[str] = None) -> List[Dict[str, Any]]:
+                 dialog_id: Optional[str] = None,
+                 authorized_dialog_ids: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
         获取会话列表，支持分页和筛选
-        
+
         Args:
             page_number: 页码
             items_per_page: 每页数量
@@ -113,18 +114,20 @@ class ConversationService:
             desc: 是否降序
             conversation_id: 会话ID筛选
             dialog_id: 对话ID筛选
-            
+
         Returns:
             会话列表
         """
         with DB.connection_context():
             sessions = Conversation.select()
-            
+            if authorized_dialog_ids is not None:
+                sessions = sessions.where(Conversation.dialog_id.in_(authorized_dialog_ids))
+
             if conversation_id:
                 sessions = sessions.where(Conversation.id == conversation_id)
             if dialog_id:
                 sessions = sessions.where(Conversation.dialog_id == dialog_id)
-                
+
             if desc:
                 sessions = sessions.order_by(Conversation.getter_by(orderby).desc())
             else:
@@ -172,7 +175,7 @@ class ConversationService:
                             plan: Optional[str] = None) -> bool:
         """
         创建新会话
-        
+
         Args:
             conversation_id: 指定会话ID（可选）
             dialog_id: 关联的对话ID（可选）
@@ -181,19 +184,19 @@ class ConversationService:
             reference: 引用信息JSON字符串（可选）
             scene: 场景名称（可选）
             plan: 计划内容（可选）
-            
+
         Returns:
             (是否成功, 会话对象)
         """
         try:
             if not conversation_id:
                 conversation_id = common_utils.get_uuid()
-                
+
             # 创建会话数据
             #current_time = common_utils.current_timestamp()
             current_date = common_utils.get_format_time()
 
-            
+
             conv_data = {
                 "id": conversation_id,
                 "create_date": current_date,
@@ -205,26 +208,26 @@ class ConversationService:
                 "scene": scene or "",
                 "plan": plan or ""
             }
-            
+
             # 保存会话数据
             save_success = self.save(**conv_data)
             if not save_success:
                 logger.error(f"Failed to save conversation data: {conv_data}")
                 return False
-       
+
             return True
-            
+
         except Exception as e:
             logger.exception(f"Failed to create conversation: {str(e)}")
             return False
 
     def update_conversation(self, conversation_id: str, update_data: Dict[str, Any]) -> bool:
         """更新会话信息
-        
+
         Args:
             conversation_id: 会话ID
             update_data: 更新字段字典
-            
+
         Returns:
             是否更新成功
         """
@@ -236,10 +239,10 @@ class ConversationService:
 
     def delete_conversation(self, conversation_id: str) -> bool:
         """删除会话
-        
+
         Args:
             conversation_id: 会话ID
-            
+
         Returns:
             是否删除成功
         """
@@ -252,10 +255,10 @@ class ConversationService:
     def get_conversation_by_id(self, conversation_id: str) -> Tuple[bool, Optional[Conversation]]:
         """
         根据ID获取会话
-        
+
         Args:
             conversation_id: 会话ID
-            
+
         Returns:
             (是否成功, 会话对象)
         """
@@ -268,22 +271,22 @@ class ConversationService:
         except Exception as e:
             logger.exception(f"Failed to get conversation by id {conversation_id}: {str(e)}")
             return False, None
-    
+
     def get_conversation_by_dialog_and_sort(self, dialog_id: str, sort_order: int) -> Tuple[bool, Optional[Conversation]]:
         """
         根据dialog_id和sort_order获取会话
-        
+
         Args:
             dialog_id: 对话ID
             sort_order: 排序字段
-            
+
         Returns:
             (是否成功, 会话对象)
         """
         try:
             with DB.connection_context():
                 query = Conversation.select().where(
-                    (Conversation.dialog_id == dialog_id) & 
+                    (Conversation.dialog_id == dialog_id) &
                     (Conversation.sort_order == sort_order)
                 )
                 conversation = query.first()
@@ -295,16 +298,16 @@ class ConversationService:
             logger.exception(f"Failed to get conversation by dialog_id {dialog_id} and sort_order {sort_order}: {str(e)}")
             return False, None
 
-    def add_message(self, conversation_id: str, message: Dict[str, Any], 
+    def add_message(self, conversation_id: str, message: Dict[str, Any],
                    reference: Optional[Dict[str, Any]] = None) -> bool:
         """
         向会话添加消息
-        
+
         Args:
             conversation_id: 会话ID
             message: 消息内容
             reference: 引用信息
-            
+
         Returns:
             是否添加成功
         """
@@ -312,29 +315,29 @@ class ConversationService:
             exists, conv = self.get_by_id(conversation_id)
             if not exists or not conv:
                 return False
-                
+
             conv_dict = conv.to_dict()
-            
+
             # 解析JSON字符串
             messages = json.loads(conv_dict.get('message', '[]')) if conv_dict.get('message') else []
             references = json.loads(conv_dict.get('reference', '[]')) if conv_dict.get('reference') else []
-                
+
             messages.append(message)
             if reference:
                 references.append(reference)
-            
+
             # 更新时间戳
             #current_time = common_utils.current_timestamp()
             current_date = common_utils.get_format_time()
-            
+
             update_data = {
                 'message': json.dumps(messages),
                 'reference': json.dumps(references),
                 'update_date': current_date
             }
-                
+
             return self.update_by_id(conversation_id, update_data)
-            
+
         except Exception as e:
             logger.exception(f"Failed to add message to conversation {conversation_id}: {str(e)}")
             return False
