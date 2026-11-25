@@ -326,6 +326,11 @@ sandbox:
 #   #   - host_path: /path/on/host
 #   #     container_path: /home/user/shared
 #   #     read_only: false
+#   #   # Street retrieval also needs candidate originals, mounted read-only.
+#   #   # Bind this path into backend containers too for graph-side view_image.
+#   #   - host_path: /mnt/nas/streetview_meta
+#   #     container_path: /mnt/nas/streetview_meta
+#   #     read_only: true
 #
 #   # Optional: Environment variables to inject into the sandbox container
 #   # Values starting with $ will be resolved from host environment variables
@@ -334,7 +339,11 @@ sandbox:
 #   #   DEBUG: "false"
 #   #   API_KEY: $MY_API_KEY        # Reads from host's MY_API_KEY env var
 #   #   DATABASE_URL: $DATABASE_URL  # Reads from host's DATABASE_URL env var
-#   #   STREETMODEL_BASE_URL: http://reachable-model-host:3130
+#   #   STREETMODEL_BASE_URL: http://172.17.0.1:3130  # Local services/streetmodel deployment
+#   #   STREET_GEOCODING_BASE_URL: https://photon.komoot.io
+#   #   # For multiple sandboxes, mount one shared rate-limit directory here.
+#   #   # Address results themselves are cached in each thread workspace.
+#   #   STREET_GEOCODING_CACHE_DIR: /mnt/street-geocoding-cache
 #   # If an older sandbox image sets PROJ_LIB=/usr/share/proj, override PROJ_LIB
 #   # and PROJ_DATA with that image's rasterio/proj_data directory, and GDAL_DATA
 #   # with rasterio/gdal_data. Newly built images omit these global overrides.

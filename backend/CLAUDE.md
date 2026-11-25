@@ -131,6 +131,11 @@ fan-out. Cron scheduling is outside this admission path. Run
 for an isolated real-runtime queue/CSV-file integration check without LLM calls.
 For an opt-in live business check, run
 `python ../scripts/verify_concurrency_business.py --base-url http://localhost:3328 --output /tmp/concurrency-business-new-run`.
+Add `--expected-jobs 3` when validating three concurrent executions; the default
+continues to require two running plus one pending. `scripts/docker.sh` reads the
+two queue settings from root `.env` when they are not exported in the shell.
+Recreate the graph container after changing them; restart alone retains its old
+command and environment. Wait for existing runs to finish before recreation.
 It creates three synthetic CSV conversations through the original model/tools
 and validates final tables, downloads and pending/running states. It consumes
 model requests; keep its raw SSE/state private and publish only sanitized
@@ -150,6 +155,11 @@ incomplete/failed answers, and the mobile adapter gives SSE errors precedence
 over any final-answer placeholder. Code-layout grounding accepts only whitespace
 normalization, retaining all literal tokens. Exhausted recognition validation
 fails explicitly rather than executing a deterministic subset of the request.
+Structured recognition distinguishes its known computation/tool-policy
+ValidationError from JSON-schema errors when building the single repair prompt.
+Only the fixed validator reason is reflected, never Pydantic input values or
+arbitrary error context. Do not auto-enable tools or relax the two-attempt bound;
+explicit tool bans and repeated-invalid outputs must remain enforced.
 Corrective retries remove the unverified AI draft instead of leaving a progress
 placeholder in model history. Ephemeral turn guidance includes effective scene
 parameters, so explanation turns retain the latest filter scope. Mobile replay
@@ -834,3 +844,13 @@ Small-table data inspection includes every input row up to 20 rows; larger table
 `tests/test_scene_service_fixes.py` covers native-frame tool parameters and the computation guard: a successful city-video event plan must execute single-video-event-analysis and actually view its returned review frames. Frame sampling, detections and tracks preserve relative offsets when shooting time is unknown; `every_frame` uses a half-open time window. Additional GIS/media integration checks and source-video fixtures are retained locally; the released self-contained backend tests cover the tool contracts. Older sandbox images require their wheel-bundled PROJ/GDAL paths in sandbox.environment; new images no longer force the older system databases. Do not publish populated config.yaml or raw live traces.
 
 Video object analytics exports full CSVs inside the sandbox and returns only a bounded frame preview; do not print complete detection JSON through the shell API (large results are truncated). The event extractor uses output-side FFmpeg seeking for AVI compatibility and rejects zero-frame results. Local integration checks include the original AVI and 125-row lossless export; the original media is not published.
+
+## Local street model deployment
+
+The optional service in `../services/streetmodel` provides the existing ImAge/Qwen embed, rerank and batch APIs on localhost and the Docker bridge at port3130. It owns a separate Python/CUDA environment and model files; do not install its dependencies into backend/.venv. Configure sandbox.environment.STREETMODEL_BASE_URL as `http://172.17.0.1:3130`, then reload idle backend processes for new sandbox environments. The original index is read only during deployment checks; checkpoint and preprocessing compatibility require original image access.
+
+Street candidate images also require `/mnt/nas/streetview_meta` mounted read-only into both the sandbox configuration and the LangGraph container: `view_image` reads on the graph filesystem. The development Compose includes the graph bind; production deployments need the equivalent bind when using this NAS. Existing sandbox containers retain their original mounts, so use a new thread or recreate the specific sandbox after mount changes.
+
+2026-11-25 update: the street scripts now use Photon WGS84 lookups; the preceding diagnosis describes the old implementation. `STREET_GEOCODING_BASE_URL` selects the endpoint. Shared `STREET_GEOCODING_CACHE_DIR` holds a cross-sandbox request lock/rate timestamp; address-result caching lives in each thread workspace. `es_retrieve_topk.py` exports candidate images and `retrieval.json` under thread outputs (explicit `--output-dir`, or automatic inside a sandbox); `finalize_match.py` produces `evidence.json` after visual review and retains index coordinates if address lookup fails. The computation guard verifies successful candidate views, finalization, delivery and exact final download paths. Read-only NAS/local-image roots and the current outputs root restrict artifact I/O. Never broaden the artifact API to arbitrary NAS paths. Run the skill's new `tests/test_street_workflow.py` and `tests/test_street_review_guard.py` alongside existing scene/flow/turn regressions. Raw live traces remain under ignored `.runtime/streetmodel/fixes-20261125-eval`.
+
+Publication notes and reproducible checks: `../docs/releases/20261125-street-workflow.md`. Historical deployment evidence and local benchmark backups are intentionally excluded from this release.

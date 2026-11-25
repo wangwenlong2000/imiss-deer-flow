@@ -231,6 +231,7 @@ function MessageContent_({
       )}
       {filesList}
       <MarkdownContent
+        threadId={threadId}
         content={contentToDisplay}
         isLoading={isLoading}
         rehypePlugins={[...rehypePlugins, [rehypeKatex, { output: "html" }]]}

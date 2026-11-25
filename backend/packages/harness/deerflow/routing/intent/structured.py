@@ -13,6 +13,7 @@ from deerflow.routing.intent import classifier as core
 from deerflow.routing.turn_requirements import REQUIREMENTS_EXAMPLE, REQUIREMENTS_INSTRUCTION, TurnRequirements, requirements_from_context
 
 logger = logging.getLogger(__name__)
+_TOOL_CONTRACT_ERROR = 'requires_computation=true contradicts allow_tools=false; network/install restrictions do not forbid local tools'
 
 
 class RecognizedTask(BaseModel):
@@ -38,7 +39,7 @@ class Recognition(TurnRequirements):
     @model_validator(mode='after')
     def feasible_turn_contract(self):
         if self.requires_computation and not self.allow_tools:
-            raise ValueError('requires_computation=true contradicts allow_tools=false; network/install restrictions do not forbid local tools')
+            raise ValueError(_TOOL_CONTRACT_ERROR)
         if set(self.csv_precision) - set(self.required_csv_metrics):
             raise ValueError('csv_precision keys must use the exact required_csv_metrics labels')
         return self
@@ -230,6 +231,15 @@ def _bounded_model(llm):
 def _repair_prompt(prompt, error=None):
     # Do not include unvalidated model output or make another full legacy pass.
     detail = str(error) if isinstance(error, ValueError) and not isinstance(error, ValidationError) else "JSON 字段类型或必填项不符"
+    if isinstance(error, ValidationError) and any(
+        str(issue.get('ctx', {}).get('error')) == _TOOL_CONTRACT_ERROR
+        for issue in error.errors(include_input=False, include_url=False)
+    ):
+        detail = (
+            "requires_computation=true与allow_tools=false矛盾，不是JSON格式问题。"
+            "请重读current_query：仅禁止联网、安装依赖、访问其他数据或修改技能时，本地读取、计算和写文件仍允许。"
+            "若用户明确禁止全部工具，必须遵守禁令并澄清计算要求，不得擅自开放工具；仅解释时不应要求实际计算"
+        )
     return prompt + f"\n上次输出未通过校验：{detail}。重新按 schema 返回全部任务与非空规划；核对场景 id、confidence 和 evidence。多处引文请用字符串数组，每项必须是输入中的连续原文。"
 
 

@@ -166,3 +166,13 @@ outputs/skill-tests/
 /task1_intent_sse_redacted.log
 /task2_scene_sse_redacted.log
 /type12_outputgate_sse_redacted.log
+
+# Local street embedding runtime and downloaded model weights
+/.runtime/streetmodel/
+/models/streetmodel/
+
+# Local task materials, scenario media and raw evaluation outputs
+/项目任务书等文件/
+/多场景测试/
+/NDBC.pdf
+/docs/*-eval-*/

@@ -259,7 +259,7 @@ AuthorizationException(403, 'security_exception',
 
 **验证当前许可证**:
 ```bash
-curl -u citybrain-street:123456 http://localhost:3128/_license
+curl -u "$ES_USERNAME:$ES_PASSWORD" http://localhost:3128/_license
 # 输出: "type": "basic"  ← 这就是 RRF 不可用的原因
 ```
 
@@ -375,8 +375,8 @@ conda run -n deerflow-street python skills/custom/location-matcher/scripts/es_re
   --max-distance 2000 \
   --image-path /mnt/nas/streetview_meta/queries/247query/247query/00001.jpg \
   --es-url http://172.17.0.1:3128 \
-  --es-username citybrain-street \
-  --es-password 123456 \
+  --es-username "$ES_USERNAME" \
+  --es-password "$ES_PASSWORD" \
   2>&1 | tail -40
 
 
@@ -388,8 +388,8 @@ conda run -n deerflow-street python skills/custom/location-matcher/scripts/es_re
   --k 50 \
   --description "交通事故" \
   --es-url http://172.17.0.1:3128 \
-  --es-username citybrain-street \
-  --es-password 123456 \
+  --es-username "$ES_USERNAME" \
+  --es-password "$ES_PASSWORD" \
   2>&1 | tail -400
 
 
@@ -399,8 +399,8 @@ conda run -n deerflow-street python skills/custom/location-matcher/scripts/es_re
   --k 50 \
   --description "占道摆摊" \
   --es-url http://172.17.0.1:3128 \
-  --es-username citybrain-street \
-  --es-password 123456 \
+  --es-username "$ES_USERNAME" \
+  --es-password "$ES_PASSWORD" \
   2>&1 | tail -400
 
 

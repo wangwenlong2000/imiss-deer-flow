@@ -116,7 +116,7 @@ OK (skipped=2)
 **验证方法**:
 ```bash
 # 查看许可证信息
-curl -u citybrain-street:123456 http://localhost:3128/_license
+curl -u "$ES_USERNAME:$ES_PASSWORD" http://localhost:3128/_license
 
 # 当前输出:
 # "type": "basic"  ← 这就是 RRF 不可用的原因

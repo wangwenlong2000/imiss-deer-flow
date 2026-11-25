@@ -100,7 +100,7 @@ grep -E "^(Ran|OK|FAILED)" test_results.log
 
 **验证**:
 ```bash
-curl -u citybrain-street:123456 http://localhost:3128/_license
+curl -u "$ES_USERNAME:$ES_PASSWORD" http://localhost:3128/_license
 # 输出: "type": "basic"
 ```
 
