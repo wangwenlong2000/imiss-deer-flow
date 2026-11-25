@@ -1,0 +1,53 @@
+{
+  "fire_alarm": {
+  "name": "消防告警",
+  "description": "消防安全信息接收与处理服务",
+  "example": "JSON：[{'name': '告警类型', 'desc': '消防告警的具体类型，如火灾、烟雾、温度异常, 堵塞疏散通道,占用消防通道', 'value': ''}, {'name': '告警地点', 'desc': '消防告警发生的具体地点', 'value': ''}, {'name': '告警时间', 'desc': '消防告警发生的时间，时间格式：yyyy-MM-dd', 'value': ''}]\n输入：阳光小区3号楼2单元发生火灾告警\n答：{'name': '告警类型', 'value': '火灾'}, {'name': '告警地点', 'value': '阳光小区3号楼2单元'}, {'name': '告警时间', 'value': '当前时间'}",
+  "parameters": [
+    {
+      "name": "告警类型",
+      "desc": "消防告警的具体类型，如火灾、烟雾、温度异常，堵塞疏散通道,占用消防通道等",
+      "type": "string",
+      "required": true,
+      "options": ["火灾", "烟雾", "温度异常", "可燃气体泄漏", "手动报警按钮触发", "占用消防通道","堵塞疏散通道","其他"]
+    },
+    {
+      "name": "告警地点",
+      "desc": "消防告警发生的具体地点，包括小区名称、楼号、单元号、房间号等",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "时间",
+      "desc": "消防告警发生的时间，时间格式：yyyy-MM-dd",
+      "type": "string",
+      "required": true
+    }
+  ]
+},
+  "flooding_alarm": {
+  "name": "洪涝灾害告警",
+  "description": "洪涝灾害告警信息接收与处理服务",
+  "example": "JSON：[{'name': '告警类型', 'desc': '洪涝灾害的具体类型，如暴雨、内涝、河流泛滥等', 'value': ''}, {'name': '告警地点', 'desc': '洪涝灾害发生的具体地点', 'value': ''}, {'name': '告警时间', 'desc': '洪涝灾害发生的时间，时间格式：yyyy-MM-dd HH:mm:ss', 'value': ''}]\n输入：长江流域某段发生河流泛滥告警\n答：{'name': '告警类型', 'value': '河流泛滥'}, {'name': '告警地点', 'value': '长江流域某段'}, {'name': '告警时间', 'value': '当前时间'}",
+  "parameters": [
+    {
+      "name": "告警地点",
+      "desc": "洪涝灾害发生的具体地点，包括地区名称、街道、河流名称等",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "时间",
+      "desc": "洪涝灾害发生的时间，时间格式：yyyy-MM-dd HH:mm:ss",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "告警描述",
+      "desc": "对洪涝灾害的详细描述,根据用户输入进行整理",
+      "type": "string",
+      "required": false
+    }
+  ]
+}
+}

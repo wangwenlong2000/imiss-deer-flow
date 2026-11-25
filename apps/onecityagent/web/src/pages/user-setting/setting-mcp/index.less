@@ -1,0 +1,98 @@
+.mcpWrapper {
+  padding: 0;
+
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .ant-table {
+    .ant-table-thead > tr > th {
+      background-color: #fafafa;
+      font-weight: 600;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background-color: #f5f5f5;
+    }
+  }
+
+  .ant-tag {
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .ant-btn {
+    border-radius: 6px;
+
+    &.ant-btn-link {
+      padding: 4px 8px;
+      height: auto;
+    }
+  }
+
+  .ant-modal {
+    .ant-modal-header {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .ant-modal-content {
+      border-radius: 8px;
+    }
+  }
+
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-input,
+  .ant-select-selector {
+    border-radius: 6px;
+  }
+
+  // 表格数据居中
+  .ant-table {
+    .ant-table-tbody > tr > td {
+      text-align: center;
+    }
+
+    .ant-table-thead > tr > th {
+      text-align: center;
+    }
+  }
+
+  .ant-search {
+    .ant-input {
+      border-radius: 6px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .mcpWrapper {
+    .ant-table {
+      .ant-table-content {
+        overflow-x: auto;
+      }
+    }
+
+    .ant-modal {
+      margin: 0;
+      max-width: 100vw;
+
+      .ant-modal-content {
+        border-radius: 0;
+      }
+    }
+  }
+}
+
+.ant-pagination.ant-pagination-mini .ant-pagination-item {
+  line-height: 4px !important;
+}
+.ant-pagination.ant-pagination-mini .ant-pagination-next {
+  line-height: 4px !important;
+}
+.ant-pagination.ant-pagination-mini .ant-pagination-prev {
+  line-height: 4px !important;
+}

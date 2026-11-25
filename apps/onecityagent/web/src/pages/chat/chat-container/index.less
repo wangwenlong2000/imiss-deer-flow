@@ -1,0 +1,24 @@
+.chatContainer {
+  padding: 0.24rem;
+  margin-left: 0.24rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.1rem;
+  position: relative; /* 将定位上下文移至消息容器，避免外层影响 */
+  .conversionButton {
+    z-index: 100;
+  }
+  .messageContainer {
+    overflow-y: auto;
+    padding-right: 24px;
+  }
+}
+.conversionButton {
+  height: 32px;
+  width: 90px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+:global(.ant-spin-nested-loading) {
+  position: static !important;
+}

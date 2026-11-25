@@ -1,0 +1,15 @@
+:where(.css-dev-only-do-not-override-1wxecgq).ant-form-item
+  .ant-form-item-label
+  > label::after {
+  font-size: 0.14rem !important;
+}
+:where(.css-dev-only-do-not-override-1wxecgq).ant-input {
+  font-size: 0.14rem !important;
+}
+:where(.css-dev-only-do-not-override-1wxecgq).ant-select-single
+  .ant-select-selector {
+  font-size: 0.14rem !important;
+}
+:where(.css-dev-only-do-not-override-1wxecgq).ant-form-item {
+  margin-bottom: 0.16rem;
+}

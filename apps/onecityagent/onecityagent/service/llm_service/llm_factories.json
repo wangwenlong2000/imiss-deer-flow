@@ -1,0 +1,278 @@
+[
+  {
+    "name": "OpenAI",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Image2Text,Speech2Text,TTS",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "gpt-4o-mini",
+        "tags": "LLM,Chat,4k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-4o",
+        "tags": "LLM,Chat,Vision,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-4-turbo",
+        "tags": "LLM,Chat,Vision,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-4",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-3.5-turbo",
+        "tags": "LLM,Chat,16k",
+        "max_tokens": 16385,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "text-embedding-3-large",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "text-embedding-3-small",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "text-embedding-ada-002",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "whisper-1",
+        "tags": "Speech2Text",
+        "max_tokens": 25000000,
+        "model_type": "speech2text"
+      },
+      {
+        "llm_name": "tts-1",
+        "tags": "TTS",
+        "max_tokens": 4096,
+        "model_type": "tts"
+      },
+      {
+        "llm_name": "tts-1-hd",
+        "tags": "TTS",
+        "max_tokens": 4096,
+        "model_type": "tts"
+      }
+    ]
+  },
+  {
+    "name": "Azure-OpenAI",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Image2Text,Speech2Text,TTS",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "gpt-4o",
+        "tags": "LLM,Chat,Vision,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-4-turbo",
+        "tags": "LLM,Chat,Vision,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-4",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "gpt-35-turbo",
+        "tags": "LLM,Chat,16k",
+        "max_tokens": 16385,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "text-embedding-3-large",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "text-embedding-3-small",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "text-embedding-ada-002",
+        "tags": "Text Embedding",
+        "max_tokens": 8191,
+        "model_type": "embedding"
+      }
+    ]
+  },
+  {
+    "name": "Tongyi-Qianwen",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Image2Text,Speech2Text",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "qwen-max",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "qwen-plus",
+        "tags": "LLM,Chat,32k",
+        "max_tokens": 32768,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "qwen-turbo",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "text_embedding_v2",
+        "tags": "Text Embedding",
+        "max_tokens": 2048,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "text_embedding_v3",
+        "tags": "Text Embedding",
+        "max_tokens": 8192,
+        "model_type": "embedding"
+      }
+    ]
+  },
+  {
+    "name": "Zhipu-AI",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Image2Text",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "glm-4",
+        "tags": "LLM,Chat,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "glm-4v",
+        "tags": "LLM,Chat,Vision,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "glm-3-turbo",
+        "tags": "LLM,Chat,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "embedding-2",
+        "tags": "Text Embedding",
+        "max_tokens": 8192,
+        "model_type": "embedding"
+      }
+    ]
+  },
+  {
+    "name": "Ollama",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Image2Text",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "llama3:8b",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "llama3:70b",
+        "tags": "LLM,Chat,8k",
+        "max_tokens": 8192,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "qwen2:7b",
+        "tags": "LLM,Chat,32k",
+        "max_tokens": 32768,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "nomic-embed-text",
+        "tags": "Text Embedding",
+        "max_tokens": 8192,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "mxbai-embed-large",
+        "tags": "Text Embedding",
+        "max_tokens": 512,
+        "model_type": "embedding"
+      }
+    ]
+  },
+  {
+    "name": "Cohere",
+    "logo": "",
+    "tags": "LLM,Text Embedding,Rerank",
+    "status": "1",
+    "llm": [
+      {
+        "llm_name": "command-r-plus",
+        "tags": "LLM,Chat,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "command-r",
+        "tags": "LLM,Chat,128k",
+        "max_tokens": 128000,
+        "model_type": "chat"
+      },
+      {
+        "llm_name": "embed-english-v3.0",
+        "tags": "Text Embedding",
+        "max_tokens": 512,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "embed-multilingual-v3.0",
+        "tags": "Text Embedding",
+        "max_tokens": 512,
+        "model_type": "embedding"
+      },
+      {
+        "llm_name": "rerank-english-v3.0",
+        "tags": "Rerank",
+        "max_tokens": 4096,
+        "model_type": "rerank"
+      },
+      {
+        "llm_name": "rerank-multilingual-v3.0",
+        "tags": "Rerank",
+        "max_tokens": 4096,
+        "model_type": "rerank"
+      }
+    ]
+  }
+]

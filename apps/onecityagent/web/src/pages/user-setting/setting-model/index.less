@@ -1,0 +1,45 @@
+.modelWrapper {
+  width: 100%;
+  padding: 0.32rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.1rem;
+  overflow-y: auto;
+}
+
+.modelContainer {
+  width: 100%;
+  .factoryOperationWrapper {
+    text-align: right;
+  }
+  .modelItem {
+  }
+  .llmList {
+    padding-top: 10px;
+  }
+  .toBeAddedCard {
+    border-radius: 0.16rem;
+    border: 1px solid #eaecf0;
+    background: #fff;
+    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    :global(.ant-card-body) {
+      padding: 0.1rem 0.24rem;
+    }
+    .addButton {
+      padding: 0;
+    }
+  }
+  .addedCard {
+    border-radius: 0.16rem;
+    border: 1px solid #eaecf0;
+    background: #fff;
+    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  }
+  .modelDivider {
+    margin: 0;
+  }
+  .modelTags {
+    height: 40px;
+    overflow: hidden;
+    font-size: 8px;
+  }
+}

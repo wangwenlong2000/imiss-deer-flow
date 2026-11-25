@@ -1,0 +1,82 @@
+.sidebarContainer {
+  height: 100%;
+  & > :nth-child(2) > :nth-child(n + 3) {
+    div > :nth-child(1) {
+      transform: translateX(-2.5px);
+    }
+  }
+}
+
+.sidebarButton {
+  width: auto;
+  min-width: 2.1rem;
+  height: 40px;
+  cursor: pointer;
+  background-color: transparent;
+  display: flex;
+  padding: 7px 30px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 3px;
+  margin: 1px auto;
+}
+
+.sidebarButton:hover {
+  background-color: #f2f4f7;
+}
+
+.sidebarButton .iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.sidebarButton .iconWrapper svg,
+.sidebarButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sidebarButton .label {
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sidebarButton.active {
+  background-color: var(--Brand-Brand1-Light, #eef7ff) !important;
+  overflow: hidden;
+  color: var(--Brand-Brand6-Normal, #2083ea);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-family: 'PingFang SC';
+
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 0.22rem;
+}
+
+.sidebarButton.active .icon {
+  color: #ffffff !important;
+}
+.leftBarlogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0.56rem;
+  color: var(--Brand-Brand6-Normal, #2083ea);
+  font-family: 'Alimama ShuHeiTi';
+  font-size: 0.22rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 33px */
+  letter-spacing: 1.1px;
+  align-self: stretch;
+  //padding: 0.12rem 0.05rem 0.12rem 0.05rem;
+  border-bottom: 1px solid var(--Gray-Gray3-, #e7e7e7);
+}

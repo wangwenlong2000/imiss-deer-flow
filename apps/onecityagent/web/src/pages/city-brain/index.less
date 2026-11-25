@@ -1,0 +1,698 @@
+.chatWrapper {
+  height: 100%;
+  width: 100%;
+
+  .boxWapper {
+    display: flex;
+    flex-direction: column;
+    width: 4rem;
+    min-height: 0;
+    padding: 0.26rem 0.16rem;
+    border-radius: 0.1rem;
+    background: #fff;
+    box-shadow: 0px 1px 2px 0px #e9eefd;
+    overflow: hidden;
+  }
+
+  .chatAppWrapper {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+
+    .chatAppContent {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    .chatAppCard {
+      :global(.ant-card-body) {
+        padding: 0.1rem;
+      }
+    }
+
+    .chatAppCardSelected {
+      :global(.ant-card-body) {
+        border-radius: 6px;
+        background: var(--Brand-Brand1-Light, #eef7ff);
+        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+.cityBrainContainer {
+  padding: 0.24rem;
+  margin-left: 0.24rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.1rem;
+  position: relative;
+}
+
+.buttonGroup {
+  min-height: 0.4rem;
+}
+
+.conversionButton {
+  height: 32px;
+  width: 90px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  z-index: 100;
+}
+
+.messageContainer {
+  overflow-y: auto;
+  padding-right: 24px;
+}
+
+.messageList {
+  min-height: 100%;
+  padding-bottom: 0.16rem;
+}
+
+.emptyHint {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 3rem;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 14px;
+}
+
+/* 用户消息：严格仿照事件处置 MessageItem 的右侧蓝色气泡 */
+.userMessageRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px 0;
+  text-align: right;
+}
+
+.userContentWrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 80%;
+  overflow-wrap: anywhere;
+}
+
+.userBubble {
+  padding: 6px 10px;
+  border-radius: 0.2rem 0.04rem 0.2rem 0.2rem !important;
+  background: linear-gradient(90deg, #4b5ef2 0%, #5ba9fc 100%);
+  box-shadow: 0px 1px 14px 0px rgba(55, 67, 87, 0.2);
+  color: #fff;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  text-align: justify;
+}
+
+/* 智能体消息：严格按事件处置 MessageItem 的左侧结构组织
+   图标 + 右侧竖向内容；右侧先显示“智能体名称+复制按钮”，下一行显示白色气泡。 */
+.agentMessageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  width: fit-content;
+  max-width: 80%;
+  padding: 24px 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.agentIconWrapper {
+  width: 0.4rem;
+  min-width: 0.4rem;
+  height: 0.4rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 0.28rem;
+    height: 0.28rem;
+    margin-top: 0.02rem;
+  }
+}
+
+.agentContentWrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.agentTitleRow {
+  display: flex;
+  align-items: center;
+  min-height: 0.28rem;
+  margin: 0;
+
+  b {
+    white-space: nowrap;
+  }
+
+  :global(.ant-btn) {
+    width: 0.26rem;
+    height: 0.26rem;
+    padding: 0;
+    flex-shrink: 0;
+  }
+}
+
+.agentBubble {
+  display: inline-block;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 0.04rem 0.2rem 0.2rem 0.2rem;
+  background: #fff;
+  box-shadow: 0px 2px 15px 0px rgba(55, 67, 87, 0.15);
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  & > p {
+    margin: 0;
+  }
+}
+
+.complianceRefusalBubble {
+  border: 1px solid #ffccc7;
+  background: #fff2f0;
+  color: #a8071a;
+}
+
+.complianceCard {
+  width: min(760px, 88%);
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid #b7eb8f;
+  border-radius: 10px;
+  background: #f6ffed;
+  box-shadow: 0 2px 10px rgba(55, 67, 87, 0.08);
+}
+
+.complianceCardWarning {
+  border-color: #ffe58f;
+  background: #fffbe6;
+}
+
+.complianceCardBlocked {
+  border-color: #ffccc7;
+  background: #fff2f0;
+}
+
+.complianceCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.complianceDisposition {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.complianceGrid {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 6px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+
+  span {
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  b {
+    word-break: break-word;
+  }
+}
+
+.complianceBasis {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+
+  span {
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+}
+
+.userIdentityLabel {
+  margin: 0 4px 5px 0;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+  text-align: right;
+}
+
+.complianceIdentityPanel {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid #dbe8ff;
+  border-radius: 10px;
+  background: rgba(248, 251, 255, 0.92);
+}
+
+.complianceIdentityControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.complianceIdentityTitle {
+  flex: 0 0 auto;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.complianceIdentitySelect {
+  width: 290px;
+  max-width: 100%;
+}
+
+.complianceIdentityDescription {
+  margin-top: 6px;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.complianceIdentityGrid {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 5px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+
+  span {
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  b {
+    overflow-wrap: anywhere;
+  }
+}
+
+.complianceIdentityNotice {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border: 1px solid #ffe58f;
+  border-radius: 6px;
+  background: #fffbe6;
+  color: #874d00;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.inputWrapper {
+  display: flex;
+  gap: 0.1rem;
+  align-items: flex-end;
+  padding-top: 0.12rem;
+
+  :global(.ant-input) {
+    resize: none;
+  }
+}
+
+:global(.ant-spin-nested-loading) {
+  position: static !important;
+}
+
+/* 历史记录卡片右侧操作按钮：仿照事件处置的省略号菜单 */
+.cubeIcon {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/* 城市超脑消息内容增强：Markdown 风格渲染与文件卡片 */
+.markdownBody {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.markdownParagraph {
+  margin: 0 0 6px;
+  line-height: 1.75;
+}
+
+.markdownBlankLine {
+  height: 8px;
+}
+
+.markdownHeading {
+  margin: 10px 0 6px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.markdownListItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+  line-height: 1.75;
+}
+
+.markdownListMarker {
+  flex: 0 0 auto;
+  min-width: 18px;
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.inlineCode {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(22, 119, 255, 0.08);
+  color: #314659;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  font-size: 0.92em;
+}
+
+.downloadLink {
+  color: #1677ff;
+  text-decoration: underline;
+  cursor: pointer;
+  word-break: break-all;
+
+  &:hover {
+    color: #4096ff;
+  }
+}
+
+.markdownTableWrapper {
+  max-width: 100%;
+  margin: 8px 0 10px;
+  overflow-x: auto;
+}
+
+.markdownTable {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.6;
+
+  th,
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e8edf7;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  th {
+    background: #f5f8ff;
+    color: rgba(0, 0, 0, 0.88);
+    font-weight: 600;
+  }
+
+  td {
+    background: #fff;
+  }
+}
+
+.fileListBlock {
+  margin-top: 4px;
+  white-space: normal;
+}
+
+.fileListTitle {
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.fileListGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dbe8ff;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  color: rgba(0, 0, 0, 0.88);
+  text-decoration: none;
+  box-shadow: 0 1px 4px rgba(22, 119, 255, 0.06);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #1677ff;
+    color: #1677ff;
+    background: #f0f7ff;
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
+  }
+}
+
+.fileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  min-width: 42px;
+  height: 26px;
+  border-radius: 6px;
+  background: #eaf3ff;
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fileName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* 城市超脑：上传附件与右侧文件预览 */
+.inputMainArea {
+  flex: 1;
+  min-width: 0;
+}
+
+.uploadedFileList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.uploadedFileTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #dbe8ff;
+  border-radius: 8px;
+  background: #f8fbff;
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.uploadedFileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: #eaf3ff;
+  color: #1677ff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.uploadedFileName {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.uploadedFileSize {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}
+
+.fileDownloadAction {
+  flex: 0 0 auto;
+  color: #1677ff;
+  font-size: 12px;
+  text-decoration: none;
+
+  &:hover {
+    color: #4096ff;
+    text-decoration: underline;
+  }
+}
+
+.previewEmpty,
+.previewUnsupported,
+.previewError {
+  padding: 20px;
+  border-radius: 8px;
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.68);
+  line-height: 1.8;
+}
+
+.previewError {
+  color: #cf1322;
+  background: #fff2f0;
+}
+
+.previewDownloadButton {
+  display: inline-block;
+  margin-top: 12px;
+  color: #1677ff;
+  text-decoration: underline;
+}
+
+.previewMarkdownBody {
+  padding-bottom: 16px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.previewTextBody {
+  min-height: 360px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #edf1f7;
+  border-radius: 8px;
+  background: #fafcff;
+  color: rgba(0, 0, 0, 0.82);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.previewTableWrapper {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.previewTable {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.6;
+
+  th,
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e8edf7;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: #f5f8ff;
+    color: rgba(0, 0, 0, 0.88);
+    font-weight: 600;
+    z-index: 1;
+  }
+
+  td {
+    background: #fff;
+  }
+}
+
+.previewHint {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fffbe6;
+  color: #8c6d1f;
+  font-size: 12px;
+}
+
+/* 城市超脑：Markdown 图片内嵌展示 */
+.markdownImageBlock {
+  display: block;
+  max-width: 100%;
+  margin: 10px 0 12px;
+  white-space: normal;
+}
+
+.markdownImageLink {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.markdownImage {
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  border: 1px solid #e8edf7;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(55, 67, 87, 0.08);
+  object-fit: contain;
+}
+
+.markdownImageCaption {
+  display: block;
+  margin-top: 6px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.previewMarkdownBody {
+  .markdownImage {
+    max-height: 640px;
+  }
+}

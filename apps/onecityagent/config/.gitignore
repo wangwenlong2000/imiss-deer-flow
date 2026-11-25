@@ -1,0 +1,7 @@
+config.toml
+a2a.json
+mcp.json
+private.pem
+*.key
+*.pem
+*.bak*
