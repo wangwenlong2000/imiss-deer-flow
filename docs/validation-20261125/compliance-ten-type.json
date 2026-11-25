@@ -1,0 +1,2927 @@
+{
+  "schema_version": "compliance_unified_ten_type_eval_1",
+  "generated_at": "2026-11-25T12:51:05.011399+00:00",
+  "command": "python scripts/run_compliance_unified_ten_type_eval.py --input '合规检测/合规评测全部十类违规类型数据' --output docs/validation-20261125/compliance-ten-type.json",
+  "dataset": {
+    "path": "合规检测/合规评测全部十类违规类型数据",
+    "data_version": "7.23 raw annotation bundle as checked out; no independent freeze marker",
+    "independent_frozen_set": false,
+    "rows_loaded": 2172,
+    "source_files": [
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/compliance_annotations_250.jsonl",
+        "rows": 257,
+        "sha256": "5de90dfd3abc8cbcc085294cc8937b283d54b56f54af598c9129a6e13bd38587"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/network_flow_compliance_annotations_150.jsonl",
+        "rows": 150,
+        "sha256": "c1842094b03a821e28e6fed1f06dd4d0071f013abc9becde22b39b44a29f959e"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/phone_network.jsonl",
+        "rows": 150,
+        "sha256": "d4ce0ef480a807f1a1d1a0302b43fa17cafad893ee5ba3b92e38c2a28ead385d"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/policy_regulation.jsonl",
+        "rows": 450,
+        "sha256": "a7f2d5e23c43bcd83cda1aecab68324134015e6f6b93b48cebecc338b3b03f4b"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/program_code.jsonl",
+        "rows": 250,
+        "sha256": "417b8e386e9271ab9cbd27aa6ceafbbbf1d491c704000bed2b5340e9718ce530"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/remote_sensing_all_120.jsonl",
+        "rows": 120,
+        "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/repair_traffic_flow_samples_150.jsonl",
+        "rows": 150,
+        "sha256": "859f7f195764ec27267df4491b9a6f655080654a8dbc1a1abef501b01e640638"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/spatiotemporal_compliance_all_225.jsonl",
+        "rows": 245,
+        "sha256": "bbb56fe04ef35a3c9ea27824f9543bfa350860334c5e335fb21acd9dce25b882"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/street_view_200.jsonl",
+        "rows": 200,
+        "sha256": "5ffcaead020456ecc4a1f292b22e555076d44fba4d51f22c15e9ee7f5b7c2f93"
+      },
+      {
+        "path": "合规检测/合规评测全部十类违规类型数据/video_monitoring_200.jsonl",
+        "rows": 200,
+        "sha256": "3fc5b14cf673007116e0530634fa9f90312fcd00e539ee4adcf109813e9701df"
+      }
+    ],
+    "missing_gate_policy": "assign InputGate; retained in report as gate_inferred=true",
+    "missing_gate_rows": 122
+  },
+  "code": {
+    "commit_id": "33119f1",
+    "working_tree_dirty": true,
+    "detectors_config_sha256": "e1ceb88abd2e08df2246ac6dcf229262c182d78fd2c11e8caee5dd153323a8ea",
+    "policy_matrix_sha256": "2d5d454672bd661ec5e41e43f62bba63e82e07ce6d78c6599dde4438421d2901",
+    "manifest_sha256": {
+      "backend/packages/harness/deerflow/compliance/detectors/entropy_hardcoded_cred/manifest.yaml": "8ac88d2dfb3e437ddc4c3c570e31edbd9bc45253b38b412aa784a2c5b90ceb86",
+      "backend/packages/harness/deerflow/compliance/detectors/llm_confidential/manifest.yaml": "f2154674d52d92585a67d2c91b346d577cb3daf590c9793bca29c45cf2ecccea",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/manifest.yaml": "67750887eca3b11718b3f5ce9c5aa0470ffc1872c1dbc9291d2900abecde74ec",
+      "backend/packages/harness/deerflow/compliance/detectors/ner_text_id/manifest.yaml": "df838b1f9a0ac5995f00f127cf8f4abdbcb3ca8829f78636e08b8c99e8771a68",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_geo_loc/manifest.yaml": "7d291e97587ac3905504b93b13e4e0b5e5f899cbf46b9bc5b758e397c6885ca8",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_struct_id/manifest.yaml": "73118a9b027719ffd04f7ca4f6cc3bead4faa4ddc2e2d8b2012f88aba28595fe",
+      "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/manifest.yaml": "6a372759eb3966a1f827143264e30c06cd03ccef900b7d1167bf1c41b52d0c05"
+    },
+    "source_sha256": {
+      "backend/packages/harness/deerflow/compliance/__init__.py": "b9c1f87278baf39c0e0dce3d0f2c922e962d38363eef505b9754ef41ed2f668c",
+      "backend/packages/harness/deerflow/compliance/actions.py": "91d00774d89ac10f7dd84cf33349f8f66b7158a7f0742a3f757b745082a41f58",
+      "backend/packages/harness/deerflow/compliance/adapters/__init__.py": "53dc0bfb52f48fc35afc37fbe1db4395d84683b57bece1effabf207611fd36e2",
+      "backend/packages/harness/deerflow/compliance/adapters/http_service.py": "eb5f09b9a888b15fd836f2fec95d12060e3e77fa05354d2f8fcc577fa3a3de9f",
+      "backend/packages/harness/deerflow/compliance/adapters/inprocess.py": "938ea7f568d3d409af65e4fee218cb2f41c132610a1bfd830999989717264900",
+      "backend/packages/harness/deerflow/compliance/adapters/serde.py": "2275f5d5f84eaac741c7750bda0c904bb15d668daa8e1f3676d7c1eeb18869e8",
+      "backend/packages/harness/deerflow/compliance/adapters/subprocess_cli.py": "99e14d2d24d57a6e16ea19e9e0633fecd33304d6e96bf9c5882240afa29711cf",
+      "backend/packages/harness/deerflow/compliance/audit.py": "3fd11ec6173e2845ef3915c35deb110b43228df39ad338d41c381316a101c3b3",
+      "backend/packages/harness/deerflow/compliance/contract.py": "5b270eb64825dca0c7fc4e1e90b288393d5ffe1da55ed48277f3a7e4b02bf720",
+      "backend/packages/harness/deerflow/compliance/detectors/__init__.py": "ce54d0197a1e86924b0f9105e08cf5e3b4487dcd0473cbdd4afb383f44d17bdf",
+      "backend/packages/harness/deerflow/compliance/detectors/_template_detector/__init__.py": "49691c752b4e65e8a131ff54bcb85966d4deb2b763e495ace5bd265e01132512",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/__init__.py": "8bfb66fc48a2990be102a2174a88f9726eeefe6b9a3813804cfbb1f27cd99acb",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/adapter.py": "5450586814b14ed1f3938e225dddf87e490f2856b0393f26356126b9694d6b6e",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/configured_llm.py": "f9c6380610a3d4e9c77aab6a2fa1de3cc50f5aa7505f3e5d2e0d8ed4ede17985",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/__init__.py": "ba5a882d3c185a7eeb8998b11b66c1a99e98c2901871cdc39b39cb92c67b7b84",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/base.py": "52faaffd648fa6a347b1baeccb57cdede752580baf9a9cdfb5b0dcfa89cae30e",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/confidential.py": "667507f1762672031a74dac2695f25398c918af9349913fa3704cac70f58aa68",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/hardcoded_cred.py": "4fb97c09ab35ee3e98f5bb5c6471709a72249900f5edff337eb9544951843be3",
+      "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/text_id.py": "d98fce66eb96c653324a90cb3a7e7dbecccfff924ba5b3f23dc637a854f62665",
+      "backend/packages/harness/deerflow/compliance/detectors/entropy_hardcoded_cred/__init__.py": "f405703598cd9279037c57329f47a85fc0c137ae1c0e667e8eea836cc2d4387e",
+      "backend/packages/harness/deerflow/compliance/detectors/entropy_hardcoded_cred/detector.py": "1ed7836e80395a3819bb649fabbe27a82a9b2e587297eea2d2526bbf1c434132",
+      "backend/packages/harness/deerflow/compliance/detectors/llm_confidential/__init__.py": "c80f7331720c2141c7c1ac1c2192deb4198bb08d37bf6cbaadbf539c0a48603b",
+      "backend/packages/harness/deerflow/compliance/detectors/llm_confidential/detector.py": "abc9ef053c87ca50002e99755462e22da3be523552066f7709f83c8a72e29203",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/__init__.py": "ec850979b9e9245e6de9d0d9bd463ac09b177ac3a7eac571bba939e61a526d8d",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/composite_risk.py": "217ea66c96ac8da290632b2008a1cbfda294287938aa4ca10aacd3bb2c664365",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/detector.py": "dcfd8a9a0f852f68942c2020d676777a521958555448f91bb71ac90dc9a31a1a",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/row_builder.py": "0434db5c75a9c5462c8a177d59b351a7999e9244ac94e458dcc06e368fe9b7f7",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/tests/__init__.py": "70204dcf956f5339d18cb70e8619fe943fdd380559f2e803c98f57f0eb6623c2",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/__init__.py": "ba45f6965eb15f6f820c72da13d426b84d63635b74c7b1da52934381c82480ca",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/__init__.py": "6c3b305096e99afc77a0b41f1217165241af372d05f8b8403401bd546a59ae1f",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/evaluate_classifier.py": "5d7b480b5991ccaca34ef88052b1084f3fa287074c05d571e13007d37a7658a8",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/feature_extractor.py": "8410fe7ec2cf739cae89d8bc060d9e9a2a9d4e2bcb96f85847b836f9555ed24c",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/holdout_split.py": "0b1cd7bdf0888d3baa17bd6a94e984e02c3a0d9c496d58cdd583b692959287ef",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/io_utils.py": "46a11590e4fa489a20b9e95e36604d6c958419c2a1d15e21de490d0b9ea189a8",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/metrics.py": "11715ac19d059e56240b63b4a921b21fd07fcb15d67d7dfd603f9c1178e49664",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/predict_classifier.py": "0b75aad06f518aef1904215f9f1cf8e0010c2f5280caec620776881b0ff0370f",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/split_dataset.py": "9634e8dead6e426a74c4abee890c36bf3936d3c1c2728be652a7daee804a0f2f",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/tfidf_knn.py": "3e226af4f22fa0e06412ee80ccf803e8eb2ba65efc1beaa1152b39f070fc5a4d",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/train_classifier.py": "95fe95f88ad882f701efd1c42b59ee1e8b171a1b193f0effca3062aa108ea70e",
+      "backend/packages/harness/deerflow/compliance/detectors/ner_text_id/__init__.py": "0d6abc7c3aa10e1ad3395a1301bc35fae2dcbba80d4167c3f40af1428849faf0",
+      "backend/packages/harness/deerflow/compliance/detectors/ner_text_id/detector.py": "f1b82fbd4d4ecb758f28053795c1f562cc2cc7a3fcc852755ca88f25bd59802f",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_geo_loc/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_geo_loc/detector.py": "4e9c3b21a1da9d156beaf093993be13cce2dc57a187c1b5c77ab6a76eb1010ca",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_geo_loc/legacy_core.py": "3c248e1a5cc4f4beaffbdea0cec9cee98d9254b45276e3222f6b2823802e2a70",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_struct_id/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_struct_id/detector.py": "a053b1b1cb9a790fa1ab454fd17a866daace2f9386ab64a7199c829738c5c7c5",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_struct_id/legacy_core.py": "23f6e1cbcc95cba4eeaeefc8d585ea0eb1ad911b3eea7b31905ab07c47c72785",
+      "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/__init__.py": "0fce61ce1cee788449ca020c04bb9ae2bd939d22cbf47a88289692f517bc9099",
+      "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/detector.py": "3c97ad293ca034031d4572acee9c7f10b43d3bf2d5f32a6af83b2d16e0f39d36",
+      "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/legacy_core.py": "c4843201ebccb404ced571933736286066334861da792a902aee2c90b6e7e23a",
+      "backend/packages/harness/deerflow/compliance/engine.py": "4c44197d7180d6cae902421236ec654cefca8261645ef2a188e1e587160f1ca8",
+      "backend/packages/harness/deerflow/compliance/intent.py": "e9e06120c6c0b675579195f37078717cbc753740605bbf38403edcc9dbb46171",
+      "backend/packages/harness/deerflow/compliance/manual_context.py": "eefe407a037891a52f75e6a0684c03ba90283dd8401a45d932455b32a5b921fb",
+      "backend/packages/harness/deerflow/compliance/normalizers/__init__.py": "1a65b300b6527b87b707309c97be206f77f596195ca292aa0e41d8597e92d736",
+      "backend/packages/harness/deerflow/compliance/normalizers/base.py": "7c7a4a3fcfec36f6fe0768e1081c8a3db9d2df15cb770ef2bd34ee2753cf73b4",
+      "backend/packages/harness/deerflow/compliance/normalizers/llm_output.py": "a24c1b644a351ff4ad82ca3c150bcc01ea5ee4766e5a628cff1d84999a619f78",
+      "backend/packages/harness/deerflow/compliance/normalizers/skill_result.py": "f6329a2e36dfba7bdc6bcd8233b483f0cd8aa609b9db58c7d2405363129e39bb",
+      "backend/packages/harness/deerflow/compliance/normalizers/user_input.py": "394805aa736676e2b4039dfce26e982967802583412c56754fef3403422487e2",
+      "backend/packages/harness/deerflow/compliance/policy.py": "bf31631f75c5d2da42386da06d775cfd8623f4ffef39a5d9566e491ca8799e63",
+      "backend/packages/harness/deerflow/compliance/preflight.py": "e3bbaa7de056c4dbf70c6b68f6a4e6c12e51ca4b93a68d31984c8ff190f06d82",
+      "backend/packages/harness/deerflow/compliance/registry.py": "518d59e1a2c853bc15e40422cb8b819ddf6107af8924b8c636daba513371aede",
+      "backend/packages/harness/deerflow/compliance/router.py": "9bf3933cdc2b297ef42f4bbc6b6811560e1dfee0681b9981dd86beadc3c9c191",
+      "backend/packages/harness/deerflow/compliance/runtime.py": "4f8ef20c38bd723a41f81a4014bb6db782f04d05266d4c62cb8d4fca14d05e13",
+      "backend/packages/harness/deerflow/compliance/scene.py": "1347c6ebd0b5afe30ba4b9d48c6cddab613b50ab6b656ba2dd70a4e911a0e7db",
+      "backend/packages/harness/deerflow/compliance/types.py": "4daf99a363c58594e09b55ab554496a277b7adb453c034f438a2089f359d9dd3"
+    },
+    "model_sha256": {
+      "models/compliance/ml_detector_0624_fresh.json": "d0183010a212e11322cf325ae39fe86462aa4f1dd7ca621925e5c9d41843003f"
+    }
+  },
+  "detector_coverage": {
+    "enabled_detectors": [
+      "entropy_hardcoded_cred",
+      "llm_confidential",
+      "model_tfidf_knn",
+      "ner_text_id",
+      "regex_geo_loc",
+      "regex_struct_id",
+      "rule_illegal_political_v4"
+    ],
+    "manifest_gate_coverage": {
+      "InputGate": [
+        "confidential",
+        "domain",
+        "geo_loc",
+        "hardcoded_cred",
+        "illegal_content",
+        "political",
+        "struct_id",
+        "text_id",
+        "video_meta_leak"
+      ],
+      "ContextGate": [
+        "confidential",
+        "domain",
+        "geo_loc",
+        "illegal_content",
+        "political",
+        "struct_id",
+        "text_id",
+        "video_meta_leak"
+      ],
+      "OutputGate": [
+        "confidential",
+        "domain",
+        "geo_loc",
+        "hardcoded_cred",
+        "illegal_content",
+        "political",
+        "re_identify",
+        "struct_id",
+        "text_id",
+        "video_meta_leak"
+      ]
+    },
+    "gold_types_present": {
+      "struct_id": 117,
+      "geo_loc": 120,
+      "hardcoded_cred": 150,
+      "illegal_content": 151,
+      "political": 117,
+      "text_id": 144,
+      "confidential": 112,
+      "video_meta_leak": 176,
+      "re_identify": 146,
+      "domain": 109
+    }
+  },
+  "primary": {
+    "samples": 2172,
+    "correct": 2089,
+    "accuracy": 0.9618,
+    "macro_f1": 0.9665,
+    "per_violation_type": {
+      "struct_id": {
+        "tp": 117,
+        "fp": 25,
+        "fn": 0,
+        "support": 117,
+        "precision": 0.8239,
+        "recall": 1.0,
+        "f1": 0.9035
+      },
+      "geo_loc": {
+        "tp": 120,
+        "fp": 32,
+        "fn": 0,
+        "support": 120,
+        "precision": 0.7895,
+        "recall": 1.0,
+        "f1": 0.8824
+      },
+      "hardcoded_cred": {
+        "tp": 150,
+        "fp": 1,
+        "fn": 0,
+        "support": 150,
+        "precision": 0.9934,
+        "recall": 1.0,
+        "f1": 0.9967
+      },
+      "illegal_content": {
+        "tp": 151,
+        "fp": 0,
+        "fn": 0,
+        "support": 151,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "political": {
+        "tp": 117,
+        "fp": 0,
+        "fn": 0,
+        "support": 117,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "text_id": {
+        "tp": 144,
+        "fp": 3,
+        "fn": 0,
+        "support": 144,
+        "precision": 0.9796,
+        "recall": 1.0,
+        "f1": 0.9897
+      },
+      "confidential": {
+        "tp": 112,
+        "fp": 27,
+        "fn": 0,
+        "support": 112,
+        "precision": 0.8058,
+        "recall": 1.0,
+        "f1": 0.8924
+      },
+      "video_meta_leak": {
+        "tp": 176,
+        "fp": 0,
+        "fn": 0,
+        "support": 176,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "re_identify": {
+        "tp": 146,
+        "fp": 0,
+        "fn": 0,
+        "support": 146,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "domain": {
+        "tp": 109,
+        "fp": 0,
+        "fn": 0,
+        "support": 109,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "metric": "one_vs_rest_presence; gold annotations remain single-label"
+  },
+  "single_label": {
+    "primary": {
+      "samples": 2172,
+      "correct": 2170,
+      "accuracy": 0.9991,
+      "macro_f1": 0.9984,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 116,
+          "fp": 1,
+          "fn": 1,
+          "support": 117,
+          "precision": 0.9915,
+          "recall": 0.9915,
+          "f1": 0.9915
+        },
+        "geo_loc": {
+          "tp": 120,
+          "fp": 0,
+          "fn": 0,
+          "support": 120,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "hardcoded_cred": {
+          "tp": 150,
+          "fp": 1,
+          "fn": 0,
+          "support": 150,
+          "precision": 0.9934,
+          "recall": 1.0,
+          "f1": 0.9967
+        },
+        "illegal_content": {
+          "tp": 151,
+          "fp": 0,
+          "fn": 0,
+          "support": 151,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 117,
+          "fp": 0,
+          "fn": 0,
+          "support": 117,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 144,
+          "fp": 0,
+          "fn": 0,
+          "support": 144,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 111,
+          "fp": 0,
+          "fn": 1,
+          "support": 112,
+          "precision": 1.0,
+          "recall": 0.9911,
+          "f1": 0.9955
+        },
+        "video_meta_leak": {
+          "tp": 176,
+          "fp": 0,
+          "fn": 0,
+          "support": 176,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 146,
+          "fp": 0,
+          "fn": 0,
+          "support": 146,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 109,
+          "fp": 0,
+          "fn": 0,
+          "support": 109,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    "by_gate": {
+      "ContextGate": {
+        "samples": 741,
+        "correct": 740,
+        "accuracy": 0.9987,
+        "macro_f1": 0.9975,
+        "per_violation_type": {
+          "struct_id": {
+            "tp": 57,
+            "fp": 1,
+            "fn": 0,
+            "support": 57,
+            "precision": 0.9828,
+            "recall": 1.0,
+            "f1": 0.9913
+          },
+          "geo_loc": {
+            "tp": 18,
+            "fp": 0,
+            "fn": 0,
+            "support": 18,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "illegal_content": {
+            "tp": 65,
+            "fp": 0,
+            "fn": 0,
+            "support": 65,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "text_id": {
+            "tp": 94,
+            "fp": 0,
+            "fn": 0,
+            "support": 94,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "confidential": {
+            "tp": 56,
+            "fp": 0,
+            "fn": 1,
+            "support": 57,
+            "precision": 1.0,
+            "recall": 0.9825,
+            "f1": 0.9912
+          },
+          "video_meta_leak": {
+            "tp": 145,
+            "fp": 0,
+            "fn": 0,
+            "support": 145,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "domain": {
+            "tp": 56,
+            "fp": 0,
+            "fn": 0,
+            "support": 56,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      },
+      "InputGate": {
+        "samples": 857,
+        "correct": 856,
+        "accuracy": 0.9988,
+        "macro_f1": 0.9982,
+        "per_violation_type": {
+          "struct_id": {
+            "tp": 37,
+            "fp": 0,
+            "fn": 1,
+            "support": 38,
+            "precision": 1.0,
+            "recall": 0.9737,
+            "f1": 0.9867
+          },
+          "geo_loc": {
+            "tp": 36,
+            "fp": 0,
+            "fn": 0,
+            "support": 36,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "hardcoded_cred": {
+            "tp": 150,
+            "fp": 1,
+            "fn": 0,
+            "support": 150,
+            "precision": 0.9934,
+            "recall": 1.0,
+            "f1": 0.9967
+          },
+          "illegal_content": {
+            "tp": 80,
+            "fp": 0,
+            "fn": 0,
+            "support": 80,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "political": {
+            "tp": 88,
+            "fp": 0,
+            "fn": 0,
+            "support": 88,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "text_id": {
+            "tp": 22,
+            "fp": 0,
+            "fn": 0,
+            "support": 22,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "confidential": {
+            "tp": 40,
+            "fp": 0,
+            "fn": 0,
+            "support": 40,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "video_meta_leak": {
+            "tp": 25,
+            "fp": 0,
+            "fn": 0,
+            "support": 25,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "domain": {
+            "tp": 24,
+            "fp": 0,
+            "fn": 0,
+            "support": 24,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      },
+      "OutputGate": {
+        "samples": 574,
+        "correct": 574,
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "per_violation_type": {
+          "struct_id": {
+            "tp": 22,
+            "fp": 0,
+            "fn": 0,
+            "support": 22,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "geo_loc": {
+            "tp": 66,
+            "fp": 0,
+            "fn": 0,
+            "support": 66,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "illegal_content": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 0,
+            "support": 6,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "political": {
+            "tp": 29,
+            "fp": 0,
+            "fn": 0,
+            "support": 29,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "text_id": {
+            "tp": 28,
+            "fp": 0,
+            "fn": 0,
+            "support": 28,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "confidential": {
+            "tp": 15,
+            "fp": 0,
+            "fn": 0,
+            "support": 15,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "video_meta_leak": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 0,
+            "support": 6,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "re_identify": {
+            "tp": 146,
+            "fp": 0,
+            "fn": 0,
+            "support": 146,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "domain": {
+            "tp": 29,
+            "fp": 0,
+            "fn": 0,
+            "support": 29,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      }
+    }
+  },
+  "by_gate": {
+    "ContextGate": {
+      "samples": 741,
+      "correct": 723,
+      "accuracy": 0.9757,
+      "macro_f1": 0.9805,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 57,
+          "fp": 18,
+          "fn": 0,
+          "support": 57,
+          "precision": 0.76,
+          "recall": 1.0,
+          "f1": 0.8636
+        },
+        "geo_loc": {
+          "tp": 18,
+          "fp": 0,
+          "fn": 0,
+          "support": 18,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "illegal_content": {
+          "tp": 65,
+          "fp": 0,
+          "fn": 0,
+          "support": 65,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 94,
+          "fp": 0,
+          "fn": 0,
+          "support": 94,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 57,
+          "fp": 0,
+          "fn": 0,
+          "support": 57,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 145,
+          "fp": 0,
+          "fn": 0,
+          "support": 145,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 56,
+          "fp": 0,
+          "fn": 0,
+          "support": 56,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "InputGate": {
+      "samples": 857,
+      "correct": 801,
+      "accuracy": 0.9347,
+      "macro_f1": 0.9311,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 38,
+          "fp": 7,
+          "fn": 0,
+          "support": 38,
+          "precision": 0.8444,
+          "recall": 1.0,
+          "f1": 0.9157
+        },
+        "geo_loc": {
+          "tp": 36,
+          "fp": 25,
+          "fn": 0,
+          "support": 36,
+          "precision": 0.5902,
+          "recall": 1.0,
+          "f1": 0.7423
+        },
+        "hardcoded_cred": {
+          "tp": 150,
+          "fp": 1,
+          "fn": 0,
+          "support": 150,
+          "precision": 0.9934,
+          "recall": 1.0,
+          "f1": 0.9967
+        },
+        "illegal_content": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 88,
+          "fp": 0,
+          "fn": 0,
+          "support": 88,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 22,
+          "fp": 1,
+          "fn": 0,
+          "support": 22,
+          "precision": 0.9565,
+          "recall": 1.0,
+          "f1": 0.9778
+        },
+        "confidential": {
+          "tp": 40,
+          "fp": 27,
+          "fn": 0,
+          "support": 40,
+          "precision": 0.597,
+          "recall": 1.0,
+          "f1": 0.7477
+        },
+        "video_meta_leak": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 0,
+          "support": 24,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "OutputGate": {
+      "samples": 574,
+      "correct": 565,
+      "accuracy": 0.9843,
+      "macro_f1": 0.9906,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 22,
+          "fp": 0,
+          "fn": 0,
+          "support": 22,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "geo_loc": {
+          "tp": 66,
+          "fp": 7,
+          "fn": 0,
+          "support": 66,
+          "precision": 0.9041,
+          "recall": 1.0,
+          "f1": 0.9496
+        },
+        "illegal_content": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "support": 6,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 0,
+          "support": 29,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 28,
+          "fp": 2,
+          "fn": 0,
+          "support": 28,
+          "precision": 0.9333,
+          "recall": 1.0,
+          "f1": 0.9655
+        },
+        "confidential": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "support": 6,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 146,
+          "fp": 0,
+          "fn": 0,
+          "support": 146,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 0,
+          "support": 29,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    }
+  },
+  "by_annotation_gate": {
+    "ContextGate": {
+      "samples": 741,
+      "correct": 723,
+      "accuracy": 0.9757,
+      "macro_f1": 0.9805,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 57,
+          "fp": 18,
+          "fn": 0,
+          "support": 57,
+          "precision": 0.76,
+          "recall": 1.0,
+          "f1": 0.8636
+        },
+        "geo_loc": {
+          "tp": 18,
+          "fp": 0,
+          "fn": 0,
+          "support": 18,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "illegal_content": {
+          "tp": 65,
+          "fp": 0,
+          "fn": 0,
+          "support": 65,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 94,
+          "fp": 0,
+          "fn": 0,
+          "support": 94,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 57,
+          "fp": 0,
+          "fn": 0,
+          "support": 57,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 145,
+          "fp": 0,
+          "fn": 0,
+          "support": 145,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 56,
+          "fp": 0,
+          "fn": 0,
+          "support": 56,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "InputGate": {
+      "samples": 735,
+      "correct": 679,
+      "accuracy": 0.9238,
+      "macro_f1": 0.9311,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 38,
+          "fp": 7,
+          "fn": 0,
+          "support": 38,
+          "precision": 0.8444,
+          "recall": 1.0,
+          "f1": 0.9157
+        },
+        "geo_loc": {
+          "tp": 36,
+          "fp": 25,
+          "fn": 0,
+          "support": 36,
+          "precision": 0.5902,
+          "recall": 1.0,
+          "f1": 0.7423
+        },
+        "hardcoded_cred": {
+          "tp": 150,
+          "fp": 1,
+          "fn": 0,
+          "support": 150,
+          "precision": 0.9934,
+          "recall": 1.0,
+          "f1": 0.9967
+        },
+        "illegal_content": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 88,
+          "fp": 0,
+          "fn": 0,
+          "support": 88,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 22,
+          "fp": 1,
+          "fn": 0,
+          "support": 22,
+          "precision": 0.9565,
+          "recall": 1.0,
+          "f1": 0.9778
+        },
+        "confidential": {
+          "tp": 40,
+          "fp": 27,
+          "fn": 0,
+          "support": 40,
+          "precision": 0.597,
+          "recall": 1.0,
+          "f1": 0.7477
+        },
+        "video_meta_leak": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 0,
+          "support": 24,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "OutputGate": {
+      "samples": 574,
+      "correct": 565,
+      "accuracy": 0.9843,
+      "macro_f1": 0.9906,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 22,
+          "fp": 0,
+          "fn": 0,
+          "support": 22,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "geo_loc": {
+          "tp": 66,
+          "fp": 7,
+          "fn": 0,
+          "support": 66,
+          "precision": 0.9041,
+          "recall": 1.0,
+          "f1": 0.9496
+        },
+        "illegal_content": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "support": 6,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 0,
+          "support": 29,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 28,
+          "fp": 2,
+          "fn": 0,
+          "support": 28,
+          "precision": 0.9333,
+          "recall": 1.0,
+          "f1": 0.9655
+        },
+        "confidential": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "support": 6,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 146,
+          "fp": 0,
+          "fn": 0,
+          "support": 146,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 0,
+          "support": 29,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "none": {
+      "samples": 122,
+      "correct": 122,
+      "accuracy": 1.0,
+      "macro_f1": 0.0,
+      "per_violation_type": {},
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    }
+  },
+  "by_data_type": {
+    "network_flow": {
+      "samples": 150,
+      "correct": 149,
+      "accuracy": 0.9933,
+      "macro_f1": 0.75,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "support": 27,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "hardcoded_cred": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "confidential": {
+          "tp": 32,
+          "fp": 0,
+          "fn": 0,
+          "support": 32,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "support": 16,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "phone_network": {
+      "samples": 150,
+      "correct": 133,
+      "accuracy": 0.8867,
+      "macro_f1": 0.8963,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 12,
+          "fp": 17,
+          "fn": 0,
+          "support": 12,
+          "precision": 0.4138,
+          "recall": 1.0,
+          "f1": 0.5854
+        },
+        "geo_loc": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 37,
+          "fp": 0,
+          "fn": 0,
+          "support": 37,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "policy_regulation": {
+      "samples": 450,
+      "correct": 448,
+      "accuracy": 0.9956,
+      "macro_f1": 0.9979,
+      "per_violation_type": {
+        "illegal_content": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 117,
+          "fp": 0,
+          "fn": 0,
+          "support": 117,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 119,
+          "fp": 2,
+          "fn": 0,
+          "support": 119,
+          "precision": 0.9835,
+          "recall": 1.0,
+          "f1": 0.9917
+        },
+        "domain": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "program_code": {
+      "samples": 250,
+      "correct": 223,
+      "accuracy": 0.892,
+      "macro_f1": 0.6364,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 25,
+          "fp": 5,
+          "fn": 0,
+          "support": 25,
+          "precision": 0.8333,
+          "recall": 1.0,
+          "f1": 0.9091
+        },
+        "hardcoded_cred": {
+          "tp": 150,
+          "fp": 0,
+          "fn": 0,
+          "support": 150,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 0,
+          "fp": 27,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "satellite_remote_sensing": {
+      "samples": 120,
+      "correct": 95,
+      "accuracy": 0.7917,
+      "macro_f1": 0.8889,
+      "per_violation_type": {
+        "geo_loc": {
+          "tp": 25,
+          "fp": 25,
+          "fn": 0,
+          "support": 25,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "confidential": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 0,
+          "support": 20,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "spatiotemporal_trajectory": {
+      "samples": 245,
+      "correct": 237,
+      "accuracy": 0.9673,
+      "macro_f1": 0.7398,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "geo_loc": {
+          "tp": 82,
+          "fp": 7,
+          "fn": 0,
+          "support": 82,
+          "precision": 0.9213,
+          "recall": 1.0,
+          "f1": 0.9591
+        },
+        "text_id": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "re_identify": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "statistical_yearbook": {
+      "samples": 257,
+      "correct": 256,
+      "accuracy": 0.9961,
+      "macro_f1": 0.8,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "text_id": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 60,
+          "fp": 0,
+          "fn": 0,
+          "support": 60,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "support": 16,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 0,
+          "support": 28,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "street_view": {
+      "samples": 200,
+      "correct": 198,
+      "accuracy": 0.99,
+      "macro_f1": 0.6667,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "illegal_content": {
+          "tp": 73,
+          "fp": 0,
+          "fn": 0,
+          "support": 73,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 71,
+          "fp": 0,
+          "fn": 0,
+          "support": 71,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "traffic_flow": {
+      "samples": 150,
+      "correct": 150,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 38,
+          "fp": 0,
+          "fn": 0,
+          "support": 38,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 37,
+          "fp": 0,
+          "fn": 0,
+          "support": 37,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "video_monitoring": {
+      "samples": 200,
+      "correct": 200,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_violation_type": {
+        "illegal_content": {
+          "tp": 65,
+          "fp": 0,
+          "fn": 0,
+          "support": 65,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    }
+  },
+  "by_source": {
+    "compliance_annotations_250.jsonl": {
+      "samples": 257,
+      "correct": 256,
+      "accuracy": 0.9961,
+      "macro_f1": 0.8,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "text_id": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 60,
+          "fp": 0,
+          "fn": 0,
+          "support": 60,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "support": 16,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 0,
+          "support": 28,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "network_flow_compliance_annotations_150.jsonl": {
+      "samples": 150,
+      "correct": 149,
+      "accuracy": 0.9933,
+      "macro_f1": 0.75,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "support": 27,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "hardcoded_cred": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "confidential": {
+          "tp": 32,
+          "fp": 0,
+          "fn": 0,
+          "support": 32,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "support": 16,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "phone_network.jsonl": {
+      "samples": 150,
+      "correct": 133,
+      "accuracy": 0.8867,
+      "macro_f1": 0.8963,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 12,
+          "fp": 17,
+          "fn": 0,
+          "support": 12,
+          "precision": 0.4138,
+          "recall": 1.0,
+          "f1": 0.5854
+        },
+        "geo_loc": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 37,
+          "fp": 0,
+          "fn": 0,
+          "support": 37,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "policy_regulation.jsonl": {
+      "samples": 450,
+      "correct": 448,
+      "accuracy": 0.9956,
+      "macro_f1": 0.9979,
+      "per_violation_type": {
+        "illegal_content": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "political": {
+          "tp": 117,
+          "fp": 0,
+          "fn": 0,
+          "support": 117,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "text_id": {
+          "tp": 119,
+          "fp": 2,
+          "fn": 0,
+          "support": 119,
+          "precision": 0.9835,
+          "recall": 1.0,
+          "f1": 0.9917
+        },
+        "domain": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "support": 13,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "program_code.jsonl": {
+      "samples": 250,
+      "correct": 223,
+      "accuracy": 0.892,
+      "macro_f1": 0.6364,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 25,
+          "fp": 5,
+          "fn": 0,
+          "support": 25,
+          "precision": 0.8333,
+          "recall": 1.0,
+          "f1": 0.9091
+        },
+        "hardcoded_cred": {
+          "tp": 150,
+          "fp": 0,
+          "fn": 0,
+          "support": 150,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "confidential": {
+          "tp": 0,
+          "fp": 27,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "remote_sensing_all_120.jsonl": {
+      "samples": 120,
+      "correct": 95,
+      "accuracy": 0.7917,
+      "macro_f1": 0.8889,
+      "per_violation_type": {
+        "geo_loc": {
+          "tp": 25,
+          "fp": 25,
+          "fn": 0,
+          "support": 25,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "confidential": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 0,
+          "support": 20,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 25,
+          "fp": 0,
+          "fn": 0,
+          "support": 25,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "repair_traffic_flow_samples_150.jsonl": {
+      "samples": 150,
+      "correct": 150,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 38,
+          "fp": 0,
+          "fn": 0,
+          "support": 38,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "re_identify": {
+          "tp": 37,
+          "fp": 0,
+          "fn": 0,
+          "support": 37,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "spatiotemporal_compliance_all_225.jsonl": {
+      "samples": 245,
+      "correct": 237,
+      "accuracy": 0.9673,
+      "macro_f1": 0.7398,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "geo_loc": {
+          "tp": 82,
+          "fp": 7,
+          "fn": 0,
+          "support": 82,
+          "precision": 0.9213,
+          "recall": 1.0,
+          "f1": 0.9591
+        },
+        "text_id": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "re_identify": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "street_view_200.jsonl": {
+      "samples": 200,
+      "correct": 198,
+      "accuracy": 0.99,
+      "macro_f1": 0.6667,
+      "per_violation_type": {
+        "struct_id": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 0,
+          "support": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "illegal_content": {
+          "tp": 73,
+          "fp": 0,
+          "fn": 0,
+          "support": 73,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 71,
+          "fp": 0,
+          "fn": 0,
+          "support": 71,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    },
+    "video_monitoring_200.jsonl": {
+      "samples": 200,
+      "correct": 200,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_violation_type": {
+        "illegal_content": {
+          "tp": 65,
+          "fp": 0,
+          "fn": 0,
+          "support": 65,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "video_meta_leak": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "support": 80,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "domain": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "support": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "metric": "one_vs_rest_presence; gold annotations remain single-label"
+    }
+  },
+  "fp_fn": {
+    "struct_id": {
+      "false_positive": [
+        {
+          "sample_id": "anno-20260721-0004",
+          "source": "compliance_annotations_250.jsonl",
+          "source_row": 124,
+          "data_type": "statistical_yearbook",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "confidential",
+          "predicted": "struct_id"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0026",
+          "source": "phone_network.jsonl",
+          "source_row": 26,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0027",
+          "source": "phone_network.jsonl",
+          "source_row": 27,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0028",
+          "source": "phone_network.jsonl",
+          "source_row": 28,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0029",
+          "source": "phone_network.jsonl",
+          "source_row": 29,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0030",
+          "source": "phone_network.jsonl",
+          "source_row": 30,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0031",
+          "source": "phone_network.jsonl",
+          "source_row": 31,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0032",
+          "source": "phone_network.jsonl",
+          "source_row": 32,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0033",
+          "source": "phone_network.jsonl",
+          "source_row": 33,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0034",
+          "source": "phone_network.jsonl",
+          "source_row": 34,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0035",
+          "source": "phone_network.jsonl",
+          "source_row": 35,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0076",
+          "source": "phone_network.jsonl",
+          "source_row": 76,
+          "data_type": "phone_network",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0077",
+          "source": "phone_network.jsonl",
+          "source_row": 77,
+          "data_type": "phone_network",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0078",
+          "source": "phone_network.jsonl",
+          "source_row": 78,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0079",
+          "source": "phone_network.jsonl",
+          "source_row": 79,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0080",
+          "source": "phone_network.jsonl",
+          "source_row": 80,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0081",
+          "source": "phone_network.jsonl",
+          "source_row": 81,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-phone-20260526-0082",
+          "source": "phone_network.jsonl",
+          "source_row": 82,
+          "data_type": "phone_network",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "domain",
+          "predicted": "domain"
+        },
+        {
+          "sample_id": "anno-20260622-0011",
+          "source": "program_code.jsonl",
+          "source_row": 111,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0031",
+          "source": "program_code.jsonl",
+          "source_row": 131,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0051",
+          "source": "program_code.jsonl",
+          "source_row": 151,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0071",
+          "source": "program_code.jsonl",
+          "source_row": 171,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0091",
+          "source": "program_code.jsonl",
+          "source_row": 191,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260630-0057",
+          "source": "street_view_200.jsonl",
+          "source_row": 57,
+          "data_type": "street_view",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "anno-20260630-0061",
+          "source": "street_view_200.jsonl",
+          "source_row": 61,
+          "data_type": "street_view",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        }
+      ],
+      "false_negative": []
+    },
+    "geo_loc": {
+      "false_positive": [
+        {
+          "sample_id": "rs-anno-20260602-pos-0026",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 26,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0027",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 27,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0028",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 28,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0029",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 29,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0030",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 30,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0031",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 31,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0032",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 32,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0033",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 33,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0034",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 34,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0035",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 35,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0036",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 36,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0037",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 37,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0038",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 38,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0039",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 39,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0040",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 40,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0041",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 41,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0042",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 42,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0043",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 43,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0044",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 44,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0045",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 45,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0046",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 46,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0047",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 47,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0048",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 48,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0049",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 49,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "rs-anno-20260602-pos-0050",
+          "source": "remote_sensing_all_120.jsonl",
+          "source_row": 50,
+          "data_type": "satellite_remote_sensing",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "video_meta_leak",
+          "predicted": "video_meta_leak"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-051",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 51,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-053",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 53,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-059",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 59,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-061",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 61,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-062",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 62,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-067",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 67,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260529-074",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 74,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "re_identify",
+          "predicted": "re_identify"
+        }
+      ],
+      "false_negative": []
+    },
+    "hardcoded_cred": {
+      "false_positive": [
+        {
+          "sample_id": "netflow-struct-id-add-003",
+          "source": "network_flow_compliance_annotations_150.jsonl",
+          "source_row": 103,
+          "data_type": "network_flow",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "struct_id",
+          "predicted": "hardcoded_cred"
+        }
+      ],
+      "false_negative": []
+    },
+    "illegal_content": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "political": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "text_id": {
+      "false_positive": [
+        {
+          "sample_id": "policy-20260622-0518",
+          "source": "policy_regulation.jsonl",
+          "source_row": 118,
+          "data_type": "policy_regulation",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "political",
+          "predicted": "political"
+        },
+        {
+          "sample_id": "policy-20260622-0536",
+          "source": "policy_regulation.jsonl",
+          "source_row": 136,
+          "data_type": "policy_regulation",
+          "evaluated_gate": "OutputGate",
+          "annotation_gate": "OutputGate",
+          "gold": "political",
+          "predicted": "political"
+        },
+        {
+          "sample_id": "anno-spatiotemporal-20260723-242",
+          "source": "spatiotemporal_compliance_all_225.jsonl",
+          "source_row": 242,
+          "data_type": "spatiotemporal_trajectory",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "geo_loc",
+          "predicted": "geo_loc"
+        }
+      ],
+      "false_negative": []
+    },
+    "confidential": {
+      "false_positive": [
+        {
+          "sample_id": "anno-20260622-0007",
+          "source": "program_code.jsonl",
+          "source_row": 107,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0008",
+          "source": "program_code.jsonl",
+          "source_row": 108,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0011",
+          "source": "program_code.jsonl",
+          "source_row": 111,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0016",
+          "source": "program_code.jsonl",
+          "source_row": 116,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0019",
+          "source": "program_code.jsonl",
+          "source_row": 119,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0027",
+          "source": "program_code.jsonl",
+          "source_row": 127,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0028",
+          "source": "program_code.jsonl",
+          "source_row": 128,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0031",
+          "source": "program_code.jsonl",
+          "source_row": 131,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0036",
+          "source": "program_code.jsonl",
+          "source_row": 136,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0039",
+          "source": "program_code.jsonl",
+          "source_row": 139,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0047",
+          "source": "program_code.jsonl",
+          "source_row": 147,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0048",
+          "source": "program_code.jsonl",
+          "source_row": 148,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0051",
+          "source": "program_code.jsonl",
+          "source_row": 151,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0056",
+          "source": "program_code.jsonl",
+          "source_row": 156,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0059",
+          "source": "program_code.jsonl",
+          "source_row": 159,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0067",
+          "source": "program_code.jsonl",
+          "source_row": 167,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0068",
+          "source": "program_code.jsonl",
+          "source_row": 168,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0071",
+          "source": "program_code.jsonl",
+          "source_row": 171,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0076",
+          "source": "program_code.jsonl",
+          "source_row": 176,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0079",
+          "source": "program_code.jsonl",
+          "source_row": 179,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0087",
+          "source": "program_code.jsonl",
+          "source_row": 187,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0088",
+          "source": "program_code.jsonl",
+          "source_row": 188,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0091",
+          "source": "program_code.jsonl",
+          "source_row": 191,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0096",
+          "source": "program_code.jsonl",
+          "source_row": 196,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260622-0099",
+          "source": "program_code.jsonl",
+          "source_row": 199,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260713-hc-0022",
+          "source": "program_code.jsonl",
+          "source_row": 222,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        },
+        {
+          "sample_id": "anno-20260713-hc-0023",
+          "source": "program_code.jsonl",
+          "source_row": 223,
+          "data_type": "program_code",
+          "evaluated_gate": "InputGate",
+          "annotation_gate": "InputGate",
+          "gold": "hardcoded_cred",
+          "predicted": "hardcoded_cred"
+        }
+      ],
+      "false_negative": []
+    },
+    "video_meta_leak": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "re_identify": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "domain": {
+      "false_positive": [],
+      "false_negative": []
+    }
+  },
+  "scan_completion": {
+    "complete": 2172,
+    "incomplete": 0
+  },
+  "predictions": "compliance-ten-type-predictions.jsonl",
+  "manual_review": {
+    "required": true,
+    "rows": 83,
+    "path": "compliance-ten-type-review.jsonl",
+    "reason": "single-label annotation versus multi-type engine output; no row is accepted as a false positive or a co-hit until adjudicated"
+  },
+  "execution_command": "python scripts/run_compliance_unified_ten_type_eval.py --input '合规检测/合规评测全部十类违规类型数据' --output /results/unified-ten-type-runtime-fixed.json"
+}

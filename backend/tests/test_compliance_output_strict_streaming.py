@@ -1,4 +1,4 @@
-"""Deterministic HTTP/SSE regression for the existing retract protocol."""
+"""Deterministic HTTP/SSE regression for the first-party snapshot transport."""
 
 from __future__ import annotations
 
@@ -142,7 +142,7 @@ async def _stream(agent, scene: str) -> tuple[list[tuple[str, object]], dict]:
     async for mode, data in agent.astream(
         graph_input,
         context={"thread_id": f"thread-{scene}"},
-        stream_mode=["messages", "updates", "custom", "values"],
+        stream_mode=["updates", "custom", "values"],
     ):
         events.append((mode, data))
         if mode == "values" and isinstance(data, dict):
@@ -151,29 +151,29 @@ async def _stream(agent, scene: str) -> tuple[list[tuple[str, object]], dict]:
 
 
 def _dump(value: object) -> str:
-    return json.dumps(value, ensure_ascii=False, default=lambda item: getattr(item, "content", str(item)))
+    return json.dumps(value, ensure_ascii=False, default=lambda item: item.model_dump() if hasattr(item, "model_dump") else str(item))
 
 
 @pytest.mark.parametrize("scene", ["public_release", "cross_org", "research_anon"])
 @pytest.mark.parametrize("kind", ["struct_id", "geo_loc", "combined"])
-def test_all_scenes_use_retract_protocol(strict_runtime, scene, kind):
+def test_restricted_scenes_expose_only_sanitized_snapshots(strict_runtime, scene, kind):
     engine, auditor = strict_runtime
     events, final = asyncio.run(_stream(_agent(engine, OUTPUTS[kind]), scene))
     rendered = _dump(events)
-    # stream_retract deliberately permits a bounded transient exposure. The
-    # compliance_retract event and final rewritten state are the contract.
-    assert PHONE in rendered or LATITUDE in rendered or LONGITUDE in rendered
+    assert PHONE not in rendered
+    assert LATITUDE not in rendered
+    assert LONGITUDE not in rendered
 
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
     compliance = assistant.response_metadata["compliance"]
     expected = {"struct_id"} if kind == "struct_id" else {"geo_loc"} if kind == "geo_loc" else {"struct_id", "geo_loc"}
     assert set(compliance["violation_types"]) == expected
     assert compliance["scene"] == scene
-    assert compliance["streaming_mode"] == "compatible_retract"
-    assert compliance["transient_exposure_possible"] is True
+    assert compliance["streaming_mode"] == "buffered_snapshot"
+    assert compliance["transient_exposure_possible"] is False
     assert assistant in final["raw_messages"]
     audit = auditor.read_all()[-1]
-    assert audit["origin"]["streaming_mode"] == "compatible_retract"
+    assert audit["origin"]["streaming_mode"] == "buffered_snapshot"
     assert PHONE not in _dump(audit)
     assert LATITUDE not in _dump(audit)
     assert LONGITUDE not in _dump(audit)
@@ -181,30 +181,27 @@ def test_all_scenes_use_retract_protocol(strict_runtime, scene, kind):
 
 
 @pytest.mark.parametrize("scene", ["self_use", "internal_org", "_unknown"])
-def test_compatible_scene_documents_retract_window_but_persists_safe_state(strict_runtime, scene):
+def test_scene_policy_controls_sanitized_persisted_snapshots(strict_runtime, scene):
     engine, auditor = strict_runtime
     events, final = asyncio.run(_stream(_agent(engine, OUTPUTS["combined"]), scene))
     messages_stream = _dump([data for mode, data in events if mode == "messages"])
     final_rendered = _dump(final)
 
-    # Compatibility mode intentionally permits the original model chunk before
-    # the authoritative replacement. This is the existing retract behavior.
-    assert PHONE in messages_stream
+    assert messages_stream == "[]"
     assistant = next(message for message in reversed(final["messages"]) if isinstance(message, AIMessage))
     metadata = assistant.response_metadata["compliance"]
-    assert metadata["streaming_mode"] == "compatible_retract"
-    assert metadata["transient_exposure_possible"] is True
+    assert metadata["streaming_mode"] == "buffered_snapshot"
+    assert metadata["transient_exposure_possible"] is False
     if scene == "internal_org":
         assert PHONE not in final_rendered
         assert LATITUDE not in final_rendered
     elif scene == "self_use":
-        # self_use is an explicit matrix allow; the content is policy-safe for
-        # its owner even though compatibility transport exposed model chunks.
+        # self_use is an explicit matrix allow for the verified owner.
         assert metadata["actions"] == ["allow"]
     else:
         assert metadata["actions"] == ["warn", "manual_review"]
         assert PHONE in final_rendered
-    assert auditor.read_all()[-1]["origin"]["transient_exposure_possible"] is True
+    assert auditor.read_all()[-1]["origin"]["transient_exposure_possible"] is False
 
 
 def test_conceptual_negative_is_not_flagged(strict_runtime):
@@ -217,11 +214,10 @@ def test_conceptual_negative_is_not_flagged(strict_runtime):
     assert metadata["retracted"] is False
     assert [check["status"] for check in metadata["checks"]] == ["passed", "passed"]
     assert len(auditor.read_all()) == 2
-    # A clean answer remains unchanged under stream_retract.
-    assert OUTPUTS["negative"] in _dump([data for mode, data in events if mode == "messages"])
+    assert OUTPUTS["negative"] in _dump([data for mode, data in events if mode == "values"])
 
 
-def test_real_http_sse_endpoint_exposes_retract_contract(strict_runtime):
+def test_real_http_sse_endpoint_exposes_sanitized_snapshot_contract(strict_runtime):
     engine, _ = strict_runtime
     agent = _agent(engine, OUTPUTS["combined"])
     app = FastAPI()
@@ -234,7 +230,7 @@ def test_real_http_sse_endpoint_exposes_retract_contract(strict_runtime):
             async for mode, data in agent.astream(
                 body["input"],
                 context={"thread_id": thread_id},
-                stream_mode=["messages", "updates", "custom", "values"],
+                stream_mode=["updates", "custom", "values"],
             ):
                 yield f"event: {mode}\ndata: {_dump(data)}\n\n"
 
@@ -253,7 +249,9 @@ def test_real_http_sse_endpoint_exposes_retract_contract(strict_runtime):
         )
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
-    assert PHONE in response.text or LATITUDE in response.text or LONGITUDE in response.text
-    assert "compatible_retract" in response.text
+    assert PHONE not in response.text
+    assert LATITUDE not in response.text
+    assert LONGITUDE not in response.text
+    assert "buffered_snapshot" in response.text
     assert "struct_id" in response.text
     assert "geo_loc" in response.text

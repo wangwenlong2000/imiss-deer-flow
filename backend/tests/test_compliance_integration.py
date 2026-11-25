@@ -134,7 +134,7 @@ def test_context_gate_detects_a_real_sample_through_the_real_engine(live_config,
     assert result is not message, "a real violating skill result must be acted on"
     compliance = json.loads(result.content)["diagnostics"]["compliance"]
     assert compliance["violation_types"] == ["domain"]
-    assert compliance["actions"] == ["warn", "manual_review"], "the _unknown scene column"
+    assert compliance["actions"] == ["refuse"], "unknown business permission refuses domain content"
     assert compliance["audit_ref"], "a determination must be traceable"
 
 

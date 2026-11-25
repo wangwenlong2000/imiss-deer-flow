@@ -111,6 +111,7 @@ class UploadResponse(BaseModel):
     success: bool
     files: list[dict[str, str]]
     message: str
+    compliance: dict | None = None
 
 
 def get_uploads_dir(thread_id: str) -> Path:
@@ -268,19 +269,21 @@ async def _upload_files_locked(thread_id: str, files: list[UploadFile]) -> Uploa
     # Compliance InputGate: scan after the files land and any conversion has run,
     # but BEFORE reporting success — a violating upload must never be acknowledged
     # as accepted. App calls harness; the dependency direction stays legal.
-    warning = _scan_uploads_for_compliance(thread_id, uploaded_files)
+    checks: list[dict] = []
+    warning = _scan_uploads_for_compliance(thread_id, uploaded_files, checks)
     if warning is not None:
         _rollback_uploads(thread_id, rollback)
-        return UploadResponse(success=False, files=[], message=warning)
+        return UploadResponse(success=False, files=[], message=warning, compliance={"checks": checks})
 
     return UploadResponse(
         success=True,
         files=uploaded_files,
         message=f"Successfully uploaded {len(uploaded_files)} file(s)",
+        compliance={"checks": checks} if checks else None,
     )
 
 
-def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> str | None:
+def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict], checks: list[dict] | None = None) -> str | None:
     """Return a refusal message when an upload violates policy, else ``None``.
 
     Failures here follow the input gate's ``fail_mode``: with the default
@@ -290,13 +293,12 @@ def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> 
     try:
         from deerflow.agents.middlewares.compliance_input_gate_middleware import scan_upload_paths
         from deerflow.compliance.normalizers.user_input import IMAGE_SUFFIXES, TEXT_SUFFIXES
-        from deerflow.compliance.runtime import INCOMPLETE_SCAN_NOTICE, gate_enabled, user_notice
+        from deerflow.compliance.runtime import INCOMPLETE_SCAN_NOTICE, decision_check, gate_enabled, user_notice
 
         if not gate_enabled("InputGate"):
             return None
 
         paths: list[str] = []
-        unsupported: list[str] = []
         for info in uploaded_files:
             original_path = str(info.get("path") or "")
             filename = str(info.get("filename") or original_path)
@@ -313,17 +315,25 @@ def _scan_uploads_for_compliance(thread_id: str, uploaded_files: list[dict]) -> 
             if markdown_path and Path(markdown_path).is_file():
                 paths.append(markdown_path)
             else:
-                unsupported.append(filename)
+                # The normalizer records unsupported/missing extraction as an
+                # incomplete unit, which is refused and audited by the engine.
+                paths.append(original_path)
 
-        if unsupported:
-            names = ", ".join(unsupported[:5])
-            return f"【合规检查未完成】未能从以下文件提取可检查文本，已拒绝上传：{names}。"
         if not paths:
             return None
 
         decision = scan_upload_paths(paths, thread_id=thread_id)
+        check = decision_check(decision)
+        check["scan_complete"] = not decision.diagnostics.truncated and not decision.diagnostics.failed_closed
+        if checks is not None:
+            checks.append(check)
         if decision.diagnostics.truncated:
-            return INCOMPLETE_SCAN_NOTICE
+            notice = (
+                "【合规检查未完成】附件文本提取为空、不可读或格式不支持，已撤回本次上传。请提供可读取的 UTF-8 文本或重新提取后重试。"
+                if any(warning.startswith("upload_normalization:") for warning in decision.diagnostics.warnings)
+                else INCOMPLETE_SCAN_NOTICE
+            )
+            return f"{notice} 审计编号：{decision.audit_ref}。" if decision.audit_ref else notice
         if "refuse" in decision.actions:
             logger.warning("compliance: rejected upload for thread %s: %s", thread_id, decision.actions)
             return user_notice(decision)

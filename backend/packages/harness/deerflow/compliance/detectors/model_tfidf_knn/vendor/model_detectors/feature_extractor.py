@@ -39,7 +39,10 @@ STRUCTURAL_PATTERNS = {
     "has_long_digit": re.compile(r"\b\d{12,}\b"),
     "has_long_hex": re.compile(r"\b[0-9a-f]{24,}\b", re.I),
     "has_small_assignment": re.compile(r"\b[a-z_]*(?:count|size|k|users|candidates?)\s*[=:]\s*[1-5]\b", re.I),
-    "has_route_arrow": re.compile(r"\S+\s*(?:->|→)\s*\S+"),
+    # Any interior match can extend left to the start of its non-space token.
+    # Anchor there so a token without an arrow is scanned once, not once per
+    # suffix (quadratic time on long IDs or repetitive attachment content).
+    "has_route_arrow": re.compile(r"(?<!\S)\S+\s*(?:->|→)\s*\S+"),
 }
 
 

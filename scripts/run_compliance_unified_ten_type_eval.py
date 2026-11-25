@@ -17,11 +17,12 @@ import argparse
 import hashlib
 import json
 import os
+import shlex
 import subprocess
 import sys
 from collections import defaultdict
 from collections.abc import Mapping
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -32,13 +33,14 @@ if str(ROOT) not in sys.path:
 if str(HARNESS) not in sys.path:
     sys.path.insert(0, str(HARNESS))
 
+from scripts.run_compliance_gate_eval import prf, score_group  # noqa: E402
+
 from deerflow.compliance.contract import GATES, VIOLATION_TYPES, TextItem  # noqa: E402
+from deerflow.compliance.detectors.model_tfidf_knn.composite_risk import canonical_data_type  # noqa: E402
 from deerflow.compliance.engine import ComplianceEngine  # noqa: E402
 from deerflow.compliance.normalizers.base import build_unit, flatten_fields, stringify  # noqa: E402
 from deerflow.compliance.policy import load_policy_matrix  # noqa: E402
 from deerflow.compliance.registry import build_registry  # noqa: E402
-from deerflow.compliance.detectors.model_tfidf_knn.composite_risk import canonical_data_type  # noqa: E402
-from scripts.run_compliance_gate_eval import prf, score_group  # noqa: E402
 
 DEFAULT_INPUT = ROOT / "合规检测/合规评测全部十类违规类型数据"
 DEFAULT_OUTPUT = ROOT / "outputs/compliance-eval/unified-ten-type.json"
@@ -209,8 +211,6 @@ def build_fp_fn_manifest(predictions: list[dict[str, Any]]) -> dict[str, dict[st
     for row in predictions:
         gold = row["gold"]
         predicted = row["predicted"]
-        if gold == predicted:
-            continue
         base = {
             "sample_id": row["sample_id"],
             "source": row["source"],
@@ -324,6 +324,8 @@ def main() -> int:
                 "actions": list(decision.actions),
                 "scene_key": decision.scene_key,
                 "diagnostic_warnings": list(decision.diagnostics.warnings),
+                "scan_complete": not decision.diagnostics.truncated and not decision.diagnostics.detector_errors,
+                "detector_errors": dict(decision.diagnostics.detector_errors),
             }
             predictions.append(prediction)
             by_gate[gate].append(prediction)
@@ -335,8 +337,8 @@ def main() -> int:
 
     report = {
         "schema_version": "compliance_unified_ten_type_eval_1",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "command": "PYTHONPATH=backend/packages/harness python scripts/run_compliance_unified_ten_type_eval.py --input '合规检测/合规评测全部十类违规类型数据' --output 'outputs/compliance-eval/unified-ten-type.json'",
+        "generated_at": datetime.now(UTC).isoformat(),
+        "command": shlex.join(["python", "scripts/run_compliance_unified_ten_type_eval.py", "--input", display_path(args.input), "--output", display_path(args.output)]),
         "dataset": {
             "path": display_path(args.input),
             "data_version": "7.23 raw annotation bundle as checked out; no independent freeze marker",
@@ -354,6 +356,14 @@ def main() -> int:
             "manifest_sha256": {
                 display_path(path): sha256(path)
                 for path in sorted((HARNESS / "deerflow/compliance/detectors").glob("*/manifest.yaml"))
+            },
+            "source_sha256": {
+                display_path(path): sha256(path)
+                for path in sorted((HARNESS / "deerflow/compliance").rglob("*.py"))
+            },
+            "model_sha256": {
+                display_path(path): sha256(path)
+                for path in sorted((ROOT / "models/compliance").glob("*.json"))
             },
         },
         "detector_coverage": {
@@ -373,6 +383,10 @@ def main() -> int:
         "by_data_type": {key: score_prediction_rows(value) for key, value in sorted(by_data_type.items())},
         "by_source": {key: score_prediction_rows(value) for key, value in sorted(by_source.items())},
         "fp_fn": build_fp_fn_manifest(predictions),
+        "scan_completion": {
+            "complete": sum(row["scan_complete"] for row in predictions),
+            "incomplete": sum(not row["scan_complete"] for row in predictions),
+        },
     }
     manual_review = build_manual_review_manifest(predictions)
     # Rebuild the registry only for the serializable enabled-detector list above;

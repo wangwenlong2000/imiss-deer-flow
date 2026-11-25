@@ -191,7 +191,7 @@ def test_output_gate_metadata_and_sse_contract_for_combined_hit(type12_runtime):
     assert metadata["audit_ref"]
     assert metadata["retracted"] is True
     assert metadata["scene"] == "_unknown"
-    assert metadata["streaming_mode"] == "compatible_retract"
+    assert metadata["streaming_mode"] == "buffered_snapshot"
     assert text in rewritten.content  # conservative warning/review cell keeps content
 
     decision = engine.check(
@@ -288,4 +288,7 @@ def test_type12_scene_actions_come_from_policy(type12_runtime, violation_type, g
         gate=gate,
         intent=IntentInfo(intent="test", high_risk=True),
     )
-    assert decision.per_violation_actions[violation_type] == engine.policy.cell(violation_type, gate, scene)
+    expected = engine.policy.cell(violation_type, gate, scene)
+    if expected and "role_check" in expected:
+        expected = tuple("refuse" if action == "role_check" else action for action in expected)
+    assert decision.per_violation_actions[violation_type] == expected

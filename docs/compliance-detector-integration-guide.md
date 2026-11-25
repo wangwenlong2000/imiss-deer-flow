@@ -298,5 +298,5 @@ print([(x.detector_id, x.adapter_name, x.enabled) for x in r.all()])"
 - `manifest.yaml` — 能力声明，含 `content_text_spec` 这类自定义元数据
 - `detector.py` — 闸门过滤、低相似度降级、模型单例缓存
 - `row_builder.py` — 私有的输入构造逻辑（引擎不需要知道）
-- `vendor/` — 第三方交付代码零改动平移
+- `vendor/` — 保留第三方原始交付摘要；模型特征提取器包含固定摘要校验的路径箭头运行时补丁，资产安装时自动重新应用。补丁与回归说明见 `docs/validation-20261125/compliance.md`。
 - 对应测试：`backend/tests/test_compliance_model_detector.py`

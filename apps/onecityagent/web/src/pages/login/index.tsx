@@ -121,7 +121,11 @@ const Login = () => {
               // label={t('emailLabel')}
               rules={[
                 { required: true, message: t('emailPlaceholder') },
-                {
+                title === 'login' ? {
+                  type: 'email',
+                  transform: (value: string) => value?.trim(),
+                  message: '邮箱格式不正确',
+                } : {
                   pattern:
                     /^(?=.{1,50}$)[A-Za-z0-9_]+@[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)+$/,
                   message: '邮箱格式不正确',
@@ -157,7 +161,7 @@ const Login = () => {
 
                 {
                   validator: (_rule: any, value: any) => {
-                    if (!value) {
+                    if (!value || title === 'login') {
                       return Promise.resolve();
                     }
                     const re =

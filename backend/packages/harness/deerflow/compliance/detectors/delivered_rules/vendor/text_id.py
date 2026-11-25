@@ -241,7 +241,7 @@ class TextIdDetector(BaseDetector):
     GENERIC_PERSON_WORDS = {
         "方式", "单位", "于本周", "查的", "人员", "工作", "材料", "项目", "窗口",
         "公告牌", "广告牌", "标识牌", "商业街", "投诉热线",
-    }
+    } | set(ROLE_WORDS)
 
     def detect(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         text = self.build_text_view(sample)
@@ -415,7 +415,7 @@ class TextIdDetector(BaseDetector):
 
         def add_entity(entity_type: str, value: str, start: int, end: int, quality: str = "full") -> None:
             value = value.strip(" \t\r\n，。；;：:、（）()“”\"「」")
-            if not value:
+            if not value or (entity_type == "person" and value in self.GENERIC_PERSON_WORDS):
                 return
             adjusted_start = text.find(value, start, end)
             if adjusted_start >= 0:

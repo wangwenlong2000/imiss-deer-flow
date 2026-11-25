@@ -33,7 +33,7 @@ from types import MappingProxyType
 from typing import Any
 
 from deerflow.compliance.audit import Auditor, NullAuditor
-from deerflow.compliance.contract import DetectContext, DetectionHit, DetectionUnit, Gate, UNKNOWN_SCENE_KEY
+from deerflow.compliance.contract import UNKNOWN_SCENE_KEY, DetectContext, DetectionHit, DetectionUnit, Gate
 from deerflow.compliance.intent import IntentGuard
 from deerflow.compliance.policy import PolicyMatrix, get_policy_matrix
 from deerflow.compliance.registry import DetectorRegistry, build_registry
@@ -132,16 +132,22 @@ class ComplianceEngine:
         incomplete_units = tuple(
             unit
             for unit in request.units
-            if bool(unit.raw.get("truncated")) or any(item.truncated for item in unit.text_items)
+            if bool(unit.raw.get("truncated")) or unit.raw.get("normalization_error") or any(item.truncated for item in unit.text_items)
         )
         if incomplete_units:
             diagnostics.truncated = True
             diagnostics.warn(
-                f"normalization: {len(incomplete_units)} unit(s) contain truncated text; "
+                f"normalization: {len(incomplete_units)} unit(s) contain incomplete text; "
                 f"the full payload was not inspected at {request.gate}"
             )
+            reasons = sorted({str(unit.raw["normalization_error"]) for unit in incomplete_units if unit.raw.get("normalization_error")})
+            if reasons:
+                diagnostics.warn(f"upload_normalization: {', '.join(reasons)}")
 
         units = self._apply_budget(request, diagnostics)
+        if incomplete_units:
+            incomplete_ids = {id(unit) for unit in incomplete_units}
+            units = tuple(unit for unit in units if id(unit) not in incomplete_ids)
         diagnostics.units_checked = len(units)
 
         ctx = DetectContext(
@@ -154,6 +160,9 @@ class ComplianceEngine:
         )
 
         hits = self._detect_all(units, ctx, request, diagnostics, started)
+        if diagnostics.detector_errors:
+            diagnostics.truncated = True
+            diagnostics.warn(f"detection_incomplete: {len(diagnostics.detector_errors)} detector(s) failed; the full configured check was not completed")
 
         raw_hits = tuple(hits)
         verdict = self._intent_guard.apply(

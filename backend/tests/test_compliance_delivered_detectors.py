@@ -13,12 +13,12 @@ from deerflow.compliance.contract import (
     FieldItem,
     TextItem,
 )
-from deerflow.compliance.detectors.entropy_hardcoded_cred.detector import (
-    EntropyHardcodedCredDetector,
-)
 from deerflow.compliance.detectors.delivered_rules import configured_llm
 from deerflow.compliance.detectors.delivered_rules.configured_llm import (
     ConfiguredLLMAdapter,
+)
+from deerflow.compliance.detectors.entropy_hardcoded_cred.detector import (
+    EntropyHardcodedCredDetector,
 )
 from deerflow.compliance.detectors.llm_confidential.detector import (
     LlmConfidentialDetector,
@@ -416,3 +416,30 @@ def test_configured_llm_failure_returns_low_confidence_fallback(caplog) -> None:
     assert "falling back to local rules" in caplog.text
     assert "sensitive payload" not in caplog.text
     assert "secret payload" not in caplog.text
+
+
+@pytest.mark.parametrize('detail', ['供应商底价', '成本预算'])
+def test_internal_financial_details_require_confidential_review(detail) -> None:
+    detector = LlmConfidentialDetector()
+    hits = _detect(detector, _text_unit(f'内部资料，未经授权不得公开，附件包含尚未披露的{detail}。', data_type='policy_regulation'))
+    assert {hit.violation_type for hit in hits} == {'confidential'}
+
+
+@pytest.mark.parametrize('text', [
+    '内部资料不包含供应商底价或成本预算，仅说明会议安排。',
+    '公开年报仅含公开汇总，不包含供应商底价或成本预算。',
+    '公开培训讲解成本预算编制流程，不包含实际经营数据。',
+])
+def test_absent_or_public_financial_details_are_not_confidential(text) -> None:
+    assert not _detect(LlmConfidentialDetector(), _text_unit(text, data_type='policy_regulation'))
+
+
+@pytest.mark.parametrize("role", ["申请人", "主申请人", "投诉人", "联系人"])
+def test_procedural_role_names_are_not_identifying_people(role) -> None:
+    text = f"政府信息公开申请应写明{role}、所需信息名称和获取方式；行政机关依法答复，申请人对答复不服可依程序申请复议或提起诉讼。"
+    assert not _detect(NerTextIdDetector(), _text_unit(text, data_type="policy_regulation"))
+
+
+def test_real_named_applicant_relationship_remains_identifiable() -> None:
+    text = "申请人林晓禾，联系电话13800138000，要求公开投诉处理记录。"
+    assert _detect(NerTextIdDetector(), _text_unit(text, data_type="policy_regulation"))

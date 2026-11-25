@@ -386,7 +386,7 @@ def main() -> int:
     parser.add_argument("--sandbox-prefix", default="onecity-multiuser-sandbox")
     parser.add_argument("--sandbox-port", type=int, default=18481)
     parser.add_argument("--jobs", type=int, default=3)
-    parser.add_argument("--max-inflight", type=int, default=10)
+    parser.add_argument("--max-inflight", type=int, default=6)
     parser.add_argument("--per-user", type=int, default=2)
     args = parser.parse_args()
     if any(not NAME_RE.fullmatch(getattr(args, name)) for name in (

@@ -235,6 +235,35 @@ def test_unterminated_upstream_stream_is_not_reported_as_success(fixture, monkey
     assert events[-1]["finished"] is False
 
 
+@pytest.mark.parametrize("status", ["failed", "cancelled", "incomplete"])
+def test_unsuccessful_done_is_not_shown_as_finished(fixture, monkeypatch, status):
+    lines = ["event: done", "data: " + json.dumps({"status": status, "code": 500})]
+    monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(lines))
+    events = parse_events(fixture["_stream_deerflow_sse_events"]("synthetic", "citybrain-alice", "alice"))
+    assert events[-2]["type"] == "error"
+    assert events[-1]["finished"] is False
+    assert events[-1]["status"] == status
+
+
+def test_resume_uses_get_join_endpoint_without_posting_a_new_task(fixture, monkeypatch):
+    captured = []
+    thread_id, run_id = str(uuid4()), str(uuid4())
+
+    def get(url, **kwargs):
+        captured.append((url, kwargs))
+        return fake_stream_response(["event: done", 'data: {"status":"completed"}'])
+
+    monkeypatch.setattr(requests, "get", get)
+    monkeypatch.setattr(requests, "post", lambda *args, **kwargs: pytest.fail("resume must never submit a new run"))
+    events = parse_events(fixture["_stream_deerflow_sse_events"](
+        "synthetic", "citybrain-alice", "alice", thread_id=thread_id, resume_run_id=run_id,
+        authorization_header="test-alice",
+    ))
+    assert events[-1]["finished"] is True
+    assert captured[0][0] == f"http://deerflow.test/api/deerflow/mobile/runs/{thread_id}/{run_id}/stream"
+    assert captured[0][1]["params"] == {"query": "synthetic", "conversation_id": "citybrain-alice"}
+
+
 def test_native_admission_429_inside_mobile_sse_is_preserved(fixture, monkeypatch):
     lines = ["event: accepted", 'data: {"status":"submitted"}', "event: error", 'data: {"code":429,"message":"并发名额已满","retry_after":"9"}']
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(lines))
@@ -248,3 +277,21 @@ def test_missing_nonstream_result_never_becomes_mock_success(fixture):
     for invalid in (None, {}, {"segments": []}):
         with pytest.raises(RuntimeError):
             fixture["_normalize_deerflow_segments"](invalid, "synthetic")
+
+
+@pytest.mark.parametrize('accepted', [False, True])
+def test_upload_preserves_compliance_result_and_refusal_message(fixture, monkeypatch, accepted):
+    thread_id = str(uuid4())
+    fixture['_resolve_deerflow_thread'] = lambda *args, **kwargs: {'thread_id': thread_id, 'conversation_id': 'citybrain-alice'}
+    compliance = {'checks': [{'gate': 'InputGate', 'status': 'passed' if accepted else 'handled', 'scan_complete': accepted, 'audit_ref': 'audit-synthetic'}]}
+    response = requests.Response()
+    response.status_code = 200
+    response._content = json.dumps({'success': accepted, 'files': [{'filename': 'safe.txt', 'virtual_path': '/mnt/user-data/uploads/safe.txt'}] if accepted else [], 'message': '安全文件已检查' if accepted else '【合规检查未完成】附件文本提取为空，已撤回上传', 'compliance': compliance}).encode()
+    monkeypatch.setattr(requests, 'post', lambda *args, **kwargs: response)
+    result = fixture['app'].test_client().post('/query/deerflow/upload', headers={'Authorization': 'test-alice'}, query_string={'conversation_id': 'citybrain-alice'}, data={'files': (BytesIO(b'synthetic'), 'safe.txt')})
+    assert result.status_code == (200 if accepted else 422)
+    assert result.json['code'] == (0 if accepted else 422)
+    assert result.json['data']['compliance'] == compliance
+    if not accepted:
+        assert result.json['data']['files'] == []
+        assert '合规检查未完成' in result.json['message']

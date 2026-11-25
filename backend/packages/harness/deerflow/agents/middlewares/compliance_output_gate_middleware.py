@@ -253,8 +253,8 @@ class ComplianceOutputGateMiddleware(AgentMiddleware[ThreadState]):
                 "message_id": str(message.id or ""),
                 "chars": len(text),
                 "compliance_context": compliance_context(runtime_or_request),
-                "streaming_mode": "compatible_retract",
-                "transient_exposure_possible": True,
+                "streaming_mode": "buffered_snapshot",
+                "transient_exposure_possible": False,
                 **scene_origin,
             },
         )

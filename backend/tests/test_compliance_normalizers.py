@@ -342,8 +342,10 @@ def test_binary_uploads_are_skipped(tmp_path) -> None:
     assert UploadedFileNormalizer().to_units([str(upload)], gate="InputGate") == ()
 
 
-def test_missing_upload_is_skipped(tmp_path) -> None:
-    assert UploadedFileNormalizer().to_units([str(tmp_path / "gone.txt")], gate="InputGate") == ()
+def test_missing_upload_is_reported_as_incomplete(tmp_path) -> None:
+    unit = UploadedFileNormalizer().to_units([str(tmp_path / "gone.txt")], gate="InputGate")[0]
+    assert unit.raw["normalization_error"] == "unreadable_text"
+    assert unit.text_items == ()
 
 
 def test_large_upload_is_truncated_and_flagged(tmp_path) -> None:

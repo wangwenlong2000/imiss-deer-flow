@@ -102,13 +102,11 @@ export const useFetchNextDialogList = () => {
       const { data } = await chatService.listDialog();
       if (data.code === 0) {
         const list: IDialog[] = data.data.dialogs || [];
-        // 只有在特定条件下才执行重定向，避免在其他页面刷新时被跳转
-        // 1. 检查当前是否已经在/chat页面
-        // 2. 或者是否存在dialogId查询参数
+        // The shared sidebar also fetches this list on the CityBrain page.
+        // Its dialogId belongs to that page and must retain its current route.
         const isOnChatPage = window.location.pathname === '/chat';
-        const hasDialogIdParam = window.location.search.includes('dialogId=');
 
-        if (isOnChatPage || hasDialogIdParam) {
+        if (isOnChatPage) {
           const regex = /dialogId=([^&]+)/;
           const match = window.location.search.match(regex);
           if (list.length > 0) {

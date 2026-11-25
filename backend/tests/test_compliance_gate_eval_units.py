@@ -126,3 +126,14 @@ def test_unified_eval_keeps_later_co_hits_in_type_metrics() -> None:
     )
     assert report["per_violation_type"]["confidential"]["tp"] == 1
     assert report["per_violation_type"]["confidential"]["fn"] == 0
+
+
+def test_unified_eval_lists_secondary_false_positive_when_primary_is_correct() -> None:
+    row = {
+        "sample_id": "secondary-fp", "source": "synthetic.jsonl", "source_row": 1,
+        "data_type": "network_flow", "evaluated_gate": "InputGate", "annotation_gate": "InputGate",
+        "gold": "struct_id", "predicted": "struct_id", "predicted_types": ["struct_id", "confidential"],
+    }
+    manifest = build_fp_fn_manifest([row])
+    assert manifest["confidential"]["false_positive"][0]["sample_id"] == "secondary-fp"
+    assert manifest["struct_id"]["false_negative"] == []

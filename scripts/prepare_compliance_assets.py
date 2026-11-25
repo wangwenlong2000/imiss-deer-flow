@@ -19,7 +19,9 @@ supported_split/``            0624_supported_split/``                   (committ
 
 Integrity is checked against the package's own ``SHA256SUMS`` before anything is
 copied, so a truncated or tampered download fails loudly instead of silently
-producing a degraded model.
+producing a degraded model. The copied vendor checksum records the upstream
+delivery. A pinned route-arrow regex patch is then applied to preserve the
+reviewed bounded-runtime implementation.
 """
 
 from __future__ import annotations
@@ -52,9 +54,9 @@ PRODUCTION_MODEL = "ml_detector_0624_fresh.json"
 VENDOR_SOURCE = "violation_detection/model_detectors"
 DATASET_SOURCE = "normalized/0624_supported_split"
 
-# Vendor code is a zero-modification lift; only these top-level modules are
-# needed at inference time. Training/CLI scripts come along so the delivery can
-# be re-run in place, but the package's own tests/ dir is left behind.
+# These modules preserve the upstream delivery, with the one pinned runtime
+# safety patch below. Training/CLI scripts come along so the delivery can be
+# re-run in place, but the package's own tests/ dir is left behind.
 VENDOR_FILES = (
     "__init__.py",
     "feature_extractor.py",
@@ -68,6 +70,15 @@ VENDOR_FILES = (
     "holdout_split.py",
     "README.md",
 )
+
+EXTRACTOR_UPSTREAM_SHA256 = "0826f87dd3d3235e9ac575e3dac3301edb7d1d38945720db49ebca03525d3bff"
+EXTRACTOR_PATCHED_SHA256 = "8410fe7ec2cf739cae89d8bc060d9e9a2a9d4e2bcb96f85847b836f9555ed24c"
+ROUTE_ARROW_ORIGINAL = '    "has_route_arrow": re.compile(r"\\S+\\s*(?:->|→)\\s*\\S+"),\n'.encode()
+ROUTE_ARROW_PATCHED = r'''    # Any interior match can extend left to the start of its non-space token.
+    # Anchor there so a token without an arrow is scanned once, not once per
+    # suffix (quadratic time on long IDs or repetitive attachment content).
+    "has_route_arrow": re.compile(r"(?<!\S)\S+\s*(?:->|→)\s*\S+"),
+'''.encode()
 
 
 def find_zip(explicit: str | None) -> Path:
@@ -128,6 +139,16 @@ def copy_vendor(root: Path) -> None:
     if not source.is_dir():
         raise SystemExit(f"[compliance-assets] vendor source missing: {source}")
 
+    extractor = source / "feature_extractor.py"
+    if not extractor.is_file():
+        raise SystemExit("[compliance-assets] feature_extractor.py missing; review the upstream delivery before applying the route-arrow patch")
+    original = extractor.read_bytes()
+    if hashlib.sha256(original).hexdigest() != EXTRACTOR_UPSTREAM_SHA256 or original.count(ROUTE_ARROW_ORIGINAL) != 1:
+        raise SystemExit("[compliance-assets] feature_extractor.py changed upstream; review the route-arrow runtime patch before installing this delivery")
+    patched = original.replace(ROUTE_ARROW_ORIGINAL, ROUTE_ARROW_PATCHED, 1)
+    if hashlib.sha256(patched).hexdigest() != EXTRACTOR_PATCHED_SHA256:
+        raise SystemExit("[compliance-assets] route-arrow patch output differs from the reviewed source; review the installer")
+
     VENDOR_DEST.mkdir(parents=True, exist_ok=True)
     for name in VENDOR_FILES:
         src = source / name
@@ -135,11 +156,12 @@ def copy_vendor(root: Path) -> None:
             raise SystemExit(f"[compliance-assets] vendor file missing from package: {VENDOR_SOURCE}/{name}")
         shutil.copy2(src, VENDOR_DEST / name)
     write_vendor_checksums()
+    (VENDOR_DEST / "feature_extractor.py").write_bytes(patched)
     print(f"[compliance-assets] vendor  -> {VENDOR_DEST.relative_to(REPO_ROOT)} ({len(VENDOR_FILES)} files)")
 
 
 def write_vendor_checksums() -> None:
-    """Record vendor hashes so accidental edits are detectable without the zip.
+    """Record upstream vendor hashes before applying the reviewed local patch.
 
     The delivery zip is gitignored, so CI cannot diff against it. This file is
     committed alongside the vendor code and checked by

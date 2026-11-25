@@ -157,8 +157,16 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArq9XTUSeYr2+N1h3Afl/z8Dse/2yD0ZGrKwx
                             UserTenant.update(status='0').where(UserTenant.user_id == user['id']).execute()
                             # Only dialogs whose exact IDs were allocated by this run.
                             dialog_id = account.get('dialog_id', '')
+                            dialog_ids = []
                             if re.fullmatch(r'citybrain-[a-f0-9]{21,24}[ab]', dialog_id):
-                                Dialog.update(status=0).where(Dialog.id.in_([dialog_id, dialog_id[:32]]) & (Dialog.creator_id == user['id'])).execute()
+                                dialog_ids.extend([dialog_id, dialog_id[:32]])
+                            validation_ids = account.get('validation_dialog_ids', [])
+                            if (not isinstance(validation_ids, list) or len(validation_ids) > 200
+                                    or any(not isinstance(value, str) or not re.fullmatch(r'citybrain-[a-f0-9]{22}', value) for value in validation_ids)):
+                                raise ValueError('invalid synthetic validation dialog ids')
+                            dialog_ids.extend(validation_ids)
+                            if dialog_ids:
+                                Dialog.update(status=0).where(Dialog.id.in_(dialog_ids) & (Dialog.creator_id == user['id'])).execute()
                         disabled = User.select(User.id).where(guard & (User.access_token.is_null(True)) & (User.status == '0') & (User.is_active == '0') & (User.is_authenticated == '0')).exists()
                         rows.append({'found': True, 'disabled': bool(disabled)})
             result = {'accounts': rows}

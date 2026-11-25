@@ -1,0 +1,10 @@
+{
+  "validation_containers_removed": 5,
+  "original_services_preserved": true,
+  "load_test_accounts_disabled": 4,
+  "load_test_token_secrets_removed": true,
+  "ui_cleanup": "recorded in browser-summary.json",
+  "private_test_data_retained": true,
+  "load_test_dialogs_disabled": 104,
+  "load_test_active_dialogs_remaining": 0
+}

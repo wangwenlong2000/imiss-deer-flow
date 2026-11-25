@@ -1310,7 +1310,10 @@ def _load_deerflow_segments(
     response.raise_for_status()
     if not 200 <= response.status_code < 300:
         raise RuntimeError("DeerFlow returned a redirect or invalid status")
-    return _normalize_deerflow_segments(response.json(), query, conversation_id=conversation_id)
+    result = response.json()
+    if result.get("status") in {"failed", "incomplete", "cancelled"} or result.get("code") not in {None, 0}:
+        raise RuntimeError("DeerFlow task did not complete successfully")
+    return _normalize_deerflow_segments(result, query, conversation_id=conversation_id)
 
 
 def _yield_mock_deerflow_events(query, conversation_id):
@@ -1347,6 +1350,7 @@ def _stream_deerflow_sse_events(
     thread_id=None,
     compliance_identity="ordinary_user",
     authorization_header=None,
+    resume_run_id=None,
 ):
     """调用 B 侧 DeerFlow SSE 流式接口，并实时转成移动侧前端可消费的 SSE。"""
     api_url = os.environ.get("DEERFLOW_API_URL", "").strip()
@@ -1377,9 +1381,16 @@ def _stream_deerflow_sse_events(
     current_event = None
     saw_done = False
 
-    with requests.post(
+    request_upstream = requests.post
+    request_arguments = {"json": payload}
+    if resume_run_id:
+        api_url = _derive_deerflow_url_from_run(f"api/deerflow/mobile/runs/{thread_id}/{resume_run_id}/stream")
+        request_upstream = requests.get
+        request_arguments = {"params": {"query": query, "conversation_id": conversation_id}}
+
+    with request_upstream(
         api_url,
-        json=payload,
+        **request_arguments,
         headers={"Authorization": authorization_header} if authorization_header else {},
         stream=True,
         allow_redirects=False,
@@ -1534,10 +1545,19 @@ def _stream_deerflow_sse_events(
 
             if current_event == "done":
                 saw_done = True
+                terminal_status = data.get("status") or "completed"
+                successful = terminal_status in {"completed", "success", "awaiting_clarification"}
+                if not successful:
+                    yield _yield_sse({
+                        "type": "error", "role": "系统", "conversation_id": conversation_id,
+                        "content": "任务已取消。" if terminal_status == "cancelled" else "任务未能完整完成，请查看错误信息后重试。",
+                        "status": terminal_status, "code": data.get("code") or 500,
+                    })
                 yield _yield_sse({
                     "type": "[DONE]",
                     "conversation_id": conversation_id,
-                    "finished": True,
+                    "finished": successful,
+                    **({"status": terminal_status} if not successful else {}),
                     "thread_id": data.get("thread_id") if isinstance(data, dict) else None,
                     "compliance_results": data.get("compliance_results", []) if isinstance(data, dict) else [],
                 })
@@ -1656,18 +1676,26 @@ def upload_deerflow_files():
             logger.warning("DeerFlow 上传接口未返回 JSON")
             return jsonify({"code": 502, "message": "DeerFlow 上传接口返回格式不是 JSON", "data": {"files": [], "thread_id": thread_id}}), 502
 
+        if isinstance(raw_data, dict) and raw_data.get("success") is False:
+            return jsonify({
+                "code": 422,
+                "message": raw_data.get("message") or "附件未通过合规检查，已撤回上传",
+                "data": {"files": [], "thread_id": thread_id, "conversation_id": conversation_id, "compliance": raw_data.get("compliance")},
+            }), 422
+
         files = _normalize_uploaded_files_response(
             raw_data, thread_id=thread_id, conversation_id=conversation_id
         )
         return jsonify({
             "code": 0,
-            "message": "success",
+            "message": raw_data.get("message") or "success" if isinstance(raw_data, dict) else "success",
             "data": {
                 "files": files,
                 "conversation_id": conversation_id,
                 "thread_id": thread_id,
                 "assistant_id": thread_info.get("assistant_id"),
                 "created": thread_info.get("created"),
+                "compliance": raw_data.get("compliance") if isinstance(raw_data, dict) else None,
             }
         })
     except Exception as exc:
@@ -1851,6 +1879,7 @@ def download_deerflow_file():
         return _deerflow_error_response(exc)
 
 @app.route('/query/deerflow', methods=['GET'])
+@app.route('/query/deerflow/resume', methods=['GET'])
 @swag_from({
     'tags': ['Query'],
     'description': '城市超脑平台专用查询接口。接收 query 后调用 DeerFlow adapter，并返回移动侧兼容的 SSE 事件流。',
@@ -1897,6 +1926,11 @@ def query_deerflow_sse():
     if not query:
         return jsonify({"error": "缺少查询参数"}), 400
     raw_thread_param = request.args.get('thread_id') or ''
+    resume_run_id = request.args.get("run_id") if request.path.endswith("/resume") else None
+    if request.path.endswith("/resume") and (
+        not _is_uuid_like(resume_run_id) or not _is_uuid_like(raw_thread_param)
+    ):
+        return jsonify({"error": "恢复任务需要有效的线程和任务ID"}), 400
     conversation_id = (
         request.args.get('conversation_id')
         or (raw_thread_param if raw_thread_param and not _is_uuid_like(raw_thread_param) else '')
@@ -1936,7 +1970,7 @@ def query_deerflow_sse():
     thread_id = thread_info["thread_id"]
     attachments = _normalize_attachments_param(request.args.get('attachments', ''))
 
-    use_stream = os.environ.get("DEERFLOW_STREAM", "true").strip().lower() not in {"0", "false", "no"}
+    use_stream = bool(resume_run_id) or os.environ.get("DEERFLOW_STREAM", "true").strip().lower() not in {"0", "false", "no"}
     upstream_events = None
     first_event = None
     segments = None
@@ -1945,6 +1979,7 @@ def query_deerflow_sse():
             upstream_events = _stream_deerflow_sse_events(
                 query, conversation_id, user_id, attachments, thread_id,
                 compliance_identity, authorization_header,
+                **({"resume_run_id": resume_run_id} if resume_run_id else {}),
             )
             # Obtain the upstream HTTP result before committing our response.
             # This preserves 401/404/429 and Retry-After through fetch SSE.
@@ -2007,6 +2042,41 @@ def query_deerflow_sse():
     response.call_on_close(lambda: upstream_events.close() if upstream_events is not None else None)
     response.headers['X-Accel-Buffering'] = 'no'
     return response
+
+
+@app.route('/query/deerflow/status', methods=['GET'])
+@app.route('/query/deerflow/cancel', methods=['POST'])
+def control_deerflow_task():
+    """Control an exact run only after rechecking its current dialog owner."""
+    authorization = request.headers.get("Authorization")
+    platform_user = _load_deerflow_platform_user(authorization)
+    if platform_user is None:
+        return jsonify({"code": 401, "message": "请先登录 OneCityAgent"}), 401
+    values = request.get_json(silent=True) if request.method == "POST" else request.args
+    if not values or (request.method == "POST" and not isinstance(values, dict)):
+        return jsonify({"code": 400, "message": "缺少任务参数"}), 400
+    conversation = str(values.get("conversation_id") or "").strip()
+    thread_id, run_id = values.get("thread_id"), values.get("run_id")
+    if not conversation or not _is_uuid_like(thread_id) or not _is_uuid_like(run_id):
+        return jsonify({"code": 400, "message": "缺少有效的会话、线程或任务ID"}), 400
+    try:
+        if _deerflow_resource_decision(platform_user, {
+            "operation_type": "analysis", "target_audience": "self", "resource_id": conversation,
+        }) is None:
+            raise PermissionError("Dialog not found")
+        _resolve_deerflow_thread(conversation, user_id=platform_user["user_id"], explicit_thread_id=thread_id,
+                                 authorization_header=authorization)
+        suffix = "/cancel" if request.method == "POST" else ""
+        url = _derive_deerflow_url_from_run(f"api/deerflow/mobile/runs/{thread_id}/{run_id}{suffix}")
+        upstream = requests.post if suffix else requests.get
+        response = upstream(url, headers={"Authorization": authorization}, timeout=(10, 30), allow_redirects=False)
+        response.raise_for_status()
+        if response.status_code != 200:
+            raise RuntimeError("Unexpected task service response")
+        data = response.json().get("data", {})
+        return jsonify({"code": 0, "data": {"thread_id": str(thread_id), "run_id": str(run_id), "status": data.get("status")}})
+    except Exception as exc:
+        return _deerflow_error_response(exc)
 
 # ===== DeerFlow mobile integration: end =====
 

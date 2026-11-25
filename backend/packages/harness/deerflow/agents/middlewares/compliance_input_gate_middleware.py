@@ -393,6 +393,7 @@ def scan_upload_paths(paths: list[str], *, thread_id: str | None = None, engine:
         thread_id=thread_id,
         budget_ms=config.budget_ms,
         max_units=config.max_units,
+        audit_clean=True,
         origin={"kind": "uploaded_files", "count": len(paths)},
     )
 

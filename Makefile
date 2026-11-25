@@ -6,13 +6,16 @@
 PYTHON ?= python
 ONECITY_VERIFY_PYTHON ?= backend/.venv/bin/python
 
-.PHONY: onecity-api onecity-coordinator onecity-web onecity-build onecity-test onecity-test-client onecity-verify
+.PHONY: onecity-api onecity-coordinator onecity-web onecity-build onecity-test onecity-test-client onecity-verify onecity-verify-faults
 
 onecity-api onecity-coordinator onecity-web onecity-build onecity-test onecity-test-client:
 	@bash ./scripts/onecity.sh $(@:onecity-%=%)
 
 onecity-verify:
 	@$(ONECITY_VERIFY_PYTHON) scripts/verify_onecity_multiuser.py
+
+onecity-verify-faults:
+	@$(ONECITY_VERIFY_PYTHON) scripts/verify_onecity_fault_recovery.py
 
 help:
 	@echo "DeerFlow Development Commands:"
@@ -23,6 +26,7 @@ help:
 	@echo "  make onecity-api / onecity-coordinator / onecity-web - Run OneCity services in separate terminals"
 	@echo "  make onecity-build / onecity-test / onecity-test-client - Build or test OneCity"
 	@echo "  make onecity-verify  - Run isolated OneCity/DeerFlow HTTP integration checks"
+	@echo "  make onecity-verify-faults - Verify cancellation, reconnection and provider failure recovery"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
 	@echo "  make sandbox-build   - Build the custom sandbox image (auto-prefixed by user)"
 	@echo "  make docker-install PACKAGE=...        - Install Python packages in running Docker containers"

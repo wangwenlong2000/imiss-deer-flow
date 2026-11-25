@@ -1,5 +1,11 @@
 # UrbanBrain 城市超脑
 
+## 真实业务并发与合规回归（2026-11-25）
+
+OneCityAgent 支持本人任务取消、状态查询和断线后加入原任务，页面保留真实失败、未完成和取消状态。上传返回可对应审计编号的合规检查记录，文本提取失败或检查未完成会撤回文件并展示原因。已修复长文本正则回溯导致 Gateway 阻塞、模型失败误报成功及城市超脑会话跳转问题。
+
+新的 OneCity 私有部署包默认配置为执行 3、运行与排队合计 6、单用户合计 2，可通过部署命令参数调整。真实业务负载、浏览器检查、十类违规回归及验收范围见 [本轮验证材料](docs/validation-20261125/README.md)。
+
 ## OneCityAgent 统一项目
 
 OneCityAgent 已纳入 `apps/onecityagent/`，与现有 `backend/`、`frontend/`、`skills/` 和 `services/streetmodel/` 在同一 Git 仓库维护。该项目包含 GitHub `fix/street-workflow-20261125` 的街景流程修复，以及两个本地项目已有的多用户认证、会话隔离、文件代理和 SSE 改动。

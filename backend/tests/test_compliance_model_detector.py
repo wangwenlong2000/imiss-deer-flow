@@ -279,8 +279,8 @@ def test_detector_never_mutates_the_unit() -> None:
 # ── vendor integrity ────────────────────────────────────────────────────────
 
 
-def test_vendor_code_is_unmodified() -> None:
-    """Vendored delivery code must stay byte-identical to what was shipped.
+def test_vendor_code_matches_delivery_and_the_documented_regex_patch() -> None:
+    """Pin the original delivery and the one reviewed runtime safety patch.
 
     Not hypothetical: `ruff check --fix` silently rewrote four of these files
     (UP035/UP037 modernizations in tfidf_knn.py, feature_extractor.py,
@@ -289,7 +289,10 @@ def test_vendor_code_is_unmodified() -> None:
     notices until accuracy quietly drops.
 
     `backend/ruff.toml` now excludes the vendor directory; this test is the
-    backstop. Regenerate with `make compliance-assets` after a package upgrade.
+    backstop. The 2026-11-25 route-arrow change anchors token starts to avoid
+    quadratic matching, with corpus feature parity checked separately. Keep
+    the upstream SHA256SUMS intact so a package upgrade cannot silently absorb
+    or remove that local patch.
     """
     import hashlib
 
@@ -298,6 +301,12 @@ def test_vendor_code_is_unmodified() -> None:
     assert sums_file.is_file(), "vendor/SHA256SUMS missing; run `make compliance-assets`"
 
     modified = []
+    patches = {
+        "feature_extractor.py": (
+            "0826f87dd3d3235e9ac575e3dac3301edb7d1d38945720db49ebca03525d3bff",
+            "8410fe7ec2cf739cae89d8bc060d9e9a2a9d4e2bcb96f85847b836f9555ed24c",
+        ),
+    }
     for line in sums_file.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
@@ -305,10 +314,14 @@ def test_vendor_code_is_unmodified() -> None:
         target = vendor_root / "model_detectors" / name.strip()
         assert target.is_file(), f"vendor file missing: {name}"
         actual = hashlib.sha256(target.read_bytes()).hexdigest()
+        if name.strip() in patches:
+            delivered, patched = patches[name.strip()]
+            assert expected == delivered, "An upstream vendor update requires reviewing the local regex patch"
+            expected = patched
         if actual != expected:
             modified.append(name.strip())
 
-    assert not modified, f"vendor code was modified: {modified}. Restore with `make compliance-assets`; fixes belong upstream in the delivery package."
+    assert not modified, f"Unexpected vendor modification: {modified}. Preserve the documented route-arrow runtime fix when updating the delivery."
 
 
 def test_ruff_excludes_the_vendor_directory() -> None:

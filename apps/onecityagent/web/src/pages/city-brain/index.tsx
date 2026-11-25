@@ -58,6 +58,8 @@ interface ComplianceResult {
   audit_ref?: string;
   basis: string[];
   final_disposition: string;
+  status?: string;
+  scan_complete?: boolean;
 }
 
 interface CityBrainDialog {
@@ -894,16 +896,21 @@ const normalizeComplianceResult = (value: any): ComplianceResult | null => {
   if (!value || typeof value !== 'object') return null;
   const gate = String(value.gate || '');
   if (!['InputGate', 'ContextGate', 'OutputGate'].includes(gate)) return null;
+  const actions = Array.isArray(value.actions) ? value.actions.map(String) : [];
+  const disposition = ['refuse', 'manual_review', 'rewrite', 'aggregate', 'desensitize', 'role_check', 'report', 'warn']
+    .find((action) => actions.includes(action)) || 'allow';
   return {
     gate,
     scene: String(value.scene || '_unknown'),
     violation_types: Array.isArray(value.violation_types)
       ? value.violation_types.map(String)
       : [],
-    actions: Array.isArray(value.actions) ? value.actions.map(String) : [],
+    actions,
     audit_ref: value.audit_ref ? String(value.audit_ref) : undefined,
     basis: Array.isArray(value.basis) ? value.basis.map(String) : [],
-    final_disposition: String(value.final_disposition || 'allow'),
+    final_disposition: String(value.final_disposition || disposition),
+    status: typeof value.status === 'string' ? value.status : undefined,
+    scan_complete: typeof value.scan_complete === 'boolean' ? value.scan_complete : undefined,
   };
 };
 
@@ -917,6 +924,9 @@ const complianceResultKey = (result: ComplianceResult) => {
     result.final_disposition,
   ].join('|');
 };
+
+const isTerminalTaskStatus = (status?: string) =>
+  ['interrupted', 'cancelled', 'success', 'completed', 'error', 'failed', 'timeout', 'incomplete'].includes(status || '');
 
 const COMPLIANCE_GATE_LABELS: Record<string, string> = {
   InputGate: '输入闸门',
@@ -972,7 +982,7 @@ const CityBrainComplianceMessage = ({ item }: { item: CityBrainMessage }) => {
   const result = item.complianceResult;
   if (!result) return null;
 
-  const blocked = ['refuse', 'manual_review'].includes(result.final_disposition);
+  const blocked = result.final_disposition === 'refuse' || result.scan_complete === false;
   const warning = !blocked && result.final_disposition !== 'allow';
   const dispositionLabel = COMPLIANCE_ACTION_LABELS[result.final_disposition] || result.final_disposition;
 
@@ -993,7 +1003,7 @@ const CityBrainComplianceMessage = ({ item }: { item: CityBrainMessage }) => {
         <span>矩阵场景</span>
         <b>{formatComplianceScene(result.scene)}</b>
         <span>风险类型</span>
-        <b>{result.violation_types.length ? result.violation_types.join('、') : '未检出'}</b>
+        <b>{result.violation_types.length ? result.violation_types.join('、') : result.scan_complete === false ? '检查未完成' : '未检出'}</b>
         <span>处置动作</span>
         <b>
           {result.actions.length
@@ -1164,6 +1174,9 @@ const CityBrain = () => {
   const [inputValue, setInputValue] = useState('');
   const [sendLoading, setSendLoading] = useState(false);
   const [runStatus, setRunStatus] = useState<'submitting' | 'pending' | 'running' | null>(null);
+  const [activeRun, setActiveRun] = useState<{ thread_id: string; run_id: string } | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [connectionInterrupted, setConnectionInterrupted] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadedAttachments, setUploadedAttachments] = useState<UploadedAttachment[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -1185,6 +1198,16 @@ const CityBrain = () => {
     : '';
   const isCurrentSession = () =>
     activeSessionRef.current && getPlatformAuthorization() === authorization;
+
+  useEffect(() => {
+    eventSourceRef.current?.close();
+    eventSourceRef.current = null;
+    setSendLoading(false);
+    setRunStatus(null);
+    setActiveRun(null);
+    setCancelLoading(false);
+    setConnectionInterrupted(false);
+  }, [authorization]);
 
   useEffect(() => {
     if (!userId || !authorization) {
@@ -1551,6 +1574,66 @@ const CityBrain = () => {
     uploadInputRef.current?.click();
   };
 
+  const upsertComplianceResults = (dialogId: string, rawResults: any[], turnStartedAt?: number) => {
+    const normalizedResults = rawResults
+      .map(normalizeComplianceResult)
+      .filter((item): item is ComplianceResult => Boolean(item));
+    if (!normalizedResults.length) return;
+
+    setMessages((prev) => {
+      let next = [...prev];
+      const shouldRetract = normalizedResults.some(
+        (result) =>
+          result.gate === 'OutputGate' &&
+          (result.final_disposition === 'refuse' || result.scan_complete === false),
+      );
+
+      // OutputGate 明确拒绝时，撤下本轮可能已经提前展示的最终回答；
+      // DeerFlow 随后发送的 compliance_retract 安全提示仍会正常展示。
+      if (shouldRetract) {
+        next = next.filter(
+          (item) =>
+            !(
+              item.role === 'agent' &&
+              typeof turnStartedAt === 'number' &&
+              item.timestamp >= turnStartedAt &&
+              item.agentRole === '反馈智能体' &&
+              !item.complianceResult &&
+              item.metadata?.source_event !== 'compliance_retract'
+            ),
+        );
+      }
+
+      const existingKeys = new Set(
+        next
+          .map((item) => item.complianceResult)
+          .filter((item): item is ComplianceResult => Boolean(item))
+          .map(complianceResultKey),
+      );
+
+      normalizedResults.forEach((result, index) => {
+        const key = complianceResultKey(result);
+        if (existingKeys.has(key)) return;
+        existingKeys.add(key);
+        const timestamp = Date.now() + index;
+        next.push({
+          id: `compliance-${result.audit_ref || timestamp}-${result.gate}`,
+          role: 'agent',
+          agentRole: '合规检测',
+          content: `${COMPLIANCE_GATE_LABELS[result.gate] || result.gate}：${result.final_disposition}`,
+          timestamp,
+          order_id: timestamp,
+          complianceResult: result,
+          metadata: { source: 'deerflow', source_event: 'compliance' },
+        });
+      });
+
+      persistMessages(dialogId, next);
+      return next;
+    });
+    touchDialog(dialogId);
+  };
+
   const handleUploadFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     event.target.value = '';
@@ -1584,6 +1667,10 @@ const CityBrain = () => {
       });
       const result = await response.json();
       if (!isCurrentSession()) return;
+      const checks = result.data?.compliance?.checks;
+      if (Array.isArray(checks)) {
+        upsertComplianceResults(currentDialogId, checks);
+      }
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || '文件上传失败');
       }
@@ -1611,7 +1698,12 @@ const CityBrain = () => {
         });
         return Array.from(map.values());
       });
-      message.success(`已上传 ${nextFiles.length} 个文件`);
+      if (Array.isArray(checks) && checks.some((check) =>
+        Array.isArray(check.actions) && check.actions.some((action: string) => ['warn', 'manual_review'].includes(action)))) {
+        message.warning('文件已上传，检测到需关注的风险，请查看合规记录并按提示复核');
+      } else {
+        message.success(`已上传 ${nextFiles.length} 个文件`);
+      }
     } catch (error: any) {
       if (!isCurrentSession()) return;
       console.error('[city-brain] upload failed:', error);
@@ -1778,6 +1870,8 @@ const CityBrain = () => {
     setUploadedAttachments([]);
     setSendLoading(true);
     setRunStatus('submitting');
+    setActiveRun(null);
+    setConnectionInterrupted(false);
 
     eventSourceRef.current?.close();
     const sseUrl = buildDeerFlowSseUrl(
@@ -1790,65 +1884,7 @@ const CityBrain = () => {
       Authorization: authorization,
     });
     eventSourceRef.current = eventSource;
-
-    const upsertComplianceResults = (rawResults: any[]) => {
-      const normalizedResults = rawResults
-        .map(normalizeComplianceResult)
-        .filter((item): item is ComplianceResult => Boolean(item));
-      if (!normalizedResults.length) return;
-
-      setMessages((prev) => {
-        let next = [...prev];
-        const shouldRetract = normalizedResults.some(
-          (result) =>
-            result.gate === 'OutputGate' &&
-            ['refuse', 'manual_review'].includes(result.final_disposition),
-        );
-
-        // OutputGate 明确拒绝时，撤下本轮可能已经提前展示的最终回答；
-        // DeerFlow 随后发送的 compliance_retract 安全提示仍会正常展示。
-        if (shouldRetract) {
-          next = next.filter(
-            (item) =>
-              !(
-                item.role === 'agent' &&
-                item.timestamp >= userMessage.timestamp &&
-                item.agentRole === '反馈智能体' &&
-                !item.complianceResult &&
-                item.metadata?.source_event !== 'compliance_retract'
-              ),
-          );
-        }
-
-        const existingKeys = new Set(
-          next
-            .map((item) => item.complianceResult)
-            .filter((item): item is ComplianceResult => Boolean(item))
-            .map(complianceResultKey),
-        );
-
-        normalizedResults.forEach((result, index) => {
-          const key = complianceResultKey(result);
-          if (existingKeys.has(key)) return;
-          existingKeys.add(key);
-          const timestamp = Date.now() + index;
-          next.push({
-            id: `compliance-${result.audit_ref || timestamp}-${result.gate}`,
-            role: 'agent',
-            agentRole: '合规检测',
-            content: `${COMPLIANCE_GATE_LABELS[result.gate] || result.gate}：${result.final_disposition}`,
-            timestamp,
-            order_id: timestamp,
-            complianceResult: result,
-            metadata: { source: 'deerflow', source_event: 'compliance' },
-          });
-        });
-
-        persistMessages(activeDialogId, next);
-        return next;
-      });
-      touchDialog(activeDialogId, false);
-    };
+    let sawTaskError = false;
 
     eventSource.connect((eventData) => {
       if (!isCurrentSession()) return;
@@ -1865,12 +1901,25 @@ const CityBrain = () => {
 
       if (parsedData.type === '[DONE]') {
         if (Array.isArray(parsedData.compliance_results)) {
-          upsertComplianceResults(parsedData.compliance_results);
+          upsertComplianceResults(activeDialogId, parsedData.compliance_results, userMessage.timestamp);
         }
         eventSource.close();
         eventSourceRef.current = null;
         setSendLoading(false);
         setRunStatus(null);
+        setActiveRun(null);
+        if (parsedData.finished !== true && !sawTaskError) {
+          const text = parsedData.status === 'cancelled' || parsedData.status === 'interrupted'
+            ? '任务已取消。'
+            : '任务未能完整完成，请查看记录后重试。';
+          appendMessage(activeDialogId, {
+            id: `task-status-${Date.now()}`,
+            role: 'agent', agentRole: '系统', content: text,
+            timestamp: Date.now(), order_id: Date.now(),
+            metadata: { source_event: 'task_failed', status: parsedData.status || 'incomplete' },
+          });
+          message.warning(text);
+        }
         touchDialog(activeDialogId, true);
         return;
       }
@@ -1883,9 +1932,9 @@ const CityBrain = () => {
       }
 
       if (parsedData.type === 'compliance') {
-        upsertComplianceResults([
+        upsertComplianceResults(activeDialogId, [
           parsedData.compliance_result || parsedData.data || parsedData,
-        ]);
+        ], userMessage.timestamp);
         return;
       }
 
@@ -1897,10 +1946,12 @@ const CityBrain = () => {
       if (isDeerFlowUuidThreadId(parsedThreadId)) {
         rememberDeerFlowThreadId(activeDialogId, parsedThreadId);
       }
+      if (eventSource.activeRun) setActiveRun(eventSource.activeRun);
 
       const agentRole = parsedData.role || parsedData.type || '系统';
       const content = normalizeContent(parsedData.content);
       if (parsedData.type === 'error') {
+        sawTaskError = true;
         setRunStatus(null);
         message.error(content || '任务未能完成，请稍后重试');
       }
@@ -1919,6 +1970,11 @@ const CityBrain = () => {
 
       setMessages((prev) => {
         const next = [...prev];
+        if (parsedData.type === 'agent' && parsedData.metadata?.source_event && next.some((item) =>
+          item.timestamp >= userMessage.timestamp && item.agentRole === agentRole &&
+          item.metadata?.source_event === parsedData.metadata.source_event && item.content === content)) {
+          return prev;
+        }
         const lastMessage = next[next.length - 1];
         const shouldInsertStepFeedback =
           agentRole === '执行智能体' &&
@@ -1941,16 +1997,105 @@ const CityBrain = () => {
         return next;
       });
       touchDialog(activeDialogId, false);
-    }, (error) => {
+    }, async (error) => {
       if (!isCurrentSession()) return;
       console.error('[city-brain] SSE error:', error);
+      const run = eventSource.activeRun;
+      if (run && !sawTaskError && ![401, 403, 404, 409, 429].includes(error?.status)) {
+        try {
+          const params = new URLSearchParams({ conversation_id: activeDialogId, ...run });
+          const response = await fetch(`/query/deerflow/status?${params.toString()}`, {
+            headers: { Authorization: authorization },
+          });
+          const result = await response.json();
+          if (!isCurrentSession() || eventSourceRef.current !== eventSource) return;
+          if (!response.ok || result.code !== 0) {
+            throw Object.assign(new Error(result.message || '暂时无法确认任务状态'), { status: response.status });
+          }
+          const status = result.data?.status;
+          if (['pending', 'running'].includes(status)) {
+            setRunStatus(status);
+            setConnectionInterrupted(true);
+            message.warning('连接中断，任务仍在执行。可恢复连接或取消任务。');
+            return;
+          }
+          setRunStatus(null);
+          setConnectionInterrupted(true);
+          message.info('任务已结束，可恢复连接读取最终结果。');
+          return;
+        } catch (statusError: any) {
+          if (!isCurrentSession() || eventSourceRef.current !== eventSource) return;
+          if (![401, 403, 404, 409].includes(statusError?.status)) {
+            setConnectionInterrupted(true);
+            setRunStatus(null);
+            message.warning('连接中断，暂时无法确认任务状态。可恢复连接或取消任务。');
+            return;
+          }
+        }
+      }
       eventSource.close();
       eventSourceRef.current = null;
       setSendLoading(false);
       setRunStatus(null);
+      setActiveRun(null);
+      setConnectionInterrupted(false);
       touchDialog(activeDialogId, true);
-      message.error(error?.message || '城市超脑平台请求失败，请稍后重试');
+      const errorText = error?.message || '城市超脑平台请求失败，请稍后重试';
+      appendMessage(activeDialogId, {
+        id: `connection-error-${Date.now()}`,
+        role: 'agent', agentRole: '系统', content: errorText,
+        timestamp: Date.now(), order_id: Date.now(),
+        metadata: { source_event: 'connection_error' },
+      });
+      message.error(errorText);
+    }, () => {
+      if (isCurrentSession()) setConnectionInterrupted(false);
     });
+  };
+
+  const handleCancel = async () => {
+    const client = eventSourceRef.current;
+    const run = client?.activeRun;
+    if (!run || !isCurrentSession()) return;
+    setCancelLoading(true);
+    try {
+      const response = await fetch('/query/deerflow/cancel', {
+        method: 'POST',
+        headers: { Authorization: authorization, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: currentDialogId, ...run }),
+      });
+      let result: any;
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error('任务服务暂不可用，取消尚未确认，请重试');
+      }
+      if (!isCurrentSession() || eventSourceRef.current !== client) return;
+      if (!response.ok || result.code !== 0) throw new Error(result.message || '取消任务失败');
+      if (!isTerminalTaskStatus(result.data?.status)) {
+        message.warning('取消尚未确认，任务仍可能执行，请稍后重试或恢复连接查看状态');
+        return;
+      }
+      client.close();
+      eventSourceRef.current = null;
+      setSendLoading(false);
+      setRunStatus(null);
+      setActiveRun(null);
+      setConnectionInterrupted(false);
+      touchDialog(currentDialogId, true);
+      const cancelled = ['interrupted', 'cancelled'].includes(result.data?.status);
+      const text = cancelled ? '任务已取消。' : '任务已结束。';
+      appendMessage(currentDialogId, {
+        id: `cancel-${run.run_id}`, role: 'agent', agentRole: '系统', content: text,
+        timestamp: Date.now(), order_id: Date.now(),
+        metadata: { source_event: 'task_cancelled', status: result.data?.status },
+      });
+      message.info(text);
+    } catch (error: any) {
+      if (isCurrentSession()) message.error(error?.message || '取消任务失败');
+    } finally {
+      if (isCurrentSession()) setCancelLoading(false);
+    }
   };
 
   const handleSavePlan = () => {
@@ -2092,7 +2237,7 @@ const CityBrain = () => {
         >
           <Spin
             spinning={sendLoading}
-            tip={runStatus === 'pending' ? '任务排队中，轮到后自动执行' : runStatus === 'running' ? '正在执行任务' : '正在提交任务'}
+            tip={connectionInterrupted ? '连接中断，可恢复连接或取消任务' : runStatus === 'pending' ? '任务排队中，轮到后自动执行' : runStatus === 'running' ? '正在执行任务' : '正在提交任务'}
           >
             <div className={styles.messageList}>
               {messages.map((item) =>
@@ -2180,6 +2325,19 @@ const CityBrain = () => {
           >
             发送
           </Button>
+          {sendLoading && (
+            <Button danger onClick={() => void handleCancel()} disabled={!activeRun} loading={cancelLoading}>
+              取消任务
+            </Button>
+          )}
+          {sendLoading && connectionInterrupted && (
+            <Button onClick={() => {
+              setConnectionInterrupted(false);
+              eventSourceRef.current?.resume();
+            }}>
+              恢复连接
+            </Button>
+          )}
         </div>
       </Flex>
 

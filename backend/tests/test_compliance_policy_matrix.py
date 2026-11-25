@@ -72,7 +72,7 @@ def test_baseline_types_refuse_in_every_named_scene(matrix, violation_type: str)
             assert actions is not None and "refuse" in actions, f"{violation_type}.{gate}.{scene} must refuse, got {actions}"
 
 
-NON_BASELINE = tuple(v for v in VIOLATION_TYPES if v not in BASELINE_VIOLATION_TYPES)
+NON_BASELINE = tuple(v for v in VIOLATION_TYPES if v not in (*BASELINE_VIOLATION_TYPES, "domain"))
 
 
 @pytest.mark.parametrize("violation_type", NON_BASELINE)
@@ -86,6 +86,11 @@ def test_non_baseline_unknown_scene_only_warns_and_reviews(matrix, violation_typ
     for gate in GATES:
         actions = matrix.cell(violation_type, gate, "_unknown")
         assert actions == ("warn", "manual_review"), f"{violation_type}.{gate}._unknown should be [warn, manual_review], got {actions}"
+
+
+def test_domain_unknown_permission_refuses_in_every_gate(matrix) -> None:
+    for gate in GATES:
+        assert matrix.cell("domain", gate, "_unknown") == ("refuse",)
 
 
 def test_unknown_column_is_documented_as_temporary() -> None:
@@ -146,7 +151,7 @@ def test_video_metadata_type8_has_the_declared_scene_actions(matrix, gate, expec
 def test_unresolved_scene_falls_back_rather_than_allowing(matrix) -> None:
     resolution = matrix.resolve("domain", "OutputGate", None)
     assert resolution.scene_key == "_unknown"
-    assert resolution.actions == ("warn", "manual_review")
+    assert resolution.actions == ("refuse",)
 
 
 def test_unrecognized_scene_name_falls_back(matrix) -> None:
@@ -173,7 +178,7 @@ def test_matrix_supplies_the_compliance_basis(matrix) -> None:
 
 def test_decide_merges_actions_weakest_first(matrix) -> None:
     actions, per_violation, basis, warnings = matrix.decide([_hit("domain"), _hit("re_identify")], "OutputGate", "_unknown")
-    assert actions == ("warn", "manual_review")
+    assert actions == ("warn", "manual_review", "refuse")
     assert set(per_violation) == {"domain", "re_identify"}
     assert basis
     assert not warnings

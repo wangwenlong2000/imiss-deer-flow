@@ -203,12 +203,16 @@ def test_a_failing_detector_does_not_stop_the_others() -> None:
     assert [h.detector_id for h in decision.hits] == ["good"], "the healthy detector still reports"
     assert "broken" in decision.diagnostics.detector_errors
     assert any("broken" in w for w in decision.diagnostics.warnings), "the failure is visible, not swallowed"
+    assert decision.diagnostics.truncated is True
+    assert "refuse" in decision.actions
 
 
 def test_detector_failure_is_recorded_with_its_exception_type() -> None:
     engine = _engine([_registration("broken", _FakeAdapter(error=ValueError("bad input")), gates={"domain": ("OutputGate",)})])
     decision = engine.check([_unit()], gate="OutputGate")
     assert "ValueError" in decision.diagnostics.detector_errors["broken"]
+    assert decision.diagnostics.truncated is True
+    assert "refuse" in decision.actions
 
 
 def test_timings_are_recorded_per_detector() -> None:
@@ -279,10 +283,10 @@ def test_scene_is_unknown_in_phase_one() -> None:
 def test_hits_resolve_to_matrix_actions_and_basis() -> None:
     engine = _engine([_registration("d1", _FakeAdapter([_hit()]), gates={"domain": ("OutputGate",)})])
     decision = engine.check([_unit()], gate="OutputGate")
-    assert decision.actions == ("warn", "manual_review")
-    assert decision.per_violation_actions == {"domain": ("warn", "manual_review")}
+    assert decision.actions == ("refuse",)
+    assert decision.per_violation_actions == {"domain": ("refuse",)}
     assert decision.basis, "guide requirement 5: a determination cites its basis"
-    assert not decision.blocks, "warn + manual_review must not mutate the payload"
+    assert decision.blocks, "domain data requires verified business permission"
 
 
 def test_baseline_violation_blocks_even_with_unknown_scene() -> None:
@@ -389,14 +393,14 @@ def test_intent_does_not_filter_the_output_gate() -> None:
     assert len(decision.hits) == 1
 
 
-def test_role_check_degrades_to_a_warning_without_an_auth_module() -> None:
-    """Phase 1 risk 12: say so rather than pretending the check happened."""
+def test_domain_permission_unknown_refuses_without_an_auth_module() -> None:
+    """Domain data stays blocked when upstream permission is unavailable."""
     engine = _engine([_registration("d1", _FakeAdapter([_hit()]), gates={"domain": ("OutputGate",)})])
     decision = engine.check([_unit()], gate="OutputGate", intent=IntentInfo(high_risk=True))
-    # domain/_unknown is [warn, manual_review]; force a role_check cell instead.
+    # The named internal scene also requires an actual role check.
     resolution = engine.policy.resolve("domain", "OutputGate", "internal_org")
     assert resolution.actions == ("role_check",)
-    assert decision.actions == ("warn", "manual_review")
+    assert decision.actions == ("refuse",)
 
 
 # ── audit trail ─────────────────────────────────────────────────────────────

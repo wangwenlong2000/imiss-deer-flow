@@ -1,0 +1,198 @@
+{
+  "schema_version": "compliance_unified_ten_type_eval_1",
+  "generated_at": "2026-11-25T11:24:13.194450+00:00",
+  "dataset": {
+    "path": "docs/validation-20261125/compliance-operational-samples.jsonl",
+    "data_version": "7.23 raw annotation bundle as checked out; no independent freeze marker",
+    "independent_frozen_set": false,
+    "rows_loaded": 30,
+    "source_files": [
+      {
+        "path": "docs/validation-20261125/compliance-operational-samples.jsonl",
+        "rows": 30,
+        "sha256": "0bbcd5e86370d835872ced18a76af18bf4baa63c742e5744cdff4c0e8ff7df1f"
+      }
+    ],
+    "missing_gate_policy": "assign InputGate; retained in report as gate_inferred=true",
+    "missing_gate_rows": 0
+  },
+  "code": {
+    "commit_id": "33119f1",
+    "working_tree_dirty": true,
+    "detectors_config_sha256": "e1ceb88abd2e08df2246ac6dcf229262c182d78fd2c11e8caee5dd153323a8ea",
+    "policy_matrix_sha256": "2d5d454672bd661ec5e41e43f62bba63e82e07ce6d78c6599dde4438421d2901",
+    "manifest_sha256": {
+      "backend/packages/harness/deerflow/compliance/detectors/entropy_hardcoded_cred/manifest.yaml": "8ac88d2dfb3e437ddc4c3c570e31edbd9bc45253b38b412aa784a2c5b90ceb86",
+      "backend/packages/harness/deerflow/compliance/detectors/llm_confidential/manifest.yaml": "f2154674d52d92585a67d2c91b346d577cb3daf590c9793bca29c45cf2ecccea",
+      "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/manifest.yaml": "67750887eca3b11718b3f5ce9c5aa0470ffc1872c1dbc9291d2900abecde74ec",
+      "backend/packages/harness/deerflow/compliance/detectors/ner_text_id/manifest.yaml": "df838b1f9a0ac5995f00f127cf8f4abdbcb3ca8829f78636e08b8c99e8771a68",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_geo_loc/manifest.yaml": "7d291e97587ac3905504b93b13e4e0b5e5f899cbf46b9bc5b758e397c6885ca8",
+      "backend/packages/harness/deerflow/compliance/detectors/regex_struct_id/manifest.yaml": "73118a9b027719ffd04f7ca4f6cc3bead4faa4ddc2e2d8b2012f88aba28595fe",
+      "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/manifest.yaml": "6a372759eb3966a1f827143264e30c06cd03ccef900b7d1167bf1c41b52d0c05"
+    }
+  },
+  "primary": {
+    "samples": 30,
+    "correct": 28,
+    "accuracy": 0.9333,
+    "macro_f1": 0.8667,
+    "per_violation_type": {
+      "struct_id": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 0,
+        "support": 1,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6667
+      },
+      "geo_loc": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "hardcoded_cred": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "illegal_content": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "political": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "text_id": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "confidential": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "support": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "video_meta_leak": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "re_identify": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "domain": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "metric": "one_vs_rest_presence; gold annotations remain single-label"
+  },
+  "fp_fn": {
+    "struct_id": {
+      "false_positive": [
+        {
+          "sample_id": "ops-20261125-text_id-positive",
+          "source": "compliance-operational-samples.jsonl",
+          "source_row": 16,
+          "data_type": "policy_regulation",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "text_id",
+          "predicted": "struct_id"
+        }
+      ],
+      "false_negative": []
+    },
+    "geo_loc": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "hardcoded_cred": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "illegal_content": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "political": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "text_id": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "confidential": {
+      "false_positive": [],
+      "false_negative": [
+        {
+          "sample_id": "ops-20261125-confidential-positive",
+          "source": "compliance-operational-samples.jsonl",
+          "source_row": 19,
+          "data_type": "policy_regulation",
+          "evaluated_gate": "ContextGate",
+          "annotation_gate": "ContextGate",
+          "gold": "confidential",
+          "predicted": "none"
+        }
+      ]
+    },
+    "video_meta_leak": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "re_identify": {
+      "false_positive": [],
+      "false_negative": []
+    },
+    "domain": {
+      "false_positive": [],
+      "false_negative": []
+    }
+  },
+  "note": "Initial development regression retained before the internal financial-detail rule fix. No corpus labels were edited after this result."
+}

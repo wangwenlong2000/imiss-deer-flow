@@ -1,5 +1,15 @@
 # CLAUDE.md
 
+## Business stability and compliance verification (2026-11-25)
+
+`scripts/verify_onecity_business_load.py` exercises disposable registered OneCity users through real authenticated question, upload, SSE and artifact APIs. It records observed queue/response/completion timing, native outcomes, numerical and delivery correctness, Docker resources and host GPU samples. Test account state and raw synthetic answers stay in a private output directory. `verify_onecity_production.py cleanup` also disables exact validation dialog IDs recorded in that state. New private deployment bundles default to 3 workers, 6 pending/running tasks and 2 per user. Validation and measured limitations are in `docs/validation-20261125/README.md`.
+
+OneCity proxies owner-checked task status, cancellation and stream recovery through Gateway. Resume joins an existing native run and validates its admitted query hash, latest-run identity and checkpoint consistency. Legacy runs require the current persisted user query. Cancellation succeeds only after the native status is terminal. Model, timeout and incomplete outcomes take precedence over a pending clarification. Checkpoint-based SSE completion requires the exact native run to be successful.
+
+UploadedFileNormalizer preserves empty, unreadable, unsupported, invalid UTF-8 and truncated extraction outcomes as incomplete units. The engine skips detection on known incomplete units, refuses the request and records its audit. Detector errors also make the overall check incomplete. Upload responses include `compliance.checks`, completion state and audit references for clean and rejected text. OneCity preserves these checks and rejection details in the page. The TF-IDF route-arrow structural pattern is anchored to a token start to avoid quadratic scanning of long tokens. Existing feature values are checked against the 2172-row corpus. The detector budget is checked between detector calls and cannot preempt one running detector.
+
+The OneCity client retries `/resume` at most three times after a confirmed run binding, then retains manual resume/cancel controls. Account changes and terminal outcomes close the stream. HTTP 401/403/404/409/429 stop automatic retry. Final HTTP fault tests use a local OpenAI-compatible 503 endpoint with the actual ChatOpenAI transport; business load uses the configured Qwen model. Full compliance regression metrics use historically exposed development data and retain every single-label/multi-hit difference.
+
 ## Unified OneCity repository (2026-11-25)
 
 The OneCity Flask/A2A application and Umi frontend are maintained in `../apps/onecityagent/`, imported with their Git history and local multiuser changes. The repository also includes `origin/fix/street-workflow-20261125` (`b7c46a5`). Keep OneCity's Python 3.13 environment and React 18/Umi dependencies under that application; DeerFlow and the optional street model service retain their own environments.

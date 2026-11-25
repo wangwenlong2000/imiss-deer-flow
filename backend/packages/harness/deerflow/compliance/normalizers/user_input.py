@@ -242,25 +242,33 @@ class UploadedFileNormalizer(Normalizer):
 
     def _file_unit(self, item: Any, gate: Gate, thread_id: str | None) -> DetectionUnit | None:
         path = Path(item)
-        if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
+        if path.suffix.lower() in IMAGE_SUFFIXES:
             return None
-        try:
-            with path.open("rb") as handle:
-                raw = handle.read(MAX_UPLOAD_BYTES)
-            text = raw.decode("utf-8", errors="replace")
-        except OSError:
-            return None
+        text = ""
+        truncated = False
+        error = None
+        if path.suffix.lower() not in TEXT_SUFFIXES:
+            error = "unsupported_text_format"
+        else:
+            try:
+                with path.open("rb") as handle:
+                    raw = handle.read(MAX_UPLOAD_BYTES + 1)
+                truncated = len(raw) > MAX_UPLOAD_BYTES
+                text = raw[:MAX_UPLOAD_BYTES].decode("utf-8", errors="replace")
+                if "\ufffd" in text:
+                    error = "invalid_utf8"
+                elif not text.strip():
+                    error = "empty_text"
+            except OSError:
+                error = "unreadable_text"
         text_items = make_text_items([(str(path), text)])
-        if not text_items:
-            return None
-        truncated = path.stat().st_size > MAX_UPLOAD_BYTES
         return build_unit(
             unit_id=f"upload:{path.name}",
             gate=gate,
             data_type=None,
             text_items=text_items,
             field_items=(),
-            raw={"kind": "uploaded_file", "path": str(path), "thread_id": thread_id, "truncated": truncated},
+            raw={"kind": "uploaded_file", "path": str(path), "thread_id": thread_id, "truncated": truncated, "normalization_error": error},
         )
 
 

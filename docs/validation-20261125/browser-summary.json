@@ -1,0 +1,222 @@
+{
+  "scope": "real browser against private OneCity entry; synthetic accounts and text files",
+  "checks": {
+    "unauthenticated_identity_401_and_page_login_redirect": true,
+    "shared_sidebar_preserves_citybrain_route": true,
+    "normal_upload_clean_card_and_attachment": true,
+    "synthetic_credential_refused_with_card_and_withdrawal": true,
+    "empty_and_large_upload_specific_notice_and_no_residual_file": true,
+    "upload_compliance_records_persisted": true,
+    "unverified_scene_warn_manual_review_preserves_accepted_file": true,
+    "warning_card_keeps_audit_and_permissions_context": true,
+    "real_browser_login_form_accepts_generated_valid_email": true,
+    "real_rsa_login_response_and_identity_loaded": true,
+    "real_ui_upload_and_business_submission": true,
+    "run_metadata_enables_cancel_button": true,
+    "query_submitted_exactly_once": true,
+    "replayed_messages_not_duplicated": true,
+    "cancelled_running_task": true,
+    "real_disconnect_does_not_resubmit_query": true,
+    "cancel_button_confirms_interrupted_terminal_status": true,
+    "real_offline_reconnect_joins_original_run": true,
+    "recovered_business_result_correct": true
+  },
+  "uploads": [
+    {
+      "sample": "browser-normal.txt",
+      "elapsed_seconds": 0.716,
+      "http_status": 200,
+      "scan_complete": true,
+      "actions": [
+        "allow"
+      ],
+      "violation_types": []
+    },
+    {
+      "sample": "browser-synthetic-code.py",
+      "elapsed_seconds": 4.888,
+      "http_status": 422,
+      "scan_complete": true,
+      "actions": [
+        "warn",
+        "manual_review",
+        "refuse"
+      ],
+      "violation_types": [
+        "domain",
+        "hardcoded_cred"
+      ]
+    },
+    {
+      "sample": "browser-empty.txt",
+      "elapsed_seconds": 1.003,
+      "http_status": 422,
+      "scan_complete": false,
+      "actions": [
+        "refuse"
+      ],
+      "violation_types": []
+    },
+    {
+      "sample": "browser-in-boundary.txt",
+      "elapsed_seconds": 2.44,
+      "http_status": 200,
+      "scan_complete": true,
+      "actions": [
+        "allow"
+      ],
+      "violation_types": []
+    },
+    {
+      "sample": "browser-too-large.txt",
+      "elapsed_seconds": 1.071,
+      "http_status": 422,
+      "scan_complete": false,
+      "actions": [
+        "refuse"
+      ],
+      "violation_types": []
+    }
+  ],
+  "browser_version": "Chrome 135.0.7049.78 headless",
+  "login_method": "real browser login form, RSA request, server-issued session and verified identity",
+  "initial_findings": [
+    {
+      "issue": "shared sidebar redirected /city-brain?dialogId to /chat",
+      "resolution": "limit legacy dialog redirect to /chat; regression and real route check passed"
+    },
+    {
+      "issue": "over-limit 210019-byte upload consumed gateway CPU and exceeded 30 seconds",
+      "resolution": "skip detectors for known incomplete normalized units and fix unanchored regex; real repeat rejected in 1.071 seconds"
+    }
+  ],
+  "limitations": [
+    "The browser used synthetic CSV/TXT/code records on the private validation services; broader original-media accuracy and distributed scheduling were outside this browser check."
+  ],
+  "phase": "complete",
+  "final_frontend_index_sha256": "3334b3cf1492358f2a58d7627f66e3623b75e5f601413e927cc5e82a386e103e",
+  "cancellation": {
+    "scope": "real Chrome, real model/tools via private OneCity entry, synthetic CSV",
+    "checks": {
+      "real_ui_upload_and_business_submission": true,
+      "run_metadata_enables_cancel_button": true,
+      "query_submitted_exactly_once": true,
+      "replayed_messages_not_duplicated": true,
+      "cancelled_running_task": true,
+      "real_disconnect_does_not_resubmit_query": true,
+      "cancel_button_confirms_interrupted_terminal_status": true
+    },
+    "elapsed_seconds": 6,
+    "network_failures": [
+      {
+        "path": "/query/deerflow",
+        "failure": "net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "failure": "net::ERR_INTERNET_DISCONNECTED"
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "failure": "net::ERR_INTERNET_DISCONNECTED"
+      }
+    ],
+    "request_counts": {
+      "/query/deerflow/identity": 1,
+      "/query/deerflow/dialog": 1,
+      "/query/deerflow/upload": 1,
+      "/query/deerflow": 1,
+      "/query/deerflow/resume": 2,
+      "/query/deerflow/cancel": 1
+    },
+    "terminal_metadata": [
+      {
+        "source_event": "task_cancelled",
+        "status": "interrupted"
+      }
+    ]
+  },
+  "successful_resume": {
+    "scope": "real Chrome, real model/tools via private OneCity entry, synthetic CSV",
+    "checks": {
+      "real_ui_upload_and_business_submission": true,
+      "run_metadata_enables_cancel_button": true,
+      "real_offline_reconnect_joins_original_run": true,
+      "query_submitted_exactly_once": true,
+      "replayed_messages_not_duplicated": true,
+      "recovered_business_result_correct": true
+    },
+    "elapsed_seconds": 21,
+    "network_failures": [
+      {
+        "path": "/query/deerflow",
+        "failure": "net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "failure": "net::ERR_INTERNET_DISCONNECTED"
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "failure": "net::ERR_INTERNET_DISCONNECTED"
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "failure": "net::ERR_ABORTED"
+      }
+    ],
+    "response_statuses": [
+      {
+        "path": "/query/deerflow/identity",
+        "status": 200
+      },
+      {
+        "path": "/query/deerflow/dialog",
+        "status": 200
+      },
+      {
+        "path": "/query/deerflow/upload",
+        "status": 200
+      },
+      {
+        "path": "/query/deerflow",
+        "status": 200
+      },
+      {
+        "path": "/query/deerflow/resume",
+        "status": 200
+      }
+    ],
+    "request_counts": {
+      "/query/deerflow/identity": 1,
+      "/query/deerflow/dialog": 1,
+      "/query/deerflow/upload": 1,
+      "/query/deerflow": 1,
+      "/query/deerflow/resume": 3
+    },
+    "terminal_metadata": [],
+    "limitations": []
+  },
+  "cleanup": {
+    "recorded_exact_ids": 11,
+    "owned_dialogs_found": 11,
+    "disabled_rows": 11,
+    "remaining_active": 0,
+    "test_accounts_disabled_and_tokens_revoked": true,
+    "browser_container_removed": true
+  },
+  "source_changes": [
+    "shared sidebar retains /city-brain?dialogId route",
+    "SSE recovery joins the accepted run with bounded retry and replay deduplication",
+    "cancel UI only clears task controls after confirmed terminal status and handles non-JSON service failures",
+    "upload checks and warnings persist in page records",
+    "login form accepts existing valid accounts without applying registration-only restrictions"
+  ],
+  "source_sha256": {
+    "apps/onecityagent/web/src/utils/sse.ts": "a024e729eacc6ff7cce89b7f437e7c6b8ee894687fc5d656913225e192ec374e",
+    "apps/onecityagent/web/src/pages/city-brain/index.tsx": "e3422feb15807f4c405d7061e51c92ecbcdf4305010300fd7e175db7af5da634",
+    "apps/onecityagent/web/src/hooks/chat-hooks.ts": "0a133d4a19c887d30e77bf7528c4d41c338a3f354768a6b28d848eb96c9576c3",
+    "apps/onecityagent/web/src/pages/login/index.tsx": "bc9dc079b0c2bb08fcb1d9fcb1da26f6feb347b668bd0228a8f7c51d87c9567f",
+    "apps/onecityagent/web/scripts/verify-multi-user-client.cjs": "e092b44f8eb2e3b780c8f5a2148d1e890d3a558cb4c8ef9e67f08d03b77b892e"
+  }
+}

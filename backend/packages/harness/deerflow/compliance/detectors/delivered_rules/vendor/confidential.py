@@ -11,7 +11,7 @@ class ConfidentialDetector(BaseDetector):
     # substantive data. Public training material may quote the same words.
     STATE_MARKING = re.compile(r"国家秘密|绝密|机密级|秘密级|工作秘密|top secret|classified", re.I)
     INTERNAL_MARKING = re.compile(r"内部资料|内部口径|内部测算|内部未定稿|未公开|未发布|未经授权|仅限内部|限制流转|商业秘密|商业机密|核心商业秘密|保密期限", re.I)
-    SENSITIVE_DETAIL = re.compile(r"预测|测算|客户(?:名|清)单|客户分层|报价策略|定价策略|谈判底价|底线折扣|供应商(?:内部)?报价|供应商比价|采购策略|毛利|折扣方案|模型权重|算法阈值|审计初稿|风险准备金|评审结论|运维窗口|部署拓扑|数据库表结构|接口地址|生产环境|投标成本", re.I)
+    SENSITIVE_DETAIL = re.compile(r"预测|测算|客户(?:名|清)单|客户分层|报价策略|定价策略|谈判底价|底线折扣|供应商(?:内部)?报价|供应商底价|供应商比价|成本预算|采购策略|毛利|折扣方案|模型权重|算法阈值|审计初稿|风险准备金|评审结论|运维窗口|部署拓扑|数据库表结构|接口地址|生产环境|投标成本", re.I)
     PUBLIC_RELEASE = re.compile(r"已公开|公开发布|官网公开|公开可查|公开年报|公开汇总|公开月报|公开政策|公开培训|公开招标|公示系统|公开服务|public[_ /-]?(?:summary|statistics|status|service)", re.I)
     NEGATED_DETAIL = re.compile(r"不含|不包含|不涉及|未披露|已删除|已剔除|仅讲解|模板|示例|演示", re.I)
 
@@ -328,7 +328,10 @@ class ConfidentialDetector(BaseDetector):
         public = bool(self.PUBLIC_RELEASE.search(publication)) or public_remote_source
         marked_state = bool(self.STATE_MARKING.search(combined))
         marked_internal = bool(self.INTERNAL_MARKING.search(combined))
-        detail = bool(self.SENSITIVE_DETAIL.search(combined))
+        detail = any(
+            not re.search(r"(?:不含|不包含|不涉及|已删除|已剔除|没有|不提供)(?:任何|实际|真实|具体|全部|相关)?[^，,。；;\n]{0,12}$", combined[max(0, match.start() - 32):match.start()])
+            for match in self.SENSITIVE_DETAIL.finditer(combined)
+        )
         # A public record can describe absent sensitive fields without exposing them.
         if public and not (marked_state and detail) and not (marked_internal and detail and not self.NEGATED_DETAIL.search(combined)):
             return self.no_hit(sample, "Published or public summary contains no protected detail.")
