@@ -1,7 +1,18 @@
 # DeerFlow - Unified Development Environment
 
+.DEFAULT_GOAL := help
+
 .PHONY: help config config-upgrade check install setup-sandbox dev dev-daemon dev-no-nginx stop-no-nginx status-no-nginx linux-server-start linux-server-stop linux-server-status model-services-start model-services-stop model-services-status model-services-dogfood start stop up down clean docker-init docker-start docker-stop docker-logs docker-logs-frontend docker-logs-gateway docker-update-ports docker-install docker-install-system sandbox-build docker-build-all extract-router-cards build-skill-router-index update-skill-router-index check-skill-router-conflicts eval-skill-router sync-skill-router-index check-skill-router-health test-skill-router compliance-assets compliance-verify-content-text compliance-eval-model compliance-eval-model-cross-source compliance-eval-gates compliance-eval-type45 compliance-export-schema
 PYTHON ?= python
+ONECITY_VERIFY_PYTHON ?= backend/.venv/bin/python
+
+.PHONY: onecity-api onecity-coordinator onecity-web onecity-build onecity-test onecity-test-client onecity-verify
+
+onecity-api onecity-coordinator onecity-web onecity-build onecity-test onecity-test-client:
+	@bash ./scripts/onecity.sh $(@:onecity-%=%)
+
+onecity-verify:
+	@$(ONECITY_VERIFY_PYTHON) scripts/verify_onecity_multiuser.py
 
 help:
 	@echo "DeerFlow Development Commands:"
@@ -9,6 +20,9 @@ help:
 	@echo "  make config-upgrade  - Merge new fields from config.example.yaml into config.yaml"
 	@echo "  make check           - Check if all required tools are installed"
 	@echo "  make install         - Install all dependencies (frontend + backend)"
+	@echo "  make onecity-api / onecity-coordinator / onecity-web - Run OneCity services in separate terminals"
+	@echo "  make onecity-build / onecity-test / onecity-test-client - Build or test OneCity"
+	@echo "  make onecity-verify  - Run isolated OneCity/DeerFlow HTTP integration checks"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
 	@echo "  make sandbox-build   - Build the custom sandbox image (auto-prefixed by user)"
 	@echo "  make docker-install PACKAGE=...        - Install Python packages in running Docker containers"

@@ -9,15 +9,15 @@ import argparse
 import asyncio
 import json
 import os
-from pathlib import Path
 import secrets
 import shutil
 import socket
 import subprocess
 import sys
 import tempfile
-from threading import Thread
 import time
+from pathlib import Path
+from threading import Thread
 
 import httpx
 
@@ -160,17 +160,17 @@ async def exercise(onecity_url, native_url, namespace, tokens, checks, evidence)
 
 
 def main():
+    repository = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--onecity-root", type=Path, required=True)
+    parser.add_argument("--onecity-root", type=Path, default=repository / "apps" / "onecityagent")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    repository = Path(__file__).resolve().parents[1]
     backend = repository / "backend"
     sys.path[:0] = [str(repository / "scripts"), str(args.onecity_root / "tests")]
     from deerflow_fixture import add_user, load_fixture
     from serve_user_access_demo import GRAPH
     from verify_user_access_runtime import WEBAPP
-    from werkzeug.serving import make_server, WSGIRequestHandler
+    from werkzeug.serving import WSGIRequestHandler, make_server
 
     class QuietRequests(WSGIRequestHandler):
         def log_request(self, *args, **kwargs):
@@ -193,7 +193,26 @@ def main():
         (root / "extensions.json").write_text("{}")
         (root / "config.yaml").write_text("config_version: 1\nsandbox:\n  use: deerflow.sandbox.local:LocalSandboxProvider\nmemory:\n  enabled: false\ncompliance:\n  enabled: false\n")
         (root / "langgraph.json").write_text(json.dumps({"dependencies": [str(backend)], "graphs": {"lead_agent": f"{root / 'graph.py'}:graph"}, "http": {"app": f"{root / 'webapp.py'}:app"}}))
-        environment = {**os.environ, "DEER_FLOW_HOME": str(root / "data"), "DEER_FLOW_CONFIG_PATH": str(root / "config.yaml"), "DEER_FLOW_EXTENSIONS_CONFIG_PATH": str(root / "extensions.json"), "DEER_FLOW_ADMISSION_SIGNING_KEY": secrets.token_hex(32), "MOBILE_IAM_PROVIDER": "app.gateway.onecity_iam:OneCityIAMProvider", "MOBILE_IAM_ENDPOINT": onecity_url + "/internal/deerflow/iam", "MOBILE_IAM_REQUIRED": "true", "LANGGRAPH_URL": native_url, "MOBILE_ADAPTER_LANGGRAPH_URL": native_url, "MOBILE_ADAPTER_ASSISTANT_ID": "lead_agent", "DEMO_TASK_DELAY": "24", "DEER_FLOW_MAX_INFLIGHT_RUNS": "4", "DEER_FLOW_MAX_INFLIGHT_PER_USER": "1", "LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONPATH": os.pathsep.join([str(root), str(backend), str(backend / "packages/harness")])}
+        environment = {
+            **os.environ,
+            "DEER_FLOW_HOME": str(root / "data"),
+            "DEER_FLOW_CONFIG_PATH": str(root / "config.yaml"),
+            "DEER_FLOW_EXTENSIONS_CONFIG_PATH": str(root / "extensions.json"),
+            "DEER_FLOW_ADMISSION_SIGNING_KEY": secrets.token_hex(32),
+            "MOBILE_IAM_PROVIDER": "app.gateway.onecity_iam:OneCityIAMProvider",
+            "MOBILE_IAM_ENDPOINT": onecity_url + "/internal/deerflow/iam",
+            "MOBILE_IAM_REQUIRED": "true",
+            "LANGGRAPH_URL": native_url,
+            "MOBILE_ADAPTER_LANGGRAPH_URL": native_url,
+            "MOBILE_ADAPTER_ASSISTANT_ID": "lead_agent",
+            "DEMO_TASK_DELAY": "24",
+            "DEER_FLOW_MAX_INFLIGHT_RUNS": "4",
+            "DEER_FLOW_MAX_INFLIGHT_PER_USER": "1",
+            "LANGSMITH_TRACING": "false",
+            "LANGCHAIN_TRACING_V2": "false",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPATH": os.pathsep.join([str(root), str(backend), str(backend / "packages/harness")]),
+        }
         cli = shutil.which("langgraph") or str(Path(sys.executable).with_name("langgraph"))
         with (root / "runtime.log").open("w+") as log:
             process = subprocess.Popen([cli, "dev", "--config", str(root / "langgraph.json"), "--host", "127.0.0.1", "--port", str(native_port), "--no-browser", "--no-reload", "--allow-blocking", "--n-jobs-per-worker", "2"], cwd=root, env=environment, stdout=log, stderr=log)
@@ -210,7 +229,13 @@ def main():
                     process.kill()
                 server.shutdown()
                 thread.join(timeout=5)
-        result = {"passed": error_type is None and all(checks.values()), "checks": checks, "evidence": evidence, "fixture": "real HTTP adapters, isolated SQLite accounts and deterministic CSV graph; no model", "runtime_configuration": {"native_workers": 2, "max_inflight": 4, "max_inflight_per_user": 1, "synthetic_task_seconds": 24}}
+        result = {
+            "passed": error_type is None and all(checks.values()),
+            "checks": checks,
+            "evidence": evidence,
+            "fixture": "real HTTP adapters, isolated SQLite accounts and deterministic CSV graph; no model",
+            "runtime_configuration": {"native_workers": 2, "max_inflight": 4, "max_inflight_per_user": 1, "synthetic_task_seconds": 24},
+        }
         if error_type:
             result["error_type"] = error_type
         if args.output:

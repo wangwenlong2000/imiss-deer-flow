@@ -11,8 +11,8 @@ import json
 import subprocess
 import tarfile
 import tempfile
-from textwrap import indent
 from pathlib import Path
+from textwrap import indent
 
 FILES = (
     "app.py",
@@ -291,7 +291,7 @@ except Exception as error:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("prepare", "deploy", "rollback", "status"))
-    parser.add_argument("--source", type=Path, default=Path("/home/huangxiao/City_brain/onecityagent-integration"))
+    parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parents[1] / "apps" / "onecityagent")
     parser.add_argument("--container", default="onecityagent-a-dev")
     parser.add_argument("--gateway", default="http://onecity-deerflow-gateway:3330")
     parser.add_argument("--backup")

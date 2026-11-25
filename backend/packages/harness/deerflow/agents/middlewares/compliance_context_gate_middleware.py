@@ -44,16 +44,17 @@ from deerflow.compliance.actions import (
     AGGREGATE_NOTICE,
     REFUSAL_TEXT,
     REWRITE_NOTICE,
+    apply_actions,
     has_terminal_refusal,
     mask_text,
 )
+from deerflow.compliance.normalizers.base import MAX_FIELD_CHARS, stringify
+from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer
 from deerflow.compliance.normalizers.skill_result import (
     SkillResultNormalizer,
     evidence_scores,
     try_parse_skill_result,
 )
-from deerflow.compliance.normalizers.base import MAX_FIELD_CHARS, stringify
-from deerflow.compliance.normalizers.llm_output import LlmOutputNormalizer
 from deerflow.compliance.runtime import (
     FAIL_CLOSED_NOTICE,
     INCOMPLETE_SCAN_NOTICE,

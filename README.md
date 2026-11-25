@@ -1,5 +1,11 @@
 # UrbanBrain 城市超脑
 
+## OneCityAgent 统一项目
+
+OneCityAgent 已纳入 `apps/onecityagent/`，与现有 `backend/`、`frontend/`、`skills/` 和 `services/streetmodel/` 在同一 Git 仓库维护。该项目包含 GitHub `fix/street-workflow-20261125` 的街景流程修复，以及两个本地项目已有的多用户认证、会话隔离、文件代理和 SSE 改动。
+
+在根目录分别运行 `make onecity-api`、`make onecity-coordinator`、`make onecity-web` 启动 OneCity 的三个进程。`make onecity-build` 构建城市超脑页面，`make onecity-test` 和 `make onecity-test-client` 运行其现有回归，`make onecity-verify` 验证两端真实 HTTP 接口。OneCity 配置、独立依赖环境和联调方法见 [统一项目说明](docs/integration-onecity-20261125.md)。
+
 ## 类型 6 自由文本标识符回归数据
 
 运行 `python scripts/build_eval_text_id.py` 可从 `compliance_annotations_250.jsonl` 和 `policy_regulation.jsonl` 汇集 text_id 标注，并加入政策材料、统计年鉴风格的 20 条合成正样本与 9 条负样本。脚本按来源及正负标签固定划分约 20% 开发集、80% 测试集；数据、划分清单、测试集逐条组合分值与触发实体、分组指标、修改报告位于 `合规检测/类型6-text_id整改/`。这次划分发生在先前全量调规则之后，80% 测试集已有历史暴露，不能作为独立冻结集成绩。LLM 边界复核指标另列，当前未运行。

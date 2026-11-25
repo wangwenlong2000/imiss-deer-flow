@@ -259,10 +259,34 @@ def test_gate_construction_failure_does_not_break_agent_building(monkeypatch) ->
 # ══ ContextGate ═════════════════════════════════════════════════════════════
 
 
-def test_non_skill_result_tool_output_passes_through_untouched(enabled_config) -> None:
-    middleware = ComplianceContextGateMiddleware(engine=_StubEngine(_decision()))
+def test_clean_plain_tool_output_is_checked_and_passes_through_untouched(enabled_config) -> None:
+    engine = _StubEngine()
+    middleware = ComplianceContextGateMiddleware(engine=engine)
     original = ToolMessage(content="just some text", tool_call_id="tc-1", name="bash")
     assert middleware.wrap_tool_call(_Request("bash"), lambda r: original) is original
+    assert engine.calls
+    assert engine.calls[0]["gate"] == "ContextGate"
+
+
+@pytest.mark.parametrize("action", ["warn", "desensitize", "refuse"])
+def test_plain_tool_output_applies_compliance_actions(enabled_config, action) -> None:
+    decision = _decision(
+        actions=(action,),
+        locations=[RiskLocation(kind="char_span", locator="7:14", text="HK-0431")],
+    )
+    middleware = ComplianceContextGateMiddleware(engine=_StubEngine(decision))
+    original = ToolMessage(content="camera HK-0431", tool_call_id="tc-1", name="bash")
+    result = middleware.wrap_tool_call(_Request("bash"), lambda r: original)
+
+    assert result.tool_call_id == original.tool_call_id
+    assert result.name == original.name
+    if action == "warn":
+        assert result.content.startswith(original.content)
+        assert "【合规提示】" in result.content
+    elif action == "desensitize":
+        assert result.content == "camera *******"
+    else:
+        assert result.content == REFUSAL_TEXT
 
 
 def test_disabled_gate_passes_through(_restore_config) -> None:

@@ -94,7 +94,7 @@ frontend/.next/
 frontend/tsconfig.tsbuildinfo
 
 # ignore the legacy `web` folder
-web/
+/web/
 
 # Deployment artifacts
 backend/Dockerfile.langgraph

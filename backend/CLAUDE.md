@@ -1,5 +1,13 @@
 # CLAUDE.md
 
+## Unified OneCity repository (2026-11-25)
+
+The OneCity Flask/A2A application and Umi frontend are maintained in `../apps/onecityagent/`, imported with their Git history and local multiuser changes. The repository also includes `origin/fix/street-workflow-20261125` (`b7c46a5`). Keep OneCity's Python 3.13 environment and React 18/Umi dependencies under that application; DeerFlow and the optional street model service retain their own environments.
+
+Root `make onecity-api`, `onecity-coordinator`, `onecity-web` and `onecity-build` run through `scripts/onecity.sh`, which selects the app directory and reads its local `.env`. The `onecity-test` and `onecity-test-client` commands execute existing isolated regressions. `scripts/deploy_onecity_entry.py --source` and `scripts/verify_onecity_multiuser.py --onecity-root` default to the bundled application using paths relative to their script files. `make onecity-verify` requires a backend runtime with Flask, Flask-Login, Peewee and Loguru available for the isolated OneCity fixture. Setup and provenance are in `docs/integration-onecity-20261125.md`.
+
+ContextGate's plain-text tool path imports the shared `apply_actions` executor. `tests/test_compliance_gates.py` covers clean pass-through, warning annotation, masking and refusal for plain tool output, alongside structured SkillResult checks.
+
 ## Authenticated user isolation (2026-11-12)
 
 The optional `scripts/deploy_onecity_multiuser.py` prepares a private deployment bundle for a separate OneCity Gateway/LangGraph pair without mutating the existing 3328 stack. `prepare` only inspects Docker and reads the live YAML; `start` explicitly creates new named containers and never replaces existing ones. A hashed backend source snapshot and existing venv/assets are read-only, so later development edits do not change running code. A shared new `DEER_FLOW_HOME` must correspond to `DEER_FLOW_HOST_BASE_DIR`, with an additional writable `.langgraph_api` mount because the installed in-memory runtime writes relative to CWD. Dedicated config uses trusted IAM scenes, an absolute private audit/checkpoint path, a distinct sandbox prefix/port and no duplicate IM subscriptions. OneCity source/frontend deployment and URL switching remain separate operations; see `docs/onecity-private-multiuser-deployment.md`. Run `python3 -m unittest discover -s backend/tests -p test_onecity_deployment_plan.py -v` for credential/state/operation boundary checks without Docker.
