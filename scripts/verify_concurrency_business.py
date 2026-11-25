@@ -61,12 +61,13 @@ def make_case(index: int) -> dict:
         "请分析本会话上传的合成道路交通观测 same.csv。按road分组计算flow总和、flow算术平均值、speed_kmh算术平均值。"
         "将完整汇总写入 /mnt/user-data/outputs/report.csv，列名依次为road,sum_flow,mean_flow,mean_speed_kmh。"
         "最终回答简要列出每条道路的三个数值，并给出该CSV的下载链接。"
+        "允许调用本地Python或bash工具读取数据、执行计算并写入CSV。"
         "只使用本会话上传的数据和会话工作区；不联网、不读取平台其他数据、不安装依赖、不修改技能。"
     )
     return {"case": marker, "csv": text.getvalue(), "query": query, "expected": expected}
 
 
-async def verify(base_url: str, output: Path, deadline: float) -> dict:
+async def verify(base_url: str, output: Path, deadline: float, expected_jobs: int = 2) -> dict:
     output.mkdir(parents=True, exist_ok=True, mode=0o700)
     output.chmod(0o700)
     cases = [make_case(index) for index in range(3)]
@@ -186,12 +187,16 @@ async def verify(base_url: str, output: Path, deadline: float) -> dict:
             await monitor
         summary = {
             "group": group, "scope": "real website APIs, configured model, original lead_agent, actual tools and sandbox",
-            "model": model, "cases": records,
+            "model": model, "cases": records, "expected_jobs": expected_jobs,
             "observed_two_running": any(list(s["statuses"].values()).count("running") == 2 for s in samples),
             "observed_third_queued_while_two_running": any(list(s["statuses"].values()).count("running") == 2 and list(s["statuses"].values()).count("pending") == 1 for s in samples),
             "observed_max_running": max((list(s["statuses"].values()).count("running") for s in samples), default=0),
             "all_business_cases_passed": all(record.get("passed") for record in records),
         }
+        summary["expected_concurrency_observed"] = (
+            summary["observed_max_running"] == expected_jobs
+            and (expected_jobs != 2 or summary["observed_third_queued_while_two_running"])
+        )
         (output / "status-samples.json").write_text(json.dumps(samples, ensure_ascii=False, indent=2))
         (output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n")
         print(json.dumps({key: value for key, value in summary.items() if key != "cases"}, ensure_ascii=False), flush=True)
@@ -203,6 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--base-url", default="http://localhost:3328")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--deadline", type=float, default=240)
+    parser.add_argument("--expected-jobs", type=int, choices=[2, 3], default=2)
     args = parser.parse_args()
-    summary = asyncio.run(verify(args.base_url, args.output, args.deadline))
-    raise SystemExit(0 if summary["all_business_cases_passed"] and summary["observed_third_queued_while_two_running"] else 1)
+    summary = asyncio.run(verify(args.base_url, args.output, args.deadline, args.expected_jobs))
+    raise SystemExit(0 if summary["all_business_cases_passed"] and summary["expected_concurrency_observed"] else 1)

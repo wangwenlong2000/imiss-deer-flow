@@ -172,6 +172,8 @@ services:
       # Preserve the .venv built during Docker image build — mounting the full backend/
       # directory above would otherwise shadow it with the (empty) host directory.
       - langgraph-venv:/app/backend/.venv
+      # view_image reads candidate originals inside the graph process.
+      - /mnt/nas/streetview_meta:/mnt/nas/streetview_meta:ro
       - ../config.yaml:/app/config.yaml
       - ../extensions_config.json:/app/extensions_config.json
       - ../skills:/app/skills

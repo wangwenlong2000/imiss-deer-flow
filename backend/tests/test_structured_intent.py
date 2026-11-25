@@ -125,6 +125,66 @@ def test_invalid_output_does_not_start_the_legacy_pipeline():
     assert result.reason == "structured_fallback_validation"
 
 
+@pytest.mark.parametrize("asynchronous", [False, True])
+def test_conflicting_tool_flags_receive_specific_repair_guidance(asynchronous):
+    query = "分析道路交通CSV并导出统计，不联网、不安装依赖、不修改技能。"
+    good = json.loads(payload(task("road_traffic", query)))
+    good.update(requires_computation=True, allow_tools=True, required_artifact_types=["csv"])
+    bad = {**good, "allow_tools": False}
+    model = Model(json.dumps(bad, ensure_ascii=False), json.dumps(good, ensure_ascii=False))
+
+    result = recognize(query, model, asynchronous)
+
+    assert result.scene == "road_traffic"
+    assert result.requires_computation and result.allow_tools
+    assert len(model.calls) == 2
+    repair = model.calls[1][0].content.rsplit("上次输出未通过校验：", 1)[-1]
+    assert "requires_computation=true" in repair and "allow_tools=false" in repair
+    assert "不得擅自开放工具" in repair
+    assert "input_value=" not in repair
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
+def test_conflicting_flags_still_fail_after_the_single_repair(asynchronous):
+    query = "统计道路交通数据，不联网、不安装依赖。"
+    bad = json.loads(payload(task("road_traffic", query)))
+    bad.update(requires_computation=True, allow_tools=False)
+    model = Model(json.dumps(bad, ensure_ascii=False), json.dumps(bad, ensure_ascii=False))
+
+    result = recognize(query, model, asynchronous)
+
+    assert len(model.calls) == 2
+    assert result.recognition_status == "failed"
+    assert result.scenes == [] and result.planning_steps == []
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
+def test_explicit_no_tools_explanation_is_not_forced_to_enable_tools(asynchronous):
+    query = "只解释道路平均流量怎么算，不执行计算，不调用任何工具，不导出。"
+    bad = json.loads(payload(task("road_traffic", query)))
+    bad.update(requires_computation=True, allow_tools=False)
+    corrected = {**bad, "requires_computation": False}
+    model = Model(json.dumps(bad, ensure_ascii=False), json.dumps(corrected, ensure_ascii=False))
+
+    result = recognize(query, model, asynchronous)
+
+    assert result.reason == "structured_intent"
+    assert not result.requires_computation and not result.allow_tools
+    assert result.required_artifact_types == []
+    assert len(model.calls) == 2
+
+
+def test_unrelated_schema_error_does_not_echo_unvalidated_model_text():
+    marker = "UNTRUSTED_RECOGNITION_VALUE_DO_NOT_REFLECT"
+    raw = json.loads(payload())
+    raw["confidence"] = marker
+    with pytest.raises(ValueError) as error:
+        structured.Recognition.model_validate(raw)
+    repaired = structured._repair_prompt("original rules", error.value)
+    assert marker not in repaired
+    assert "JSON 字段类型或必填项不符" in repaired
+
+
 def test_transport_failure_is_not_retried_by_the_classifier():
     model = Model(RuntimeError("offline"))
     result = recognize("审查采购合同", model)

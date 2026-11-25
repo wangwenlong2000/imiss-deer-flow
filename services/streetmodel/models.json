@@ -1,0 +1,59 @@
+{
+  "Qwen/Qwen3-VL-Embedding-2B": {
+    "sha": "9f2f7e710d6d81056aa5c0a4f04764fec6bb7bda",
+    "files": [
+      ".gitattributes",
+      "1_Pooling/config.json",
+      "README.md",
+      "added_tokens.json",
+      "chat_template.jinja",
+      "config.json",
+      "config_sentence_transformers.json",
+      "merges.txt",
+      "model.safetensors",
+      "modules.json",
+      "preprocessor_config.json",
+      "scripts/qwen3_vl_embedding.py",
+      "sentence_bert_config.json",
+      "special_tokens_map.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "video_preprocessor_config.json",
+      "vocab.json"
+    ]
+  },
+  "Qwen/Qwen3-VL-Reranker-2B": {
+    "sha": "4bd860ac4f15ad1897a214615cccc700f8f71818",
+    "files": [
+      ".gitattributes",
+      "1_LogitScore/config.json",
+      "README.md",
+      "added_tokens.json",
+      "additional_chat_templates/reranker.jinja",
+      "chat_template.jinja",
+      "config.json",
+      "config_sentence_transformers.json",
+      "generation_config.json",
+      "merges.txt",
+      "model.safetensors",
+      "modules.json",
+      "preprocessor_config.json",
+      "scripts/qwen3_vl_reranker.py",
+      "sentence_bert_config.json",
+      "special_tokens_map.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "video_preprocessor_config.json",
+      "vocab.json"
+    ]
+  },
+  "Anker12138/ImAge4VPR": {
+    "sha": "bf01096569f4217eb162c08019c0e735228bc19d",
+    "files": [
+      ".gitattributes",
+      "ImAge_GSV.pth",
+      "ImAge_Merged.pth",
+      "README.md"
+    ]
+  }
+}

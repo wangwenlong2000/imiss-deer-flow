@@ -1,0 +1,547 @@
+{
+  "base_commit": "a92b62dc45d145319b60d04b3092de4b9e7e41a6",
+  "branch": "fix/street-workflow-20261125",
+  "selection": "Current application sources, self-contained tests, deployment templates and release documentation. Existing files identical to base are not uploaded again.",
+  "checks": {
+    "backend_regressions": {
+      "passed": 161
+    },
+    "streetmodel_contracts": {
+      "passed": 10,
+      "uses_model_stubs": true
+    },
+    "frontend_rendering": {
+      "passed": 8
+    },
+    "typescript": "passed",
+    "targeted_eslint": "passed",
+    "selected_file_secret_scan": "passed after checking both curl authentication and CLI username/password examples"
+  },
+  "excluded": [
+    "Filled runtime configuration and credentials",
+    "Model weights, runtime dependencies and logs",
+    "Original datasets, street photos and video fixtures",
+    "Task documents and progress slides",
+    "Raw provider requests, responses, SSE and conversation state",
+    "Local historical-baseline latency benchmark and source-video integration tests"
+  ],
+  "publication_adjustments": [
+    "Redacted fixed authentication examples in three historical street test documents",
+    "Removed links to unpublished local reports and benchmark instructions",
+    "Added ignore entries for local task materials and raw evaluation directories"
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "sha": "861e75db747557d574603354a24d9fe0dd601821",
+      "sha256": "bea0acbd088a09388b5d9850492d37a054f83a6729d90fe58d357afc007c7152",
+      "bytes": 4111
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "sha": "40ec6a1597fdfeffc6fd18d68e5b427f747d5d75",
+      "sha256": "40c1f8bf64bc2993f09f96f144afb90e95a3b53ec0ccf9412a2694ec7efcc714",
+      "bytes": 30842
+    },
+    {
+      "path": "backend/CLAUDE.md",
+      "mode": "100644",
+      "sha": "27aaceccef61065e05d5de9ed8863de7a9df6e5e",
+      "sha256": "6236f39e4eca12130b59f939e8dff318372fb713fffdd6c05da7aa294a3dda4d",
+      "bytes": 57412
+    },
+    {
+      "path": "backend/app/graph_http.py",
+      "mode": "100644",
+      "sha": "d90633f198764c2ad89c89ce2db4004a6304b0d3",
+      "sha256": "3c33f6a53fdc4a878dd74d9c11e3a44ccb43cdc5bcb0c820071998203809a4de",
+      "bytes": 4133
+    },
+    {
+      "path": "backend/langgraph.json",
+      "mode": "100644",
+      "sha": "cb0ef8bec1727176067eec4e5485fe2e4f9bd52d",
+      "sha256": "06f67fa03f575a56a5930225cb8b213688fb60bfd18f2f42710358ef0ba05aae",
+      "bytes": 376
+    },
+    {
+      "path": "backend/packages/harness/deerflow/agents/middlewares/computation_guard_middleware.py",
+      "mode": "100644",
+      "sha": "bdca41845d4e9468b7b6991b6ff2d5284bf1f5f5",
+      "sha256": "4ce3f6de038d772a4004d97a2731fa6914366f00f3026e6070be28f55a426940",
+      "bytes": 21706
+    },
+    {
+      "path": "backend/packages/harness/deerflow/routing/intent/structured.py",
+      "mode": "100644",
+      "sha": "31192a35eeed57dae93b04fa79227102121b7158",
+      "sha256": "d994237ac1fc9566a2ba925ba46ce10c38b7757f3f484960a56f2b2b3caa714b",
+      "bytes": 23079
+    },
+    {
+      "path": "backend/packages/harness/deerflow/tools/builtins/video_object_analytics_tool.py",
+      "mode": "100644",
+      "sha": "f2d7ad8cb88a3b8236143201c0c729270aa9c3b1",
+      "sha256": "0798a4c455240672cd664396f47589d9a098a269962076ff71e84daac757d603",
+      "bytes": 13571
+    },
+    {
+      "path": "backend/tests/test_graph_admission.py",
+      "mode": "100644",
+      "sha": "43a552b7e7a69624e103d8c90ceac58ddfe60a7e",
+      "sha256": "08366a930d8482a88d5c2dbeacd6f1dc8047127332cb573ece77666f9d63f697",
+      "bytes": 7547
+    },
+    {
+      "path": "backend/tests/test_scene_service_fixes.py",
+      "mode": "100644",
+      "sha": "b0686649b6aa3661623ae3c46c76d76600f1bce4",
+      "sha256": "45a8f5dac21507781961343deb090171f9df6dab5921cbbfb2400f6e6cdd9371",
+      "bytes": 4605
+    },
+    {
+      "path": "backend/tests/test_street_review_guard.py",
+      "mode": "100644",
+      "sha": "7a76f60283f57439de63ab4fc04fec6b8503ead2",
+      "sha256": "c63d2462da4495092a6f8831da032184cf9480dbab0fd6225745da3c86963bae",
+      "bytes": 2563
+    },
+    {
+      "path": "backend/tests/test_structured_intent.py",
+      "mode": "100644",
+      "sha": "bb358a89696083e6ec8b5b47c11ac5767806fe95",
+      "sha256": "64ca2a9e10f7b162f3fb99a72f6eb8b1c40b3d3f92b8dbb11574574612afb8e5",
+      "bytes": 18592
+    },
+    {
+      "path": "config.example.yaml",
+      "mode": "100644",
+      "sha": "5bb10652cd136c79ab9c844a7272beed0f44fa88",
+      "sha256": "acee65176d41ad22183a530e1da777adc1cb75afd678757929697d7925a6497d",
+      "bytes": 23321
+    },
+    {
+      "path": "docker/docker-compose-dev.yaml",
+      "mode": "100644",
+      "sha": "598bd58109de96647110ae8c9e3be5430fcfb008",
+      "sha256": "ae1aefe486db26f93f3e3cbb1e1498a0c10858f58b1e094779d43f145829fc5a",
+      "bytes": 9802
+    },
+    {
+      "path": "docker/docker-compose.yaml",
+      "mode": "100644",
+      "sha": "0f6560effd5a8ea8e271943735a7893418d8b783",
+      "sha256": "e14003ea620ebd2a98846f9957d0570a2e131c9b7274901e860662553e1b7d4d",
+      "bytes": 6514
+    },
+    {
+      "path": "docker/sandbox/Dockerfile",
+      "mode": "100644",
+      "sha": "0744f64a16a5d7fa78f420ce9218edd77677f1bc",
+      "sha256": "a60f8f683e9cea3364f51f0fe76d8d1006f056cad37f5a3c837c36becdd40c1f",
+      "bytes": 3362
+    },
+    {
+      "path": "docs/releases/20261125-street-workflow.md",
+      "mode": "100644",
+      "sha": "1b8ff0d4d78d30d602efb42d1121d8f7e59ea1cb",
+      "sha256": "f43c7d488e3622107613383c70396fd4902ce0b7351f81bd12ae7e3110b5ff28",
+      "bytes": 4880
+    },
+    {
+      "path": "frontend/CLAUDE.md",
+      "mode": "100644",
+      "sha": "f17232d442e4f9b24b3503e7f9904131731a1173",
+      "sha256": "700fcf3c672f47d9f3088ce0ac60fe719097b7823547e69a9a6a94f59579fafe",
+      "bytes": 5890
+    },
+    {
+      "path": "frontend/src/components/workspace/messages/markdown-content.test.ts",
+      "mode": "100644",
+      "sha": "985f00a67f4302385d59133f0051d381d653ac01",
+      "sha256": "a6a61ccbd4e7affcb882fd7a66ddbef541853edce074303a04620e3fabbf5a1d",
+      "bytes": 2775
+    },
+    {
+      "path": "frontend/src/components/workspace/messages/markdown-content.tsx",
+      "mode": "100644",
+      "sha": "55c1e3c79d6160cc2f43a8d1b7feac085004cbcd",
+      "sha256": "7506da89ac5aa57f28932c2bfc22cb8a71508cfa16004f3804a4c46eac706c57",
+      "bytes": 1801
+    },
+    {
+      "path": "frontend/src/components/workspace/messages/message-list-item.tsx",
+      "mode": "100644",
+      "sha": "fbf7e8a1b0e604da5c0434b2cf94d5181e68b3c9",
+      "sha256": "59f578bbd6f5a88c85ade02ba655bcbcc86f05a03a23a1d9c38c2b7218c0dc7f",
+      "bytes": 11463
+    },
+    {
+      "path": "frontend/src/components/workspace/messages/message-list.test.ts",
+      "mode": "100644",
+      "sha": "aa92bd44a1bc7a1bfafbd91979f735c7653ef62d",
+      "sha256": "9791e563926e6308d1609f685b9d180e6075ffbf4002f6e6a7540c30009a766a",
+      "bytes": 6139
+    },
+    {
+      "path": "frontend/src/components/workspace/messages/message-list.tsx",
+      "mode": "100644",
+      "sha": "9faad01e6f762b42480ac5d261f0b08432cdf3cb",
+      "sha256": "61faff98840d42685240cc2b84b57118c9336abcbbb479c5dd8a8feeed174448",
+      "bytes": 9118
+    },
+    {
+      "path": "frontend/src/core/i18n/locales/en-US.ts",
+      "mode": "100644",
+      "sha": "cb35f662b5ac73d0caf27ffbd707c6424a14dc3e",
+      "sha256": "5d45505681bc2f068971352819976dd6088a7283738483d5c8b4b5914c8ae353",
+      "bytes": 15805
+    },
+    {
+      "path": "frontend/src/core/i18n/locales/types.ts",
+      "mode": "100644",
+      "sha": "207c2d81ae00513cb414a0da7acdbbf1e70394a2",
+      "sha256": "e4322a215966e93418941de0f9fb4e9d4d463ccb0383c5ee8b9f64db516d59df",
+      "bytes": 8585
+    },
+    {
+      "path": "frontend/src/core/i18n/locales/zh-CN.ts",
+      "mode": "100644",
+      "sha": "b5bf6a1662d2e1bc4151cbdf1f1d025f09afd76e",
+      "sha256": "a042d4c6a6960c27fa4f723f1385d48bb98f9606c3bd77655f1d3f6e036933ca",
+      "bytes": 15502
+    },
+    {
+      "path": "frontend/src/core/threads/hooks.ts",
+      "mode": "100644",
+      "sha": "011e274029cafe6784eafc3019d7762e540c34ed",
+      "sha256": "37243edcc4885ee1d950d44ddf33da1e8d3c4173c21567caa5475c3e9b95e7de",
+      "bytes": 17706
+    },
+    {
+      "path": "scripts/dev-no-nginx.sh",
+      "mode": "100755",
+      "sha": "f7e7bd387e2ee0df176c2918b80a767a7f278795",
+      "sha256": "b925e6c8a1fb41cbc45dbac53bd71dda16ba6e0fa02b41bc986de0440a2a77a2",
+      "bytes": 6588
+    },
+    {
+      "path": "scripts/docker.sh",
+      "mode": "100755",
+      "sha": "4479d49ad03f08f8ed32392fb060c6dc5f8e66f7",
+      "sha256": "7f7e91932beb99e57d526df8deec931c242ab177bb2e256b50cf3770dd462553",
+      "bytes": 13786
+    },
+    {
+      "path": "scripts/serve.sh",
+      "mode": "100755",
+      "sha": "37f907e53c292fdc807652f802a7bf90ad96d09e",
+      "sha256": "e409682cf439ae2bceb1e65d473eace32660395fedf7e986315dbae6c1178267",
+      "bytes": 7712
+    },
+    {
+      "path": "scripts/start-daemon.sh",
+      "mode": "100755",
+      "sha": "2d7ba96cc73af6f50c8f797cfaa21653be173778",
+      "sha256": "b2f7e19e2914f46135f01ce409b6c2a877fa009116dadda28ac5b10e0e424514",
+      "bytes": 5940
+    },
+    {
+      "path": "scripts/streetmodel_service.py",
+      "mode": "100644",
+      "sha": "e7a69f12b286c69d684d659cf01e6f2fb0469eb5",
+      "sha256": "acd4aa34a523d18d7a5c11c76a5d569a914768200e268cac8b08d55589d2e658",
+      "bytes": 3825
+    },
+    {
+      "path": "scripts/update-docker-ports-cname.sh",
+      "mode": "100755",
+      "sha": "2a59e8a93b9e30e06057877850e6557fa8b62725",
+      "sha256": "a634e7dc1798869d4467cf2548b55d030c08f8fdf62153a8e370427b6fee46a3",
+      "bytes": 13156
+    },
+    {
+      "path": "scripts/verify_concurrency_business.py",
+      "mode": "100644",
+      "sha": "e75e5c5fe907d0c88c99e6ff4aa69d4fe6063f74",
+      "sha256": "06883120a4612a1e411922f64fde9a37360f3fe127d7a749f12e7ba7fcc45432",
+      "bytes": 12238
+    },
+    {
+      "path": "scripts/verify_concurrency_runtime.py",
+      "mode": "100644",
+      "sha": "9ea6b46fa1395d5579ed2a8d85dd05d871072f67",
+      "sha256": "6217fa3d0ea472a468d33404e0b969766c12050072bf0ed95b722fe84bdb7e46",
+      "bytes": 9619
+    },
+    {
+      "path": "services/streetmodel/README.md",
+      "mode": "100644",
+      "sha": "ad163c7243efc006e582541b591c16cca175e30e",
+      "sha256": "c13a2002d3d34a669f97c0ee1993baccd81da4d8186be2615f9bae5c9dfd5034",
+      "bytes": 4161
+    },
+    {
+      "path": "services/streetmodel/download_models.py",
+      "mode": "100644",
+      "sha": "ea78cf13438168ab762613378002a39c80d1c328",
+      "sha256": "59a26fad685456a4112442cd8b69a369d95ea74aa8809f3926270ad4ebeeca64",
+      "bytes": 5031
+    },
+    {
+      "path": "services/streetmodel/models.json",
+      "mode": "100644",
+      "sha": "8321653da3854f3ffbe04c9a6f025c02fb3aa145",
+      "sha256": "3190c7ee8f664857749c2c8050580c16390265f4af1130b33715ec7c837e5850",
+      "bytes": 1551
+    },
+    {
+      "path": "services/streetmodel/requirements.txt",
+      "mode": "100644",
+      "sha": "4e67ca751612feb276f51cce765e5b8eca8217b1",
+      "sha256": "57c4379e19101446c3289c30007a636d2079c6a14a8446138ce3d0fb0de74681",
+      "bytes": 220
+    },
+    {
+      "path": "services/streetmodel/server.py",
+      "mode": "100644",
+      "sha": "6cfcdea7e63edb4113d74943a52e4a23e88d958c",
+      "sha256": "f23ce7b29a1e03cb4289c10e20479787e21a696be94860c991e336d667e3bf74",
+      "bytes": 13467
+    },
+    {
+      "path": "services/streetmodel/setup.sh",
+      "mode": "100644",
+      "sha": "3d8e09db11047c0fb4b20b51c497f17e27fa1d51",
+      "sha256": "c275533ad8a41a05ced3e8e2f0b30790e04d03daf2d66f4ae608e611f75a7205",
+      "bytes": 1229
+    },
+    {
+      "path": "services/streetmodel/tests/test_server.py",
+      "mode": "100644",
+      "sha": "a0424a53d73304cbe5e262da66fdf4bb12e04dc3",
+      "sha256": "6ae5d9066f64cb9b7d17fa7241f3d3a276822c855ac6be087281661a4228fd02",
+      "bytes": 4756
+    },
+    {
+      "path": "skills/custom/remote_sensing_image/urban-greenspace-assessment/SKILL.md",
+      "mode": "100644",
+      "sha": "f33c769ea359abb27de4730aa9263173b4ff166a",
+      "sha256": "abb54903df5d66600a2c9a6c832d97c3ae2eb23b4e20895873079f2f5388c86f",
+      "bytes": 12872
+    },
+    {
+      "path": "skills/custom/remote_sensing_image/urban-greenspace-assessment/config.yaml",
+      "mode": "100644",
+      "sha": "43ee1527264ccc82974096dc1228090ca1f0deee",
+      "sha256": "ffe954ae08fee7b18fa5a45172d8ac52408adb3b9331aef69552e44ab0f1339c",
+      "bytes": 1101
+    },
+    {
+      "path": "skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py",
+      "mode": "100644",
+      "sha": "5c37a64177ffd7848a9ed9ff50db4c8cc994ce69",
+      "sha256": "44fb9e6fcc19ebf0adfcee1cd8218b753b974e5ad0daa81a3db329b718f3c365",
+      "bytes": 20422
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/SKILL.md",
+      "mode": "100644",
+      "sha": "af6def68b30d4e1993533ffadf9e2b814e33625f",
+      "sha256": "f345a0595dcdf38044987d408347fb0b7d2d09706189538cb8baf8ae08ec2301",
+      "bytes": 9448
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/pyproject.toml",
+      "mode": "100644",
+      "sha": "992f0b28a9d97b1ee54808ec3c012c02529a6262",
+      "sha256": "45e9451911b61b7cba2bf469f741a92b09b78fd8d41c867061a459199ca6eb6a",
+      "bytes": 366
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/router_card.json",
+      "mode": "100644",
+      "sha": "483ee2da46c96207764e6086339623ecc9d9e0d2",
+      "sha256": "4807f406a4f5b7d94d29cc76b648f2d115af387b5df84025c116557bfc5d9bcf",
+      "bytes": 14445
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py",
+      "mode": "100644",
+      "sha": "18c1d4b0d67cd0700d6a6456044dd9d92f990585",
+      "sha256": "26162b76429f36a69bf0ef99dd94d7be6347df21c798384be281122aa7850ad3",
+      "bytes": 16913
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/finalize_match.py",
+      "mode": "100644",
+      "sha": "34bfef0453c74cac087ae1d11ea9b0e2cb14bc66",
+      "sha256": "4645d8ab4250db83cada3ad332589edecbe05a492c4b69deda674a404fe15c64",
+      "bytes": 948
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/geocoding.py",
+      "mode": "100644",
+      "sha": "7fc0798eaffd2a875747ad9b6523d504eb280028",
+      "sha256": "f5a8d4bcd1102c3315f99f185ef5cc32f25da0ba5342ef81903c4e3ef96de8e5",
+      "bytes": 743
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/geocoding_client.py",
+      "mode": "100644",
+      "sha": "1baf354105d49d7bc4b5f9a4deb6f4ef6de4585e",
+      "sha256": "7038a3d2801e528cf56642e32593c43297a4c6a237c38341f1086b5cd425e2c2",
+      "bytes": 6631
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/reverse_geocoding.py",
+      "mode": "100644",
+      "sha": "0aa216438248411bd7404b355a6a1f40ee20ff26",
+      "sha256": "753a1fa88d41e02bfa2767fb0a7fbaef9e7dc0338666b58def5385aaef24b26c",
+      "bytes": 785
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/street_evidence.py",
+      "mode": "100644",
+      "sha": "ed7606792cb0e358d52d9a321e86a041a8ee15d0",
+      "sha256": "13a5a3ec534557b134779977619a3f3a8ce22eb58305412e7466fa6295341e4c",
+      "bytes": 5530
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/street_server.py",
+      "mode": "100644",
+      "sha": "fd834ee63d54e71dd4e7b765052f260694ef6d37",
+      "sha256": "c142420f59449157943073233e15638984d903d985abff64fe133bf2ed069cf0",
+      "bytes": 15998
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/test/QUICKSTART.md",
+      "mode": "100644",
+      "sha": "9777c76d96a12854e2069f7feeb7c12d99304b84",
+      "sha256": "e9ce991c472cc638add37cd9e52e402e32680c1b09c587275e64dcb4d865eb75",
+      "bytes": 3938
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/test/README.md",
+      "mode": "100644",
+      "sha": "8b50b5a1234fd3883eedb4217d21860cece3e948",
+      "sha256": "d81efbf0c671e7e35f3a0d7645711b13bfdf577e69594d5a7d38e5de580592cc",
+      "bytes": 12172
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/test/TEST_SUMMARY.md",
+      "mode": "100644",
+      "sha": "b56ec1f1a5843c884b50522fb93282103007651c",
+      "sha256": "dad262fb9a8b84290a3ea8f899550149bdaa67f12a02e76b58cb1017e46c3d19",
+      "bytes": 9256
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/scripts/test/test_scripts_execution.py",
+      "mode": "100644",
+      "sha": "ef207a57d4fc3009a61cc2b872fe8936e06cdcc6",
+      "sha256": "6fc1e83a9a6035e93f078ad2752723b5a2a0698c5cdea78c55a9ec025fdaf333",
+      "bytes": 22587
+    },
+    {
+      "path": "skills/custom/street_view_image/location-matcher/tests/test_street_workflow.py",
+      "mode": "100644",
+      "sha": "4705c58771e207301db98cd56fbdf26f83bb856b",
+      "sha256": "2b0cdc838040e3044a9b7b1e614a866d0d8fd481371d434e52dfd9ade1dde8c1",
+      "bytes": 7583
+    },
+    {
+      "path": "skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py",
+      "mode": "100755",
+      "sha": "4437051e94b45bff5727142ad55d3b013a8ce029",
+      "sha256": "b0b810bae9b25a53edce6dc8f0f4edf8957cb3d218fd57d78066425a027d10a4",
+      "bytes": 29683
+    },
+    {
+      "path": "skills/custom/video_surveillance/city-video-intelligence/scripts/run.py",
+      "mode": "100644",
+      "sha": "3e45777ba8f22010ae0c81e974c4c2486d0374f2",
+      "sha256": "51c24de0a85607b1aec1072171c12e8984bbd3e5d64f3d7fe4cfe9fb88309b15",
+      "bytes": 37184
+    },
+    {
+      "path": "skills/custom/video_surveillance/configs/deerflow_config.json",
+      "mode": "100644",
+      "sha": "37d17ac23db87ed93b974ac838d416c825d1f5f0",
+      "sha256": "945834cfed3ce1098c79be01cd0a7fff487d46e617b4bda04d54550e97b49326",
+      "bytes": 1847
+    },
+    {
+      "path": "skills/custom/video_surveillance/frame-sampling/SKILL.md",
+      "mode": "100644",
+      "sha": "be36c47ee1836ff3d8e759385c7574814b8c2eb3",
+      "sha256": "d8c215752ec9ba9b419a5ab033df6b079f8d5764aa9f6ea5429e15a1daaa153b",
+      "bytes": 3003
+    },
+    {
+      "path": "skills/custom/video_surveillance/frame-sampling/scripts/run.py",
+      "mode": "100755",
+      "sha": "b18e6dbbd2e59e830f056d9c3f13d765a2b65e0b",
+      "sha256": "a04d9f36290ed9fe87b56fccda074e7eb68538181cda66a5435364aa1138cf42",
+      "bytes": 15742
+    },
+    {
+      "path": "skills/custom/video_surveillance/object-detection/scripts/run.py",
+      "mode": "100755",
+      "sha": "8759cdadb1993aefe9f5bdbf30b715b6e21d6ae2",
+      "sha256": "4a807d39b7b66c95f88c68b142dba46fbfce1348961ba6f2092d46f681fe4a9f",
+      "bytes": 12765
+    },
+    {
+      "path": "skills/custom/video_surveillance/object-tracking/scripts/run.py",
+      "mode": "100755",
+      "sha": "28c63b56bfe9e9c99d9d8b08bb0e053e66facabe",
+      "sha256": "1db84bf854a76e6f843ab1447e9bb5d2d9012c747b76654bb46fecafe480e3dc",
+      "bytes": 12021
+    },
+    {
+      "path": "skills/custom/video_surveillance/single-video-event-analysis/SKILL.md",
+      "mode": "100644",
+      "sha": "971b83481319ddae1f6884717746a1b90cae98f7",
+      "sha256": "1e7f69eb1a645e96c454e678d52a87bbf9a2af3de683cb1a740378ab51f10df6",
+      "bytes": 6711
+    },
+    {
+      "path": "skills/custom/video_surveillance/single-video-event-analysis/scripts/run.py",
+      "mode": "100755",
+      "sha": "c03808c025c0e216424fdf460ec1a78c363174b1",
+      "sha256": "31c5b825c3b2fa1ff585c08eb7094f1093c14e6aaf175d889c78b83fe8f8b118",
+      "bytes": 12671
+    },
+    {
+      "path": "skills/custom/video_surveillance/video-object-analytics/SKILL.md",
+      "mode": "100644",
+      "sha": "d1472959663c8328c3c24065c6e2f226d9d1dfb0",
+      "sha256": "97ff786788fe881de8712a97021070849cd81edd69d8e5b87962c3105d06332e",
+      "bytes": 2515
+    },
+    {
+      "path": "skills/custom/video_surveillance/video-object-analytics/scripts/export_results.py",
+      "mode": "100644",
+      "sha": "c388776002d6c9cc31b8975e0b789bcf70659a80",
+      "sha256": "ff9e1bd5b461ca1488335f4d762872f96759e7e1efa2c8cede29d0f27967a875",
+      "bytes": 3409
+    },
+    {
+      "path": "skills/custom/video_surveillance/video-stream-ingestion/SKILL.md",
+      "mode": "100644",
+      "sha": "3e41f3448edd7288bec700f04dc5cf5d263e555c",
+      "sha256": "1d7a77c2e4288d60437de0b281edef178276e9f8eef3e18d876194964b0d59c6",
+      "bytes": 4590
+    },
+    {
+      "path": "skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py",
+      "mode": "100755",
+      "sha": "9d36a5daf91ffffbbd1edecc18e03e6d49fb20dc",
+      "sha256": "46967edf866b925d02177233f9fd77766036e702111a30439b1679c141eff366",
+      "bytes": 13515
+    }
+  ],
+  "manifest_note": "File hashes below cover selected files other than this self-referential manifest."
+}

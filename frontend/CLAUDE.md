@@ -22,6 +22,8 @@ DeerFlow Frontend is a Next.js 16 web interface for an AI agent system. It commu
 
 No test framework is configured.
 
+Chat answer Markdown now accepts `threadId`; links beginning `/mnt/user-data/` are resolved through the current thread's artifact API, matching file cards. Other local host paths are not exposed. `message-list-item.tsx` passes the ID; keep citation handling intact. The focused `markdown-content.test.ts` and existing `message-list.test.ts` use Node's test runner with `--experimental-strip-types` to render the actual component with visual dependencies stubbed. This is required for street candidate/evidence links to download rather than navigate to a nonexistent frontend route.
+
 ## Architecture
 
 ```

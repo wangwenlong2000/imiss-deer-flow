@@ -157,7 +157,7 @@ def make_geo_filter(args: argparse.Namespace) -> list[dict[str, Any]]:
 
 
 def build_source_fields(target_fields: list[str]) -> list[str]:
-    return list(target_fields)
+    return list(dict.fromkeys([*target_fields, 'id', 'source_path', 'metadata.latitude', 'metadata.longitude']))
 
 
 # ---------------------------------------------------------------------------
@@ -380,6 +380,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument("--model-service-url", default=None, help="Reachable embedding service URL; overrides STREETMODEL_BASE_URL and MODEL_SERVICE_URL")
+    parser.add_argument('--output-dir', help='Export candidate originals and retrieval manifest under current thread outputs')
     parser.add_argument("--es-url", default=None, help="Elasticsearch URL")
     parser.add_argument("--es-username", default=None, help="Basic auth username")
     parser.add_argument("--es-password", default=None, help="Basic auth password")
@@ -442,6 +443,14 @@ def main() -> None:
         "top_k": rows,
         "conclusion": summarize(rows),
     }
+    from pathlib import Path
+    output_dir = args.output_dir
+    if not output_dir and Path('/mnt/user-data/outputs').is_dir():
+        output_dir = '/mnt/user-data/outputs/street-location'
+    if output_dir:
+        from street_evidence import export_candidates
+        result.update(export_candidates(hits, result['query_info'], output_dir))
+        result['conclusion'] = '候选已导出，须查看所有 candidate_images 后运行 finalize_match.py；候选分数不代表已经匹配。'
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

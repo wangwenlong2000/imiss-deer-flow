@@ -40,6 +40,9 @@ Qwen3.6-35B-A3B进行一次结构化语义识别，同时输出任务、场景�
 均参与判断，不再通过关键词硬裁剪候选。信息不足时具体澄清，多轮对话更新本轮计算、
 工具和交付要求。意图识别关闭思考，业务按模式控制思考，子任务继承该设置。
 
+识别结果出现“需要计算但禁止工具”的字段冲突时，单次纠错会明确反馈冲突原因，区分禁止联网/安装与禁止全部工具；仍遵守用户禁令，不自动修改工具权限，重试后无效则明确失败。验证范围见[识别纠错优化记录](docs/releases/20261125-street-workflow.md)。
+
+
 配置示例仅启用Qwen3.6-35B-A3B，使用环境变量QWEN_BASE_URL和QWEN_API_KEY，
 不包含真实凭证。最新24轮核心任务回归符合预期，仍有3处扩展说明偏差。
 详见[优化汇总](docs/optimization-summary-20261028.md)和
@@ -223,6 +226,9 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
 OneCity 跨平台适配已加入有效账号和工作区校验、本人会话与文件授权、账号切换缓存隔离、令牌退出撤销及角色写入限制。SSE 展示真实提交、排队和执行状态，并保留限额错误。真实 HTTP 双向 IAM 与确定性 CSV 并发验证可运行 `scripts/verify_onecity_multiuser.py`；生产采用独立内网后端，部署和回退见[专用服务说明](docs/onecity-private-multiuser-deployment.md)。
 
 OneCityAgent 可通过[专用多用户服务部署脚本](docs/onecity-private-multiuser-deployment.md)准备独立 Gateway、LangGraph 和数据目录；`prepare` 仅读取现网配置并生成私有部署包，实际启动及 OneCity 流量切换分别执行，不覆盖已有 3328 服务。
+
+可在根目录`.env`设置上述两个参数；`make docker-start`会读取，已导出的同名环境变量优先。更改执行数或总量后，需在现有任务结束时重新创建图服务容器，普通`restart`不会更新容器的命令和环境。真实三会话验证脚本支持`--expected-jobs 3`检查三个任务同时执行，默认仍验证两个执行、第三个等待。
+
 
 已补做三会话真实模型、工具和沙箱验证：两个任务重叠执行，第三个等待后自动开始；三个同名CSV输入各自得到正确回答和下载件，同会话解释追问也通过。该结果仅覆盖本次小型道路CSV样例。
 
@@ -660,3 +666,9 @@ Your unwavering commitment and expertise have been the driving force behind Deer
 ## Type 7 confidential rule regression
 
 Run `scripts/build_eval_confidential.py --evaluate dev` to check the 20% rule-development partition, then `--evaluate test` once the rule is fixed. The source-preserving corpus and the latest rule-only predictions/metrics are in `合规检测/类型7-confidential整改/`. Confidential LLM boundary review is disabled unless both `COMPLIANCE_CONFIDENTIAL_MODEL_NAME` and `COMPLIANCE_CONFIDENTIAL_MODEL_VERSION` are configured; the rule-only evaluation does not use an LLM.
+
+### 本地街景嵌入服务
+
+可按原模型名称和HTTP接口部署本地图片/文本嵌入及重排序服务，支持CUDA推理、内联图片和独立启停。运行 `bash services/streetmodel/setup.sh` 安装，再运行 `python scripts/streetmodel_service.py start`。具体配置与既有向量兼容限制见 [服务说明](services/streetmodel/README.md)。
+
+2026-11-25已替换为真实Photon地址查询，支持WGS84和显式失败；候选图片导出至会话outputs，审阅后生成`evidence.json`并交付。街景执行检查要求查看候选、交付证据并使用真实文件名，前端将会话文件链接转换为下载接口。本地图 `datasets/street/streetview_meta`可作为NAS缺图时的来源。Photon公共服务适合低频查询，可通过`STREET_GEOCODING_BASE_URL`切换服务；返回地址表示附近地图对象。修复与验证见[街景流程修复记录](docs/releases/20261125-street-workflow.md)。

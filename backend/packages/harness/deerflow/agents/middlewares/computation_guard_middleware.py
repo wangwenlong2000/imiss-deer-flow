@@ -1,6 +1,7 @@
 """Check current-turn execution and verified delivery before a terminal answer."""
 
 import json
+import re
 from collections import Counter
 from dataclasses import replace
 from pathlib import Path
@@ -53,6 +54,8 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
     def _delivery_message(cls, state, last, requirements, turn):
         intent = state.get("intent_context") or {}
         baseline = state.get("output_baseline") or {}
+        if cls._street_review_gaps(turn):
+            return None
         if not last.response_metadata.get("_can_present_files") or not requirements.allow_tools:
             return None
         if not baseline.get("source") or baseline["source"] != intent.get("_source_message_key"):
@@ -144,6 +147,8 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
         turn = cls._current_turn(state)
         if cls._video_review_gaps(turn):
             return False
+        if cls._street_review_gaps(turn):
+            return False
         if requirements.requires_computation and not cls._has_execution(turn):
             return False
         if cls._missing_delivery(state, requirements):
@@ -227,6 +232,49 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
             return [f"视频事件审阅帧尚未全部通过 view_image 核验（未审阅 {len(missing)}/{len(frames)}）；按返回的 image_uri 审阅并引用 frame_id 与相对时间"]
         return []
 
+    @staticmethod
+    def _street_review_gaps(turn, answer=None):
+        """Street retrieval must inspect actual candidates and deliver final evidence."""
+        calls = {call['id']: call for message in turn if isinstance(message, AIMessage) for call in message.tool_calls}
+        viewed, delivered, payloads = set(), set(), []
+        for message in turn:
+            if not isinstance(message, ToolMessage) or message.status == 'error':
+                continue
+            call = calls.get(message.tool_call_id, {})
+            if message.name == 'view_image' and str(message.content).startswith('Successfully read image'):
+                viewed.add(call.get('args', {}).get('image_path'))
+            if message.name == 'present_files' and str(message.content).startswith('Successfully presented files'):
+                delivered.update(call.get('args', {}).get('filepaths', []))
+            if message.name == 'bash':
+                try:
+                    data = json.loads(str(message.content))
+                except (TypeError, ValueError):
+                    continue
+                if isinstance(data, dict) and data.get('skill') == 'location-matcher':
+                    payloads.append(data)
+        retrievals = [p for p in payloads if p.get('status') in {'candidates_ready', 'no_candidates'}]
+        if not retrievals:
+            return []
+        missing = {path for p in retrievals for path in p.get('candidate_images', [])} - viewed
+        gaps = []
+        if missing:
+            gaps.append('街景候选尚未全部通过view_image查看：' + '、'.join(sorted(missing)))
+        latest = retrievals[-1].get('manifest_path')
+        finalized = [p for p in payloads if p.get('manifest_path') == latest and p.get('status') in {'matched', 'unmatched', 'unverified'}]
+        if not finalized:
+            gaps.append('街景审阅后须运行finalize_match.py --manifest ' + str(latest) + '，匹配用--matched-id，否则用--no-match，均填写--reason；再present_files交付返回的files')
+        elif set(finalized[-1].get('files', [])) - delivered:
+            gaps.append('街景证据或候选图片尚未通过present_files交付：' + '、'.join(sorted(set(finalized[-1]['files']) - delivered)))
+        if answer:
+            from urllib.parse import unquote
+            referenced = {unquote(path) for path in re.findall(r'\]\(<?(/mnt/user-data/outputs/[^\s)>]+)>?\)', str(answer))}
+            if referenced - delivered:
+                gaps.append('最终下载链接必须逐字使用present_files已交付的路径，不能翻译或改写文件名；错误路径：'
+                            + '、'.join(sorted(referenced - delivered)) + '；实际已交付：' + '、'.join(sorted(delivered)))
+            if re.search(r'\]\(<?/mnt/nas/', str(answer)):
+                gaps.append('NAS源路径不能作为用户下载链接；使用已交付的本会话outputs图片路径')
+        return gaps
+
     @classmethod
     def _promised_paths(cls, state):
         return {path for message in cls._current_turn(state) if isinstance(message, AIMessage) for path in message.response_metadata.get('auto_delivery_paths', [])}
@@ -281,6 +329,7 @@ class ComputationGuardMiddleware(AgentMiddleware[ThreadState]):
         missing = []
         if requirements.allow_tools:
             missing.extend(cls._video_review_gaps(turn))
+            missing.extend(cls._street_review_gaps(turn, last.content))
         if requirements.requires_computation and not cls._has_execution(turn):
             missing.append("尚无本轮实际计算工具结果")
         missing.extend(cls._missing_delivery(state, requirements))

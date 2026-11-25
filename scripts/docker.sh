@@ -26,6 +26,17 @@ read_env_value() {
     awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$env_file"
 }
 
+# Compose runs from docker/, so explicitly forward the root .env queue settings.
+# An exported shell override takes precedence, as with the sandbox image below.
+for concurrency_key in DEER_FLOW_GRAPH_JOBS DEER_FLOW_MAX_INFLIGHT_RUNS; do
+    if [ -z "${!concurrency_key:-}" ]; then
+        concurrency_value="$(read_env_value "$concurrency_key")"
+        if [ -n "$concurrency_value" ]; then
+            export "$concurrency_key=$concurrency_value"
+        fi
+    fi
+done
+
 # Keep the build, startup preflight, and runtime configuration on one exact
 # local image tag. An explicitly exported value wins over the project .env.
 if [ -z "${DEER_FLOW_SANDBOX_IMAGE:-}" ]; then

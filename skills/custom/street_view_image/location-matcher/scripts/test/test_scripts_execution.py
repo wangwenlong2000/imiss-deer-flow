@@ -406,46 +406,17 @@ class TestESRetrieveTopK(unittest.TestCase):
 class TestGeocoding(unittest.TestCase):
     """Test geocoding.py script functionality."""
 
-    def test_geocoding_fixed_location(self):
-        """Test geocoding returns fixed Tokyo coordinates."""
-        result = run_script_with_conda(
-            "geocoding.py",
-            ["--address", "日本东京涩谷"]
-        )
-        self.assertEqual(result.returncode, 0)
-
+    def test_empty_address_does_not_return_fixed_coordinates(self):
+        result = run_script_with_conda('geocoding.py', ['--address', ''])
+        self.assertNotEqual(result.returncode, 0)
         response = json.loads(result.stdout)
-        self.assertIn("latitude", response)
-        self.assertIn("longitude", response)
+        self.assertEqual(response['error_code'], 'INVALID_ADDRESS')
+        self.assertNotIn('latitude', response)
 
-        # Should return fixed coordinates (Shibuya, Tokyo)
-        self.assertAlmostEqual(response["latitude"], 35.654008, places=4)
-        self.assertAlmostEqual(response["longitude"], 139.705398, places=4)
-
-    def test_geocoding_various_addresses(self):
-        """Test geocoding with various address inputs."""
-        test_addresses = [
-            "北京市朝阳区",
-            "上海市浦东新区",
-            "广州市天河区",
-            "Tokyo Shibuya",
-            "",  # Empty address
-        ]
-        
-        for address in test_addresses:
-            with self.subTest(address=address):
-                result = run_script_with_conda(
-                    "geocoding.py",
-                    ["--address", address]
-                )
-                self.assertEqual(result.returncode, 0)
-                
-                response = json.loads(result.stdout)
-                self.assertIn("latitude", response)
-                self.assertIn("longitude", response)
-                # Should always return the same fixed coordinates
-                self.assertAlmostEqual(response["latitude"], 35.654008, places=4)
-                self.assertAlmostEqual(response["longitude"], 139.705398, places=4)
+    def test_invalid_coordinates_are_rejected(self):
+        result = run_script_with_conda('reverse_geocoding.py', ['--latitude', '100', '--longitude', '0'])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(json.loads(result.stdout)['error_code'], 'INVALID_COORDINATES')
 
 
 class TestStreetServer(unittest.TestCase):
@@ -590,14 +561,10 @@ class TestScriptImports(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
 
     def test_import_geocoding(self):
-        """Test importing geocoding constants."""
         import sys
         sys.path.insert(0, str(SCRIPTS_DIR))
-
-        from geocoding import FIXED_LATITUDE, FIXED_LONGITUDE
-
-        self.assertAlmostEqual(FIXED_LATITUDE, 35.654008, places=4)
-        self.assertAlmostEqual(FIXED_LONGITUDE, 139.705398, places=4)
+        from geocoding import main
+        self.assertTrue(callable(main))
 
     def test_import_street_server(self):
         """Test importing street_server functions."""

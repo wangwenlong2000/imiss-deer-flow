@@ -10,6 +10,17 @@ description: 当需要通过街景照片、文字描述、地标名称、建筑�
 ## 数据源
 Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置信息元数据，每条文档代表一个街景图像及其相关信息，可以通过检索该索引来找到与用户输入的文本描述或图片相匹配的街景图像，并返回其位置信息（地址和经纬度）。
 
+## 必须执行的交付流程
+
+图片查询必须执行检索CLI，不能只看招牌猜测坐标。检索结果含`manifest_path`、`candidate_images`，**返回候选不等于已经匹配**。
+
+1. 检索时传入 `--output-dir /mnt/user-data/outputs/street-location`（沙箱中也会默认导出）。原图从NAS读取，缺失时尝试本地 `/mnt/datasets/street/streetview_meta`，复制到本会话outputs。
+2. 对所有检索尝试返回的每个 `candidate_images` 路径实际调用 `view_image`；必须查看导出的图片，不要只引用NAS源路径。
+3. 查看后运行 `/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/finalize_match.py --manifest "最后一次检索返回的manifest_path" --matched-id "实际匹配候选的id" --reason "基于查看结果的具体匹配依据"`。
+4. 没有匹配时将 `--matched-id ...` 换为 `--no-match`，同样提供 `--reason`；无候选也须生成证据。原图缺失则说明无法核验，不能声称成功。
+5. finalizer会从检索记录取坐标，查询真实文字地址，并生成 `evidence.json`。对返回的全部 `files` 调用 `present_files`，最终逐字复制其 `/mnt/user-data/outputs/...` 下载链接，严禁翻译、替换或猜测文件名（evidence.json必须逐字使用）。不要把 `/mnt/nas/...` 写成网页下载链接。
+6. 地图接口失败时，`address`为null，明确说“文字地址暂不可用”，保留匹配记录经纬度。地址来自附近地图对象，不能把附近门牌断言成精确拍摄门牌；标明Photon / © OpenStreetMap contributors及其返回的attribution_url。
+
 ## 检索流程
 
 ### 1 输入解析
@@ -18,7 +29,7 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 - 从上下文抽取粗定位信息：地址 `address` 或 经纬度 `latitude/longitude`。（如果有）
 
 ### 2 地址转经纬度（可选）
-如果上下文提供了地址但没有经纬度，调用地理编码脚本将地址转换为经纬度。
+如果上下文提供了地址但没有经纬度，调用真实地理编码脚本将地址转换为WGS84经纬度。只有status=success且coordinate_system=WGS84时才可用作地理过滤；失败或地址歧义时不使用固定坐标，不据此限制检索范围。
 
 执行以下脚本：
 ```bash
@@ -48,12 +59,12 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 
 **基于图片检索**示例命令：
 ```bash
-/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000 --image-path /path/to/image.jpg
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --output-dir /mnt/user-data/outputs/street-location --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000 --image-path /path/to/image.jpg
 ```
 
 **基于文本描述检索**示例命令：
 ```bash
-/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --description "A Japanese urban street scene with LAFORET SELECT signage" --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000
+/opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py --target-field id,address,metadata.latitude,metadata.longitude --index street --k 3 --output-dir /mnt/user-data/outputs/street-location --description "A Japanese urban street scene with LAFORET SELECT signage" --center-latitude 35.654008 --center-longitude 139.705398 --max-distance 2000
 ```
 
 **参数说明：**
@@ -70,11 +81,11 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 ### 5 验证检索结果（必须逐个检验每条文档的街景图片）
 - 使用 `view_image` 工具查看检索结果中的每个 `source_path` 对应的街景图片，判断哪一条文档的街景图片与输入描述或图片匹配
 
-#### 如果发现匹配的文档   
-1. 构建**`证据.json`**文件到 `/mnt/user-data/outputs/`，包含以下要素：
+#### 如果发现匹配的文档
+运行上述finalize_match.py生成**`evidence.json`**及可下载图片；不要手工捏造坐标或地址。证据包含以下要素：
   - **id**：与输入描述或图片匹配的文档 ID（`id`）
   - **地理位置信息**：该文档记录的地址字段（`address`）及精确坐标（`metadata.latitude`, `metadata.longitude`）
-  - **source_path**： 文档记录的`source_path`信息
+  - **source_path**： 原source_path以及本会话导出图片路径
   - **判断依据**：说明检索结果与输入描述或图片匹配的依据，如图片中的哪些特征与输入描述或图片匹配
 
 
@@ -82,26 +93,20 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 #### 如果检索到的文档与目标不匹配，说明匹配失败
 
 ### 5.5 经纬度转地址
-如果检索到匹配成功的文档，将对应文档中的经纬度转换为可读地址
-调用反向地理编码脚本：
+由finalize_match.py自动调用真实Photon查询，坐标保持检索记录的WGS84原值。诊断时可直接运行：
 
 ```bash
 /opt/rs-venv/bin/python /mnt/skills/custom/street_view_image/location-matcher/scripts/reverse_geocoding.py --latitude 35.654008 --longitude 139.705398
 ```
 
-输出结果示例：
-```json
-{
-  "address": "东京都涩谷区宇田川町"
-}
-```
+`--lat/--lon`也是可用别名。仅`status=success`且实际返回的address可作为附近地图地址；失败时无文字地址。不要复用历史示例地址。
 
 ### 6 生成回答
 
 - **成功匹配场景：**
   - 输出检索结果中的地址信息
   - 概述检索结果以及判断依据，说明为什么认为该结果与输入描述或图片匹配
-  - 在回答中引用匹配图片，并优先使用 Markdown 链接形式，例如 `[查看原图](<source_path>)`，供用户点击查看原图
+  - 在回答中引用匹配图片，并优先使用 Markdown 链接形式，例如 `[查看匹配图片](/mnt/user-data/outputs/实际导出路径)`，供用户点击查看原图
 
 - **匹配失败场景：**
   - 向用户明确说明：未找到匹配的街景信息，并解释可能原因（如地理范围限制、描述不够具体、数据库中不存在该位置街景等）
@@ -113,7 +118,7 @@ Elasticsearch 数据库的索引 `street` 中包含街景图像和相关位置�
 1. **执行环境：** 沙箱使用 `/opt/rs-venv/bin/python`，其中已安装 requests 和 Elasticsearch 客户端；不要调用不存在的 Conda 环境。宿主机开发时使用安装了本技能 pyproject.toml 依赖的 Python
 2. **路径格式：** 所有脚本路径必须使用绝对路径格式 `/mnt/skills/custom/street_view_image/location-matcher/scripts/...`
 3. **工具调用规范：** 调用工具时的 `description` 字段一律使用**中文**描述
-4. **结果验证：** **必须在答案中引用匹配图片， **推荐输出方式：** 为了确保前端可点击，优先在最终回答中输出 Markdown 链接，例如 `[查看原图](/mnt/nas/streetview_meta/queries/247query/247query/01125.jpg)`
+4. **结果验证：** **必须在答案中引用匹配图片， **推荐输出方式：** 为了确保前端可点击，优先在最终回答中输出 Markdown 链接，例如 `[查看匹配图片](/mnt/user-data/outputs/实际导出路径)`
 
 ## 服务连接与失败处理
 
