@@ -11,10 +11,37 @@ export const getWidth = () => {
   return { width: window.innerWidth };
 };
 
-export const rsaPsw = (password: string) => {
-  const pub =
-    '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArq9XTUSeYr2+N1h3Afl/z8Dse/2yD0ZGrKwx+EEEcdsBLca9Ynmx3nIB5obmLlSfmskLpBo0UACBmB5rEjBp2Q2f3AG3Hjd4B+gNCG6BDaawuDlgANIhGnaTLrIqWrrcm4EMzJOnAOI1fgzJRsOOUEfaS318Eq9OVO3apEyCCt0lOQK6PuksduOjVxtltDav+guVAA068NrPYmRNabVKRNLJpL8w4D44sfth5RvZ3q9t+6RTArpEtc5sh5ChzvqPOzKGMXW83C95TxmXqpbK6olN4RevSfVjEAgCydH6HN6OhtOQEcnrU97r9H0iZOWwbw3pVrZiUkuRD1R56Wzs2wIDAQAB-----END PUBLIC KEY-----';
-  const publicKey = forge.pki.publicKeyFromPem(pub);
+export const rsaPsw = async (password: string): Promise<string> => {
+  // Fetch for each credential operation so a new site or a rotated key never
+  // needs a frontend rebuild. Failure must not fall back to plaintext or a key
+  // embedded in an old release.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  let result;
+  try {
+    const response = await fetch('/v1/user/public-key', {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error('登录加密配置不可用，请稍后重试');
+    result = await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+  const data = result?.data;
+  if (
+    result?.code !== 0 ||
+    data?.algorithm !== 'RSA-OAEP-256' ||
+    typeof data?.public_key !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(data?.key_id || '')
+  ) {
+    throw new Error('登录加密配置无效，请联系管理员');
+  }
+  const publicKey = forge.pki.publicKeyFromPem(data.public_key);
+  if (publicKey.n.bitLength() < 2048) {
+    throw new Error('登录加密配置无效，请联系管理员');
+  }
 
   // 使用RSA-OAEP（SHA-256）加密，并返回Base64
   const encryptedBinary = publicKey.encrypt(

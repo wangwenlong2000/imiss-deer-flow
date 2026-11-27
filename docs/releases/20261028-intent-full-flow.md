@@ -59,4 +59,4 @@ python docs/full-flow-service-eval-20261022/run_full_flow.py --recursion-limit 1
 
 同学提供的原始“多场景测试”材料、NDBC材料、真实运行配置、凭证和代码备份未随本次提交发布。部分原题阶段仅保留聚合成绩，不发布原始材料或完整模型响应。
 
-详见[近期优化汇总](../optimization-summary-20261028.md)、[最新修复报告](../remaining-quality-fixes-20261028.md)。
+详见[近期优化汇总](../history/optimization-summary-20261028.md)、[最新修复报告](../history/remaining-quality-fixes-20261028.md)。

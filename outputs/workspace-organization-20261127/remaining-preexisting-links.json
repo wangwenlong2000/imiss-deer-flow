@@ -1,0 +1,1826 @@
+[
+  {
+    "source": "CONTRIBUTING.md",
+    "target": "MCP_SETUP.md"
+  },
+  {
+    "source": "docs/history/笔记.md",
+    "target": "URL"
+  },
+  {
+    "source": "docs/history/笔记.md",
+    "target": "image_path"
+  },
+  {
+    "source": "docs/history/remaining-quality-fixes-20261028.md",
+    "target": "remaining-quality-fixes-eval-20261028/authorization.json"
+  },
+  {
+    "source": "docs/history/remaining-quality-fixes-20261028.md",
+    "target": "remaining-quality-fixes-eval-20261028/cleanup-health.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "../scripts/intent_files_backup/20261022-fullflow-fixes-212802/manifest.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/refined-acceptance/results.jsonl"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/final-source-manifest.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/refined-acceptance-audit.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/refined-acceptance/downloads/yearbook-turn-1/city_metrics.csv"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/unit-refined-final.log"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/ruff-refined-final.log"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/threshold-regressions.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/upload-watcher-final.json"
+  },
+  {
+    "source": "docs/history/full-flow-fixes-20261022.md",
+    "target": "full-flow-fixes-eval-20261022/refined-mobile-adapter.json"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "full_url"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "url"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "url"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "full_url"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "URL"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "URL"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "path"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "URL"
+  },
+  {
+    "source": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "target": "URL"
+  },
+  {
+    "source": "docs/compliance/compliance-detection-decisions.md",
+    "target": "..."
+  },
+  {
+    "source": "docs/operations/onecity-private-multiuser-deployment.md",
+    "target": "validation-20261125/README.md"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/semantic-v3-provided.jsonl"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/semantic-v3-regression.jsonl"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/semantic-v3-probes.jsonl"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/contextual-cases.json"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/semantic-v3-contextual.jsonl"
+  },
+  {
+    "source": "docs/history/intent-semantic-routing-20261022.md",
+    "target": "intent-semantic-eval-20261022/manifest.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/manifest-before.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/manual-review.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/artifact-fact-checks.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/thinking-on/road-evolution-turn-3.result.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/provider-errors.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/csv-local-reproductions.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/quote-fallback-reproduction.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/mobile-replay.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/thinking-on/code-error-recovery-turn-1.result.json"
+  },
+  {
+    "source": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "target": "full-flow-thinking-eval-20261027/recovery-road/road-evolution-recovery-turn-4.result.json"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "provided-scenarios-intent-check-20261022.md"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "../scripts/intent_files_backup/20261022/manifest.json"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "intent-recognition-eval-20261022/baseline.jsonl"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "intent-recognition-eval-20261022/optimized.jsonl"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "../scripts/intent_files_backup/20261022/manifest.json"
+  },
+  {
+    "source": "docs/history/intent-recognition-optimization-20261022.md",
+    "target": "../scripts/intent_files_backup/20261022/final-candidate-manifest.json"
+  },
+  {
+    "source": "backend/docs/AUTO_TITLE_GENERATION.md",
+    "target": "../packages/harness/deerflow/agents/title_middleware.py"
+  },
+  {
+    "source": "backend/docs/AUTO_TITLE_GENERATION.md",
+    "target": "../config.yaml"
+  },
+  {
+    "source": "backend/docs/SETUP.md",
+    "target": "docs/CONFIGURATION.md"
+  },
+  {
+    "source": "backend/docs/SETUP.md",
+    "target": "CLAUDE.md"
+  },
+  {
+    "source": "backend/docs/TITLE_GENERATION_IMPLEMENTATION.md",
+    "target": "../packages/harness/deerflow/agents/title_middleware.py"
+  },
+  {
+    "source": "backend/docs/TITLE_GENERATION_IMPLEMENTATION.md",
+    "target": "../config.yaml"
+  },
+  {
+    "source": "backend/docs/TITLE_GENERATION_IMPLEMENTATION.md",
+    "target": "../BACKEND_TODO.md"
+  },
+  {
+    "source": "backend/docs/CONFIGURATION.md",
+    "target": "docker/provisioner/README.md"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "../scripts/intent_files_backup/20261027-stage-thinking-25759e4c/manifest.json"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "stage-thinking-eval-20261027/unit-main.log"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "stage-thinking-eval-20261027/unit-subagent.log"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "stage-thinking-eval-20261027/unit-boundary.log"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "stage-thinking-eval-20261027/ruff.log"
+  },
+  {
+    "source": "docs/history/stage-thinking-policy-20261027.md",
+    "target": "stage-thinking-eval-20261027/provider-live.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-root-cause-analysis-20261022.md"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/frozen-inputs.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/analyze_results.py"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/trajectory-script-check.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/frontend-1000/results.jsonl"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/results.jsonl"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/serial-road/results.jsonl"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/analysis.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/runtime-timing-evidence.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/mobile-adapter-verification.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/trajectory-script-check.json"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/frontend-1000/"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/frontend-1000/downloads/"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/build_cases.py"
+  },
+  {
+    "source": "docs/testing/full-flow-service-check-20261022.md",
+    "target": "full-flow-service-eval-20261022/manifest.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/cases.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/results.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/graph.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/metadata-comparison.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/network-blocked-state.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/planner-adapter-verification.json"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/probe.py"
+  },
+  {
+    "source": "docs/testing/intent-live-service-check-20261022.md",
+    "target": "intent-live-service-eval-20261022/manifest.json"
+  },
+  {
+    "source": "docs/testing/video-surveillance-qwen35b-test-report.md",
+    "target": "../outputs/skill-tests/video-surveillance-qwen35b/20260723-171819"
+  },
+  {
+    "source": "docs/testing/video-surveillance-qwen35b-test-report.md",
+    "target": "../outputs/skill-tests/video-surveillance-qwen35b/20260723-171819/C-011/turn-1.sse"
+  },
+  {
+    "source": "docs/testing/video-surveillance-qwen35b-test-report.md",
+    "target": "../outputs/skill-tests/video-surveillance-qwen35b/20260723-171819/C-011/agent_final.md"
+  },
+  {
+    "source": "docs/testing/video-surveillance-qwen35b-test-report.md",
+    "target": "../outputs/skill-tests/video-surveillance-qwen35b/20260723-175833"
+  },
+  {
+    "source": "docs/testing/video-surveillance-skill-test-20260726.md",
+    "target": "../outputs/skill-tests/video-surveillance-suite/20260726-175254"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/cases.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/results.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/analysis.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/scoring-verification.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/replication-1.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/replication-2.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/replication-3.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/history-cases.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/history-comparison.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/upload-reload-evidence.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/photo-recheck.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/raster-recheck.jsonl"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/planner-verification.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/manifest.json"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/run_realistic_intent_service_20261022.py"
+  },
+  {
+    "source": "docs/testing/intent-realistic-service-check-20261022.md",
+    "target": "intent-realistic-service-eval-20261022/diagnostic_probe.py"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/final-review.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/audit.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/thinking-on-facts.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/audit-legacy.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/legacy-facts.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/test-summary.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/backup-validation.json"
+  },
+  {
+    "source": "docs/history/turn-contract-fixes-20261027.md",
+    "target": "turn-contract-fixes-eval-20261027/compliance-ast-false-positive.json"
+  },
+  {
+    "source": "skills/public/consulting-analysis/SKILL.md",
+    "target": "Actual_File_Path"
+  },
+  {
+    "source": "skills/public/consulting-analysis/SKILL.md",
+    "target": "path"
+  },
+  {
+    "source": "skills/public/consulting-analysis/SKILL.md",
+    "target": "URL"
+  },
+  {
+    "source": "skills/public/consulting-analysis/SKILL.md",
+    "target": "chart_file_path"
+  },
+  {
+    "source": "skills/public/consulting-analysis/SKILL.md",
+    "target": "path"
+  },
+  {
+    "source": "skills/custom/policies-regulations/wechat-article-fetch/CHANGELOG.md",
+    "target": "path"
+  },
+  {
+    "source": "skills/custom/policies-regulations/wechat-article-fetch/SKILL.md",
+    "target": "文章标题_assets/image_xxx_0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/litigation-analysis/references/domains/00-HOW-TO-ADD-NEW-DOMAIN.md",
+    "target": "ip-case-dimensions.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/litigation-analysis/references/domains/00-HOW-TO-ADD-NEW-DOMAIN.md",
+    "target": "output-templates.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/litigation-analysis/references/domains/00-HOW-TO-ADD-NEW-DOMAIN.md",
+    "target": "processing-workflow.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/domains/contract-law.md",
+    "target": "contract-interpretation-2023.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-consultation/references/domains/contract-law.md",
+    "target": "contract-interpretation-2023.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-infringement-criteria-interpretation-and-application.md",
+    "target": "images/c16c862df78061f26d71d7ac37a3c43abbef88328e437fcb97c22669f7c48d37.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-infringement-criteria-interpretation-and-application.md",
+    "target": "images/fba6df753f41e9bb735907ac584888a0ba7e41267da031588025ee562666ad88.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-infringement-criteria-interpretation-and-application.md",
+    "target": "images/9f3ad9dbcf404dc5420e83388f5626ce1af18ec24f51aa0c97bb0ff0f8c340f0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/contract-law.md",
+    "target": "contract-interpretation-2023.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/b7a5327b6f56dc44ef465f50260cfb73f1558c7d8dcc9a445030032480c40dd5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/81fbf988e76253d483cbbd0c402a6623e0fc47f6433744106c22de4bf6bf9fd3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/149b313429ec5ddb699464a54069264df018aabd61383be7c7131aae09a9ac2b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/479490b3429cfe50c7e03d50ef06ce5f60255de9951cc13966fb75091528146b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/a2db9470e148abfc3b9eafcd1a0877d2888bdea2da71694c6e6b870c1a6d96d8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/86c3bb3303b93fde13c03b42f2bd9400df5d21c440a69306755b64551f5af2ee.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/77cf49e64665ae40811b09ad74fdd485a45a0de71bb81bb53bab94710dc32d76.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/e373d8ffd738a6ef559b089812f1617c9a58e8ddc750f47231fc8b21f2d8c497.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/f77e259ee084723b82db26ec57ca73e9d78fdc17731882a33caff639b7067b9f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/e664604400cdec17e86cd4328f1790ee3fb2c32fc20197c46d7fbd4e34bdd2c5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/94dc99a94afe0dcc5d5f986e1ecebcaa6b12aaec6c8a1560bb7c32eb179c22e7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/fabe73fb8adf23e81077217cb287b5a10254efa0b1cb5733bbd0ea9345b40f8f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/cd5d2aa2c4cacf9d0dc8dfa337cedadf4f3ac2738204f4f27c7e99e8ef436bd9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/6ed0916c526b1c122a52ee773cdbd90fa7cfd23debde5ae3d73e75d5a7da2679.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/ce16c83ef7da23e7e0783434335518efce408e3b3951b5330d9801fa63dca324.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/d2a9822d41aee7305f39374c0a62b0f557b1a5e81873faac9244d4ed36863184.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/7848a8b5422dc8240b1142926d0302b96556683d79694bd4351b1c140e823dd0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/59e29fab3001769a99494c61adc5d0b80b362c94586d503951150906e58e22c4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/6c126a4cdabae6d63659d85900aee3d6f6897c1e53582f93f23094aba398f6ee.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/b425d1b617945b7d4d3b1b0685dcc4a2041e9cff6387a16b27ed6c17e4bd1bfd.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/0a3427bc99e9cc1ccf73dd567302f3e8c85fb0194c18c3f94cad3d78ffbb5896.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/d833310a662b57679cb1c92f52af02b69a23db08d438a89b5c67c4d1d7f9031f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/ad399e912ea4f27b755f723db9f4e28d612da8b33d3bd9542ae70fa408b6fc78.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/599829869262e45586eb594f315d84f6cadd59569fb15e3c7cadc7743ff864ad.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/eef61955cd1b4c0bc762c61578d60ccebf361f4d3f9f5ea270df8abc12d98b25.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/a73a4dd18659db9dd84dea97863e3ddec7e1e810af77396c7b2a646d34d45199.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/2b2fbedeff7bdaf20fa584f8ac9270abb357fce6747823f19abfc624cd835c14.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/14b619aa55041350fa4966e65d5da5478a9ca3de1829a4a407d5f24fea8af46b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/305b6e9215ba2333054987fa5f5774d3ecfbca370829108ca9bd71e350a953d0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/e27fa070166aa284fcd634f2a4b3cfe22e3616b9984b4e15bcf2c707ce6a9f17.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/123e5cc88205276d3ba2ad8ab0f4235200f532a271d4b65989204834b81bdfb9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/d4a04d422bab8e5f1739c9fcf65bde6df2c99bdd3d6ec0739a5b7c7c4ff2b1fc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/5aabba24b28dd318fc66dfee71970e8beee6a8cf1694617df7c2d9394a28a63a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/1ed3b56a20a180bd495ac197bdd170345d93fb8fee7a012eb5750ad189d4f02c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/b2a5d4e9599d2c26582d451d6d8bb7b2a3acce22ce33c6e616d69e1b52581f9a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/119064df7038328c9085647385fa5a1be1518b65c8a3fc2da8451da0abb70938.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/bb264a03a5f8094d63281838f0b4845f7f5132845a34a1725d66be6dcae04784.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/4b287c77dfe3f03c1fe29a7ba5c1e63916084a01717dc633671dd347bcab1a55.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/29c56079eccda288dbeb1ee516ce6a726678ed5d6e6b64085554d76d37bf6558.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/b1019d5648c1562bc0e490822cbe9d8afed70c5ea03c0cae6c85b1b23aa60ea8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "target": "images/54f87a5d58fd6d48d2a79b092f1dd6d90e1a5e09be22e1e39d2bf274eaa43195.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/security-law-2020/README.md",
+    "target": "../../shared/verification/pitfalls.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/10ca244ed75b50b0ad5e1dd4d87a3ef8db516e57a9ae9a528b9d245a5f7160b7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/9a642a566ceb4a435979ba8c4fee78da7a3b3d3d84d6c748a7a3172ed7b09956.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/fff4e081ad3fd801e21f342e1a1a387f1547359fe94ecd24d2a76436aee0b25b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/2edaffdb1c72dd16dce7fe10e186d9e20509a49f04c9ae87484bd450ce82581a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/4dd4a0ea92acf05d5afa8f7280bde1946dd647f3b19788f5afc027136cc480da.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/567e35fd0531aab0b77aff0bba09702a0f702d8d575620ec049563577ea50281.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/3a094e186f018e79e603fc57e551602c58f0ef3407dbd0adcbc75426edb20e3f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/e7e17c88890c72e790031a1e34e6d9904c48dc35c4357c8a102284bfcbdb0fa9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/e39a826b53fe19eee938d9d87bce016f4d40bddb59aab6e0231837ef9c4324a5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/68bb4c7722a888bf674d253695e605edc4dfecfcd1c21e270881620972d18587.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/dcccc6b15961d437b197f479a27528301d19dc078228ff410fcfe01ecfa99528.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/0e258e9d3aa8f2ed1468c2307edcacf1aa3c16cc946970961c0b4aacadfdf4da.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/c3a1f53c76d03d0601863e3fd34430e0d8acbfca468582ca00045f046eb3616e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/4315faa5518ba4bfe67c5944934aeadd8dae25e72e0260770c9271f325dfdece.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/b3ce3c0e37c9f497594aefe42fc773f8b5121db1b537f04530017415b3995d75.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/390bc975194dddf28ee6e7c1578ea7d6cdff0367dd39f4008d645a62a50550d2.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/bcafb3959f43cfd12064dcc857dbcc9bd3e8ff6d5821768156251051bb0b415c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/2d54f5e138ba2fe24aedc1e7abf412e6d88380ea4d1236bbb20287c390db93d3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/685fe6b09aa92c76a62b1059077d4397cf081ff99e4cc032982657f40d4a3d27.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/36c42b5ce374ee630b560044d802a6beec009e624c9d41c368505eeb7b572a94.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/e74c32edea3df6e81483ffa9499045f7306c235b7bee6b086b16c2ad41861ec0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/72bc35b103bf0682d98e5a1dfa8b00e2b18cf238f45936b2e3c00cbff7ba8b6e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/88ba298366fed8e31744bac4f4bbb30f39ae195c5bf289f91ea49f41508f315b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/365d1d49b4e39b32f5486314c1dd3e28d7af808c11632ee007e7fd2a2d4f0719.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/6f36ea8833e518481ec9cbd2f3d2bc576f9723967e003f97f12d2bd5968f0058.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/466e0f9c344e9584706d9c19d3640aaae8c1e917fc75b4c377629b399b05432b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/38029e42d61b852dcf243b6698e5d8a9cc27005557b9eb4a4655cd0933655c9b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/33be1bc1dc4687c18c28da0fcf8783b0506207922a9fa5598ee3d8a165b9fdb9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/ed9c610f0c25af172c49c9f6f6f49f4ada76e73a5983ac66054dd140c3995de4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/eea51d76ea8f678b82c8dde35cccc7929bda065c8d74fc1de778543e167e17f9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/8f3905655419cebc48a214f4e0e51afc624dab0b808af393d6ad65a8f71cc1d0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/5538c87c33e5aac587a00f3e38f18883d1527234481f0dcb61f51255c8800fd2.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/993381b96d524dd056cbec5bcfb73a4507cc0e886a32de44bb00405a4cdb47bf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/a14e054b9d48ff319b85ac76082169eb9ca7cceb6d4d8ca3abac556597a828d5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/31632595ccc0f92721fbed9e5d59d989a7ef1a4cb9da11e79505ace7a896bb1f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/9cf1abc5af31d120ddba72d3f5db8ac1c4a97bb52acd39d62f2917e0ca31f811.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/1d45f53aa866bb6fb97dd20a1268b37a811536bd80c263648195005c273a9618.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/5d4ef33e16688f4180a3ea141f30c312da01a304c594baec3efb4fe00b28efea.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/708ef658cd9c51706952bcc38a6b8288dd913f5130589ae7fa15130bb0aa2bc9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/fee9d780774c4f49a1913127592bf6ac5937cce5c526f795a9e802271cdd5592.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/bbdd178089d571a197fd092f13f0d152ed45e5f90b853d77df7dafcf0b615b0b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/6de01f7d0a348ff7e01c7e909fc1faab9a05fb005f680b28f43f5c6a80d97b0e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/0f1ac9ae0b8e0534281b09d58bfefae84331bbceed1765cc079b9641a5cf3b8b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/6080d54f9fca4f7fd8424390ad50a6f057aefe4a9b2c68df7a7b7c0dc87755c5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/2eba03fcf8dd55464f9db9712564bf2a184af63643b919b784eafccaf27a644c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/e421aa3661ebb7cd0ff9f6a1649f8c3324d309dfcbe7ad1f36516c07b0444aed.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/86a4e9aa25ab7fafe72167dcd333257d00610e506c93752415c212d6f8dc833b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/d657a6ede3a261e5b2d39c6caf1a76114961f63282a4de85d2e0b265ad520d22.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/09099e867397202d1d00bbe02b70f9405599acedb7af60d4a5a0d432cd316dbb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/a279e7d850cfb085369a70d1f631570d3b3845d149bfd8debc08ba189e8e79ae.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/bb843f2e9f004d0a2b392a273cd8e1c4007d1c3870f554f4e5f675ee9be9c8f7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/fa54c7208219f1cda799734448d92821cb43634465839c484807bfbef3948acf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/44e17165d859e158bdd2e1f2c4267d644805b776ed2c6ccd5196ad6f252fe371.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/d356c09d6a66afd284b9435d0ce3de711c98184419b23eb629818d8d1b8a5a34.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/5979d8474280d072f51e11884cdea2a0c558557a5ffd300f7f54191567da234f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/90bb2c297afd5b6f0b2209dbde181d6af6e05f658ff8030c2bff0af2c23b78ec.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/f476ebb7b761793254fc11ab6096a043d33e025a540445c024d12aad1eee726c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/742b6d12202d4aa7c57a2fc08e0d5270f0aeab78648073ef40e5c74c6e3addf9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/b1e0fe00acb87d526f2f611415d04b57cd5ca088b2b552adb50fc4f9b97dbe48.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/27d0af03d84f1a9834370408f93454ec150bd727cac90bedf9508fe875c82114.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/79b07e65927c503dc28b2090012abd5ac890a76efebaebe7b0ef2c127e01f95d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/1acf8135183f9573f36fef72dce058ab289586fdcd85524e1074dc36667ba6e4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/bdbd26ae323843260376ec1c4f4632cbec0d49117ba0da2ce1c73e141d18023a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/a49ddf60da101bd8214a4a14e921e89ed6cd3a17808be16eb510d10be8c6e549.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/926ec8c0649eea045d52ae72a47bf2930629f6dd72325cd36c45a771f6de04dc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/e7fb3e905300749acabff2c0bebc8bdd03383a30afa98271a417c26a98f1c83b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/0dc7428e73d2da65f1506129e89c31df3db3a8a61da63a6d5e7860c190111325.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/94402f7f8f9e0f1877045224bdaf51de11fd9a969672d8f710f421cc2ce7e51d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/6bda1c20966097baac8c64e4c61ad6ff9d65d61045046bbfae7b45a4417b25dc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/64c35727d8e62b06d9be4974028282f164ed6c8cdae4255a738ef9c27a96d73d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/d07740ca1eda24d723ba005dc4585a855b5ec90e6fefad567c0cc0a9cc69416e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/3162268c9e7ca0eb83f4c261ee171b6c22fcdaa6786b1c610094e28853b02832.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/82fec59b2afd6a00ae1b4cd285e3c7d8da84ca6d6619c73e4596139ba19db3c6.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "target": "images/1e4d927a6d4390ab6917d65fe8467298dae7b26ae6c64408d233a666c04ff591.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/d4331fa4958ccd2e6a9d79f5db3fb20b4c640fea5c0cfd238cbe99a28dd1012e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/dc71f7dac1c1c9ffe11528b4bcca62dffb7254647a8c6e8498203920e680c97b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/badf87bfcfcda9b32536b58a79a2bbb0792281558086cbdd659180acb3051552.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/a9b9bd649a4e05c33c2cf18389075d768d0a864841ab1d951c906fa3a2fef162.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/c090a6405d2fad3bfd526fcf55c01b74dbaed764d71d3ca634377cfd70b48ac7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/37d60ca7f3e9de29d32ee81631c70a52b6083c9605d7bfe07440e831618fbceb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/71195257e6ca09568226095c1b59637d0523f345caff6b3fce98e55b92b2d2af.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/09c8778132b5752fc72a941249f4504de850c37b73017c9459aa6e95fac331ca.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/0942f4f8caf2ca88abab28fd806a2b248c08737c1a718e7a742d6dc27fac3005.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/f616150ad61ae246a010dcf06ded95375e772302bb9757c188d2a56ced33ecda.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/a192e7fe951a14b2ca586368acd49f09e0c85d392bcb2fa8add175346b6780ff.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/9df91f95e69e7fd560171248c5793da91195aaf5ecf435895f35fe0c561ad168.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/078358afb4cd99fffa20f7c473012a9b56fa1548757a1182183f4fca8b3fee5c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/2f65e577f9bb85e255498ef2035c33c28e43d9b9bfde934a1c2d1adbf1cd2a54.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/da44dc772b3192bb98e37b32a51a9e2c45447b7bb4fb3996e2c377199b0311e4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/53d394c553cde580de395bf09359b863f7fc52e350a2207e7fb53623247ff584.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/d16b6885bfab6ca177b9926c1e0c479bd7b9864cb4d370f32c9c874e379c1679.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/0c80d4ea56fc1a3af60c8c6bcb119339f935447cd54698468a692e607be5bec1.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/d1c9636bf44791140d8f9990e0e0fc5d326ac83cd46898ee91043101d2b44da2.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/459a7f628a3e0e54588cb3f6aba98a6b3fbbdc245e2d0518d00b0ed9636b4ebb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/d09e36bef0885ef958a9a41af2c4b28931989ada8b9c9dfe174e5879c3184d95.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "target": "images/0a0ecc8835e5a16581a7685e9778cc8a2e484c647aaadb32c7851a22b50e7a26.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-32.md",
+    "target": "images/94c9556f6290dc470858dffbb2188206a2803dd18a8261e3cb172f8bf72bf5c7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-32.md",
+    "target": "images/5c7892c3e536f24f444051197715705bd0834bbc07b9f45e36a49ad2b6e589b0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-41.md",
+    "target": "images/d3352a5c5a4c68986ead309ffc7b70321e63881b1718ff36325a24acca11dc93.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-6.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-16.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-19.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-20.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-60.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-65.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-7.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-12.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-27.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-28.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "external-links.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "../../shared/verification/pitfalls.md#误区13"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "target": "../../core/foundations-universal.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/84b37b0c12d96b63a6acf5b7a4d09ed2b6978ddb880bc2b59c9faeb06641de21.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/8ac3fee8e498956f4e85cd35464c2fcbe9a44b77a5bbc6ff5045785d4cc4f555.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/cdf23cced09d9aa7e66392e77436af7cd5bfda16d1a8cd684b22a432c81084dc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/cff56090bc3a97a313e374e229487c6adb68f844882d35b0939116cf43c85804.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/39e292243f83a3e74f5d3bb1f1ffc94ce73dc236537a3d3f23955f371f5561b2.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/09c029d9b8a19cfe5da11836835aa6239debd0b7bd2ef7005ced9c8e364ad70c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/ed0ba1f4566073899c209f7b7c2613d3656565badba1a74208bf17da8f0bd5be.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/adb119e6492c18ca1f82da5b9724be61e78ae883effa3e44ee3f9794cac0a648.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/af6108885b2353de36c338f606396a2718ca585270f02907dc2847f5378dac0a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/4d196e6419b402f29a38e13c28a3da248032615f077b6771634b07ddd944f23c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/957b0a5b98d5b41969f97af61306de69c357dc6af68746152c380e1677b305f9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/a6aa3a6e59da03022f1dd7b8b0011c93f3306a558babe9ee608fb80a51ac8117.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/fad32eafd653c2b68eff76f5ea724fe52152e20bf99e76ac5d8a940682f9a7dc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/f0ccfdbd4aa75aed24780cd818ca958221c6172b5a77b4c5a1eeb9908349b6df.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/06b78553df1c30a79620228905f079b6e7a83e2aee14bd6dccf84808cc889de5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/0aed92fcebd2fbe8b1509e0fb368faa58111f05321b24b480b6b935359a369cb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/822b5c31b7524422cfa2280e7d5b81e2c2651d29be2303eb500cffbb7a5cb340.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/69a21566098913c9f69d6e01d1db4a99c6d7b631e99f83238679e6c93c274ede.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/e9cff151f313b7a5db8e5858f018e8a44bd18fe904ab44bcf96cbc027f8ba86e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/cefc2c6f00bf6b6f775f2c4397e351242aea69639203f08e775721b4cc91c317.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/3ae2bc8fa670949c47498d95b500864b5ad63a45e6a1418d7e3b6d324b889036.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/f5f26bb1cffe60e715073b268f6058164b7c608566c83db3d5e9be401b791e39.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/6631197c394d9601340c8eefef10170a5ef8b8153733802871d6c03a41b499a3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/8436bcdc817243bb5521ac38964ece32f4cde9fbe6cc71104bb9b7ce18d5e808.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/0bba007a6fb0136431ce38aab8eea8b3959deb3ed62a40bf7ac9391a2560fd8f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/fed3239014995aa23b5453904f6894fed29441d178a84c714c0b914c8af3fdd7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/62678bfc9dcdab4d4c5daf86a951f0e7ae2696ab0cd9d5fa03d5620f30bd750d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/be3bfe7a4f0f65b3e9dd2f9ddbb4840714c26d9a3163b872935d8302a7224fb8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/a77fe29400e9318e1675bc612fd37f2ca30ddd2f61f068f05ce4779656a8cc74.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/b2079f685281f7a78b6db70cf6d41bc32a9a68138a337359fce20f4d5b0045cf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/5aef8cd7994f56cb16c3aa58aef25192a5855f8217320d4f6d13e32381e3f392.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/2160af56183ccfc8368a111a0a4f91dd828ecd942d11d5fa12875b4dfc1086a3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/dac59ef1c86593be0e13d81f0707a69e92ec193ea6ab899235d4b0bef54cfa9c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/f3886c0b104871b0975d0210d72e966408709d5f9e28dc523dd207c37dfc1610.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/ff444d7cde6d4fbda9187a9f8c2523899d40b9337927e5b5baf3ac32525dccb9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/87402640444453529bbdef467fa103c3da13bf9678ac4181b26b23d0b034546e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/7eabd1705a0fe46bbcc140273ac098fd2113376a435acd9e9799036d2e0d507d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/c1543dae472894832a63de2b2052562aed3963462b0ae6b2ce5ce6ecf05d324e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/75ab337c184ba0b58840b9478fc431b9e41975ec174e04b952e3ca457ff9d469.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/44818a3eff00d1ee0abd7bf714f9c619544d750a823e8bd54c40b7bce66986ec.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/2586bd7a8cfc69ba630d216e0e2787273527241f88e0362c25c1a89981e93aa7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/584cd3901b0ffeaea15332cf8bd3b2de50b3d77909536bb8fc86d2fb45290e00.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/9de572cc280c88b3713846d3bad7294cb9fa44e9aa31546e26f01a03c5133a27.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/c0a12341397b4ab6d9f530fd0b8ed1826077b4aba25eaab515521c67d8cee51a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/47588ff9cdfe7e531ca8e913e68b2aa61230078137ed91a945dba13d55f2d93a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/5ed901e7cece73d2ca874d7c725034f4931990d7567080a0e2d67b77402408a6.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/f5d0fe7b500c8817c100aaa8b80977d6cd98917f52b04e77434acb465900e82e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/551a1e2ce20be3d45a847ac998139922ababfdef0a664b45c224b917be9e2dcf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/009c78ecae1384de9311e4dd956ca036e03558fc10e6f9f308fc2fd1ce60809e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/af76bdf8f76c2d5a4511609714d55d74161d5d00aa152d0379f6d5b15aa0ce2e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/c4e5532d73bce97bc1759041ab092beac069a46ffee48b04dc3065af715a1839.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/ccab94611acba4e30c996bb654eb27d99920a595f9fe76814ad6d7a62183a2a6.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/b740c4e777ed303f91ea8fc357af83daff59d12309c989c4d4790768d3b64741.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/b23d4a9a29a156e99d4923024a5de74dcbc6c43c1192a36a0b9a914ceb51e3c7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/5d420d40426f40092f3a01dffa88514af82788ab0a7e130cfaeb5ea95a4a43c6.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/6cf9bb2ce8336d71761ab9d21689ebd2b96809135edb8a71bedb49407a12deed.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/ae5667bc6dfcde78f4ad61d67ddca5ca5a1c7648f2714f5d550eb8e1be86fe00.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/39ec4aa78f685afcb67d7c4bcd4913d9e9387d9385a140ab94db26a79915d57d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/848596fc4fed12eb0d6dfe39e521fac1039eaede00b45948da20c0d348790677.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "target": "images/b928b0b73fb078ceb527c1647db9b548ceedaca92b96848e58da408cef9af261.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-6.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-16.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-19.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-20.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-60.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-65.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-7.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-12.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-27.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "articles/article-28.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "external-links.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "../../shared/verification/pitfalls.md#误区13"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "target": "../../core/foundations-universal.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/china-contract-review/references/interpretations/security-law-2020/README.md",
+    "target": "../../shared/verification/pitfalls.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/bb62d2a475420f055142d81a5d1f954eb65251f2f3289d9531078c2de005964c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/f1169523366a095527c5fadefd1ebec44440fe79e6ccd1272e00d591f216b7a8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/447df3f7668623a295639e20dd8bc0b55755f9ee06948a723e84b30aea8abf89.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/b2bda441b8f852a7b8127d0983c2dc2651d409ced6990998d623145dcc8d9e61.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/bab1bfbb725d4d5e7892da7978aab8ab7c4df1a94c46bd04cf08fcb79eb90b92.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/e1296eff420a6500172392f509eb2808a93387183f9380273368c198ae80ccca.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/0040ed5d2fc8781b64ca10e22806dcd0417bd17b23c06d05dae9402132cb5e62.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/c59e7dcac5255b36c4d5f5e6c1429a2fb327364d588ce2bc9be0e575104fc065.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/e26141043236877215b88c5e546d1285e4f6667ce4530ddf60aaea938bb3dbc1.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/4493af5fd9ac7ed4a05c13a308d2c8fd8b3007bfcaa60140a5d8c34d89a2b98f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/2cc156d35ca58c809d77e89c22edc9119c5a5896334a3a234445430f46160091.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/f54e9478f95c7fa361c18a516164f5dbe393af9d248348b67c912562e47193a4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "target": "images/f540f825c1614c1387774710bbb82e9091721907da53aefcb1af19b814ad72fc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/cda76908ae746dafc496280f16eedcc7a2919075ea07d1d9d06850a2402bd08a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/1feab40d214a6dd877cb7705262afd1216c690096670e04b09a082f045972416.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/787269771e7ede68d4a1481b6e466677dccc622e05b9e7f38c0e98c524f61ac4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/fd789bfa3e5035258eb8fb93d7ab944c41dc6b2f2e7d8dc53484d2e82f7974ca.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/646ee9527cfadcadf844b683414fa53dd1313a1d4ff12441c348e962acabafd5.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/8e230df2e839089457782916262a3accd7fda9c9ef983ec91f37c3ca8a35f42c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/13bf7bfeb245981b5c7e379e621332d5f82bc2f20b7458ae740e9dbeedd8c0ff.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/558dbeaa36fc111eb9da3b9046637953d44956d01bfbabf16ea86d14c0709301.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/704534a01cfb440344310ca9153558c57dab33c29d9a83b12a216a35f8787b23.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/6dabde07df279c43b130587f42fcbb5267a1cd90e3187d91575682d1c46758a3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/66b97376b2ff0e833d8617e412625e6681a64f6fd766e8a8a2e73e42b9a067e2.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/6b0f1ec50062b9b225af58b33d798f8aef02e9bfc24ec59055c6449c63d9757f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/183eae0cf4d0ee45a1d431129138044b81657a4ee8b0cbb30e215e931f72116f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/04ded403191a2c43aaf30565d3e8b2e4bdc36bccb40145872d2064a2e82fcdda.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/351fce11d0f6149f0c3e6097076bb366182e314c1992d61cd8b998da1fc470aa.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/1a8a0a772ee2852cfd4da94937aa165b1f8dcbc0bf70ebfb494fc92d56460357.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "target": "images/9baa7517db78f72951bed6393ed33c9b84887dc4b2f31ac931aad158a443327e.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/30865491d66f2c7ebce7d55e4889d4dfd60f992471887d1fe3408669c1694fb8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/a7640589e6265e40d41feb7279bb863dddd6af85afef4846849f21a19aa45f7d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/a5452bd4642a7b0b9011227e1d5dc9531762d0019ba5278683e99a54497fe8cb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/ef22ecfc8cfd56a814e105a569fe768e2e19f15968e7c0dcb861aa560cbab39b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/dc08ee8d6eba451c0e5ca8ada463a8061488b4d495b8d2c31f6cbd5a701fe88b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/faabd157239b44dd277f7849de1fb5f856c3794e3832b60a90e8a3e90fc7b314.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/2283be864b0899e808fbdb3ed3bb25cdc787bea4cbed173aa41f8c797cce676d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/c48350459bfaecb2c7f95f5e8f38338c2d5e7aeff8ae4b707f6a7e6471029424.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/0298b38f1fdd085ca435c8af1790fc8298507f5e5a1ca160d7d0f431fc16badf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/174ee5748f9951f3063c506fce11c647ff937a39c048151d4979fe8e8f46f7ad.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/b215a9df48beb1a0626dc3279df2ad9bfa9110bcb9348d416088e39a376d4fa9.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/69539136e6634c09a6a7829daf2de700d96b25dabc5b910bc26fc479a740782b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/3192725a98ba33a2e00c24c3f721b6782711e8e198e2eea29eb304060734bf1c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/0bccc4932b9bd7c9de713d9cec636960c4a9867cb56399a4fc5637c246c1ecbc.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/384da8c4a361b3436a240af85a3484cabe78ec83f2dad0c85a205093675b05cb.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/3bf325bf6dd8012710b0815dceaa0b9192b5e605412759acedf35ea2b9b46505.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/e543cefef1699da0e18fe3d892433f86bebacd6255f15419be4c028b8dd49376.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/8befc6fb21fd33dc84feb5e15d2cb2edad5cf9240d8f9f1e4916b85161641598.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/d99fe0a2c7b324094e55463fc0a0c05ebaa4108784714c8bd360c95a7b7fcaee.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/8bf10a3b002db09d8008d65872957dc576127e1538d00492bb11be631b55277d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/608ec7c67833c328f38e627197bc8dcee7f0425c871b4ec7a5e3b1255d65d618.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/40500eefca98dc0614751b259c2274b361101e7397c9b55151dfc5e80bb528d4.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/f44be7cd1cb902b9158b84e80ba44ee98693fafa00961e1bc65a126dcd019001.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/64ef716d90683cd64e6f1ddfa8acf0fa3eb83f266d9ef43fb584e59696cddf3a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/b7d6b5d0eda4d629eaea37c4c747215fd0d7c63430567e821f31458ea4ea8f5c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/e9791cdf2b9674706b72557ba55ef94bf848c142bf49d61b487351ac0b5e6bb0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/63bde106123c1cdcb08a348798b62961ebdcd66238ab86b29fd3acb79bd9ff25.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/360b8ccb6fe5d3c42a4778dc96d17d1c17a01a224fcba94979a41b72d8a81920.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/47a46699452dbb09c7598d441d8c608f9b9b84b383b5e09326441b8b6e6cce2c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/21aa95bcc3b4ad50e3a45cb5c260df4bd2c2c5103dd783e93e6f0493c0a33a6b.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/3bb57e9873bdcdf019aaecc830ca01ad5b221055706583612fe86a933e773efa.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/359af29482b959ea19783f91ab1ecb1570dd6e6338a0ebc5e8c489f1fcccc18f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/928dd45981611c056cfbd08aa4ae8464225d8f5f85c1a13d9e92da81d9b1bb7f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/884d11145b81c73f7ebfd20e1d003f8b0bd5106003c9923a8cf392970a4b2729.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "target": "images/ddc8e7edc199a2b52530f2820f042e1a1f3b528a33be87d6f7690154eac074cd.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/a8b492d6668df4ac1c8c7e41027f541768245f5f5c00aa6f5475c0aaf8646ab7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/3ad63f520519ea9760e9e8fdc2fd4dfab32bb2ee76caba1c9b7c2dc2dc91e871.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/01dbd87758cef13b05dace4b973cfc5400dcf64e11e6f97989787f04f664d8ea.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/28a4eeb2600f18d59067f5d2f3b730f25cefe996f616766d3376ea90935ff98c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/184cd16418a7204127a55772c358a7d1ed96b145bb7e5611691be227897b63d7.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/d88cc4090debdc1b4060bd6ce69a814bfebb17e7e6eee9367b430e94a9cb6937.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/1cc9b19edc87f4cb28ec5cae94bea40fea84bed3ef248a9ea814abe67c875a07.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/fbb04e81b9bdab988186b889e742407adea3845dc5d8484303e47b96347674d0.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/dd174bc27506b7b4d87832f008c1eb78407a82e799256bf6f92b1d3ca51b8717.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/69a0966a2dc977cde3045400084729e22a792c80e64224c286c003f73c3c5d1d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/970be79f00585ab5c1f597c66cacb1e1deebabd811bf3592d34df8e9b2d352f3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/c6f412e293c025e21751f7c5577dee329ffd83b4d1367f80969da1ae7935b22a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/bf003ac539958052f17c3fa4a7f21094f3aabee859d5870715a7c1a22246f4ff.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/136a9374367c540d27264a5b86cc9c6eebe81366a8dff8436fb59a0cd0328233.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/85dc251309476aee88608d9fa1fb294dd3119e7e39d379a20ddd3945c93c045c.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/f4264497a61a5a082c2511e4c004db80ae89ca47b7e82a388ce7030a6326540a.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "target": "images/073ab865c2b41d858dfcb9ff34b4f5f07e4b23cd01694060cb4bb1056a828791.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-38.md",
+    "target": "images/4219c98d8115b426fa55a3cb0aea7ae679bf81be9011c5b221f2fc231948bce8.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-38.md",
+    "target": "images/144182a143f531a9f1f654288c6fda79d4f5872d212d2ca25118da16d8977a92.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/legal-text-format/SKILL.md",
+    "target": "{YYYYMMDD}_{主题}_raw.md"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/791c363b2d63ccfddd5d4a28c5e70299d59ed0b26e3fb40d1546d92b70c0b52d.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/77d20c490459c3d57164b458ae72c464db280fcca8c17184903fdf15a750e797.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/52ec4e54692f4bf7834061c4a0ce0db68690335f5bbfe84c00c8e2ca13aba3b6.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/581443a10aa85e4d21e11044968b35d0530dc15484ddb83574578ac0f1bf18cf.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/4561613a3fe98a491c111a44979f8ccc179a7b7e3742b8a42605a7ac4089a9a3.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/c91cb7a77bd56ee8feeff0cf227d46292f7e6874a86ea57efe1d17c74a26a28f.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/68f6d8a7e7c8825ee8368593d8dc80d2883c94e8469fdda8d2629e9794bfdcce.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/4bffc368bc43660ff6161c6bb40393bbe19390aacba4a2b4d9bde4590f9eff47.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/2de0edb5d9e63b524e658c65366b5ff07bd3a947fdd9478df629f4ba92439611.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/ef56c675637801be90f97284280062e4df8ba35a5bff9c5acc1af6677de071be.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/0b880f4c3059e2709ff01a47ec1f6dcc5cbc5926bbb4c2fd3a1fdc5ef9ff46ce.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/72fb586821d18e07d97235112b610cd38c77b7d1567271163a029384204bf526.jpg"
+  },
+  {
+    "source": "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "target": "images/bd22685e5cecde9083ea345f0a0c0e4b447f3e64a6532ae57aeac93ea4520ca1.jpg"
+  }
+]

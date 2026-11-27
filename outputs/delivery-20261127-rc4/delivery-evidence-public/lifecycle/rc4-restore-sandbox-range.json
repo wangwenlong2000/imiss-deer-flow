@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "log_bytes": 42,
+  "log_sha256": "7d1c30b378f5f5fcb4788422171a37f205e2aa1bf20c4407b8c1fc0ec6d71d18",
+  "name": "rc4-restore-sandbox-range",
+  "report": {
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:15:54.273052+00:00",
+    "started_at": "2026-11-27T02:15:53.780222+00:00"
+  },
+  "required": false,
+  "source_passed": true
+}

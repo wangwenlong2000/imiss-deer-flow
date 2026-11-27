@@ -13,8 +13,8 @@ from flask_login import login_required, current_user, login_user, logout_user
 
 
 from onecityagent.service.user_service import UserService, TenantService, UserTenantService
-from onecityagent.service.tool_service.save_plan import PlanDataService
-from onecityagent.models.db_models import UserTenant
+from onecityagent.service.plan_data import PlanDataService
+from onecityagent.models.db_models import DB, UserTenant
 from onecityagent.service.authentication import revoke_login_token, self_registration_role_id
 from onecityagent.utils.api_utils import (
     get_json_result,
@@ -41,6 +41,25 @@ from onecityagent.constants import RetCode, StatusEnum, UserTenantRole
 # 创建蓝图
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 tenant_bp = Blueprint('tenant', __name__, url_prefix='/tenant')
+
+
+@user_bp.get("/public-key")
+def public_key():
+    """Return this site's public login key without requiring a login."""
+    from onecityagent.application.keys import login_public_key
+
+    try:
+        response = get_json_result(data=login_public_key())
+    except (OSError, ValueError, TypeError, RuntimeError):
+        logger.error("OneCity login public key is unavailable")
+        response = get_json_result(
+            data=None, code=RetCode.SERVER_ERROR, message="登录加密配置不可用"
+        )
+        response.status_code = 503
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 
 @user_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -106,9 +125,10 @@ def login():
     user = UserService.query_user(email, password)
     if user and str(user.is_active) == "1" and str(user.is_authenticated) == "1":
         user.access_token = get_uuid()
-        login_user(user)
         user.update_date = datetime_format(datetime.now())
-        user.save()
+        with DB.connection_context():
+            user.save()
+        login_user(user)
         response_data = dict(user.to_json())
         response_data.pop("password", None)
         msg = "登录成功！"
@@ -464,8 +484,15 @@ def setting():
 
     if request_data.get("password"):
         new_password = request_data.get("new_password")
+        try:
+            current_password = decrypt(request_data["password"])
+            replacement_password = decrypt(new_password) if new_password else None
+        except ValueError:
+            return get_json_result(
+                data=False, code=RetCode.PARAMS_ERROR, message="密码加密数据无效"
+            )
         if not check_password_hash(
-                current_user.password, decrypt(request_data["password"])
+                current_user.password, current_password
         ):
             return get_json_result(
                 data=False,
@@ -474,7 +501,7 @@ def setting():
             )
 
         if new_password:
-            update_dict["password"] = generate_password_hash(decrypt(new_password))
+            update_dict["password"] = generate_password_hash(replacement_password)
 
     # Only personal preferences are writable here. Role, account state and
     # credentials must never be accepted from the profile editor.

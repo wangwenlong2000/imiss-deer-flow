@@ -14,7 +14,7 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Hash import SHA256
 
-from onecityagent import config
+from onecityagent.application.settings import runtime_value
 
 
 def get_uuid() -> str:
@@ -109,10 +109,10 @@ def encrypt(plain_text: str) -> str:
     使用RSA公钥加密文本（RSA-OAEP，SHA-256）
     """
     try:
-        with open(config.PRIVATE_KEY_PATH, 'r') as f:
+        with open(runtime_value("ONECITY_RSA_PRIVATE_KEY_PATH", "PRIVATE_KEY_PATH"), 'r') as f:
             key_data = f.read()
         # 导入私钥，支持密码保护
-        private_key = RSA.import_key(key_data, passphrase=config.PRIVATE_KEY_PASSPHRASE)
+        private_key = RSA.import_key(key_data, passphrase=runtime_value("ONECITY_RSA_PRIVATE_KEY_PASSPHRASE", "PRIVATE_KEY_PASSPHRASE", ""))
         # 从私钥中提取公钥
         public_key = private_key.publickey()
         cipher = PKCS1_OAEP.new(public_key, hashAlgo=SHA256)
@@ -128,16 +128,22 @@ def decrypt(encrypted_text: str) -> str:
     使用RSA私钥解密文本（RSA-OAEP，SHA-256）
     """
     try:
-        with open(config.PRIVATE_KEY_PATH, 'r') as f:
+        with open(runtime_value("ONECITY_RSA_PRIVATE_KEY_PATH", "PRIVATE_KEY_PATH"), 'r') as f:
             key_data = f.read()
         # 导入私钥，支持密码保护
-        private_key = RSA.import_key(key_data, passphrase=config.PRIVATE_KEY_PASSPHRASE)
+        private_key = RSA.import_key(key_data, passphrase=runtime_value("ONECITY_RSA_PRIVATE_KEY_PASSPHRASE", "PRIVATE_KEY_PASSPHRASE", ""))
         cipher = PKCS1_OAEP.new(private_key, hashAlgo=SHA256)
-        decrypted = cipher.decrypt(base64.b64decode(encrypted_text))
-        return decrypted.decode('utf-8')
-    except Exception as e:
-        logging.error(f"Decrypt error: {str(e)}")
-        return ""
+        if not isinstance(encrypted_text, str) or not encrypted_text:
+            raise ValueError("Missing encrypted credential")
+        decrypted = cipher.decrypt(base64.b64decode(encrypted_text, validate=True))
+        password = decrypted.decode('utf-8')
+        if not password:
+            raise ValueError("Empty credential")
+        return password
+    except Exception:
+        # Callers must reject invalid ciphertext, never hash an empty fallback.
+        # Key paths, encrypted values and passwords do not belong in logs.
+        raise ValueError("Invalid encrypted credential") from None
 
 
 def download_img(url: str) -> str:
@@ -148,27 +154,27 @@ def download_img(url: str) -> str:
         import requests
         import os
         from urllib.parse import urlparse
-        
+
         response = requests.get(url, stream=True)
         if response.status_code != 200:
             return ""
-        
+
         # 解析URL获取文件名
         parsed_url = urlparse(url)
         filename = os.path.basename(parsed_url.path)
         if not filename:
             filename = f"{get_uuid()}.jpg"
-        
+
         # 确保目录存在
         os.makedirs(config.UPLOAD_FOLDER, exist_ok=True)
-        
+
         # 保存文件
         file_path = os.path.join(config.UPLOAD_FOLDER, filename)
         with open(file_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-        
+
         return file_path
     except Exception as e:
         logging.error(f"Download image error: {str(e)}")

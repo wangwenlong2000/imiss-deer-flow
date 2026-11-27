@@ -1,6 +1,6 @@
 # OneCityAgent × DeerFlow 集成工作区
 
-本应用已合入 UrbanBrain 仓库的 `apps/onecityagent/`。从仓库根目录使用 `make onecity-api`、`make onecity-coordinator`、`make onecity-web` 启动对应进程，使用 `make onecity-build` 构建前端。依赖与本地配置仍位于本目录，完整步骤见 [统一项目说明](../../docs/integration-onecity-20261125.md)。
+本应用已合入 UrbanBrain 仓库的 `apps/onecityagent/`。从仓库根目录使用 `make onecity-api`、`make onecity-coordinator`、`make onecity-web` 启动对应进程，使用 `make onecity-build` 构建前端。依赖与本地配置仍位于本目录，完整步骤见 [统一项目说明](../../docs/design/integration-onecity-20261125.md)。
 
 这是 OneCityAgent 城市超脑页面及其 DeerFlow 流式接入逻辑的独立交接副本。仓库仅面向已获授权的协作者；真实部署地址、对外端口、令牌、数据库凭据和私钥均不应提交。
 

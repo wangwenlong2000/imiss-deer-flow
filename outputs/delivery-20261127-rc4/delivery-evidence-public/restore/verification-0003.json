@@ -1,0 +1,62 @@
+{
+  "availability": "present",
+  "name": "verification-0003",
+  "report": {
+    "business_requests_sent": false,
+    "business_scenarios_executed": false,
+    "cases": [],
+    "checks": [
+      {
+        "check": "api_readiness",
+        "http_status": 200,
+        "status": "pass"
+      },
+      {
+        "check": "api_anonymous_rejected",
+        "http_status": 401,
+        "status": "pass"
+      },
+      {
+        "check": "coordinator_anonymous_rejected",
+        "http_status": 401,
+        "status": "pass"
+      },
+      {
+        "check": "public_internal_iam_hidden",
+        "http_status": 404,
+        "status": "pass"
+      },
+      {
+        "check": "runtime_public_key",
+        "site_identity_matched": true,
+        "status": "pass"
+      }
+    ],
+    "covered_capabilities": [],
+    "covered_capabilities_unknown_count": 0,
+    "data_policy": {
+      "disposable_accounts": false,
+      "raw_model_outputs_recorded": false,
+      "test_artifacts_and_audit_retained": false
+    },
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:16:52.237075+00:00",
+    "live_http_declared": true,
+    "passed": true,
+    "release_matches_expected": true,
+    "schema_version": 1,
+    "selected_capabilities": [
+      "basic"
+    ],
+    "selected_capabilities_unknown_count": 0,
+    "started_at": "2026-11-27T02:16:52.081260+00:00",
+    "suite": "basic",
+    "uncovered_capabilities": [],
+    "uncovered_capabilities_unknown_count": 0
+  },
+  "required": true,
+  "source_bytes": 1606,
+  "source_locator_sha256": "ce7ef94dc7c4eaae86c1acb2989421193ce91c61f9e2a0afc0fdc7d7f4d180b8",
+  "source_passed": true,
+  "source_sha256": "9e427965b46c54b607bcbc8625cdb1b8030f27657dd6e1e3219e65288182da9e"
+}

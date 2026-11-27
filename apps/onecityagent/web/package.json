@@ -9,7 +9,8 @@
     "prepare": "cd .. && husky web/.husky",
     "setup": "umi setup",
     "start": "npm run dev",
-    "test": "jest --no-cache --coverage"
+    "test": "jest --no-cache --coverage",
+    "test:login-key": "node scripts/verify-login-key.cjs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,less,json}": [

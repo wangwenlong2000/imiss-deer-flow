@@ -31,7 +31,8 @@ STEP_ORDER = [
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+    # The skill now lives under skills/custom/program_snippet/<skill>/scripts.
+    return Path(__file__).resolve().parents[5]
 
 
 def _skill_root() -> Path:
@@ -214,12 +215,13 @@ def run_pipeline(raw_code: str) -> dict[str, Any]:
         return _error_result(failed_step="language-check", error="raw_code is empty", steps=[])
 
     steps: list[dict[str, Any]] = []
-    skills_dir = _repo_root() / "skills" / "public"
+    # Resolve sibling skills from this file, including inside /mnt/skills mounts.
+    skills_dir = _skill_root().parent
     pipeline_runtime_path = skills_dir / "deerflow-pipeline-runtime"
     if str(pipeline_runtime_path) not in sys.path:
         sys.path.insert(0, str(pipeline_runtime_path))
     backend_path = _repo_root() / "backend" / "packages" / "harness"
-    if str(backend_path) not in sys.path:
+    if backend_path.is_dir() and str(backend_path) not in sys.path:
         sys.path.append(str(backend_path))
 
     try:

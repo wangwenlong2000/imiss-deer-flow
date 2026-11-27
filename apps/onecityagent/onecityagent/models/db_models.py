@@ -21,66 +21,11 @@ from playhouse.pool import PooledMySQLDatabase, PooledPostgresqlDatabase
 import pymysql
 
 from onecityagent.constants import SerializedType, StatusEnum, UserTenantRole, UserRole
-from onecityagent import config
 from onecityagent.utils import common_utils
 from onecityagent.enums.agent_enums import AgentType
 
 
-# 改进 DB 类的连接管理
-class DB:
-    _instance = None
-
-    @classmethod
-    def get_instance(cls):
-        if cls._instance is None:
-            db_config = config.database_config
-            if db_config.type.lower() == 'mysql':
-                cls._instance = PooledMySQLDatabase(
-                    db_config.name,
-                    user=db_config.user,
-                    password=db_config.password,
-                    host=db_config.host,
-                    port=db_config.port,
-                    max_connections=db_config.max_connections or 20,  # 设置默认值
-                    stale_timeout=db_config.timeout or 300,
-                    charset='utf8mb4',
-                    autocommit=True,  # 启用自动提交
-                    autoconnect=True  # 启用自动连接
-                )
-            elif db_config.type.lower() == 'postgres':
-                cls._instance = PooledPostgresqlDatabase(
-                    db_config.name,
-                    user=db_config.user,
-                    password=db_config.password,
-                    host=db_config.host,
-                    port=db_config.port,
-                    max_connections=db_config.max_connections,
-                    stale_timeout=db_config.timeout
-                )
-            else:
-                raise ValueError(f"Unsupported database type: {db_config.type}")
-        return cls._instance
-
-    @classmethod
-    def connection_context(cls):
-        return cls.get_instance().connection_context()
-
-    @classmethod
-    def close_connections(cls):
-        try:
-            if cls._instance is not None:
-                cls._instance.close_all()
-        except Exception as e:
-            logging.error(f"Error closing database connections: {e}")
-
-    @classmethod
-    def init_app_teardown(cls, app):
-        """Flask 应用关闭时清理连接"""
-
-        @app.teardown_appcontext
-        def close_db(error):
-            if cls._instance and not cls._instance.is_closed():
-                cls._instance.close()
+from onecityagent.application.database import DB, database_proxy
 
 
 class TextFieldType(Enum):
@@ -89,7 +34,12 @@ class TextFieldType(Enum):
 
 
 class LongTextField(TextField):
-    field_type = TextFieldType[config.database_config.type.upper()].value
+    @property
+    def field_type(self):
+        # Preserve MySQL LONGTEXT while allowing the same model definitions to
+        # serve independent SQLite/Postgres factory instances.
+        from peewee import MySQLDatabase
+        return "LONGTEXT" if isinstance(database_proxy.obj, MySQLDatabase) else "TEXT"
 
 
 class JSONField(LongTextField):
@@ -174,12 +124,12 @@ class BaseModel(Model):
                 query = query.order_by(getattr(cls, order_by).desc())
             else:
                 query = query.order_by(getattr(cls, order_by))
-        
+
         with DB.connection_context():
             return list(query)
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
 
 
 class User(BaseModel, UserMixin):
@@ -205,12 +155,12 @@ class User(BaseModel, UserMixin):
         return self.access_token
 
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(config.SECRET_KEY, expires_sec)
+        s = Serializer(__import__("flask").current_app.config["SECRET_KEY"])
         return s.dumps({"user_id": self.id}).decode("utf-8")
 
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(config.SECRET_KEY)
+        s = Serializer(__import__("flask").current_app.config["SECRET_KEY"])
         try:
             user_id = s.loads(token)["user_id"]
         except:
@@ -254,7 +204,7 @@ class UserTenant(BaseModel):
     status = CharField(max_length=1, null=True, index=True)  # 状态
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'user_tenant'
 
 
@@ -265,7 +215,7 @@ class UserRole(BaseModel):
     deleted = BooleanField(default=False)  # 是否删除
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'user_role'
 
 
@@ -282,7 +232,7 @@ class TenantLlm(BaseModel):
     status = CharField(max_length=255, null=True, default='0', index=True)  # 是否启用 0-不启用 1-启用
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'tenant_llm'
         indexes = (
             (('tenant_id', 'llm_factory', 'model'), True),  # 保持唯一约束
@@ -313,12 +263,12 @@ class McpConfig(Model):
     headers = TextField(null=True)  # headers字段
     create_date = DateTimeField(null=True)  # 创建时间
     update_date = DateTimeField(null=True)  # 更新时间
-    
+
     def to_dict(self):
         return self.__dict__['__data__']
-    
+
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'mcp_configs'
 
 
@@ -333,12 +283,12 @@ class A2aAgent(Model):
     create_date = DateTimeField(null=True)  # 创建时间
     update_date = DateTimeField(null=True)  # 更新时间
     agent_type = IntegerField(default=2)
-        
+
     def to_dict(self):
         return self.__dict__['__data__']
-    
+
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'a2a_agents'
 
 
@@ -351,9 +301,9 @@ class Dialog(BaseModel):
     status = IntegerField(default=1)  # 会话状态，1正常0删除
     description = TextField()  # 会话描述（非必填）
     finished = IntegerField(default=0)  # 是否结束，0未结束，1已结束
-    
+
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'dialog'
         indexes = (
             (('create_date',), False),
@@ -373,9 +323,9 @@ class Conversation(BaseModel):
     sort_order = IntegerField(null=True, index=True)  # 排序字段
     scene = CharField(max_length=100, null=False)  # 场景名称
     plan = LongTextField(null=False)  # 计划内容
-    
+
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'conversation'
         indexes = (
             (('dialog_id',), False),
@@ -392,26 +342,26 @@ class PlanData(BaseModel):
     user_id = CharField(max_length=32, index=True)  # 用户ID
     tenant_id = CharField(max_length=32, index=True)  # 租户ID
     status = CharField(max_length=1, default='1', index=True)  # 状态
-    
+
     @staticmethod
     def generate_time_based_id():
         """生成基于时间的ID"""
         import time
         import random
-        
+
         # 获取当前时间戳（毫秒级）
         timestamp = int(time.time() * 1000)
-        
+
         # 添加随机数防止并发冲突
         random_num = random.randint(1000, 9999)
-        
+
         # 组合生成ID: 时间戳 + 随机数
         plan_id = f"{timestamp}{random_num}"
-        
+
         return plan_id
-    
+
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = 'plan_data'
         indexes = (
             (('scene', 'user_id'), True),  # 唯一索引

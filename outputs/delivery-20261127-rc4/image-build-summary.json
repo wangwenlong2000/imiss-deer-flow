@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-27T02:06:30.595799+00:00",
+  "version": "20261127-rc4",
+  "scope": "image build and retained source/compiled-asset correspondence only; no live business acceptance",
+  "images": {
+    "deerflow": {
+      "reference": "citybrain-deerflow:20261127-rc4",
+      "id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "onecity": {
+      "reference": "citybrain-onecity:20261127-rc4",
+      "id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "toolbox": {
+      "reference": "citybrain-toolbox:20261127-rc4",
+      "id": "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "edge": {
+      "reference": "citybrain-edge:20261127-rc4",
+      "id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+      "os": "linux",
+      "architecture": "amd64"
+    }
+  },
+  "copy_verification": "image-source-verification.json",
+  "frozen_source_inventory": "source-build-inventory.json",
+  "source_content_sha256": "2c5eb0c10ecc1366a04b27c97c14100e36cbd8b417f4572060cf102cc0e06fe5",
+  "edge_provenance": "edge-builder-provenance.json",
+  "edge_rc4_id_matches_provenance_final_id": true,
+  "edge_build_used_cache": true,
+  "independent_frontend_rebuild": false,
+  "passed": true,
+  "evidence_sha256": {
+    "image-source-verification.json": "0959723d5b0221584f1f3a67f595a6690af0d7eb11afac48e48bd08dfb066ac7",
+    "image-source-verification-summary.json": "774306bd4e49e205d7fea9530c97d23dd964389a25ff0d44631e8793b6d3c992",
+    "source-build-inventory.json": "2cd4e59265f90df83fc27eebc8c9cae5603cbb2abb7badecd2bdcbdbfd1070f9",
+    "edge-builder-provenance.json": "23e178b8415f3c3a73d0992ceb513cf3ab0d9dec3b58b0490138e0c8b5a98cc0"
+  }
+}

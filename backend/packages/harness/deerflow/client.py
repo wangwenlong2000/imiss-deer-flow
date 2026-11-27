@@ -38,7 +38,8 @@ from deerflow.agents.lead_agent.agent import _build_middlewares
 from deerflow.agents.lead_agent.prompt import apply_prompt_template
 from deerflow.agents.thread_state import ThreadState
 from deerflow.config.app_config import get_app_config, reload_app_config
-from deerflow.config.extensions_config import ExtensionsConfig, SkillStateConfig, get_extensions_config, reload_extensions_config
+from deerflow.config.extensions_config import ExtensionsConfig, get_extensions_config, reload_extensions_config
+from deerflow.config.extensions_store import update_extensions
 from deerflow.config.paths import get_paths
 from deerflow.models import create_chat_model
 
@@ -508,17 +509,9 @@ class DeerFlowClient:
             OSError: If the config file cannot be written.
         """
         config_path = ExtensionsConfig.resolve_config_path()
-        if config_path is None:
+        if config_path is None and ExtensionsConfig.resolve_state_path() is None:
             raise FileNotFoundError("Cannot locate extensions_config.json. Set DEER_FLOW_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
-
-        current_config = get_extensions_config()
-
-        config_data = {
-            "mcpServers": mcp_servers,
-            "skills": {name: {"enabled": skill.enabled} for name, skill in current_config.skills.items()},
-        }
-
-        self._atomic_write_json(config_path, config_data)
+        update_extensions("mcpServers", mcp_servers, base_config_path=config_path)
 
         self._agent = None
         reloaded = reload_extensions_config()
@@ -572,18 +565,9 @@ class DeerFlowClient:
             raise ValueError(f"Skill '{name}' not found")
 
         config_path = ExtensionsConfig.resolve_config_path()
-        if config_path is None:
+        if config_path is None and ExtensionsConfig.resolve_state_path() is None:
             raise FileNotFoundError("Cannot locate extensions_config.json. Set DEER_FLOW_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
-
-        extensions_config = get_extensions_config()
-        extensions_config.skills[name] = SkillStateConfig(enabled=enabled)
-
-        config_data = {
-            "mcpServers": {n: s.model_dump() for n, s in extensions_config.mcp_servers.items()},
-            "skills": {n: {"enabled": sc.enabled} for n, sc in extensions_config.skills.items()},
-        }
-
-        self._atomic_write_json(config_path, config_data)
+        update_extensions("skills", {name: {"enabled": enabled}}, base_config_path=config_path)
 
         self._agent = None
         reload_extensions_config()

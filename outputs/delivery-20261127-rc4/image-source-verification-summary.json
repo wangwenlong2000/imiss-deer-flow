@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-27T02:05:39.333203+00:00",
+  "source": "/home/huangxiao/City_brain/imiss-deer-flow-compliance-merge",
+  "scope": "COPY source content equality; no business acceptance",
+  "frozen_source_inventory": "outputs/delivery-20261127-rc4/source-build-inventory.json",
+  "frozen_source_content_sha256": "2c5eb0c10ecc1366a04b27c97c14100e36cbd8b417f4572060cf102cc0e06fe5",
+  "excluded_parts": [
+    ".cache",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "node_modules"
+  ],
+  "excluded_suffixes": [
+    ".pyc",
+    ".pyo"
+  ],
+  "excluded_note": "Runtime caches are excluded even if copied by a Dockerfile",
+  "passed": true,
+  "source_verified_components": [
+    "onecity",
+    "deerflow",
+    "toolbox"
+  ],
+  "components": [
+    {
+      "component": "onecity",
+      "reference": "citybrain-onecity:20261127-rc4",
+      "image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+      "repo_digests": [
+        "citybrain-onecity@sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f"
+      ],
+      "created": "2026-11-27T10:04:57.4134159+08:00",
+      "platform": "linux/amd64",
+      "containers_read_only": true,
+      "containers_network": "none",
+      "dockerfile_sha256": "18a4ea7d87db61381c98e367516064af71767f905f74b8c0c26a110ce03cfa96",
+      "dockerignore_sha256": "27485feadb7d39a9ca48d142acca9c0655c6b83e9b18dad96c19b3b6a74b00b0",
+      "passed": true,
+      "source_equality_verified": true,
+      "expected_file_count": 142,
+      "image_file_count": 142,
+      "matching_file_count": 142,
+      "deploy_python_file_count": 27,
+      "copy_payloads": [
+        {
+          "source": "apps/onecityagent/requirements-core.lock",
+          "image": "/tmp/requirements-core.lock"
+        },
+        {
+          "source": "apps/onecityagent/onecityagent",
+          "image": "/app/onecityagent"
+        },
+        {
+          "source": "deploy",
+          "image": "/opt/citybrain/deploy"
+        }
+      ],
+      "image_inventory_sha256": "4b43bddf54504aa7cbea06eb87f4a55b9a8917610a0236f140bc1236f6aecc30",
+      "errors": []
+    },
+    {
+      "component": "deerflow",
+      "reference": "citybrain-deerflow:20261127-rc4",
+      "image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+      "repo_digests": [
+        "citybrain-deerflow@sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59"
+      ],
+      "created": "2026-11-27T10:04:48.304620415+08:00",
+      "platform": "linux/amd64",
+      "containers_read_only": true,
+      "containers_network": "none",
+      "dockerfile_sha256": "5ef958e86b4fdeafb5fa26ac6c1bb9e23909ff86a78049db8255603ccfb4578e",
+      "dockerignore_sha256": "0ba2da5c363a8b05b95b8ed770391f27a85cb1e9bdd791cdca490bef6ba5dbef",
+      "passed": true,
+      "source_equality_verified": true,
+      "expected_file_count": 313,
+      "image_file_count": 313,
+      "matching_file_count": 313,
+      "deploy_python_file_count": 27,
+      "copy_payloads": [
+        {
+          "source": "backend/pyproject.toml",
+          "image": "/app/backend/pyproject.toml"
+        },
+        {
+          "source": "backend/uv.lock",
+          "image": "/app/backend/uv.lock"
+        },
+        {
+          "source": "backend/README.md",
+          "image": "/app/backend/README.md"
+        },
+        {
+          "source": "backend/packages/harness/pyproject.toml",
+          "image": "/app/backend/packages/harness/pyproject.toml"
+        },
+        {
+          "source": "backend/packages/harness/deerflow",
+          "image": "/app/backend/packages/harness/deerflow"
+        },
+        {
+          "source": "backend/app",
+          "image": "/app/backend/app"
+        },
+        {
+          "source": "backend/langgraph.json",
+          "image": "/app/backend/langgraph.json"
+        },
+        {
+          "source": "deploy",
+          "image": "/opt/citybrain/deploy"
+        },
+        {
+          "source": "config/compliance",
+          "image": "/app/config/compliance"
+        }
+      ],
+      "image_inventory_sha256": "c7749d2f379bb4149f383020bf83a9eccf4d08093d14269735763891984fd6cf",
+      "errors": []
+    },
+    {
+      "component": "toolbox",
+      "reference": "citybrain-toolbox:20261127-rc4",
+      "image_id": "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+      "repo_digests": [
+        "citybrain-toolbox@sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7"
+      ],
+      "created": "2026-11-27T10:05:06.568219345+08:00",
+      "platform": "linux/amd64",
+      "containers_read_only": true,
+      "containers_network": "none",
+      "dockerfile_sha256": "ecc87dd014d60b6750d7d22468c5fb5af46d85c1ee65ed89e7ad01336bc07f02",
+      "dockerignore_sha256": "f93a14ad4d3c723a0134509d53cde5e5a193803a2ab4212c5788e4343c492aaa",
+      "passed": true,
+      "source_equality_verified": true,
+      "expected_file_count": 47,
+      "image_file_count": 47,
+      "matching_file_count": 47,
+      "deploy_python_file_count": 27,
+      "copy_payloads": [
+        {
+          "source": "deploy/requirements-toolbox.lock",
+          "image": "/tmp/requirements-toolbox.lock"
+        },
+        {
+          "source": "deploy",
+          "image": "/opt/citybrain/deploy"
+        },
+        {
+          "source": "config.example.yaml",
+          "image": "/opt/citybrain/config.example.yaml"
+        },
+        {
+          "source": "config/compliance",
+          "image": "/opt/citybrain/config/compliance"
+        }
+      ],
+      "image_inventory_sha256": "ba330dab82668cac76d70e1a982af4e0c8c442ae905aa42846867a5697ef5a3a",
+      "errors": []
+    },
+    {
+      "component": "edge",
+      "reference": "citybrain-edge:20261127-rc4",
+      "image_id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+      "repo_digests": [
+        "citybrain-edge@sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4"
+      ],
+      "created": "2026-11-26T22:48:36.95162777+08:00",
+      "platform": "linux/amd64",
+      "containers_read_only": true,
+      "containers_network": "none",
+      "dockerfile_sha256": "af542762fc1d6bc8242851e47387e9374bf9666b35db97bf16c1dee54362f111",
+      "dockerignore_sha256": "59a9fdd3ed24c8e3331eecbb2e94b6a4c9ce1fb3d660525d705baa6f1799bf80",
+      "passed": null,
+      "source_equality_verified": false,
+      "reason": "final_stage_contains_compiled_assets_only; source equality requires builder provenance",
+      "artifact_file_count": 329,
+      "artifact_inventory_sha256": "5dd95d64b3d32b1757a90ed62fe668a4e197640ad8d6d73047b6ab7841682ccd",
+      "frontend_source_file_count": 782,
+      "frontend_source_inventory_sha256": "36c136ac762565850a8cf19e0e879aae6bdf76ab513563ba26c9e9a265ff9d5d"
+    }
+  ]
+}

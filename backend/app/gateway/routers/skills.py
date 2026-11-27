@@ -1,4 +1,3 @@
-import json
 import logging
 import shutil
 import stat
@@ -11,7 +10,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from app.gateway.path_utils import resolve_thread_virtual_path
-from deerflow.config.extensions_config import ExtensionsConfig, SkillStateConfig, get_extensions_config, reload_extensions_config
+from deerflow.config.extensions_config import reload_extensions_config
+from deerflow.config.extensions_store import update_extensions
 from deerflow.skills import Skill, load_skills
 from deerflow.skills.loader import get_skills_root_path
 from deerflow.skills.validation import _validate_skill_frontmatter
@@ -291,30 +291,7 @@ async def update_skill(skill_name: str, request: SkillUpdateRequest) -> SkillRes
         if skill is None:
             raise HTTPException(status_code=404, detail=f"Skill '{skill_name}' not found")
 
-        # Get or create config path
-        config_path = ExtensionsConfig.resolve_config_path()
-        if config_path is None:
-            # Create new config file in parent directory (project root)
-            config_path = Path.cwd().parent / "extensions_config.json"
-            logger.info(f"No existing extensions config found. Creating new config at: {config_path}")
-
-        # Load current configuration
-        extensions_config = get_extensions_config()
-
-        # Update the skill's enabled status
-        extensions_config.skills[skill_name] = SkillStateConfig(enabled=request.enabled)
-
-        # Convert to JSON format (preserve MCP servers config)
-        config_data = {
-            "mcpServers": {name: server.model_dump() for name, server in extensions_config.mcp_servers.items()},
-            "skills": {name: {"enabled": skill_config.enabled} for name, skill_config in extensions_config.skills.items()},
-        }
-
-        # Write the configuration to file
-        with open(config_path, "w") as f:
-            json.dump(config_data, f, indent=2)
-
-        logger.info(f"Skills configuration updated and saved to: {config_path}")
+        update_extensions("skills", {skill_name: {"enabled": request.enabled}})
 
         # Reload the extensions config to update the global cache
         reload_extensions_config()

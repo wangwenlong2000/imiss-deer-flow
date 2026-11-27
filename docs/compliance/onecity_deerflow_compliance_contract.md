@@ -260,7 +260,7 @@ binds threads to verified organization and user IDs, persists conversation and
 data-source mappings in SQLite, and isolates memory. New native runs/state
 writes must use the authenticated Gateway. Data-centre operation permissions,
 legacy ownership migration, browser compatibility, and deterministic runtime
-verification are documented in [the access rollout notes](../user-access-and-concurrency-20261112.md).
+verification are documented in [the access rollout notes](../history/user-access-and-concurrency-20261112.md).
 
 The Gateway keeps a provider-neutral extension point and includes an adapter for
 the OneCityAgent bridge. Configure it in the Gateway and LangGraph environment:

@@ -21,6 +21,8 @@ from deerflow.compliance.detectors.model_tfidf_knn.detector import (
     load_model,
 )
 from deerflow.compliance.detectors.model_tfidf_knn.row_builder import ContentTextSpecError
+from deerflow.compliance.detectors.model_tfidf_knn.row_builder import build_row
+from deerflow.compliance.normalizers.user_input import UploadedFileNormalizer
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODEL_PATH = REPO_ROOT / "models/compliance/ml_detector_0624_fresh.json"
@@ -57,6 +59,59 @@ def _unit(text: str, *, gate="OutputGate", data_type="telecom", fields=()) -> De
 
 def _ctx(gate="OutputGate") -> DetectContext:
     return DetectContext(gate=gate, budget_ms=400)
+
+
+def _upload_units(tmp_path, content):
+    """Keep content equal while changing only server storage provenance."""
+    units = []
+    for root, thread, filename in (
+        ("site-one", "a7df45c5-821b-4db8-a78f-4f1de38d6779", "acceptance.csv"),
+        ("site-two", "41575745-77c2-4660-a396-2beaa2534f69", "same.csv"),
+    ):
+        path = tmp_path / root / "threads" / thread / "user-data/uploads" / filename
+        path.parent.mkdir(parents=True)
+        path.write_text(content, encoding="utf-8")
+        units.append(UploadedFileNormalizer().to_units([str(path)], gate="InputGate", thread_id=thread)[0])
+    return units
+
+
+def test_uploaded_storage_paths_do_not_change_content_features_or_prediction(tmp_path) -> None:
+    content = "group,value\nA,17\nB,23\nA,31\nB,47\n"
+    detector = _detector()
+    units = _upload_units(tmp_path, content)
+    predictions = []
+    for unit in units:
+        features = detector._features(unit)
+        assert features == {"content": content}
+        row = build_row(features=features, data_type=unit.data_type, gate=unit.gate)
+        predictions.append(detector._ensure_model().predict(row))
+        assert detector.detect(unit, _ctx("InputGate")) == ()
+        # Source locators and physical paths still support auditing the file.
+        assert unit.text_items[0].source == unit.raw["path"]
+        assert detector._locate(unit, ())[0].locator == unit.raw["path"]
+    assert predictions[0] == predictions[1]
+    assert units[0].raw["path"] != units[1].raw["path"]
+
+
+def test_uploaded_risky_content_still_hits_with_unchanged_policy_and_thresholds(tmp_path) -> None:
+    content = (
+        "内部反诈研判：对象 user_id=U-SYNTHETIC-01，风险等级为高风险，"
+        "推荐治理措施为限制外呼，并向跨部门共享风险对象明细。"
+    )
+    detector = _detector()
+    signatures = []
+    for unit in _upload_units(tmp_path, content):
+        assert detector._features(unit) == {"content": content}
+        hits = detector.detect(unit, _ctx("InputGate"))
+        assert any(hit.violation_type == "domain" for hit in hits)
+        signatures.append([(hit.violation_type, hit.reason_code, hit.confidence, hit.severity) for hit in hits])
+    assert signatures[0] == signatures[1]
+
+
+def test_non_upload_feature_keys_and_structured_fields_keep_existing_behavior() -> None:
+    unit = _unit("same content", fields=(("record.kind", "synthetic"),))
+    assert ModelTfidfKnnDetector._features(unit) == {
+        "record.kind": "synthetic", "output_text": "same content"}
 
 
 # ── basic behaviour ─────────────────────────────────────────────────────────

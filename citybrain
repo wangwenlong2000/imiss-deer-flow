@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+CITYBRAIN_IMAGE="${CITYBRAIN_TOOLBOX_IMAGE:-citybrain-toolbox:local}"
+CITYBRAIN_REPO="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+CITYBRAIN_ROOT="${CITYBRAIN_ROOT:-/srv/citybrain}"
+CITYBRAIN_ARGS=()
+for CITYBRAIN_ARG in "$@"; do
+  case "$CITYBRAIN_ARG" in
+    --root=*|--from=*|--source=*|--credentials-file=*|--scene-manifest=*|--report-path=*|--state=*|--path=*|--to=*|--output=*)
+      CITYBRAIN_ARGS+=("${CITYBRAIN_ARG%%=*}" "${CITYBRAIN_ARG#*=}") ;;
+    *) CITYBRAIN_ARGS+=("$CITYBRAIN_ARG") ;;
+  esac
+done
+for ((CITYBRAIN_I=0; CITYBRAIN_I<${#CITYBRAIN_ARGS[@]}; CITYBRAIN_I++)); do
+  case "${CITYBRAIN_ARGS[CITYBRAIN_I]}" in
+    --root)
+      ((CITYBRAIN_I+=1))
+      CITYBRAIN_ROOT="${CITYBRAIN_ARGS[CITYBRAIN_I]:?--root requires an absolute installation directory}" ;;
+    --root=*) CITYBRAIN_ROOT="${CITYBRAIN_ARGS[CITYBRAIN_I]#--root=}" ;;
+  esac
+done
+case "$CITYBRAIN_ROOT" in /*) ;; *) echo 'Installation root must be an absolute path' >&2; exit 2 ;; esac
+case "$CITYBRAIN_ROOT" in /|*:*|*,*|*/../*|*/..|*/./*) echo 'Unsafe installation root' >&2; exit 2 ;; esac
+[ ! -L "$CITYBRAIN_ROOT" ] || { echo 'Installation root must not be a symlink' >&2; exit 2; }
+CITYBRAIN_MOUNTS=(-v "$CITYBRAIN_REPO:$CITYBRAIN_REPO:ro" -v "$CITYBRAIN_ROOT:$CITYBRAIN_ROOT")
+declare -A CITYBRAIN_MOUNT_TARGETS=(["$CITYBRAIN_REPO"]=1 ["$CITYBRAIN_ROOT"]=1)
+for ((CITYBRAIN_I=0; CITYBRAIN_I<${#CITYBRAIN_ARGS[@]}; CITYBRAIN_I++)); do
+  CITYBRAIN_OPTION="${CITYBRAIN_ARGS[CITYBRAIN_I]}"
+  case "$CITYBRAIN_OPTION" in
+    --from|--source|--credentials-file|--scene-manifest|--report-path|--state|--path|--to|--output)
+      ((CITYBRAIN_I+=1))
+      CITYBRAIN_PATH="${CITYBRAIN_ARGS[CITYBRAIN_I]:?Missing path argument}"
+      case "$CITYBRAIN_PATH" in /*) ;; *) CITYBRAIN_PATH="$PWD/$CITYBRAIN_PATH" ;; esac
+      case "$CITYBRAIN_PATH" in *:*|*,*|*/../*|*/..) echo 'Use an absolute path without .., colon or comma' >&2; exit 2 ;; esac
+      CITYBRAIN_ARGS[CITYBRAIN_I]="$CITYBRAIN_PATH"
+      case "$CITYBRAIN_PATH" in "$CITYBRAIN_ROOT"|"$CITYBRAIN_ROOT"/*) continue ;; esac
+      case "$CITYBRAIN_OPTION" in
+        --output|--report-path)
+          CITYBRAIN_PARENT="$(dirname -- "$CITYBRAIN_PATH")"
+          [ "$CITYBRAIN_PARENT" != / ] || { echo 'Choose an output directory below /' >&2; exit 2; }
+          [ "$CITYBRAIN_PARENT" != "$CITYBRAIN_REPO" ] || { echo 'Write outputs to a subdirectory; the release source remains read-only' >&2; exit 2; }
+          if [ -z "${CITYBRAIN_MOUNT_TARGETS[$CITYBRAIN_PARENT]:-}" ]; then
+            CITYBRAIN_MOUNTS+=(-v "$CITYBRAIN_PARENT:$CITYBRAIN_PARENT")
+            CITYBRAIN_MOUNT_TARGETS["$CITYBRAIN_PARENT"]=1
+          fi ;;
+        *)
+          case "$CITYBRAIN_PATH" in "$CITYBRAIN_REPO"|"$CITYBRAIN_REPO"/*) continue ;; esac
+          if [ -z "${CITYBRAIN_MOUNT_TARGETS[$CITYBRAIN_PATH]:-}" ]; then
+            CITYBRAIN_MOUNTS+=(--mount "type=bind,src=$CITYBRAIN_PATH,dst=$CITYBRAIN_PATH,readonly")
+            CITYBRAIN_MOUNT_TARGETS["$CITYBRAIN_PATH"]=1
+          fi ;;
+      esac ;;
+  esac
+done
+if ! docker image inspect "$CITYBRAIN_IMAGE" >/dev/null 2>&1; then
+  docker build --network host -f "$CITYBRAIN_REPO/deploy/images/Toolbox.Dockerfile" -t "$CITYBRAIN_IMAGE" "$CITYBRAIN_REPO"
+fi
+exec docker run --rm --user 0:0 --network host \
+  --add-host host.docker.internal:host-gateway \
+  -e "CITYBRAIN_ROOT=$CITYBRAIN_ROOT" \
+  -e "CITYBRAIN_TOOLBOX_IMAGE=$CITYBRAIN_IMAGE" \
+  -e "CITYBRAIN_SOURCE=$CITYBRAIN_REPO" \
+  -e "PYTHONPATH=$CITYBRAIN_REPO" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  "${CITYBRAIN_MOUNTS[@]}" \
+  "$CITYBRAIN_IMAGE" "${CITYBRAIN_ARGS[@]}"

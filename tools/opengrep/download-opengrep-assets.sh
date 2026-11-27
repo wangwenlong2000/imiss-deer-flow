@@ -7,7 +7,7 @@ RULES_REF="${OPENGREP_RULES_REF:-main}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-SKILL_ROOT="${REPO_ROOT}/skills/public/opengrep-compliance"
+SKILL_ROOT="${REPO_ROOT}/skills/custom/program_snippet/opengrep-compliance"
 BIN_DIR="${SKILL_ROOT}/vendor/opengrep/linux"
 RULES_DIR="${SKILL_ROOT}/rules"
 OFFICIAL_RULES_DIR="${RULES_DIR}/official/opengrep-rules"

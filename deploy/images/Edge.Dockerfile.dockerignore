@@ -1,0 +1,9 @@
+**
+!apps/onecityagent/web/package.json
+!apps/onecityagent/web/package-lock.json
+!apps/onecityagent/web/.umirc.ts
+!apps/onecityagent/web/tsconfig.json
+!apps/onecityagent/web/tailwind.css
+!apps/onecityagent/web/tailwind.config.js
+!apps/onecityagent/web/public/**
+!apps/onecityagent/web/src/**

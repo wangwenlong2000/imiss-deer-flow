@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "log_bytes": 201,
+  "log_sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+  "name": "rc4-restore-assets-import",
+  "report": {
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:15:55.565026+00:00",
+    "started_at": "2026-11-27T02:15:54.306320+00:00"
+  },
+  "required": false,
+  "source_passed": true
+}

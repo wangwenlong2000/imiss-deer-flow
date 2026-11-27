@@ -36,10 +36,9 @@ const UserSettingPassword = () => {
       // 立即设置loading状态
       setLocalLoading(true);
 
-      const password = rsaPsw(values.password) as string;
-      const new_password = rsaPsw(values.new_password) as string;
-
       try {
+        const password = await rsaPsw(values.password);
+        const new_password = await rsaPsw(values.new_password);
         // 先获取认证信息
         const currentAuth = getAuthorization();
 

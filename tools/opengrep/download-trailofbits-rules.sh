@@ -5,7 +5,7 @@ RULES_REF="${TRAILOFBITS_RULES_REF:-master}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-SKILL_ROOT="${REPO_ROOT}/skills/public/opengrep-compliance"
+SKILL_ROOT="${REPO_ROOT}/skills/custom/program_snippet/opengrep-compliance"
 RULES_DIR="${SKILL_ROOT}/rules"
 COMMUNITY_RULES_DIR="${RULES_DIR}/community/trailofbits-semgrep-rules"
 DOWNLOAD_DIR="${REPO_ROOT}/.tmp/opengrep-downloads"

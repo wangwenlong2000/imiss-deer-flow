@@ -1,0 +1,169 @@
+{
+  "rewritten_files": [
+    "docs/compliance/合规检测实现与异构检测器接入指南.md",
+    "docs/operations/部署启动.md",
+    "docs/operations/SANDBOX_IMAGE_TUTORIAL.md",
+    "README.md",
+    "docs/history/remaining-quality-fixes-20261028.md",
+    "docs/history/full-flow-fixes-20261022.md",
+    "docs/project-materials/NDBC2026海报内容与排版规划.md",
+    "docs/compliance/compliance-detection-agent-prompt.md",
+    "docs/compliance/compliance-detection-decisions.md",
+    "docs/history/user-access-and-concurrency-20261112.md",
+    "docs/testing/intent-recognition-latency-analysis-20261022.md",
+    "docs/compliance/compliance-detection-implementation-plan.md",
+    "docs/history/video-surveillance-backend-followups.md",
+    "backend/CLAUDE.md",
+    "docs/history/intent-semantic-routing-20261022.md",
+    "docs/design/integration-onecity-20261125.md",
+    "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "docs/testing/video-surveillance-routing-questions-test-20260726.md",
+    "docs/history/optimization-summary-20261028.md",
+    "docs/history/intent-recognition-optimization-20261022.md",
+    "docs/skill-dependencies-20261126/README.md",
+    "backend/README.md",
+    "docs/history/stage-thinking-policy-20261027.md",
+    "docs/testing/full-flow-service-check-20261022.md",
+    "docs/testing/intent-live-service-check-20261022.md",
+    "docs/compliance/compliance-evaluation-strategy-issues.md",
+    "docs/testing/video-surveillance-skill-test-20260726.md",
+    "docs/compliance/onecity_deerflow_compliance_contract.md",
+    "docs/项目架构整理与易安装改造计划_20261126.md",
+    "docs/history/concurrency-implementation-20261029.md",
+    "docs/testing/intent-realistic-service-check-20261022.md",
+    "docs/history/turn-contract-fixes-20261027.md",
+    "apps/onecityagent/README.md",
+    "docs/project-materials/项目环境说明_外部验收_20261126.md",
+    "docs/testing/video-surveillance-skill-routing-questions.md",
+    "docs/history/duplicate-answer-display-fix-20261029.md",
+    "docs/skills/skill-migration-opengrep-code-business-dag.md",
+    "docs/Skill依赖版本盘点_20261126.md",
+    "docs/releases/20261028-intent-full-flow.md",
+    "config.example.yaml",
+    "config/compliance/detectors.yaml",
+    "backend/packages/harness/deerflow/compliance/__init__.py",
+    "scripts/test_video_surveillance_skills.py"
+  ],
+  "repaired_preexisting_links": [
+    {
+      "source": "合规检测实现与异构检测器接入指南.md",
+      "old_target": "../compliance-detector-integration-guide.md",
+      "resolved_before_move": "docs/compliance/compliance-detector-integration-guide.md"
+    },
+    {
+      "source": "合规检测实现与异构检测器接入指南.md",
+      "old_target": "new_detector_onboarding_guide.md",
+      "resolved_before_move": "docs/compliance/new_detector_onboarding_guide.md"
+    },
+    {
+      "source": "合规检测实现与异构检测器接入指南.md",
+      "old_target": "../compliance-detector-contract.schema.json",
+      "resolved_before_move": "docs/compliance-detector-contract.schema.json"
+    },
+    {
+      "source": "合规检测实现与异构检测器接入指南.md",
+      "old_target": "onecity_deerflow_compliance_contract.md",
+      "resolved_before_move": "docs/compliance/onecity_deerflow_compliance_contract.md"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/sandbox/Dockerfile",
+      "resolved_before_move": "docker/sandbox/Dockerfile"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../config.yaml",
+      "resolved_before_move": "config.yaml"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../scripts/docker.sh",
+      "resolved_before_move": "scripts/docker.sh"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../scripts/deploy.sh",
+      "resolved_before_move": "scripts/deploy.sh"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/docker-compose-dev.yaml",
+      "resolved_before_move": "docker/docker-compose-dev.yaml"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/docker-compose.yaml",
+      "resolved_before_move": "docker/docker-compose.yaml"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../Makefile",
+      "resolved_before_move": "Makefile"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../config.yaml",
+      "resolved_before_move": "config.yaml"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../config.yaml",
+      "resolved_before_move": "config.yaml"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../scripts/docker.sh",
+      "resolved_before_move": "scripts/docker.sh"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../scripts/deploy.sh",
+      "resolved_before_move": "scripts/deploy.sh"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../Makefile",
+      "resolved_before_move": "Makefile"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/sandbox/Dockerfile",
+      "resolved_before_move": "docker/sandbox/Dockerfile"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/sandbox/Dockerfile",
+      "resolved_before_move": "docker/sandbox/Dockerfile"
+    },
+    {
+      "source": "SANDBOX_IMAGE_TUTORIAL.md",
+      "old_target": "../docker/sandbox/Dockerfile",
+      "resolved_before_move": "docker/sandbox/Dockerfile"
+    },
+    {
+      "source": "docs/compliance-detection-implementation-plan.md",
+      "old_target": "backend/app/gateway/routers/uploads.py",
+      "resolved_before_move": "backend/app/gateway/routers/uploads.py"
+    },
+    {
+      "source": "docs/compliance-detection-implementation-plan.md",
+      "old_target": "backend/packages/harness/deerflow/agents/middlewares/intent_recognition_middleware.py",
+      "resolved_before_move": "backend/packages/harness/deerflow/agents/middlewares/intent_recognition_middleware.py"
+    },
+    {
+      "source": "docs/compliance-detection-implementation-plan.md",
+      "old_target": "backend/packages/harness/deerflow/agents/lead_agent/agent.py#L242",
+      "resolved_before_move": "backend/packages/harness/deerflow/agents/lead_agent/agent.py"
+    },
+    {
+      "source": "docs/compliance-detection-implementation-plan.md",
+      "old_target": "backend/packages/harness/deerflow/agents/middlewares/tool_error_handling_middleware.py",
+      "resolved_before_move": "backend/packages/harness/deerflow/agents/middlewares/tool_error_handling_middleware.py"
+    },
+    {
+      "source": "docs/compliance-detection-implementation-plan.md",
+      "old_target": "frontend/src/core/api/stream-mode.ts",
+      "resolved_before_move": "frontend/src/core/api/stream-mode.ts"
+    }
+  ]
+}

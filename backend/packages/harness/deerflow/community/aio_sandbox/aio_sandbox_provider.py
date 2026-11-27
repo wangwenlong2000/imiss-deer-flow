@@ -129,6 +129,8 @@ class AioSandboxProvider(SandboxProvider):
             environment=self._config["environment"],
             writable_uid=self._config["writable_uid"],
             writable_gid=self._config["writable_gid"],
+            network=self._config.get("network"),
+            extra_hosts=self._config.get("extra_hosts", {}),
         )
 
     # ── Configuration ────────────────────────────────────────────────────
@@ -153,6 +155,8 @@ class AioSandboxProvider(SandboxProvider):
             "environment": self._resolve_env_vars(sandbox_config.environment or {}),
             "writable_uid": writable_uid if writable_uid is not None else DEFAULT_WRITABLE_UID,
             "writable_gid": writable_gid if writable_gid is not None else DEFAULT_WRITABLE_GID,
+            "network": getattr(sandbox_config, "network", None),
+            "extra_hosts": getattr(sandbox_config, "extra_hosts", {}),
             # provisioner URL for dynamic pod management (e.g. http://provisioner:8002)
             "provisioner_url": getattr(sandbox_config, "provisioner_url", None) or "",
         }

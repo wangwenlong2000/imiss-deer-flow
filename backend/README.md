@@ -1,5 +1,11 @@
 # UrbanBrain Backend
 
+OneCity mobile SSE terminal events include the exact admitted `run_id` and
+`thread_id`, including runs that finish before pending/running polling and
+clarification turns. Clients can verify the native outcome without inferring it
+from a closed stream. Deployment verification contracts are documented in
+`../contracts/onecity-deerflow/v1/README.md`.
+
 The tracked config.example.yaml enables only Qwen3.6-35B-A3B and references
 QWEN_BASE_URL / QWEN_API_KEY environment variables. Runtime config.yaml and
 credentials remain local. See ../docs/releases/20261028-intent-full-flow.md
@@ -111,7 +117,7 @@ This deployment registers only `qwen3.6-35b-a3b` (Qwen3.6-35B-A3B) in the local
 `config.yaml`, including title, summarization, and memory model references.
 Removed model selections fall back to the configured default. Intent recognition
 explicitly disables Qwen thinking. See the [latency analysis and local deployment
-notes](../docs/intent-recognition-latency-analysis-20261022.md); the current endpoint
+notes](../docs/testing/intent-recognition-latency-analysis-20261022.md); the current endpoint
 is still DashScope. Restart LangGraph/Gateway after changing deployment configuration.
 
 Business intent recognition now combines scene selection, task extraction,
@@ -119,7 +125,7 @@ parameters, and the OneCityAgent plan in one structured model call. Invalid
 output gets at most one repair call, followed by an explicit recognition failure
 that preserves the original request and prevents partial business execution.
 Dialogue control remains a separate step when context requires it. See the
-[optimization and real-model evaluation report](../docs/intent-recognition-optimization-20261022.md)
+[optimization and real-model evaluation report](../docs/history/intent-recognition-optimization-20261022.md)
 for frozen cases, measured accuracy/latency, planning compatibility, and rollback.
 
 The deployment registry enables exactly ten scenes: network traffic, phone
@@ -130,7 +136,7 @@ domain keywords no longer exclude candidates or veto semantic decisions.
 Bounded upload metadata and the previous user task help resolve vague requests.
 Missing execution parameters are verified during planning; an unresolved business
 object produces a clarification question for the execution agent's existing
-`ask_clarification` tool. See the [method survey and semantic evaluation](../docs/intent-semantic-routing-20261022.md).
+`ask_clarification` tool. See the [method survey and semantic evaluation](../docs/history/intent-semantic-routing-20261022.md).
 
 Full-flow fixes preserve the same Qwen model and ten scenes. Unknown-scene
 clarification replies now resolve the original task rather than restore an empty

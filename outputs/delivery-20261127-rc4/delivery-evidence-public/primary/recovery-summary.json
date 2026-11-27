@@ -1,0 +1,6 @@
+{
+  "availability": "missing",
+  "name": "recovery-summary",
+  "required": false,
+  "scope": "optional_not_produced_by_cli"
+}

@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import os
 
 from langchain_core.tools import BaseTool
 
@@ -11,10 +10,10 @@ logger = logging.getLogger(__name__)
 _mcp_tools_cache: list[BaseTool] | None = None
 _cache_initialized = False
 _initialization_lock = asyncio.Lock()
-_config_mtime: float | None = None  # Track config file modification time
+_config_mtime: tuple | None = None  # Track base and runtime state revisions
 
 
-def _get_config_mtime() -> float | None:
+def _get_config_mtime() -> tuple:
     """Get the modification time of the extensions config file.
 
     Returns:
@@ -22,10 +21,7 @@ def _get_config_mtime() -> float | None:
     """
     from deerflow.config.extensions_config import ExtensionsConfig
 
-    config_path = ExtensionsConfig.resolve_config_path()
-    if config_path and config_path.exists():
-        return os.path.getmtime(config_path)
-    return None
+    return ExtensionsConfig.config_revision()
 
 
 def _is_cache_stale() -> bool:
@@ -41,12 +37,7 @@ def _is_cache_stale() -> bool:
 
     current_mtime = _get_config_mtime()
 
-    # If we couldn't get mtime before or now, assume not stale
-    if _config_mtime is None or current_mtime is None:
-        return False
-
-    # If the config file has been modified since we cached, it's stale
-    if current_mtime > _config_mtime:
+    if current_mtime != _config_mtime:
         logger.info(f"MCP config file has been modified (mtime: {_config_mtime} -> {current_mtime}), cache is stale")
         return True
 

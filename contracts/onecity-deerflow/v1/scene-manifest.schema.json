@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:citybrain:onecity-deerflow:v1:scene-manifest",
+  "type": "object",
+  "required": ["schema_version", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "capability", "query"],
+        "additionalProperties": false,
+        "anyOf": [{"required": ["expected_text"]}, {"required": ["expected_artifact"]}],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}$"},
+          "capability": {"enum": ["basic", "street", "video", "network", "remote_sensing", "phone", "traffic", "trajectory", "legal", "code", "public"]},
+          "query": {"type": "string", "minLength": 1},
+          "expected_text": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "upload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["filename"],
+            "oneOf": [{"required": ["path"]}, {"required": ["content"]}],
+            "properties": {"filename": {"type": "string", "minLength": 1}, "path": {"type": "string", "minLength": 1}, "content": {"type": "string"}}
+          },
+          "expected_artifact": {
+            "type": "object",
+            "required": ["path"],
+            "additionalProperties": false,
+            "anyOf": [{"required": ["sha256"]}, {"required": ["csv"]}],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+              "csv": {
+                "type": "object", "additionalProperties": false,
+                "required": ["key_column", "value_column", "expected"],
+                "properties": {
+                  "key_column": {"type": "string", "minLength": 1},
+                  "value_column": {"type": "string", "minLength": 1},
+                  "expected": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number"}}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

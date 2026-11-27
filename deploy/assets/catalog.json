@@ -1,0 +1,557 @@
+{
+  "schema_version": "1.0",
+  "source_audit": {
+    "path": "deploy/assets/skill-dependency-audit.json",
+    "sha256": "aee814dd515ba5ad4de921ee56d14a924227772a78bf2ba782f807abfc8f793b",
+    "date": "2026-11-26",
+    "dependency_rows": 338,
+    "evidence_scope": [
+      "逐一清点SKILL.md和脚本；核对requirements/pyproject/package-lock、共享代码、条件导入和外部命令",
+      "对配置镜像临时禁网只读容器读取importlib.metadata、系统工具版本和OS包元数据",
+      "Node包核对全局目录和专用图容器/app/skills的微信Skill本地node_modules",
+      "119份SKILL.md与专用图容器所挂载版本SHA256一致；未对全部脚本做源码一致性比对",
+      "未安装依赖、未修改服务、未调用外部API或各Skill业务；Pip包元数据不证明可成功import或功能可用"
+    ]
+  },
+  "runtime_profiles": {
+    "catalog_status": "proposed",
+    "profiles": [
+      "base",
+      "code",
+      "network",
+      "geo",
+      "video",
+      "browser",
+      "compatibility"
+    ],
+    "capability_mapping": "Category-based initial grouping for installation planning; requires operator selection and does not auto-enable a capability."
+  },
+  "capabilities": {
+    "basic": [
+      "bootstrap",
+      "chinese-policy-analysis",
+      "code2patent",
+      "consulting-analysis",
+      "frontend-design",
+      "legal-document-assistant",
+      "legal-proposal-generator",
+      "legal-qa-extractor",
+      "legal-text-format",
+      "litigation-analysis",
+      "patent-analysis",
+      "surprise-me"
+    ],
+    "code": [
+      "code-business-dag-analysis-pipeline",
+      "code-semantic-labeler",
+      "code-splitter-adapter",
+      "code-to-ast-new",
+      "dataflow-extractor",
+      "opengrep-compliance",
+      "pipeline-graph-builder",
+      "pipeline-reasoner"
+    ],
+    "legal": [
+      "china-contract-review",
+      "china-legal-consultation",
+      "china-legal-issue-analysis",
+      "chinese-policy-analysis",
+      "code2patent",
+      "law-local-retrieval",
+      "legal-briefing",
+      "legal-document-assistant",
+      "legal-proposal-generator",
+      "legal-qa-extractor",
+      "legal-text-format",
+      "litigation-analysis",
+      "official-document-writer",
+      "patent-analysis",
+      "policy-rag",
+      "trademark-assistant",
+      "wechat-article-fetch",
+      "wechat-article-search"
+    ],
+    "network": [
+      "network-traffic-analysis"
+    ],
+    "phone": [
+      "association-path-analysis",
+      "condition-based-screening",
+      "dataset-onboarding-graph-preprocess",
+      "dataset-overview-analysis",
+      "dataset-quality-and-linkability-diagnostic",
+      "gang-cluster-analysis",
+      "graph-operator",
+      "group-risk-analysis",
+      "overlap-analysis",
+      "risk-evidence-pack",
+      "shared-device-analysis",
+      "sichuan-shaanxi-comparison",
+      "single-number-analysis",
+      "subgraph-extraction-analysis",
+      "time-series-anomaly-analysis",
+      "topn-high-risk-discovery"
+    ],
+    "public": [
+      "bootstrap",
+      "chart-visualization",
+      "claude-to-deerflow",
+      "consulting-analysis",
+      "data-analysis",
+      "deep-research",
+      "find-skills",
+      "frontend-design",
+      "github-deep-research",
+      "image-generation",
+      "podcast-generation",
+      "ppt-generation",
+      "skill-creator",
+      "surprise-me",
+      "vercel-deploy-claimable",
+      "video-generation",
+      "web-design-guidelines"
+    ],
+    "remote_sensing": [
+      "V1+urban-greenspace-assessment",
+      "building-footprint-extraction",
+      "disaster-risk-assessment",
+      "flood-risk-mapping",
+      "green-space-monitoring",
+      "illegal-dumping-detection",
+      "impervious-surface-mapping",
+      "road-damage-assessment",
+      "space-data-processing",
+      "urban-change-detection",
+      "urban-expansion-analysis",
+      "urban-heat-assessment",
+      "water-quality-monitoring",
+      "write-proposal"
+    ],
+    "street": [
+      "location-matcher"
+    ],
+    "traffic": [
+      "road-traffic-analysis"
+    ],
+    "trajectory": [
+      "analyze_event_impact",
+      "analyze_od_flow",
+      "analyze_region_heat",
+      "analyze_spatiotemporal_accessibility",
+      "anonymize_trajectory_data",
+      "classify_trajectory_state",
+      "clean_trajectory",
+      "detect_flow_anomaly",
+      "detect_route_anomaly",
+      "detect_trajectory_cooccurrence",
+      "extract_stay_points",
+      "forecast_region_flow",
+      "fuse_spatial_evidence",
+      "map_spatial_grid",
+      "measure_spatiotemporal_entropy",
+      "mine_trajectory_patterns",
+      "predict_next_location",
+      "profile_urban_region",
+      "search_similar_trajectory",
+      "search_spatiotemporal"
+    ],
+    "video": [
+      "analyze-video",
+      "batch-video-ingestion",
+      "camera-health-check",
+      "city-video-intelligence",
+      "duplicate-event-merge",
+      "evidence-package-generation",
+      "evidence-snapshot",
+      "ffmpeg-utils",
+      "frame-sampling",
+      "human-review-routing",
+      "object-detection",
+      "object-statistics",
+      "object-tracking",
+      "privacy-masking",
+      "roi-mapping",
+      "roi-transit-statistics",
+      "single-video-event-analysis",
+      "video-embedding-index",
+      "video-object-analytics",
+      "video-privacy-masking",
+      "video-search",
+      "video-segment-extraction",
+      "video-stream-ingestion"
+    ]
+  },
+  "services": [
+    {
+      "service_id": "baidu_maps",
+      "names_from_inventory": [
+        "百度地图Web API"
+      ],
+      "consumers": [
+        "road-traffic-analysis"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "chart_rendering",
+      "names_from_inventory": [
+        "AntV GPT-Vis HTTP API"
+      ],
+      "consumers": [
+        "chart-visualization"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "chat_model",
+      "names_from_inventory": [
+        "OpenAI兼容LLM查询优化接口",
+        "共享DeerFlow配置的聊天模型",
+        "宿主智能体模型"
+      ],
+      "consumers": [
+        "code-semantic-labeler",
+        "opengrep-compliance",
+        "video-search"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "deerflow_api",
+      "names_from_inventory": [
+        "DeerFlow Gateway / LangGraph HTTP API"
+      ],
+      "consumers": [
+        "claude-to-deerflow"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "document_export",
+      "names_from_inventory": [
+        "宿主文档导出能力",
+        "独立docx导出技能"
+      ],
+      "consumers": [
+        "legal-briefing",
+        "official-document-writer"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "elasticsearch",
+      "names_from_inventory": [
+        "Elasticsearch",
+        "Elasticsearch / citybrain-video-library",
+        "Elasticsearch HTTP / cn_law_articles",
+        "Elasticsearch street索引"
+      ],
+      "consumers": [
+        "batch-video-ingestion",
+        "evidence-package-generation",
+        "law-local-retrieval",
+        "location-matcher",
+        "network-traffic-analysis",
+        "object-statistics",
+        "road-traffic-analysis",
+        "video-embedding-index",
+        "video-search"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "geocoding",
+      "names_from_inventory": [
+        "Photon正反地理编码"
+      ],
+      "consumers": [
+        "location-matcher"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "github",
+      "names_from_inventory": [
+        "GitHub REST API / 宿主网页工具",
+        "GitHub raw guidelines / 宿主WebFetch"
+      ],
+      "consumers": [
+        "github-deep-research",
+        "web-design-guidelines"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "image_generation",
+      "names_from_inventory": [
+        "Google Gemini Image API"
+      ],
+      "consumers": [
+        "image-generation"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "policy_embedding",
+      "names_from_inventory": [
+        "DashScope Embedding API"
+      ],
+      "consumers": [
+        "policy-rag"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "skill_registry",
+      "names_from_inventory": [
+        "skills.sh / npm包仓库 / Git仓库"
+      ],
+      "consumers": [
+        "find-skills"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "street_originals",
+      "names_from_inventory": [
+        "NAS街景原图只读挂载"
+      ],
+      "consumers": [
+        "location-matcher"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "streetmodel",
+      "names_from_inventory": [
+        "StreetModel / Qwen3-VL-Embedding-2B",
+        "StreetModel ImAge4VPR / Qwen3-VL-Embedding-2B / Qwen3-VL-Reranker-2B"
+      ],
+      "consumers": [
+        "location-matcher",
+        "video-embedding-index",
+        "video-search"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "text_embedding",
+      "names_from_inventory": [
+        "BAAI/bge-small-zh-v1.5",
+        "OpenAI兼容embedding API 或本地SentenceTransformer",
+        "本地sentence-transformers模型 BAAI/bge-m3"
+      ],
+      "consumers": [
+        "network-traffic-analysis",
+        "road-traffic-analysis",
+        "video-embedding-index"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "threat_feeds",
+      "names_from_inventory": [
+        "开放威胁情报feed/本地缓存"
+      ],
+      "consumers": [
+        "network-traffic-analysis"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "tts",
+      "names_from_inventory": [
+        "火山引擎TTS"
+      ],
+      "consumers": [
+        "podcast-generation"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "vercel_deploy",
+      "names_from_inventory": [
+        "Vercel claimable deploy HTTP服务"
+      ],
+      "consumers": [
+        "vercel-deploy-claimable"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "video_generation",
+      "names_from_inventory": [
+        "Google Veo API"
+      ],
+      "consumers": [
+        "video-generation"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "vision_model",
+      "names_from_inventory": [
+        "具备视觉能力的LLM/Agent审帧",
+        "宿主视觉模型/图像理解工具"
+      ],
+      "consumers": [
+        "single-video-event-analysis",
+        "trademark-assistant"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "web_tools",
+      "names_from_inventory": [
+        "宿主web_search / web_fetch工具",
+        "宿主web_search/web_fetch或本地法规检索"
+      ],
+      "consumers": [
+        "deep-research",
+        "official-document-writer"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "wechat_web",
+      "names_from_inventory": [
+        "微信公众号文章及图片资源HTTP",
+        "搜狗微信搜索HTTPS"
+      ],
+      "consumers": [
+        "wechat-article-fetch",
+        "wechat-article-search"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    },
+    {
+      "service_id": "yolo_weights",
+      "names_from_inventory": [
+        "本地YOLOv8n权重"
+      ],
+      "consumers": [
+        "object-detection",
+        "video-object-analytics"
+      ],
+      "availability": "inventory_only_not_probed",
+      "endpoint_or_credentials": "deployment_configuration_reference_not_embedded"
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "compliance-tfidf-knn",
+      "path": "models/compliance/ml_detector_0624_fresh.json",
+      "kind": "model_asset",
+      "source_checkout_state": "present",
+      "sha256": "d0183010a212e11322cf325ae39fe86462aa4f1dd7ca621925e5c9d41843003f",
+      "size_bytes": 6765154,
+      "executable": null,
+      "scope": "source_checkout_only",
+      "required_by_skills": [],
+      "owner": "compliance-runtime"
+    },
+    {
+      "asset_id": "streetmodel-model-revisions",
+      "path": "services/streetmodel/models.json",
+      "kind": "model_revision_manifest",
+      "source_checkout_state": "present",
+      "sha256": "3190c7ee8f664857749c2c8050580c16390265f4af1130b33715ec7c837e5850",
+      "size_bytes": 1551,
+      "executable": null,
+      "provisioning": "external_model_service",
+      "scope": "manifest_only_weights_not_in_source_checkout",
+      "required_by_skills": [
+        "location-matcher"
+      ]
+    },
+    {
+      "asset_id": "yolov8n",
+      "path": "skills/custom/models/yolov8n.pt",
+      "kind": "model_weight",
+      "source_checkout_state": "present",
+      "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+      "size_bytes": 6549796,
+      "executable": null,
+      "scope": "source_checkout_only",
+      "required_by_skills": [
+        "object-detection",
+        "video-object-analytics"
+      ]
+    },
+    {
+      "asset_id": "case-types-db",
+      "path": "skills/custom/policies-regulations/china-legal-consultation/references/data/case_types.db",
+      "kind": "sqlite_database",
+      "source_checkout_state": "present",
+      "sha256": "9f138a5ea45393e2de69a53fbd4a35149b9977798e659abc346e4bfc771bc2b7",
+      "size_bytes": 233472,
+      "executable": null,
+      "scope": "source_checkout_only",
+      "required_by_skills": [
+        "china-legal-consultation"
+      ]
+    },
+    {
+      "asset_id": "case-types-db",
+      "path": "skills/custom/policies-regulations/china-legal-issue-analysis/references/data/case_types.db",
+      "kind": "sqlite_database",
+      "source_checkout_state": "present",
+      "sha256": "9f138a5ea45393e2de69a53fbd4a35149b9977798e659abc346e4bfc771bc2b7",
+      "size_bytes": 233472,
+      "executable": null,
+      "scope": "source_checkout_only",
+      "required_by_skills": [
+        "china-legal-issue-analysis"
+      ]
+    },
+    {
+      "asset_id": "opengrep-rules",
+      "path": "skills/custom/program_snippet/opengrep-compliance/rules",
+      "kind": "rule_bundle",
+      "source_checkout_state": "present",
+      "sha256": null,
+      "size_bytes": null,
+      "executable": null,
+      "scope": "source_checkout_only",
+      "tree_sha256": "cdf08a4de550f7d41e3a9e53f4bf6c2fb7f41f5fcf7eea3367451354e3db5d0f",
+      "required_by_skills": [
+        "opengrep-compliance"
+      ]
+    },
+    {
+      "asset_id": "opengrep-linux",
+      "path": "skills/custom/program_snippet/opengrep-compliance/vendor/opengrep/linux/opengrep",
+      "kind": "native_binary",
+      "source_checkout_state": "present",
+      "sha256": "9ed0ceee4a3a406d27d40894bcce85ea151be21e6d4b180689689224faff2a3e",
+      "size_bytes": 40686116,
+      "executable": true,
+      "scope": "source_checkout_only",
+      "required_by_skills": [
+        "opengrep-compliance"
+      ]
+    }
+  ],
+  "business_acceptance": "not_run; this catalog is a static source/metadata inventory"
+}

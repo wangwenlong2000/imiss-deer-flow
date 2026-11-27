@@ -6,7 +6,7 @@ from flask import Blueprint, request
 from flask_login import login_required, current_user
 from flasgger import swag_from
 
-from onecityagent.service.tool_service.save_plan import PlanDataService
+from onecityagent.service.plan_data import PlanDataService
 from onecityagent.utils.api_utils import get_json_result, server_error_response
 from onecityagent.logger import logger
 
@@ -29,8 +29,8 @@ FORBIDDEN_SCENE_NAMES = {"其他场景", "非内置场景"}
                 "properties": {
                     "scene": {"type": "string", "description": "场景名称"},
                     "plan": {
-                        "type": "array", 
-                        "items": {"type": "string"}, 
+                        "type": "array",
+                        "items": {"type": "string"},
                         "description": "方案内容列表"
                     }
                 },
@@ -63,10 +63,10 @@ def create_plan():
         data = request.get_json()
         if not data:
             return get_json_result(data=None, code=400, message="请求数据不能为空")
-        
+
         scene = data.get('scene')
         plan = data.get('plan')
-        
+
         if not scene or not plan:
             return get_json_result(data=None, code=400, message="缺少必要参数: scene, plan")
 
@@ -78,12 +78,12 @@ def create_plan():
         # 名称校验：禁止使用特定占位名称
         if (scene or "").strip() in FORBIDDEN_SCENE_NAMES:
             return get_json_result(data=None, code=400, message="请根据方案详情填写方案名称，不能命名为其他场景或非内置场景")
-        
+
         # 检查同一用户下场景名称是否已存在
         existing_plan = PlanDataService.get_plan_by_scene_and_user(scene, current_user.id)
         if existing_plan:
             return get_json_result(data=None, code=400, message="该方案名称已存在，请使用其他名称")
-        
+
         result = PlanDataService.create_plan(
             scene=scene,
             plan=plan,
@@ -91,12 +91,12 @@ def create_plan():
             tenant_id=current_user.id,  # tenant_id复制user_id
             owner='person'  # owner默认为person
         )
-        
+
         if result:
             return get_json_result(data={"id": result.id}, message="创建成功")
         else:
             return get_json_result(data=None, code=500, message="创建失败")
-            
+
     except Exception as e:
         logger.exception(f"Create plan error: {str(e)}")
         return server_error_response(e)
@@ -122,8 +122,8 @@ def create_plan():
                 "properties": {
                     "scene": {"type": "string", "description": "场景名称"},
                     "plan": {
-                        "type": "array", 
-                        "items": {"type": "string"}, 
+                        "type": "array",
+                        "items": {"type": "string"},
                         "description": "方案内容列表"
                     },
                     "owner": {"type": "string", "description": "所有者（只能设置为person）", "enum": ["person"]}
@@ -147,15 +147,15 @@ def update_plan(plan_id):
         data = request.get_json()
         if not data:
             return get_json_result(data=None, code=400, message="请求数据不能为空")
-        
+
         # 先检查方案是否存在且属于当前用户
         existing_plan = PlanDataService.get_plan_by_id(plan_id)
         if not existing_plan:
             return get_json_result(data=None, code=404, message="方案不存在")
-        
+
         if existing_plan['user_id'] != current_user.id:
             return get_json_result(data=None, code=403, message="无权限操作此方案")
-        
+
         # 过滤允许更新的字段
         update_data = {}
         if 'scene' in data:
@@ -167,12 +167,12 @@ def update_plan(plan_id):
                 # 如果当前owner为public，不允许修改scene
                 if existing_plan.get('owner') == 'public':
                     return get_json_result(data=None, code=400, message="owner为public时不允许修改scene")
-                
+
                 # 检查同一用户下场景名称是否已存在（排除当前方案）
                 scene_check = PlanDataService.get_plan_by_scene_and_user(data['scene'], current_user.id)
                 if scene_check and scene_check.get('id') != plan_id:
                     return get_json_result(data=None, code=400, message="该方案名称已存在，请使用其他名称")
-            
+
             update_data['scene'] = data['scene']
         if 'plan' in data:
             update_data['plan'] = data['plan']
@@ -184,17 +184,17 @@ def update_plan(plan_id):
             if data['owner'] not in ['person', 'public']:
                 return get_json_result(data=None, code=400, message="owner只能设置为person或public")
             update_data['owner'] = data['owner']
-        
+
         if not update_data:
             return get_json_result(data=None, code=400, message="没有可更新的数据")
-        
+
         result = PlanDataService.update_plan(plan_id, **update_data)
-        
+
         if result:
             return get_json_result(data=None, message="更新成功")
         else:
             return get_json_result(data=None, code=500, message="更新失败")
-            
+
     except Exception as e:
         logger.exception(f"Update plan error: {str(e)}")
         return server_error_response(e)
@@ -229,21 +229,21 @@ def delete_plan(plan_id):
         existing_plan = PlanDataService.get_plan_by_id(plan_id)
         if not existing_plan:
             return get_json_result(data=None, code=404, message="方案不存在")
-        
+
         if existing_plan['user_id'] != current_user.id:
             return get_json_result(data=None, code=403, message="无权限操作此方案")
-        
+
         # 检查owner是否为public，如果是则不允许删除
         if existing_plan.get('owner') == 'public':
             return get_json_result(data=None, code=403, message="公共方案不允许删除")
-        
+
         result = PlanDataService.delete_plan(plan_id)
-        
+
         if result:
             return get_json_result(data=None, message="删除成功")
         else:
             return get_json_result(data=None, code=500, message="删除失败")
-            
+
     except Exception as e:
         logger.exception(f"Delete plan error: {str(e)}")
         return server_error_response(e)
@@ -276,8 +276,8 @@ def delete_plan(plan_id):
                             "scene": {"type": "string"},
                             "owner": {"type": "string"},
                             "plan": {
-                                "type": "array", 
-                                "items": {"type": "string"}, 
+                                "type": "array",
+                                "items": {"type": "string"},
                                 "description": "方案内容列表"
                             },
                             "user_id": {"type": "string"},
@@ -301,15 +301,15 @@ def get_plan(plan_id):
     """获取方案详情"""
     try:
         plan = PlanDataService.get_plan_by_id(plan_id)
-        
+
         if not plan:
             return get_json_result(data=None, code=404, message="方案不存在")
-        
+
         if plan['user_id'] != current_user.id:
             return get_json_result(data=None, code=403, message="无权限访问此方案")
-        
+
         return get_json_result(data=plan, message="获取成功")
-        
+
     except Exception as e:
         logger.exception(f"Get plan error: {str(e)}")
         return server_error_response(e)
@@ -376,8 +376,8 @@ def get_plan(plan_id):
                                         "scene": {"type": "string"},
                                         "owner": {"type": "string"},
                                         "plan": {
-                                            "type": "array", 
-                                            "items": {"type": "string"}, 
+                                            "type": "array",
+                                            "items": {"type": "string"},
                                             "description": "方案内容列表"
                                         },
                                         "user_id": {"type": "string"},
@@ -407,10 +407,10 @@ def list_plans():
         user_id = request.args.get('user_id', type=str)
         tenant_id = request.args.get('tenant_id', type=int)
         scene = request.args.get('scene')
-        
+
         if not user_id:
             return get_json_result(data=None, code=400, message="缺少必要参数: user_id")
-        
+
         result = PlanDataService.get_plans_by_user(
             user_id=user_id,
             tenant_id=tenant_id,
@@ -418,9 +418,9 @@ def list_plans():
             page=page,
             page_size=page_size
         )
-        
+
         return get_json_result(data=result, message="获取成功")
-        
+
     except Exception as e:
         logger.exception(f"List plans error: {str(e)}")
         return server_error_response(e)
@@ -482,8 +482,8 @@ def list_plans():
                                         "scene": {"type": "string"},
                                         "owner": {"type": "string"},
                                         "plan": {
-                                            "type": "array", 
-                                            "items": {"type": "string"}, 
+                                            "type": "array",
+                                            "items": {"type": "string"},
                                             "description": "方案内容列表"
                                         },
                                         "user_id": {"type": "string"},
@@ -512,11 +512,11 @@ def search_plans():
         keyword = request.args.get('keyword')
         if not keyword:
             return get_json_result(data=None, code=400, message="搜索关键词不能为空")
-        
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 20, type=int)
         tenant_id = request.args.get('tenant_id', type=int)
-        
+
         result = PlanDataService.search_plans(
             user_id=current_user.id,
             keyword=keyword,
@@ -524,9 +524,9 @@ def search_plans():
             page=page,
             page_size=page_size
         )
-        
+
         return get_json_result(data=result, message="搜索成功")
-        
+
     except Exception as e:
         logger.exception(f"Search plans error: {str(e)}")
         return server_error_response(e)
@@ -559,8 +559,8 @@ def search_plans():
                             "scene": {"type": "string"},
                             "owner": {"type": "string"},
                             "plan": {
-                                "type": "array", 
-                                "items": {"type": "string"}, 
+                                "type": "array",
+                                "items": {"type": "string"},
                                 "description": "方案内容列表"
                             },
                             "user_id": {"type": "string"},
@@ -587,14 +587,14 @@ def get_plan_by_scene():
         scene = request.args.get('scene')
         if not scene:
             return get_json_result(data=None, code=400, message="方案名称不能为空")
-        
+
         plan = PlanDataService.get_plan_by_scene_and_user(scene, current_user.id)
-        
+
         if not plan:
             return get_json_result(data=None, code=404, message="未找到该场景的方案")
-        
+
         return get_json_result(data=plan, message="获取成功")
-        
+
     except Exception as e:
         logger.exception(f"Get plan by scene error: {str(e)}")
         return server_error_response(e)
@@ -642,11 +642,11 @@ def get_plan_id_by_scene():
         scene = request.args.get('scene')
         if not scene:
             return get_json_result(data=None, code=400, message="方案名称不能为空")
-        
+
         plan_id = PlanDataService.get_plan_id_by_scene_and_user(scene, current_user.id)
-        
+
         return get_json_result(data={"id": plan_id}, message="获取成功")
-        
+
     except Exception as e:
         logger.exception(f"Get plan id by scene error: {str(e)}")
         return server_error_response(e)

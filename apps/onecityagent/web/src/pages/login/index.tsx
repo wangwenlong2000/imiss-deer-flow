@@ -3,7 +3,7 @@ import { ReactComponent as Mail } from '@/assets/picture/mail.svg';
 import { ReactComponent as ChinaMobile } from '@/assets/picture/mobile.svg';
 import { useLogin, useRegister } from '@/hooks/login-hooks';
 import { rsaPsw } from '@/utils';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +53,7 @@ const Login = () => {
     try {
       const params = await form.validateFields();
 
-      const rsaPassWord = rsaPsw(params.password) as string;
+      const rsaPassWord = await rsaPsw(params.password);
 
       if (title === 'login') {
         const code = await login({
@@ -88,7 +88,9 @@ const Login = () => {
         }
       }
     } catch (errorInfo) {
-      console.log('Failed:', errorInfo);
+      if (errorInfo instanceof Error) {
+        message.error(errorInfo.message || '登录请求失败，请稍后重试');
+      }
     }
   };
   const formItemLayout = {

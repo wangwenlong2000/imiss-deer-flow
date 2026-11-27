@@ -20,7 +20,7 @@ def test_structured_done_preserves_native_terminal_outcome(monkeypatch, run_stat
         await queue.put({"kind": "chunk", "raw_event": {"event": "values", "data": {"messages": [
             {"type": "human", "content": "synthetic"}, {"type": "ai", "content": "result"},
         ]}}})
-        await queue.put({"kind": "done", "run_status": run_status})
+        await queue.put({"kind": "done", "run_status": run_status, "run_id": "run-terminal"})
 
     monkeypatch.setattr(mobile, "_produce_langgraph_stream", produce)
 
@@ -32,6 +32,7 @@ def test_structured_done_preserves_native_terminal_outcome(monkeypatch, run_stat
 
     done = asyncio.run(exercise())
     assert done["status"] == expected
+    assert done["run_id"] == "run-terminal"
     assert (done["code"] == 0) == (expected == "completed")
 
 
@@ -147,7 +148,7 @@ def test_native_failure_takes_precedence_over_pending_clarification(monkeypatch,
     async def produce(request, queue):
         await queue.put({'kind': 'start', 'thread_id': 'thread-a'})
         await queue.put({'kind': 'chunk', 'raw_event': {'event': 'updates', 'data': {'clarification': {}}}})
-        await queue.put({'kind': 'done', 'run_status': run_status})
+        await queue.put({'kind': 'done', 'run_status': run_status, 'run_id': 'run-clarification'})
 
     monkeypatch.setattr(mobile, '_produce_langgraph_stream', produce)
     monkeypatch.setattr(mobile, '_extract_clarification_from_event', lambda *args, **kwargs: {'type': 'clarification', 'content': '请补充范围'})
@@ -159,6 +160,7 @@ def test_native_failure_takes_precedence_over_pending_clarification(monkeypatch,
     events = asyncio.run(collect())
     done = json.loads(next(event for event in events if event.startswith('event: done\n')).split('data: ', 1)[1])
     assert done['status'] == expected
+    assert done['run_id'] == 'run-clarification'
     assert (done['code'] == 0) == (expected == 'awaiting_clarification')
     assert any(event.startswith('event: clarification\n') for event in events) == (expected == 'awaiting_clarification')
 

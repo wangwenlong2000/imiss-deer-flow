@@ -12,15 +12,15 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 _SKILL_DIR = Path(__file__).resolve().parent
-_REPO_ROOT = _SKILL_DIR.parents[2]
+_REPO_ROOT = _SKILL_DIR.parents[3]
 _DEFAULT_CONFIG_PATH = _REPO_ROOT / "config.yaml"
 if "DEER_FLOW_CONFIG_PATH" not in os.environ and _DEFAULT_CONFIG_PATH.exists():
     os.environ["DEER_FLOW_CONFIG_PATH"] = str(_DEFAULT_CONFIG_PATH)
 
 
 # 添加 backend/packages/harness 到路径，以便导入 deerflow.models
-_backend_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "backend", "packages", "harness")
-if _backend_path not in sys.path:
+_backend_path = str(_REPO_ROOT / "backend" / "packages" / "harness")
+if Path(_backend_path).is_dir() and _backend_path not in sys.path:
     sys.path.insert(0, _backend_path)
 
 

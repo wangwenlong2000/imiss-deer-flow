@@ -1,5 +1,36 @@
 # CLAUDE.md
 
+## Basic delivery lifecycle guards (2026-11-27)
+
+`citybrain start` verifies the ready installation's root/project/release and
+immutable image inventory, reruns preflight, and compares generated Compose
+against the current site configuration before starting services. Planned bind
+mounts must remain inside the independent site root without symlink redirects.
+Tag replacement or generated-configuration drift fails closed; start is not an
+implicit upgrade. OneCity authentication/history tests disable SQLite automatic
+connections to cover the production database connection lifecycle. Database
+contexts preserve request-owned or transaction-owned connections.
+
+## Isolated dynamic sandbox ownership (2026-11-26)
+
+Single-site sandboxes derive root/project labels from the explicit host data path,
+container prefix and services network. `citybrain stop` validates every candidate's
+labels, recorded and current image ID, exact thread/asset mounts and exclusive
+site network before stopping any writer. It reinspects survivors after graph
+shutdown and stops immutable container IDs. Legacy unlabelled sandboxes are
+refused; names alone never authorize adoption or stopping another site's state.
+
+## Deployment verification and terminal identity (2026-11-26)
+
+`deploy.cli.verification` separates readiness, real account/history isolation,
+and live model/tool scenarios. It requires an explicit successful SSE terminal
+and exact native run status; missing selected-scene data and failed temporary
+account cleanup fail acceptance. The stream producer carries its admitted run ID
+in the terminal queue item, and both normal and clarification `done` frames keep
+it even if supplementary status polling never observes pending/running. OneCity
+passes that ID to its public terminal frame. Regression tests cover fast native
+runs created from response headers or metadata and terminal outcome precedence.
+
 ## Business stability and compliance verification (2026-11-25)
 
 `scripts/verify_onecity_business_load.py` exercises disposable registered OneCity users through real authenticated question, upload, SSE and artifact APIs. It records observed queue/response/completion timing, native outcomes, numerical and delivery correctness, Docker resources and host GPU samples. Test account state and raw synthetic answers stay in a private output directory. `verify_onecity_production.py cleanup` also disables exact validation dialog IDs recorded in that state. New private deployment bundles default to 3 workers, 6 pending/running tasks and 2 per user. Validation and measured limitations are in `docs/validation-20261125/README.md`.
@@ -14,13 +45,13 @@ The OneCity client retries `/resume` at most three times after a confirmed run b
 
 The OneCity Flask/A2A application and Umi frontend are maintained in `../apps/onecityagent/`, imported with their Git history and local multiuser changes. The repository also includes `origin/fix/street-workflow-20261125` (`b7c46a5`). Keep OneCity's Python 3.13 environment and React 18/Umi dependencies under that application; DeerFlow and the optional street model service retain their own environments.
 
-Root `make onecity-api`, `onecity-coordinator`, `onecity-web` and `onecity-build` run through `scripts/onecity.sh`, which selects the app directory and reads its local `.env`. The `onecity-test` and `onecity-test-client` commands execute existing isolated regressions. `scripts/deploy_onecity_entry.py --source` and `scripts/verify_onecity_multiuser.py --onecity-root` default to the bundled application using paths relative to their script files. `make onecity-verify` requires a backend runtime with Flask, Flask-Login, Peewee and Loguru available for the isolated OneCity fixture. Setup and provenance are in `docs/integration-onecity-20261125.md`.
+Root `make onecity-api`, `onecity-coordinator`, `onecity-web` and `onecity-build` run through `scripts/onecity.sh`, which selects the app directory and reads its local `.env`. The `onecity-test` and `onecity-test-client` commands execute existing isolated regressions. `scripts/deploy_onecity_entry.py --source` and `scripts/verify_onecity_multiuser.py --onecity-root` default to the bundled application using paths relative to their script files. `make onecity-verify` requires a backend runtime with Flask, Flask-Login, Peewee and Loguru available for the isolated OneCity fixture. Setup and provenance are in `docs/design/integration-onecity-20261125.md`.
 
 ContextGate's plain-text tool path imports the shared `apply_actions` executor. `tests/test_compliance_gates.py` covers clean pass-through, warning annotation, masking and refusal for plain tool output, alongside structured SkillResult checks.
 
 ## Authenticated user isolation (2026-11-12)
 
-The optional `scripts/deploy_onecity_multiuser.py` prepares a private deployment bundle for a separate OneCity Gateway/LangGraph pair without mutating the existing 3328 stack. `prepare` only inspects Docker and reads the live YAML; `start` explicitly creates new named containers and never replaces existing ones. A hashed backend source snapshot and existing venv/assets are read-only, so later development edits do not change running code. A shared new `DEER_FLOW_HOME` must correspond to `DEER_FLOW_HOST_BASE_DIR`, with an additional writable `.langgraph_api` mount because the installed in-memory runtime writes relative to CWD. Dedicated config uses trusted IAM scenes, an absolute private audit/checkpoint path, a distinct sandbox prefix/port and no duplicate IM subscriptions. OneCity source/frontend deployment and URL switching remain separate operations; see `docs/onecity-private-multiuser-deployment.md`. Run `python3 -m unittest discover -s backend/tests -p test_onecity_deployment_plan.py -v` for credential/state/operation boundary checks without Docker.
+The optional `scripts/deploy_onecity_multiuser.py` prepares a private deployment bundle for a separate OneCity Gateway/LangGraph pair without mutating the existing 3328 stack. `prepare` only inspects Docker and reads the live YAML; `start` explicitly creates new named containers and never replaces existing ones. A hashed backend source snapshot and existing venv/assets are read-only, so later development edits do not change running code. A shared new `DEER_FLOW_HOME` must correspond to `DEER_FLOW_HOST_BASE_DIR`, with an additional writable `.langgraph_api` mount because the installed in-memory runtime writes relative to CWD. Dedicated config uses trusted IAM scenes, an absolute private audit/checkpoint path, a distinct sandbox prefix/port and no duplicate IM subscriptions. OneCity source/frontend deployment and URL switching remain separate operations; see `docs/operations/onecity-private-multiuser-deployment.md`. Run `python3 -m unittest discover -s backend/tests -p test_onecity_deployment_plan.py -v` for credential/state/operation boundary checks without Docker.
 
 `GatewayAccessMiddleware` authenticates every `/api/*` request and applies thread ownership and platform administration checks. `GraphAccessMiddleware` protects native APIs, permits owner-scoped reads/cancel/delete and IAM-filtered search, and reserves task creation/state writes for the authenticated Gateway. Internal SDK calls use `app.internal_auth.internal_graph_headers()`; consume the credential before forwarding and never expose it to browsers or graph configuration. IAM deployments automatically require signed run admission. This protects one graph process; distributed admission is not implemented.
 
@@ -28,9 +59,9 @@ Thread metadata and conversation uniqueness use the exact verified `(org_id, use
 
 Memory scope is a thread-bound HMAC assertion built only after IAM authentication. Persisted files, cache, queue, and model-time injection use organization/user/agent namespaces; IAM must never fall back to global memory. Thread uploads and data-source attachments share `thread_upload_transaction` across local workers so rollback cannot overwrite another request. Reject redirected upload files/directories in writes, conversion, rollback and model attachment injection. Access logs omit tokens, query parameters and payloads.
 
-Run `python ../scripts/verify_user_access_runtime.py` in the backend environment for the isolated, deterministic real-LangGraph authorization/concurrency check. Unit/regression suites include `test_api_access_control`, `test_mobile_iam_validation`, `test_mobile_conversation_ownership`, `test_data_center_access`, `test_memory_user_isolation`, `test_onecity_iam` and `test_upload_path_isolation`. Full rollout notes and limitations: `docs/user-access-and-concurrency-20261112.md`. The standalone browser and IM task-creation flows still need trusted IAM integration before use in an IAM deployment; preserve legacy behavior only when IAM is unconfigured.
+Run `python ../scripts/verify_user_access_runtime.py` in the backend environment for the isolated, deterministic real-LangGraph authorization/concurrency check. Unit/regression suites include `test_api_access_control`, `test_mobile_iam_validation`, `test_mobile_conversation_ownership`, `test_data_center_access`, `test_memory_user_isolation`, `test_onecity_iam` and `test_upload_path_isolation`. Full rollout notes and limitations: `docs/history/user-access-and-concurrency-20261112.md`. The standalone browser and IM task-creation flows still need trusted IAM integration before use in an IAM deployment; preserve legacy behavior only when IAM is unconfigured.
 
-The UI recording fixture is documented in `docs/user-access-concurrency-demo.md`. `scripts/serve_user_access_demo.py` supplies isolated test identities and a deterministic CSV graph; `scripts/serve_user_access_demo_frontend.py` serves a temporary copy of the original frontend; `scripts/record_user_access_demo.mjs` drives independent real browser sessions and records assertions; `scripts/render_user_access_demo.mjs` renders a successful timeline. The fixture exercises the real access/admission middleware with two graph workers, four total in-flight slots and one active run per user. Its test-login bridge is not production IAM login, and its graph does not call an LLM or tools.
+The UI recording fixture is documented in `docs/project-materials/user-access-concurrency-demo.md`. `scripts/serve_user_access_demo.py` supplies isolated test identities and a deterministic CSV graph; `scripts/serve_user_access_demo_frontend.py` serves a temporary copy of the original frontend; `scripts/record_user_access_demo.mjs` drives independent real browser sessions and records assertions; `scripts/render_user_access_demo.mjs` renders a successful timeline. The fixture exercises the real access/admission middleware with two graph workers, four total in-flight slots and one active run per user. Its test-login bridge is not production IAM login, and its graph does not call an LLM or tools.
 
 ## Type 7 confidential regression (2026-09-17)
 
@@ -186,7 +217,7 @@ It creates three synthetic CSV conversations through the original model/tools
 and validates final tables, downloads and pending/running states. It consumes
 model requests; keep its raw SSE/state private and publish only sanitized
 metrics and synthetic CSVs. The real three-conversation validation and follow-up
-results are documented in `docs/concurrency-implementation-20261029.md` at repo root.
+results are documented in `docs/history/concurrency-implementation-20261029.md` at repo root.
 
 `routing/turn_requirements.py` defines the shared per-turn contract consumed by
 structured recognition, dialogue resume, the completion guard and CSV delivery.
@@ -520,6 +551,8 @@ Configuration priority:
 3. `extensions_config.json` in current directory (backend/)
 4. `extensions_config.json` in parent directory (project root - **recommended location**)
 
+When `DEER_FLOW_EXTENSIONS_STATE_PATH` is configured, the release file above can be read-only. Skill enablement overrides and the MCP server collection are written atomically to the separate runtime state file; the effective config merges these sections before resolving environment references. Mount the containing state directory writable only in the Gateway and read-only in LangGraph. Do not copy resolved secret values back into the release config. Cross-process MCP cache invalidation checks both files, including atomic replacements and deletion.
+
 ### Gateway API (`app/gateway/`)
 
 FastAPI application on port 8001 with health check at `GET /health`.
@@ -590,10 +623,10 @@ Proxied through nginx: `/api/langgraph/*` → LangGraph, all other `/api/*` → 
 
 - Uses `langchain-mcp-adapters` `MultiServerMCPClient` for multi-server management
 - **Lazy initialization**: Tools loaded on first use via `get_cached_mcp_tools()`
-- **Cache invalidation**: Detects config file changes via mtime comparison
+- **Cache invalidation**: Detects release and runtime state changes, including atomic replacements
 - **Transports**: stdio (command-based), SSE, HTTP
 - **OAuth (HTTP/SSE)**: Supports token endpoint flows (`client_credentials`, `refresh_token`) with automatic token refresh + Authorization header injection
-- **Runtime updates**: Gateway API saves to extensions_config.json; LangGraph detects via mtime
+- **Runtime updates**: Gateway API saves to the writable state file when configured, otherwise updates the legacy combined file; LangGraph detects changes across processes
 
 ### Skills System (`packages/harness/deerflow/skills/`)
 
@@ -727,7 +760,7 @@ already falls back to refusal when no reported risk location can be masked.
 
 **Commands**:
 
-End-to-end verification against the running service (Docker, `http://localhost:3538`) is documented in [docs/compliance-e2e-verification.md](../docs/compliance-e2e-verification.md), including the container operations that are safe and the ones that would destroy the running stack.
+End-to-end verification against the running service (Docker, `http://localhost:3538`) is documented in [docs/compliance/compliance-e2e-verification.md](../docs/compliance/compliance-e2e-verification.md), including the container operations that are safe and the ones that would destroy the running stack.
 
 ```bash
 make compliance-assets                # unpack + SHA256 verify + distribute the delivery package
@@ -739,7 +772,7 @@ make compliance-export-schema         # export the detector contract as JSON Sch
 
 Model weights (`models/compliance/*.json`, 6.7–11.7 MB) are gitignored and rebuilt by `make compliance-assets`.
 
-**Adding a detector**: see [docs/compliance-detector-integration-guide.md](../docs/compliance-detector-integration-guide.md).
+**Adding a detector**: see [docs/compliance/compliance-detector-integration-guide.md](../docs/compliance/compliance-detector-integration-guide.md).
 
 ### Reflection System (`packages/harness/deerflow/reflection/`)
 
@@ -765,6 +798,8 @@ Model weights (`models/compliance/*.json`, 6.7–11.7 MB) are gitignored and reb
 - `skills` - Map of skill name → state (enabled)
 
 Both can be modified at runtime via Gateway API endpoints or `DeerFlowClient` methods.
+
+**AIO sandbox networking**: `sandbox.network` attaches dynamically launched Docker sandboxes to an existing, explicitly named Docker network; `sandbox.extra_hosts` supports validated IP values or `host-gateway`. Both are optional, and explicit settings require the Docker backend. Verify access from inside a real sandbox. Do not rely on fixed bridge IPs.
 
 ### Embedded Client (`packages/harness/deerflow/client.py`)
 
@@ -929,7 +964,7 @@ Mobile SSE distinguishes `submitted`, `pending`, and `running`. Start the exact-
 
 `scripts/deploy_onecity_entry.py` backs up the affected OneCity source, compiled UI and launch environments inside the target container, restarts only API/Coordinator, persists the new connection environment and rolls back a failed cutover. `scripts/verify_onecity_production.py` uses disposable ordinary accounts for live auth/thread/file checks and disables them afterward; it does not execute the business graph. Both OneCity Flask servers use `PathOnlyRequestHandler` so default Werkzeug request logging cannot expose GET prompts or nested artifact URLs.
 
-The 2026-11-12 OneCity rollout is recorded in `docs/onecity-private-multiuser-deployment.md`: live entry checks use real disposable registration/login and no model execution. The two private services are active with 3 workers/10 total/2 per-user. The OneCity deployment helper copies assets in place and replaces index.html last because Docker OverlayFS may reject renaming a lower-layer directory; rollback restores the original files and recorded health signature. Keep the original backup separate from intermediate authenticated releases when choosing a rollback target.
+The 2026-11-12 OneCity rollout is recorded in `docs/operations/onecity-private-multiuser-deployment.md`: live entry checks use real disposable registration/login and no model execution. The two private services are active with 3 workers/10 total/2 per-user. The OneCity deployment helper copies assets in place and replaces index.html last because Docker OverlayFS may reject renaming a lower-layer directory; rollback restores the original files and recorded health signature. Keep the original backup separate from intermediate authenticated releases when choosing a rollback target.
 
 ## Local street model deployment
 

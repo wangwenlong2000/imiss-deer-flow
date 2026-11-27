@@ -5,7 +5,7 @@
 # `detectors/<name>/manifest.yaml` 里 —— 那是单一事实来源。
 # 检测器目录搬走或删掉，声明跟着走，这个文件顶多多一行无效条目。
 #
-# 新增检测器接入方式见 docs/compliance-detector-integration-guide.md：
+# 新增检测器接入方式见 docs/compliance/compliance-detector-integration-guide.md：
 #   1. 在 backend/packages/harness/deerflow/compliance/detectors/<你的名字>/ 下放 manifest.yaml
 #   2. 写一个满足 deerflow.compliance.contract.Detector 协议的实现
 #      （进程内 Python / 子进程 CLI / HTTP 服务，三选一）
@@ -45,7 +45,7 @@ detectors:
   - { id: regex_struct_id, enabled: true } # 1 结构化标识符泄露
   - { id: regex_geo_loc, enabled: true } # 2 精确地理位置泄露
   # 第 3/6/7 类来自 workspace 顶层 compliance_detectors 交付包；适配说明见
-  # docs/compliance-delivered-detectors-integration.md。第 6/7 类的边界样本
+  # docs/compliance/compliance-delivered-detectors-integration.md。第 6/7 类的边界样本
   # 复核使用当前对话实际选择的模型，由三道合规闸随请求传入。
   - { id: entropy_hardcoded_cred, enabled: true } # 3 InputGate 主检，OutputGate 兜底，ContextGate 一期不重复检
   # 第 4/5 类共用 V4 规则核心，运行时按命中结果输出独立违规类型。

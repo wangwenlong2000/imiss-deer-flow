@@ -1,0 +1,1500 @@
+{
+  "schema_version": 1,
+  "operation": "read_only_streamed_target_platform_payload_verification",
+  "verified_at": "2026-11-27T02:33:01.081967+00:00",
+  "release_version": "20261127-rc4",
+  "target_platform": "linux/amd64",
+  "archive_sha256": "b131961e7aa45276b50e996d4020f0dfd8cb5ff9cb0fe62d50a34c86e19d5b72",
+  "archive_bytes": 4979118035,
+  "archive_matches_release_manifest": true,
+  "archive_stat_unchanged": true,
+  "archive_input_stat": {
+    "st_dev": 2064,
+    "st_ino": 124327691,
+    "st_size": 4979118035,
+    "st_mtime_ns": 1795746415372395833,
+    "st_ctime_ns": 1795746415372395833
+  },
+  "release_manifest_stat_unchanged": true,
+  "original_verification_summary_sha256": "cbce8beae51e068e22c8acfcd8063689906e3719c696f31f4114256189e6af40",
+  "original_verification_summary_unchanged": true,
+  "original_verifier_passed": true,
+  "target_platform_verification_passed": true,
+  "target_platform_payload_complete": true,
+  "selected_runtime_manifest_count": 6,
+  "selected_runtime_config_count": 6,
+  "selected_runtime_layer_descriptor_count": 121,
+  "all_selected_manifests_configs_layers_present_and_hash_verified": true,
+  "all_oci_descriptors_present": false,
+  "oci_referenced_sha256_descriptors_missing": [
+    "sha256:a1f202a397782b7e2a98359b3f476132189b179e04f9123d4750d527e937f138",
+    "sha256:a6d695f7a070073444060075e10a7955ab9abf0f744f1ede6544ea76222376aa"
+  ],
+  "oci_descriptor_algorithms_unsupported": [],
+  "missing_descriptor_details": [
+    {
+      "digest": "sha256:a1f202a397782b7e2a98359b3f476132189b179e04f9123d4750d527e937f138",
+      "parent_index_digest": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+      "parent_component": "mysql",
+      "parent_reference": "mysql:8.0.39",
+      "parent_mediaType": "application/vnd.oci.image.index.v1+json",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "size": 3046,
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "attestation_reference_type": null,
+      "attestation_reference_digest": null,
+      "target_platform_payload": false,
+      "payload_present": false
+    },
+    {
+      "digest": "sha256:a6d695f7a070073444060075e10a7955ab9abf0f744f1ede6544ea76222376aa",
+      "parent_index_digest": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+      "parent_component": "mysql",
+      "parent_reference": "mysql:8.0.39",
+      "parent_mediaType": "application/vnd.oci.image.index.v1+json",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "size": 842,
+      "platform": {
+        "architecture": "unknown",
+        "os": "unknown"
+      },
+      "attestation_reference_type": "attestation-manifest",
+      "attestation_reference_digest": "sha256:a1f202a397782b7e2a98359b3f476132189b179e04f9123d4750d527e937f138",
+      "target_platform_payload": false,
+      "payload_present": false
+    }
+  ],
+  "images": [
+    {
+      "component": "deerflow",
+      "reference": "citybrain-deerflow:20261127-rc4",
+      "expected_image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "path": "blobs/sha256/18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:cc9e566dab065602e8ce43ace02517834d7aa61e0fe952183f0f03847960bc27",
+            "path": "blobs/sha256/cc9e566dab065602e8ce43ace02517834d7aa61e0fe952183f0f03847960bc27",
+            "size": 9444,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/cc9e566dab065602e8ce43ace02517834d7aa61e0fe952183f0f03847960bc27",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 16,
+          "layers": [
+            {
+              "digest": "sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "path": "blobs/sha256/6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "size": 29830418,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "path": "blobs/sha256/3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "size": 1294121,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "path": "blobs/sha256/b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "size": 12116303,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "path": "blobs/sha256/06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "size": 249,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e7675ebda8a19d848bd3048654008b5a0550f954335421af4e5902f7e0aaada2",
+              "path": "blobs/sha256/e7675ebda8a19d848bd3048654008b5a0550f954335421af4e5902f7e0aaada2",
+              "size": 18910319,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e7675ebda8a19d848bd3048654008b5a0550f954335421af4e5902f7e0aaada2",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:7a807c2c1520969c5d928ff5c18e1db31f909ca119612eb699b56df690bccc02",
+              "path": "blobs/sha256/7a807c2c1520969c5d928ff5c18e1db31f909ca119612eb699b56df690bccc02",
+              "size": 11260756,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/7a807c2c1520969c5d928ff5c18e1db31f909ca119612eb699b56df690bccc02",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:38212b7751524b06a194dfc21fbaf7d8047edd2484b2d04e6bea55cb12c6a66f",
+              "path": "blobs/sha256/38212b7751524b06a194dfc21fbaf7d8047edd2484b2d04e6bea55cb12c6a66f",
+              "size": 93,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/38212b7751524b06a194dfc21fbaf7d8047edd2484b2d04e6bea55cb12c6a66f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:34ee7f3b9b85d39d2a9f286e04898ea1255b4a2e44f7c8ed39228c18c7763e0e",
+              "path": "blobs/sha256/34ee7f3b9b85d39d2a9f286e04898ea1255b4a2e44f7c8ed39228c18c7763e0e",
+              "size": 199639,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/34ee7f3b9b85d39d2a9f286e04898ea1255b4a2e44f7c8ed39228c18c7763e0e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:88d5f86419f83b302d97a2be42320081f46d57899666541fc2eb5a308a8fba37",
+              "path": "blobs/sha256/88d5f86419f83b302d97a2be42320081f46d57899666541fc2eb5a308a8fba37",
+              "size": 9409,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/88d5f86419f83b302d97a2be42320081f46d57899666541fc2eb5a308a8fba37",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:370e960da78507d9ca6c8b5ce29c75d3991593fb36bdd0d7c0fc8ff8936d97bc",
+              "path": "blobs/sha256/370e960da78507d9ca6c8b5ce29c75d3991593fb36bdd0d7c0fc8ff8936d97bc",
+              "size": 721,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/370e960da78507d9ca6c8b5ce29c75d3991593fb36bdd0d7c0fc8ff8936d97bc",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:a2bce494799a24e93fa6f6c36d99f8e86d21a68d063a0db38e8690337aa1131f",
+              "path": "blobs/sha256/a2bce494799a24e93fa6f6c36d99f8e86d21a68d063a0db38e8690337aa1131f",
+              "size": 1294724,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/a2bce494799a24e93fa6f6c36d99f8e86d21a68d063a0db38e8690337aa1131f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:0b210f6796914a7a0fda3cd2309737c254f958c92764394c48ca78c5c33259f1",
+              "path": "blobs/sha256/0b210f6796914a7a0fda3cd2309737c254f958c92764394c48ca78c5c33259f1",
+              "size": 252961,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/0b210f6796914a7a0fda3cd2309737c254f958c92764394c48ca78c5c33259f1",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:90dfa922b1c4f8fc9b81258a1b9e0bb5cf6a80b010a33f90c73336bc8dc5ee82",
+              "path": "blobs/sha256/90dfa922b1c4f8fc9b81258a1b9e0bb5cf6a80b010a33f90c73336bc8dc5ee82",
+              "size": 419,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/90dfa922b1c4f8fc9b81258a1b9e0bb5cf6a80b010a33f90c73336bc8dc5ee82",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:1e07543e48c767a0419aedcc7df31e59bcc6ee8fa2c8bd880815ef73e82f280c",
+              "path": "blobs/sha256/1e07543e48c767a0419aedcc7df31e59bcc6ee8fa2c8bd880815ef73e82f280c",
+              "size": 426439252,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/1e07543e48c767a0419aedcc7df31e59bcc6ee8fa2c8bd880815ef73e82f280c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:51738686f3cc26ae41c7991f8525167ae76c3341eb3aab7bdb44e0c30fa746e5",
+              "path": "blobs/sha256/51738686f3cc26ae41c7991f8525167ae76c3341eb3aab7bdb44e0c30fa746e5",
+              "size": 276114,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/51738686f3cc26ae41c7991f8525167ae76c3341eb3aab7bdb44e0c30fa746e5",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:89733b2cf7bda50fded4a1c649d07af679b48d37f7dd3e8f065a8261ceaebb1b",
+              "path": "blobs/sha256/89733b2cf7bda50fded4a1c649d07af679b48d37f7dd3e8f065a8261ceaebb1b",
+              "size": 5043,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/89733b2cf7bda50fded4a1c649d07af679b48d37f7dd3e8f065a8261ceaebb1b",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    },
+    {
+      "component": "edge",
+      "reference": "citybrain-edge:20261127-rc4",
+      "expected_image_id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+          "path": "blobs/sha256/aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:67ff5ca1b9a8e4671f0160f215942a1c15648117183c2be9991496a841f27eb2",
+            "path": "blobs/sha256/67ff5ca1b9a8e4671f0160f215942a1c15648117183c2be9991496a841f27eb2",
+            "size": 12707,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/67ff5ca1b9a8e4671f0160f215942a1c15648117183c2be9991496a841f27eb2",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 9,
+          "layers": [
+            {
+              "digest": "sha256:29df493baa13de438d6d2ece3a8333032e0b7b9b9d8cce4ee82194da255f61e1",
+              "path": "blobs/sha256/29df493baa13de438d6d2ece3a8333032e0b7b9b9d8cce4ee82194da255f61e1",
+              "size": 8732160,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/29df493baa13de438d6d2ece3a8333032e0b7b9b9d8cce4ee82194da255f61e1",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e6082cdc2516c48531390c6f369268148ed5189748b4cdbcb30d8de04d4ef146",
+              "path": "blobs/sha256/e6082cdc2516c48531390c6f369268148ed5189748b4cdbcb30d8de04d4ef146",
+              "size": 4737536,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e6082cdc2516c48531390c6f369268148ed5189748b4cdbcb30d8de04d4ef146",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f4eddaa4c30384a3db34177c1132ca20f44c1216fe41ba7f607dcee58b908104",
+              "path": "blobs/sha256/f4eddaa4c30384a3db34177c1132ca20f44c1216fe41ba7f607dcee58b908104",
+              "size": 3584,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f4eddaa4c30384a3db34177c1132ca20f44c1216fe41ba7f607dcee58b908104",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:00a43f6306382cee5fdb8e738ce0b5c7022448687d5edea1912e169c6ee03ebb",
+              "path": "blobs/sha256/00a43f6306382cee5fdb8e738ce0b5c7022448687d5edea1912e169c6ee03ebb",
+              "size": 4608,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/00a43f6306382cee5fdb8e738ce0b5c7022448687d5edea1912e169c6ee03ebb",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f7b74afe8798753eb53d962f1676c409e590b5865b456c309c2e364cfe98f55e",
+              "path": "blobs/sha256/f7b74afe8798753eb53d962f1676c409e590b5865b456c309c2e364cfe98f55e",
+              "size": 2560,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f7b74afe8798753eb53d962f1676c409e590b5865b456c309c2e364cfe98f55e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:646d544dc619be2ab0e784ee691dc06e7a1d5ca76176b6e7fb1c8933b58350ff",
+              "path": "blobs/sha256/646d544dc619be2ab0e784ee691dc06e7a1d5ca76176b6e7fb1c8933b58350ff",
+              "size": 5120,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/646d544dc619be2ab0e784ee691dc06e7a1d5ca76176b6e7fb1c8933b58350ff",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:2b12ccfb247ac0c9ec2d186864ef4f2a893499e24935b14941e74aec27e62143",
+              "path": "blobs/sha256/2b12ccfb247ac0c9ec2d186864ef4f2a893499e24935b14941e74aec27e62143",
+              "size": 7168,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/2b12ccfb247ac0c9ec2d186864ef4f2a893499e24935b14941e74aec27e62143",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:36c003a300d15169fe53876c4c807b1668568414660e5249ba6d168badab54fa",
+              "path": "blobs/sha256/36c003a300d15169fe53876c4c807b1668568414660e5249ba6d168badab54fa",
+              "size": 50080256,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/36c003a300d15169fe53876c4c807b1668568414660e5249ba6d168badab54fa",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:12fe13afec2bd8f8756dfe2c73e0ba1e3f97aa0aadd93a39a91e4118ce364660",
+              "path": "blobs/sha256/12fe13afec2bd8f8756dfe2c73e0ba1e3f97aa0aadd93a39a91e4118ce364660",
+              "size": 40984266,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/12fe13afec2bd8f8756dfe2c73e0ba1e3f97aa0aadd93a39a91e4118ce364660",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    },
+    {
+      "component": "mysql",
+      "reference": "mysql:8.0.39",
+      "expected_image_id": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:6b143fc1f4eab6fc9d20f383cd108c680170ff22678c5cd28551d35247fed0b3",
+          "path": "blobs/sha256/6b143fc1f4eab6fc9d20f383cd108c680170ff22678c5cd28551d35247fed0b3",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:f5da8fc4b539c8ff9005b316b41b09d99b6ef6cdf55b5abbfcfd40dd3547f845",
+            "path": "blobs/sha256/f5da8fc4b539c8ff9005b316b41b09d99b6ef6cdf55b5abbfcfd40dd3547f845",
+            "size": 6755,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/f5da8fc4b539c8ff9005b316b41b09d99b6ef6cdf55b5abbfcfd40dd3547f845",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 11,
+          "layers": [
+            {
+              "digest": "sha256:eba3c26198b76ce92acfa6308130ab3224ee9fff583c51487a8caa0336d59e4e",
+              "path": "blobs/sha256/eba3c26198b76ce92acfa6308130ab3224ee9fff583c51487a8caa0336d59e4e",
+              "size": 49246942,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/eba3c26198b76ce92acfa6308130ab3224ee9fff583c51487a8caa0336d59e4e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:b6c54a7f9fe815e299b650e2a42aad4f236740b6af3353893d8214f795bc70ac",
+              "path": "blobs/sha256/b6c54a7f9fe815e299b650e2a42aad4f236740b6af3353893d8214f795bc70ac",
+              "size": 881,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/b6c54a7f9fe815e299b650e2a42aad4f236740b6af3353893d8214f795bc70ac",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:972686f20d79b40117d39ca73b5b034a013cc865e57f330367ba0157679691fb",
+              "path": "blobs/sha256/972686f20d79b40117d39ca73b5b034a013cc865e57f330367ba0157679691fb",
+              "size": 983002,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/972686f20d79b40117d39ca73b5b034a013cc865e57f330367ba0157679691fb",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:48f5f58971f7de31c996b9d164627887ad94bfb12897700798a4420d52eb0267",
+              "path": "blobs/sha256/48f5f58971f7de31c996b9d164627887ad94bfb12897700798a4420d52eb0267",
+              "size": 6733386,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/48f5f58971f7de31c996b9d164627887ad94bfb12897700798a4420d52eb0267",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:1c3daf5de485432cea017d47fb499c82e5f61883b9beb5aad9eb8b42961fd0a9",
+              "path": "blobs/sha256/1c3daf5de485432cea017d47fb499c82e5f61883b9beb5aad9eb8b42961fd0a9",
+              "size": 2602,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/1c3daf5de485432cea017d47fb499c82e5f61883b9beb5aad9eb8b42961fd0a9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:eba13b8088fe1252f16f0722d9e2d3a04cd938138cd748e38e5f2d78234fc858",
+              "path": "blobs/sha256/eba13b8088fe1252f16f0722d9e2d3a04cd938138cd748e38e5f2d78234fc858",
+              "size": 335,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/eba13b8088fe1252f16f0722d9e2d3a04cd938138cd748e38e5f2d78234fc858",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:514ee5d23bc92938bf617f59570e6436c2138daf8fce4171c3d32ffaeb12de42",
+              "path": "blobs/sha256/514ee5d23bc92938bf617f59570e6436c2138daf8fce4171c3d32ffaeb12de42",
+              "size": 49176281,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/514ee5d23bc92938bf617f59570e6436c2138daf8fce4171c3d32ffaeb12de42",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e91f47674d2509d1cf19c5b24b75579133d375fe358b7d1fb40a4fb783167b1f",
+              "path": "blobs/sha256/e91f47674d2509d1cf19c5b24b75579133d375fe358b7d1fb40a4fb783167b1f",
+              "size": 316,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e91f47674d2509d1cf19c5b24b75579133d375fe358b7d1fb40a4fb783167b1f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:077dbde9e2f694950fbdc9cb268ae8a034d464c0373156a34eae02a32b4661f9",
+              "path": "blobs/sha256/077dbde9e2f694950fbdc9cb268ae8a034d464c0373156a34eae02a32b4661f9",
+              "size": 60927625,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/077dbde9e2f694950fbdc9cb268ae8a034d464c0373156a34eae02a32b4661f9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:466b47b075c45f6750c0457257324f02b71de861329b12935ecceb2dac1bc044",
+              "path": "blobs/sha256/466b47b075c45f6750c0457257324f02b71de861329b12935ecceb2dac1bc044",
+              "size": 5325,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/466b47b075c45f6750c0457257324f02b71de861329b12935ecceb2dac1bc044",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:d145be117b98dbf2dabf0e7199ac541ba7493e346cb909e2ee225f92ce86c6dd",
+              "path": "blobs/sha256/d145be117b98dbf2dabf0e7199ac541ba7493e346cb909e2ee225f92ce86c6dd",
+              "size": 121,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/d145be117b98dbf2dabf0e7199ac541ba7493e346cb909e2ee225f92ce86c6dd",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    },
+    {
+      "component": "onecity",
+      "reference": "citybrain-onecity:20261127-rc4",
+      "expected_image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "path": "blobs/sha256/36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:995a852d46a683909c263b32bdda6fa61b86bc53b8ea5cc8c3a1f57b61bea825",
+            "path": "blobs/sha256/995a852d46a683909c263b32bdda6fa61b86bc53b8ea5cc8c3a1f57b61bea825",
+            "size": 7887,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/995a852d46a683909c263b32bdda6fa61b86bc53b8ea5cc8c3a1f57b61bea825",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 9,
+          "layers": [
+            {
+              "digest": "sha256:54ae9782e24f4abba5eebc5cc388f983b590abb011b69f20e0e592240bb7a698",
+              "path": "blobs/sha256/54ae9782e24f4abba5eebc5cc388f983b590abb011b69f20e0e592240bb7a698",
+              "size": 81254400,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/54ae9782e24f4abba5eebc5cc388f983b590abb011b69f20e0e592240bb7a698",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:44c47efe01a11b4195ee9e7ec5f9a2b5d3470b9d598a60e249274490a466289a",
+              "path": "blobs/sha256/44c47efe01a11b4195ee9e7ec5f9a2b5d3470b9d598a60e249274490a466289a",
+              "size": 4119040,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/44c47efe01a11b4195ee9e7ec5f9a2b5d3470b9d598a60e249274490a466289a",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:4a70c909e606e9b43c928c8e3a4e2597f16851acb82fe02120cd6cf54bc6b79e",
+              "path": "blobs/sha256/4a70c909e606e9b43c928c8e3a4e2597f16851acb82fe02120cd6cf54bc6b79e",
+              "size": 37067776,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/4a70c909e606e9b43c928c8e3a4e2597f16851acb82fe02120cd6cf54bc6b79e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:38d5992455ab6eb72ae9048fbf38b995a0158315199c3be290c129bd76b6f69d",
+              "path": "blobs/sha256/38d5992455ab6eb72ae9048fbf38b995a0158315199c3be290c129bd76b6f69d",
+              "size": 5120,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/38d5992455ab6eb72ae9048fbf38b995a0158315199c3be290c129bd76b6f69d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:8e8134c4143bd138081aa6e8478fa9e6df59062b67c41163575c3e0091b645a2",
+              "path": "blobs/sha256/8e8134c4143bd138081aa6e8478fa9e6df59062b67c41163575c3e0091b645a2",
+              "size": 93,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/8e8134c4143bd138081aa6e8478fa9e6df59062b67c41163575c3e0091b645a2",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:35383fbe1c670f7be29d1306c10a691420118389bded4cafb5f873ac7b28c12a",
+              "path": "blobs/sha256/35383fbe1c670f7be29d1306c10a691420118389bded4cafb5f873ac7b28c12a",
+              "size": 28710,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/35383fbe1c670f7be29d1306c10a691420118389bded4cafb5f873ac7b28c12a",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:bf2111ed5ae0539dd7fc9c86667026e72d889ee5d285d6a0190f4d7ade84cb2a",
+              "path": "blobs/sha256/bf2111ed5ae0539dd7fc9c86667026e72d889ee5d285d6a0190f4d7ade84cb2a",
+              "size": 19630752,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/bf2111ed5ae0539dd7fc9c86667026e72d889ee5d285d6a0190f4d7ade84cb2a",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e11b5841a907b48f3d900528abe1fd56155770359c049c7b9afd0e38659d8c32",
+              "path": "blobs/sha256/e11b5841a907b48f3d900528abe1fd56155770359c049c7b9afd0e38659d8c32",
+              "size": 454108,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e11b5841a907b48f3d900528abe1fd56155770359c049c7b9afd0e38659d8c32",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f2127187b2e9378532d5d759a16e3b020419ebaf75a7b01fba4c01bbb33fe2a6",
+              "path": "blobs/sha256/f2127187b2e9378532d5d759a16e3b020419ebaf75a7b01fba4c01bbb33fe2a6",
+              "size": 276114,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f2127187b2e9378532d5d759a16e3b020419ebaf75a7b01fba4c01bbb33fe2a6",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    },
+    {
+      "component": "sandbox",
+      "reference": "citybrain-sandbox:20261126-compat",
+      "expected_image_id": "sha256:89847f269c6355162a02c0acf4bb54e5b5753c2c12608c514f7d88aba52da672",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:9536c87b78ee94b40472eb8b5caad7c313dd1b288878a845549ce983fe671878",
+          "path": "blobs/sha256/9536c87b78ee94b40472eb8b5caad7c313dd1b288878a845549ce983fe671878",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:eef9445b8503e74d8b7801e5ffa5ac11a5eaf9a0c4bd2390b1bfae58410e8072",
+            "path": "blobs/sha256/eef9445b8503e74d8b7801e5ffa5ac11a5eaf9a0c4bd2390b1bfae58410e8072",
+            "size": 65398,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/eef9445b8503e74d8b7801e5ffa5ac11a5eaf9a0c4bd2390b1bfae58410e8072",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 65,
+          "layers": [
+            {
+              "digest": "sha256:af6eca94c8104c8e90d3f9efe59c2b3a02b20aad3d985e31c7cd009ea104c447",
+              "path": "blobs/sha256/af6eca94c8104c8e90d3f9efe59c2b3a02b20aad3d985e31c7cd009ea104c447",
+              "size": 29536818,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/af6eca94c8104c8e90d3f9efe59c2b3a02b20aad3d985e31c7cd009ea104c447",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:1767e2bde3b9bcf2940620204884cabb5d7c0de8cf83fcea994d86350c912922",
+              "path": "blobs/sha256/1767e2bde3b9bcf2940620204884cabb5d7c0de8cf83fcea994d86350c912922",
+              "size": 337460199,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/1767e2bde3b9bcf2940620204884cabb5d7c0de8cf83fcea994d86350c912922",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:4119a7da912904b5addc031bf929865bcbbc4105ed45f72bd6603387c527842f",
+              "path": "blobs/sha256/4119a7da912904b5addc031bf929865bcbbc4105ed45f72bd6603387c527842f",
+              "size": 3079086,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/4119a7da912904b5addc031bf929865bcbbc4105ed45f72bd6603387c527842f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:b644f64e94782e7f39f2b7718c129adc003686a2416940e1945d334269c27728",
+              "path": "blobs/sha256/b644f64e94782e7f39f2b7718c129adc003686a2416940e1945d334269c27728",
+              "size": 733680,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/b644f64e94782e7f39f2b7718c129adc003686a2416940e1945d334269c27728",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:ef45cb472ad03066fbb7945393b60418efdd3f9c67a09409c8558d480ba3d11c",
+              "path": "blobs/sha256/ef45cb472ad03066fbb7945393b60418efdd3f9c67a09409c8558d480ba3d11c",
+              "size": 4073,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/ef45cb472ad03066fbb7945393b60418efdd3f9c67a09409c8558d480ba3d11c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:6e3b09ac1f4697665e55ecb0f768dd5792ba24fbe165a99991eb7780542feac4",
+              "path": "blobs/sha256/6e3b09ac1f4697665e55ecb0f768dd5792ba24fbe165a99991eb7780542feac4",
+              "size": 209598151,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6e3b09ac1f4697665e55ecb0f768dd5792ba24fbe165a99991eb7780542feac4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:38f0a8717f325e6f461abbab4f46c4a2aacf6d2bb1def7629df2273939a1ea30",
+              "path": "blobs/sha256/38f0a8717f325e6f461abbab4f46c4a2aacf6d2bb1def7629df2273939a1ea30",
+              "size": 1363,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/38f0a8717f325e6f461abbab4f46c4a2aacf6d2bb1def7629df2273939a1ea30",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:71e32101d18ad4517dd9ff8212232c010204bea81ac3e38c9c5d7adde0c7f01d",
+              "path": "blobs/sha256/71e32101d18ad4517dd9ff8212232c010204bea81ac3e38c9c5d7adde0c7f01d",
+              "size": 114209181,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/71e32101d18ad4517dd9ff8212232c010204bea81ac3e38c9c5d7adde0c7f01d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:1c64301e6ed4ac678164c2c8153034f565819eb95664ae0aa136c76384dc7c7f",
+              "path": "blobs/sha256/1c64301e6ed4ac678164c2c8153034f565819eb95664ae0aa136c76384dc7c7f",
+              "size": 17199,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/1c64301e6ed4ac678164c2c8153034f565819eb95664ae0aa136c76384dc7c7f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:6334042b26c4cfdda5241232df2c2d4fa14e6ba6d26ffb709474a986104a8243",
+              "path": "blobs/sha256/6334042b26c4cfdda5241232df2c2d4fa14e6ba6d26ffb709474a986104a8243",
+              "size": 823,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6334042b26c4cfdda5241232df2c2d4fa14e6ba6d26ffb709474a986104a8243",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:bdb74adc5735851f5efff1a51c5aa44d1589a6807102341968b22c03e8caad50",
+              "path": "blobs/sha256/bdb74adc5735851f5efff1a51c5aa44d1589a6807102341968b22c03e8caad50",
+              "size": 87694,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/bdb74adc5735851f5efff1a51c5aa44d1589a6807102341968b22c03e8caad50",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:be48381efb794736ee1171f7334a97fb3d04441f7c388c01c810b7ee0829f612",
+              "path": "blobs/sha256/be48381efb794736ee1171f7334a97fb3d04441f7c388c01c810b7ee0829f612",
+              "size": 33200834,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/be48381efb794736ee1171f7334a97fb3d04441f7c388c01c810b7ee0829f612",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:ab8a39f1b8b568df97ae0ba202773ae4219eaaad248a906142e9dc8b648dade5",
+              "path": "blobs/sha256/ab8a39f1b8b568df97ae0ba202773ae4219eaaad248a906142e9dc8b648dade5",
+              "size": 1030689,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/ab8a39f1b8b568df97ae0ba202773ae4219eaaad248a906142e9dc8b648dade5",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:9d7c9a7e4ba22d3e792f3236585e62b29c87a6b00a441119266e378b6e86143f",
+              "path": "blobs/sha256/9d7c9a7e4ba22d3e792f3236585e62b29c87a6b00a441119266e378b6e86143f",
+              "size": 780,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/9d7c9a7e4ba22d3e792f3236585e62b29c87a6b00a441119266e378b6e86143f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:2430b0e119c8e706e1c4cfa88c9834719b9ba03bb9140bdec9b0b6b671e3e2a4",
+              "path": "blobs/sha256/2430b0e119c8e706e1c4cfa88c9834719b9ba03bb9140bdec9b0b6b671e3e2a4",
+              "size": 18043,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/2430b0e119c8e706e1c4cfa88c9834719b9ba03bb9140bdec9b0b6b671e3e2a4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f5492bb2db07a9baa99869dfc838d8665216c53a5ce6f47634a38f650b0ac039",
+              "path": "blobs/sha256/f5492bb2db07a9baa99869dfc838d8665216c53a5ce6f47634a38f650b0ac039",
+              "size": 1116,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f5492bb2db07a9baa99869dfc838d8665216c53a5ce6f47634a38f650b0ac039",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:5601f5002fe604a413a064055a5551000137fa165258ec217f5bd12e63318045",
+              "path": "blobs/sha256/5601f5002fe604a413a064055a5551000137fa165258ec217f5bd12e63318045",
+              "size": 729,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/5601f5002fe604a413a064055a5551000137fa165258ec217f5bd12e63318045",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:913f1517304503c3eb5231787f237445852821b0563fe5edaa1ccc1ab1feb7d9",
+              "path": "blobs/sha256/913f1517304503c3eb5231787f237445852821b0563fe5edaa1ccc1ab1feb7d9",
+              "size": 596,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/913f1517304503c3eb5231787f237445852821b0563fe5edaa1ccc1ab1feb7d9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:b70c9e2a8095c46111c48a0b56baf832911d8ea88f7173f9f2da68cabae131ff",
+              "path": "blobs/sha256/b70c9e2a8095c46111c48a0b56baf832911d8ea88f7173f9f2da68cabae131ff",
+              "size": 555973897,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/b70c9e2a8095c46111c48a0b56baf832911d8ea88f7173f9f2da68cabae131ff",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:3ff5d1bddbd0f0710e9e8c8657485d4fb74f9855522fe1382fec987b1aae99df",
+              "path": "blobs/sha256/3ff5d1bddbd0f0710e9e8c8657485d4fb74f9855522fe1382fec987b1aae99df",
+              "size": 2265977,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/3ff5d1bddbd0f0710e9e8c8657485d4fb74f9855522fe1382fec987b1aae99df",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:30bc5c72cc6f15ee5641fd4ac22eca175109e53c4cc6c28f93f8ad526d180538",
+              "path": "blobs/sha256/30bc5c72cc6f15ee5641fd4ac22eca175109e53c4cc6c28f93f8ad526d180538",
+              "size": 767726,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/30bc5c72cc6f15ee5641fd4ac22eca175109e53c4cc6c28f93f8ad526d180538",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e86cd1e984a0ca7b4949e874f63197f3eb39cafd756eba8a9104fa65ef3a0bb3",
+              "path": "blobs/sha256/e86cd1e984a0ca7b4949e874f63197f3eb39cafd756eba8a9104fa65ef3a0bb3",
+              "size": 3008959,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e86cd1e984a0ca7b4949e874f63197f3eb39cafd756eba8a9104fa65ef3a0bb3",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:804acfa5d8c87af942e4b2606a5008cc672bb9401258bf099bf61cffc9273381",
+              "path": "blobs/sha256/804acfa5d8c87af942e4b2606a5008cc672bb9401258bf099bf61cffc9273381",
+              "size": 3008959,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/804acfa5d8c87af942e4b2606a5008cc672bb9401258bf099bf61cffc9273381",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:5151bc31236f0c89c6fa8ede0962ff52a33bb2bbc235046dea8cc43738be6060",
+              "path": "blobs/sha256/5151bc31236f0c89c6fa8ede0962ff52a33bb2bbc235046dea8cc43738be6060",
+              "size": 19547256,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/5151bc31236f0c89c6fa8ede0962ff52a33bb2bbc235046dea8cc43738be6060",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:22cf37dbc4bae53c58c76ef8350df37fb89c013e6f3add96816d02307ac90bdc",
+              "path": "blobs/sha256/22cf37dbc4bae53c58c76ef8350df37fb89c013e6f3add96816d02307ac90bdc",
+              "size": 407216012,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/22cf37dbc4bae53c58c76ef8350df37fb89c013e6f3add96816d02307ac90bdc",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e2507839d657d539c66690fbe1c70e40375511805a19cc2cd632962ab4677826",
+              "path": "blobs/sha256/e2507839d657d539c66690fbe1c70e40375511805a19cc2cd632962ab4677826",
+              "size": 69943417,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e2507839d657d539c66690fbe1c70e40375511805a19cc2cd632962ab4677826",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f7f318fce199611a95ba4530de2a6a26ced28a6fd8202d5a867bea5407d2276c",
+              "path": "blobs/sha256/f7f318fce199611a95ba4530de2a6a26ced28a6fd8202d5a867bea5407d2276c",
+              "size": 128587,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f7f318fce199611a95ba4530de2a6a26ced28a6fd8202d5a867bea5407d2276c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:41502e534edcb62da91a41609f07e02fedbce1129099ba9bb58d839fbc3230f0",
+              "path": "blobs/sha256/41502e534edcb62da91a41609f07e02fedbce1129099ba9bb58d839fbc3230f0",
+              "size": 126438486,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/41502e534edcb62da91a41609f07e02fedbce1129099ba9bb58d839fbc3230f0",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:22cad4875547148ca8b01ab244ff8a2f598e225ff17e45aa5b15cfb562e3a60c",
+              "path": "blobs/sha256/22cad4875547148ca8b01ab244ff8a2f598e225ff17e45aa5b15cfb562e3a60c",
+              "size": 94395585,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/22cad4875547148ca8b01ab244ff8a2f598e225ff17e45aa5b15cfb562e3a60c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:711851dafae9fc67a6c6b50668a2e295b765023b0f1b4c909d68151028eb12bb",
+              "path": "blobs/sha256/711851dafae9fc67a6c6b50668a2e295b765023b0f1b4c909d68151028eb12bb",
+              "size": 42217776,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/711851dafae9fc67a6c6b50668a2e295b765023b0f1b4c909d68151028eb12bb",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:030b306761a51edf28d0068f6df2a36e2ee1c2b2f5664a3e65d979755584fd0c",
+              "path": "blobs/sha256/030b306761a51edf28d0068f6df2a36e2ee1c2b2f5664a3e65d979755584fd0c",
+              "size": 141,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/030b306761a51edf28d0068f6df2a36e2ee1c2b2f5664a3e65d979755584fd0c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:d55f85368a973e31ffa524ef1c8cdac42e93431513a77a209f2ed9455832b45f",
+              "path": "blobs/sha256/d55f85368a973e31ffa524ef1c8cdac42e93431513a77a209f2ed9455832b45f",
+              "size": 32793651,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/d55f85368a973e31ffa524ef1c8cdac42e93431513a77a209f2ed9455832b45f",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:01d76ac8fb9eb21750c5f92a596bb9febea8545b32878b897b6c429189c874d4",
+              "path": "blobs/sha256/01d76ac8fb9eb21750c5f92a596bb9febea8545b32878b897b6c429189c874d4",
+              "size": 362208158,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/01d76ac8fb9eb21750c5f92a596bb9febea8545b32878b897b6c429189c874d4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e9fa2c9c55eeb20aa69a0b5c93a50c10c4411517d0d53950acb71c4223f71dfa",
+              "path": "blobs/sha256/e9fa2c9c55eeb20aa69a0b5c93a50c10c4411517d0d53950acb71c4223f71dfa",
+              "size": 144813,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e9fa2c9c55eeb20aa69a0b5c93a50c10c4411517d0d53950acb71c4223f71dfa",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:4c726c295b265fd5136557bd14b3f1a0945bcb7cf88f2bf9ba60ada8e3691e7b",
+              "path": "blobs/sha256/4c726c295b265fd5136557bd14b3f1a0945bcb7cf88f2bf9ba60ada8e3691e7b",
+              "size": 2996,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/4c726c295b265fd5136557bd14b3f1a0945bcb7cf88f2bf9ba60ada8e3691e7b",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f118c58b571e319277af96ccd71fa23504b5ea5243bfe965acb9910bfb84d60b",
+              "path": "blobs/sha256/f118c58b571e319277af96ccd71fa23504b5ea5243bfe965acb9910bfb84d60b",
+              "size": 247682745,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f118c58b571e319277af96ccd71fa23504b5ea5243bfe965acb9910bfb84d60b",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f762ec310f3fac8ef46d048dd8c625eb92ccd07a1c2d388a2976ab603d61dab4",
+              "path": "blobs/sha256/f762ec310f3fac8ef46d048dd8c625eb92ccd07a1c2d388a2976ab603d61dab4",
+              "size": 704,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f762ec310f3fac8ef46d048dd8c625eb92ccd07a1c2d388a2976ab603d61dab4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:dfa521c8ff480aa18b3465e7fca101d3bcc722f84c69a6ea9afee776d93fa5aa",
+              "path": "blobs/sha256/dfa521c8ff480aa18b3465e7fca101d3bcc722f84c69a6ea9afee776d93fa5aa",
+              "size": 241,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/dfa521c8ff480aa18b3465e7fca101d3bcc722f84c69a6ea9afee776d93fa5aa",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:091ed25241967f0856520e074d16db2e6c2555645c7eccc3b802341b76bb50aa",
+              "path": "blobs/sha256/091ed25241967f0856520e074d16db2e6c2555645c7eccc3b802341b76bb50aa",
+              "size": 463,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/091ed25241967f0856520e074d16db2e6c2555645c7eccc3b802341b76bb50aa",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:a0cd8eaaba59cc0a591e71ea65a83b36e34d330bd09a85eb4c2f6c137f8b38bb",
+              "path": "blobs/sha256/a0cd8eaaba59cc0a591e71ea65a83b36e34d330bd09a85eb4c2f6c137f8b38bb",
+              "size": 2929,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/a0cd8eaaba59cc0a591e71ea65a83b36e34d330bd09a85eb4c2f6c137f8b38bb",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f9d2afcd41331debcd08bc41210e557c17d69ceb72d3ceaac9208f15970553bc",
+              "path": "blobs/sha256/f9d2afcd41331debcd08bc41210e557c17d69ceb72d3ceaac9208f15970553bc",
+              "size": 406,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f9d2afcd41331debcd08bc41210e557c17d69ceb72d3ceaac9208f15970553bc",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:d0cdcf9624de219d38a9a8c0c2fd5a1e405d241de1c5e045444344e5cc88f46c",
+              "path": "blobs/sha256/d0cdcf9624de219d38a9a8c0c2fd5a1e405d241de1c5e045444344e5cc88f46c",
+              "size": 454,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/d0cdcf9624de219d38a9a8c0c2fd5a1e405d241de1c5e045444344e5cc88f46c",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:378010cdfec1926094d1c9203fd1dd4463404885b76b3836680932d7c566537e",
+              "path": "blobs/sha256/378010cdfec1926094d1c9203fd1dd4463404885b76b3836680932d7c566537e",
+              "size": 510,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/378010cdfec1926094d1c9203fd1dd4463404885b76b3836680932d7c566537e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:2df83e311ed253b146d0eef46b9dcfe18d1358125439efea506836d67cef4ce4",
+              "path": "blobs/sha256/2df83e311ed253b146d0eef46b9dcfe18d1358125439efea506836d67cef4ce4",
+              "size": 286,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/2df83e311ed253b146d0eef46b9dcfe18d1358125439efea506836d67cef4ce4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:fe33026ab0236e5043fbdd2df3402506a182d4e0f2c74557494ecaad8a682922",
+              "path": "blobs/sha256/fe33026ab0236e5043fbdd2df3402506a182d4e0f2c74557494ecaad8a682922",
+              "size": 683,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/fe33026ab0236e5043fbdd2df3402506a182d4e0f2c74557494ecaad8a682922",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:a0f7aa07b4b5bfff481d719c43a19dcd0d1f5568f9bdfca9a8eb075cc3b6fc77",
+              "path": "blobs/sha256/a0f7aa07b4b5bfff481d719c43a19dcd0d1f5568f9bdfca9a8eb075cc3b6fc77",
+              "size": 3897,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/a0f7aa07b4b5bfff481d719c43a19dcd0d1f5568f9bdfca9a8eb075cc3b6fc77",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:9e17d7743821510d4b3b9b27379cf10edd4ef33eeb53d23bbde27f41e42fb9de",
+              "path": "blobs/sha256/9e17d7743821510d4b3b9b27379cf10edd4ef33eeb53d23bbde27f41e42fb9de",
+              "size": 8528,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/9e17d7743821510d4b3b9b27379cf10edd4ef33eeb53d23bbde27f41e42fb9de",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:d5c33ada6b922195d95adfa65fd4c8438f32dc0698bdb2424d267dab19f0c8d9",
+              "path": "blobs/sha256/d5c33ada6b922195d95adfa65fd4c8438f32dc0698bdb2424d267dab19f0c8d9",
+              "size": 709092,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/d5c33ada6b922195d95adfa65fd4c8438f32dc0698bdb2424d267dab19f0c8d9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:6843d17a0c5cec8cee79a33b3c7590bde9035c248caa35267fb749cee6097fb5",
+              "path": "blobs/sha256/6843d17a0c5cec8cee79a33b3c7590bde9035c248caa35267fb749cee6097fb5",
+              "size": 182,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6843d17a0c5cec8cee79a33b3c7590bde9035c248caa35267fb749cee6097fb5",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:83e66203a028132c4944fea15d8823993f43633a8ef999794335c8040617306e",
+              "path": "blobs/sha256/83e66203a028132c4944fea15d8823993f43633a8ef999794335c8040617306e",
+              "size": 261,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/83e66203a028132c4944fea15d8823993f43633a8ef999794335c8040617306e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:eedfcc98208101bb953fa93695b40369cc51f69bbca80a3da142ac7e0284fc6e",
+              "path": "blobs/sha256/eedfcc98208101bb953fa93695b40369cc51f69bbca80a3da142ac7e0284fc6e",
+              "size": 313,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/eedfcc98208101bb953fa93695b40369cc51f69bbca80a3da142ac7e0284fc6e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:3d3594fab54224bcaeb7b946f69fa21c0643da95bfe51cdb6eaf1004d88d9bd9",
+              "path": "blobs/sha256/3d3594fab54224bcaeb7b946f69fa21c0643da95bfe51cdb6eaf1004d88d9bd9",
+              "size": 350,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/3d3594fab54224bcaeb7b946f69fa21c0643da95bfe51cdb6eaf1004d88d9bd9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:0fb2049eb5f2613ea2b7b31a9f831dacaaa6e545109d2dcd56350598b9bc6565",
+              "path": "blobs/sha256/0fb2049eb5f2613ea2b7b31a9f831dacaaa6e545109d2dcd56350598b9bc6565",
+              "size": 1330,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/0fb2049eb5f2613ea2b7b31a9f831dacaaa6e545109d2dcd56350598b9bc6565",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "path": "blobs/sha256/bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "size": 34,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:916bd4398fb6ac83e70185a93d6f5f93f7774562e38d3380d04cc0c0f687ddc4",
+              "path": "blobs/sha256/916bd4398fb6ac83e70185a93d6f5f93f7774562e38d3380d04cc0c0f687ddc4",
+              "size": 4055037,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/916bd4398fb6ac83e70185a93d6f5f93f7774562e38d3380d04cc0c0f687ddc4",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "path": "blobs/sha256/bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "size": 34,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/bd9ddc54bea929a22b334e73e026d4136e5b73f5cc29942896c72e4ece69b13d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:e1b49238476a60e8ca31c4606771468267641f6783e4f00c52f874374ae25bb2",
+              "path": "blobs/sha256/e1b49238476a60e8ca31c4606771468267641f6783e4f00c52f874374ae25bb2",
+              "size": 1109,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/e1b49238476a60e8ca31c4606771468267641f6783e4f00c52f874374ae25bb2",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:9542681a432a9bc8ea97fc7f835596617e22af5820a5098cbc181d56557cc084",
+              "path": "blobs/sha256/9542681a432a9bc8ea97fc7f835596617e22af5820a5098cbc181d56557cc084",
+              "size": 1135,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/9542681a432a9bc8ea97fc7f835596617e22af5820a5098cbc181d56557cc084",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:316b23a411f3e2fa22f6abd82f68f9ee0b80c65b2c5de4178246beba809a4d97",
+              "path": "blobs/sha256/316b23a411f3e2fa22f6abd82f68f9ee0b80c65b2c5de4178246beba809a4d97",
+              "size": 569,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/316b23a411f3e2fa22f6abd82f68f9ee0b80c65b2c5de4178246beba809a4d97",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:ef8b43fefb3d7bdd0ac1f9919e6596a067e89a8f09f5ad542464560580ddd488",
+              "path": "blobs/sha256/ef8b43fefb3d7bdd0ac1f9919e6596a067e89a8f09f5ad542464560580ddd488",
+              "size": 808,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/ef8b43fefb3d7bdd0ac1f9919e6596a067e89a8f09f5ad542464560580ddd488",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:8de0dfcfcb894a0c23c6d229938d912cb21634e91efd6479d99791fe12f97bd9",
+              "path": "blobs/sha256/8de0dfcfcb894a0c23c6d229938d912cb21634e91efd6479d99791fe12f97bd9",
+              "size": 555,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/8de0dfcfcb894a0c23c6d229938d912cb21634e91efd6479d99791fe12f97bd9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:fe0bddbd4a895e7575f76304c1ed385172ed8ff0f2722675831ab668be0341c1",
+              "path": "blobs/sha256/fe0bddbd4a895e7575f76304c1ed385172ed8ff0f2722675831ab668be0341c1",
+              "size": 153,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/fe0bddbd4a895e7575f76304c1ed385172ed8ff0f2722675831ab668be0341c1",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1",
+              "path": "blobs/sha256/4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1",
+              "size": 32,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:2bce571bdae04b4e2bf890c5ee67f087acc88c3f69c1c9a59f45bc04c3b0c49d",
+              "path": "blobs/sha256/2bce571bdae04b4e2bf890c5ee67f087acc88c3f69c1c9a59f45bc04c3b0c49d",
+              "size": 1446452595,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/2bce571bdae04b4e2bf890c5ee67f087acc88c3f69c1c9a59f45bc04c3b0c49d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:6dfee7154dd4f366e2933d577d1257452be5504baa35049df794802736d77c7c",
+              "path": "blobs/sha256/6dfee7154dd4f366e2933d577d1257452be5504baa35049df794802736d77c7c",
+              "size": 45305915,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6dfee7154dd4f366e2933d577d1257452be5504baa35049df794802736d77c7c",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    },
+    {
+      "component": "toolbox",
+      "reference": "citybrain-toolbox:20261127-rc4",
+      "expected_image_id": "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+      "image_id_verified": true,
+      "manifest_or_index_id_verified": true,
+      "docker_manifest_config_and_layers_present": true,
+      "target_platform": "linux/amd64",
+      "selected_manifests": [
+        {
+          "digest": "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+          "path": "blobs/sha256/e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+          "present": true,
+          "sha256_verified": true,
+          "config": {
+            "digest": "sha256:7abedd17a418685e102357f0ec7aac040c3f0cccd05894800cc5f78ca289f905",
+            "path": "blobs/sha256/7abedd17a418685e102357f0ec7aac040c3f0cccd05894800cc5f78ca289f905",
+            "size": 7906,
+            "present": true,
+            "sha256_verified": true,
+            "descriptor_size_verified": true,
+            "docker_manifest_config_path": "blobs/sha256/7abedd17a418685e102357f0ec7aac040c3f0cccd05894800cc5f78ca289f905",
+            "docker_manifest_payload_matches": true,
+            "os": "linux",
+            "architecture": "amd64"
+          },
+          "layer_count": 11,
+          "layers": [
+            {
+              "digest": "sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "path": "blobs/sha256/6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "size": 29830418,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "path": "blobs/sha256/3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "size": 1294121,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "path": "blobs/sha256/b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "size": 12116303,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "path": "blobs/sha256/06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "size": 249,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:dbc4769ba9325cc1049c2a5a80d994ad6dec7060ffa5f798d1b9630166b10ecd",
+              "path": "blobs/sha256/dbc4769ba9325cc1049c2a5a80d994ad6dec7060ffa5f798d1b9630166b10ecd",
+              "size": 11260754,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/dbc4769ba9325cc1049c2a5a80d994ad6dec7060ffa5f798d1b9630166b10ecd",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:fed1e41b9746fdb39b5c7c694e5fa6f4977b84fb4232c49d1c0503f7fedec85e",
+              "path": "blobs/sha256/fed1e41b9746fdb39b5c7c694e5fa6f4977b84fb4232c49d1c0503f7fedec85e",
+              "size": 11977167,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/fed1e41b9746fdb39b5c7c694e5fa6f4977b84fb4232c49d1c0503f7fedec85e",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:98af55d9f7e0509fd0fe5563c8e2fa8c94f526e445841d65d5d7e848b8e2c6c9",
+              "path": "blobs/sha256/98af55d9f7e0509fd0fe5563c8e2fa8c94f526e445841d65d5d7e848b8e2c6c9",
+              "size": 8471,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/98af55d9f7e0509fd0fe5563c8e2fa8c94f526e445841d65d5d7e848b8e2c6c9",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:f91c9e741aa3adb60a9258183072a4c02c72e5e9034911ecd008a38168f17dba",
+              "path": "blobs/sha256/f91c9e741aa3adb60a9258183072a4c02c72e5e9034911ecd008a38168f17dba",
+              "size": 9530740,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/f91c9e741aa3adb60a9258183072a4c02c72e5e9034911ecd008a38168f17dba",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:6209097bd95e202f5ab9db227be453b1aa1d900d911c3390c59fa081f33bb1af",
+              "path": "blobs/sha256/6209097bd95e202f5ab9db227be453b1aa1d900d911c3390c59fa081f33bb1af",
+              "size": 276110,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/6209097bd95e202f5ab9db227be453b1aa1d900d911c3390c59fa081f33bb1af",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:a9629e0f39df94648403b87e9f8e35b11394a9a5655e6e8d90bfac3d0e98268d",
+              "path": "blobs/sha256/a9629e0f39df94648403b87e9f8e35b11394a9a5655e6e8d90bfac3d0e98268d",
+              "size": 7522,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/a9629e0f39df94648403b87e9f8e35b11394a9a5655e6e8d90bfac3d0e98268d",
+              "docker_manifest_payload_matches": true
+            },
+            {
+              "digest": "sha256:31dc1bb869e33deec40173b973a9061bc95578f32091feced3c681e5667c7c1e",
+              "path": "blobs/sha256/31dc1bb869e33deec40173b973a9061bc95578f32091feced3c681e5667c7c1e",
+              "size": 5078,
+              "present": true,
+              "sha256_verified": true,
+              "descriptor_size_verified": true,
+              "docker_manifest_layer_path": "blobs/sha256/31dc1bb869e33deec40173b973a9061bc95578f32091feced3c681e5667c7c1e",
+              "docker_manifest_payload_matches": true
+            }
+          ],
+          "all_config_and_layers_present_and_hash_verified": true
+        }
+      ],
+      "target_platform_payload_complete": true
+    }
+  ],
+  "sha256_blobs_verified": 137,
+  "gzip_crc_and_eof_verified": true,
+  "tar_logical_paths_safe_and_unique": true,
+  "package_modified": false,
+  "extraction_performed": false,
+  "docker_calls_performed": false,
+  "docker_load_tested": false,
+  "boundaries": [
+    "The retained MySQL OCI index references a missing non-target linux/arm64/v8 manifest and its attestation manifest.",
+    "Every selected Linux amd64 runtime config and layer blob exists and matches its stored SHA-256 descriptor and size.",
+    "This does not establish complete multi-platform OCI descriptor closure or test docker load behavior.",
+    "Filesystem layer contents are not extracted or audited; runtime/business acceptance is separate."
+  ]
+}

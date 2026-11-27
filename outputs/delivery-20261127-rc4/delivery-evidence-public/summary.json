@@ -1,0 +1,21 @@
+{
+  "all_observed_evidence_passed": true,
+  "collected_at": "2026-11-27T02:23:09.186256+00:00",
+  "collection_complete": true,
+  "cross_machine_verified": false,
+  "delivery_accepted": false,
+  "failed_evidence_count": 0,
+  "invalid_count": 0,
+  "missing_count": 0,
+  "optional_missing_count": 2,
+  "passed": true,
+  "policy": {
+    "container_network_none": true,
+    "docker_socket_mounted": false,
+    "explicit_field_allowlist": true,
+    "private_state_contents_exported": false,
+    "raw_error_text_exported": false,
+    "site_mounts_read_only": true
+  },
+  "schema_version": 1
+}

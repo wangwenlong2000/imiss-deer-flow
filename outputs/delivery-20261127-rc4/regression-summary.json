@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-27T02:11:10.727865+00:00",
+  "scope": "offline regressions; live business and recovery evidence are separate",
+  "source_content_sha256": "2c5eb0c10ecc1366a04b27c97c14100e36cbd8b417f4572060cf102cc0e06fe5",
+  "source_file_count": 4584,
+  "source_changes_since_image_build": [],
+  "deployment_and_skill": {
+    "passed": 143,
+    "skipped": 0,
+    "failed": 0,
+    "evidence": "regression-deploy-sealed-summary.json"
+  },
+  "regressions": [
+    {
+      "log": "rc4-regression-onecity-rc4.log",
+      "sha256": "85fdf3b77ac54f0d5ea0985678b9b926d89ef7df2b3e0452a16e8c818d741c17",
+      "result": "111 passed in 57.70s",
+      "passed": 111,
+      "skipped": 0,
+      "runtime_image": "citybrain-onecity:20261127-rc4",
+      "network": "none",
+      "source_mounted_read_only": true
+    },
+    {
+      "log": "rc4-regression-compliance-rc4.log",
+      "sha256": "5e701ba06b3d92d8be965b8c4d579374d3b88d95aa3f7faf9757ca954dbd5723",
+      "result": "181 passed, 1 skipped in 8.52s",
+      "passed": 181,
+      "skipped": 1,
+      "runtime_image": "citybrain-deerflow:20261127-rc4",
+      "network": "none",
+      "source_mounted_read_only": true
+    }
+  ],
+  "passed": true
+}

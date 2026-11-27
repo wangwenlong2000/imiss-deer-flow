@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "log_bytes": 22,
+  "log_sha256": "e9f93de1968fab165e73eacff4934dd1acd2c31d7c5f65364fdeede628814b0e",
+  "name": "rc4-primary-start",
+  "report": {
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:22:35.275756+00:00",
+    "started_at": "2026-11-27T02:22:11.979373+00:00"
+  },
+  "required": false,
+  "source_passed": true
+}

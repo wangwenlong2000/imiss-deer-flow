@@ -29,20 +29,18 @@ const UserSettingPassword = () => {
   const { saveSetting, loading } = useSaveSetting();
   const { t } = useTranslate('setting');
 
-  const handleSubmit = _.debounce((values: any) => {
-    const new_password = rsaPsw(values.new_password) as string;
-    register({
-      nickname: values.nickname,
-      email: values.email,
-      password: new_password,
-      role: values.chooseRole,
-    })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        message.error(t('registerError'));
+  const handleSubmit = _.debounce(async (values: any) => {
+    try {
+      const new_password = await rsaPsw(values.new_password);
+      await register({
+        nickname: values.nickname,
+        email: values.email,
+        password: new_password,
+        role: values.chooseRole,
       });
+    } catch {
+      message.error(t('registerError'));
+    }
   }, 500);
   const onFinish = (values: any) => {
     handleSubmit(values);

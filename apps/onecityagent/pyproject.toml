@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "flask-cors==5.0.1",
+    "gunicorn==23.0.0",
     "a2a==0.44",
     "aiofiles==24.1.0",
     "aiohappyeyeballs==2.6.1",
@@ -151,7 +153,7 @@ dependencies = [
     "python-dotenv==1.1.0",
     "python-multipart==0.0.20",
     "pytz==2025.2",
-    "pywin32==310",
+    "pywin32==310; sys_platform == 'win32'",
     "pyyaml==6.0.2",
     "queuelib==1.8.0",
     "referencing==0.36.2",

@@ -3,7 +3,8 @@ from datetime import datetime
 
 from loguru import logger as _logger
 
-from onecityagent.config import PROJECT_ROOT
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 _print_level = "INFO"
@@ -26,7 +27,7 @@ def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None
     return _logger
 
 
-logger = define_log_level()
+logger = _logger  # No files or global sink mutation while importing an app.
 
 
 if __name__ == "__main__":

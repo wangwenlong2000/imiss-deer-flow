@@ -1,0 +1,115 @@
+{
+  "availability": "present",
+  "name": "delivery-seed",
+  "report": {
+    "business_requests_are_real": true,
+    "cases": [
+      {
+        "answer_chars": 2,
+        "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+        "case_id": "basic-model-answer",
+        "event_count": 13,
+        "finished": true,
+        "native_identity_matches": true,
+        "native_status": {
+          "status": "success"
+        },
+        "passed": true,
+        "source_events": [
+          "accepted",
+          "compliance",
+          "final_answer",
+          "heartbeat",
+          "message",
+          "start",
+          "status",
+          "task_planning",
+          "todo_routing_guidance"
+        ],
+        "source_events_unknown_count": 0,
+        "statuses": [
+          "submitted",
+          "pending",
+          "running",
+          "completed",
+          "running"
+        ],
+        "statuses_unknown_count": 0,
+        "stream_identity_consistent": true,
+        "terminal_identity_matches": true,
+        "tool_call_events": [],
+        "tool_call_events_unknown_count": 0
+      },
+      {
+        "answer_chars": 257,
+        "answer_sha256": "18bf10f59ef2b9e67049908513ee6eab36a64b9ac4b12152e42cf6cf666b4376",
+        "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+        "artifact_size": 25,
+        "artifact_values_verified": true,
+        "case_id": "basic-tool-artifact",
+        "event_count": 17,
+        "finished": true,
+        "native_identity_matches": true,
+        "native_status": {
+          "status": "success"
+        },
+        "passed": true,
+        "result_file_isolation_verified": true,
+        "source_events": [
+          "accepted",
+          "compliance",
+          "final_answer",
+          "heartbeat",
+          "message",
+          "present_files",
+          "start",
+          "status",
+          "task_planning",
+          "todo_routing_guidance",
+          "tool_call:bash",
+          "tool_call:read_file"
+        ],
+        "source_events_unknown_count": 0,
+        "statuses": [
+          "submitted",
+          "pending",
+          "running",
+          "completed",
+          "running",
+          "completed",
+          "running"
+        ],
+        "statuses_unknown_count": 0,
+        "stream_identity_consistent": true,
+        "terminal_identity_matches": true,
+        "tool_call_events": [
+          "tool_call:bash",
+          "tool_call:read_file"
+        ],
+        "tool_call_events_unknown_count": 0,
+        "uploaded_file_isolation_verified": true
+      }
+    ],
+    "credentials_recorded": false,
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:09:48.834020+00:00",
+    "history": {
+      "cross_account_denied": true,
+      "history_saved_and_read": true
+    },
+    "live_http_declared": false,
+    "ordinary_accounts_verified": 2,
+    "passed": true,
+    "probe": "seed",
+    "raw_model_outputs_recorded": false,
+    "release_matches_expected": true,
+    "restored_cases": [],
+    "schema_version": 1,
+    "started_at": "2026-11-27T02:08:20.061263+00:00",
+    "tokens_revoked": true
+  },
+  "required": true,
+  "source_bytes": 3485,
+  "source_passed": true,
+  "source_sha256": "a3fe65d59eda4f9cc58dfca10bc01c925c325325f43390f2b9e2190a2ccfc9e6"
+}

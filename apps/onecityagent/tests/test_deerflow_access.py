@@ -23,8 +23,13 @@ def fixture(tmp_path, monkeypatch):
     add_user(namespace, "charlie", "org-b", "test-charlie")
     with namespace["database"].connection_context():
         for user, org in (("alice", "org-a"), ("bob", "org-a"), ("charlie", "org-b")):
-            namespace["Dialog"].create(id=f"citybrain-{user}", creator_id=user, tenant_id=org)
-    return namespace
+            namespace["Dialog"].create(
+                id=f"citybrain-{user}", name=f"Synthetic dialog {user}",
+                creator_id=user, tenant_id=org, description="",
+            )
+    yield namespace
+    namespace.restore()
+    namespace["database"].close()
 
 
 def post_iam(fixture, token="test-alice", **payload):
@@ -50,8 +55,14 @@ def test_platform_token_parser_rejects_malformed_headers(fixture, header):
 
 def test_owned_workspace_precedes_invited_memberships(fixture):
     with fixture["database"].connection_context():
-        fixture["Tenant"].create(id="aaa-invited")
-        fixture["UserTenant"].create(id="alice-invited", user_id="alice", tenant_id="aaa-invited", role=2)
+        fixture["Tenant"].create(
+            id="aaa-invited", llm_id="", embd_id="", asr_id="", img2txt_id="",
+            rerank_id="", tts_id="", parser_ids="", credit=0, status="1",
+        )
+        fixture["UserTenant"].create(
+            id="alice-invited", user_id="alice", tenant_id="aaa-invited",
+            role=2, invited_by="alice", status="1",
+        )
     assert post_iam(fixture, action="authenticate").json["principal"]["org_id"] == "org-a"
 
 
@@ -208,6 +219,11 @@ def parse_events(chunks):
     return [json.loads(item[6:].strip()) for item in chunks if item.startswith("data: ")]
 
 
+def stream_events(fixture, *args, **kwargs):
+    with fixture["app"].app_context():
+        return list(fixture["_stream_deerflow_sse_events"](*args, **kwargs))
+
+
 def test_exact_run_status_events_reach_frontend_without_invented_running(fixture, monkeypatch):
     captured = {}
     thread_id, run_id = str(uuid4()), str(uuid4())
@@ -220,7 +236,7 @@ def test_exact_run_status_events_reach_frontend_without_invented_running(fixture
         return fake_stream_response(lines)
 
     monkeypatch.setattr(requests, "post", post)
-    events = parse_events(fixture["_stream_deerflow_sse_events"]("synthetic", "citybrain-alice", "alice", thread_id=thread_id, authorization_header="test-alice"))
+    events = parse_events(stream_events(fixture, "synthetic", "citybrain-alice", "alice", thread_id=thread_id, authorization_header="test-alice"))
     statuses = [item.get("status") for item in events if item.get("status")]
     assert statuses == ["submitted", "submitted", "submitted", "pending", "running", "running"]
     assert events[-1]["finished"] is True
@@ -228,9 +244,22 @@ def test_exact_run_status_events_reach_frontend_without_invented_running(fixture
     assert captured["allow_redirects"] is False
 
 
+def test_terminal_run_identity_survives_without_status_poll_events(fixture, monkeypatch):
+    thread_id, run_id = str(uuid4()), str(uuid4())
+    lines = ["event: done", "data: " + json.dumps({
+        "thread_id": thread_id, "run_id": run_id, "status": "completed",
+    })]
+    monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(lines))
+    events = parse_events(stream_events(fixture, "synthetic", "citybrain-alice", "alice", thread_id=thread_id))
+    assert events[-1]["type"] == "[DONE]"
+    assert events[-1]["finished"] is True
+    assert events[-1]["thread_id"] == thread_id
+    assert events[-1]["run_id"] == run_id
+
+
 def test_unterminated_upstream_stream_is_not_reported_as_success(fixture, monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(["event: status", 'data: {"status":"running"}']))
-    events = parse_events(fixture["_stream_deerflow_sse_events"]("synthetic", "citybrain-alice", "alice"))
+    events = parse_events(stream_events(fixture, "synthetic", "citybrain-alice", "alice"))
     assert events[-2]["type"] == "error"
     assert events[-1]["finished"] is False
 
@@ -239,7 +268,7 @@ def test_unterminated_upstream_stream_is_not_reported_as_success(fixture, monkey
 def test_unsuccessful_done_is_not_shown_as_finished(fixture, monkeypatch, status):
     lines = ["event: done", "data: " + json.dumps({"status": status, "code": 500})]
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(lines))
-    events = parse_events(fixture["_stream_deerflow_sse_events"]("synthetic", "citybrain-alice", "alice"))
+    events = parse_events(stream_events(fixture, "synthetic", "citybrain-alice", "alice"))
     assert events[-2]["type"] == "error"
     assert events[-1]["finished"] is False
     assert events[-1]["status"] == status
@@ -255,7 +284,7 @@ def test_resume_uses_get_join_endpoint_without_posting_a_new_task(fixture, monke
 
     monkeypatch.setattr(requests, "get", get)
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: pytest.fail("resume must never submit a new run"))
-    events = parse_events(fixture["_stream_deerflow_sse_events"](
+    events = parse_events(stream_events(fixture,
         "synthetic", "citybrain-alice", "alice", thread_id=thread_id, resume_run_id=run_id,
         authorization_header="test-alice",
     ))
@@ -267,7 +296,7 @@ def test_resume_uses_get_join_endpoint_without_posting_a_new_task(fixture, monke
 def test_native_admission_429_inside_mobile_sse_is_preserved(fixture, monkeypatch):
     lines = ["event: accepted", 'data: {"status":"submitted"}', "event: error", 'data: {"code":429,"message":"并发名额已满","retry_after":"9"}']
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: fake_stream_response(lines))
-    events = parse_events(fixture["_stream_deerflow_sse_events"]("synthetic", "citybrain-alice", "alice"))
+    events = parse_events(stream_events(fixture, "synthetic", "citybrain-alice", "alice"))
     assert events[-2]["http_status"] == 429
     assert events[-2]["retry_after"] == "9"
     assert events[-1]["finished"] is False

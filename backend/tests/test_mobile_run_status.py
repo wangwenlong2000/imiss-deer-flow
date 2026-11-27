@@ -53,3 +53,39 @@ def test_mobile_stream_reports_pending_then_running_for_exact_run(monkeypatch, f
 
     asyncio.run(exercise())
     assert calls and all(call == ("thread-a", "run-a") for call in calls)
+
+
+@pytest.mark.parametrize("from_headers", [True, False])
+def test_fast_completed_native_run_keeps_admitted_id_without_status_poll(monkeypatch, from_headers):
+    """A completed SSE must still identify the exact native run to its caller."""
+    class Runs:
+        async def stream(self, thread_id, assistant_id, **kwargs):
+            if from_headers:
+                kwargs["on_run_created"]({"run_id": "run-fast"})
+            else:
+                yield SimpleNamespace(event="metadata", data={"run_id": "run-fast"})
+            yield SimpleNamespace(event="values", data={"messages": [
+                {"type": "human", "content": "synthetic"}, {"type": "ai", "content": "verified answer"},
+            ]})
+
+        async def get(self, thread_id, run_id):
+            assert (thread_id, run_id) == ("thread-fast", "run-fast")
+            return {"status": "success"}
+
+    class Threads:
+        async def get_state(self, thread_id):
+            return {}
+
+    monkeypatch.setattr(langgraph_sdk, "get_client", lambda **kwargs: SimpleNamespace(runs=Runs(), threads=Threads()))
+
+    async def exercise():
+        request = mobile.DeerFlowMobileRunRequest(query="synthetic", conversation_id="dialog-fast", stream=True)
+        prepared = mobile.MobileChatRequest(query=request.query, session_id=request.conversation_id, thread_id="thread-fast")
+        return [event async for event in mobile._stream_deerflow_mobile_run(request, prepared)]
+
+    events = asyncio.run(exercise())
+    assert not any(event.startswith("event: status\n") for event in events)
+    done = json.loads(next(event for event in events if event.startswith("event: done\n")).split("data: ", 1)[1])
+    assert done["status"] == "completed"
+    assert done["thread_id"] == "thread-fast"
+    assert done["run_id"] == "run-fast"

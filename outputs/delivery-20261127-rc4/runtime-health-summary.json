@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-27T02:23:43.726096+00:00",
+  "version": "20261127-rc4",
+  "sites": {
+    "primary": {
+      "containers": [
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-api-1",
+          "image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "reference": "citybrain-onecity:20261127-rc4",
+          "service": "api",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-coordinator-1",
+          "image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "reference": "citybrain-onecity:20261127-rc4",
+          "service": "coordinator",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-edge-1",
+          "image_id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+          "reference": "citybrain-edge:20261127-rc4",
+          "service": "edge",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-gateway-1",
+          "image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "reference": "citybrain-deerflow:20261127-rc4",
+          "service": "gateway",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-graph-1",
+          "image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "reference": "citybrain-deerflow:20261127-rc4",
+          "service": "graph",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-rc4-20261127-mysql-1",
+          "image_id": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+          "reference": "mysql:8.0.39",
+          "service": "mysql",
+          "state": "running",
+          "health": "healthy"
+        }
+      ],
+      "six_services_healthy": true
+    },
+    "restore": {
+      "containers": [
+        {
+          "name": "/citybrain-acceptance-r4-restored-api-1",
+          "image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "reference": "citybrain-onecity:20261127-rc4",
+          "service": "api",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-r4-restored-coordinator-1",
+          "image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+          "reference": "citybrain-onecity:20261127-rc4",
+          "service": "coordinator",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-r4-restored-edge-1",
+          "image_id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+          "reference": "citybrain-edge:20261127-rc4",
+          "service": "edge",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-r4-restored-gateway-1",
+          "image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "reference": "citybrain-deerflow:20261127-rc4",
+          "service": "gateway",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-r4-restored-graph-1",
+          "image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+          "reference": "citybrain-deerflow:20261127-rc4",
+          "service": "graph",
+          "state": "running",
+          "health": "healthy"
+        },
+        {
+          "name": "/citybrain-acceptance-r4-restored-mysql-1",
+          "image_id": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+          "reference": "mysql:8.0.39",
+          "service": "mysql",
+          "state": "running",
+          "health": "healthy"
+        }
+      ],
+      "six_services_healthy": true
+    }
+  },
+  "passed": true
+}

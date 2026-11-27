@@ -1,6 +1,6 @@
 """Authoritative account checks shared by the platform and its IAM bridge."""
 
-import os
+from onecityagent.application.settings import setting
 
 from onecityagent.constants import StatusEnum
 from onecityagent.models.db_models import DB, Role, User
@@ -41,7 +41,7 @@ def revoke_login_token(user_id, token):
 
 def self_registration_role_id():
     """Ignore the browser's requested role; resolve an ordinary role server-side."""
-    code = os.getenv("ONECITY_SELF_REGISTER_ROLE_CODE", "common").strip()
+    code = setting("ONECITY_SELF_REGISTER_ROLE_CODE", "common").strip()
     if not code or code.lower() in {"admin", "super_admin", "superadmin"}:
         raise ValueError("Self-registration requires an ordinary role code")
     with DB.connection_context():

@@ -733,7 +733,12 @@ class Config:
         if "database" in config_dict:
             update_basic_config("database", DatabaseSettings)
 
-config = Config()
+# Compatibility users opt in by accessing a setting; importing remains inert.
+class _LazyConfig:
+    def __getattr__(self, name):
+        return getattr(Config(), name)
+
+config = _LazyConfig()
 
 if __name__ == '__main__':
     print(config.database_config)

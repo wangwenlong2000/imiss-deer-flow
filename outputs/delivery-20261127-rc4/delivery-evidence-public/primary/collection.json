@@ -1,0 +1,858 @@
+{
+  "all_observed_evidence_passed": true,
+  "collection_complete": true,
+  "cross_machine_verified": false,
+  "delivery_accepted": false,
+  "failed_evidence_count": 0,
+  "invalid_count": 0,
+  "missing_count": 0,
+  "optional_missing_count": 1,
+  "records": [
+    {
+      "availability": "present",
+      "name": "delivery-seed",
+      "report": {
+        "business_requests_are_real": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "case_id": "basic-model-answer",
+            "event_count": 13,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 257,
+            "answer_sha256": "18bf10f59ef2b9e67049908513ee6eab36a64b9ac4b12152e42cf6cf666b4376",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 17,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "result_file_isolation_verified": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "present_files",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true
+          }
+        ],
+        "credentials_recorded": false,
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:09:48.834020+00:00",
+        "history": {
+          "cross_account_denied": true,
+          "history_saved_and_read": true
+        },
+        "live_http_declared": false,
+        "ordinary_accounts_verified": 2,
+        "passed": true,
+        "probe": "seed",
+        "raw_model_outputs_recorded": false,
+        "release_matches_expected": true,
+        "restored_cases": [],
+        "schema_version": 1,
+        "started_at": "2026-11-27T02:08:20.061263+00:00",
+        "tokens_revoked": true
+      },
+      "required": true,
+      "source_bytes": 3485,
+      "source_passed": true,
+      "source_sha256": "a3fe65d59eda4f9cc58dfca10bc01c925c325325f43390f2b9e2190a2ccfc9e6"
+    },
+    {
+      "availability": "present",
+      "name": "delivery-gateway",
+      "report": {
+        "business_requests_are_real": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "bare_done_received": true,
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "gateway_admitted_identity_matches": true,
+            "gateway_event_counts": {
+              "accepted": 1,
+              "compliance": 2,
+              "done": 1,
+              "heartbeat": 1,
+              "segment": 3,
+              "sentinel": 1,
+              "start": 1,
+              "status": 2
+            },
+            "gateway_unknown_event_name_count": 0,
+            "graph_tool_evidence": [],
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "source_events": [
+              "final_answer",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "pending",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 232,
+            "answer_sha256": "51e3cc1bc05648be83ace1dc470ab350cea5f2378f1ed186822c4c46fa749299",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "bare_done_received": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 17,
+            "finished": true,
+            "gateway_admitted_identity_matches": true,
+            "gateway_event_counts": {
+              "accepted": 1,
+              "compliance": 2,
+              "done": 1,
+              "heartbeat": 3,
+              "segment": 6,
+              "sentinel": 1,
+              "start": 1,
+              "status": 2
+            },
+            "gateway_unknown_event_name_count": 0,
+            "graph_tool_evidence": [
+              {
+                "arguments_sha256": "51ebb6919de345a14a71ba0129cc1fe0c5cf9599af389e5d889a1371d001375d",
+                "name": "read_file",
+                "result_bytes": 115,
+                "result_sha256": "ca45be038d2febebfe8589d8040cc8c9b1676d5dfefb1e09ecb914b0030541ee",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "53cc852889f9c62a147cf0106f8ed77d32d9d4c3519235a4d8baeb127612803a",
+                "tool_name_known": true
+              },
+              {
+                "arguments_sha256": "9fe7bfb6bcb5f27e55e39fbecdcbc4d05405be44480e09f009c29107ba80c8f5",
+                "name": "bash",
+                "result_bytes": 833,
+                "result_sha256": "58d6cd327ec8e27fa7a23d219febc02198267ba982c67c42fcd0b1de39948b08",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "c82f3f0ee000815e9626d3d23062efd51ddf19d2f42aa344d3199acb1b7ac78c",
+                "tool_name_known": true
+              },
+              {
+                "arguments_sha256": "7084c5e36e15e1366263c8a34f66140c3cfcd0d9433b871f313ef4e7d3bc8cbd",
+                "name": "present_files",
+                "result_bytes": 271,
+                "result_sha256": "443e7992729a03d0886816fd7f6a024809ee2777e5f12064e0a499e622c68f33",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "c119c13e7fdac26dfc7f1042fcfd30584623b5ae2d70b8703f0688632c64d81e",
+                "tool_name_known": true
+              }
+            ],
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "result_file_isolation_verified": true,
+            "source_events": [
+              "final_answer",
+              "present_files",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "pending",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true
+          }
+        ],
+        "credentials_recorded": false,
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:14:21.889500+00:00",
+        "live_http_declared": false,
+        "passed": true,
+        "probe": "gateway",
+        "raw_model_outputs_recorded": false,
+        "release_matches_expected": true,
+        "restored_cases": [],
+        "schema_version": 1,
+        "started_at": "2026-11-27T02:13:07.657435+00:00",
+        "tokens_revoked": true
+      },
+      "required": true,
+      "source_bytes": 6734,
+      "source_passed": true,
+      "source_sha256": "44dbd85cb8398b8fb4eab4e50ed01e7395e3f9217f83da20911aedb952c93c70"
+    },
+    {
+      "availability": "not_applicable",
+      "name": "delivery-verify-restored",
+      "required": false
+    },
+    {
+      "availability": "missing",
+      "name": "recovery-summary",
+      "required": false,
+      "scope": "optional_not_produced_by_cli"
+    },
+    {
+      "availability": "present",
+      "name": "persistent-state-integrity",
+      "report": {
+        "account_count": 2,
+        "account_identity_fields_present": true,
+        "account_tokens_absent": true,
+        "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+        "artifact_sha256_valid": true,
+        "artifact_url_matches_case": true,
+        "case_count": 2,
+        "case_run_identity_fields_valid": true,
+        "exactly_two_accounts": true,
+        "exactly_two_default_cases": true,
+        "expected_artifact_matches_default_contract": true,
+        "expected_artifact_present": true,
+        "expected_artifact_sha256": "a8b731a96a1c637509954277be3d629c9c8b458fbe691c080ffc1df9c85fbc32",
+        "history_fields_present": true,
+        "passed": true,
+        "schema_valid": true,
+        "seed_completed": true,
+        "source_identity_matches": true,
+        "upload_sha256": "288adcb7fd08ec62d6f89ae21d7e4719a8c304e6a9c443a03b0224cdfd3997e3",
+        "upload_sha256_matches_default_csv": true,
+        "upload_sha256_valid": true,
+        "upload_url_matches_case": true
+      },
+      "required": true,
+      "source_bytes": 3071,
+      "source_passed": true,
+      "source_sha256": "dc38f116f9ac6c2e681e37aab7a81da3fb393ac6611057e97b2750d659c33221"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0001",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          },
+          {
+            "authenticated": true,
+            "check": "bootstrap_admin_login",
+            "status": "pass",
+            "token_revoked": true
+          },
+          {
+            "check": "register_ordinary_a",
+            "status": "pass"
+          },
+          {
+            "check": "register_ordinary_b",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_a",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_b",
+            "status": "pass"
+          },
+          {
+            "check": "distinct_account_workspaces",
+            "status": "pass"
+          },
+          {
+            "check": "create_owned_dialog",
+            "status": "pass"
+          },
+          {
+            "check": "owned_history_readable",
+            "status": "pass"
+          },
+          {
+            "check": "message_history_round_trip_and_isolation",
+            "cross_account_denied": true,
+            "history_saved_and_read": true,
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_history_and_dialog_denied",
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_run_control_denied",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_a",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_b",
+            "status": "pass"
+          },
+          {
+            "check": "synthetic_fixture_cleanup",
+            "disabled_accounts": 2,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": true,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:06:46.453021+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:06:43.973960+00:00",
+        "suite": "interfaces",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 3199,
+      "source_locator_sha256": "1783b3b94fe3a8b9164c54415234a00a983c926ed13dc5b51da71f0f6dd3acf5",
+      "source_passed": true,
+      "source_sha256": "bca7fb7927ce6f90e2187b71821915ddb50e0e8606704c32517b877aeb57455e"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0002",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": false,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:06:34.373849+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:06:34.192039+00:00",
+        "suite": "basic",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 1597,
+      "source_locator_sha256": "302aac43f72e17e298350a42bc2af8c59ac2e5d3810bbfb9a90d0d43a8d2daf9",
+      "source_passed": true,
+      "source_sha256": "de86c6001257f3d41e1ad4d7aca5375cd3280c8914509543f58be4227ba868cc"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0003",
+      "report": {
+        "business_requests_sent": true,
+        "business_scenarios_executed": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "native_run_identity_matches": true,
+            "native_run_status": "success",
+            "passed": true,
+            "request_sent": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 297,
+            "answer_sha256": "7c8fb2e955f8d7da245fb916693b363d1213f2213a3135aa46ce5ade36f55f0c",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 20,
+            "finished": true,
+            "native_run_identity_matches": true,
+            "native_run_status": "success",
+            "passed": true,
+            "request_sent": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "present_files",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true,
+            "uploaded_files": 1
+          }
+        ],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          },
+          {
+            "authenticated": true,
+            "check": "bootstrap_admin_login",
+            "status": "pass",
+            "token_revoked": true
+          },
+          {
+            "check": "register_ordinary_a",
+            "status": "pass"
+          },
+          {
+            "check": "register_ordinary_b",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_a",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_b",
+            "status": "pass"
+          },
+          {
+            "check": "distinct_account_workspaces",
+            "status": "pass"
+          },
+          {
+            "check": "create_owned_dialog",
+            "status": "pass"
+          },
+          {
+            "check": "owned_history_readable",
+            "status": "pass"
+          },
+          {
+            "check": "message_history_round_trip_and_isolation",
+            "cross_account_denied": true,
+            "history_saved_and_read": true,
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_history_and_dialog_denied",
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_run_control_denied",
+            "status": "pass"
+          },
+          {
+            "check": "scene_manifest_and_assertions",
+            "status": "pass"
+          },
+          {
+            "check": "scene_basic-model-answer",
+            "status": "pass"
+          },
+          {
+            "check": "scene_basic-tool-artifact",
+            "status": "pass"
+          },
+          {
+            "check": "selected_capabilities_covered",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_a",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_b",
+            "status": "pass"
+          },
+          {
+            "check": "synthetic_fixture_cleanup",
+            "disabled_accounts": 2,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [
+          "basic"
+        ],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": true,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": true
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:08:19.116877+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:06:47.145158+00:00",
+        "suite": "full",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 7548,
+      "source_locator_sha256": "589b23ff1cd4a1733ee79ea0037000a36b6766508dadb947a1c7d000f5440040",
+      "source_passed": true,
+      "source_sha256": "1d9d0eb07e00166444a878474864e7f092f047b7dbaeb105b47d9336522f393c"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0004",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": false,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:06:43.269762+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:06:43.104956+00:00",
+        "suite": "basic",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 1597,
+      "source_locator_sha256": "ebcc1e0ce2fbd7a69ba31cd8714ab40099c0c859208292a9e820083edaf5dac7",
+      "source_passed": true,
+      "source_sha256": "6ac7c3dd1a174ec9ba844985220bba10dc3c4ca6fd6718b10c28630cd719f8f7"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0005",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": false,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:06:41.069865+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:06:40.911273+00:00",
+        "suite": "basic",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 1597,
+      "source_locator_sha256": "f9e25f5703d47e4c6cefbcb853e00d787178b2e217c9c70318cf3da5cfea6427",
+      "source_passed": true,
+      "source_sha256": "2a8892adeadf4bb0c0cbcf5d26eb02c4355d5ee57b1bc5da0349b2a5febd8d05"
+    }
+  ],
+  "schema_version": 1,
+  "site": "primary",
+  "verification_report_count": 5
+}

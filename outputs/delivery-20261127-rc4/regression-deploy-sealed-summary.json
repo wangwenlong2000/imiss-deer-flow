@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "offline_source_mounted_regression_not_live_business_acceptance",
+  "started_at": "2026-11-27T01:45:14.011674+00:00",
+  "finished_at": "2026-11-27T01:45:45.194886+00:00",
+  "image_reference": "citybrain-onecity:20261127-rc3",
+  "image_id": "sha256:12fd0bfc0e1cdf8b7391eb5c5f06847e31b6a64c14fe645fe468ed55327e8313",
+  "runtime_python": "3.13",
+  "argv": [
+    "docker",
+    "run",
+    "--rm",
+    "--pull",
+    "never",
+    "--network",
+    "none",
+    "--entrypoint",
+    "python",
+    "--mount",
+    "type=bind,src=/home/huangxiao/City_brain/imiss-deer-flow-compliance-merge,dst=/workspace,readonly",
+    "--mount",
+    "type=bind,src=/dev/null,dst=/workspace/.env,readonly",
+    "-w",
+    "/workspace",
+    "-e",
+    "PYTHONPATH=/workspace/apps/onecityagent:/workspace",
+    "-e",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "sha256:12fd0bfc0e1cdf8b7391eb5c5f06847e31b6a64c14fe645fe468ed55327e8313",
+    "-c",
+    "import sys,unittest,deploy,onecityagent,scripts.check_skill_runtime;print(\"SOURCE_ASSERT\",deploy.__file__,onecityagent.__file__,scripts.check_skill_runtime.__file__,flush=True);assert deploy.__file__.startswith(\"/workspace/\") and onecityagent.__file__.startswith(\"/workspace/\") and scripts.check_skill_runtime.__file__.startswith(\"/workspace/\");loader=unittest.defaultTestLoader;suite=unittest.TestSuite([loader.discover(\"deploy/tests\",pattern=\"test*.py\"),loader.loadTestsFromName(\"scripts.tests.test_skill_runtime\")]);result=unittest.TextTestRunner(verbosity=2).run(suite);print(\"FINAL_COUNTS\",result.testsRun,\"SKIPPED\",len(result.skipped),\"FAILURES\",len(result.failures),\"ERRORS\",len(result.errors));raise SystemExit(0 if result.wasSuccessful() and not result.skipped else 1)"
+  ],
+  "exit_code": 0,
+  "passed": true,
+  "seconds": 30.592,
+  "log": "regression-deploy-sealed.log",
+  "log_sha256": "53febc97bb836a766c02b2844f7561e1af67eea47fc58c0b014bfdec2ae5199d",
+  "source_before_file_count": 4584,
+  "source_after_file_count": 4584,
+  "source_before_content_sha256": "2c5eb0c10ecc1366a04b27c97c14100e36cbd8b417f4572060cf102cc0e06fe5",
+  "source_after_content_sha256": "2c5eb0c10ecc1366a04b27c97c14100e36cbd8b417f4572060cf102cc0e06fe5",
+  "source_before_inventory": "regression-deploy-sealed-source-before.json",
+  "source_after_inventory": "regression-deploy-sealed-source-after.json",
+  "source_changed_during_run": [],
+  "source_sha256": {
+    "deploy/__init__.py": {
+      "before": "d0dfb523111c8d67a1d571004b21b2c4c0ef16ecb1278676a839db9ca39ef4be",
+      "after": "d0dfb523111c8d67a1d571004b21b2c4c0ef16ecb1278676a839db9ca39ef4be"
+    },
+    "deploy/assets/capabilities.md": {
+      "before": "9567fb10f1fff8fee88af400a9d2064b4e5753d37f7b3dd483692fbd536c9bbb",
+      "after": "9567fb10f1fff8fee88af400a9d2064b4e5753d37f7b3dd483692fbd536c9bbb"
+    },
+    "deploy/assets/catalog.json": {
+      "before": "e910f706c2c5c8bd5ff7298cce1af1edb8d0ef5947928d068da2b610d75ad5d0",
+      "after": "e910f706c2c5c8bd5ff7298cce1af1edb8d0ef5947928d068da2b610d75ad5d0"
+    },
+    "deploy/assets/skill-dependency-audit.json": {
+      "before": "aee814dd515ba5ad4de921ee56d14a924227772a78bf2ba782f807abfc8f793b",
+      "after": "aee814dd515ba5ad4de921ee56d14a924227772a78bf2ba782f807abfc8f793b"
+    },
+    "deploy/cli/__init__.py": {
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "deploy/cli/citybrain.py": {
+      "before": "063d3b57296fe270b517a6df75d049dd6434b2fa157a56231994ba097af775f1",
+      "after": "063d3b57296fe270b517a6df75d049dd6434b2fa157a56231994ba097af775f1"
+    },
+    "deploy/cli/configuration.py": {
+      "before": "a321bae3a717aad7b2adedbfed8ce002fec1c00e5a87de70c58cb9094051f3a7",
+      "after": "a321bae3a717aad7b2adedbfed8ce002fec1c00e5a87de70c58cb9094051f3a7"
+    },
+    "deploy/cli/preflight.py": {
+      "before": "e8a45ed05b20adf456f88dfea13811eeb0f79f0f2b2ec6daabdb9227dcec1b6a",
+      "after": "e8a45ed05b20adf456f88dfea13811eeb0f79f0f2b2ec6daabdb9227dcec1b6a"
+    },
+    "deploy/cli/recovery.py": {
+      "before": "7732493550f30d5dc80fd4486cdab539642e819fb3daf292d42d594c34394274",
+      "after": "7732493550f30d5dc80fd4486cdab539642e819fb3daf292d42d594c34394274"
+    },
+    "deploy/cli/release.py": {
+      "before": "290ed7bbc4d3a372e0ca44ba2af156f71a6c94818c7d7d104b21122502407382",
+      "after": "290ed7bbc4d3a372e0ca44ba2af156f71a6c94818c7d7d104b21122502407382"
+    },
+    "deploy/cli/verification.py": {
+      "before": "d13b1ae2365a91d545545c76f727e3fcd382aa367a63e449d48dc5d938ec573b",
+      "after": "d13b1ae2365a91d545545c76f727e3fcd382aa367a63e449d48dc5d938ec573b"
+    },
+    "deploy/cli/verification_fixture.py": {
+      "before": "0fdfa5a37f040fd925bd742102a9df5987310cdf8285520db910a680b247d892",
+      "after": "0fdfa5a37f040fd925bd742102a9df5987310cdf8285520db910a680b247d892"
+    },
+    "deploy/config/deployment.example.yaml": {
+      "before": "44aedff520bee64d0a208dae37a56979d51a1aa56ed05d70778f42ce19232978",
+      "after": "44aedff520bee64d0a208dae37a56979d51a1aa56ed05d70778f42ce19232978"
+    },
+    "deploy/config/deployment.schema.json": {
+      "before": "ea9ffb19ad28711e940a51e057fb7da89c2f630c3f01c7fbcec7d74049bc7a63",
+      "after": "ea9ffb19ad28711e940a51e057fb7da89c2f630c3f01c7fbcec7d74049bc7a63"
+    },
+    "deploy/config/templates/nginx.conf": {
+      "before": "370e1fb31b77bdee38a803f98dbc5baaa61f34ce4b7681e7496f0c5684a8e3ed",
+      "after": "370e1fb31b77bdee38a803f98dbc5baaa61f34ce4b7681e7496f0c5684a8e3ed"
+    },
+    "deploy/entrypoints/__init__.py": {
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "deploy/entrypoints/onecity_wsgi.py": {
+      "before": "f144d3fa76d27f90953f59627a6743c1412477cd9c33c691e0aef843a022f018",
+      "after": "f144d3fa76d27f90953f59627a6743c1412477cd9c33c691e0aef843a022f018"
+    },
+    "deploy/entrypoints/run.py": {
+      "before": "e36fb7128ea11a5b14f67b31d4c4ccea9d2879ec814aad3b9418d73d2f36e05e",
+      "after": "e36fb7128ea11a5b14f67b31d4c4ccea9d2879ec814aad3b9418d73d2f36e05e"
+    },
+    "deploy/images/DeerFlow.Dockerfile": {
+      "before": "5ef958e86b4fdeafb5fa26ac6c1bb9e23909ff86a78049db8255603ccfb4578e",
+      "after": "5ef958e86b4fdeafb5fa26ac6c1bb9e23909ff86a78049db8255603ccfb4578e"
+    },
+    "deploy/images/DeerFlow.Dockerfile.dockerignore": {
+      "before": "0ba2da5c363a8b05b95b8ed770391f27a85cb1e9bdd791cdca490bef6ba5dbef",
+      "after": "0ba2da5c363a8b05b95b8ed770391f27a85cb1e9bdd791cdca490bef6ba5dbef"
+    },
+    "deploy/images/Edge.Dockerfile": {
+      "before": "af542762fc1d6bc8242851e47387e9374bf9666b35db97bf16c1dee54362f111",
+      "after": "af542762fc1d6bc8242851e47387e9374bf9666b35db97bf16c1dee54362f111"
+    },
+    "deploy/images/Edge.Dockerfile.dockerignore": {
+      "before": "59a9fdd3ed24c8e3331eecbb2e94b6a4c9ce1fb3d660525d705baa6f1799bf80",
+      "after": "59a9fdd3ed24c8e3331eecbb2e94b6a4c9ce1fb3d660525d705baa6f1799bf80"
+    },
+    "deploy/images/OneCity.Dockerfile": {
+      "before": "18a4ea7d87db61381c98e367516064af71767f905f74b8c0c26a110ce03cfa96",
+      "after": "18a4ea7d87db61381c98e367516064af71767f905f74b8c0c26a110ce03cfa96"
+    },
+    "deploy/images/OneCity.Dockerfile.dockerignore": {
+      "before": "27485feadb7d39a9ca48d142acca9c0655c6b83e9b18dad96c19b3b6a74b00b0",
+      "after": "27485feadb7d39a9ca48d142acca9c0655c6b83e9b18dad96c19b3b6a74b00b0"
+    },
+    "deploy/images/Toolbox.Dockerfile": {
+      "before": "ecc87dd014d60b6750d7d22468c5fb5af46d85c1ee65ed89e7ad01336bc07f02",
+      "after": "ecc87dd014d60b6750d7d22468c5fb5af46d85c1ee65ed89e7ad01336bc07f02"
+    },
+    "deploy/images/Toolbox.Dockerfile.dockerignore": {
+      "before": "f93a14ad4d3c723a0134509d53cde5e5a193803a2ab4212c5788e4343c492aaa",
+      "after": "f93a14ad4d3c723a0134509d53cde5e5a193803a2ab4212c5788e4343c492aaa"
+    },
+    "deploy/migrations/__init__.py": {
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "deploy/migrations/gateway.py": {
+      "before": "fdef938e9b2a216bff0b4000269d5f90010756f7842517c3345fb798f16f83b8",
+      "after": "fdef938e9b2a216bff0b4000269d5f90010756f7842517c3345fb798f16f83b8"
+    },
+    "deploy/migrations/onecity.py": {
+      "before": "5951b7f5a8befe184ec4bcc8b206fab7c8e93d9a4351f9407ab8634c02e72441",
+      "after": "5951b7f5a8befe184ec4bcc8b206fab7c8e93d9a4351f9407ab8634c02e72441"
+    },
+    "deploy/requirements-toolbox.lock": {
+      "before": "f1bffbf542558f0e2151c8df340fcbb6a6a0bec2683e75ce777c69b85f90330c",
+      "after": "f1bffbf542558f0e2151c8df340fcbb6a6a0bec2683e75ce777c69b85f90330c"
+    },
+    "deploy/requirements-toolbox.txt": {
+      "before": "4283972cc6795b82e6c3e6dd5d2737a20c2aca2a9a7181a6eced75bc88269c3a",
+      "after": "4283972cc6795b82e6c3e6dd5d2737a20c2aca2a9a7181a6eced75bc88269c3a"
+    },
+    "deploy/tests/test_configuration.py": {
+      "before": "fcc6470919f08f40838f66927a93095ac76653d6b6c38f7b8006b2ea909e2d9f",
+      "after": "fcc6470919f08f40838f66927a93095ac76653d6b6c38f7b8006b2ea909e2d9f"
+    },
+    "deploy/tests/test_delivery_probe.py": {
+      "before": "b3f3f88156f51e4b2814a87f689b60b5c2929cc54bcda9747689f749ef2079fb",
+      "after": "b3f3f88156f51e4b2814a87f689b60b5c2929cc54bcda9747689f749ef2079fb"
+    },
+    "deploy/tests/test_lifecycle.py": {
+      "before": "f2dde5344fa336ad381d30c4bcc8852fbe2b68fe5bcb2be988d7d1b0ebf80906",
+      "after": "f2dde5344fa336ad381d30c4bcc8852fbe2b68fe5bcb2be988d7d1b0ebf80906"
+    },
+    "deploy/tests/test_migrations.py": {
+      "before": "bea0fa7f9f71faf1c3e4c023cf7e4f69e9a90943a04914008475b8f835d5baae",
+      "after": "bea0fa7f9f71faf1c3e4c023cf7e4f69e9a90943a04914008475b8f835d5baae"
+    },
+    "deploy/tests/test_onecity_migrations.py": {
+      "before": "4e2cc103b908d15506c8e267a34fca8342aaa01438ce99445eb58a21d0c30a07",
+      "after": "4e2cc103b908d15506c8e267a34fca8342aaa01438ce99445eb58a21d0c30a07"
+    },
+    "deploy/tests/test_preflight.py": {
+      "before": "208951705cfd68c3c5b057e94b2562742e1ef295c37872a40d2f6efdf7193c65",
+      "after": "208951705cfd68c3c5b057e94b2562742e1ef295c37872a40d2f6efdf7193c65"
+    },
+    "deploy/tests/test_recovery.py": {
+      "before": "2da4105df4198b47c528baab678225f64bdc20907434455530ed2525fee2f27a",
+      "after": "2da4105df4198b47c528baab678225f64bdc20907434455530ed2525fee2f27a"
+    },
+    "deploy/tests/test_release.py": {
+      "before": "5422441c99f1aa3a534088e5f1154ec225473e689b9e065897798e92a066b37d",
+      "after": "5422441c99f1aa3a534088e5f1154ec225473e689b9e065897798e92a066b37d"
+    },
+    "deploy/tests/test_sandbox_ownership.py": {
+      "before": "8e3f49fb8602aa634071ee4f347750a9605d07587353c292ede047dd433a748a",
+      "after": "8e3f49fb8602aa634071ee4f347750a9605d07587353c292ede047dd433a748a"
+    },
+    "deploy/tests/test_verification.py": {
+      "before": "f3925fb9d4b05f12542f99ee42d4b1cd109c775b0f6c92d05e19c56a94ed2866",
+      "after": "f3925fb9d4b05f12542f99ee42d4b1cd109c775b0f6c92d05e19c56a94ed2866"
+    },
+    "deploy/tests/test_verification_real_apps.py": {
+      "before": "c949653b09a9e35a35ca04607ce49a0c34b7b0bd8c97b3bc9bd532fd771510dc",
+      "after": "c949653b09a9e35a35ca04607ce49a0c34b7b0bd8c97b3bc9bd532fd771510dc"
+    },
+    "deploy/tools/delivery_probe.py": {
+      "before": "4c808c3e920683b2b7243d7beaf60f23748748860720ced42d84e94810e039fa",
+      "after": "4c808c3e920683b2b7243d7beaf60f23748748860720ced42d84e94810e039fa"
+    },
+    "scripts/build_skill_runtime_manifest.py": {
+      "before": "00b3fb059daa36ce0c4d7d4adba64da8ad7ff3b92b623d4d813c9d5c2252484a",
+      "after": "00b3fb059daa36ce0c4d7d4adba64da8ad7ff3b92b623d4d813c9d5c2252484a"
+    },
+    "scripts/check_skill_runtime.py": {
+      "before": "2779e7ac6ca3449df5a94569711da1c0eae322498d5d0104950e6506d71ed558",
+      "after": "2779e7ac6ca3449df5a94569711da1c0eae322498d5d0104950e6506d71ed558"
+    },
+    "scripts/tests/test_skill_runtime.py": {
+      "before": "d9ec2d0f327a60f792bfb8695a540a3a51c70cf2ef7c4f522c273972c4be7818",
+      "after": "d9ec2d0f327a60f792bfb8695a540a3a51c70cf2ef7c4f522c273972c4be7818"
+    },
+    "skills/runtime-manifest.json": {
+      "before": "9d35e3e34afc6d719b08670665e862d94efa0ff4901b9efc0ee2bf1e86f43aab",
+      "after": "9d35e3e34afc6d719b08670665e862d94efa0ff4901b9efc0ee2bf1e86f43aab"
+    },
+    "skills/skill_runtime.schema.json": {
+      "before": "ed4a9b22dac112f820d049472a153ac0ac6bdb32a1327d347a829b304fddda36",
+      "after": "ed4a9b22dac112f820d049472a153ac0ac6bdb32a1327d347a829b304fddda36"
+    }
+  },
+  "policy": {
+    "network": "none",
+    "pull": "never",
+    "source_readonly": true,
+    "docker_socket_mounted": false,
+    "dependency_installation": false
+  },
+  "suites": [
+    "deploy/tests",
+    "scripts/tests/test_skill_runtime.py"
+  ],
+  "tests": 143,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0
+}

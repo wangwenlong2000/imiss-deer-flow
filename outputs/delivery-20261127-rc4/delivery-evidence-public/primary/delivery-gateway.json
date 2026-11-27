@@ -1,0 +1,149 @@
+{
+  "availability": "present",
+  "name": "delivery-gateway",
+  "report": {
+    "business_requests_are_real": true,
+    "cases": [
+      {
+        "answer_chars": 2,
+        "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+        "bare_done_received": true,
+        "case_id": "basic-model-answer",
+        "event_count": 12,
+        "finished": true,
+        "gateway_admitted_identity_matches": true,
+        "gateway_event_counts": {
+          "accepted": 1,
+          "compliance": 2,
+          "done": 1,
+          "heartbeat": 1,
+          "segment": 3,
+          "sentinel": 1,
+          "start": 1,
+          "status": 2
+        },
+        "gateway_unknown_event_name_count": 0,
+        "graph_tool_evidence": [],
+        "native_identity_matches": true,
+        "native_status": {
+          "status": "success"
+        },
+        "passed": true,
+        "source_events": [
+          "final_answer",
+          "task_planning",
+          "todo_routing_guidance"
+        ],
+        "source_events_unknown_count": 0,
+        "statuses": [
+          "pending",
+          "running"
+        ],
+        "statuses_unknown_count": 0,
+        "stream_identity_consistent": true,
+        "terminal_identity_matches": true,
+        "tool_call_events": [],
+        "tool_call_events_unknown_count": 0
+      },
+      {
+        "answer_chars": 232,
+        "answer_sha256": "51e3cc1bc05648be83ace1dc470ab350cea5f2378f1ed186822c4c46fa749299",
+        "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+        "artifact_size": 25,
+        "artifact_values_verified": true,
+        "bare_done_received": true,
+        "case_id": "basic-tool-artifact",
+        "event_count": 17,
+        "finished": true,
+        "gateway_admitted_identity_matches": true,
+        "gateway_event_counts": {
+          "accepted": 1,
+          "compliance": 2,
+          "done": 1,
+          "heartbeat": 3,
+          "segment": 6,
+          "sentinel": 1,
+          "start": 1,
+          "status": 2
+        },
+        "gateway_unknown_event_name_count": 0,
+        "graph_tool_evidence": [
+          {
+            "arguments_sha256": "51ebb6919de345a14a71ba0129cc1fe0c5cf9599af389e5d889a1371d001375d",
+            "name": "read_file",
+            "result_bytes": 115,
+            "result_sha256": "ca45be038d2febebfe8589d8040cc8c9b1676d5dfefb1e09ecb914b0030541ee",
+            "result_status": "success",
+            "run_identity_matches": true,
+            "tool_call_id_sha256": "53cc852889f9c62a147cf0106f8ed77d32d9d4c3519235a4d8baeb127612803a",
+            "tool_name_known": true
+          },
+          {
+            "arguments_sha256": "9fe7bfb6bcb5f27e55e39fbecdcbc4d05405be44480e09f009c29107ba80c8f5",
+            "name": "bash",
+            "result_bytes": 833,
+            "result_sha256": "58d6cd327ec8e27fa7a23d219febc02198267ba982c67c42fcd0b1de39948b08",
+            "result_status": "success",
+            "run_identity_matches": true,
+            "tool_call_id_sha256": "c82f3f0ee000815e9626d3d23062efd51ddf19d2f42aa344d3199acb1b7ac78c",
+            "tool_name_known": true
+          },
+          {
+            "arguments_sha256": "7084c5e36e15e1366263c8a34f66140c3cfcd0d9433b871f313ef4e7d3bc8cbd",
+            "name": "present_files",
+            "result_bytes": 271,
+            "result_sha256": "443e7992729a03d0886816fd7f6a024809ee2777e5f12064e0a499e622c68f33",
+            "result_status": "success",
+            "run_identity_matches": true,
+            "tool_call_id_sha256": "c119c13e7fdac26dfc7f1042fcfd30584623b5ae2d70b8703f0688632c64d81e",
+            "tool_name_known": true
+          }
+        ],
+        "native_identity_matches": true,
+        "native_status": {
+          "status": "success"
+        },
+        "passed": true,
+        "result_file_isolation_verified": true,
+        "source_events": [
+          "final_answer",
+          "present_files",
+          "task_planning",
+          "todo_routing_guidance",
+          "tool_call:bash",
+          "tool_call:read_file"
+        ],
+        "source_events_unknown_count": 0,
+        "statuses": [
+          "pending",
+          "running"
+        ],
+        "statuses_unknown_count": 0,
+        "stream_identity_consistent": true,
+        "terminal_identity_matches": true,
+        "tool_call_events": [
+          "tool_call:bash",
+          "tool_call:read_file"
+        ],
+        "tool_call_events_unknown_count": 0,
+        "uploaded_file_isolation_verified": true
+      }
+    ],
+    "credentials_recorded": false,
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:14:21.889500+00:00",
+    "live_http_declared": false,
+    "passed": true,
+    "probe": "gateway",
+    "raw_model_outputs_recorded": false,
+    "release_matches_expected": true,
+    "restored_cases": [],
+    "schema_version": 1,
+    "started_at": "2026-11-27T02:13:07.657435+00:00",
+    "tokens_revoked": true
+  },
+  "required": true,
+  "source_bytes": 6734,
+  "source_passed": true,
+  "source_sha256": "44dbd85cb8398b8fb4eab4e50ed01e7395e3f9217f83da20911aedb952c93c70"
+}

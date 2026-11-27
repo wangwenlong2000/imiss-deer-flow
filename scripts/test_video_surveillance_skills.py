@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Video-surveillance skill test suite (StreetModel / Elasticsearch bypassed).
 
-参照 docs/deerflow-agent-skill-test.md 的三层结构，本套件覆盖两层可离线执行的测试：
+参照 docs/testing/deerflow-agent-skill-test.md 的三层结构，本套件覆盖两层可离线执行的测试：
 
   layer=plan  业务编排与原子 skill 的纯 Python 契约测试（宿主机执行，仅依赖标准库）
   layer=exec  真实视频端到端执行（在 AioSandbox 镜像内执行，依赖 ffmpeg/OpenCV/Ultralytics）

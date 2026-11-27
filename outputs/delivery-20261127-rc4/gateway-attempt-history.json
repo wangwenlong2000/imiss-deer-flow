@@ -1,0 +1,192 @@
+{
+  "all_attempts_passed": false,
+  "collected_at": "2026-11-27T02:23:07.307370+00:00",
+  "configuration_unchanged_verified": false,
+  "cross_machine_verified": false,
+  "delivery_accepted": false,
+  "diagnostic": {
+    "availability": "present",
+    "bash_missing_description_reported": true,
+    "bytes": 1539,
+    "created_at": "2026-11-27T02:13:09.594591+00:00",
+    "initial_probe_error_sha256": "7cbd2307fb4278cfed0c87246b4b303209501a145b21815fa7f25527d8850ebd",
+    "initial_probe_passed": false,
+    "raw_tool_contents_exported": false,
+    "relationship_to_initial_failure": "supplied_diagnostic_snapshot",
+    "retry_limit_declared": 1,
+    "run_status": "success",
+    "sha256": "16298ab11ed7e8b84ecf48de8996691b394a52242fe13c6bd8e277155c44933a",
+    "source_authenticity_verified": false,
+    "source_file": "gateway-initial-failure-diagnostic.json",
+    "strict_gate_unchanged_declared": true,
+    "tools": [
+      {
+        "call_present": true,
+        "missing_required_description": false,
+        "name": "read_file",
+        "record_valid": true,
+        "result_sha256": "ca45be038d2febebfe8589d8040cc8c9b1676d5dfefb1e09ecb914b0030541ee",
+        "status": "success"
+      },
+      {
+        "call_present": true,
+        "missing_required_description": true,
+        "name": "bash",
+        "record_valid": true,
+        "result_sha256": "0d0e73a3d81331e6b4421d4a2f80d07a6da48158da50acdb5a7ebf77aed32e71",
+        "status": "error"
+      },
+      {
+        "call_present": true,
+        "missing_required_description": false,
+        "name": "bash",
+        "record_valid": true,
+        "result_sha256": "db9c54cae48ce88a3e0e1f90727ab0cc6644267f4a14bc5c9b851fd22dc697e7",
+        "status": "success"
+      },
+      {
+        "call_present": true,
+        "missing_required_description": false,
+        "name": "present_files",
+        "record_valid": true,
+        "result_sha256": "402e785d4d530643767a4fe037fb62072f30682a560493a98e46c46e05f13627",
+        "status": "success"
+      }
+    ],
+    "tools_schema_valid": true
+  },
+  "evidence_complete": true,
+  "failure_count": 1,
+  "history_covers_future_attempts": false,
+  "history_includes_failure": true,
+  "initial_failure_diagnostic_present": true,
+  "initial_primary_failure_recorded": true,
+  "invalid_journal_line_numbers": [],
+  "journal": {
+    "availability": "present",
+    "bytes": 24591,
+    "line_count": 38,
+    "sha256": "4332e7242c8c65dd6f230980e8990bf8d15357e6f38bb2ae36671f88181e02fd",
+    "source_file": "commands.jsonl"
+  },
+  "latest_attempts_passed": true,
+  "policy": {
+    "explicit_field_allowlist": true,
+    "raw_commands_exported": false,
+    "raw_diagnostic_errors_exported": false,
+    "raw_identities_exported": false,
+    "raw_logs_exported": false,
+    "retry_budget_per_site": 1,
+    "same_command_hash_proves_only_recorded_invocation_equality": true
+  },
+  "release": "20261127-rc4",
+  "retry_budget_observed": true,
+  "retry_invocations_unchanged": true,
+  "schema_version": 1,
+  "sites": {
+    "primary": {
+      "all_attempts_passed": false,
+      "attempt_count": 2,
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "attempt_number_matches_journal_order": true,
+          "exit_code": 1,
+          "finished_at": "2026-11-27T02:11:23.618316+00:00",
+          "journal_line_number": 21,
+          "journal_line_sha256": "2b980d70b3195a26ec8c3dca7afbd33a7f0c73373ace2afaf4958d3919180009",
+          "log": {
+            "availability": "present",
+            "bytes": 2746,
+            "sha256": "19166b7b2023b5f16b56272eef1a5240e43592bf4591dfd5176b1daff07e3662",
+            "source_file": "rc4-primary-gateway.log"
+          },
+          "log_reference_valid": true,
+          "process_exited_successfully": false,
+          "record_valid": true,
+          "recorded_invocation_sha256": "d270b226ae336c06fe7f282d76b8e35a587033c8d7585480103b5b3e5add2c2e",
+          "recorded_invocation_valid": true,
+          "same_recorded_invocation_as_previous": null,
+          "started_at": "2026-11-27T02:09:49.073589+00:00",
+          "starts_after_previous_finished": null,
+          "step": "rc4-primary-gateway",
+          "step_unique": true,
+          "timestamps_valid": true
+        },
+        {
+          "attempt_number": 2,
+          "attempt_number_matches_journal_order": true,
+          "exit_code": 0,
+          "finished_at": "2026-11-27T02:14:22.193739+00:00",
+          "journal_line_number": 22,
+          "journal_line_sha256": "d611e91ef7899da8e633cc10c35b8b85b0c038d3f8434932aba2d8af7fcadf08",
+          "log": {
+            "availability": "present",
+            "bytes": 6734,
+            "sha256": "44dbd85cb8398b8fb4eab4e50ed01e7395e3f9217f83da20911aedb952c93c70",
+            "source_file": "rc4-primary-gateway-r2.log"
+          },
+          "log_reference_valid": true,
+          "process_exited_successfully": true,
+          "record_valid": true,
+          "recorded_invocation_sha256": "d270b226ae336c06fe7f282d76b8e35a587033c8d7585480103b5b3e5add2c2e",
+          "recorded_invocation_valid": true,
+          "same_recorded_invocation_as_previous": true,
+          "started_at": "2026-11-27T02:13:06.737551+00:00",
+          "starts_after_previous_finished": true,
+          "step": "rc4-primary-gateway-r2",
+          "step_unique": true,
+          "timestamps_valid": true
+        }
+      ],
+      "evidence_complete": true,
+      "failed_attempts_retained": 1,
+      "failure_count": 1,
+      "latest_attempt_passed": true,
+      "recorded_invocations_unchanged_across_retries": true,
+      "retry_budget_observed": true,
+      "status": "observed"
+    },
+    "restore": {
+      "all_attempts_passed": true,
+      "attempt_count": 1,
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "attempt_number_matches_journal_order": true,
+          "exit_code": 0,
+          "finished_at": "2026-11-27T02:22:11.914559+00:00",
+          "journal_line_number": 35,
+          "journal_line_sha256": "33ece78dab9e15a8b86fd00345534f2a059d6930411388cf48d338e22535ec95",
+          "log": {
+            "availability": "present",
+            "bytes": 6742,
+            "sha256": "ed344daa29113c7e1b09e131747e63aebb1880f16848bb536651189656ebe879",
+            "source_file": "rc4-restore-gateway.log"
+          },
+          "log_reference_valid": true,
+          "process_exited_successfully": true,
+          "record_valid": true,
+          "recorded_invocation_sha256": "ca641454ca65430f62153dc83c45babb82024b9fcbb60f641d555f720817f3c3",
+          "recorded_invocation_valid": true,
+          "same_recorded_invocation_as_previous": null,
+          "started_at": "2026-11-27T02:20:42.395939+00:00",
+          "starts_after_previous_finished": null,
+          "step": "rc4-restore-gateway",
+          "step_unique": true,
+          "timestamps_valid": true
+        }
+      ],
+      "evidence_complete": true,
+      "failed_attempts_retained": 0,
+      "failure_count": 0,
+      "latest_attempt_passed": true,
+      "recorded_invocations_unchanged_across_retries": null,
+      "retry_budget_observed": true,
+      "status": "observed"
+    }
+  },
+  "source_snapshot_scope": "commands_observed_at_collection",
+  "unjournaled_gateway_logs": [],
+  "unknown_gateway_records": []
+}

@@ -1,0 +1,11 @@
+# Production OneCity entrypoint. Optional legacy A2A/browser agents use the legacy list.
+Flask==3.1.0
+Flask-Login==0.6.3
+Flask-Cors==5.0.1
+flasgger==0.9.7.1
+peewee==3.18.2
+PyMySQL[rsa]==1.1.1
+loguru==0.7.3
+requests==2.32.5
+pycryptodomex==3.23.0
+gunicorn==23.0.0

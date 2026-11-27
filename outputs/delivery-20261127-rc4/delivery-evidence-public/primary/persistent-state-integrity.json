@@ -1,0 +1,32 @@
+{
+  "availability": "present",
+  "name": "persistent-state-integrity",
+  "report": {
+    "account_count": 2,
+    "account_identity_fields_present": true,
+    "account_tokens_absent": true,
+    "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+    "artifact_sha256_valid": true,
+    "artifact_url_matches_case": true,
+    "case_count": 2,
+    "case_run_identity_fields_valid": true,
+    "exactly_two_accounts": true,
+    "exactly_two_default_cases": true,
+    "expected_artifact_matches_default_contract": true,
+    "expected_artifact_present": true,
+    "expected_artifact_sha256": "a8b731a96a1c637509954277be3d629c9c8b458fbe691c080ffc1df9c85fbc32",
+    "history_fields_present": true,
+    "passed": true,
+    "schema_valid": true,
+    "seed_completed": true,
+    "source_identity_matches": true,
+    "upload_sha256": "288adcb7fd08ec62d6f89ae21d7e4719a8c304e6a9c443a03b0224cdfd3997e3",
+    "upload_sha256_matches_default_csv": true,
+    "upload_sha256_valid": true,
+    "upload_url_matches_case": true
+  },
+  "required": true,
+  "source_bytes": 3071,
+  "source_passed": true,
+  "source_sha256": "dc38f116f9ac6c2e681e37aab7a81da3fb393ac6611057e97b2750d659c33221"
+}

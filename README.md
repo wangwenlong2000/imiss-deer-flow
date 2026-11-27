@@ -1,16 +1,24 @@
 # UrbanBrain 城市超脑
 
+文档、操作指南、测试报告及项目材料请从[文档与资料目录](docs/README.md)查找。
+
 ## 真实业务并发与合规回归（2026-11-25）
 
 OneCityAgent 支持本人任务取消、状态查询和断线后加入原任务，页面保留真实失败、未完成和取消状态。上传返回可对应审计编号的合规检查记录，文本提取失败或检查未完成会撤回文件并展示原因。已修复长文本正则回溯导致 Gateway 阻塞、模型失败误报成功及城市超脑会话跳转问题。
 
-新的 OneCity 私有部署包默认配置为执行 3、运行与排队合计 6、单用户合计 2，可通过部署命令参数调整。真实业务负载、浏览器检查、十类违规回归及验收范围见 [本轮验证材料](docs/validation-20261125/README.md)。
+新的 OneCity 私有部署包默认配置为执行 3、运行与排队合计 6、单用户合计 2，可通过部署命令参数调整。当前单机交付的实际结果与验收范围见 [交付验收记录](docs/acceptance/20261127-rc4.md)。历史浏览器、并发和十类违规回归不替代当前发布版本的业务验收。
 
 ## OneCityAgent 统一项目
 
 OneCityAgent 已纳入 `apps/onecityagent/`，与现有 `backend/`、`frontend/`、`skills/` 和 `services/streetmodel/` 在同一 Git 仓库维护。该项目包含 GitHub `fix/street-workflow-20261125` 的街景流程修复，以及两个本地项目已有的多用户认证、会话隔离、文件代理和 SSE 改动。
 
-在根目录分别运行 `make onecity-api`、`make onecity-coordinator`、`make onecity-web` 启动 OneCity 的三个进程。`make onecity-build` 构建城市超脑页面，`make onecity-test` 和 `make onecity-test-client` 运行其现有回归，`make onecity-verify` 验证两端真实 HTTP 接口。OneCity 配置、独立依赖环境和联调方法见 [统一项目说明](docs/integration-onecity-20261125.md)。
+在根目录分别运行 `make onecity-api`、`make onecity-coordinator`、`make onecity-web` 启动 OneCity 的三个进程。`make onecity-build` 构建城市超脑页面，`make onecity-test` 和 `make onecity-test-client` 运行其现有回归，`make onecity-verify` 验证两端真实 HTTP 接口。OneCity 配置、独立依赖环境和联调方法见 [统一项目说明](docs/design/integration-onecity-20261125.md)。
+
+## 单机基础交付档
+
+`citybrain` 提供 `basic-online-api` 单机安装、数据库迁移、分级业务验收、停写备份与独立目录恢复。安装材料、密钥权限、镜像身份及发布校验方式见[基础版安装与恢复](docs/installation/README.md)，本轮实际结果与能力边界见[交付验收记录](docs/acceptance/20261127-rc4.md)。发布清单和文件校验只证明材料完整性；交付结论以记录中的真实业务及恢复证据为准。
+
+基础档使用 Linux amd64、MySQL、外部聊天模型 API 和固定兼容工具沙箱，覆盖账号、鉴权、历史、真实问答、基础 CSV 分析及文件产物。ES、街景、视频、遥感、NAS、GPU 等扩展另行验收；原地 upgrade/rollback apply 保持 fail-closed。同机独立 root/Compose 演练不能作为不同物理机器迁移通过的证据。
 
 ## 类型 6 自由文本标识符回归数据
 
@@ -57,7 +65,7 @@ Qwen3.6-35B-A3B进行一次结构化语义识别，同时输出任务、场景�
 
 配置示例仅启用Qwen3.6-35B-A3B，使用环境变量QWEN_BASE_URL和QWEN_API_KEY，
 不包含真实凭证。最新24轮核心任务回归符合预期，仍有3处扩展说明偏差。
-详见[优化汇总](docs/optimization-summary-20261028.md)和
+详见[优化汇总](docs/history/optimization-summary-20261028.md)和
 [本次提交说明及复现方法](docs/releases/20261028-intent-full-flow.md)。
 
 ---
@@ -229,22 +237,22 @@ Prerequisite: complete the "Configuration" steps above first (`make config` and 
 
 网页和手机端继续使用原有会话/任务接口。启动入口默认显式配置两个图任务并行，其他任务进入原有队列；运行中与排队任务合计默认最多10个，满载返回429及稍后重试提示。网页显示当前任务实际的排队/处理状态。
 
-`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。现已支持以服务端验证的 IAM 身份类别和授权任务类别施加可配置的逐用户并发上限；这不替代账号认证或数据权限隔离，需配置 IAM 与签名密钥后启用，详见[多用户并发说明](docs/multi-user-concurrency-20261029.md)。原有实现范围及两台电脑演示步骤见[并发实现记录](docs/concurrency-implementation-20261029.md)。
+`DEER_FLOW_GRAPH_JOBS`控制同时执行数（默认2），`DEER_FLOW_MAX_INFLIGHT_RUNS`控制运行加排队总数（默认10）；调大前需验证模型与沙箱资源。现已支持以服务端验证的 IAM 身份类别和授权任务类别施加可配置的逐用户并发上限；这不替代账号认证或数据权限隔离，需配置 IAM 与签名密钥后启用，详见[多用户并发说明](docs/history/multi-user-concurrency-20261029.md)。原有实现范围及两台电脑演示步骤见[并发实现记录](docs/history/concurrency-implementation-20261029.md)。
 
-用户权限改进已加入统一 API 认证、组织与用户归属检查、会话及数据源 SQLite 持久化、记忆全链路隔离，以及上传并发回滚保护。IAM 模式的新任务必须经已认证 Gateway 创建；独立网页直接创建原生任务的流程仍需接入，当前可使用 OneCity 入口。数据中心需显式操作权限，共享平台管理需 `platform:admin`。部署、旧数据迁移和隔离验证见[用户权限与并发改进记录](docs/user-access-and-concurrency-20261112.md)。
+用户权限改进已加入统一 API 认证、组织与用户归属检查、会话及数据源 SQLite 持久化、记忆全链路隔离，以及上传并发回滚保护。IAM 模式的新任务必须经已认证 Gateway 创建；独立网页直接创建原生任务的流程仍需接入，当前可使用 OneCity 入口。数据中心需显式操作权限，共享平台管理需 `platform:admin`。部署、旧数据迁移和隔离验证见[用户权限与并发改进记录](docs/history/user-access-and-concurrency-20261112.md)。
 
-多用户权限和并发的前端演示视频及可复现步骤见[录制说明](docs/user-access-concurrency-demo.md)。视频使用独立测试身份和确定性CSV图，不连接生产IAM登录或调用模型。
+多用户权限和并发的前端演示视频及可复现步骤见[录制说明](docs/project-materials/user-access-concurrency-demo.md)。视频使用独立测试身份和确定性CSV图，不连接生产IAM登录或调用模型。
 
-OneCity 跨平台适配已加入有效账号和工作区校验、本人会话与文件授权、账号切换缓存隔离、令牌退出撤销及角色写入限制。SSE 展示真实提交、排队和执行状态，并保留限额错误。真实 HTTP 双向 IAM 与确定性 CSV 并发验证可运行 `scripts/verify_onecity_multiuser.py`；生产采用独立内网后端，部署和回退见[专用服务说明](docs/onecity-private-multiuser-deployment.md)。
+OneCity 跨平台适配已加入有效账号和工作区校验、本人会话与文件授权、账号切换缓存隔离、令牌退出撤销及角色写入限制。SSE 展示真实提交、排队和执行状态，并保留限额错误。真实 HTTP 双向 IAM 与确定性 CSV 并发验证可运行 `scripts/verify_onecity_multiuser.py`；生产采用独立内网后端，部署和回退见[专用服务说明](docs/operations/onecity-private-multiuser-deployment.md)。
 
-OneCityAgent 可通过[专用多用户服务部署脚本](docs/onecity-private-multiuser-deployment.md)准备独立 Gateway、LangGraph 和数据目录；`prepare` 仅读取现网配置并生成私有部署包，实际启动及 OneCity 流量切换分别执行，不覆盖已有 3328 服务。
+OneCityAgent 可通过[专用多用户服务部署脚本](docs/operations/onecity-private-multiuser-deployment.md)准备独立 Gateway、LangGraph 和数据目录；`prepare` 仅读取现网配置并生成私有部署包，实际启动及 OneCity 流量切换分别执行，不覆盖已有 3328 服务。
 
 可在根目录`.env`设置上述两个参数；`make docker-start`会读取，已导出的同名环境变量优先。更改执行数或总量后，需在现有任务结束时重新创建图服务容器，普通`restart`不会更新容器的命令和环境。真实三会话验证脚本支持`--expected-jobs 3`检查三个任务同时执行，默认仍验证两个执行、第三个等待。
 
 
 已补做三会话真实模型、工具和沙箱验证：两个任务重叠执行，第三个等待后自动开始；三个同名CSV输入各自得到正确回答和下载件，同会话解释追问也通过。该结果仅覆盖本次小型道路CSV样例。
 
-文件交付阶段只展示下载卡片，分析正文统一展示后续正式答复，避免工具调用时附带的分析文字与最终答案重复。[显示修复记录](docs/duplicate-answer-display-fix-20261029.md)
+文件交付阶段只展示下载卡片，分析正文统一展示后续正式答复，避免工具调用时附带的分析文字与最终答案重复。[显示修复记录](docs/history/duplicate-answer-display-fix-20261029.md)
 
 ### Advanced
 #### Sandbox Mode
@@ -573,8 +581,8 @@ rewritten final answer to avoid duplicates. The normalized
 `final_disposition` is derived from policy `actions`, not from the stream's
 retract transport marker: an allowed result may use replacement semantics to
 append a compliance notice without becoming a refusal. See the
-[mobile test plan](docs/mobile-platform-compliance-test-plan.md) and the
-[manual-UI real SSE record](docs/mobile-platform-manual-ui-sse-record-20260916.md).
+[mobile test plan](docs/testing/mobile-platform-compliance-test-plan.md) and the
+[manual-UI real SSE record](docs/testing/mobile-platform-manual-ui-sse-record-20260916.md).
 
 **Detectors are pluggable and isolated.** A detector declares its capabilities in its own
 `manifest.yaml` and implements a single protocol. It can run in-process, as a subprocess, or as an
@@ -587,8 +595,8 @@ governance domain-specific sensitive information) at `accuracy=0.9821` / `macro_
 nothing but the Python standard library.
 
 Disabled by default. Enable under `compliance` in `config.yaml`, see the
-[detector integration guide](docs/compliance-detector-integration-guide.md) to add your own, and
-[the end-to-end verification guide](docs/compliance-e2e-verification.md) to try it against a
+[detector integration guide](docs/compliance/compliance-detector-integration-guide.md) to add your own, and
+[the end-to-end verification guide](docs/compliance/compliance-e2e-verification.md) to try it against a
 running instance.
 
 ## Recommended Models
@@ -632,10 +640,10 @@ All dict-returning methods are validated against Gateway Pydantic response model
 - [Configuration Guide](backend/docs/CONFIGURATION.md) - Setup and configuration instructions
 - [Architecture Overview](backend/CLAUDE.md) - Technical architecture details
 - [Backend Architecture](backend/README.md) - Backend architecture and API reference
-- [Compliance Detector Integration Guide](docs/compliance-detector-integration-guide.md) - How to add a compliance detector
-- [Compliance Detection Implementation Plan](docs/compliance-detection-implementation-plan.md) - Design rationale and phased plan
-- [Compliance Detection Decision Log](docs/compliance-detection-decisions.md) - Implementation decisions and open blockers
-- [Compliance E2E Verification](docs/compliance-e2e-verification.md) - Running, verifying and rolling back compliance detection on a live instance
+- [Compliance Detector Integration Guide](docs/compliance/compliance-detector-integration-guide.md) - How to add a compliance detector
+- [Compliance Detection Implementation Plan](docs/compliance/compliance-detection-implementation-plan.md) - Design rationale and phased plan
+- [Compliance Detection Decision Log](docs/compliance/compliance-detection-decisions.md) - Implementation decisions and open blockers
+- [Compliance E2E Verification](docs/compliance/compliance-e2e-verification.md) - Running, verifying and rolling back compliance detection on a live instance
 
 ## Contributing
 
@@ -673,7 +681,7 @@ Your unwavering commitment and expertise have been the driving force behind Deer
 
 ### 场景服务修复（2026-10-28）
 
-绿地评估按真实分辨率和边界有效像元计算；视频缺少拍摄时间时使用相对时间，逐帧检测需设置 `every_frame=true`。工具会导出完整计数和检测框CSV，20帧预览不代表只处理了20帧。街景技能使用 `/mnt/skills/custom/street_view_image/location-matcher` 和 `/opt/rs-venv/bin/python`，嵌入地址可用 `STREETMODEL_BASE_URL` 配置；服务故障会明确返回连接错误。发布范围与运行限制见 [版本说明](docs/release-concurrency-20261029.md)。
+绿地评估按真实分辨率和边界有效像元计算；视频缺少拍摄时间时使用相对时间，逐帧检测需设置 `every_frame=true`。工具会导出完整计数和检测框CSV，20帧预览不代表只处理了20帧。街景技能使用 `/mnt/skills/custom/street_view_image/location-matcher` 和 `/opt/rs-venv/bin/python`，嵌入地址可用 `STREETMODEL_BASE_URL` 配置；服务故障会明确返回连接错误。发布范围与运行限制见 [版本说明](docs/history/release-concurrency-20261029.md)。
 
 ## Type 7 confidential rule regression
 

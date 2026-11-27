@@ -1,0 +1,8 @@
+{
+  "availability": "present",
+  "name": "command-journal",
+  "required": true,
+  "source_bytes": 24591,
+  "source_passed": true,
+  "source_sha256": "4332e7242c8c65dd6f230980e8990bf8d15357e6f38bb2ae36671f88181e02fd"
+}

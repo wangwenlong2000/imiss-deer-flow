@@ -1,0 +1,126 @@
+{
+  "all_observed_evidence_passed": true,
+  "collection_complete": true,
+  "cross_machine_verified": false,
+  "delivery_accepted": false,
+  "failed_evidence_count": 0,
+  "invalid_count": 0,
+  "missing_count": 0,
+  "records": [
+    {
+      "availability": "present",
+      "name": "command-journal",
+      "required": true,
+      "source_bytes": 24591,
+      "source_passed": true,
+      "source_sha256": "4332e7242c8c65dd6f230980e8990bf8d15357e6f38bb2ae36671f88181e02fd"
+    },
+    {
+      "availability": "present",
+      "log_bytes": 80,
+      "log_sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "name": "rc4-primary-stop",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:15:41.983325+00:00",
+        "started_at": "2026-11-27T02:15:25.696356+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 378,
+      "log_sha256": "7598c5568354eb6a34d71ec985be57a63b293e5f48c4967f5c8885cafaebbae2",
+      "name": "rc4-primary-backup",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:15:46.336908+00:00",
+        "started_at": "2026-11-27T02:15:42.015957+00:00"
+      },
+      "required": true,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 400,
+      "log_sha256": "f3b3142a6c4d9ae7c72e4a2193430bf92deff874896ac180f7096ea5dd9c3cce",
+      "name": "rc4-restore-restore",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:15:53.746985+00:00",
+        "started_at": "2026-11-27T02:15:52.953619+00:00"
+      },
+      "required": true,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 42,
+      "log_sha256": "7d1c30b378f5f5fcb4788422171a37f205e2aa1bf20c4407b8c1fc0ec6d71d18",
+      "name": "rc4-restore-sandbox-range",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:15:54.273052+00:00",
+        "started_at": "2026-11-27T02:15:53.780222+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 201,
+      "log_sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "name": "rc4-restore-assets-import",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:15:55.565026+00:00",
+        "started_at": "2026-11-27T02:15:54.306320+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 266,
+      "log_sha256": "6a9a87963603d2688b0f2882e123cf4c6c5eae113c27a6ae4e2218dc77d39ef8",
+      "name": "rc4-restore-install",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:16:43.313085+00:00",
+        "started_at": "2026-11-27T02:15:55.597209+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 574,
+      "log_sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "name": "rc4-restore-status",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:16:44.158201+00:00",
+        "started_at": "2026-11-27T02:16:43.345249+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    },
+    {
+      "availability": "present",
+      "log_bytes": 22,
+      "log_sha256": "e9f93de1968fab165e73eacff4934dd1acd2c31d7c5f65364fdeede628814b0e",
+      "name": "rc4-primary-start",
+      "report": {
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:22:35.275756+00:00",
+        "started_at": "2026-11-27T02:22:11.979373+00:00"
+      },
+      "required": false,
+      "source_passed": true
+    }
+  ],
+  "schema_version": 1,
+  "site": "lifecycle",
+  "verification_report_count": 0
+}

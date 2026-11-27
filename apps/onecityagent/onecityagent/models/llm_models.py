@@ -4,7 +4,7 @@
 from peewee import (
     CharField, IntegerField, TextField, CompositeKey, BigIntegerField, DateTimeField
 )
-from onecityagent.models.db_models import BaseModel, DB
+from onecityagent.models.db_models import BaseModel, DB, database_proxy
 
 
 class LLMFactories(BaseModel):
@@ -34,7 +34,7 @@ class LLMFactories(BaseModel):
         return self.name
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = "llm_factories"
 
 
@@ -77,7 +77,7 @@ class LLM(BaseModel):
         return self.llm_name
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = "llm"
         primary_key = CompositeKey('llm_name', 'fid')
 
@@ -132,7 +132,7 @@ class TenantLLM(BaseModel):
         return self.model
 
     class Meta:
-        database = DB.get_instance()
+        database = database_proxy
         table_name = "tenant_llm"
         indexes = (
             (('tenant_id', 'llm_factory', 'model'), True),  # 保持唯一约束

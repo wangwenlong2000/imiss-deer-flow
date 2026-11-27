@@ -17,7 +17,7 @@ Layout
 ``detectors/``     self-contained detector packages, each with its own manifest
 
 Adding a detector requires no change to any file above ``detectors/``.
-See ``docs/compliance-detector-integration-guide.md``.
+See ``docs/compliance/compliance-detector-integration-guide.md``.
 """
 
 from deerflow.compliance.contract import (

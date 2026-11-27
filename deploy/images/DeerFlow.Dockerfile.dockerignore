@@ -1,0 +1,12 @@
+**
+!backend/pyproject.toml
+!backend/README.md
+!backend/uv.lock
+!backend/langgraph.json
+!backend/app/**
+!backend/packages/harness/pyproject.toml
+!backend/packages/harness/deerflow/**
+!config/compliance/**
+!deploy/**
+**/__pycache__
+**/*.pyc

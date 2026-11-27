@@ -1,0 +1,6 @@
+**
+!deploy/**
+!config.example.yaml
+!config/compliance/**
+!skills/runtime-manifest.json
+!skills/skill_runtime.schema.json

@@ -1,0 +1,699 @@
+﻿category,skill_name,skill_path,dependency_type,distribution,module,name,specifier,runtime_scope,observed_version,status,required_or_optional,evidence,notes
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required: 本地CSV/SQL分析,"skills/custom/network-traffic-analysis/scripts/analyze.py:23
+skills/custom/network-traffic-analysis/scripts/core/schema_mapping.py:18
+skills/custom/network-traffic-analysis/scripts/core/schema_mapping.py:558
+skills/custom/network-traffic-analysis/scripts/actions/periodicity.py:5
+skills/custom/network-traffic-analysis/scripts/actions/overview.py:5
+docker/sandbox/Dockerfile:73
+skills/custom/network-traffic-analysis/requirements.txt:1",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,elasticsearch,elasticsearch,,未固定,配置沙箱镜像基线,9.5.1,已检出；未固定精确版本,conditional: RAG检索或索引写入,"skills/custom/network-traffic-analysis/scripts/rag_search.py:208
+skills/custom/network-traffic-analysis/scripts/index_rag_docs.py:276
+skills/custom/network-traffic-analysis/scripts/index_rag_docs.py:277
+docker/sandbox/Dockerfile:82",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,conditional: ML异常检测引擎,"skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:16
+docker/sandbox/Dockerfile:69
+skills/custom/network-traffic-analysis/requirements.txt:5",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,openai,openai,,未固定,配置沙箱镜像基线,3.14.1,已检出；未固定精确版本,conditional: 远程OpenAI兼容embedding,"skills/custom/network-traffic-analysis/scripts/rag_search.py:131
+skills/custom/network-traffic-analysis/scripts/embed_rag_docs.py:110
+docker/sandbox/Dockerfile:81",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel数据读取,"skills/custom/network-traffic-analysis/scripts/analyze.py:434
+docker/sandbox/Dockerfile:75
+skills/custom/network-traffic-analysis/requirements.txt:3",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,pytz,pytz,,未固定,配置沙箱镜像基线,2025.2,已检出；未固定精确版本,conditional: 时区处理,"skills/custom/network-traffic-analysis/scripts/analyze.py:442
+skills/custom/network-traffic-analysis/scripts/utils/io.py:55
+docker/sandbox/Dockerfile:78
+skills/custom/network-traffic-analysis/requirements.txt:4",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,required: 字段映射和配置解析,"skills/custom/network-traffic-analysis/scripts/rag_search.py:28
+skills/custom/network-traffic-analysis/scripts/analyze.py:426
+skills/custom/network-traffic-analysis/scripts/utils/io.py:46
+skills/custom/network-traffic-analysis/scripts/utils/config.py:11
+docker/sandbox/Dockerfile:115
+skills/custom/network-traffic-analysis/requirements.txt:2",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,rrcf,rrcf,,未固定,配置沙箱镜像基线,0.4.4,已检出；未固定精确版本,conditional: RCF异常检测引擎,"skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:34
+docker/sandbox/Dockerfile:80
+skills/custom/network-traffic-analysis/requirements.txt:7",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,scapy,scapy,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,optional: PCAP在tshark不可用/失败时的解析后备,skills/custom/network-traffic-analysis/scripts/prepare_pcap.py:37,
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,scikit-learn,sklearn,,未固定,配置沙箱镜像基线,1.7.2,已检出；未固定精确版本,conditional: IsolationForest/LOF和标准化,"skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:98
+skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:99
+skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:100
+skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:127
+skills/custom/network-traffic-analysis/scripts/analysis/anomaly_models.py:17
+docker/sandbox/Dockerfile:79
+skills/custom/network-traffic-analysis/requirements.txt:6",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,Python,sentence-transformers,sentence_transformers,,未固定,配置沙箱镜像基线,6.0.1,已检出；未固定精确版本,conditional: 本地embedding模型,"skills/custom/network-traffic-analysis/scripts/rag_search.py:151
+skills/custom/network-traffic-analysis/scripts/rag_search.py:142
+skills/custom/network-traffic-analysis/scripts/rag_search.py:159
+skills/custom/network-traffic-analysis/scripts/embed_rag_docs.py:130
+skills/custom/network-traffic-analysis/scripts/embed_rag_docs.py:121
+docker/sandbox/Dockerfile:76",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/network-traffic-analysis/SKILL.md:1,
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,系统工具,,,tshark,未固定,见工具证据；可能为沙箱、挂载资产或宿主,TShark (Wireshark) 3.6.2 (Git v3.6.2 packaged as 3.6.2-2),工具版本已查询,conditional: PCAP优先解析；与scapy至少一种可用,"skills/custom/network-traffic-analysis/scripts/prepare_pcap.py:1664
+docker/sandbox/Dockerfile:31",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,系统工具,,,zeek,未固定,见工具证据；可能为沙箱、挂载资产或宿主,zeek version 8.2.2,工具版本已查询,optional: 生成conn/dns/http/ssl/weird辅助证据,"skills/custom/network-traffic-analysis/scripts/prepare_pcap.py:1685
+skills/custom/network-traffic-analysis/scripts/prepare_pcap.py:2292
+docker/sandbox/Dockerfile:56",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,模型/服务,,,Elasticsearch,未固定,外部服务或宿主能力,,静态依赖；本次未调用,conditional: RAG,"skills/custom/network-traffic-analysis/scripts/rag_search.py:208
+skills/custom/network-traffic-analysis/scripts/index_rag_docs.py:276",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,模型/服务,,,OpenAI兼容embedding API 或本地SentenceTransformer,模型由配置指定；代码默认text-embedding-v3-large，未固定模型revision,外部服务或宿主能力,,静态依赖；本次未调用,conditional: 向量RAG,"skills/custom/network-traffic-analysis/scripts/utils/config.py:16
+skills/custom/network-traffic-analysis/scripts/utils/config.py:89",
+network-traffic-analysis,network-traffic-analysis,skills/custom/network-traffic-analysis,模型/服务,,,开放威胁情报feed/本地缓存,FeodoTracker、ThreatFox、URLhaus、Tor；版本随feed更新,外部服务或宿主能力,,静态依赖；本次未调用,optional: IOC情报匹配；离线缓存优先，无feed返回no_feed,"skills/custom/network-traffic-analysis/scripts/analysis/threat_intel.py:443
+skills/custom/network-traffic-analysis/scripts/analysis/threat_intel.py:460",
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/common/composite_path_engine.py:9
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,Python,networkx,networkx,,未固定,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/association-path-analysis/scripts/association_path_wrapper.py:25
+skills/custom/phone-network-analysis/common/composite_path_engine.py:10
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:8
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:156
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:251
+docker/sandbox/Dockerfile:83",
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:9
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:173
+docker/sandbox/Dockerfile:72
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:278
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:412",
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/association-path-analysis/SKILL.md:1,
+phone-network-analysis,association-path-analysis,skills/custom/phone-network-analysis/association-path-analysis,系统工具,,,可导入networkx/pandas的Python子进程解释器,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,conditional: 复用graph-operator算子,skills/custom/phone-network-analysis/common/yigraph_adapter.py:56,
+phone-network-analysis,condition-based-screening,skills/custom/phone-network-analysis/condition-based-screening,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出,"skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_wrapper.py:808
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,condition-based-screening,skills/custom/phone-network-analysis/condition-based-screening,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_wrapper.py:11
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,condition-based-screening,skills/custom/phone-network-analysis/condition-based-screening,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_wrapper.py:107
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,condition-based-screening,skills/custom/phone-network-analysis/condition-based-screening,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/condition-based-screening/SKILL.md:1,
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,optional: pandas写Parquet失败后的后备引擎,"skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:381
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: .xlsx输入读取,"skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:175
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:21
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:177
+docker/sandbox/Dockerfile:72
+skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:377",
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,Python,xlrd,xlrd,,未固定,配置沙箱镜像基线,2.0.2,已检出；未固定精确版本,conditional: .xls输入读取,"skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/scripts/dataset_onboarding_graph_preprocess_wrapper.py:175
+docker/sandbox/Dockerfile:74",
+phone-network-analysis,dataset-onboarding-graph-preprocess,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/SKILL.md:1,
+phone-network-analysis,dataset-overview-analysis,skills/custom/phone-network-analysis/dataset-overview-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/dataset-overview-analysis/scripts/dataset_overview_wrapper.py:24
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,dataset-overview-analysis,skills/custom/phone-network-analysis/dataset-overview-analysis,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出；可用pandas兼容xlsxwriter引擎替代,"skills/custom/phone-network-analysis/dataset-overview-analysis/scripts/dataset_overview_wrapper.py:1014
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,dataset-overview-analysis,skills/custom/phone-network-analysis/dataset-overview-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/dataset-overview-analysis/scripts/dataset_overview_wrapper.py:25
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,dataset-overview-analysis,skills/custom/phone-network-analysis/dataset-overview-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/dataset-overview-analysis/SKILL.md:1,
+phone-network-analysis,dataset-quality-and-linkability-diagnostic,skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts/dataset_quality_linkability_diagnostic_wrapper.py:27
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,dataset-quality-and-linkability-diagnostic,skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,conditional: 回退读取/标签关联补充分析,"skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts/dataset_quality_linkability_diagnostic_wrapper.py:573
+skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts/dataset_quality_linkability_diagnostic_wrapper.py:596
+skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts/dataset_quality_linkability_diagnostic_wrapper.py:703
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,dataset-quality-and-linkability-diagnostic,skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/scripts/dataset_quality_linkability_diagnostic_wrapper.py:580
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,dataset-quality-and-linkability-diagnostic,skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/SKILL.md:1,
+phone-network-analysis,gang-cluster-analysis,skills/custom/phone-network-analysis/gang-cluster-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/gang_cluster_analysis_wrapper.py:13
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,gang-cluster-analysis,skills/custom/phone-network-analysis/gang-cluster-analysis,Python,networkx,networkx,,未固定,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/gang_cluster_analysis_wrapper.py:17
+docker/sandbox/Dockerfile:83",
+phone-network-analysis,gang-cluster-analysis,skills/custom/phone-network-analysis/gang-cluster-analysis,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出,"skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/gang_cluster_analysis_wrapper.py:820
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,gang-cluster-analysis,skills/custom/phone-network-analysis/gang-cluster-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/gang-cluster-analysis/scripts/gang_cluster_analysis_wrapper.py:14
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,gang-cluster-analysis,skills/custom/phone-network-analysis/gang-cluster-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/gang-cluster-analysis/SKILL.md:1,
+phone-network-analysis,graph-operator,skills/custom/phone-network-analysis/graph-operator,Python,networkx,networkx,,未固定,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:8
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:156
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:251
+docker/sandbox/Dockerfile:83",
+phone-network-analysis,graph-operator,skills/custom/phone-network-analysis/graph-operator,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:9
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,graph-operator,skills/custom/phone-network-analysis/graph-operator,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:173
+docker/sandbox/Dockerfile:72
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:278
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:412",
+phone-network-analysis,graph-operator,skills/custom/phone-network-analysis/graph-operator,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/graph-operator/SKILL.md:1,
+phone-network-analysis,group-risk-analysis,skills/custom/phone-network-analysis/group-risk-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/group-risk-analysis/scripts/group_risk_analysis_wrapper.py:12
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,group-risk-analysis,skills/custom/phone-network-analysis/group-risk-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/group-risk-analysis/scripts/group_risk_analysis_wrapper.py:13
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,group-risk-analysis,skills/custom/phone-network-analysis/group-risk-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/group-risk-analysis/SKILL.md:1,
+phone-network-analysis,overlap-analysis,skills/custom/phone-network-analysis/overlap-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/overlap-analysis/scripts/overlap_analysis_wrapper.py:10
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,overlap-analysis,skills/custom/phone-network-analysis/overlap-analysis,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/overlap-analysis/scripts/overlap_analysis_wrapper.py:125
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,overlap-analysis,skills/custom/phone-network-analysis/overlap-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/overlap-analysis/SKILL.md:1,
+phone-network-analysis,risk-evidence-pack,skills/custom/phone-network-analysis/risk-evidence-pack,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/risk-evidence-pack/scripts/risk_evidence_pack_wrapper.py:11
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,risk-evidence-pack,skills/custom/phone-network-analysis/risk-evidence-pack,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出,"skills/custom/phone-network-analysis/risk-evidence-pack/scripts/risk_evidence_pack_wrapper.py:555
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,risk-evidence-pack,skills/custom/phone-network-analysis/risk-evidence-pack,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/risk-evidence-pack/scripts/risk_evidence_pack_wrapper.py:12
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,risk-evidence-pack,skills/custom/phone-network-analysis/risk-evidence-pack,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/risk-evidence-pack/SKILL.md:1,
+phone-network-analysis,shared-device-analysis,skills/custom/phone-network-analysis/shared-device-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/shared-device-analysis/scripts/shared_device_analysis_wrapper.py:9
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,shared-device-analysis,skills/custom/phone-network-analysis/shared-device-analysis,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/shared-device-analysis/scripts/shared_device_analysis_wrapper.py:106
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,shared-device-analysis,skills/custom/phone-network-analysis/shared-device-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/shared-device-analysis/SKILL.md:1,
+phone-network-analysis,sichuan-shaanxi-comparison,skills/custom/phone-network-analysis/sichuan-shaanxi-comparison,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts/sichuan_shaanxi_comparison_wrapper.py:20
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,sichuan-shaanxi-comparison,skills/custom/phone-network-analysis/sichuan-shaanxi-comparison,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出,"skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts/sichuan_shaanxi_comparison_wrapper.py:985
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,sichuan-shaanxi-comparison,skills/custom/phone-network-analysis/sichuan-shaanxi-comparison,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/scripts/sichuan_shaanxi_comparison_wrapper.py:21
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,sichuan-shaanxi-comparison,skills/custom/phone-network-analysis/sichuan-shaanxi-comparison,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/SKILL.md:1,
+phone-network-analysis,single-number-analysis,skills/custom/phone-network-analysis/single-number-analysis,Python,networkx,networkx,,未固定,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/single-number-analysis/scripts/single_number_analysis_wrapper.py:28
+docker/sandbox/Dockerfile:83",
+phone-network-analysis,single-number-analysis,skills/custom/phone-network-analysis/single-number-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/single-number-analysis/scripts/single_number_analysis_wrapper.py:29
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,single-number-analysis,skills/custom/phone-network-analysis/single-number-analysis,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/single-number-analysis/scripts/single_number_analysis_wrapper.py:56
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,single-number-analysis,skills/custom/phone-network-analysis/single-number-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/single-number-analysis/SKILL.md:1,
+phone-network-analysis,subgraph-extraction-analysis,skills/custom/phone-network-analysis/subgraph-extraction-analysis,Python,networkx,networkx,,未固定,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/subgraph-extraction-analysis/scripts/subgraph_extraction_wrapper.py:10
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:8
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:156
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:251
+docker/sandbox/Dockerfile:83",
+phone-network-analysis,subgraph-extraction-analysis,skills/custom/phone-network-analysis/subgraph-extraction-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:9
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,subgraph-extraction-analysis,skills/custom/phone-network-analysis/subgraph-extraction-analysis,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:173
+docker/sandbox/Dockerfile:72
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:278
+skills/custom/phone-network-analysis/graph-operator/scripts/graph_operator_wrapper.py:412",
+phone-network-analysis,subgraph-extraction-analysis,skills/custom/phone-network-analysis/subgraph-extraction-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/subgraph-extraction-analysis/SKILL.md:1,
+phone-network-analysis,subgraph-extraction-analysis,skills/custom/phone-network-analysis/subgraph-extraction-analysis,系统工具,,,可导入networkx/pandas的Python子进程解释器,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,conditional: 复用graph-operator算子,skills/custom/phone-network-analysis/common/yigraph_adapter.py:56,
+phone-network-analysis,time-series-anomaly-analysis,skills/custom/phone-network-analysis/time-series-anomaly-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/time-series-anomaly-analysis/scripts/time_series_anomaly_analysis_wrapper.py:11
+docker/sandbox/Dockerfile:73",
+phone-network-analysis,time-series-anomaly-analysis,skills/custom/phone-network-analysis/time-series-anomaly-analysis,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,conditional: Excel证据工作簿导出,"skills/custom/phone-network-analysis/time-series-anomaly-analysis/scripts/time_series_anomaly_analysis_wrapper.py:800
+docker/sandbox/Dockerfile:75",
+phone-network-analysis,time-series-anomaly-analysis,skills/custom/phone-network-analysis/time-series-anomaly-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/time-series-anomaly-analysis/scripts/time_series_anomaly_analysis_wrapper.py:12
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,time-series-anomaly-analysis,skills/custom/phone-network-analysis/time-series-anomaly-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/time-series-anomaly-analysis/SKILL.md:1,
+phone-network-analysis,topn-high-risk-discovery,skills/custom/phone-network-analysis/topn-high-risk-discovery,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required,"skills/custom/phone-network-analysis/topn-high-risk-discovery/scripts/topn_high_risk_discovery_wrapper.py:18
+docker/sandbox/Dockerfile:71",
+phone-network-analysis,topn-high-risk-discovery,skills/custom/phone-network-analysis/topn-high-risk-discovery,Python,pyarrow,pyarrow,,未固定,配置沙箱镜像基线,25.0.1,已检出；未固定精确版本,conditional: pandas Parquet读写；也可由兼容fastparquet引擎替代,"skills/custom/phone-network-analysis/topn-high-risk-discovery/scripts/topn_high_risk_discovery_wrapper.py:124
+docker/sandbox/Dockerfile:72",
+phone-network-analysis,topn-high-risk-discovery,skills/custom/phone-network-analysis/topn-high-risk-discovery,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/phone-network-analysis/topn-high-risk-discovery/SKILL.md:1,
+policies-regulations,china-contract-review,skills/custom/policies-regulations/china-contract-review,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/policies-regulations/china-contract-review/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+policies-regulations,china-legal-consultation,skills/custom/policies-regulations/china-legal-consultation,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/policies-regulations/china-legal-consultation/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+policies-regulations,china-legal-issue-analysis,skills/custom/policies-regulations/china-legal-issue-analysis,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/policies-regulations/china-legal-issue-analysis/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+policies-regulations,law-local-retrieval,skills/custom/policies-regulations/law-local-retrieval,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,必需,"skills/custom/policies-regulations/law-local-retrieval/scripts/es_policy_search.py:19
+skills/custom/policies-regulations/law-local-retrieval/scripts/es_get_mapping.py:8
+docker/sandbox/Dockerfile:77",
+policies-regulations,law-local-retrieval,skills/custom/policies-regulations/law-local-retrieval,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/policies-regulations/law-local-retrieval/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+policies-regulations,law-local-retrieval,skills/custom/policies-regulations/law-local-retrieval,模型/服务,,,Elasticsearch HTTP / cn_law_articles,服务版本不由技能固定,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/custom/policies-regulations/law-local-retrieval/scripts/es_policy_search.py:23,默认 http://172.17.0.1:3128，可由 POLICY_ES_URL 等覆盖；凭据私下配置。代码以multi_match等全文检索为主。
+policies-regulations,legal-briefing,skills/custom/policies-regulations/legal-briefing,模型/服务,,,独立docx导出技能,未固定,外部服务或宿主能力,,静态依赖；本次未调用,可选，无工具时Markdown,skills/custom/policies-regulations/legal-briefing/SKILL.md:141,
+policies-regulations,official-document-writer,skills/custom/policies-regulations/official-document-writer,模型/服务,,,宿主web_search/web_fetch或本地法规检索,随宿主配置,外部服务或宿主能力,,静态依赖；本次未调用,可选，可退回用户提供材料,skills/custom/policies-regulations/official-document-writer/SKILL.md:59,
+policies-regulations,official-document-writer,skills/custom/policies-regulations/official-document-writer,模型/服务,,,宿主文档导出能力,未固定,外部服务或宿主能力,,静态依赖；本次未调用,可选，只在具备工具时导出docx/pdf,skills/custom/policies-regulations/official-document-writer/SKILL.md:66,
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,必需,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:33
+skills/custom/policies-regulations/policy-rag/scripts/index_manager.py:16
+docker/sandbox/Dockerfile:69",
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,dashscope,dashscope,,未固定,配置沙箱镜像基线,1.27.5,已检出；未固定精确版本,按功能必需：拆分/索引/检索,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:124
+docker/sandbox/Dockerfile:68",
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,按功能必需：Excel转换,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:658
+docker/sandbox/Dockerfile:71",
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,按功能必需：pandas读取xlsx,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:660
+docker/sandbox/Dockerfile:75",间接引擎依赖；脚本没有显式import。
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,xlrd,xlrd,,未固定,配置沙箱镜像基线,2.0.2,已检出；未固定精确版本,可选：读取旧xls,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:660
+docker/sandbox/Dockerfile:74",pandas按文件格式选引擎；脚本没有显式import。
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,Python,PyYAML,yaml,,>=6.0（共享沙箱安装约束；技能无固定版本）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,按功能必需：文档索引解析frontmatter,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:1114
+docker/sandbox/Dockerfile:115",
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/policies-regulations/policy-rag/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+policies-regulations,policy-rag,skills/custom/policies-regulations/policy-rag,模型/服务,,,DashScope Embedding API,模型默认 text-embedding-v3；1024维；可用环境覆盖,外部服务或宿主能力,,静态依赖；本次未调用,必需,"skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:92
+skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:93
+skills/custom/policies-regulations/policy-rag/scripts/rag_system.py:123",使用DASHSCOPE_API_KEY；DASHSCOPE_BASE_HTTP_API_URL可覆盖SDK服务地址。这条实现不是通用配置BGE-M3客户端。
+policies-regulations,trademark-assistant,skills/custom/policies-regulations/trademark-assistant,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,按功能必需：导出商品清单xlsx,"skills/custom/policies-regulations/trademark-assistant/SKILL.md:121
+skills/custom/policies-regulations/trademark-assistant/SKILL.md:232
+docker/sandbox/Dockerfile:75",
+policies-regulations,trademark-assistant,skills/custom/policies-regulations/trademark-assistant,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,Excel导出时必需,skills/custom/policies-regulations/trademark-assistant/SKILL.md:120,
+policies-regulations,trademark-assistant,skills/custom/policies-regulations/trademark-assistant,系统工具,,,uv,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,可选：说明提供uv运行示例，已安装openpyxl可直接python,skills/custom/policies-regulations/trademark-assistant/SKILL.md:232,
+policies-regulations,trademark-assistant,skills/custom/policies-regulations/trademark-assistant,模型/服务,,,宿主视觉模型/图像理解工具,由宿主环境选择,外部服务或宿主能力,,静态依赖；本次未调用,图形或组合商标分析时必需,skills/custom/policies-regulations/trademark-assistant/SKILL.md:156,列举zai/MiniMax MCP和原生视觉仅为可选工具建议，不等于现网安装或启用这些MCP。
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,Node,playwright,playwright,,^1.59.1；package-lock固定1.59.1,配置沙箱全局Node目录及已核对的微信Skill本地目录,,已核对目录未检出；未执行运行时安装,运行必需，尽管manifest放在devDependencies,"skills/custom/policies-regulations/wechat-article-fetch/package.json:14
+skills/custom/policies-regulations/wechat-article-fetch/package-lock.json:31
+skills/custom/policies-regulations/wechat-article-fetch/scripts/fetch.js:124",
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,Node,playwright-core,playwright-core,,1.59.1,配置沙箱全局Node目录及已核对的微信Skill本地目录,,已核对目录未检出；未执行运行时安装,Playwright传递必需,skills/custom/policies-regulations/wechat-article-fetch/package-lock.json:50,
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,系统工具,,,Node.js,>=18（锁文件引擎要求）,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,必需,skills/custom/policies-regulations/wechat-article-fetch/package-lock.json:43,SKILL.md旧写>=14，与现有锁定依赖不符，采用实际依赖engine更高要求。
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,系统工具,,,Chromium浏览器及Linux系统库,随Playwright匹配，未记录独立浏览器版本,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,必需,"skills/custom/policies-regulations/wechat-article-fetch/scripts/fetch.js:124
+docker/sandbox/Dockerfile:126",
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,系统工具,,,npm/npx,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,安装/自动补装浏览器时需要,skills/custom/policies-regulations/wechat-article-fetch/scripts/fetch.js:49,脚本缺包时运行npx playwright install chromium，不能保证此操作会把playwright模块安装到当前技能目录；应预装并保留devDependencies。
+policies-regulations,wechat-article-fetch,skills/custom/policies-regulations/wechat-article-fetch,模型/服务,,,微信公众号文章及图片资源HTTP,公网网页，无API固定版本,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/custom/policies-regulations/wechat-article-fetch/scripts/fetch.js:113,
+policies-regulations,wechat-article-search,skills/custom/policies-regulations/wechat-article-search,Node,cheerio,cheerio,,未固定,配置沙箱全局Node目录及已核对的微信Skill本地目录,1.2.0,已检出；版本约束另核对,必需,"skills/custom/policies-regulations/wechat-article-search/scripts/search_wechat.js:9
+docker/sandbox/Dockerfile:121",
+policies-regulations,wechat-article-search,skills/custom/policies-regulations/wechat-article-search,系统工具,,,Node.js,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,必需,skills/custom/policies-regulations/wechat-article-search/SKILL.md:48,
+policies-regulations,wechat-article-search,skills/custom/policies-regulations/wechat-article-search,模型/服务,,,搜狗微信搜索HTTPS,公网网页，无API固定版本,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/custom/policies-regulations/wechat-article-search/scripts/search_wechat.js:45,weixin.sogou.com，用户搜索词出网。
+program_snippet,code-business-dag-analysis-pipeline,skills/custom/program_snippet/code-business-dag-analysis-pipeline,Python,networkx,networkx,,未固定（共享后端约束>=3.4.0）,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,必需,"skills/custom/program_snippet/code-business-dag-analysis-pipeline/scripts/run_pipeline.py:19
+skills/custom/program_snippet/deerflow-pipeline-runtime/deerflow/pipeline/graph_builder.py:9
+docker/sandbox/Dockerfile:83",
+program_snippet,code-business-dag-analysis-pipeline,skills/custom/program_snippet/code-business-dag-analysis-pipeline,Python,langchain-text-splitters,langchain_text_splitters,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,可选增强：缺失或出错时回退单个全文chunk,"skills/custom/program_snippet/code-business-dag-analysis-pipeline/scripts/run_pipeline.py:153
+skills/custom/program_snippet/code-splitter-adapter/code_splitter.py:106",
+program_snippet,code-business-dag-analysis-pipeline,skills/custom/program_snippet/code-business-dag-analysis-pipeline,Python,openai,openai,,未固定,配置沙箱镜像基线,3.14.1,已检出；未固定精确版本,条件依赖：实际导入后端deerflow.pipeline eager包时,"backend/packages/harness/deerflow/pipeline/__init__.py:3
+backend/packages/harness/deerflow/pipeline/component_packager.py:13",
+program_snippet,code-business-dag-analysis-pipeline,skills/custom/program_snippet/code-business-dag-analysis-pipeline,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/code-business-dag-analysis-pipeline/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,Python,langchain,langchain,,>=1.2.3（共享后端约束；技能无独立固定版本）,配置沙箱镜像基线,,未在对应环境元数据中检出,可选：DeerFlow模型标注/总结,"skills/custom/program_snippet/code-semantic-labeler/semantic_labeler.py:103
+backend/packages/harness/deerflow/models/factory.py:3
+backend/packages/harness/pyproject.toml:12",
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,Python,langchain-openai,langchain_openai,,>=1.1.7（共享后端约束；技能无独立固定版本）,配置沙箱镜像基线,,未在对应环境元数据中检出,可选：当前模型提供者适配器,"config.yaml:21
+backend/packages/harness/pyproject.toml:16",
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,Python,tree-sitter,tree_sitter,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言必需：C++解析,skills/custom/program_snippet/code-to-ast-new/scripts/convert.py:21,
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,Python,tree-sitter-cpp,tree_sitter_cpp,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言必需：C++解析,skills/custom/program_snippet/code-to-ast-new/scripts/convert.py:23,
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/code-semantic-labeler/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,code-semantic-labeler,skills/custom/program_snippet/code-semantic-labeler,模型/服务,,,共享DeerFlow配置的聊天模型,当前提供者取决于运行配置,外部服务或宿主能力,,静态依赖；本次未调用,可选：LLM兜底与总结,"skills/custom/program_snippet/code-semantic-labeler/semantic_labeler.py:103
+skills/custom/program_snippet/code-semantic-labeler/semantic_labeler.py:387",规则标注无需外部模型；创建模型失败捕获异常，summary可返回本地fallback。
+program_snippet,code-splitter-adapter,skills/custom/program_snippet/code-splitter-adapter,Python,langchain-text-splitters,langchain_text_splitters,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,二选一策略必需：默认langchain,skills/custom/program_snippet/code-splitter-adapter/code_splitter.py:106,
+program_snippet,code-splitter-adapter,skills/custom/program_snippet/code-splitter-adapter,Python,llama-index-core,llama_index.core,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,二选一策略必需：llamaindex,"skills/custom/program_snippet/code-splitter-adapter/code_splitter.py:168
+skills/custom/program_snippet/code-splitter-adapter/README.md:149",说明建议安装llama-index总包，实际import对应llama-index-core；本身未锁版本。
+program_snippet,code-splitter-adapter,skills/custom/program_snippet/code-splitter-adapter,Python,tree-sitter,tree_sitter,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,llamaindex AST策略传递依赖,skills/custom/program_snippet/code-splitter-adapter/README.md:140,
+program_snippet,code-splitter-adapter,skills/custom/program_snippet/code-splitter-adapter,Python,tree-sitter-python / tree-sitter-javascript,tree_sitter_python / tree_sitter_javascript,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言可选传递依赖,skills/custom/program_snippet/code-splitter-adapter/README.md:152,文档示例；实际安装需匹配所选LlamaIndex版本的语言解析后端。
+program_snippet,code-splitter-adapter,skills/custom/program_snippet/code-splitter-adapter,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/code-splitter-adapter/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,code-to-ast-new,skills/custom/program_snippet/code-to-ast-new,Python,esprima,esprima,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言必需：JavaScript,skills/custom/program_snippet/code-to-ast-new/scripts/convert.py:15,
+program_snippet,code-to-ast-new,skills/custom/program_snippet/code-to-ast-new,Python,tree-sitter,tree_sitter,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言必需：C++,skills/custom/program_snippet/code-to-ast-new/scripts/convert.py:21,
+program_snippet,code-to-ast-new,skills/custom/program_snippet/code-to-ast-new,Python,tree-sitter-cpp,tree_sitter_cpp,,未固定,配置沙箱镜像基线,,未在对应环境元数据中检出,按语言必需：C++,skills/custom/program_snippet/code-to-ast-new/scripts/convert.py:23,
+program_snippet,code-to-ast-new,skills/custom/program_snippet/code-to-ast-new,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/code-to-ast-new/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,dataflow-extractor,skills/custom/program_snippet/dataflow-extractor,系统工具,,,Python,>=3.7（SKILL声明）,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/dataflow-extractor/SKILL.md:122,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,opengrep-compliance,skills/custom/program_snippet/opengrep-compliance,系统工具,,,Python,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/custom/program_snippet/opengrep-compliance/SKILL.md:1,技能运行时与后端可为不同环境，不能用后端 lock 推定沙箱已安装。
+program_snippet,opengrep-compliance,skills/custom/program_snippet/opengrep-compliance,系统工具,,,OpenGrep本地二进制,下载脚本默认v1.21.0；可被OPENGREP_VERSION覆盖，当前二进制实测版本未确认,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,必需,"skills/custom/program_snippet/opengrep-compliance/scripts/run_scan.py:22
+tools/opengrep/download-opengrep-assets.sh:4",Linux默认vendor/opengrep/linux/opengrep；此次只读--version返回Permission denied，未改权限。
+program_snippet,opengrep-compliance,skills/custom/program_snippet/opengrep-compliance,系统工具,,,bash、curl、unzip及基本文件命令,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,仅安装资产/规则阶段，运行扫描不需网络,"tools/opengrep/download-opengrep-assets.sh:1
+tools/opengrep/download-opengrep-assets.sh:33
+tools/opengrep/download-opengrep-assets.sh:34",
+program_snippet,opengrep-compliance,skills/custom/program_snippet/opengrep-compliance,模型/服务,,,宿主智能体模型,随宿主配置,外部服务或宿主能力,,静态依赖；本次未调用,规则扫描后LLM分析阶段共享能力,skills/custom/program_snippet/opengrep-compliance/SKILL.md:91,run_scan.py本身没有模型SDK/API调用。
+program_snippet,pipeline-graph-builder,skills/custom/program_snippet/pipeline-graph-builder,Python,networkx,networkx,,未固定（共享后端约束>=3.4.0，沙箱安装未固定）,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,共享运行时必需,"skills/custom/program_snippet/deerflow-pipeline-runtime/deerflow/pipeline/graph_builder.py:9
+backend/packages/harness/pyproject.toml:23
+docker/sandbox/Dockerfile:83",
+program_snippet,pipeline-graph-builder,skills/custom/program_snippet/pipeline-graph-builder,Python,openai,openai,,未固定,配置沙箱镜像基线,3.14.1,已检出；未固定精确版本,条件依赖：使用后端deerflow.pipeline导入路径时；custom共享运行时懒加载无需此包,"backend/packages/harness/deerflow/pipeline/__init__.py:3
+backend/packages/harness/deerflow/pipeline/component_packager.py:13",纯图诊断本身不调用OpenAI；eager import component_packager造成导入依赖。
+program_snippet,pipeline-reasoner,skills/custom/program_snippet/pipeline-reasoner,Python,networkx,networkx,,未固定（共享后端约束>=3.4.0，沙箱安装未固定）,配置沙箱镜像基线,3.4.2,已检出；未固定精确版本,共享运行时必需,"skills/custom/program_snippet/deerflow-pipeline-runtime/deerflow/pipeline/reasoner.py:8
+backend/packages/harness/pyproject.toml:23
+docker/sandbox/Dockerfile:83",
+program_snippet,pipeline-reasoner,skills/custom/program_snippet/pipeline-reasoner,Python,openai,openai,,未固定,配置沙箱镜像基线,3.14.1,已检出；未固定精确版本,条件依赖：使用后端deerflow.pipeline导入路径时；custom共享运行时懒加载无需此包,"backend/packages/harness/deerflow/pipeline/__init__.py:3
+backend/packages/harness/deerflow/pipeline/component_packager.py:13",纯图诊断本身不调用OpenAI；eager import component_packager造成导入依赖。
+remote_sensing_image,building-footprint-extraction,skills/custom/remote_sensing_image/building-footprint-extraction,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:36,
+remote_sensing_image,building-footprint-extraction,skills/custom/remote_sensing_image/building-footprint-extraction,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:38,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,building-footprint-extraction,skills/custom/remote_sensing_image/building-footprint-extraction,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:102
+skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:113
+skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:90",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,building-footprint-extraction,skills/custom/remote_sensing_image/building-footprint-extraction,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/building-footprint-extraction/scripts/main.py:186
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,building-footprint-extraction,skills/custom/remote_sensing_image/building-footprint-extraction,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,disaster-risk-assessment,skills/custom/remote_sensing_image/disaster-risk-assessment,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:74
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:132
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:172
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:180
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:193
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:201
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:235
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:270
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:281
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:286
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:322
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:367
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:386
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:402
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:298",
+remote_sensing_image,disaster-risk-assessment,skills/custom/remote_sensing_image/disaster-risk-assessment,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,"skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:377
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:135",真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,disaster-risk-assessment,skills/custom/remote_sensing_image/disaster-risk-assessment,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:186
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:262
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:299
+skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:326",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,disaster-risk-assessment,skills/custom/remote_sensing_image/disaster-risk-assessment,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/disaster-risk-assessment/scripts/main.py:37
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,disaster-risk-assessment,skills/custom/remote_sensing_image/disaster-risk-assessment,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,flood-risk-mapping,skills/custom/remote_sensing_image/flood-risk-mapping,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/flood-risk-mapping/scripts/main.py:38,
+remote_sensing_image,flood-risk-mapping,skills/custom/remote_sensing_image/flood-risk-mapping,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/flood-risk-mapping/scripts/main.py:40,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,flood-risk-mapping,skills/custom/remote_sensing_image/flood-risk-mapping,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/flood-risk-mapping/scripts/main.py:101,
+remote_sensing_image,flood-risk-mapping,skills/custom/remote_sensing_image/flood-risk-mapping,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/flood-risk-mapping/scripts/main.py:174
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,flood-risk-mapping,skills/custom/remote_sensing_image/flood-risk-mapping,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,green-space-monitoring,skills/custom/remote_sensing_image/green-space-monitoring,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/green-space-monitoring/scripts/main.py:38,
+remote_sensing_image,green-space-monitoring,skills/custom/remote_sensing_image/green-space-monitoring,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/green-space-monitoring/scripts/main.py:40,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,green-space-monitoring,skills/custom/remote_sensing_image/green-space-monitoring,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/green-space-monitoring/scripts/main.py:105,形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,green-space-monitoring,skills/custom/remote_sensing_image/green-space-monitoring,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/green-space-monitoring/scripts/main.py:172
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,green-space-monitoring,skills/custom/remote_sensing_image/green-space-monitoring,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,illegal-dumping-detection,skills/custom/remote_sensing_image/illegal-dumping-detection,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/illegal-dumping-detection/scripts/main.py:36,
+remote_sensing_image,illegal-dumping-detection,skills/custom/remote_sensing_image/illegal-dumping-detection,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/illegal-dumping-detection/scripts/main.py:38,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,illegal-dumping-detection,skills/custom/remote_sensing_image/illegal-dumping-detection,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/illegal-dumping-detection/scripts/main.py:98
+skills/custom/remote_sensing_image/illegal-dumping-detection/scripts/main.py:109",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,illegal-dumping-detection,skills/custom/remote_sensing_image/illegal-dumping-detection,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/illegal-dumping-detection/scripts/main.py:186
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,illegal-dumping-detection,skills/custom/remote_sensing_image/illegal-dumping-detection,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,impervious-surface-mapping,skills/custom/remote_sensing_image/impervious-surface-mapping,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/impervious-surface-mapping/scripts/main.py:37,
+remote_sensing_image,impervious-surface-mapping,skills/custom/remote_sensing_image/impervious-surface-mapping,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/impervious-surface-mapping/scripts/main.py:39,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,impervious-surface-mapping,skills/custom/remote_sensing_image/impervious-surface-mapping,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/impervious-surface-mapping/scripts/main.py:98,形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,impervious-surface-mapping,skills/custom/remote_sensing_image/impervious-surface-mapping,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/impervious-surface-mapping/scripts/main.py:166
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,impervious-surface-mapping,skills/custom/remote_sensing_image/impervious-surface-mapping,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,road-damage-assessment,skills/custom/remote_sensing_image/road-damage-assessment,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/road-damage-assessment/scripts/main.py:36,
+remote_sensing_image,road-damage-assessment,skills/custom/remote_sensing_image/road-damage-assessment,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/road-damage-assessment/scripts/main.py:38,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,road-damage-assessment,skills/custom/remote_sensing_image/road-damage-assessment,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/road-damage-assessment/scripts/main.py:80
+skills/custom/remote_sensing_image/road-damage-assessment/scripts/main.py:97",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,road-damage-assessment,skills/custom/remote_sensing_image/road-damage-assessment,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/road-damage-assessment/scripts/main.py:173
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,road-damage-assessment,skills/custom/remote_sensing_image/road-damage-assessment,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:207
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:222
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:230
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:239
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:251
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:261
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:131
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:278
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:300
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:355",
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,"skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:208
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:137
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:138
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:279
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:349",真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:263
+skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:301",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,Python,shapely,shapely,,未固定,配置沙箱镜像基线,2.1.2,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:280,真实地理坐标图斑矢量化分支；缺失时降级为像素坐标连通域或空图斑。
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/urban-change-detection/scripts/main.py:70
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,urban-change-detection,skills/custom/remote_sensing_image/urban-change-detection,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,urban-expansion-analysis,skills/custom/remote_sensing_image/urban-expansion-analysis,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:80
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:162
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:196
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:209
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:239
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:264
+skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:336",
+remote_sensing_image,urban-expansion-analysis,skills/custom/remote_sensing_image/urban-expansion-analysis,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:164,真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,urban-expansion-analysis,skills/custom/remote_sensing_image/urban-expansion-analysis,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:270,形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,urban-expansion-analysis,skills/custom/remote_sensing_image/urban-expansion-analysis,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/urban-expansion-analysis/scripts/main.py:38
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,urban-expansion-analysis,skills/custom/remote_sensing_image/urban-expansion-analysis,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,fiona,fiona,,未固定,配置沙箱镜像基线,1.10.1,已检出；未固定精确版本,required,skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:189,
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:135
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:204
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:243
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:269
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:333
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:351
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:371",
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,pyproj,pyproj,,未固定,配置沙箱镜像基线,3.7.1,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:244
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:295",
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,"skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:188
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:205
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:206
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:293
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:352
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:377
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:51
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:362",真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,"skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:233
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:270
+skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:334",形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,shapely,shapely,,未固定,配置沙箱镜像基线,2.1.2,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:294,真实地理坐标图斑矢量化分支；缺失时降级为像素坐标连通域或空图斑。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/urban-greenspace-assessment/scripts/main.py:34
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,V1+urban-greenspace-assessment,skills/custom/remote_sensing_image/urban-greenspace-assessment,系统工具,,,PROJ / GEOS native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required,"docker/sandbox/Dockerfile:37
+docker/sandbox/Dockerfile:40",pyproj/Shapely/Fiona的坐标转换与几何库；并非要求逐技能调用命令行。
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:72
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:166
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:175
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:208
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:275
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:289
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:237",
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,"skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:78
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:200
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:220
+skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:266",真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:238,形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,Python,shapely,shapely,,未固定,配置沙箱镜像基线,2.1.2,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:221,真实地理坐标图斑矢量化分支；缺失时降级为像素坐标连通域或空图斑。
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/urban-heat-assessment/scripts/main.py:37
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,urban-heat-assessment,skills/custom/remote_sensing_image/urban-heat-assessment,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,water-quality-monitoring,skills/custom/remote_sensing_image/water-quality-monitoring,Python,numpy,numpy,,未固定,配置沙箱镜像基线,2.2.6,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:70
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:148
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:165
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:176
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:188
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:197
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:206
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:229
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:252
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:290
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:315",
+remote_sensing_image,water-quality-monitoring,skills/custom/remote_sensing_image/water-quality-monitoring,Python,rasterio,rasterio,,未固定,配置沙箱镜像基线,1.4.4,已检出；未固定精确版本,required_for_real_data,"skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:150
+skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:306",真实GeoTIFF读取/写出必需；部分脚本捕获导入或读取错误后生成合成数据或.npy，CLI成功不等于真实遥感处理通过。
+remote_sensing_image,water-quality-monitoring,skills/custom/remote_sensing_image/water-quality-monitoring,Python,scipy,scipy,,未固定,配置沙箱镜像基线,1.15.3,已检出；未固定精确版本,optional,skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:268,形态学、距离变换、连通域或热点图斑的增强；代码有缺失降级，缺失时输出功能/质量不等价。
+remote_sensing_image,water-quality-monitoring,skills/custom/remote_sensing_image/water-quality-monitoring,Python,PyYAML,yaml,,>=6.0（共享沙箱声明；Skill未单独固定）,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/remote_sensing_image/water-quality-monitoring/scripts/main.py:36
+docker/sandbox/Dockerfile:115",仅解析YAML配置；缺失时使用空配置，JSON输入/默认参数不依赖PyYAML。
+remote_sensing_image,water-quality-monitoring,skills/custom/remote_sensing_image/water-quality-monitoring,系统工具,,,GDAL native libraries,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_real_data,"docker/sandbox/Dockerfile:26
+docker/sandbox/Dockerfile:35
+docker/sandbox/Dockerfile:36",rasterio/Fiona原生依赖；脚本不直接执行gdal命令。wheel可能自带对应库，源码编译则需匹配开发库。
+remote_sensing_image,write-proposal,skills/custom/remote_sensing_image/write-proposal,Python,python-docx,docx,,未固定,配置沙箱镜像基线,1.2.0,已检出；未固定精确版本,required,"skills/custom/remote_sensing_image/write-proposal/scripts/md2docx.py:19
+skills/custom/remote_sensing_image/write-proposal/scripts/md2docx.py:20
+skills/custom/remote_sensing_image/write-proposal/scripts/md2docx.py:21
+skills/custom/remote_sensing_image/write-proposal/scripts/md2docx.py:22
+skills/custom/remote_sensing_image/write-proposal/scripts/md2docx.py:23",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,adtk,adtk,,>=0.6.2,配置沙箱镜像基线,0.6.2,满足已声明约束；不代表业务通过,conditional: 异常检测入口，导入时即加载,"skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:21
+skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:22
+skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:32
+skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:33
+docker/sandbox/Dockerfile:118",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,pandas,pandas,,未固定,配置沙箱镜像基线,2.3.3,已检出；未固定精确版本,required: CSV统计及预测/异常脚本,"skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:15
+skills/custom/road-traffic-analysis/scripts/anomaly_runner.py:18
+skills/custom/road-traffic-analysis/scripts/forecast_runner.py:14
+skills/custom/road-traffic-analysis/scripts/forecast_runner.py:17
+docker/sandbox/Dockerfile:71",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,PyMuPDF,fitz,,'==1.27.2.3,配置沙箱镜像基线,1.26.6,与声明约束不符,conditional: PDF建库读取,"skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:59
+skills/custom/road-traffic-analysis/scripts/requirements-rag.txt:3",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,python-dotenv,dotenv,,>=1.0,配置沙箱镜像基线,1.2.1,满足已声明约束；不代表业务通过,optional: 从.env装载百度AK；已有环境变量可直接使用,"skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py:242
+docker/sandbox/Dockerfile:116",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,requests,requests,,>=2.32,配置沙箱镜像基线,2.32.5,满足已声明约束；不代表业务通过,conditional: 百度API或RAG Elasticsearch HTTP,"skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:67
+skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py:15
+docker/sandbox/Dockerfile:77
+skills/custom/road-traffic-analysis/scripts/requirements-rag.txt:1",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,sentence-transformers,sentence_transformers,,'==5.4.1（技能RAG清单；共享镜像未固定）,配置沙箱镜像基线,6.0.1,与声明约束不符,optional: RAG向量检索；缺失时auto可退全文检索,"skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:52
+skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:43
+docker/sandbox/Dockerfile:76
+skills/custom/road-traffic-analysis/scripts/requirements-rag.txt:2
+skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:49",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,Python,statsforecast,statsforecast,,>=1.7.8,配置沙箱镜像基线,2.1.1,满足已声明约束；不代表业务通过,conditional: 时序预测入口，导入时即加载,"skills/custom/road-traffic-analysis/scripts/forecast_runner.py:20
+skills/custom/road-traffic-analysis/scripts/forecast_runner.py:21
+skills/custom/road-traffic-analysis/scripts/forecast_runner.py:24
+skills/custom/road-traffic-analysis/scripts/forecast_runner.py:25
+docker/sandbox/Dockerfile:117",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/road-traffic-analysis/SKILL.md:1,
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,模型/服务,,,百度地图Web API,接口含geocoding/v3、reverse_geocoding/v3、directionlite/v1、traffic/v1、weather/v1；未固定服务版本,外部服务或宿主能力,,静态依赖；本次未调用,conditional: 实时交通/路线/天气/地理编码；需要BAIDU_AK,"skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py:384
+skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py:628
+skills/custom/road-traffic-analysis/scripts/simple_baidu_services.py:1023",
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,模型/服务,,,Elasticsearch,未固定；脚本默认http://172.17.0.1:3128,外部服务或宿主能力,,静态依赖；本次未调用,conditional: RAG建库及检索,skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:21,
+road-traffic-analysis,road-traffic-analysis,skills/custom/road-traffic-analysis,模型/服务,,,BAAI/bge-small-zh-v1.5,模型名固定，revision未固定；默认CPU,外部服务或宿主能力,,静态依赖；本次未调用,optional: RAG向量检索模型,"skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:14
+skills/custom/road-traffic-analysis/scripts/rag_xian2024_min.py:15",
+spatiotemporal_trajectory,analyze_event_impact,skills/custom/spatiotemporal_trajectory/analyze_event_impact,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/analyze_event_impact/scripts/analyze_event_impact.py:1
+skills/custom/spatiotemporal_trajectory/analyze_event_impact/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,analyze_od_flow,skills/custom/spatiotemporal_trajectory/analyze_od_flow,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/analyze_od_flow/scripts/analyze_od_flow.py:1
+skills/custom/spatiotemporal_trajectory/analyze_od_flow/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,analyze_region_heat,skills/custom/spatiotemporal_trajectory/analyze_region_heat,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/analyze_region_heat/scripts/analyze_region_heat.py:1
+skills/custom/spatiotemporal_trajectory/analyze_region_heat/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,analyze_spatiotemporal_accessibility,skills/custom/spatiotemporal_trajectory/analyze_spatiotemporal_accessibility,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/analyze_spatiotemporal_accessibility/scripts/analyze_spatiotemporal_accessibility.py:1
+skills/custom/spatiotemporal_trajectory/analyze_spatiotemporal_accessibility/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,anonymize_trajectory_data,skills/custom/spatiotemporal_trajectory/anonymize_trajectory_data,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,skills/custom/spatiotemporal_trajectory/anonymize_trajectory_data/scripts/anonymize_trajectory_data.py:1,
+spatiotemporal_trajectory,classify_trajectory_state,skills/custom/spatiotemporal_trajectory/classify_trajectory_state,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/classify_trajectory_state/scripts/classify_trajectory_state.py:1
+skills/custom/spatiotemporal_trajectory/classify_trajectory_state/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,clean_trajectory,skills/custom/spatiotemporal_trajectory/clean_trajectory,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/clean_trajectory/scripts/clean_trajectory.py:1
+skills/custom/spatiotemporal_trajectory/clean_trajectory/scripts/_preprocess_common/trajectory_preprocess_lib.py:1",
+spatiotemporal_trajectory,detect_flow_anomaly,skills/custom/spatiotemporal_trajectory/detect_flow_anomaly,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/detect_flow_anomaly/scripts/detect_flow_anomaly.py:1
+skills/custom/spatiotemporal_trajectory/detect_flow_anomaly/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,detect_route_anomaly,skills/custom/spatiotemporal_trajectory/detect_route_anomaly,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/detect_route_anomaly/scripts/detect_route_anomaly.py:1
+skills/custom/spatiotemporal_trajectory/detect_route_anomaly/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,detect_trajectory_cooccurrence,skills/custom/spatiotemporal_trajectory/detect_trajectory_cooccurrence,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/detect_trajectory_cooccurrence/scripts/detect_trajectory_cooccurrence.py:1
+skills/custom/spatiotemporal_trajectory/detect_trajectory_cooccurrence/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,extract_stay_points,skills/custom/spatiotemporal_trajectory/extract_stay_points,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/extract_stay_points/scripts/extract_stay_points.py:1
+skills/custom/spatiotemporal_trajectory/extract_stay_points/scripts/_preprocess_common/trajectory_preprocess_lib.py:1",
+spatiotemporal_trajectory,forecast_region_flow,skills/custom/spatiotemporal_trajectory/forecast_region_flow,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/forecast_region_flow/scripts/forecast_region_flow.py:1
+skills/custom/spatiotemporal_trajectory/forecast_region_flow/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,fuse_spatial_evidence,skills/custom/spatiotemporal_trajectory/fuse_spatial_evidence,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/fuse_spatial_evidence/scripts/fuse_spatial_evidence.py:1
+skills/custom/spatiotemporal_trajectory/fuse_spatial_evidence/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,map_spatial_grid,skills/custom/spatiotemporal_trajectory/map_spatial_grid,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/map_spatial_grid/scripts/map_spatial_grid.py:1
+skills/custom/spatiotemporal_trajectory/map_spatial_grid/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,measure_spatiotemporal_entropy,skills/custom/spatiotemporal_trajectory/measure_spatiotemporal_entropy,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/measure_spatiotemporal_entropy/scripts/measure_spatiotemporal_entropy.py:1
+skills/custom/spatiotemporal_trajectory/measure_spatiotemporal_entropy/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,mine_trajectory_patterns,skills/custom/spatiotemporal_trajectory/mine_trajectory_patterns,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/mine_trajectory_patterns/scripts/mine_trajectory_patterns.py:1
+skills/custom/spatiotemporal_trajectory/mine_trajectory_patterns/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,predict_next_location,skills/custom/spatiotemporal_trajectory/predict_next_location,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/predict_next_location/scripts/predict_next_location.py:1
+skills/custom/spatiotemporal_trajectory/predict_next_location/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,profile_urban_region,skills/custom/spatiotemporal_trajectory/profile_urban_region,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/profile_urban_region/scripts/profile_urban_region.py:1
+skills/custom/spatiotemporal_trajectory/profile_urban_region/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,search_similar_trajectory,skills/custom/spatiotemporal_trajectory/search_similar_trajectory,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/search_similar_trajectory/scripts/search_similar_trajectory.py:1
+skills/custom/spatiotemporal_trajectory/search_similar_trajectory/scripts/_trajectory_common/trajectory_tasks.py:1",
+spatiotemporal_trajectory,search_spatiotemporal,skills/custom/spatiotemporal_trajectory/search_spatiotemporal,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,required,"skills/custom/spatiotemporal_trajectory/search_spatiotemporal/scripts/search_spatiotemporal.py:1
+skills/custom/spatiotemporal_trajectory/search_spatiotemporal/scripts/_trajectory_common/trajectory_tasks.py:1",
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,Python,Pillow,PIL,,>=10,配置沙箱镜像基线,11.3.0,满足已声明约束；不代表业务通过,required,"skills/custom/street_view_image/location-matcher/scripts/street_evidence.py:10
+skills/custom/street_view_image/location-matcher/pyproject.toml:13",客户端位于/opt/rs-venv，独立StreetModel服务依赖单列。 共享沙箱Dockerfile另固定Pillow==11.3.0。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,Python,elasticsearch,elasticsearch,,">=8,<9",配置沙箱镜像基线,9.5.1,与声明约束不符,required,"skills/custom/street_view_image/location-matcher/scripts/es_get_mapping.py:25
+skills/custom/street_view_image/location-matcher/scripts/es_list_indices.py:25
+skills/custom/street_view_image/location-matcher/scripts/es_query_dsl.py:33
+skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py:37
+skills/custom/street_view_image/location-matcher/pyproject.toml:11",客户端位于/opt/rs-venv，独立StreetModel服务依赖单列。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,required,"skills/custom/street_view_image/location-matcher/scripts/geocoding_client.py:11
+skills/custom/street_view_image/location-matcher/scripts/street_server.py:51
+skills/custom/street_view_image/location-matcher/pyproject.toml:12",客户端位于/opt/rs-venv，独立StreetModel服务依赖单列。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,系统工具,,,POSIX/Linux fcntl文件锁,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_geocoding,"skills/custom/street_view_image/location-matcher/scripts/geocoding_client.py:3
+skills/custom/street_view_image/location-matcher/scripts/geocoding_client.py:43",fcntl属于Python标准库，不单独记录pip版本；Windows原生环境不提供此模块。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,模型/服务,,,Elasticsearch street索引,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_retrieval,skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py:37,需要认证、匹配的向量mapping和街景元数据。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,模型/服务,,,StreetModel ImAge4VPR / Qwen3-VL-Embedding-2B / Qwen3-VL-Reranker-2B,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_image_semantic_retrieval,"skills/custom/street_view_image/location-matcher/scripts/street_server.py:51
+skills/custom/street_view_image/location-matcher/scripts/es_retrieve_topk.py:39",HTTP客户端；Skill本身不要求torch/transformers或本地CUDA。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,模型/服务,,,Photon正反地理编码,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_address_geocoding,skills/custom/street_view_image/location-matcher/scripts/geocoding_client.py:29,默认photon.komoot.io，可换端点。
+street_view_image,location-matcher,skills/custom/street_view_image/location-matcher,模型/服务,,,NAS街景原图只读挂载,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_evidence,skills/custom/street_view_image/location-matcher/SKILL.md:18,必须实际查看候选图并finalize，索引可查不代表原图可读。
+video_surveillance,analyze-video,skills/custom/video_surveillance/analyze-video,系统工具,,,ffmpeg,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers,工具版本已查询,required,skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py:123,
+video_surveillance,analyze-video,skills/custom/video_surveillance/analyze-video,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,required,skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py:123,
+video_surveillance,batch-video-ingestion,skills/custom/video_surveillance/batch-video-ingestion,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/batch-video-ingestion/scripts/run.py:19
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,batch-video-ingestion,skills/custom/video_surveillance/batch-video-ingestion,Python,opencv-python-headless,cv2,,>=4.8（共享README约束）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/batch-video-ingestion/scripts/run.py:455
+skills/custom/video_surveillance/frame-sampling/scripts/run.py:250
+skills/custom/video_surveillance/README.md:120",仅显式object_detection入库模式调用抽帧时需要。
+video_surveillance,batch-video-ingestion,skills/custom/video_surveillance/batch-video-ingestion,Python,ultralytics,ultralytics,,>=8.0（共享README约束）,配置沙箱镜像基线,8.4.154,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/batch-video-ingestion/scripts/run.py:459
+skills/custom/video_surveillance/object-detection/scripts/run.py:208
+skills/custom/video_surveillance/README.md:128",仅显式object_detection模式需要真实YOLO及其torch依赖。metadata_only不调用。
+video_surveillance,batch-video-ingestion,skills/custom/video_surveillance/batch-video-ingestion,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,required,"skills/custom/video_surveillance/batch-video-ingestion/scripts/run.py:443
+skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py:221",
+video_surveillance,batch-video-ingestion,skills/custom/video_surveillance/batch-video-ingestion,模型/服务,,,Elasticsearch / citybrain-video-library,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_library_operations,skills/custom/video_surveillance/README.md:135,通过Python标准库urllib访问，未直接依赖elasticsearch Python包；object-statistics可仅处理本地JSON，证据包可直接本地视频。
+video_surveillance,camera-health-check,skills/custom/video_surveillance/camera-health-check,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/camera-health-check/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,duplicate-event-merge,skills/custom/video_surveillance/duplicate-event-merge,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/duplicate-event-merge/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,evidence-package-generation,skills/custom/video_surveillance/evidence-package-generation,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/evidence-package-generation/scripts/run.py:20
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,evidence-package-generation,skills/custom/video_surveillance/evidence-package-generation,Python,opencv-python-headless,cv2,,>=4.8（共享README约束）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/evidence-package-generation/scripts/run.py:327
+skills/custom/video_surveillance/evidence-snapshot/scripts/run.py:215
+skills/custom/video_surveillance/README.md:120",证据截图隐私模糊分支经子Skill使用，缺失不等于截图已脱敏。
+video_surveillance,evidence-package-generation,skills/custom/video_surveillance/evidence-package-generation,系统工具,,,ffmpeg (libx264/aac),未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required_for_video_clip,"skills/custom/video_surveillance/evidence-package-generation/scripts/run.py:339
+skills/custom/video_surveillance/video-segment-extraction/scripts/run.py:247",
+video_surveillance,evidence-package-generation,skills/custom/video_surveillance/evidence-package-generation,模型/服务,,,Elasticsearch / citybrain-video-library,,外部服务或宿主能力,,静态依赖；本次未调用,optional,skills/custom/video_surveillance/README.md:135,通过Python标准库urllib访问，未直接依赖elasticsearch Python包；object-statistics可仅处理本地JSON，证据包可直接本地视频。
+video_surveillance,evidence-snapshot,skills/custom/video_surveillance/evidence-snapshot,Python,opencv-python-headless,cv2,,>=4.8（README约束；requirements.txt未固定）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/evidence-snapshot/scripts/run.py:215
+skills/custom/video_surveillance/README.md:120",cv2模块可由opencv-python-headless或opencv-python提供；requirements.txt写opencv-python，沙箱Dockerfile安装headless；应统一选择一种。 本脚本仅在启用截图隐私模糊时用cv2，缺失将返回原图和privacy_masked=false。
+video_surveillance,evidence-snapshot,skills/custom/video_surveillance/evidence-snapshot,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/evidence-snapshot/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,ffmpeg-utils,skills/custom/video_surveillance/ffmpeg-utils,系统工具,,,ffmpeg,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers,工具版本已查询,required,skills/custom/video_surveillance/ffmpeg-utils/scripts/run.py:67,
+video_surveillance,frame-sampling,skills/custom/video_surveillance/frame-sampling,Python,opencv-python-headless,cv2,,>=4.8（README约束；requirements.txt未固定）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,required_for_local_video,"skills/custom/video_surveillance/frame-sampling/scripts/run.py:250
+skills/custom/video_surveillance/README.md:120",cv2模块可由opencv-python-headless或opencv-python提供；requirements.txt写opencv-python，沙箱Dockerfile安装headless；应统一选择一种。
+video_surveillance,frame-sampling,skills/custom/video_surveillance/frame-sampling,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/frame-sampling/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,human-review-routing,skills/custom/video_surveillance/human-review-routing,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/human-review-routing/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,object-detection,skills/custom/video_surveillance/object-detection,Python,ultralytics,ultralytics,,>=8.0（README约束；requirements.txt及沙箱未固定）,配置沙箱镜像基线,8.4.154,满足已声明约束；不代表业务通过,required,"skills/custom/video_surveillance/object-detection/scripts/run.py:208
+skills/custom/video_surveillance/README.md:128",真实YOLO推理必需，mock已禁用；还需要本地YOLO权重。
+video_surveillance,object-detection,skills/custom/video_surveillance/object-detection,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/object-detection/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,object-detection,skills/custom/video_surveillance/object-detection,Python,torch,torch,,'==2.5.1+cpu（共享沙箱Dockerfile）,配置沙箱镜像基线,2.5.1+cpu,满足已声明约束；不代表业务通过,required_transitive,docker/sandbox/Dockerfile:65,由ultralytics推理使用；Skill本身未单独pin。此CPU版本不能替代独立StreetModel CUDA服务的torch2.8.0。
+video_surveillance,object-detection,skills/custom/video_surveillance/object-detection,Python,torchvision,torchvision,,'==0.20.1+cpu（共享沙箱Dockerfile）,配置沙箱镜像基线,0.20.1+cpu,满足已声明约束；不代表业务通过,required_transitive,docker/sandbox/Dockerfile:66,YOLO间接依赖，共享镜像明确CPU构建。
+video_surveillance,object-detection,skills/custom/video_surveillance/object-detection,模型/服务,,,本地YOLOv8n权重,,外部服务或宿主能力,,静态依赖；本次未调用,required,"backend/packages/harness/deerflow/tools/builtins/video_object_analytics_tool.py:31
+skills/custom/video_surveillance/object-detection/scripts/run.py:215",固定工具路径为video_surveillance/models/yolov8n.pt；普通目标检测脚本支持配置其他本地model_path，不在线自动下载。
+video_surveillance,object-statistics,skills/custom/video_surveillance/object-statistics,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/object-statistics/scripts/run.py:17
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,object-statistics,skills/custom/video_surveillance/object-statistics,模型/服务,,,Elasticsearch / citybrain-video-library,,外部服务或宿主能力,,静态依赖；本次未调用,optional,skills/custom/video_surveillance/README.md:135,通过Python标准库urllib访问，未直接依赖elasticsearch Python包；object-statistics可仅处理本地JSON，证据包可直接本地视频。
+video_surveillance,object-tracking,skills/custom/video_surveillance/object-tracking,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/object-tracking/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,privacy-masking,skills/custom/video_surveillance/privacy-masking,Python,opencv-python-headless,cv2,,>=4.8（README约束；requirements.txt未固定）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,required,"skills/custom/video_surveillance/privacy-masking/scripts/run.py:206
+skills/custom/video_surveillance/README.md:120",cv2模块可由opencv-python-headless或opencv-python提供；requirements.txt写opencv-python，沙箱Dockerfile安装headless；应统一选择一种。
+video_surveillance,privacy-masking,skills/custom/video_surveillance/privacy-masking,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/privacy-masking/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,roi-mapping,skills/custom/video_surveillance/roi-mapping,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/roi-mapping/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,roi-transit-statistics,skills/custom/video_surveillance/roi-transit-statistics,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/roi-transit-statistics/scripts/run.py:20
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,single-video-event-analysis,skills/custom/video_surveillance/single-video-event-analysis,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,required,skills/custom/video_surveillance/single-video-event-analysis/scripts/run.py:59,
+video_surveillance,single-video-event-analysis,skills/custom/video_surveillance/single-video-event-analysis,系统工具,,,ffmpeg,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers,工具版本已查询,required,"skills/custom/video_surveillance/single-video-event-analysis/scripts/run.py:248
+skills/custom/video_surveillance/analyze-video/scripts/extract_frames.py:123",
+video_surveillance,single-video-event-analysis,skills/custom/video_surveillance/single-video-event-analysis,模型/服务,,,具备视觉能力的LLM/Agent审帧,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_event_conclusion,"skills/custom/video_surveillance/README.md:14
+skills/custom/video_surveillance/README.md:20",脚本只准备帧和manifest，语义事件结论由外层LLM审帧，不是YOLO规则判断。
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,Python,sentence-transformers,sentence_transformers,,未固定,配置沙箱镜像基线,6.0.1,已检出；未固定精确版本,optional,skills/custom/video_surveillance/video-embedding-index/scripts/run.py:1030,仅embedding_provider=sentence-transformers时本地文本嵌入需要；StreetModel默认业务链通过urllib HTTP，不需本地torch/transformers。
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/video-embedding-index/scripts/run.py:22
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,系统工具,,,ffmpeg,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers,工具版本已查询,required_for_video_frame_embedding,skills/custom/video_surveillance/video-embedding-index/scripts/run.py:697,
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,required_for_video_preprocessing,skills/custom/video_surveillance/video-embedding-index/scripts/run.py:529,
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,模型/服务,,,Elasticsearch / citybrain-video-library,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_library_operations,skills/custom/video_surveillance/README.md:135,通过Python标准库urllib访问，未直接依赖elasticsearch Python包；object-statistics可仅处理本地JSON，证据包可直接本地视频。
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,模型/服务,,,StreetModel / Qwen3-VL-Embedding-2B,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_default_video_embedding,skills/custom/video_surveillance/video-embedding-index/scripts/run.py:835,GPU依赖属于独立StreetModel服务；本脚本用标准库HTTP。
+video_surveillance,video-embedding-index,skills/custom/video_surveillance/video-embedding-index,模型/服务,,,本地sentence-transformers模型 BAAI/bge-m3,,外部服务或宿主能力,,静态依赖；本次未调用,optional,"skills/custom/video_surveillance/video-embedding-index/scripts/run.py:1030
+skills/custom/video_surveillance/video-embedding-index/scripts/run.py:1068",显式选择sentence-transformers provider时。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,opencv-python-headless,cv2,,>=4.8（共享README约束）,配置沙箱镜像基线,5.0.0.93,满足已声明约束；不代表业务通过,required,"skills/custom/video_surveillance/frame-sampling/scripts/run.py:250
+skills/custom/video_surveillance/README.md:120",固定链调用frame-sampling，依赖在沙箱，不在编排后端安装。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,ultralytics,ultralytics,,>=8.0（共享README约束）,配置沙箱镜像基线,8.4.154,满足已声明约束；不代表业务通过,required,"skills/custom/video_surveillance/object-detection/scripts/run.py:208
+skills/custom/video_surveillance/README.md:128",固定链真实YOLO检测；并非export_results.py自身导入。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,langchain,langchain,,>=1.2.3,DeerFlow后端,1.2.3,满足已声明约束；不代表业务通过,required,"backend/packages/harness/deerflow/tools/builtins/video_object_analytics_tool.py:11
+backend/packages/harness/pyproject.toml:12",仅DeerFlow后端结构化工具运行环境。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,langgraph,langgraph,,>=1.0.6,DeerFlow后端,1.0.10,满足已声明约束；不代表业务通过,required,"backend/packages/harness/deerflow/tools/builtins/video_object_analytics_tool.py:12
+backend/packages/harness/pyproject.toml:17",仅DeerFlow后端结构化工具运行环境。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,torch,torch,,'==2.5.1+cpu（共享沙箱Dockerfile）,配置沙箱镜像基线,2.5.1+cpu,满足已声明约束；不代表业务通过,required_transitive,docker/sandbox/Dockerfile:65,由ultralytics推理使用；Skill本身未单独pin。此CPU版本不能替代独立StreetModel CUDA服务的torch2.8.0。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,Python,torchvision,torchvision,,'==0.20.1+cpu（共享沙箱Dockerfile）,配置沙箱镜像基线,0.20.1+cpu,满足已声明约束；不代表业务通过,required_transitive,docker/sandbox/Dockerfile:66,YOLO间接依赖，共享镜像明确CPU构建。
+video_surveillance,video-object-analytics,skills/custom/video_surveillance/video-object-analytics,模型/服务,,,本地YOLOv8n权重,,外部服务或宿主能力,,静态依赖；本次未调用,required,"backend/packages/harness/deerflow/tools/builtins/video_object_analytics_tool.py:31
+skills/custom/video_surveillance/object-detection/scripts/run.py:215",固定工具路径为video_surveillance/models/yolov8n.pt；普通目标检测脚本支持配置其他本地model_path，不在线自动下载。
+video_surveillance,video-privacy-masking,skills/custom/video_surveillance/video-privacy-masking,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/video-privacy-masking/scripts/run.py:22
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,video-privacy-masking,skills/custom/video_surveillance/video-privacy-masking,系统工具,,,ffmpeg (video filters/codecs),未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required,skills/custom/video_surveillance/video-privacy-masking/scripts/run.py:280,
+video_surveillance,video-privacy-masking,skills/custom/video_surveillance/video-privacy-masking,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,optional,skills/custom/video_surveillance/video-privacy-masking/scripts/run.py:283,用于时长探测，源码允许缺失。
+video_surveillance,video-search,skills/custom/video_surveillance/video-search,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/video-search/scripts/run.py:19
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,video-search,skills/custom/video_surveillance/video-search,模型/服务,,,Elasticsearch / citybrain-video-library,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_library_operations,skills/custom/video_surveillance/README.md:135,通过Python标准库urllib访问，未直接依赖elasticsearch Python包；object-statistics可仅处理本地JSON，证据包可直接本地视频。
+video_surveillance,video-search,skills/custom/video_surveillance/video-search,模型/服务,,,StreetModel / Qwen3-VL-Embedding-2B,,外部服务或宿主能力,,静态依赖；本次未调用,required_for_semantic_or_image_search,skills/custom/video_surveillance/video-search/scripts/run.py:500,纯关键词查询不依赖StreetModel；dual模式向量失败可部分成功返回关键词结果。
+video_surveillance,video-search,skills/custom/video_surveillance/video-search,模型/服务,,,OpenAI兼容LLM查询优化接口,,外部服务或宿主能力,,静态依赖；本次未调用,optional,"skills/custom/video_surveillance/video-search/scripts/run.py:333
+skills/custom/video_surveillance/video-search/scripts/run.py:1030",语义/dual文本默认查询优化使用；可显式--no-llm-query-optimization。HTTP调用，不需要openai Python包。
+video_surveillance,video-segment-extraction,skills/custom/video_surveillance/video-segment-extraction,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/video-segment-extraction/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,video-segment-extraction,skills/custom/video_surveillance/video-segment-extraction,系统工具,,,ffmpeg (libx264/aac encoders),未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,required,"skills/custom/video_surveillance/video-segment-extraction/scripts/run.py:243
+skills/custom/video_surveillance/video-segment-extraction/scripts/run.py:247",
+video_surveillance,video-stream-ingestion,skills/custom/video_surveillance/video-stream-ingestion,Python,PyYAML,yaml,,>=6.0,配置沙箱镜像基线,6.0.2,满足已声明约束；不代表业务通过,optional,"skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py:18
+skills/custom/video_surveillance/requirements.txt:3",只在输入或配置为YAML时需要；JSON输入/配置使用标准库，无需PyYAML。
+video_surveillance,video-stream-ingestion,skills/custom/video_surveillance/video-stream-ingestion,系统工具,,,ffprobe,未固定,见工具证据；可能为沙箱、挂载资产或宿主,ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers,工具版本已查询,required,skills/custom/video_surveillance/video-stream-ingestion/scripts/run.py:221,
+public,chart-visualization,skills/public/chart-visualization,系统工具,,,node,>=18.0.0,见工具证据；可能为沙箱、挂载资产或宿主,v22.23.2,工具版本已查询,必需,skills/public/chart-visualization/SKILL.md:5,
+public,chart-visualization,skills/public/chart-visualization,模型/服务,,,AntV GPT-Vis HTTP API,VIS_REQUEST_SERVER可覆盖；API服务版本未固定,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/public/chart-visualization/scripts/generate.js:35,
+public,claude-to-deerflow,skills/public/claude-to-deerflow,系统工具,,,bash,未固定,见工具证据；可能为沙箱、挂载资产或宿主,"GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)",工具版本已查询,必需,skills/public/claude-to-deerflow/scripts/chat.sh:1,
+public,claude-to-deerflow,skills/public/claude-to-deerflow,系统工具,,,curl,未固定,见工具证据；可能为沙箱、挂载资产或宿主,curl 7.81.0 (x86_64-pc-linux-gnu) libcurl/7.81.0 OpenSSL/3.0.2 zlib/1.2.11 brotli/1.0.9 zstd/1.4.8 libidn2/2.3.2 libpsl/0.21.0 (+libidn2/2.3.2) libssh/0.9.6/openssl/zlib nghttp2/1.43.0 librtmp/2.3 OpenLDAP/2.5.19,工具版本已查询,必需,skills/public/claude-to-deerflow/scripts/chat.sh:1,
+public,claude-to-deerflow,skills/public/claude-to-deerflow,系统工具,,,python3,未固定,见工具证据；可能为沙箱、挂载资产或宿主,3.10.12（沙箱）,工具版本已查询,必需,skills/public/claude-to-deerflow/scripts/chat.sh:103,
+public,claude-to-deerflow,skills/public/claude-to-deerflow,模型/服务,,,DeerFlow Gateway / LangGraph HTTP API,由DEERFLOW_URL等配置，未固定API部署版本,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/public/claude-to-deerflow/SKILL.md:23,
+public,data-analysis,skills/public/data-analysis,Python,duckdb,duckdb,,未固定,配置沙箱镜像基线,1.5.5,已检出；未固定精确版本,必需：相应脚本入口,"skills/public/data-analysis/scripts/analyze.py:21
+skills/public/data-analysis/scripts/analyze.py:25",
+public,data-analysis,skills/public/data-analysis,Python,openpyxl,openpyxl,,未固定,配置沙箱镜像基线,3.1.5,已检出；未固定精确版本,必需：相应脚本入口,"skills/public/data-analysis/scripts/analyze.py:28
+skills/public/data-analysis/scripts/analyze.py:119",
+public,deep-research,skills/public/deep-research,模型/服务,,,宿主web_search / web_fetch工具,随工具实现，Skill无独立版本,外部服务或宿主能力,,静态依赖；本次未调用,研究时必需,skills/public/deep-research/SKILL.md:3,
+public,find-skills,skills/public/find-skills,Node,skills,skills,,未固定（npx运行）,配置沙箱全局Node目录及已核对的微信Skill本地目录,,按npx运行，未安装/未执行,查找/安装功能必需,"skills/public/find-skills/SKILL.md:23
+skills/public/find-skills/scripts/install-skill.sh:50",
+public,find-skills,skills/public/find-skills,系统工具,,,node,未固定,见工具证据；可能为沙箱、挂载资产或宿主,v22.23.2,工具版本已查询,必需,skills/public/find-skills/SKILL.md:23,
+public,find-skills,skills/public/find-skills,系统工具,,,npm,未固定,见工具证据；可能为沙箱、挂载资产或宿主,10.9.8,工具版本已查询,npx命令必需,skills/public/find-skills/SKILL.md:23,
+public,find-skills,skills/public/find-skills,系统工具,,,bash,未固定,见工具证据；可能为沙箱、挂载资产或宿主,"GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)",工具版本已查询,安装脚本必需,skills/public/find-skills/scripts/install-skill.sh:1,
+public,find-skills,skills/public/find-skills,模型/服务,,,skills.sh / npm包仓库 / Git仓库,未固定,外部服务或宿主能力,,静态依赖；本次未调用,按查找和安装操作触发,skills/public/find-skills/SKILL.md:31,
+public,github-deep-research,skills/public/github-deep-research,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,可选：缺失时urllib回退,skills/public/github-deep-research/scripts/github_api.py:12,
+public,github-deep-research,skills/public/github-deep-research,模型/服务,,,GitHub REST API / 宿主网页工具,api.github.com；HTTP Accept v3，服务部署版本不固定,外部服务或宿主能力,,静态依赖；本次未调用,必需,skills/public/github-deep-research/scripts/github_api.py:56,
+public,image-generation,skills/public/image-generation,Python,Pillow,PIL,,未固定,配置沙箱镜像基线,11.3.0,已检出；未固定精确版本,必需：相应脚本入口,skills/public/image-generation/scripts/generate.py:5,
+public,image-generation,skills/public/image-generation,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,必需：相应脚本入口,skills/public/image-generation/scripts/generate.py:4,
+public,image-generation,skills/public/image-generation,模型/服务,,,Google Gemini Image API,gemini-3-pro-image-preview（脚本模型名，不是权重revision）,外部服务或宿主能力,,静态依赖；本次未调用,生成必需,skills/public/image-generation/scripts/generate.py:73,
+public,podcast-generation,skills/public/podcast-generation,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,必需：相应脚本入口,skills/public/podcast-generation/scripts/generate.py:10,
+public,podcast-generation,skills/public/podcast-generation,模型/服务,,,火山引擎TTS,https://openspeech.bytedance.com/api/v1/tts；cluster可配置，模型revision未固定,外部服务或宿主能力,,静态依赖；本次未调用,语音生成必需,skills/public/podcast-generation/scripts/generate.py:54,
+public,ppt-generation,skills/public/ppt-generation,Python,Pillow,PIL,,未固定,配置沙箱镜像基线,11.3.0,已检出；未固定精确版本,必需：相应脚本入口,skills/public/ppt-generation/scripts/generate.py:5,
+public,ppt-generation,skills/public/ppt-generation,Python,python-pptx,pptx,,未固定,配置沙箱镜像基线,1.0.2,已检出；未固定精确版本,必需：相应脚本入口,"skills/public/ppt-generation/scripts/generate.py:6
+skills/public/ppt-generation/scripts/generate.py:7",
+public,skill-creator,skills/public/skill-creator,Python,PyYAML,yaml,,未固定,配置沙箱镜像基线,6.0.2,已检出；未固定精确版本,必需：相应脚本入口,skills/public/skill-creator/scripts/quick_validate.py:9,
+public,skill-creator,skills/public/skill-creator,系统工具,,,claude,未固定,见工具证据；可能为沙箱、挂载资产或宿主,,见备注；未获得可确认的工具版本,评测/描述优化子命令需要；打包/校验不需要,"skills/public/skill-creator/scripts/improve_description.py:26
+skills/public/skill-creator/scripts/run_eval.py:71",
+public,vercel-deploy-claimable,skills/public/vercel-deploy-claimable,系统工具,,,bash,未固定,见工具证据；可能为沙箱、挂载资产或宿主,"GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)",工具版本已查询,必需,skills/public/vercel-deploy-claimable/scripts/deploy.sh:1,
+public,vercel-deploy-claimable,skills/public/vercel-deploy-claimable,系统工具,,,curl,未固定,见工具证据；可能为沙箱、挂载资产或宿主,curl 7.81.0 (x86_64-pc-linux-gnu) libcurl/7.81.0 OpenSSL/3.0.2 zlib/1.2.11 brotli/1.0.9 zstd/1.4.8 libidn2/2.3.2 libpsl/0.21.0 (+libidn2/2.3.2) libssh/0.9.6/openssl/zlib nghttp2/1.43.0 librtmp/2.3 OpenLDAP/2.5.19,工具版本已查询,必需,skills/public/vercel-deploy-claimable/scripts/deploy.sh:222,
+public,vercel-deploy-claimable,skills/public/vercel-deploy-claimable,系统工具,,,tar,未固定,见工具证据；可能为沙箱、挂载资产或宿主,tar (GNU tar) 1.34,工具版本已查询,上传目录时必需,skills/public/vercel-deploy-claimable/scripts/deploy.sh:210,
+public,vercel-deploy-claimable,skills/public/vercel-deploy-claimable,模型/服务,,,Vercel claimable deploy HTTP服务,https://claude-skills-deploy.vercel.com/api/deploy；服务版本未固定,外部服务或宿主能力,,静态依赖；本次未调用,部署必需,skills/public/vercel-deploy-claimable/scripts/deploy.sh:9,
+public,video-generation,skills/public/video-generation,Python,requests,requests,,未固定,配置沙箱镜像基线,2.32.5,已检出；未固定精确版本,必需：相应脚本入口,skills/public/video-generation/scripts/generate.py:5,
+public,video-generation,skills/public/video-generation,模型/服务,,,Google Veo API,veo-3.1-generate-preview（脚本模型名，不是权重revision）,外部服务或宿主能力,,静态依赖；本次未调用,生成必需,skills/public/video-generation/scripts/generate.py:40,
+public,web-design-guidelines,skills/public/web-design-guidelines,模型/服务,,,GitHub raw guidelines / 宿主WebFetch,main分支会变化，未固定commit,外部服务或宿主能力,,静态依赖；本次未调用,规则获取必需,skills/public/web-design-guidelines/SKILL.md:27,

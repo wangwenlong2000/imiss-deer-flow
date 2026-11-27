@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "log_bytes": 574,
+  "log_sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+  "name": "rc4-restore-status",
+  "report": {
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:16:44.158201+00:00",
+    "started_at": "2026-11-27T02:16:43.345249+00:00"
+  },
+  "required": false,
+  "source_passed": true
+}

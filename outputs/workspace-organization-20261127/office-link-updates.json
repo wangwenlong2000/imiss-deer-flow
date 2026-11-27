@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "path": "docs/project-materials/项目环境说明_外部验收_20261126.docx",
+  "backup_path": "/tmp/workspace-organization-20261127-originals/docs/项目环境说明_外部验收_20261126.docx",
+  "sha256_before": "0d3291ad898a8d5cbeea481dc1d0e49c87e5b8d5d04d937d0e2149ad3ddb4a64",
+  "sha256_after": "31e6866cb26666c0796e0377a8470ec4db344a6a107409d363d1c3594a4184ce",
+  "changed_zip_entry": "word/_rels/document.xml.rels",
+  "zip_entry_count": 11,
+  "unchanged_zip_entries": 10,
+  "unchanged_entry_bytes_and_metadata_verified": true,
+  "unchanged_entry_local_header_and_compressed_payload_bytes_verified": true,
+  "archive_comment_preserved": true,
+  "new_targets_exist": true,
+  "changes": [
+    {
+      "before": "Skill依赖版本盘点_20261126.md",
+      "after": "../Skill依赖版本盘点_20261126.md",
+      "target_exists": true
+    },
+    {
+      "before": "Skill依赖版本清单_20261126.xlsx",
+      "after": "../skills/Skill依赖版本清单_20261126.xlsx",
+      "target_exists": true
+    },
+    {
+      "before": "跨机器迁移与Docker部署指南_20261126.md",
+      "after": "../跨机器迁移与Docker部署指南_20261126.md",
+      "target_exists": true
+    }
+  ],
+  "entries": [
+    {
+      "name": "_rels/.rels",
+      "changed": false,
+      "content_sha256_before": "0e0f3b82b9dc5912a18fa6fd8cd8d6412bf758fc6c2b049b390baf25269c94a7",
+      "content_sha256_after": "0e0f3b82b9dc5912a18fa6fd8cd8d6412bf758fc6c2b049b390baf25269c94a7",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "docProps/core.xml",
+      "changed": false,
+      "content_sha256_before": "98446470c6188d53e2e9d8ef614b526ed359929dc683b1594937e8c68e65d466",
+      "content_sha256_after": "98446470c6188d53e2e9d8ef614b526ed359929dc683b1594937e8c68e65d466",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "docProps/app.xml",
+      "changed": false,
+      "content_sha256_before": "fb6bfb5853a99a2c0a8030cc7e37cf5cb8382275fb605c0ed15b81904ff33719",
+      "content_sha256_after": "fb6bfb5853a99a2c0a8030cc7e37cf5cb8382275fb605c0ed15b81904ff33719",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "docProps/custom.xml",
+      "changed": false,
+      "content_sha256_before": "9b1afafd2d4a7132c3f88bb8c1a6976f0e722be9949d6e72eb441608283c4d01",
+      "content_sha256_after": "9b1afafd2d4a7132c3f88bb8c1a6976f0e722be9949d6e72eb441608283c4d01",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "word/_rels/document.xml.rels",
+      "changed": true,
+      "content_sha256_before": "bcaeb723215bb93e44135723531a8f8c3197f98bc8ed090f9355fcfc1f9ac8bf",
+      "content_sha256_after": "1a2360ebed9fe5f65db34937343b32b08ca9335c552fc199ac05ebd98e5c02f0",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": false
+    },
+    {
+      "name": "word/styles.xml",
+      "changed": false,
+      "content_sha256_before": "743a1d3595f305a283618ffab02aa6d208ba7a5ae28d881b27184d42f9ffaa54",
+      "content_sha256_after": "743a1d3595f305a283618ffab02aa6d208ba7a5ae28d881b27184d42f9ffaa54",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "word/numbering.xml",
+      "changed": false,
+      "content_sha256_before": "d6de616f3dc60d229038ad90a71a497cae813429a0bbba4aa0f32c980c5e1ec6",
+      "content_sha256_after": "d6de616f3dc60d229038ad90a71a497cae813429a0bbba4aa0f32c980c5e1ec6",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "word/fontTable.xml",
+      "changed": false,
+      "content_sha256_before": "3bf529da1a699c0a8aee8d9f96897721161cff6a983c38690b431a9c0c631d56",
+      "content_sha256_after": "3bf529da1a699c0a8aee8d9f96897721161cff6a983c38690b431a9c0c631d56",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "word/settings.xml",
+      "changed": false,
+      "content_sha256_before": "fc071d7a7d6644c8ecc01ddb6e723ec5ce366cb169a0f053faeb14559d07ecae",
+      "content_sha256_after": "fc071d7a7d6644c8ecc01ddb6e723ec5ce366cb169a0f053faeb14559d07ecae",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "[Content_Types].xml",
+      "changed": false,
+      "content_sha256_before": "2505690a67c7e9e23054d6569c3b1bff70c5c8d6c8114e53f66afb368630c423",
+      "content_sha256_after": "2505690a67c7e9e23054d6569c3b1bff70c5c8d6c8114e53f66afb368630c423",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    },
+    {
+      "name": "word/document.xml",
+      "changed": false,
+      "content_sha256_before": "24dd2ed7aae1f188638af19658c1e813b88702e86f7780698387b4adb5b987db",
+      "content_sha256_after": "24dd2ed7aae1f188638af19658c1e813b88702e86f7780698387b4adb5b987db",
+      "metadata_preserved": true,
+      "original_local_header_and_compressed_payload_preserved": true
+    }
+  ],
+  "delivery_evidence_modified": false
+}

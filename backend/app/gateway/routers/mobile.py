@@ -2095,7 +2095,7 @@ async def _produce_langgraph_stream(
             run = await client.runs.get(thread_id, chat_req._resume_run_id)
             if run.get("status") in {"success", "error", "timeout", "interrupted"}:
                 await queue.put({"kind": "chunk", "raw_event": {"event": "values", "data": initial_state.get("values", {})}})
-                await queue.put({"kind": "done", "run_status": run.get("status")})
+                await queue.put({"kind": "done", "run_status": run.get("status"), "run_id": admitted_run_id})
                 return
             source = client.runs.join_stream(
                 thread_id, chat_req._resume_run_id,
@@ -2137,7 +2137,7 @@ async def _produce_langgraph_stream(
                 run_status = (await client.runs.get(thread_id, admitted_run_id)).get("status")
             except Exception:
                 pass
-        await queue.put({"kind": "done", "run_status": run_status})
+        await queue.put({"kind": "done", "run_status": run_status, "run_id": admitted_run_id})
 
     except Exception as exc:
         status_code, retry_after = _upstream_admission_error(exc)
@@ -2461,6 +2461,10 @@ async def _stream_deerflow_mobile_run(
                 break
 
             elif kind == "done":
+                # The run can finish before supplementary status polling ever
+                # observes pending/running. Preserve its admitted identity in
+                # the terminal frame so clients can verify or resume that run.
+                current_run_id = item.get("run_id") or current_run_id
                 adapted = adapt_events_to_mobile(
                     session_id=req.conversation_id, thread_id=current_thread_id,
                     raw_events=raw_events, current_query=req.query,
@@ -2483,6 +2487,7 @@ async def _stream_deerflow_mobile_run(
                             "message": "clarification_required",
                             "conversation_id": req.conversation_id,
                             "thread_id": current_thread_id,
+                            "run_id": current_run_id,
                             "status": "awaiting_clarification",
                         },
                     )
@@ -2503,6 +2508,7 @@ async def _stream_deerflow_mobile_run(
                         "message": "success" if successful else terminal_status,
                         "conversation_id": req.conversation_id,
                         "thread_id": current_thread_id,
+                        "run_id": current_run_id,
                         "status": terminal_status,
                         "ordered_segments": emitted_segments,
                         "compliance_results": compliance_results,

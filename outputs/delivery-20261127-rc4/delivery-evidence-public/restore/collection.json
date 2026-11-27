@@ -1,0 +1,941 @@
+{
+  "all_observed_evidence_passed": true,
+  "collection_complete": true,
+  "cross_machine_verified": false,
+  "delivery_accepted": false,
+  "failed_evidence_count": 0,
+  "invalid_count": 0,
+  "missing_count": 0,
+  "optional_missing_count": 1,
+  "records": [
+    {
+      "availability": "present",
+      "name": "delivery-seed",
+      "report": {
+        "business_requests_are_real": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 252,
+            "answer_sha256": "8178622c99cd6450998964e2429a168e23742cd6e2f5da309b3c68ccb39bab5b",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 18,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "result_file_isolation_verified": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "present_files",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running",
+              "completed"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true
+          }
+        ],
+        "credentials_recorded": false,
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:20:42.153923+00:00",
+        "history": {
+          "cross_account_denied": true,
+          "history_saved_and_read": true
+        },
+        "live_http_declared": false,
+        "ordinary_accounts_verified": 2,
+        "passed": true,
+        "probe": "seed",
+        "raw_model_outputs_recorded": false,
+        "release_matches_expected": true,
+        "restored_cases": [],
+        "schema_version": 1,
+        "started_at": "2026-11-27T02:19:23.558182+00:00",
+        "tokens_revoked": true
+      },
+      "required": true,
+      "source_bytes": 3514,
+      "source_passed": true,
+      "source_sha256": "1436c9e8810c3bf12cfe0cb1e3cd5ab8df33af56923ba8e860a7c00b05005f8a"
+    },
+    {
+      "availability": "present",
+      "name": "delivery-gateway",
+      "report": {
+        "business_requests_are_real": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "bare_done_received": true,
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "gateway_admitted_identity_matches": true,
+            "gateway_event_counts": {
+              "accepted": 1,
+              "compliance": 2,
+              "done": 1,
+              "heartbeat": 1,
+              "segment": 3,
+              "sentinel": 1,
+              "start": 1,
+              "status": 2
+            },
+            "gateway_unknown_event_name_count": 0,
+            "graph_tool_evidence": [],
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "source_events": [
+              "final_answer",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "pending",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 236,
+            "answer_sha256": "f1942e3103791372be30d157b965d1ebb35254d04d0f96a003c213c6550b9082",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "bare_done_received": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 17,
+            "finished": true,
+            "gateway_admitted_identity_matches": true,
+            "gateway_event_counts": {
+              "accepted": 1,
+              "compliance": 2,
+              "done": 1,
+              "heartbeat": 3,
+              "segment": 6,
+              "sentinel": 1,
+              "start": 1,
+              "status": 2
+            },
+            "gateway_unknown_event_name_count": 0,
+            "graph_tool_evidence": [
+              {
+                "arguments_sha256": "51ebb6919de345a14a71ba0129cc1fe0c5cf9599af389e5d889a1371d001375d",
+                "name": "read_file",
+                "result_bytes": 115,
+                "result_sha256": "ca45be038d2febebfe8589d8040cc8c9b1676d5dfefb1e09ecb914b0030541ee",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "615a5eb8e212b341a22ee9b7a58c02ad65a41470f1f927ae1d11b0dea8ab0266",
+                "tool_name_known": true
+              },
+              {
+                "arguments_sha256": "e9bdf3fc1afb56ac591debeca9616e2d9d0228ab4b1a8132225dee4b54ff47b1",
+                "name": "bash",
+                "result_bytes": 899,
+                "result_sha256": "cc5e7bd2e59aaf0cebf240144e3eaadcb99758485a85b6bb72e8deceec529cf5",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "9d825e09da95f2c2dc2879f284d5ea48b39a4cc88204bef23dbcc24319470291",
+                "tool_name_known": true
+              },
+              {
+                "arguments_sha256": "d8111ce3df5af0c79b76fd640b9e886cb68db39429d5e6be55e96bdc068912c4",
+                "name": "present_files",
+                "result_bytes": 271,
+                "result_sha256": "443e7992729a03d0886816fd7f6a024809ee2777e5f12064e0a499e622c68f33",
+                "result_status": "success",
+                "run_identity_matches": true,
+                "tool_call_id_sha256": "dff698c85e11ef918c8109c607ea29e0395c40d1e1620a69c2c5f9ab335c0e6b",
+                "tool_name_known": true
+              }
+            ],
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "result_file_isolation_verified": true,
+            "source_events": [
+              "final_answer",
+              "present_files",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "pending",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true
+          }
+        ],
+        "credentials_recorded": false,
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:22:11.583028+00:00",
+        "live_http_declared": false,
+        "passed": true,
+        "probe": "gateway",
+        "raw_model_outputs_recorded": false,
+        "release_matches_expected": true,
+        "restored_cases": [],
+        "schema_version": 1,
+        "started_at": "2026-11-27T02:20:43.307078+00:00",
+        "tokens_revoked": true
+      },
+      "required": true,
+      "source_bytes": 6742,
+      "source_passed": true,
+      "source_sha256": "ed344daa29113c7e1b09e131747e63aebb1880f16848bb536651189656ebe879"
+    },
+    {
+      "availability": "present",
+      "name": "delivery-verify-restored",
+      "report": {
+        "assets_verified": true,
+        "business_requests_are_real": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 496,
+            "answer_sha256": "804bb295fb7082f5ef78d62af883a9e22efbe4cc59f052819469f2224bcca56b",
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_size": 25,
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 17,
+            "finished": true,
+            "native_identity_matches": true,
+            "native_status": {
+              "status": "success"
+            },
+            "passed": true,
+            "result_file_isolation_verified": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "present_files",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true
+          }
+        ],
+        "credentials_recorded": false,
+        "cross_machine_verified": false,
+        "database_restored": true,
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:19:22.828703+00:00",
+        "history": {
+          "cross_account_denied": true,
+          "history_saved_and_read": true
+        },
+        "live_http_declared": false,
+        "ordinary_accounts_verified": 2,
+        "passed": true,
+        "probe": "verify-restored",
+        "raw_model_outputs_recorded": false,
+        "release_matches_expected": true,
+        "restored_cases": [
+          {
+            "case_id": "basic-model-answer",
+            "native_identity_matches": false,
+            "native_status": {
+              "status": "success"
+            }
+          },
+          {
+            "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "native_identity_matches": false,
+            "native_status": {
+              "status": "success"
+            },
+            "upload_sha256": "288adcb7fd08ec62d6f89ae21d7e4719a8c304e6a9c443a03b0224cdfd3997e3"
+          }
+        ],
+        "schema_version": 1,
+        "separate_root_and_project": true,
+        "started_at": "2026-11-27T02:18:05.869797+00:00",
+        "tokens_revoked": true
+      },
+      "required": true,
+      "source_bytes": 4466,
+      "source_passed": true,
+      "source_sha256": "b34022787096e217f1ddd04ff09691d205e9411fed8c02d909c0ccedb5aebec4"
+    },
+    {
+      "availability": "missing",
+      "name": "recovery-summary",
+      "required": false,
+      "scope": "optional_not_produced_by_cli"
+    },
+    {
+      "availability": "present",
+      "name": "persistent-state-integrity",
+      "report": {
+        "account_count": 2,
+        "account_identity_fields_present": true,
+        "account_tokens_absent": true,
+        "artifact_sha256": "ae27644e69aaf4af060be47dcb01d2fbae0e79b7d76a42e668f43788461eb59b",
+        "artifact_sha256_valid": true,
+        "artifact_url_matches_case": true,
+        "case_count": 2,
+        "case_run_identity_fields_valid": true,
+        "exactly_two_accounts": true,
+        "exactly_two_default_cases": true,
+        "expected_artifact_matches_default_contract": true,
+        "expected_artifact_present": true,
+        "expected_artifact_sha256": "a8b731a96a1c637509954277be3d629c9c8b458fbe691c080ffc1df9c85fbc32",
+        "history_fields_present": true,
+        "passed": true,
+        "schema_valid": true,
+        "seed_completed": true,
+        "source_identity_matches": true,
+        "upload_sha256": "288adcb7fd08ec62d6f89ae21d7e4719a8c304e6a9c443a03b0224cdfd3997e3",
+        "upload_sha256_matches_default_csv": true,
+        "upload_sha256_valid": true,
+        "upload_url_matches_case": true
+      },
+      "required": true,
+      "source_bytes": 3079,
+      "source_passed": true,
+      "source_sha256": "61c9de4721e275bb8667f88ac332e95433ba2f2866b057e3cd0cbaa4168c93c1"
+    },
+    {
+      "availability": "present",
+      "name": "last-restore",
+      "report": {
+        "assets_verified": true,
+        "completed_at": "2026-11-27T02:16:16.959716+00:00",
+        "database_restored": true
+      },
+      "required": true,
+      "source_bytes": 164,
+      "source_passed": true,
+      "source_sha256": "3327631707501493b597ee6ef91110e393142bbd003b31fe84c4ac85388c5271"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0001",
+      "report": {
+        "business_requests_sent": true,
+        "business_scenarios_executed": true,
+        "cases": [
+          {
+            "answer_chars": 2,
+            "answer_sha256": "50537dab76505dfc66dc78411b238de0f51d3d3a9ccfd7a8f133d46c484acbf3",
+            "case_id": "basic-model-answer",
+            "event_count": 12,
+            "finished": true,
+            "native_run_identity_matches": true,
+            "native_run_status": "success",
+            "passed": true,
+            "request_sent": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [],
+            "tool_call_events_unknown_count": 0
+          },
+          {
+            "answer_chars": 197,
+            "answer_sha256": "7b846ba52dc351478f8ae899ca6dce79d7320e3a00434b2eaa23849b218f38be",
+            "artifact_sha256": "73dfcaf910018f80d73a19ed6475bffe115a1e7078411bd9b013776988ba5e02",
+            "artifact_size": 29,
+            "artifact_values_verified": true,
+            "case_id": "basic-tool-artifact",
+            "event_count": 17,
+            "finished": true,
+            "native_run_identity_matches": true,
+            "native_run_status": "success",
+            "passed": true,
+            "request_sent": true,
+            "source_events": [
+              "accepted",
+              "compliance",
+              "final_answer",
+              "heartbeat",
+              "message",
+              "present_files",
+              "start",
+              "status",
+              "task_planning",
+              "todo_routing_guidance",
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "source_events_unknown_count": 0,
+            "statuses": [
+              "submitted",
+              "pending",
+              "running",
+              "completed",
+              "running",
+              "completed",
+              "running"
+            ],
+            "statuses_unknown_count": 0,
+            "stream_identity_consistent": true,
+            "terminal_identity_matches": true,
+            "tool_call_events": [
+              "tool_call:bash",
+              "tool_call:read_file"
+            ],
+            "tool_call_events_unknown_count": 0,
+            "uploaded_file_isolation_verified": true,
+            "uploaded_files": 1
+          }
+        ],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          },
+          {
+            "authenticated": true,
+            "check": "bootstrap_admin_login",
+            "status": "pass",
+            "token_revoked": true
+          },
+          {
+            "check": "register_ordinary_a",
+            "status": "pass"
+          },
+          {
+            "check": "register_ordinary_b",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_a",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_b",
+            "status": "pass"
+          },
+          {
+            "check": "distinct_account_workspaces",
+            "status": "pass"
+          },
+          {
+            "check": "create_owned_dialog",
+            "status": "pass"
+          },
+          {
+            "check": "owned_history_readable",
+            "status": "pass"
+          },
+          {
+            "check": "message_history_round_trip_and_isolation",
+            "cross_account_denied": true,
+            "history_saved_and_read": true,
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_history_and_dialog_denied",
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_run_control_denied",
+            "status": "pass"
+          },
+          {
+            "check": "scene_manifest_and_assertions",
+            "status": "pass"
+          },
+          {
+            "check": "scene_basic-model-answer",
+            "status": "pass"
+          },
+          {
+            "check": "scene_basic-tool-artifact",
+            "status": "pass"
+          },
+          {
+            "check": "selected_capabilities_covered",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_a",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_b",
+            "status": "pass"
+          },
+          {
+            "check": "synthetic_fixture_cleanup",
+            "disabled_accounts": 2,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [
+          "basic"
+        ],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": true,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": true
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:18:05.140768+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:16:56.354563+00:00",
+        "suite": "full",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 7517,
+      "source_locator_sha256": "1b53fb9e0dbb5cb53459c914bf9325c5dc7642cf2f6a0e7584ae1f8448f8bd7b",
+      "source_passed": true,
+      "source_sha256": "559f8c32f5ac1bd878594d045d78a3c8a53332bb2098d68e4a302be4d3450ef0"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0002",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": false,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:16:43.136615+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:16:42.957272+00:00",
+        "suite": "basic",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 1606,
+      "source_locator_sha256": "9cdcbf6e81e0716443f7f52eb6541bbbded6166885623b63518d2adee92473c0",
+      "source_passed": true,
+      "source_sha256": "ce3cc81bb30a23d8b7834f5ffc83ef9551702f8ec3cc87afa98a4add3631fad0"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0003",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": false,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:16:52.237075+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:16:52.081260+00:00",
+        "suite": "basic",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 1606,
+      "source_locator_sha256": "ce7ef94dc7c4eaae86c1acb2989421193ce91c61f9e2a0afc0fdc7d7f4d180b8",
+      "source_passed": true,
+      "source_sha256": "9e427965b46c54b607bcbc8625cdb1b8030f27657dd6e1e3219e65288182da9e"
+    },
+    {
+      "availability": "present",
+      "name": "verification-0004",
+      "report": {
+        "business_requests_sent": false,
+        "business_scenarios_executed": false,
+        "cases": [],
+        "checks": [
+          {
+            "check": "api_readiness",
+            "http_status": 200,
+            "status": "pass"
+          },
+          {
+            "check": "api_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "coordinator_anonymous_rejected",
+            "http_status": 401,
+            "status": "pass"
+          },
+          {
+            "check": "public_internal_iam_hidden",
+            "http_status": 404,
+            "status": "pass"
+          },
+          {
+            "check": "runtime_public_key",
+            "site_identity_matched": true,
+            "status": "pass"
+          },
+          {
+            "authenticated": true,
+            "check": "bootstrap_admin_login",
+            "status": "pass",
+            "token_revoked": true
+          },
+          {
+            "check": "register_ordinary_a",
+            "status": "pass"
+          },
+          {
+            "check": "register_ordinary_b",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_a",
+            "status": "pass"
+          },
+          {
+            "check": "login_identity_b",
+            "status": "pass"
+          },
+          {
+            "check": "distinct_account_workspaces",
+            "status": "pass"
+          },
+          {
+            "check": "create_owned_dialog",
+            "status": "pass"
+          },
+          {
+            "check": "owned_history_readable",
+            "status": "pass"
+          },
+          {
+            "check": "message_history_round_trip_and_isolation",
+            "cross_account_denied": true,
+            "history_saved_and_read": true,
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_history_and_dialog_denied",
+            "status": "pass"
+          },
+          {
+            "check": "cross_account_run_control_denied",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_a",
+            "status": "pass"
+          },
+          {
+            "check": "revoke_test_token_b",
+            "status": "pass"
+          },
+          {
+            "check": "synthetic_fixture_cleanup",
+            "disabled_accounts": 2,
+            "status": "pass"
+          }
+        ],
+        "covered_capabilities": [],
+        "covered_capabilities_unknown_count": 0,
+        "data_policy": {
+          "disposable_accounts": true,
+          "raw_model_outputs_recorded": false,
+          "test_artifacts_and_audit_retained": false
+        },
+        "exit_code": 0,
+        "finished_at": "2026-11-27T02:16:55.612969+00:00",
+        "live_http_declared": true,
+        "passed": true,
+        "release_matches_expected": true,
+        "schema_version": 1,
+        "selected_capabilities": [
+          "basic"
+        ],
+        "selected_capabilities_unknown_count": 0,
+        "started_at": "2026-11-27T02:16:52.909915+00:00",
+        "suite": "interfaces",
+        "uncovered_capabilities": [],
+        "uncovered_capabilities_unknown_count": 0
+      },
+      "required": true,
+      "source_bytes": 3204,
+      "source_locator_sha256": "3dbeffc6b9ad4bf74bb84ce7305ef5b181ef47d1898a790a6a97bbe210ff8a8e",
+      "source_passed": true,
+      "source_sha256": "2841655418d987b4379d5cb51dbeafe0be56ca9ff48281ef4ba32a39cf1c0be3"
+    }
+  ],
+  "schema_version": 1,
+  "site": "restore",
+  "verification_report_count": 4
+}

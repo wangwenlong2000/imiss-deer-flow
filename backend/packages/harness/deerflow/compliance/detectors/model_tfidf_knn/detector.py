@@ -371,8 +371,9 @@ class ModelTfidfKnnDetector:
         """Build the ``features`` mapping this unit contributes.
 
         Field items keep their dotted path as the key, which is what the training
-        samples look like. Text items are folded in under their source, so a unit
-        that is pure prose still produces a usable row.
+        samples look like. Text items are folded in under their logical source,
+        except uploaded-file storage locations: those identify audit provenance,
+        not user content or structured field names.
 
         Insertion order is the concatenation order for ``content_text``, so field
         items come first and text items after — matching how the training samples
@@ -381,8 +382,12 @@ class ModelTfidfKnnDetector:
         features: dict[str, Any] = {}
         for item in unit.field_items:
             features[item.path] = item.value
+        uploaded_file = unit.raw.get("kind") == "uploaded_file"
         for item in unit.text_items:
-            key = item.source or "content"
+            # UploadedFileNormalizer retains the physical path in source/raw so
+            # findings can still locate the file. Do not feed server-generated
+            # roots, thread UUIDs or upload directories into model n-grams.
+            key = "content" if uploaded_file else item.source or "content"
             if key in features:
                 key = f"{key}.{item.item_id}"
             features[key] = item.text

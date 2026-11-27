@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "moved_files": 81,
+  "groups": {
+    "operations": 13,
+    "design": 2,
+    "compliance": 13,
+    "skills": 17,
+    "testing": 15,
+    "history": 16,
+    "project-materials": 5
+  },
+  "unchanged_moved_files": 50,
+  "link_adjusted_moved_files": 31,
+  "protected_files_verified": 580,
+  "protected_failures": [],
+  "move_failures": [],
+  "previously_valid_local_links_checked": 602,
+  "lost_valid_links": [],
+  "new_index_and_mapping_links_checked": 382,
+  "new_link_failures": [],
+  "fixed_path_failures": [],
+  "preexisting_unresolved_local_links": 480,
+  "remaining_unresolved_local_links": 456,
+  "repaired_existing_link_occurrences": 24,
+  "note": "Local-target scanner skips remote URLs and anchors; unresolved historical paths and placeholder examples remain listed separately."
+}

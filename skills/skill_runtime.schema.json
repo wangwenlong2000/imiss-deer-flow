@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://imiss-deer-flow.local/schemas/skill_runtime.schema.json",
+  "title": "SkillRuntimeManifest",
+  "description": "Static, source-backed Skill runtime declarations. Runtime grouping is explicitly proposed and does not authorize automatic execution or assert business acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_audit", "runtime_profiles", "service_catalog", "asset_catalog", "skills"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "source_audit": {"$ref": "#/$defs/sourceAudit"},
+    "runtime_profiles": {"$ref": "#/$defs/profileCatalog"},
+    "service_catalog": {"type": "array", "items": {"$ref": "#/$defs/service"}},
+    "asset_catalog": {"type": "array", "items": {"$ref": "#/$defs/asset"}},
+    "skills": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/skill"}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "sourceAudit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "date", "dependency_rows", "evidence_scope"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"},
+        "date": {"type": "string", "format": "date"}, "dependency_rows": {"type": "integer", "minimum": 0},
+        "evidence_scope": {"oneOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}}]}
+      }
+    },
+    "profileCatalog": {
+      "type": "object", "additionalProperties": false,
+      "required": ["catalog_status", "profiles", "capability_mapping"],
+      "properties": {
+        "catalog_status": {"const": "proposed"}, "profiles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "capability_mapping": {"type": "string", "minLength": 1}
+      }
+    },
+    "service": {
+      "type": "object", "additionalProperties": false,
+      "required": ["service_id", "names_from_inventory", "consumers", "availability", "endpoint_or_credentials"],
+      "properties": {
+        "service_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "names_from_inventory": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "consumers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "availability": {"const": "inventory_only_not_probed"},
+        "endpoint_or_credentials": {"const": "deployment_configuration_reference_not_embedded"}
+      }
+    },
+    "asset": {
+      "type": "object", "additionalProperties": false,
+      "required": ["asset_id", "path", "kind", "source_checkout_state", "sha256", "size_bytes", "executable", "scope", "required_by_skills"],
+      "properties": {
+        "asset_id": {"type": "string", "minLength": 1}, "path": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1}, "source_checkout_state": {"enum": ["present", "missing"]},
+        "sha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "tree_sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "executable": {"type": ["boolean", "null"]}, "scope": {"type": "string", "minLength": 1},
+        "required_by_skills": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "provisioning": {"type": "string"}, "owner": {"type": "string", "minLength": 1}
+      }
+    },
+    "runtimeObservation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope", "version", "status"],
+      "properties": {"scope": {"type": "string"}, "version": {"type": ["string", "null"]}, "status": {"type": "string"}}
+    },
+    "requirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "name", "level", "condition", "specifier", "runtime_pin_state", "module", "evidence", "notes", "runtime_observation"],
+      "properties": {
+        "kind": {"enum": ["python", "node", "tool", "service"]}, "name": {"type": "string", "minLength": 1},
+        "level": {"enum": ["required", "conditional", "optional"]}, "condition": {"type": "string"},
+        "specifier": {"type": "string"}, "runtime_pin_state": {"enum": ["exact_pin_declared", "range_declared", "not_pinned"]}, "module": {"type": "string"},
+        "evidence": {"type": "array", "items": {"type": "string"}}, "notes": {"type": "string"},
+        "runtime_observation": {"$ref": "#/$defs/runtimeObservation"}, "service_id": {"type": "string"}
+      }
+    },
+    "action": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "path", "interpreter", "arguments", "automatic_execution"],
+      "properties": {"id": {"type": "string"}, "kind": {"enum": ["cli", "python_api"]},
+        "path": {"type": "string"}, "interpreter": {"type": "string"},
+        "arguments": {"type": "string"}, "automatic_execution": {"const": false}}
+    },
+    "routerExecution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "declared", "required_tools", "optional_tools", "allowed_file_patterns", "can_run_standalone", "can_compose_with"],
+      "properties": {"source": {"type": ["string", "null"]}, "declared": {"type": "boolean"},
+        "required_tools": {"type": "array", "items": {"type": "string"}}, "optional_tools": {"type": "array", "items": {"type": "string"}},
+        "allowed_file_patterns": {"type": "array", "items": {"type": "string"}},
+        "can_run_standalone": {"type": ["boolean", "null"]}, "can_compose_with": {"type": "array", "items": {"type": "string"}}}
+    },
+    "inputContract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "input_types", "allowed_file_patterns", "example_template", "example_status"],
+      "properties": {"schema": {"const": "skills/skill_input_envelope.schema.json"},
+        "input_types": {"type": "array", "items": {"type": "string"}}, "allowed_file_patterns": {"type": "array", "items": {"type": "string"}},
+        "example_template": {"$ref": "#/$defs/exampleEnvelope"}, "example_status": {"const": "template_with_placeholders_not_executable_input"}}
+    },
+    "exampleEnvelope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "request_id", "skill_name", "scenario", "capability", "query", "inputs"],
+      "properties": {"schema_version": {"const": "1.0"}, "request_id": {"type": "string", "minLength": 1},
+        "skill_name": {"type": "string", "minLength": 1}, "scenario": {"type": "string", "minLength": 1}, "capability": {"type": "string", "minLength": 1},
+        "query": {"type": "object", "required": ["raw"], "properties": {"raw": {"type": "string", "minLength": 1}}},
+        "inputs": {"type": "object", "required": ["files", "data_sources", "parameters"],
+          "properties": {"files": {"type": "array"}, "data_sources": {"type": "array"}, "parameters": {"type": "object"}}}}
+    },
+    "outputContract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "output_types", "status_values"],
+      "properties": {"schema": {"const": "skills/skill_result.schema.json"}, "output_types": {"type": "array", "items": {"type": "string"}},
+        "status_values": {"const": ["success", "partial_success", "failed"]}}
+    },
+    "profileAssignment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "basis", "meaning"],
+      "properties": {"status": {"const": "proposed"}, "basis": {"type": "string"}, "meaning": {"type": "string"}}
+    },
+    "fallbacks": {
+      "type": "object", "additionalProperties": false,
+      "required": ["known", "unknown_behavior"],
+      "properties": {"known": {"type": "array", "items": {"type": "string"}}, "unknown_behavior": {"type": "string"}}
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["static_inventory", "business_acceptance", "reason"],
+      "properties": {"static_inventory": {"const": true}, "business_acceptance": {"const": "not_run"}, "reason": {"type": "string"}}
+    },
+    "skill": {
+      "type": "object", "additionalProperties": false,
+      "required": ["skill_id", "path", "execution_type", "runtime_profile", "runtime_profile_assignment", "capability_groups", "actions", "requirements", "service_refs", "assets", "router_execution_contract", "input_contract", "output_contract", "scenes", "fallbacks", "source_hashes", "validation"],
+      "properties": {
+        "skill_id": {"type": "string", "minLength": 1}, "path": {"type": "string", "minLength": 1},
+        "execution_type": {"enum": ["prompt", "script", "python_api", "prompt_with_code", "composite", "hybrid"]},
+        "runtime_profile": {"type": "string", "minLength": 1}, "runtime_profile_assignment": {"$ref": "#/$defs/profileAssignment"},
+        "capability_groups": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "actions": {"type": "array", "items": {"$ref": "#/$defs/action"}},
+        "requirements": {"type": "array", "items": {"$ref": "#/$defs/requirement"}},
+        "service_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "assets": {"type": "array", "items": {"$ref": "#/$defs/asset"}},
+        "router_execution_contract": {"$ref": "#/$defs/routerExecution"}, "input_contract": {"$ref": "#/$defs/inputContract"},
+        "output_contract": {"$ref": "#/$defs/outputContract"}, "scenes": {"type": "array", "items": {"type": "string"}},
+        "fallbacks": {"$ref": "#/$defs/fallbacks"}, "source_hashes": {"type": "object", "additionalProperties": {"$ref": "#/$defs/sha256"}},
+        "validation": {"$ref": "#/$defs/validation"}
+      }
+    }
+  }
+}

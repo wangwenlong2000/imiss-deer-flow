@@ -1,0 +1,7682 @@
+{
+  "scope": "isolated container from configured sandbox image; metadata only, no business execution",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "executable": "/opt/rs-venv/bin/python",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "packages": [
+    {
+      "name": "adagio",
+      "version": "0.2.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.2.6"
+    },
+    {
+      "name": "adtk",
+      "version": "0.6.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.6.2"
+    },
+    {
+      "name": "aenum",
+      "version": "3.1.17",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.1.17"
+    },
+    {
+      "name": "affine",
+      "version": "3.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.0.1"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.7.1"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.14.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.14.3"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.0"
+    },
+    {
+      "name": "aistudio_sdk",
+      "version": "0.3.9",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.9"
+    },
+    {
+      "name": "albucore",
+      "version": "0.0.24",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.0.24"
+    },
+    {
+      "name": "albumentations",
+      "version": "2.0.8",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.0.8"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.0.3"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.7.0"
+    },
+    {
+      "name": "antlr4-python3-runtime",
+      "version": "4.9.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.9.3"
+    },
+    {
+      "name": "anyio",
+      "version": "4.11.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.11.0"
+    },
+    {
+      "name": "anywidget",
+      "version": "0.11.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.11.0"
+    },
+    {
+      "name": "argon2-cffi",
+      "version": "25.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "25.1.0"
+    },
+    {
+      "name": "argon2-cffi-bindings",
+      "version": "26.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "26.1.0"
+    },
+    {
+      "name": "arrow",
+      "version": "1.4.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.0"
+    },
+    {
+      "name": "asciitree",
+      "version": "0.3.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.3"
+    },
+    {
+      "name": "asttokens",
+      "version": "3.0.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.1"
+    },
+    {
+      "name": "async-timeout",
+      "version": "5.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.0.1"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "26.1.0"
+    },
+    {
+      "name": "av",
+      "version": "13.1.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "13.1.0"
+    },
+    {
+      "name": "bce-python-sdk",
+      "version": "0.9.79",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.9.79"
+    },
+    {
+      "name": "beautifulsoup4",
+      "version": "4.14.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.14.3"
+    },
+    {
+      "name": "biopython",
+      "version": "1.86",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.86"
+    },
+    {
+      "name": "bitsandbytes",
+      "version": "0.50.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.50.2"
+    },
+    {
+      "name": "bleach",
+      "version": "6.4.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.4.0"
+    },
+    {
+      "name": "blinker",
+      "version": "1.4",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.4"
+    },
+    {
+      "name": "bqplot",
+      "version": "0.13.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.13.1"
+    },
+    {
+      "name": "bqscales",
+      "version": "0.3.7",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.7"
+    },
+    {
+      "name": "branca",
+      "version": "0.8.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.8.2"
+    },
+    {
+      "name": "brotli",
+      "version": "1.2.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.2.0"
+    },
+    {
+      "name": "bs4",
+      "version": "0.0.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.0.2"
+    },
+    {
+      "name": "cachelib",
+      "version": "0.13.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.13.0"
+    },
+    {
+      "name": "cachetools",
+      "version": "7.2.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.2.0"
+    },
+    {
+      "name": "certifi",
+      "version": "2025.10.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2025.10.5"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.0"
+    },
+    {
+      "name": "cftime",
+      "version": "1.6.5",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.6.5"
+    },
+    {
+      "name": "chardet",
+      "version": "7.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.6.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.4.4"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "8.5.0"
+    },
+    {
+      "name": "click",
+      "version": "8.3.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "8.5.0"
+    },
+    {
+      "name": "click-plugins",
+      "version": "1.1.1.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.1.1.2"
+    },
+    {
+      "name": "cligj",
+      "version": "0.7.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.7.2"
+    },
+    {
+      "name": "cloudpickle",
+      "version": "3.1.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.1.2"
+    },
+    {
+      "name": "cloup",
+      "version": "3.0.8",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.8"
+    },
+    {
+      "name": "color-operations",
+      "version": "0.2.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.2.0"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.6"
+    },
+    {
+      "name": "colorlog",
+      "version": "6.12.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.12.0"
+    },
+    {
+      "name": "comm",
+      "version": "0.2.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.3"
+    },
+    {
+      "name": "contextily",
+      "version": "1.7.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.7.1"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.3.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.3.2"
+    },
+    {
+      "name": "coreforecast",
+      "version": "0.0.18",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.0.18"
+    },
+    {
+      "name": "crc32c",
+      "version": "2.9.post0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.9.post0"
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "46.0.3"
+    },
+    {
+      "name": "cryptography",
+      "version": "3.4.8",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "46.0.3"
+    },
+    {
+      "name": "cssselect2",
+      "version": "0.8.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.8.0"
+    },
+    {
+      "name": "curl_cffi",
+      "version": "0.13.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.13.0"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.12.1"
+    },
+    {
+      "name": "dashscope",
+      "version": "1.27.5",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.27.5"
+    },
+    {
+      "name": "dask",
+      "version": "2026.8.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2026.8.0"
+    },
+    {
+      "name": "datasets",
+      "version": "5.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.0.1"
+    },
+    {
+      "name": "dbus-python",
+      "version": "1.2.18",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.2.18"
+    },
+    {
+      "name": "debugpy",
+      "version": "1.8.17",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.8.17"
+    },
+    {
+      "name": "decorator",
+      "version": "5.2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "5.2.1"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.7.1"
+    },
+    {
+      "name": "dill",
+      "version": "0.4.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.1"
+    },
+    {
+      "name": "distro",
+      "version": "1.7.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.7.0"
+    },
+    {
+      "name": "docstring_parser",
+      "version": "0.18.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.18.0"
+    },
+    {
+      "name": "docx2txt",
+      "version": "0.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.9"
+    },
+    {
+      "name": "duckdb",
+      "version": "1.5.5",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.5.5"
+    },
+    {
+      "name": "earthpy",
+      "version": "0.9.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.9.4"
+    },
+    {
+      "name": "einops",
+      "version": "0.8.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.8.2"
+    },
+    {
+      "name": "elastic-transport",
+      "version": "9.4.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "9.4.2"
+    },
+    {
+      "name": "elasticsearch",
+      "version": "9.5.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "9.5.1"
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.0"
+    },
+    {
+      "name": "eval_type_backport",
+      "version": "0.4.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.0"
+    },
+    {
+      "name": "exceptiongroup",
+      "version": "1.3.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.3.0"
+    },
+    {
+      "name": "executing",
+      "version": "2.2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.2.1"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.121.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.121.1"
+    },
+    {
+      "name": "fasteners",
+      "version": "0.20",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.20"
+    },
+    {
+      "name": "fastjsonschema",
+      "version": "2.22.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.22.2"
+    },
+    {
+      "name": "filelock",
+      "version": "3.32.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.32.3"
+    },
+    {
+      "name": "fiona",
+      "version": "1.10.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.10.1"
+    },
+    {
+      "name": "folium",
+      "version": "0.20.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.20.0"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.61.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.61.0"
+    },
+    {
+      "name": "formulaic",
+      "version": "1.2.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.2.2"
+    },
+    {
+      "name": "fqdn",
+      "version": "1.5.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.5.1"
+    },
+    {
+      "name": "frozendict",
+      "version": "2.4.7",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.4.7"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.8.0"
+    },
+    {
+      "name": "fsspec",
+      "version": "2026.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2026.6.0"
+    },
+    {
+      "name": "fugue",
+      "version": "0.9.7",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.9.7"
+    },
+    {
+      "name": "future",
+      "version": "1.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.0"
+    },
+    {
+      "name": "GDAL",
+      "version": "3.4.1",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "3.4.1"
+    },
+    {
+      "name": "gdown",
+      "version": "6.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.3.0"
+    },
+    {
+      "name": "gem-server",
+      "version": "0.1.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.1.0"
+    },
+    {
+      "name": "geoai-py",
+      "version": "0.39.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.39.3"
+    },
+    {
+      "name": "geographiclib",
+      "version": "2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.1"
+    },
+    {
+      "name": "geojson",
+      "version": "3.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.3.0"
+    },
+    {
+      "name": "geopandas",
+      "version": "1.1.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.1.4"
+    },
+    {
+      "name": "geopy",
+      "version": "2.4.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.4.1"
+    },
+    {
+      "name": "gitdb",
+      "version": "4.0.9",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "4.0.9"
+    },
+    {
+      "name": "GitPython",
+      "version": "3.1.24",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "3.1.24"
+    },
+    {
+      "name": "glcontext",
+      "version": "3.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.0"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.16.0"
+    },
+    {
+      "name": "h5py",
+      "version": "3.16.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.16.0"
+    },
+    {
+      "name": "hf-xet",
+      "version": "1.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.6.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.0.9"
+    },
+    {
+      "name": "httpcore2",
+      "version": "2.13.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.13.0"
+    },
+    {
+      "name": "httplib2",
+      "version": "0.20.2",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "0.20.2"
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.7.1"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.28.1"
+    },
+    {
+      "name": "httpx-sse",
+      "version": "0.4.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.3"
+    },
+    {
+      "name": "httpx2",
+      "version": "2.13.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.13.0"
+    },
+    {
+      "name": "huggingface_hub",
+      "version": "1.31.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.31.0"
+    },
+    {
+      "name": "hydra-core",
+      "version": "1.3.7",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.3.7"
+    },
+    {
+      "name": "idna",
+      "version": "3.19",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.19"
+    },
+    {
+      "name": "idna",
+      "version": "3.11",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.19"
+    },
+    {
+      "name": "ImageIO",
+      "version": "2.37.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.37.4"
+    },
+    {
+      "name": "imagesize",
+      "version": "2.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.0.1"
+    },
+    {
+      "name": "imgkit",
+      "version": "1.2.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.2.3"
+    },
+    {
+      "name": "importlib-metadata",
+      "version": "4.6.4",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "9.0.1"
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "9.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "9.0.1"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.3.0"
+    },
+    {
+      "name": "interface_meta",
+      "version": "2.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.0.1"
+    },
+    {
+      "name": "ipyevents",
+      "version": "2.0.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.0.4"
+    },
+    {
+      "name": "ipyfilechooser",
+      "version": "0.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.6.0"
+    },
+    {
+      "name": "ipykernel",
+      "version": "7.1.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "7.1.0"
+    },
+    {
+      "name": "ipyleaflet",
+      "version": "0.20.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.20.0"
+    },
+    {
+      "name": "ipython",
+      "version": "8.37.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "8.37.0"
+    },
+    {
+      "name": "ipytree",
+      "version": "0.2.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.2.2"
+    },
+    {
+      "name": "ipyvue",
+      "version": "3.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.0.0"
+    },
+    {
+      "name": "ipyvuetify",
+      "version": "3.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.0.0"
+    },
+    {
+      "name": "ipywidgets",
+      "version": "8.1.9",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "8.1.9"
+    },
+    {
+      "name": "isoduration",
+      "version": "20.11.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "20.11.0"
+    },
+    {
+      "name": "isosurfaces",
+      "version": "0.1.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.1.2"
+    },
+    {
+      "name": "jedi",
+      "version": "0.19.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.19.2"
+    },
+    {
+      "name": "jeepney",
+      "version": "0.7.1",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "0.7.1"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.1.6"
+    },
+    {
+      "name": "jiter",
+      "version": "0.17.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.17.0"
+    },
+    {
+      "name": "joblib",
+      "version": "1.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.6.0"
+    },
+    {
+      "name": "jsonargparse",
+      "version": "4.52.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.52.0"
+    },
+    {
+      "name": "jsonnet",
+      "version": "0.22.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.22.0"
+    },
+    {
+      "name": "jsonpointer",
+      "version": "3.1.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.1.1"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.26.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.26.0"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2025.9.1"
+    },
+    {
+      "name": "jupyter-events",
+      "version": "0.12.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.12.1"
+    },
+    {
+      "name": "jupyter-leaflet",
+      "version": "0.20.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.20.0"
+    },
+    {
+      "name": "jupyter-loopback",
+      "version": "0.3.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.3"
+    },
+    {
+      "name": "jupyter_client",
+      "version": "8.6.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "8.6.3"
+    },
+    {
+      "name": "jupyter_core",
+      "version": "5.9.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "5.9.1"
+    },
+    {
+      "name": "jupyter_server",
+      "version": "2.21.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.21.1"
+    },
+    {
+      "name": "jupyter_server_proxy",
+      "version": "4.5.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.5.0"
+    },
+    {
+      "name": "jupyter_server_terminals",
+      "version": "0.5.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.5.4"
+    },
+    {
+      "name": "jupyterlab_pygments",
+      "version": "0.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.0"
+    },
+    {
+      "name": "jupyterlab_widgets",
+      "version": "3.0.17",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.0.17"
+    },
+    {
+      "name": "kaleido",
+      "version": "0.2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.1"
+    },
+    {
+      "name": "keyring",
+      "version": "23.5.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "23.5.0"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.4.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.4.9"
+    },
+    {
+      "name": "kornia",
+      "version": "0.8.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.8.2"
+    },
+    {
+      "name": "kornia_rs",
+      "version": "0.1.14",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.1.14"
+    },
+    {
+      "name": "lark",
+      "version": "1.3.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.3.1"
+    },
+    {
+      "name": "launchpadlib",
+      "version": "1.10.16",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.10.16"
+    },
+    {
+      "name": "lazr.restfulclient",
+      "version": "0.14.4",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "0.14.4"
+    },
+    {
+      "name": "lazr.uri",
+      "version": "1.0.6",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.0.6"
+    },
+    {
+      "name": "lazy-loader",
+      "version": "0.5",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.5"
+    },
+    {
+      "name": "leafmap",
+      "version": "0.63.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.63.1"
+    },
+    {
+      "name": "lightly",
+      "version": "1.5.26",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.5.26"
+    },
+    {
+      "name": "lightly-utils",
+      "version": "0.0.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.0.2"
+    },
+    {
+      "name": "lightning",
+      "version": "2.6.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.6.6"
+    },
+    {
+      "name": "lightning-utilities",
+      "version": "0.15.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.15.3"
+    },
+    {
+      "name": "localtileserver",
+      "version": "1.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.0"
+    },
+    {
+      "name": "locket",
+      "version": "1.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.0"
+    },
+    {
+      "name": "lxml",
+      "version": "6.0.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "6.0.2"
+    },
+    {
+      "name": "manim",
+      "version": "0.19.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.19.1"
+    },
+    {
+      "name": "ManimPango",
+      "version": "0.6.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.6.1"
+    },
+    {
+      "name": "mapbox_earcut",
+      "version": "2.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.0"
+    },
+    {
+      "name": "mapclassify",
+      "version": "2.8.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.8.1"
+    },
+    {
+      "name": "maplibre",
+      "version": "0.3.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.6"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.0.0"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.3"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.7",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.10.7"
+    },
+    {
+      "name": "matplotlib-inline",
+      "version": "0.2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.1"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.1.2"
+    },
+    {
+      "name": "mercantile",
+      "version": "1.2.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.2.1"
+    },
+    {
+      "name": "mistune",
+      "version": "3.3.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.3.4"
+    },
+    {
+      "name": "modelscope",
+      "version": "1.40.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.40.1"
+    },
+    {
+      "name": "modelscope-hub",
+      "version": "0.4.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.3"
+    },
+    {
+      "name": "moderngl",
+      "version": "5.12.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "5.12.0"
+    },
+    {
+      "name": "moderngl-window",
+      "version": "3.1.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.1.1"
+    },
+    {
+      "name": "more-itertools",
+      "version": "8.10.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "8.10.0"
+    },
+    {
+      "name": "morecantile",
+      "version": "6.2.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.2.0"
+    },
+    {
+      "name": "MouseInfo",
+      "version": "0.1.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.1.3"
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.3.0"
+    },
+    {
+      "name": "multidict",
+      "version": "6.8.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.8.0"
+    },
+    {
+      "name": "multiprocess",
+      "version": "0.70.19",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.70.19"
+    },
+    {
+      "name": "multitasking",
+      "version": "0.0.11",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.0.11"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.26.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.26.0"
+    },
+    {
+      "name": "nbclient",
+      "version": "0.11.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.11.0"
+    },
+    {
+      "name": "nbconvert",
+      "version": "7.17.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.17.1"
+    },
+    {
+      "name": "nbformat",
+      "version": "5.11.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.11.1"
+    },
+    {
+      "name": "nest-asyncio",
+      "version": "1.6.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.6.0"
+    },
+    {
+      "name": "netCDF4",
+      "version": "1.7.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.7.4"
+    },
+    {
+      "name": "networkx",
+      "version": "3.4.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.4.2"
+    },
+    {
+      "name": "numcodecs",
+      "version": "0.13.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.13.1"
+    },
+    {
+      "name": "numexpr",
+      "version": "2.14.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.14.1"
+    },
+    {
+      "name": "numpy",
+      "version": "2.2.6",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.2.6"
+    },
+    {
+      "name": "numpy",
+      "version": "1.21.5",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "2.2.6"
+    },
+    {
+      "name": "nvidia-ml-py",
+      "version": "13.610.43",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "13.610.43"
+    },
+    {
+      "name": "oauthlib",
+      "version": "3.2.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "3.2.0"
+    },
+    {
+      "name": "omegaconf",
+      "version": "2.3.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.3.1"
+    },
+    {
+      "name": "openai",
+      "version": "3.14.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.14.1"
+    },
+    {
+      "name": "opencv-contrib-python",
+      "version": "4.10.0.84",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.10.0.84"
+    },
+    {
+      "name": "opencv-python",
+      "version": "4.12.0.88",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.12.0.88"
+    },
+    {
+      "name": "opencv-python-headless",
+      "version": "5.0.0.93",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.0.0.93"
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.1.5"
+    },
+    {
+      "name": "opt-einsum",
+      "version": "3.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.3.0"
+    },
+    {
+      "name": "orjson",
+      "version": "3.12.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.12.0"
+    },
+    {
+      "name": "overrides",
+      "version": "7.7.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.7.0"
+    },
+    {
+      "name": "overturemaps",
+      "version": "1.0.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.2"
+    },
+    {
+      "name": "packaging",
+      "version": "25.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "25.0"
+    },
+    {
+      "name": "paddleocr",
+      "version": "3.7.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.7.0"
+    },
+    {
+      "name": "paddlepaddle",
+      "version": "3.2.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.2.2"
+    },
+    {
+      "name": "paddlex",
+      "version": "3.7.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.7.2"
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.3.3"
+    },
+    {
+      "name": "pandocfilters",
+      "version": "1.5.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.5.1"
+    },
+    {
+      "name": "parso",
+      "version": "0.8.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.8.5"
+    },
+    {
+      "name": "partd",
+      "version": "1.4.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.2"
+    },
+    {
+      "name": "patsy",
+      "version": "1.0.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.3"
+    },
+    {
+      "name": "peewee",
+      "version": "3.18.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.18.3"
+    },
+    {
+      "name": "pexpect",
+      "version": "4.9.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.9.0"
+    },
+    {
+      "name": "pillow",
+      "version": "11.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "11.3.0"
+    },
+    {
+      "name": "pillow",
+      "version": "12.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "11.3.0"
+    },
+    {
+      "name": "pip",
+      "version": "26.2.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "26.2.1"
+    },
+    {
+      "name": "pip",
+      "version": "25.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "26.2.1"
+    },
+    {
+      "name": "pip",
+      "version": "22.0.2",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "26.2.1"
+    },
+    {
+      "name": "planetary-computer",
+      "version": "1.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.0"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.5.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.5.1"
+    },
+    {
+      "name": "plotly",
+      "version": "5.24.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "5.24.0"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.6.0"
+    },
+    {
+      "name": "polars",
+      "version": "1.44.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.44.2"
+    },
+    {
+      "name": "polars-runtime-32",
+      "version": "1.44.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.44.2"
+    },
+    {
+      "name": "prettytable",
+      "version": "3.17.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.17.0"
+    },
+    {
+      "name": "prometheus_client",
+      "version": "0.26.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.26.0"
+    },
+    {
+      "name": "prompt_toolkit",
+      "version": "3.0.52",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.52"
+    },
+    {
+      "name": "propcache",
+      "version": "0.5.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.5.4"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "6.33.2"
+    },
+    {
+      "name": "psutil",
+      "version": "7.1.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "7.1.3"
+    },
+    {
+      "name": "psygnal",
+      "version": "0.16.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.16.1"
+    },
+    {
+      "name": "ptyprocess",
+      "version": "0.7.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.7.0"
+    },
+    {
+      "name": "pure_eval",
+      "version": "0.2.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.3"
+    },
+    {
+      "name": "py-cpuinfo",
+      "version": "9.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "9.0.0"
+    },
+    {
+      "name": "pyarrow",
+      "version": "25.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "25.0.1"
+    },
+    {
+      "name": "PyAutoGUI",
+      "version": "0.9.54",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.9.54"
+    },
+    {
+      "name": "pycairo",
+      "version": "1.29.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.29.0"
+    },
+    {
+      "name": "pyclipper",
+      "version": "1.4.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.0"
+    },
+    {
+      "name": "pycparser",
+      "version": "2.23",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.23"
+    },
+    {
+      "name": "pycryptodome",
+      "version": "3.23.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.23.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.4",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.12.4"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.41.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.41.5"
+    },
+    {
+      "name": "pydub",
+      "version": "0.25.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.25.1"
+    },
+    {
+      "name": "pydyf",
+      "version": "0.12.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.12.1"
+    },
+    {
+      "name": "pyecharts",
+      "version": "2.0.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.9"
+    },
+    {
+      "name": "pyfiglet",
+      "version": "1.0.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.4"
+    },
+    {
+      "name": "PyGetWindow",
+      "version": "0.0.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.0.9"
+    },
+    {
+      "name": "pyglet",
+      "version": "2.1.11",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.1.11"
+    },
+    {
+      "name": "pyglm",
+      "version": "2.8.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.8.3"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.19.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.19.2"
+    },
+    {
+      "name": "PyGObject",
+      "version": "3.42.1",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "3.42.1"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.10.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.10.1"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.3.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "2.10.1"
+    },
+    {
+      "name": "PyMsgBox",
+      "version": "2.0.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.1"
+    },
+    {
+      "name": "PyMuPDF",
+      "version": "1.26.6",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.26.6"
+    },
+    {
+      "name": "pyogrio",
+      "version": "0.13.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.13.0"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.2.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.2.5"
+    },
+    {
+      "name": "PyPDF2",
+      "version": "3.0.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.0.1"
+    },
+    {
+      "name": "pypdfium2",
+      "version": "5.13.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.13.0"
+    },
+    {
+      "name": "pyperclip",
+      "version": "1.11.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.11.0"
+    },
+    {
+      "name": "pyphen",
+      "version": "0.17.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.17.2"
+    },
+    {
+      "name": "pyproj",
+      "version": "3.7.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.7.1"
+    },
+    {
+      "name": "PyRect",
+      "version": "0.2.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.0"
+    },
+    {
+      "name": "PyScreeze",
+      "version": "1.0.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.0.1"
+    },
+    {
+      "name": "PySocks",
+      "version": "1.7.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.7.1"
+    },
+    {
+      "name": "pystac",
+      "version": "1.14.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.14.3"
+    },
+    {
+      "name": "pystac-client",
+      "version": "0.9.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.9.0"
+    },
+    {
+      "name": "pytesseract",
+      "version": "0.3.13",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.3.13"
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "9.1.1"
+    },
+    {
+      "name": "python-apt",
+      "version": "2.4.0+ubuntu4",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "2.4.0+ubuntu4"
+    },
+    {
+      "name": "python-bidi",
+      "version": "0.6.11",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.6.11"
+    },
+    {
+      "name": "python-box",
+      "version": "7.4.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.4.1"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.9.0.post0"
+    },
+    {
+      "name": "python-docx",
+      "version": "1.2.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.2.0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.2.1"
+    },
+    {
+      "name": "python-json-logger",
+      "version": "4.2.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.2.0"
+    },
+    {
+      "name": "python-pptx",
+      "version": "1.0.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.0.2"
+    },
+    {
+      "name": "python3-xlib",
+      "version": "0.15",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.15"
+    },
+    {
+      "name": "pytorch-lightning",
+      "version": "2.6.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.6.6"
+    },
+    {
+      "name": "pytweening",
+      "version": "1.2.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.2.0"
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2025.2"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.0.2"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "6.0.2"
+    },
+    {
+      "name": "pyzmq",
+      "version": "27.1.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "27.1.0"
+    },
+    {
+      "name": "qrcode",
+      "version": "8.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "8.2"
+    },
+    {
+      "name": "rasterio",
+      "version": "1.4.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.4"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.37.0"
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.10",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2026.9.10"
+    },
+    {
+      "name": "requests",
+      "version": "2.32.5",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.32.5"
+    },
+    {
+      "name": "rfc3339-validator",
+      "version": "0.1.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.1.4"
+    },
+    {
+      "name": "rfc3986-validator",
+      "version": "0.1.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.1.1"
+    },
+    {
+      "name": "rfc3987-syntax",
+      "version": "1.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.1.0"
+    },
+    {
+      "name": "rich",
+      "version": "14.2.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "14.2.0"
+    },
+    {
+      "name": "rio-cogeo",
+      "version": "6.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.0.0"
+    },
+    {
+      "name": "rio-tiler",
+      "version": "7.9.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "7.9.6"
+    },
+    {
+      "name": "rioxarray",
+      "version": "0.19.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.19.0"
+    },
+    {
+      "name": "rpds-py",
+      "version": "0.30.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.30.0"
+    },
+    {
+      "name": "rrcf",
+      "version": "0.4.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.4.4"
+    },
+    {
+      "name": "rtree",
+      "version": "1.4.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.4.1"
+    },
+    {
+      "name": "ruamel.yaml",
+      "version": "0.19.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.19.1"
+    },
+    {
+      "name": "safetensors",
+      "version": "0.8.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.8.0"
+    },
+    {
+      "name": "scikit-image",
+      "version": "0.25.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.25.2"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.7.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.7.2"
+    },
+    {
+      "name": "scipy",
+      "version": "1.15.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.15.3"
+    },
+    {
+      "name": "scooby",
+      "version": "0.12.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.12.0"
+    },
+    {
+      "name": "screeninfo",
+      "version": "0.8.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.8.1"
+    },
+    {
+      "name": "seaborn",
+      "version": "0.13.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.13.2"
+    },
+    {
+      "name": "SecretStorage",
+      "version": "3.3.1",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "3.3.1"
+    },
+    {
+      "name": "segmentation_models_pytorch",
+      "version": "0.5.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.5.0"
+    },
+    {
+      "name": "semantic-version",
+      "version": "2.8.5",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "2.8.5"
+    },
+    {
+      "name": "Send2Trash",
+      "version": "2.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.1.0"
+    },
+    {
+      "name": "sentence-transformers",
+      "version": "6.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.0.1"
+    },
+    {
+      "name": "server-thread",
+      "version": "0.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.0"
+    },
+    {
+      "name": "setuptools",
+      "version": "84.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "84.0.0"
+    },
+    {
+      "name": "setuptools",
+      "version": "80.9.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "84.0.0"
+    },
+    {
+      "name": "setuptools",
+      "version": "59.6.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "84.0.0"
+    },
+    {
+      "name": "shapely",
+      "version": "2.1.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.1.2"
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.5.4"
+    },
+    {
+      "name": "simpervisor",
+      "version": "1.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.0"
+    },
+    {
+      "name": "simplejson",
+      "version": "3.20.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.20.2"
+    },
+    {
+      "name": "simsimd",
+      "version": "6.5.16",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.5.16"
+    },
+    {
+      "name": "six",
+      "version": "1.16.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.16.0"
+    },
+    {
+      "name": "skia-pathops",
+      "version": "0.9.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.9.0"
+    },
+    {
+      "name": "smmap",
+      "version": "5.0.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "5.0.0"
+    },
+    {
+      "name": "smoothify",
+      "version": "0.3.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.3.3"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.3.1"
+    },
+    {
+      "name": "soupsieve",
+      "version": "2.8",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.8"
+    },
+    {
+      "name": "srt",
+      "version": "3.5.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.5.3"
+    },
+    {
+      "name": "stack-data",
+      "version": "0.6.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.6.3"
+    },
+    {
+      "name": "starlette",
+      "version": "0.49.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.49.3"
+    },
+    {
+      "name": "statsforecast",
+      "version": "2.1.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.1.1"
+    },
+    {
+      "name": "statsmodels",
+      "version": "0.15.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.15.0"
+    },
+    {
+      "name": "stringzilla",
+      "version": "5.1.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.1.2"
+    },
+    {
+      "name": "supervisor",
+      "version": "4.3.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.3.0"
+    },
+    {
+      "name": "svgelements",
+      "version": "1.9.6",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.9.6"
+    },
+    {
+      "name": "sympy",
+      "version": "1.13.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.13.1"
+    },
+    {
+      "name": "tabulate",
+      "version": "0.9.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.9.0"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "9.1.2"
+    },
+    {
+      "name": "tensorboardX",
+      "version": "2.6.5",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.6.5"
+    },
+    {
+      "name": "terminado",
+      "version": "0.18.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.18.1"
+    },
+    {
+      "name": "threadpoolctl",
+      "version": "3.7.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.7.0"
+    },
+    {
+      "name": "tifffile",
+      "version": "2025.5.10",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2025.5.10"
+    },
+    {
+      "name": "timm",
+      "version": "1.0.29",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.29"
+    },
+    {
+      "name": "tinycss2",
+      "version": "1.5.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.5.1"
+    },
+    {
+      "name": "tinyhtml5",
+      "version": "2.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.0"
+    },
+    {
+      "name": "tokenizers",
+      "version": "0.23.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.23.2"
+    },
+    {
+      "name": "tomli",
+      "version": "2.4.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.4.1"
+    },
+    {
+      "name": "toolz",
+      "version": "1.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.1.0"
+    },
+    {
+      "name": "torch",
+      "version": "2.5.1+cpu",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.5.1+cpu"
+    },
+    {
+      "name": "torchgeo",
+      "version": "0.6.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.6.2"
+    },
+    {
+      "name": "torchinfo",
+      "version": "1.8.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.8.0"
+    },
+    {
+      "name": "torchmetrics",
+      "version": "1.9.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.9.0"
+    },
+    {
+      "name": "torchvision",
+      "version": "0.20.1+cpu",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.20.1+cpu"
+    },
+    {
+      "name": "tornado",
+      "version": "6.5.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "6.5.2"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.70.1"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.70.1"
+    },
+    {
+      "name": "traitlets",
+      "version": "5.14.3",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "5.14.3"
+    },
+    {
+      "name": "traittypes",
+      "version": "0.2.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.2.3"
+    },
+    {
+      "name": "transformers",
+      "version": "5.17.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "5.17.0"
+    },
+    {
+      "name": "triad",
+      "version": "1.0.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.0.2"
+    },
+    {
+      "name": "truststore",
+      "version": "0.10.4",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.10.4"
+    },
+    {
+      "name": "typer",
+      "version": "0.27.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.27.2"
+    },
+    {
+      "name": "typeshed_client",
+      "version": "2.13.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.13.0"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.4.2"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "4.15.0"
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2025.2"
+    },
+    {
+      "name": "ujson",
+      "version": "6.0.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "6.0.0"
+    },
+    {
+      "name": "ultralytics",
+      "version": "8.4.154",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "8.4.154"
+    },
+    {
+      "name": "ultralytics-thop",
+      "version": "2.1.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.1.6"
+    },
+    {
+      "name": "uri-template",
+      "version": "1.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.3.0"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.6.0"
+    },
+    {
+      "name": "utilsforecast",
+      "version": "0.2.16",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.2.16"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.38.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.38.0"
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.22.1"
+    },
+    {
+      "name": "wadllib",
+      "version": "1.3.6",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "1.3.6"
+    },
+    {
+      "name": "watchdog",
+      "version": "6.0.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "6.0.0"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "1.1.1"
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.2.14",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.14"
+    },
+    {
+      "name": "weasyprint",
+      "version": "67.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "67.0"
+    },
+    {
+      "name": "webcolors",
+      "version": "25.10.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "25.10.0"
+    },
+    {
+      "name": "webencodings",
+      "version": "0.5.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.5.1"
+    },
+    {
+      "name": "websocket-client",
+      "version": "1.9.2",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.9.2"
+    },
+    {
+      "name": "websockets",
+      "version": "15.0.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "15.0.1"
+    },
+    {
+      "name": "Werkzeug",
+      "version": "3.1.8",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "3.1.8"
+    },
+    {
+      "name": "wheel",
+      "version": "0.48.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "0.48.0"
+    },
+    {
+      "name": "wheel",
+      "version": "0.45.1",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.48.0"
+    },
+    {
+      "name": "wheel",
+      "version": "0.37.1",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "0.48.0"
+    },
+    {
+      "name": "whitebox",
+      "version": "2.3.6",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.3.6"
+    },
+    {
+      "name": "whiteboxgui",
+      "version": "2.3.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.3.0"
+    },
+    {
+      "name": "widgetsnbextension",
+      "version": "4.0.16",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.0.16"
+    },
+    {
+      "name": "wrapt",
+      "version": "2.4.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.4.1"
+    },
+    {
+      "name": "xarray",
+      "version": "2025.6.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2025.6.1"
+    },
+    {
+      "name": "xlrd",
+      "version": "2.0.2",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "2.0.2"
+    },
+    {
+      "name": "xlsxwriter",
+      "version": "3.2.9",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "3.2.9"
+    },
+    {
+      "name": "xxhash",
+      "version": "4.0.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.0.1"
+    },
+    {
+      "name": "xyzservices",
+      "version": "2026.9.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2026.9.1"
+    },
+    {
+      "name": "yarl",
+      "version": "1.25.1",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "1.25.1"
+    },
+    {
+      "name": "yfinance",
+      "version": "0.2.66",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.2.66"
+    },
+    {
+      "name": "zarr",
+      "version": "2.18.3",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "2.18.3"
+    },
+    {
+      "name": "zipp",
+      "version": "4.1.0",
+      "location": "/opt/rs-venv/lib/python3.10/site-packages",
+      "selected_version": "4.1.0"
+    },
+    {
+      "name": "zipp",
+      "version": "1.0.0",
+      "location": "/usr/lib/python3/dist-packages",
+      "selected_version": "4.1.0"
+    },
+    {
+      "name": "zopfli",
+      "version": "0.4.0",
+      "location": "/usr/local/lib/python3.10/dist-packages",
+      "selected_version": "0.4.0"
+    }
+  ],
+  "module_distributions": {
+    "ipyvue": [
+      "ipyvue"
+    ],
+    "mpmath": [
+      "mpmath"
+    ],
+    "pyclipper": [
+      "pyclipper"
+    ],
+    "geojson": [
+      "geojson"
+    ],
+    "lightning_fabric": [
+      "pytorch-lightning"
+    ],
+    "pytorch_lightning": [
+      "pytorch-lightning"
+    ],
+    "opt_einsum": [
+      "opt-einsum"
+    ],
+    "transformers": [
+      "transformers"
+    ],
+    "numcodecs": [
+      "numcodecs"
+    ],
+    "ruamel": [
+      "ruamel.yaml"
+    ],
+    "pyogrio": [
+      "pyogrio"
+    ],
+    "crc32c": [
+      "crc32c"
+    ],
+    "ipyfilechooser": [
+      "ipyfilechooser"
+    ],
+    "h5py": [
+      "h5py"
+    ],
+    "torchgeo": [
+      "torchgeo"
+    ],
+    "pandocfilters": [
+      "pandocfilters"
+    ],
+    "prometheus_client": [
+      "prometheus_client"
+    ],
+    "elastic_transport": [
+      "elastic-transport"
+    ],
+    "pythonjsonlogger": [
+      "python-json-logger"
+    ],
+    "geopandas": [
+      "geopandas"
+    ],
+    "async_timeout": [
+      "async-timeout"
+    ],
+    "_yaml": [
+      "PyYAML",
+      "PyYAML"
+    ],
+    "yaml": [
+      "PyYAML",
+      "PyYAML"
+    ],
+    "tensorboardX": [
+      "tensorboardX"
+    ],
+    "tlz": [
+      "toolz"
+    ],
+    "toolz": [
+      "toolz"
+    ],
+    "box": [
+      "python-box"
+    ],
+    "_foo": [
+      "paddlepaddle"
+    ],
+    "paddle": [
+      "paddlepaddle"
+    ],
+    "iniconfig": [
+      "iniconfig"
+    ],
+    "netCDF4": [
+      "netCDF4"
+    ],
+    "_xxhash": [
+      "xxhash"
+    ],
+    "xxhash": [
+      "xxhash"
+    ],
+    "__init__": [
+      "jsonnet"
+    ],
+    "_jsonnet": [
+      "jsonnet"
+    ],
+    "_jsonnet_test": [
+      "jsonnet"
+    ],
+    "testdata": [
+      "jsonnet"
+    ],
+    "fqdn": [
+      "fqdn"
+    ],
+    "whitebox": [
+      "whitebox"
+    ],
+    "rfc3339_validator": [
+      "rfc3339-validator"
+    ],
+    "smoothify": [
+      "smoothify"
+    ],
+    "paddleocr": [
+      "paddleocr"
+    ],
+    "_multiprocess": [
+      "multiprocess"
+    ],
+    "multiprocess": [
+      "multiprocess"
+    ],
+    "whiteboxgui": [
+      "whiteboxgui"
+    ],
+    "modelscope": [
+      "modelscope"
+    ],
+    "geoai": [
+      "geoai-py"
+    ],
+    "geoai-mcp-server": [
+      "geoai-py"
+    ],
+    "_distutils_hack": [
+      "setuptools",
+      "setuptools",
+      "setuptools"
+    ],
+    "setuptools": [
+      "setuptools",
+      "setuptools",
+      "setuptools"
+    ],
+    "zipp": [
+      "zipp",
+      "zipp"
+    ],
+    "modelscope_hub": [
+      "modelscope-hub"
+    ],
+    "xyzservices": [
+      "xyzservices"
+    ],
+    "sentence_transformers": [
+      "sentence-transformers"
+    ],
+    "pypdfium2": [
+      "pypdfium2"
+    ],
+    "pypdfium2_cfg": [
+      "pypdfium2"
+    ],
+    "pypdfium2_cli": [
+      "pypdfium2"
+    ],
+    "pypdfium2_raw": [
+      "pypdfium2"
+    ],
+    "localtileserver": [
+      "localtileserver"
+    ],
+    "rrcf": [
+      "rrcf"
+    ],
+    "overrides": [
+      "overrides"
+    ],
+    "kornia": [
+      "kornia"
+    ],
+    "mistune": [
+      "mistune"
+    ],
+    "numexpr": [
+      "numexpr"
+    ],
+    "cv2": [
+      "opencv-contrib-python",
+      "opencv-python-headless",
+      "opencv-python"
+    ],
+    "uri_template": [
+      "uri-template"
+    ],
+    "contextily": [
+      "contextily"
+    ],
+    "ipywidgets": [
+      "ipywidgets"
+    ],
+    "lightly_utils": [
+      "lightly-utils"
+    ],
+    "adtk": [
+      "adtk"
+    ],
+    "locket": [
+      "locket"
+    ],
+    "cligj": [
+      "cligj"
+    ],
+    "rasterio": [
+      "rasterio"
+    ],
+    "joblib": [
+      "joblib"
+    ],
+    "dashscope": [
+      "dashscope"
+    ],
+    "rioxarray": [
+      "rioxarray"
+    ],
+    "PIL": [
+      "pillow",
+      "pillow"
+    ],
+    "folium": [
+      "folium"
+    ],
+    "simsimd": [
+      "simsimd"
+    ],
+    "aistudio_sdk": [
+      "aistudio_sdk"
+    ],
+    "segmentation_models_pytorch": [
+      "segmentation_models_pytorch"
+    ],
+    "mapclassify": [
+      "mapclassify"
+    ],
+    "huggingface_hub": [
+      "huggingface_hub"
+    ],
+    "future": [
+      "future"
+    ],
+    "libfuturize": [
+      "future"
+    ],
+    "libpasteurize": [
+      "future"
+    ],
+    "past": [
+      "future"
+    ],
+    "torchmetrics": [
+      "torchmetrics"
+    ],
+    "thop": [
+      "ultralytics-thop"
+    ],
+    "dask": [
+      "dask"
+    ],
+    "rtree": [
+      "rtree"
+    ],
+    "regex": [
+      "regex"
+    ],
+    "wrapt": [
+      "wrapt"
+    ],
+    "wrapt-stubs": [
+      "wrapt"
+    ],
+    "send2trash": [
+      "Send2Trash"
+    ],
+    "cftime": [
+      "cftime"
+    ],
+    "widgetsnbextension": [
+      "widgetsnbextension"
+    ],
+    "isoduration": [
+      "isoduration"
+    ],
+    "jsonpointer": [
+      "jsonpointer"
+    ],
+    "pystac": [
+      "pystac"
+    ],
+    "fasteners": [
+      "fasteners"
+    ],
+    "pyfiglet": [
+      "pyfiglet"
+    ],
+    "paddlex": [
+      "paddlex"
+    ],
+    "earthpy": [
+      "earthpy"
+    ],
+    "eval_type_backport": [
+      "eval_type_backport"
+    ],
+    "lightning_utilities": [
+      "lightning-utilities"
+    ],
+    "Crypto": [
+      "pycryptodome"
+    ],
+    "server_thread": [
+      "server-thread"
+    ],
+    "imagesize": [
+      "imagesize"
+    ],
+    "torchvision": [
+      "torchvision"
+    ],
+    "docx": [
+      "python-docx"
+    ],
+    "frozenlist": [
+      "frozenlist"
+    ],
+    "bqplot": [
+      "bqplot"
+    ],
+    "ujson": [
+      "ujson"
+    ],
+    "ujson-stubs": [
+      "ujson"
+    ],
+    "fastjsonschema": [
+      "fastjsonschema"
+    ],
+    "lark": [
+      "lark"
+    ],
+    "bitsandbytes": [
+      "bitsandbytes"
+    ],
+    "tifffile": [
+      "tifffile"
+    ],
+    "yarl": [
+      "yarl"
+    ],
+    "albumentations": [
+      "albumentations"
+    ],
+    "multidict": [
+      "multidict"
+    ],
+    "jsonargparse": [
+      "jsonargparse"
+    ],
+    "aiohttp": [
+      "aiohttp"
+    ],
+    "omegaconf": [
+      "omegaconf"
+    ],
+    "pydevd_plugins": [
+      "omegaconf"
+    ],
+    "socks": [
+      "PySocks"
+    ],
+    "sockshandler": [
+      "PySocks"
+    ],
+    "websocket": [
+      "websocket-client"
+    ],
+    "ipytree": [
+      "ipytree"
+    ],
+    "ipyvuetify": [
+      "ipyvuetify"
+    ],
+    "tqdm": [
+      "tqdm",
+      "tqdm"
+    ],
+    "example": [
+      "nvidia-ml-py"
+    ],
+    "pynvml": [
+      "nvidia-ml-py"
+    ],
+    "imageio": [
+      "ImageIO"
+    ],
+    "triad": [
+      "triad"
+    ],
+    "statsforecast": [
+      "statsforecast"
+    ],
+    "traittypes": [
+      "traittypes"
+    ],
+    "ultralytics": [
+      "ultralytics"
+    ],
+    "defusedxml": [
+      "defusedxml"
+    ],
+    "_pytest": [
+      "pytest"
+    ],
+    "py": [
+      "pytest"
+    ],
+    "pytest": [
+      "pytest"
+    ],
+    "color_operations": [
+      "color-operations"
+    ],
+    "aiosignal": [
+      "aiosignal"
+    ],
+    "scooby": [
+      "scooby"
+    ],
+    "shellingham": [
+      "shellingham"
+    ],
+    "baidubce": [
+      "bce-python-sdk"
+    ],
+    "partd": [
+      "partd"
+    ],
+    "importlib_metadata": [
+      "importlib_metadata",
+      "importlib-metadata"
+    ],
+    "utilsforecast": [
+      "utilsforecast"
+    ],
+    "pluggy": [
+      "pluggy"
+    ],
+    "rfc3986_validator": [
+      "rfc3986-validator"
+    ],
+    "polars": [
+      "polars"
+    ],
+    "httpx_sse": [
+      "httpx-sse"
+    ],
+    "fugue": [
+      "fugue"
+    ],
+    "fugue_contrib": [
+      "fugue"
+    ],
+    "fugue_dask": [
+      "fugue"
+    ],
+    "fugue_duckdb": [
+      "fugue"
+    ],
+    "fugue_ibis": [
+      "fugue"
+    ],
+    "fugue_notebook": [
+      "fugue"
+    ],
+    "fugue_polars": [
+      "fugue"
+    ],
+    "fugue_ray": [
+      "fugue"
+    ],
+    "fugue_spark": [
+      "fugue"
+    ],
+    "fugue_sql": [
+      "fugue"
+    ],
+    "fugue_test": [
+      "fugue"
+    ],
+    "leafmap": [
+      "leafmap"
+    ],
+    "click_plugins": [
+      "click-plugins"
+    ],
+    "propcache": [
+      "propcache"
+    ],
+    "jupyter_loopback": [
+      "jupyter-loopback"
+    ],
+    "aenum": [
+      "aenum"
+    ],
+    "bleach": [
+      "bleach"
+    ],
+    "stringzilla": [
+      "stringzilla"
+    ],
+    "test": [
+      "stringzilla",
+      "svgelements"
+    ],
+    "asciitree": [
+      "asciitree"
+    ],
+    "datasets": [
+      "datasets"
+    ],
+    "torchinfo": [
+      "torchinfo"
+    ],
+    "mercantile": [
+      "mercantile"
+    ],
+    "xarray": [
+      "xarray"
+    ],
+    "branca": [
+      "branca"
+    ],
+    "shapely": [
+      "shapely"
+    ],
+    "pystac_client": [
+      "pystac-client"
+    ],
+    "patsy": [
+      "patsy"
+    ],
+    "adagio": [
+      "adagio"
+    ],
+    "adagio_version": [
+      "adagio"
+    ],
+    "tests": [
+      "adagio"
+    ],
+    "cpuinfo": [
+      "py-cpuinfo"
+    ],
+    "colorlog": [
+      "colorlog"
+    ],
+    "lightning": [
+      "lightning"
+    ],
+    "functorch": [
+      "torch"
+    ],
+    "torch": [
+      "torch"
+    ],
+    "torchgen": [
+      "torch"
+    ],
+    "planetary_computer": [
+      "planetary-computer"
+    ],
+    "fiona": [
+      "fiona"
+    ],
+    "lightly": [
+      "lightly"
+    ],
+    "hydra": [
+      "hydra-core"
+    ],
+    "isympy": [
+      "sympy"
+    ],
+    "sympy": [
+      "sympy"
+    ],
+    "imgkit": [
+      "imgkit"
+    ],
+    "zarr": [
+      "zarr"
+    ],
+    "lazy_loader": [
+      "lazy-loader"
+    ],
+    "dill": [
+      "dill"
+    ],
+    "antlr4": [
+      "antlr4-python3-runtime"
+    ],
+    "cachetools": [
+      "cachetools"
+    ],
+    "typeshed_client": [
+      "typeshed_client"
+    ],
+    "albucore": [
+      "albucore"
+    ],
+    "pyproj": [
+      "pyproj"
+    ],
+    "parso": [
+      "parso"
+    ],
+    "psutil": [
+      "psutil"
+    ],
+    "stack_data": [
+      "stack-data"
+    ],
+    "prompt_toolkit": [
+      "prompt_toolkit"
+    ],
+    "debugpy": [
+      "debugpy"
+    ],
+    "asttokens": [
+      "asttokens"
+    ],
+    "executing": [
+      "executing"
+    ],
+    "jedi": [
+      "jedi"
+    ],
+    "tornado": [
+      "tornado"
+    ],
+    "pure_eval": [
+      "pure_eval"
+    ],
+    "IPython": [
+      "ipython"
+    ],
+    "pexpect": [
+      "pexpect"
+    ],
+    "nest_asyncio": [
+      "nest-asyncio"
+    ],
+    "manimpango": [
+      "ManimPango"
+    ],
+    "networkx": [
+      "networkx"
+    ],
+    "requests": [
+      "requests"
+    ],
+    "Bio": [
+      "biopython"
+    ],
+    "BioSQL": [
+      "biopython"
+    ],
+    "charset_normalizer": [
+      "charset-normalizer"
+    ],
+    "srt": [
+      "srt"
+    ],
+    "srt_tools": [
+      "srt"
+    ],
+    "glm": [
+      "pyglm"
+    ],
+    "pyglm": [
+      "pyglm"
+    ],
+    "pyglm-stubs": [
+      "pyglm"
+    ],
+    "curl_cffi": [
+      "curl_cffi"
+    ],
+    "kaleido": [
+      "kaleido"
+    ],
+    "moderngl_window": [
+      "moderngl-window"
+    ],
+    "multitasking": [
+      "multitasking"
+    ],
+    "_moderngl": [
+      "moderngl"
+    ],
+    "moderngl": [
+      "moderngl"
+    ],
+    "moderngl-stubs": [
+      "moderngl"
+    ],
+    "_plotly_future_": [
+      "plotly"
+    ],
+    "_plotly_utils": [
+      "plotly"
+    ],
+    "jupyterlab_plotly": [
+      "plotly"
+    ],
+    "plotly": [
+      "plotly"
+    ],
+    "lxml": [
+      "lxml"
+    ],
+    "markupsafe": [
+      "MarkupSafe"
+    ],
+    "tabulate": [
+      "tabulate"
+    ],
+    "kiwisolver": [
+      "kiwisolver"
+    ],
+    "pytz": [
+      "pytz"
+    ],
+    "fontTools": [
+      "fonttools"
+    ],
+    "isosurfaces": [
+      "isosurfaces"
+    ],
+    "geopy": [
+      "geopy"
+    ],
+    "pptx": [
+      "python-pptx"
+    ],
+    "geographiclib": [
+      "geographiclib"
+    ],
+    "pydub": [
+      "pydub"
+    ],
+    "svgelements": [
+      "svgelements"
+    ],
+    "peewee": [
+      "peewee"
+    ],
+    "playhouse": [
+      "peewee"
+    ],
+    "pwiz": [
+      "peewee"
+    ],
+    "docx2txt": [
+      "docx2txt"
+    ],
+    "xlsxwriter": [
+      "xlsxwriter"
+    ],
+    "yfinance": [
+      "yfinance"
+    ],
+    "av": [
+      "av"
+    ],
+    "et_xmlfile": [
+      "et_xmlfile"
+    ],
+    "dateutil": [
+      "python-dateutil"
+    ],
+    "pathops": [
+      "skia-pathops"
+    ],
+    "pytesseract": [
+      "pytesseract"
+    ],
+    "pyecharts": [
+      "pyecharts"
+    ],
+    "simplejson": [
+      "simplejson"
+    ],
+    "decorator": [
+      "decorator"
+    ],
+    "wcwidth": [
+      "wcwidth"
+    ],
+    "glcontext": [
+      "glcontext"
+    ],
+    "zopfli": [
+      "zopfli"
+    ],
+    "xlrd": [
+      "xlrd"
+    ],
+    "watchdog": [
+      "watchdog"
+    ],
+    "_brotli": [
+      "brotli"
+    ],
+    "brotli": [
+      "brotli"
+    ],
+    "frozendict": [
+      "frozendict"
+    ],
+    "cycler": [
+      "cycler"
+    ],
+    "webencodings": [
+      "webencodings"
+    ],
+    "tenacity": [
+      "tenacity"
+    ],
+    "cloup": [
+      "cloup"
+    ],
+    "tzdata": [
+      "tzdata"
+    ],
+    "openpyxl": [
+      "openpyxl"
+    ],
+    "supervisor": [
+      "supervisor"
+    ],
+    "Xlib": [
+      "python3-xlib"
+    ],
+    "sniffio": [
+      "sniffio"
+    ],
+    "httptools": [
+      "httptools"
+    ],
+    "gem": [
+      "gem-server"
+    ],
+    "pytweening": [
+      "pytweening"
+    ],
+    "_cffi_backend": [
+      "cffi"
+    ],
+    "cffi": [
+      "cffi"
+    ],
+    "cachelib": [
+      "cachelib"
+    ],
+    "h11": [
+      "h11"
+    ],
+    "websockets": [
+      "websockets"
+    ],
+    "pyrect": [
+      "PyRect"
+    ],
+    "pyautogui": [
+      "PyAutoGUI"
+    ],
+    "pyperclip": [
+      "pyperclip"
+    ],
+    "anyio": [
+      "anyio"
+    ],
+    "pygetwindow": [
+      "PyGetWindow"
+    ],
+    "pymsgbox": [
+      "PyMsgBox"
+    ],
+    "certifi": [
+      "certifi"
+    ],
+    "pyscreeze": [
+      "PyScreeze"
+    ],
+    "jwt": [
+      "PyJWT",
+      "PyJWT"
+    ],
+    "mouseinfo": [
+      "MouseInfo"
+    ],
+    "pkg_resources": [
+      "setuptools",
+      "setuptools"
+    ],
+    "dotenv": [
+      "python-dotenv"
+    ],
+    "pycparser": [
+      "pycparser"
+    ],
+    "uvloop": [
+      "uvloop"
+    ],
+    "numpy": [
+      "numpy"
+    ],
+    "wheel": [
+      "wheel"
+    ],
+    "osgeo": [
+      "GDAL"
+    ],
+    "osgeo_utils": [
+      "GDAL"
+    ],
+    "gitdb": [
+      "gitdb"
+    ],
+    "semantic_version": [
+      "semantic-version"
+    ],
+    "pip": [
+      "pip"
+    ],
+    "smmap": [
+      "smmap"
+    ],
+    "git": [
+      "GitPython"
+    ],
+    "debian": [
+      "setuptools",
+      "keyring",
+      "importlib-metadata"
+    ],
+    "oauthlib": [
+      "oauthlib"
+    ],
+    "keyring": [
+      "keyring"
+    ],
+    "launchpadlib": [
+      "launchpadlib"
+    ],
+    "secretstorage": [
+      "SecretStorage"
+    ],
+    "gi": [
+      "PyGObject"
+    ],
+    "pygtkcompat": [
+      "PyGObject"
+    ],
+    "_openssl": [
+      "cryptography"
+    ],
+    "_padding": [
+      "cryptography"
+    ],
+    "cryptography": [
+      "cryptography"
+    ],
+    "more_itertools": [
+      "more-itertools"
+    ],
+    "wadllib": [
+      "wadllib"
+    ],
+    "_dbus_bindings": [
+      "dbus-python"
+    ],
+    "_dbus_glib_bindings": [
+      "dbus-python"
+    ],
+    "dbus": [
+      "dbus-python"
+    ],
+    "six": [
+      "six"
+    ],
+    "lazr": [
+      "lazr.uri",
+      "lazr.restfulclient"
+    ],
+    "apt": [
+      "python-apt"
+    ],
+    "apt_inst": [
+      "python-apt"
+    ],
+    "apt_pkg": [
+      "python-apt"
+    ],
+    "aptsources": [
+      "python-apt"
+    ],
+    "distro": [
+      "distro"
+    ],
+    "httplib2": [
+      "httplib2"
+    ]
+  },
+  "commands": {
+    "node": {
+      "status": "queried",
+      "path": "/usr/bin/node",
+      "exit_code": 0,
+      "output": "v22.23.2"
+    },
+    "npm": {
+      "status": "queried",
+      "path": "/usr/bin/npm",
+      "exit_code": 0,
+      "output": "10.9.8"
+    },
+    "ffmpeg": {
+      "status": "queried",
+      "path": "/usr/bin/ffmpeg",
+      "exit_code": 0,
+      "output": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers\nbuilt with gcc 11 (Ubuntu 11.2.0-19ubuntu1)\nconfiguration: --prefix=/usr --extra-version=0ubuntu0.22.04.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enabl"
+    },
+    "ffprobe": {
+      "status": "queried",
+      "path": "/usr/bin/ffprobe",
+      "exit_code": 0,
+      "output": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers\nbuilt with gcc 11 (Ubuntu 11.2.0-19ubuntu1)\nconfiguration: --prefix=/usr --extra-version=0ubuntu0.22.04.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enab"
+    },
+    "GDAL": {
+      "status": "queried",
+      "path": "/usr/bin/gdalinfo",
+      "exit_code": 0,
+      "output": "GDAL 3.4.1, released 2021/12/27"
+    },
+    "PROJ": {
+      "status": "queried",
+      "path": "/usr/bin/proj",
+      "exit_code": 3,
+      "output": "proj_create: unrecognized format / unknown name\nRel. 8.2.1, January 1st, 2022\n<proj>: "
+    },
+    "tshark": {
+      "status": "queried",
+      "path": "/usr/bin/tshark",
+      "exit_code": 0,
+      "output": "TShark (Wireshark) 3.6.2 (Git v3.6.2 packaged as 3.6.2-2)\n\nCopyright 1998-2022 Gerald Combs <gerald@wireshark.org> and contributors."
+    },
+    "zeek": {
+      "status": "queried",
+      "path": "/usr/local/bin/zeek",
+      "exit_code": 0,
+      "output": "zeek version 8.2.2"
+    },
+    "opengrep": {
+      "status": "not_in_PATH"
+    },
+    "semgrep": {
+      "status": "not_in_PATH"
+    },
+    "pandoc": {
+      "status": "not_in_PATH"
+    },
+    "libreoffice": {
+      "status": "not_in_PATH"
+    },
+    "wkhtmltopdf": {
+      "status": "queried",
+      "path": "/usr/bin/wkhtmltopdf",
+      "exit_code": 0,
+      "output": "wkhtmltopdf 0.12.6"
+    },
+    "imagemagick": {
+      "status": "queried",
+      "path": "/usr/bin/convert",
+      "exit_code": 0,
+      "output": "Version: ImageMagick 6.9.11-60 Q16 x86_64 2021-01-25 https://imagemagick.org\nCopyright: (C) 1999-2021 ImageMagick Studio LLC\nLicense: https://imagemagick.org/script/license.php"
+    },
+    "chromium": {
+      "status": "not_in_PATH"
+    },
+    "chromium-browser": {
+      "status": "queried",
+      "path": "/usr/bin/chromium-browser",
+      "exit_code": 0,
+      "output": "Chromium 135.0.7049.78 stable\n\nmkdir: cannot create directory ‘/root/.local/share/applications’: Read-only file system"
+    },
+    "curl": {
+      "status": "queried",
+      "path": "/usr/bin/curl",
+      "exit_code": 0,
+      "output": "curl 7.81.0 (x86_64-pc-linux-gnu) libcurl/7.81.0 OpenSSL/3.0.2 zlib/1.2.11 brotli/1.0.9 zstd/1.4.8 libidn2/2.3.2 libpsl/0.21.0 (+libidn2/2.3.2) libssh/0.9.6/openssl/zlib nghttp2/1.43.0 librtmp/2.3 OpenLDAP/2.5.19\nRelease-Date: 2022-01-05\nProtocols: dict file ftp ftps gopher gophers http https imap imaps ldap ldaps mqtt pop3 pop3s rtmp rtsp scp sftp smb smbs smtp smtps telnet tftp "
+    },
+    "git": {
+      "status": "queried",
+      "path": "/usr/bin/git",
+      "exit_code": 0,
+      "output": "git version 2.34.1"
+    },
+    "tar": {
+      "status": "queried",
+      "path": "/usr/bin/tar",
+      "exit_code": 0,
+      "output": "tar (GNU tar) 1.34\nCopyright (C) 2021 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>."
+    },
+    "bash": {
+      "status": "queried",
+      "path": "/usr/bin/bash",
+      "exit_code": 0,
+      "output": "GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)\nCopyright (C) 2020 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>"
+    }
+  },
+  "node_packages": {
+    "cheerio": {
+      "version": "1.2.0",
+      "path": "/opt/node-deps/node_modules/cheerio/package.json"
+    }
+  },
+  "os_packages": [
+    {
+      "name": "adduser",
+      "version": "3.118ubuntu5"
+    },
+    {
+      "name": "adwaita-icon-theme",
+      "version": "41.0-1ubuntu1"
+    },
+    {
+      "name": "alsa-topology-conf",
+      "version": "1.2.5.1-2"
+    },
+    {
+      "name": "alsa-ucm-conf",
+      "version": "1.2.6.3-1ubuntu1.12"
+    },
+    {
+      "name": "apt",
+      "version": "2.4.14"
+    },
+    {
+      "name": "apt-transport-https",
+      "version": "2.4.14"
+    },
+    {
+      "name": "autoconf",
+      "version": "2.71-2"
+    },
+    {
+      "name": "automake",
+      "version": "1:1.16.5-1.3"
+    },
+    {
+      "name": "autotools-dev",
+      "version": "20220109.1"
+    },
+    {
+      "name": "base-files",
+      "version": "12ubuntu4.7"
+    },
+    {
+      "name": "base-passwd",
+      "version": "3.5.52build1"
+    },
+    {
+      "name": "bash",
+      "version": "5.1-6ubuntu1.1"
+    },
+    {
+      "name": "binutils",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "binutils-common",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "binutils-x86-64-linux-gnu",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "blt",
+      "version": "2.5.3+dfsg-4.1build2"
+    },
+    {
+      "name": "bsdutils",
+      "version": "1:2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "build-essential",
+      "version": "12.9ubuntu3"
+    },
+    {
+      "name": "bzip2",
+      "version": "1.0.8-5build1"
+    },
+    {
+      "name": "ca-certificates",
+      "version": "20260601~22.04.1"
+    },
+    {
+      "name": "chromium-browser-stable",
+      "version": "135.0.7049.78-1"
+    },
+    {
+      "name": "cmake",
+      "version": "3.22.1-1ubuntu1.22.04.2"
+    },
+    {
+      "name": "cmake-data",
+      "version": "3.22.1-1ubuntu1.22.04.2"
+    },
+    {
+      "name": "coreutils",
+      "version": "8.32-4.1ubuntu1.2"
+    },
+    {
+      "name": "cpp",
+      "version": "4:11.2.0-1ubuntu1"
+    },
+    {
+      "name": "cpp-11",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "curl",
+      "version": "7.81.0-1ubuntu1.27"
+    },
+    {
+      "name": "dash",
+      "version": "0.5.11+git20210903+057cd650a4ed-3build1"
+    },
+    {
+      "name": "dbus",
+      "version": "1.12.20-2ubuntu4.1"
+    },
+    {
+      "name": "dbus-user-session",
+      "version": "1.12.20-2ubuntu4.1"
+    },
+    {
+      "name": "dconf-gsettings-backend",
+      "version": "0.40.0-3ubuntu0.1"
+    },
+    {
+      "name": "dconf-service",
+      "version": "0.40.0-3ubuntu0.1"
+    },
+    {
+      "name": "debconf",
+      "version": "1.5.79ubuntu1"
+    },
+    {
+      "name": "debianutils",
+      "version": "5.5-1ubuntu2"
+    },
+    {
+      "name": "default-libmysqlclient-dev",
+      "version": "1.0.8"
+    },
+    {
+      "name": "dh-elpa-helper",
+      "version": "2.0.9ubuntu1"
+    },
+    {
+      "name": "diffutils",
+      "version": "1:3.8-0ubuntu2"
+    },
+    {
+      "name": "dirmngr",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "distro-info-data",
+      "version": "0.52ubuntu0.11"
+    },
+    {
+      "name": "dpkg",
+      "version": "1.21.1ubuntu2.6"
+    },
+    {
+      "name": "dpkg-dev",
+      "version": "1.21.1ubuntu2.6"
+    },
+    {
+      "name": "e2fsprogs",
+      "version": "1.46.5-2ubuntu1.2"
+    },
+    {
+      "name": "emacsen-common",
+      "version": "3.0.4"
+    },
+    {
+      "name": "ffmpeg",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "file",
+      "version": "1:5.41-3ubuntu0.1"
+    },
+    {
+      "name": "findutils",
+      "version": "4.8.0-1ubuntu3"
+    },
+    {
+      "name": "fontconfig",
+      "version": "2.13.1-4.2ubuntu5"
+    },
+    {
+      "name": "fontconfig-config",
+      "version": "2.13.1-4.2ubuntu5"
+    },
+    {
+      "name": "fonts-arphic-ukai",
+      "version": "0.2.20080216.2-5"
+    },
+    {
+      "name": "fonts-arphic-uming",
+      "version": "0.2.20080216.2-10ubuntu2"
+    },
+    {
+      "name": "fonts-beng",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-beng-extra",
+      "version": "3.2.1-1"
+    },
+    {
+      "name": "fonts-dejavu",
+      "version": "2.37-2build1"
+    },
+    {
+      "name": "fonts-dejavu-core",
+      "version": "2.37-2build1"
+    },
+    {
+      "name": "fonts-dejavu-extra",
+      "version": "2.37-2build1"
+    },
+    {
+      "name": "fonts-deva",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-deva-extra",
+      "version": "3.0-5"
+    },
+    {
+      "name": "fonts-freefont-ttf",
+      "version": "20120503-10build1"
+    },
+    {
+      "name": "fonts-gargi",
+      "version": "2.0-5"
+    },
+    {
+      "name": "fonts-gubbi",
+      "version": "1.3-5build1"
+    },
+    {
+      "name": "fonts-gujr",
+      "version": "2:1.4"
+    },
+    {
+      "name": "fonts-gujr-extra",
+      "version": "1.0.1-1"
+    },
+    {
+      "name": "fonts-guru",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-guru-extra",
+      "version": "2.0-5"
+    },
+    {
+      "name": "fonts-indic",
+      "version": "2:1.4"
+    },
+    {
+      "name": "fonts-ipafont-gothic",
+      "version": "00303-21ubuntu1"
+    },
+    {
+      "name": "fonts-ipafont-mincho",
+      "version": "00303-21ubuntu1"
+    },
+    {
+      "name": "fonts-kalapi",
+      "version": "1.0-4"
+    },
+    {
+      "name": "fonts-knda",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-liberation",
+      "version": "1:1.07.4-11"
+    },
+    {
+      "name": "fonts-lohit-beng-assamese",
+      "version": "2.91.5-2"
+    },
+    {
+      "name": "fonts-lohit-beng-bengali",
+      "version": "2.91.5-2"
+    },
+    {
+      "name": "fonts-lohit-deva",
+      "version": "2.95.4-4"
+    },
+    {
+      "name": "fonts-lohit-gujr",
+      "version": "2.92.4-4"
+    },
+    {
+      "name": "fonts-lohit-guru",
+      "version": "2.91.2-2build1"
+    },
+    {
+      "name": "fonts-lohit-knda",
+      "version": "2.5.4-3"
+    },
+    {
+      "name": "fonts-lohit-mlym",
+      "version": "2.92.2-2"
+    },
+    {
+      "name": "fonts-lohit-orya",
+      "version": "2.91.2-2"
+    },
+    {
+      "name": "fonts-lohit-taml",
+      "version": "2.91.3-2"
+    },
+    {
+      "name": "fonts-lohit-taml-classical",
+      "version": "2.5.4-2"
+    },
+    {
+      "name": "fonts-lohit-telu",
+      "version": "2.5.5-2build1"
+    },
+    {
+      "name": "fonts-mlym",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-nakula",
+      "version": "1.0-4"
+    },
+    {
+      "name": "fonts-navilu",
+      "version": "1.2-3"
+    },
+    {
+      "name": "fonts-noto-cjk",
+      "version": "1:20220127+repack1-1"
+    },
+    {
+      "name": "fonts-noto-cjk-extra",
+      "version": "1:20220127+repack1-1"
+    },
+    {
+      "name": "fonts-noto-color-emoji",
+      "version": "2.047-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "fonts-orya",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-orya-extra",
+      "version": "2.0-6"
+    },
+    {
+      "name": "fonts-pagul",
+      "version": "1.0-8"
+    },
+    {
+      "name": "fonts-sahadeva",
+      "version": "1.0-5"
+    },
+    {
+      "name": "fonts-samyak-deva",
+      "version": "1.2.2-5build1"
+    },
+    {
+      "name": "fonts-samyak-gujr",
+      "version": "1.2.2-5build1"
+    },
+    {
+      "name": "fonts-samyak-mlym",
+      "version": "1.2.2-5build1"
+    },
+    {
+      "name": "fonts-samyak-taml",
+      "version": "1.2.2-5build1"
+    },
+    {
+      "name": "fonts-smc",
+      "version": "1:7.2"
+    },
+    {
+      "name": "fonts-smc-anjalioldlipi",
+      "version": "7.1.2-2"
+    },
+    {
+      "name": "fonts-smc-chilanka",
+      "version": "1.540-1"
+    },
+    {
+      "name": "fonts-smc-dyuthi",
+      "version": "3.0.2-2"
+    },
+    {
+      "name": "fonts-smc-gayathri",
+      "version": "1.110-2-1"
+    },
+    {
+      "name": "fonts-smc-karumbi",
+      "version": "1.1.2-2"
+    },
+    {
+      "name": "fonts-smc-keraleeyam",
+      "version": "3.0.2-2"
+    },
+    {
+      "name": "fonts-smc-manjari",
+      "version": "2.000-3"
+    },
+    {
+      "name": "fonts-smc-meera",
+      "version": "7.0.3-1"
+    },
+    {
+      "name": "fonts-smc-rachana",
+      "version": "7.0.2-1build1"
+    },
+    {
+      "name": "fonts-smc-raghumalayalamsans",
+      "version": "2.2.1-1"
+    },
+    {
+      "name": "fonts-smc-suruma",
+      "version": "3.2.3-1"
+    },
+    {
+      "name": "fonts-smc-uroob",
+      "version": "2.0.2-1"
+    },
+    {
+      "name": "fonts-takao-mincho",
+      "version": "00303.01-3ubuntu1"
+    },
+    {
+      "name": "fonts-taml",
+      "version": "2:1.4"
+    },
+    {
+      "name": "fonts-telu",
+      "version": "2:1.3"
+    },
+    {
+      "name": "fonts-telu-extra",
+      "version": "2.0-5"
+    },
+    {
+      "name": "fonts-teluguvijayam",
+      "version": "2.1-1"
+    },
+    {
+      "name": "fonts-tlwg-loma-otf",
+      "version": "1:0.7.3-1"
+    },
+    {
+      "name": "fonts-unfonts-core",
+      "version": "1:1.0.2-080608-16"
+    },
+    {
+      "name": "fonts-unifont",
+      "version": "1:14.0.01-1"
+    },
+    {
+      "name": "fonts-wqy-microhei",
+      "version": "0.2.0-beta-3.1"
+    },
+    {
+      "name": "fonts-wqy-zenhei",
+      "version": "0.9.45-8"
+    },
+    {
+      "name": "fonts-yrsa-rasa",
+      "version": "2.005-1"
+    },
+    {
+      "name": "freeglut3",
+      "version": "2.8.1-6"
+    },
+    {
+      "name": "freeglut3-dev",
+      "version": "2.8.1-6"
+    },
+    {
+      "name": "g++",
+      "version": "4:11.2.0-1ubuntu1"
+    },
+    {
+      "name": "g++-11",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "gawk",
+      "version": "1:5.1.0-1ubuntu0.1"
+    },
+    {
+      "name": "gcc",
+      "version": "4:11.2.0-1ubuntu1"
+    },
+    {
+      "name": "gcc-11",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "gcc-11-base",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "gcc-12-base",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "gdal-bin",
+      "version": "3.4.1+dfsg-1build4"
+    },
+    {
+      "name": "gdal-data",
+      "version": "3.4.1+dfsg-1build4"
+    },
+    {
+      "name": "gettext",
+      "version": "0.21-4ubuntu4"
+    },
+    {
+      "name": "gettext-base",
+      "version": "0.21-4ubuntu4"
+    },
+    {
+      "name": "gh",
+      "version": "2.4.0+dfsg1-2"
+    },
+    {
+      "name": "gir1.2-freedesktop",
+      "version": "1.72.0-1"
+    },
+    {
+      "name": "gir1.2-glib-2.0",
+      "version": "1.72.0-1"
+    },
+    {
+      "name": "gir1.2-harfbuzz-0.0",
+      "version": "2.7.4-1ubuntu3.2"
+    },
+    {
+      "name": "gir1.2-packagekitglib-1.0",
+      "version": "1.2.5-2ubuntu3"
+    },
+    {
+      "name": "gir1.2-pango-1.0",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "git",
+      "version": "1:2.34.1-1ubuntu1.17"
+    },
+    {
+      "name": "git-man",
+      "version": "1:2.34.1-1ubuntu1.15"
+    },
+    {
+      "name": "gnome-screenshot",
+      "version": "41.0-2"
+    },
+    {
+      "name": "gnupg",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gnupg-l10n",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gnupg-utils",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gnupg2",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpg",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpg-agent",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpg-wks-client",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpg-wks-server",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpgconf",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpgsm",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "gpgv",
+      "version": "2.2.27-3ubuntu2.5"
+    },
+    {
+      "name": "grep",
+      "version": "3.7-1build1"
+    },
+    {
+      "name": "gtk-update-icon-cache",
+      "version": "3.24.33-1ubuntu2.2"
+    },
+    {
+      "name": "gzip",
+      "version": "1.10-4ubuntu4.1"
+    },
+    {
+      "name": "hdf5-helpers",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "hicolor-icon-theme",
+      "version": "0.17-2"
+    },
+    {
+      "name": "hostname",
+      "version": "3.23ubuntu2"
+    },
+    {
+      "name": "htop",
+      "version": "3.0.5-7build2"
+    },
+    {
+      "name": "humanity-icon-theme",
+      "version": "0.6.16"
+    },
+    {
+      "name": "icu-devtools",
+      "version": "70.1-2"
+    },
+    {
+      "name": "imagemagick",
+      "version": "8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5"
+    },
+    {
+      "name": "imagemagick-6-common",
+      "version": "8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5"
+    },
+    {
+      "name": "imagemagick-6.q16",
+      "version": "8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5"
+    },
+    {
+      "name": "init-system-helpers",
+      "version": "1.62"
+    },
+    {
+      "name": "iproute2",
+      "version": "5.15.0-1ubuntu2"
+    },
+    {
+      "name": "iputils-ping",
+      "version": "3:20211215-1ubuntu0.1"
+    },
+    {
+      "name": "iso-codes",
+      "version": "4.9.0-1"
+    },
+    {
+      "name": "jq",
+      "version": "1.6-2.1ubuntu3.1"
+    },
+    {
+      "name": "less",
+      "version": "590-1ubuntu0.22.04.3"
+    },
+    {
+      "name": "libacl1",
+      "version": "2.3.1-1"
+    },
+    {
+      "name": "libaec-dev",
+      "version": "1.0.6-1"
+    },
+    {
+      "name": "libaec0",
+      "version": "1.0.6-1"
+    },
+    {
+      "name": "libaom-dev",
+      "version": "3.3.0-1ubuntu0.1"
+    },
+    {
+      "name": "libaom3",
+      "version": "3.3.0-1ubuntu0.1"
+    },
+    {
+      "name": "libapparmor1",
+      "version": "3.0.4-2ubuntu2.4"
+    },
+    {
+      "name": "libappstream4",
+      "version": "0.15.2-2"
+    },
+    {
+      "name": "libapt-pkg6.0",
+      "version": "2.4.14"
+    },
+    {
+      "name": "libarchive13",
+      "version": "3.6.0-1ubuntu1.5"
+    },
+    {
+      "name": "libargon2-1",
+      "version": "0~20171227-0.3"
+    },
+    {
+      "name": "libarmadillo-dev",
+      "version": "1:10.8.2+dfsg-1"
+    },
+    {
+      "name": "libarmadillo10",
+      "version": "1:10.8.2+dfsg-1"
+    },
+    {
+      "name": "libarpack2",
+      "version": "3.8.0-1"
+    },
+    {
+      "name": "libarpack2-dev",
+      "version": "3.8.0-1"
+    },
+    {
+      "name": "libasan6",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libasound2",
+      "version": "1.2.6.1-1ubuntu1.2"
+    },
+    {
+      "name": "libasound2-data",
+      "version": "1.2.6.1-1ubuntu1.2"
+    },
+    {
+      "name": "libass9",
+      "version": "1:0.15.2-1"
+    },
+    {
+      "name": "libassuan0",
+      "version": "2.5.5-1build1"
+    },
+    {
+      "name": "libasyncns0",
+      "version": "0.8-6build2"
+    },
+    {
+      "name": "libatk-bridge2.0-0",
+      "version": "2.38.0-3"
+    },
+    {
+      "name": "libatk1.0-0",
+      "version": "2.36.0-3build1"
+    },
+    {
+      "name": "libatk1.0-data",
+      "version": "2.36.0-3build1"
+    },
+    {
+      "name": "libatomic1",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libatspi2.0-0",
+      "version": "2.44.0-3"
+    },
+    {
+      "name": "libattr1",
+      "version": "1:2.5.1-1build1"
+    },
+    {
+      "name": "libaudit-common",
+      "version": "1:3.0.7-1build1"
+    },
+    {
+      "name": "libaudit1",
+      "version": "1:3.0.7-1build1"
+    },
+    {
+      "name": "libauthen-sasl-perl",
+      "version": "2.1600-1.1"
+    },
+    {
+      "name": "libavahi-client3",
+      "version": "0.8-5ubuntu5.2"
+    },
+    {
+      "name": "libavahi-common-data",
+      "version": "0.8-5ubuntu5.2"
+    },
+    {
+      "name": "libavahi-common3",
+      "version": "0.8-5ubuntu5.2"
+    },
+    {
+      "name": "libavc1394-0",
+      "version": "0.5.4-5build2"
+    },
+    {
+      "name": "libavcodec58",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libavdevice58",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libavfilter7",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libavformat58",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libavutil56",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libbcg729-0",
+      "version": "1.1.1-2"
+    },
+    {
+      "name": "libbinutils",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "libblas-dev",
+      "version": "3.10.0-2ubuntu1"
+    },
+    {
+      "name": "libblas3",
+      "version": "3.10.0-2ubuntu1"
+    },
+    {
+      "name": "libblkid-dev",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libblkid1",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libblosc-dev",
+      "version": "1.21.1+ds2-2"
+    },
+    {
+      "name": "libblosc1",
+      "version": "1.21.1+ds2-2"
+    },
+    {
+      "name": "libbluray2",
+      "version": "1:1.3.1-1"
+    },
+    {
+      "name": "libboost-dev",
+      "version": "1.74.0.3ubuntu7"
+    },
+    {
+      "name": "libboost1.74-dev",
+      "version": "1.74.0-14ubuntu3"
+    },
+    {
+      "name": "libbpf0",
+      "version": "1:0.5.0-1ubuntu22.04.1"
+    },
+    {
+      "name": "libbroker-dev",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "libbrotli-dev",
+      "version": "1.0.9-2build6"
+    },
+    {
+      "name": "libbrotli1",
+      "version": "1.0.9-2build6"
+    },
+    {
+      "name": "libbs2b0",
+      "version": "3.1.0+dfsg-2.2build1"
+    },
+    {
+      "name": "libbsd0",
+      "version": "0.11.5-1"
+    },
+    {
+      "name": "libbz2-1.0",
+      "version": "1.0.8-5build1"
+    },
+    {
+      "name": "libc-ares2",
+      "version": "1.18.1-1ubuntu0.22.04.3"
+    },
+    {
+      "name": "libc-bin",
+      "version": "2.35-0ubuntu3.11"
+    },
+    {
+      "name": "libc-dev-bin",
+      "version": "2.35-0ubuntu3.11"
+    },
+    {
+      "name": "libc6",
+      "version": "2.35-0ubuntu3.11"
+    },
+    {
+      "name": "libc6-dev",
+      "version": "2.35-0ubuntu3.11"
+    },
+    {
+      "name": "libcaca0",
+      "version": "0.99.beta19-2.2ubuntu4"
+    },
+    {
+      "name": "libcairo-gobject2",
+      "version": "1.16.0-5ubuntu2.1"
+    },
+    {
+      "name": "libcairo-script-interpreter2",
+      "version": "1.16.0-5ubuntu2.1"
+    },
+    {
+      "name": "libcairo2",
+      "version": "1.16.0-5ubuntu2.1"
+    },
+    {
+      "name": "libcairo2-dev",
+      "version": "1.16.0-5ubuntu2.1"
+    },
+    {
+      "name": "libcap-ng0",
+      "version": "0.7.9-2.2build3"
+    },
+    {
+      "name": "libcap2",
+      "version": "1:2.44-1ubuntu0.22.04.2"
+    },
+    {
+      "name": "libcap2-bin",
+      "version": "1:2.44-1ubuntu0.22.04.2"
+    },
+    {
+      "name": "libcbor0.8",
+      "version": "0.8.0-2ubuntu1"
+    },
+    {
+      "name": "libcc1-0",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libcdio-cdda2",
+      "version": "10.2+2.0.0-1build3"
+    },
+    {
+      "name": "libcdio-paranoia2",
+      "version": "10.2+2.0.0-1build3"
+    },
+    {
+      "name": "libcdio19",
+      "version": "2.1.0-3ubuntu0.2"
+    },
+    {
+      "name": "libcfitsio-dev",
+      "version": "4.0.0-1"
+    },
+    {
+      "name": "libcfitsio9",
+      "version": "4.0.0-1"
+    },
+    {
+      "name": "libcharls-dev",
+      "version": "2.3.4-1"
+    },
+    {
+      "name": "libcharls2",
+      "version": "2.3.4-1"
+    },
+    {
+      "name": "libchromaprint1",
+      "version": "1.5.1-2"
+    },
+    {
+      "name": "libclone-perl",
+      "version": "0.45-1build3"
+    },
+    {
+      "name": "libcodec2-1.0",
+      "version": "1.0.1-3"
+    },
+    {
+      "name": "libcolord2",
+      "version": "1.4.6-1"
+    },
+    {
+      "name": "libcom-err2",
+      "version": "1.46.5-2ubuntu1.2"
+    },
+    {
+      "name": "libcrypt-dev",
+      "version": "1:4.4.27-1"
+    },
+    {
+      "name": "libcrypt1",
+      "version": "1:4.4.27-1"
+    },
+    {
+      "name": "libcryptsetup12",
+      "version": "2:2.4.3-1ubuntu1.3"
+    },
+    {
+      "name": "libctf-nobfd0",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "libctf0",
+      "version": "2.38-4ubuntu2.11"
+    },
+    {
+      "name": "libcups2",
+      "version": "2.4.1op1-1ubuntu4.21"
+    },
+    {
+      "name": "libcurl3-gnutls",
+      "version": "7.81.0-1ubuntu1.21"
+    },
+    {
+      "name": "libcurl4",
+      "version": "7.81.0-1ubuntu1.27"
+    },
+    {
+      "name": "libcurl4-openssl-dev",
+      "version": "7.81.0-1ubuntu1.27"
+    },
+    {
+      "name": "libdata-dump-perl",
+      "version": "1.25-1"
+    },
+    {
+      "name": "libdatrie-dev",
+      "version": "0.2.13-2"
+    },
+    {
+      "name": "libdatrie1",
+      "version": "0.2.13-2"
+    },
+    {
+      "name": "libdav1d-dev",
+      "version": "0.9.2-1"
+    },
+    {
+      "name": "libdav1d5",
+      "version": "0.9.2-1"
+    },
+    {
+      "name": "libdb5.3",
+      "version": "5.3.28+dfsg1-0.8ubuntu3"
+    },
+    {
+      "name": "libdbus-1-3",
+      "version": "1.12.20-2ubuntu4.1"
+    },
+    {
+      "name": "libdbus-1-dev",
+      "version": "1.12.20-2ubuntu4.1"
+    },
+    {
+      "name": "libdc1394-25",
+      "version": "2.2.6-4"
+    },
+    {
+      "name": "libdconf1",
+      "version": "0.40.0-3ubuntu0.1"
+    },
+    {
+      "name": "libde265-0",
+      "version": "1.0.8-1ubuntu0.3"
+    },
+    {
+      "name": "libde265-dev",
+      "version": "1.0.8-1ubuntu0.3"
+    },
+    {
+      "name": "libdebconfclient0",
+      "version": "0.261ubuntu1"
+    },
+    {
+      "name": "libdecor-0-0",
+      "version": "0.1.0-3build1"
+    },
+    {
+      "name": "libdeflate-dev",
+      "version": "1.10-2"
+    },
+    {
+      "name": "libdeflate0",
+      "version": "1.10-2"
+    },
+    {
+      "name": "libdevmapper1.02.1",
+      "version": "2:1.02.175-2.1ubuntu5"
+    },
+    {
+      "name": "libdouble-conversion3",
+      "version": "3.1.7-4"
+    },
+    {
+      "name": "libdpkg-perl",
+      "version": "1.21.1ubuntu2.6"
+    },
+    {
+      "name": "libdrm-amdgpu1",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdrm-common",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdrm-intel1",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdrm-nouveau2",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdrm-radeon1",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdrm2",
+      "version": "2.4.113-2~ubuntu0.22.04.1"
+    },
+    {
+      "name": "libdw1",
+      "version": "0.186-1ubuntu0.1"
+    },
+    {
+      "name": "libedit2",
+      "version": "3.1-20210910-1build1"
+    },
+    {
+      "name": "libegl-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libegl-mesa0",
+      "version": "23.2.1-1ubuntu3.1~22.04.4"
+    },
+    {
+      "name": "libegl1",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libelf1",
+      "version": "0.186-1ubuntu0.1"
+    },
+    {
+      "name": "libencode-locale-perl",
+      "version": "1.05-1.1"
+    },
+    {
+      "name": "libepoxy0",
+      "version": "1.5.10-1"
+    },
+    {
+      "name": "liberror-perl",
+      "version": "0.17029-1"
+    },
+    {
+      "name": "libevdev2",
+      "version": "1.12.1+dfsg-1"
+    },
+    {
+      "name": "libevent-core-2.1-7",
+      "version": "2.1.12-stable-1build3"
+    },
+    {
+      "name": "libexpat1",
+      "version": "2.4.7-1ubuntu0.6"
+    },
+    {
+      "name": "libexpat1-dev",
+      "version": "2.4.7-1ubuntu0.6"
+    },
+    {
+      "name": "libext2fs2",
+      "version": "1.46.5-2ubuntu1.2"
+    },
+    {
+      "name": "libffi-dev",
+      "version": "3.4.2-4"
+    },
+    {
+      "name": "libffi8",
+      "version": "3.4.2-4"
+    },
+    {
+      "name": "libfftw3-double3",
+      "version": "3.3.8-2ubuntu8"
+    },
+    {
+      "name": "libfido2-1",
+      "version": "1.10.0-1"
+    },
+    {
+      "name": "libfile-basedir-perl",
+      "version": "0.09-1"
+    },
+    {
+      "name": "libfile-desktopentry-perl",
+      "version": "0.22-2"
+    },
+    {
+      "name": "libfile-listing-perl",
+      "version": "6.14-1"
+    },
+    {
+      "name": "libfile-mimeinfo-perl",
+      "version": "0.31-1"
+    },
+    {
+      "name": "libfile-readbackwards-perl",
+      "version": "1.06-1"
+    },
+    {
+      "name": "libflac8",
+      "version": "1.3.3-2ubuntu0.2"
+    },
+    {
+      "name": "libflite1",
+      "version": "2.2-3"
+    },
+    {
+      "name": "libfont-afm-perl",
+      "version": "1.20-3"
+    },
+    {
+      "name": "libfontconfig-dev",
+      "version": "2.13.1-4.2ubuntu5"
+    },
+    {
+      "name": "libfontconfig1",
+      "version": "2.13.1-4.2ubuntu5"
+    },
+    {
+      "name": "libfontconfig1-dev",
+      "version": "2.13.1-4.2ubuntu5"
+    },
+    {
+      "name": "libfontenc1",
+      "version": "1:1.1.4-1build3"
+    },
+    {
+      "name": "libfreetype-dev",
+      "version": "2.11.1+dfsg-1ubuntu0.3"
+    },
+    {
+      "name": "libfreetype6",
+      "version": "2.11.1+dfsg-1ubuntu0.3"
+    },
+    {
+      "name": "libfreetype6-dev",
+      "version": "2.11.1+dfsg-1ubuntu0.3"
+    },
+    {
+      "name": "libfreexl-dev",
+      "version": "1.0.6-1"
+    },
+    {
+      "name": "libfreexl1",
+      "version": "1.0.6-1"
+    },
+    {
+      "name": "libfribidi-dev",
+      "version": "1.0.8-2ubuntu3.1"
+    },
+    {
+      "name": "libfribidi0",
+      "version": "1.0.8-2ubuntu3.1"
+    },
+    {
+      "name": "libfyba-dev",
+      "version": "4.1.1-7"
+    },
+    {
+      "name": "libfyba0",
+      "version": "4.1.1-7"
+    },
+    {
+      "name": "libgbm1",
+      "version": "23.2.1-1ubuntu3.1~22.04.4"
+    },
+    {
+      "name": "libgcc-11-dev",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libgcc-s1",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libgcrypt20",
+      "version": "1.9.4-3ubuntu3"
+    },
+    {
+      "name": "libgd3",
+      "version": "2.3.0-2ubuntu2.3"
+    },
+    {
+      "name": "libgdal-dev",
+      "version": "3.4.1+dfsg-1build4"
+    },
+    {
+      "name": "libgdal30",
+      "version": "3.4.1+dfsg-1build4"
+    },
+    {
+      "name": "libgdbm-compat4",
+      "version": "1.23-1"
+    },
+    {
+      "name": "libgdbm6",
+      "version": "1.23-1"
+    },
+    {
+      "name": "libgdk-pixbuf-2.0-0",
+      "version": "2.42.8+dfsg-1ubuntu0.4"
+    },
+    {
+      "name": "libgdk-pixbuf2.0-common",
+      "version": "2.42.8+dfsg-1ubuntu0.4"
+    },
+    {
+      "name": "libgeos-c1v5",
+      "version": "3.10.2-1"
+    },
+    {
+      "name": "libgeos-dev",
+      "version": "3.10.2-1"
+    },
+    {
+      "name": "libgeos3.10.2",
+      "version": "3.10.2-1"
+    },
+    {
+      "name": "libgeotiff-dev",
+      "version": "1.7.0-2build1"
+    },
+    {
+      "name": "libgeotiff5",
+      "version": "1.7.0-2build1"
+    },
+    {
+      "name": "libgfortran5",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libgif-dev",
+      "version": "5.1.9-2ubuntu0.3"
+    },
+    {
+      "name": "libgif7",
+      "version": "5.1.9-2ubuntu0.3"
+    },
+    {
+      "name": "libgirepository-1.0-1",
+      "version": "1.72.0-1"
+    },
+    {
+      "name": "libgl-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libgl1",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libgl1-mesa-dev",
+      "version": "23.2.1-1ubuntu3.1~22.04.3"
+    },
+    {
+      "name": "libgl1-mesa-dri",
+      "version": "23.2.1-1ubuntu3.1~22.04.4"
+    },
+    {
+      "name": "libglapi-mesa",
+      "version": "23.2.1-1ubuntu3.1~22.04.4"
+    },
+    {
+      "name": "libgles-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libgles1",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libgles2",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libglib2.0-0",
+      "version": "2.72.4-0ubuntu2.9"
+    },
+    {
+      "name": "libglib2.0-bin",
+      "version": "2.72.4-0ubuntu2.9"
+    },
+    {
+      "name": "libglib2.0-data",
+      "version": "2.72.4-0ubuntu2.6"
+    },
+    {
+      "name": "libglib2.0-dev",
+      "version": "2.72.4-0ubuntu2.9"
+    },
+    {
+      "name": "libglib2.0-dev-bin",
+      "version": "2.72.4-0ubuntu2.9"
+    },
+    {
+      "name": "libglu1-mesa",
+      "version": "9.0.2-1"
+    },
+    {
+      "name": "libglu1-mesa-dev",
+      "version": "9.0.2-1"
+    },
+    {
+      "name": "libglvnd-core-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libglvnd-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libglvnd0",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libglx-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libglx-mesa0",
+      "version": "23.2.1-1ubuntu3.1~22.04.4"
+    },
+    {
+      "name": "libglx0",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libgme0",
+      "version": "0.6.3-2"
+    },
+    {
+      "name": "libgmp10",
+      "version": "2:6.2.1+dfsg-3ubuntu1"
+    },
+    {
+      "name": "libgnutls30",
+      "version": "3.7.3-4ubuntu1.7"
+    },
+    {
+      "name": "libgomp1",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libgpg-error0",
+      "version": "1.43-3"
+    },
+    {
+      "name": "libgpm2",
+      "version": "1.20.7-10build1"
+    },
+    {
+      "name": "libgraphite2-3",
+      "version": "1.3.14-1build2"
+    },
+    {
+      "name": "libgraphite2-dev",
+      "version": "1.3.14-1build2"
+    },
+    {
+      "name": "libgsm1",
+      "version": "1.0.19-1"
+    },
+    {
+      "name": "libgssapi-krb5-2",
+      "version": "1.19.2-2ubuntu0.7"
+    },
+    {
+      "name": "libgstreamer-plugins-base1.0-0",
+      "version": "1.20.1-1ubuntu0.6"
+    },
+    {
+      "name": "libgstreamer1.0-0",
+      "version": "1.20.3-0ubuntu1.1"
+    },
+    {
+      "name": "libgtk-3-0",
+      "version": "3.24.33-1ubuntu2.2"
+    },
+    {
+      "name": "libgtk-3-common",
+      "version": "3.24.33-1ubuntu2.2"
+    },
+    {
+      "name": "libgtkd-3-0",
+      "version": "3.10.0-1ubuntu1"
+    },
+    {
+      "name": "libgudev-1.0-0",
+      "version": "1:237-2build1"
+    },
+    {
+      "name": "libhandy-1-0",
+      "version": "1.6.1-1"
+    },
+    {
+      "name": "libharfbuzz-dev",
+      "version": "2.7.4-1ubuntu3.2"
+    },
+    {
+      "name": "libharfbuzz-gobject0",
+      "version": "2.7.4-1ubuntu3.2"
+    },
+    {
+      "name": "libharfbuzz-icu0",
+      "version": "2.7.4-1ubuntu3.2"
+    },
+    {
+      "name": "libharfbuzz0b",
+      "version": "2.7.4-1ubuntu3.2"
+    },
+    {
+      "name": "libhdf4-0-alt",
+      "version": "4.2.15-4"
+    },
+    {
+      "name": "libhdf4-alt-dev",
+      "version": "4.2.15-4"
+    },
+    {
+      "name": "libhdf5-103-1",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-cpp-103-1",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-dev",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-fortran-102",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-hl-100",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-hl-cpp-100",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libhdf5-hl-fortran-100",
+      "version": "1.10.7+repack-4ubuntu2"
+    },
+    {
+      "name": "libheif-dev",
+      "version": "1.12.0-2build1"
+    },
+    {
+      "name": "libheif1",
+      "version": "1.12.0-2build1"
+    },
+    {
+      "name": "libhogweed6",
+      "version": "3.7.3-1build2"
+    },
+    {
+      "name": "libhtml-form-perl",
+      "version": "6.07-1"
+    },
+    {
+      "name": "libhtml-format-perl",
+      "version": "2.12-1.1"
+    },
+    {
+      "name": "libhtml-parser-perl",
+      "version": "3.76-1build2"
+    },
+    {
+      "name": "libhtml-tagset-perl",
+      "version": "3.20-4"
+    },
+    {
+      "name": "libhtml-tree-perl",
+      "version": "5.07-2"
+    },
+    {
+      "name": "libhttp-cookies-perl",
+      "version": "6.10-1"
+    },
+    {
+      "name": "libhttp-daemon-perl",
+      "version": "6.13-1ubuntu0.1"
+    },
+    {
+      "name": "libhttp-date-perl",
+      "version": "6.05-1"
+    },
+    {
+      "name": "libhttp-message-perl",
+      "version": "6.36-1"
+    },
+    {
+      "name": "libhttp-negotiate-perl",
+      "version": "6.01-1"
+    },
+    {
+      "name": "libhyphen0",
+      "version": "2.8.8-7build2"
+    },
+    {
+      "name": "libice-dev",
+      "version": "2:1.0.10-1build2"
+    },
+    {
+      "name": "libice6",
+      "version": "2:1.0.10-1build2"
+    },
+    {
+      "name": "libicu-dev",
+      "version": "70.1-2"
+    },
+    {
+      "name": "libicu70",
+      "version": "70.1-2"
+    },
+    {
+      "name": "libid3tag0",
+      "version": "0.15.1b-14"
+    },
+    {
+      "name": "libidn2-0",
+      "version": "2.3.2-2build1"
+    },
+    {
+      "name": "libiec61883-0",
+      "version": "1.2.0-4build3"
+    },
+    {
+      "name": "libimlib2",
+      "version": "1.7.4-1build1"
+    },
+    {
+      "name": "libinput-bin",
+      "version": "1.20.0-1ubuntu0.4"
+    },
+    {
+      "name": "libinput10",
+      "version": "1.20.0-1ubuntu0.4"
+    },
+    {
+      "name": "libio-html-perl",
+      "version": "1.004-2"
+    },
+    {
+      "name": "libio-socket-ssl-perl",
+      "version": "2.074-2"
+    },
+    {
+      "name": "libio-stringy-perl",
+      "version": "2.111-3"
+    },
+    {
+      "name": "libip4tc2",
+      "version": "1.8.7-1ubuntu5.2"
+    },
+    {
+      "name": "libipc-system-simple-perl",
+      "version": "1.30-1"
+    },
+    {
+      "name": "libisl23",
+      "version": "0.24-2build1"
+    },
+    {
+      "name": "libitm1",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libjack-jackd2-0",
+      "version": "1.9.20~dfsg-1"
+    },
+    {
+      "name": "libjbig-dev",
+      "version": "2.1-3.1ubuntu0.22.04.1"
+    },
+    {
+      "name": "libjbig0",
+      "version": "2.1-3.1ubuntu0.22.04.1"
+    },
+    {
+      "name": "libjpeg-dev",
+      "version": "8c-2ubuntu10"
+    },
+    {
+      "name": "libjpeg-turbo8",
+      "version": "2.1.2-0ubuntu1"
+    },
+    {
+      "name": "libjpeg-turbo8-dev",
+      "version": "2.1.2-0ubuntu1"
+    },
+    {
+      "name": "libjpeg8",
+      "version": "8c-2ubuntu10"
+    },
+    {
+      "name": "libjpeg8-dev",
+      "version": "8c-2ubuntu10"
+    },
+    {
+      "name": "libjq1",
+      "version": "1.6-2.1ubuntu3.1"
+    },
+    {
+      "name": "libjs-jquery",
+      "version": "3.6.0+dfsg+~3.5.13-1"
+    },
+    {
+      "name": "libjs-sphinxdoc",
+      "version": "4.3.2-1"
+    },
+    {
+      "name": "libjs-underscore",
+      "version": "1.13.2~dfsg-2"
+    },
+    {
+      "name": "libjson-c-dev",
+      "version": "0.15-3~ubuntu1.22.04.2"
+    },
+    {
+      "name": "libjson-c5",
+      "version": "0.15-3~ubuntu1.22.04.2"
+    },
+    {
+      "name": "libjsoncpp25",
+      "version": "1.9.5-3"
+    },
+    {
+      "name": "libk5crypto3",
+      "version": "1.19.2-2ubuntu0.7"
+    },
+    {
+      "name": "libkeyutils1",
+      "version": "1.6.1-2ubuntu3"
+    },
+    {
+      "name": "libkml-dev",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmlbase1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmlconvenience1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmldom1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmlengine1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmlregionator1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmlxsd1",
+      "version": "1.3.0-9"
+    },
+    {
+      "name": "libkmod2",
+      "version": "29-1ubuntu1"
+    },
+    {
+      "name": "libkrb5-3",
+      "version": "1.19.2-2ubuntu0.7"
+    },
+    {
+      "name": "libkrb5support0",
+      "version": "1.19.2-2ubuntu0.7"
+    },
+    {
+      "name": "libksba8",
+      "version": "1.6.0-2ubuntu0.2"
+    },
+    {
+      "name": "liblapack-dev",
+      "version": "3.10.0-2ubuntu1"
+    },
+    {
+      "name": "liblapack3",
+      "version": "3.10.0-2ubuntu1"
+    },
+    {
+      "name": "liblcms2-2",
+      "version": "2.12~rc1-2build2"
+    },
+    {
+      "name": "libldap-2.5-0",
+      "version": "2.5.19+dfsg-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "liblilv-0-0",
+      "version": "0.24.12-2"
+    },
+    {
+      "name": "liblinear4",
+      "version": "2.3.0+dfsg-5"
+    },
+    {
+      "name": "libllvm11",
+      "version": "1:11.1.0-6"
+    },
+    {
+      "name": "libllvm15",
+      "version": "1:15.0.7-0ubuntu0.22.04.3"
+    },
+    {
+      "name": "liblqr-1-0",
+      "version": "0.4.2-2.1"
+    },
+    {
+      "name": "liblsan0",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libltdl-dev",
+      "version": "2.4.6-15build2"
+    },
+    {
+      "name": "libltdl7",
+      "version": "2.4.6-15build2"
+    },
+    {
+      "name": "liblua5.2-0",
+      "version": "5.2.4-2"
+    },
+    {
+      "name": "liblua5.3-0",
+      "version": "5.3.6-1build1"
+    },
+    {
+      "name": "liblwp-mediatypes-perl",
+      "version": "6.04-1"
+    },
+    {
+      "name": "liblwp-protocol-https-perl",
+      "version": "6.10-1"
+    },
+    {
+      "name": "liblz4-1",
+      "version": "1.9.3-2build2"
+    },
+    {
+      "name": "liblz4-dev",
+      "version": "1.9.3-2build2"
+    },
+    {
+      "name": "liblzma-dev",
+      "version": "5.2.5-2ubuntu1.1"
+    },
+    {
+      "name": "liblzma5",
+      "version": "5.2.5-2ubuntu1.1"
+    },
+    {
+      "name": "liblzo2-2",
+      "version": "2.10-2build3"
+    },
+    {
+      "name": "libmagic-mgc",
+      "version": "1:5.41-3ubuntu0.1"
+    },
+    {
+      "name": "libmagic1",
+      "version": "1:5.41-3ubuntu0.1"
+    },
+    {
+      "name": "libmagickcore-6.q16-6",
+      "version": "8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5"
+    },
+    {
+      "name": "libmagickwand-6.q16-6",
+      "version": "8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5"
+    },
+    {
+      "name": "libmailtools-perl",
+      "version": "2.21-1"
+    },
+    {
+      "name": "libmaxminddb-dev",
+      "version": "1.5.2-1build2"
+    },
+    {
+      "name": "libmaxminddb0",
+      "version": "1.5.2-1build2"
+    },
+    {
+      "name": "libmd0",
+      "version": "1.0.4-1build1"
+    },
+    {
+      "name": "libmd4c0",
+      "version": "0.4.8-1"
+    },
+    {
+      "name": "libmfx1",
+      "version": "22.3.0-1"
+    },
+    {
+      "name": "libminizip-dev",
+      "version": "1.1-8build1"
+    },
+    {
+      "name": "libminizip1",
+      "version": "1.1-8build1"
+    },
+    {
+      "name": "libmnl0",
+      "version": "1.0.4-3build2"
+    },
+    {
+      "name": "libmount-dev",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libmount1",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libmp3lame0",
+      "version": "3.100-3build2"
+    },
+    {
+      "name": "libmpc3",
+      "version": "1.2.1-2build1"
+    },
+    {
+      "name": "libmpdec3",
+      "version": "2.5.1-2build2"
+    },
+    {
+      "name": "libmpfr6",
+      "version": "4.1.0-3build3"
+    },
+    {
+      "name": "libmpg123-0",
+      "version": "1.29.3-1ubuntu0.1"
+    },
+    {
+      "name": "libmtdev1",
+      "version": "1.1.6-1build4"
+    },
+    {
+      "name": "libmysofa1",
+      "version": "1.2.1~dfsg0-1"
+    },
+    {
+      "name": "libmysqlclient-dev",
+      "version": "8.0.46-0ubuntu0.22.04.4"
+    },
+    {
+      "name": "libmysqlclient21",
+      "version": "8.0.46-0ubuntu0.22.04.4"
+    },
+    {
+      "name": "libncurses6",
+      "version": "6.3-2ubuntu0.1"
+    },
+    {
+      "name": "libncursesw6",
+      "version": "6.3-2ubuntu0.1"
+    },
+    {
+      "name": "libnet-dbus-perl",
+      "version": "1.2.0-1build3"
+    },
+    {
+      "name": "libnet-http-perl",
+      "version": "6.22-1"
+    },
+    {
+      "name": "libnet-smtp-ssl-perl",
+      "version": "1.04-1"
+    },
+    {
+      "name": "libnet-ssleay-perl",
+      "version": "1.92-1build2"
+    },
+    {
+      "name": "libnetcdf-dev",
+      "version": "1:4.8.1-1"
+    },
+    {
+      "name": "libnetcdf19",
+      "version": "1:4.8.1-1"
+    },
+    {
+      "name": "libnettle8",
+      "version": "3.7.3-1build2"
+    },
+    {
+      "name": "libnghttp2-14",
+      "version": "1.43.0-1ubuntu0.2"
+    },
+    {
+      "name": "libnginx-mod-http-geoip2",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnginx-mod-http-image-filter",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnginx-mod-http-xslt-filter",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnginx-mod-mail",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnginx-mod-stream",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnginx-mod-stream-geoip2",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "libnl-3-200",
+      "version": "3.5.0-0.1"
+    },
+    {
+      "name": "libnl-genl-3-200",
+      "version": "3.5.0-0.1"
+    },
+    {
+      "name": "libnorm1",
+      "version": "1.5.9+dfsg-2"
+    },
+    {
+      "name": "libnpth0",
+      "version": "1.6-3build2"
+    },
+    {
+      "name": "libnsl-dev",
+      "version": "1.3.0-2build2"
+    },
+    {
+      "name": "libnsl2",
+      "version": "1.3.0-2build2"
+    },
+    {
+      "name": "libnspr4",
+      "version": "2:4.35-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libnss3",
+      "version": "2:3.98-0ubuntu0.22.04.4"
+    },
+    {
+      "name": "libnuma1",
+      "version": "2.0.14-3ubuntu2"
+    },
+    {
+      "name": "libobrender32v5",
+      "version": "3.6.1-10"
+    },
+    {
+      "name": "libobt2v5",
+      "version": "3.6.1-10"
+    },
+    {
+      "name": "libodbc2",
+      "version": "2.3.9-5ubuntu0.1"
+    },
+    {
+      "name": "libodbccr2",
+      "version": "2.3.9-5ubuntu0.1"
+    },
+    {
+      "name": "libodbcinst2",
+      "version": "2.3.9-5ubuntu0.1"
+    },
+    {
+      "name": "libogdi-dev",
+      "version": "4.1.0+ds-5"
+    },
+    {
+      "name": "libogdi4.1",
+      "version": "4.1.0+ds-5"
+    },
+    {
+      "name": "libogg0",
+      "version": "1.3.5-0ubuntu3"
+    },
+    {
+      "name": "libonig5",
+      "version": "6.9.7.1-2build1"
+    },
+    {
+      "name": "libopenal-data",
+      "version": "1:1.19.1-2build3"
+    },
+    {
+      "name": "libopenal1",
+      "version": "1:1.19.1-2build3"
+    },
+    {
+      "name": "libopengl-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libopengl0",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libopenjp2-7",
+      "version": "2.4.0-6ubuntu0.5"
+    },
+    {
+      "name": "libopenjp2-7-dev",
+      "version": "2.4.0-6ubuntu0.5"
+    },
+    {
+      "name": "libopenmpt0",
+      "version": "0.6.1-1"
+    },
+    {
+      "name": "libopus0",
+      "version": "1.3.1-0.1build2"
+    },
+    {
+      "name": "liborc-0.4-0",
+      "version": "1:0.4.32-2ubuntu0.1"
+    },
+    {
+      "name": "libp11-kit0",
+      "version": "0.24.0-6build1"
+    },
+    {
+      "name": "libpackagekit-glib2-18",
+      "version": "1.2.5-2ubuntu3"
+    },
+    {
+      "name": "libpam-modules",
+      "version": "1.4.0-11ubuntu2.6"
+    },
+    {
+      "name": "libpam-modules-bin",
+      "version": "1.4.0-11ubuntu2.6"
+    },
+    {
+      "name": "libpam-runtime",
+      "version": "1.4.0-11ubuntu2.6"
+    },
+    {
+      "name": "libpam-systemd",
+      "version": "249.11-0ubuntu3.17"
+    },
+    {
+      "name": "libpam0g",
+      "version": "1.4.0-11ubuntu2.6"
+    },
+    {
+      "name": "libpango-1.0-0",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "libpango1.0-dev",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "libpangocairo-1.0-0",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "libpangoft2-1.0-0",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "libpangoxft-1.0-0",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "libpcap-dev",
+      "version": "1.10.1-4ubuntu1.22.04.1"
+    },
+    {
+      "name": "libpcap0.8",
+      "version": "1.10.1-4ubuntu1.22.04.1"
+    },
+    {
+      "name": "libpcap0.8-dev",
+      "version": "1.10.1-4ubuntu1.22.04.1"
+    },
+    {
+      "name": "libpciaccess0",
+      "version": "0.16-3"
+    },
+    {
+      "name": "libpcre16-3",
+      "version": "2:8.39-13ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpcre2-16-0",
+      "version": "10.39-3ubuntu0.1"
+    },
+    {
+      "name": "libpcre2-32-0",
+      "version": "10.39-3ubuntu0.1"
+    },
+    {
+      "name": "libpcre2-8-0",
+      "version": "10.39-3ubuntu0.1"
+    },
+    {
+      "name": "libpcre2-dev",
+      "version": "10.39-3ubuntu0.1"
+    },
+    {
+      "name": "libpcre2-posix3",
+      "version": "10.39-3ubuntu0.1"
+    },
+    {
+      "name": "libpcre3",
+      "version": "2:8.39-13ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpcre3-dev",
+      "version": "2:8.39-13ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpcre32-3",
+      "version": "2:8.39-13ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpcrecpp0v5",
+      "version": "2:8.39-13ubuntu0.22.04.1"
+    },
+    {
+      "name": "libperl5.34",
+      "version": "5.34.0-3ubuntu1.5"
+    },
+    {
+      "name": "libpgm-5.3-0",
+      "version": "5.3.128~dfsg-2"
+    },
+    {
+      "name": "libphobos2-ldc-shared98",
+      "version": "1:1.28.0-1ubuntu1"
+    },
+    {
+      "name": "libpixman-1-0",
+      "version": "0.40.0-1ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpixman-1-dev",
+      "version": "0.40.0-1ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpng-dev",
+      "version": "1.6.37-3build5"
+    },
+    {
+      "name": "libpng16-16",
+      "version": "1.6.37-3build5"
+    },
+    {
+      "name": "libpocketsphinx3",
+      "version": "0.8.0+real5prealpha+1-14ubuntu1"
+    },
+    {
+      "name": "libpolkit-agent-1-0",
+      "version": "0.105-33"
+    },
+    {
+      "name": "libpolkit-gobject-1-0",
+      "version": "0.105-33"
+    },
+    {
+      "name": "libpoppler-dev",
+      "version": "22.02.0-2ubuntu0.13"
+    },
+    {
+      "name": "libpoppler-private-dev",
+      "version": "22.02.0-2ubuntu0.13"
+    },
+    {
+      "name": "libpoppler118",
+      "version": "22.02.0-2ubuntu0.13"
+    },
+    {
+      "name": "libpopt0",
+      "version": "1.18-3build1"
+    },
+    {
+      "name": "libpostproc55",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpq-dev",
+      "version": "14.24-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libpq5",
+      "version": "14.24-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libprocps8",
+      "version": "2:3.3.17-6ubuntu2.1"
+    },
+    {
+      "name": "libproj-dev",
+      "version": "8.2.1-1"
+    },
+    {
+      "name": "libproj22",
+      "version": "8.2.1-1"
+    },
+    {
+      "name": "libpsl5",
+      "version": "0.21.0-1.2build2"
+    },
+    {
+      "name": "libpthread-stubs0-dev",
+      "version": "0.4-1build2"
+    },
+    {
+      "name": "libpulse0",
+      "version": "1:15.99.1+dfsg1-1ubuntu2.2"
+    },
+    {
+      "name": "libpython3-dev",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "libpython3-stdlib",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "libpython3.10",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "libpython3.10-dev",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "libpython3.10-minimal",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "libpython3.10-stdlib",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "libqhull-dev",
+      "version": "2020.2-4"
+    },
+    {
+      "name": "libqhull-r8.0",
+      "version": "2020.2-4"
+    },
+    {
+      "name": "libqhull8.0",
+      "version": "2020.2-4"
+    },
+    {
+      "name": "libqhullcpp8.0",
+      "version": "2020.2-4"
+    },
+    {
+      "name": "libqt5core5a",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libqt5dbus5",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libqt5gui5",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libqt5network5",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libqt5positioning5",
+      "version": "5.15.3+dfsg-3"
+    },
+    {
+      "name": "libqt5printsupport5",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libqt5qml5",
+      "version": "5.15.3+dfsg-1"
+    },
+    {
+      "name": "libqt5qmlmodels5",
+      "version": "5.15.3+dfsg-1"
+    },
+    {
+      "name": "libqt5quick5",
+      "version": "5.15.3+dfsg-1"
+    },
+    {
+      "name": "libqt5sensors5",
+      "version": "5.15.3-1"
+    },
+    {
+      "name": "libqt5svg5",
+      "version": "5.15.3-1"
+    },
+    {
+      "name": "libqt5webchannel5",
+      "version": "5.15.3-1"
+    },
+    {
+      "name": "libqt5webkit5",
+      "version": "5.212.0~alpha4-15ubuntu1"
+    },
+    {
+      "name": "libqt5widgets5",
+      "version": "5.15.3+dfsg-2ubuntu0.2"
+    },
+    {
+      "name": "libquadmath0",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "librabbitmq4",
+      "version": "0.10.0-1ubuntu2"
+    },
+    {
+      "name": "libraw1394-11",
+      "version": "2.1.2-2build2"
+    },
+    {
+      "name": "libreadline8",
+      "version": "8.1.2-1"
+    },
+    {
+      "name": "librhash0",
+      "version": "1.4.2-1ubuntu1"
+    },
+    {
+      "name": "librsvg2-2",
+      "version": "2.52.5+dfsg-3ubuntu0.2"
+    },
+    {
+      "name": "librtmp1",
+      "version": "2.4+20151223.gitfa8646d.1-2build4"
+    },
+    {
+      "name": "librttopo-dev",
+      "version": "1.1.0-2"
+    },
+    {
+      "name": "librttopo1",
+      "version": "1.1.0-2"
+    },
+    {
+      "name": "librubberband2",
+      "version": "2.0.0-2"
+    },
+    {
+      "name": "libsamplerate0",
+      "version": "0.2.2-1build1"
+    },
+    {
+      "name": "libsasl2-2",
+      "version": "2.1.27+dfsg2-3ubuntu1.2"
+    },
+    {
+      "name": "libsasl2-modules-db",
+      "version": "2.1.27+dfsg2-3ubuntu1.2"
+    },
+    {
+      "name": "libsbc1",
+      "version": "1.5-3build2"
+    },
+    {
+      "name": "libsdl2-2.0-0",
+      "version": "2.0.20+dfsg-2ubuntu1.22.04.1"
+    },
+    {
+      "name": "libseccomp2",
+      "version": "2.5.3-2ubuntu3~22.04.1"
+    },
+    {
+      "name": "libselinux1",
+      "version": "3.3-1build2"
+    },
+    {
+      "name": "libselinux1-dev",
+      "version": "3.3-1build2"
+    },
+    {
+      "name": "libsemanage-common",
+      "version": "3.3-1build2"
+    },
+    {
+      "name": "libsemanage2",
+      "version": "3.3-1build2"
+    },
+    {
+      "name": "libsensors-config",
+      "version": "1:3.6.0-7ubuntu1"
+    },
+    {
+      "name": "libsensors5",
+      "version": "1:3.6.0-7ubuntu1"
+    },
+    {
+      "name": "libsepol-dev",
+      "version": "3.3-1build1"
+    },
+    {
+      "name": "libsepol2",
+      "version": "3.3-1build1"
+    },
+    {
+      "name": "libserd-0-0",
+      "version": "0.30.10-2"
+    },
+    {
+      "name": "libshine3",
+      "version": "3.1.1-2"
+    },
+    {
+      "name": "libsigsegv2",
+      "version": "2.13-1ubuntu3"
+    },
+    {
+      "name": "libslang2",
+      "version": "2.3.2-5build4"
+    },
+    {
+      "name": "libsm-dev",
+      "version": "2:1.2.3-1build2"
+    },
+    {
+      "name": "libsm6",
+      "version": "2:1.2.3-1build2"
+    },
+    {
+      "name": "libsmartcols1",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libsmi2ldbl",
+      "version": "0.4.8+dfsg2-16"
+    },
+    {
+      "name": "libsnappy1v5",
+      "version": "1.1.8-1build3"
+    },
+    {
+      "name": "libsndfile1",
+      "version": "1.0.31-2ubuntu0.2"
+    },
+    {
+      "name": "libsndio7.0",
+      "version": "1.8.1-1.1"
+    },
+    {
+      "name": "libsodium23",
+      "version": "1.0.18-1build2"
+    },
+    {
+      "name": "libsord-0-0",
+      "version": "0.16.8-2"
+    },
+    {
+      "name": "libsoxr0",
+      "version": "0.1.3-4build2"
+    },
+    {
+      "name": "libspandsp2",
+      "version": "0.0.6+dfsg-2"
+    },
+    {
+      "name": "libspatialindex-c6",
+      "version": "1.9.3-2"
+    },
+    {
+      "name": "libspatialindex-dev",
+      "version": "1.9.3-2"
+    },
+    {
+      "name": "libspatialindex6",
+      "version": "1.9.3-2"
+    },
+    {
+      "name": "libspatialite-dev",
+      "version": "5.0.1-2build2"
+    },
+    {
+      "name": "libspatialite7",
+      "version": "5.0.1-2build2"
+    },
+    {
+      "name": "libspeex1",
+      "version": "1.2~rc1.2-1.1ubuntu3"
+    },
+    {
+      "name": "libspeexdsp1",
+      "version": "1.2~rc1.2-1.1ubuntu3"
+    },
+    {
+      "name": "libsphinxbase3",
+      "version": "0.8+5prealpha+1-13build1"
+    },
+    {
+      "name": "libsqlite3-0",
+      "version": "3.37.2-2ubuntu0.8"
+    },
+    {
+      "name": "libsqlite3-dev",
+      "version": "3.37.2-2ubuntu0.8"
+    },
+    {
+      "name": "libsratom-0-0",
+      "version": "0.6.8-1"
+    },
+    {
+      "name": "libsrt1.4-gnutls",
+      "version": "1.4.4-4"
+    },
+    {
+      "name": "libss2",
+      "version": "1.46.5-2ubuntu1.2"
+    },
+    {
+      "name": "libssh-4",
+      "version": "0.9.6-2ubuntu0.22.04.5"
+    },
+    {
+      "name": "libssh-gcrypt-4",
+      "version": "0.9.6-2ubuntu0.22.04.5"
+    },
+    {
+      "name": "libssl-dev",
+      "version": "3.0.2-0ubuntu1.29"
+    },
+    {
+      "name": "libssl3",
+      "version": "3.0.2-0ubuntu1.29"
+    },
+    {
+      "name": "libstartup-notification0",
+      "version": "0.12-6build2"
+    },
+    {
+      "name": "libstdc++-11-dev",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libstdc++6",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libstemmer0d",
+      "version": "2.2.0-1build1"
+    },
+    {
+      "name": "libsuperlu-dev",
+      "version": "5.3.0+dfsg1-2"
+    },
+    {
+      "name": "libsuperlu5",
+      "version": "5.3.0+dfsg1-2"
+    },
+    {
+      "name": "libswresample3",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libswscale5",
+      "version": "7:4.4.2-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "libsystemd0",
+      "version": "249.11-0ubuntu3.17"
+    },
+    {
+      "name": "libsz2",
+      "version": "1.0.6-1"
+    },
+    {
+      "name": "libtasn1-6",
+      "version": "4.18.0-4ubuntu0.1"
+    },
+    {
+      "name": "libtcl8.6",
+      "version": "8.6.12+dfsg-1build1"
+    },
+    {
+      "name": "libtext-iconv-perl",
+      "version": "1.7-7build3"
+    },
+    {
+      "name": "libthai-data",
+      "version": "0.1.29-1build1"
+    },
+    {
+      "name": "libthai-dev",
+      "version": "0.1.29-1build1"
+    },
+    {
+      "name": "libthai0",
+      "version": "0.1.29-1build1"
+    },
+    {
+      "name": "libtheora0",
+      "version": "1.1.1+dfsg.1-15ubuntu4"
+    },
+    {
+      "name": "libtie-ixhash-perl",
+      "version": "1.23-2.1"
+    },
+    {
+      "name": "libtiff-dev",
+      "version": "4.3.0-6ubuntu0.13"
+    },
+    {
+      "name": "libtiff-tools",
+      "version": "4.3.0-6ubuntu0.13"
+    },
+    {
+      "name": "libtiff5",
+      "version": "4.3.0-6ubuntu0.13"
+    },
+    {
+      "name": "libtiffxx5",
+      "version": "4.3.0-6ubuntu0.13"
+    },
+    {
+      "name": "libtimedate-perl",
+      "version": "2.3300-2"
+    },
+    {
+      "name": "libtinfo6",
+      "version": "6.3-2ubuntu0.1"
+    },
+    {
+      "name": "libtirpc-common",
+      "version": "1.3.2-2ubuntu0.1"
+    },
+    {
+      "name": "libtirpc-dev",
+      "version": "1.3.2-2ubuntu0.1"
+    },
+    {
+      "name": "libtirpc3",
+      "version": "1.3.2-2ubuntu0.1"
+    },
+    {
+      "name": "libtk8.6",
+      "version": "8.6.12-1build1"
+    },
+    {
+      "name": "libtry-tiny-perl",
+      "version": "0.31-1"
+    },
+    {
+      "name": "libtsan0",
+      "version": "11.4.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libtwolame0",
+      "version": "0.4.0-2build2"
+    },
+    {
+      "name": "libubsan1",
+      "version": "12.3.0-1ubuntu1~22.04.2"
+    },
+    {
+      "name": "libudev1",
+      "version": "249.11-0ubuntu3.16"
+    },
+    {
+      "name": "libudfread0",
+      "version": "1.1.2-1"
+    },
+    {
+      "name": "libunistring2",
+      "version": "1.0-1"
+    },
+    {
+      "name": "libunwind8",
+      "version": "1.3.2-2build2.1"
+    },
+    {
+      "name": "liburi-perl",
+      "version": "5.10-1"
+    },
+    {
+      "name": "liburiparser-dev",
+      "version": "0.9.6+dfsg-1"
+    },
+    {
+      "name": "liburiparser1",
+      "version": "0.9.6+dfsg-1"
+    },
+    {
+      "name": "libusb-1.0-0",
+      "version": "2:1.0.25-1ubuntu2"
+    },
+    {
+      "name": "libutempter0",
+      "version": "1.2.1-2build2"
+    },
+    {
+      "name": "libuuid1",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "libuv1",
+      "version": "1.43.0-1ubuntu0.1"
+    },
+    {
+      "name": "libva-drm2",
+      "version": "2.14.0-1"
+    },
+    {
+      "name": "libva-x11-2",
+      "version": "2.14.0-1"
+    },
+    {
+      "name": "libva2",
+      "version": "2.14.0-1"
+    },
+    {
+      "name": "libvdpau1",
+      "version": "1.4-3build2"
+    },
+    {
+      "name": "libvidstab1.1",
+      "version": "1.1.0-2"
+    },
+    {
+      "name": "libvorbis0a",
+      "version": "1.3.7-1build2"
+    },
+    {
+      "name": "libvorbisenc2",
+      "version": "1.3.7-1build2"
+    },
+    {
+      "name": "libvorbisfile3",
+      "version": "1.3.7-1build2"
+    },
+    {
+      "name": "libvpx7",
+      "version": "1.11.0-2ubuntu2.4"
+    },
+    {
+      "name": "libvte-2.91-0",
+      "version": "0.68.0-1ubuntu0.1"
+    },
+    {
+      "name": "libvte-2.91-common",
+      "version": "0.68.0-1ubuntu0.1"
+    },
+    {
+      "name": "libvted-3-0",
+      "version": "3.10.0-1ubuntu1"
+    },
+    {
+      "name": "libvulkan1",
+      "version": "1.3.204.1-2"
+    },
+    {
+      "name": "libwacom-common",
+      "version": "2.2.0-1"
+    },
+    {
+      "name": "libwacom9",
+      "version": "2.2.0-1"
+    },
+    {
+      "name": "libwayland-client0",
+      "version": "1.20.0-1ubuntu0.1"
+    },
+    {
+      "name": "libwayland-cursor0",
+      "version": "1.20.0-1ubuntu0.1"
+    },
+    {
+      "name": "libwayland-egl1",
+      "version": "1.20.0-1ubuntu0.1"
+    },
+    {
+      "name": "libwayland-server0",
+      "version": "1.20.0-1ubuntu0.1"
+    },
+    {
+      "name": "libwebp-dev",
+      "version": "1.2.2-2ubuntu0.22.04.2"
+    },
+    {
+      "name": "libwebp7",
+      "version": "1.2.2-2ubuntu0.22.04.2"
+    },
+    {
+      "name": "libwebpdemux2",
+      "version": "1.2.2-2ubuntu0.22.04.2"
+    },
+    {
+      "name": "libwebpmux3",
+      "version": "1.2.2-2ubuntu0.22.04.2"
+    },
+    {
+      "name": "libwireshark-data",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "libwireshark15",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "libwiretap12",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "libwoff1",
+      "version": "1.0.2-1build4"
+    },
+    {
+      "name": "libwsutil13",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "libwww-perl",
+      "version": "6.61-1"
+    },
+    {
+      "name": "libwww-robotrules-perl",
+      "version": "6.02-1"
+    },
+    {
+      "name": "libx11-6",
+      "version": "2:1.7.5-1ubuntu0.3"
+    },
+    {
+      "name": "libx11-data",
+      "version": "2:1.7.5-1ubuntu0.3"
+    },
+    {
+      "name": "libx11-dev",
+      "version": "2:1.7.5-1ubuntu0.3"
+    },
+    {
+      "name": "libx11-protocol-perl",
+      "version": "0.56-7.1"
+    },
+    {
+      "name": "libx11-xcb1",
+      "version": "2:1.7.5-1ubuntu0.3"
+    },
+    {
+      "name": "libx264-163",
+      "version": "2:0.163.3060+git5db6aa6-2build1"
+    },
+    {
+      "name": "libx265-199",
+      "version": "3.5-2"
+    },
+    {
+      "name": "libx265-dev",
+      "version": "3.5-2"
+    },
+    {
+      "name": "libxau-dev",
+      "version": "1:1.0.9-1build5"
+    },
+    {
+      "name": "libxau6",
+      "version": "1:1.0.9-1build5"
+    },
+    {
+      "name": "libxaw7",
+      "version": "2:1.0.14-1"
+    },
+    {
+      "name": "libxcb-dri2-0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-dri3-0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-glx0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-icccm4",
+      "version": "0.4.1-1.1build2"
+    },
+    {
+      "name": "libxcb-image0",
+      "version": "0.4.0-2"
+    },
+    {
+      "name": "libxcb-keysyms1",
+      "version": "0.4.0-1build3"
+    },
+    {
+      "name": "libxcb-present0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-randr0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-render-util0",
+      "version": "0.3.9-1build3"
+    },
+    {
+      "name": "libxcb-render0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-render0-dev",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-shape0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-shm0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-shm0-dev",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-sync1",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-util1",
+      "version": "0.4.0-1build2"
+    },
+    {
+      "name": "libxcb-xfixes0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-xinerama0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-xinput0",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb-xkb1",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb1",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcb1-dev",
+      "version": "1.14-3ubuntu3"
+    },
+    {
+      "name": "libxcomposite1",
+      "version": "1:0.4.5-1build2"
+    },
+    {
+      "name": "libxcursor1",
+      "version": "1:1.2.0-2build4"
+    },
+    {
+      "name": "libxdamage1",
+      "version": "1:1.1.5-2build2"
+    },
+    {
+      "name": "libxdmcp-dev",
+      "version": "1:1.1.3-0ubuntu5"
+    },
+    {
+      "name": "libxdmcp6",
+      "version": "1:1.1.3-0ubuntu5"
+    },
+    {
+      "name": "libxdo3",
+      "version": "1:3.20160805.1-4"
+    },
+    {
+      "name": "libxerces-c-dev",
+      "version": "3.2.3+debian-3ubuntu0.1"
+    },
+    {
+      "name": "libxerces-c3.2",
+      "version": "3.2.3+debian-3ubuntu0.1"
+    },
+    {
+      "name": "libxext-dev",
+      "version": "2:1.3.4-1build1"
+    },
+    {
+      "name": "libxext6",
+      "version": "2:1.3.4-1build1"
+    },
+    {
+      "name": "libxfixes3",
+      "version": "1:6.0.0-1"
+    },
+    {
+      "name": "libxfont2",
+      "version": "1:2.0.5-1build1"
+    },
+    {
+      "name": "libxft-dev",
+      "version": "2.3.4-1"
+    },
+    {
+      "name": "libxft2",
+      "version": "2.3.4-1"
+    },
+    {
+      "name": "libxi6",
+      "version": "2:1.8-1build1"
+    },
+    {
+      "name": "libxinerama1",
+      "version": "2:1.1.4-3"
+    },
+    {
+      "name": "libxkbcommon-x11-0",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libxkbcommon0",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "libxkbfile1",
+      "version": "1:1.1.0-1build3"
+    },
+    {
+      "name": "libxml-parser-perl",
+      "version": "2.46-3build1"
+    },
+    {
+      "name": "libxml-twig-perl",
+      "version": "1:3.52-1"
+    },
+    {
+      "name": "libxml-xpathengine-perl",
+      "version": "0.14-1"
+    },
+    {
+      "name": "libxml2",
+      "version": "2.9.13+dfsg-1ubuntu0.12"
+    },
+    {
+      "name": "libxml2-dev",
+      "version": "2.9.13+dfsg-1ubuntu0.12"
+    },
+    {
+      "name": "libxmlb2",
+      "version": "0.3.6-2build1"
+    },
+    {
+      "name": "libxmu6",
+      "version": "2:1.1.3-3"
+    },
+    {
+      "name": "libxmuu1",
+      "version": "2:1.1.3-3"
+    },
+    {
+      "name": "libxpm4",
+      "version": "1:3.5.12-1ubuntu0.22.04.2"
+    },
+    {
+      "name": "libxrandr2",
+      "version": "2:1.5.2-1build1"
+    },
+    {
+      "name": "libxrender-dev",
+      "version": "1:0.9.10-1build4"
+    },
+    {
+      "name": "libxrender1",
+      "version": "1:0.9.10-1build4"
+    },
+    {
+      "name": "libxshmfence1",
+      "version": "1.3-1build4"
+    },
+    {
+      "name": "libxslt1.1",
+      "version": "1.1.34-4ubuntu0.22.04.4"
+    },
+    {
+      "name": "libxss1",
+      "version": "1:1.2.3-1build2"
+    },
+    {
+      "name": "libxt-dev",
+      "version": "1:1.2.1-1"
+    },
+    {
+      "name": "libxt6",
+      "version": "1:1.2.1-1"
+    },
+    {
+      "name": "libxtables12",
+      "version": "1.8.7-1ubuntu5.2"
+    },
+    {
+      "name": "libxtst6",
+      "version": "2:1.2.3-1build4"
+    },
+    {
+      "name": "libxv1",
+      "version": "2:1.0.11-1build2"
+    },
+    {
+      "name": "libxvidcore4",
+      "version": "2:1.3.7-1"
+    },
+    {
+      "name": "libxxf86dga1",
+      "version": "2:1.1.5-0ubuntu3"
+    },
+    {
+      "name": "libxxf86vm1",
+      "version": "1:1.1.4-1build3"
+    },
+    {
+      "name": "libxxhash0",
+      "version": "0.8.1-1"
+    },
+    {
+      "name": "libyaml-0-2",
+      "version": "0.2.2-1build2"
+    },
+    {
+      "name": "libzimg2",
+      "version": "3.0.3+ds1-1"
+    },
+    {
+      "name": "libzmq5",
+      "version": "4.3.4-2"
+    },
+    {
+      "name": "libzstd-dev",
+      "version": "1.4.8+dfsg-3build1"
+    },
+    {
+      "name": "libzstd1",
+      "version": "1.4.8+dfsg-3build1"
+    },
+    {
+      "name": "libzvbi-common",
+      "version": "0.2.35-19"
+    },
+    {
+      "name": "libzvbi0",
+      "version": "0.2.35-19"
+    },
+    {
+      "name": "linux-libc-dev",
+      "version": "5.15.0-161.171"
+    },
+    {
+      "name": "locales",
+      "version": "2.35-0ubuntu3.11"
+    },
+    {
+      "name": "login",
+      "version": "1:4.8.1-2ubuntu2.2"
+    },
+    {
+      "name": "logsave",
+      "version": "1.46.5-2ubuntu1.2"
+    },
+    {
+      "name": "lsb-base",
+      "version": "11.1.0ubuntu4"
+    },
+    {
+      "name": "lsb-release",
+      "version": "11.1.0ubuntu4"
+    },
+    {
+      "name": "lsof",
+      "version": "4.93.2+dfsg-1.1build2"
+    },
+    {
+      "name": "lsyncd",
+      "version": "2.2.3-1"
+    },
+    {
+      "name": "lto-disabled-list",
+      "version": "24"
+    },
+    {
+      "name": "lua-lpeg",
+      "version": "1.0.2-1"
+    },
+    {
+      "name": "lua5.3",
+      "version": "5.3.6-1build1"
+    },
+    {
+      "name": "m4",
+      "version": "1.4.18-5ubuntu2"
+    },
+    {
+      "name": "make",
+      "version": "4.3-4.1build1"
+    },
+    {
+      "name": "mawk",
+      "version": "1.3.4.20200120-3"
+    },
+    {
+      "name": "media-types",
+      "version": "7.0.0"
+    },
+    {
+      "name": "mesa-vulkan-drivers",
+      "version": "23.2.1-1ubuntu3.1~22.04.3"
+    },
+    {
+      "name": "mount",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "mysql-common",
+      "version": "5.8+1.0.8"
+    },
+    {
+      "name": "nano",
+      "version": "6.2-1ubuntu0.1"
+    },
+    {
+      "name": "ncurses-base",
+      "version": "6.3-2ubuntu0.1"
+    },
+    {
+      "name": "ncurses-bin",
+      "version": "6.3-2ubuntu0.1"
+    },
+    {
+      "name": "net-tools",
+      "version": "1.60+git20181103.0eebece-1ubuntu5.4"
+    },
+    {
+      "name": "netbase",
+      "version": "6.3"
+    },
+    {
+      "name": "netcat-openbsd",
+      "version": "1.218-4ubuntu1"
+    },
+    {
+      "name": "nginx",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "nginx-common",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "nginx-core",
+      "version": "1.18.0-6ubuntu14.7"
+    },
+    {
+      "name": "nmap",
+      "version": "7.91+dfsg1+really7.80+dfsg1-2ubuntu0.1"
+    },
+    {
+      "name": "nmap-common",
+      "version": "7.91+dfsg1+really7.80+dfsg1-2ubuntu0.1"
+    },
+    {
+      "name": "nodejs",
+      "version": "22.23.2-1nodesource1"
+    },
+    {
+      "name": "ocl-icd-libopencl1",
+      "version": "2.2.14-3"
+    },
+    {
+      "name": "openbox",
+      "version": "3.6.1-10"
+    },
+    {
+      "name": "openssh-client",
+      "version": "1:8.9p1-3ubuntu0.13"
+    },
+    {
+      "name": "openssl",
+      "version": "3.0.2-0ubuntu1.20"
+    },
+    {
+      "name": "packagekit",
+      "version": "1.2.5-2ubuntu3"
+    },
+    {
+      "name": "pango1.0-tools",
+      "version": "1.50.6+ds-2ubuntu1"
+    },
+    {
+      "name": "passwd",
+      "version": "1:4.8.1-2ubuntu2.2"
+    },
+    {
+      "name": "patch",
+      "version": "2.7.6-7build2"
+    },
+    {
+      "name": "perl",
+      "version": "5.34.0-3ubuntu1.5"
+    },
+    {
+      "name": "perl-base",
+      "version": "5.34.0-3ubuntu1.5"
+    },
+    {
+      "name": "perl-modules-5.34",
+      "version": "5.34.0-3ubuntu1.5"
+    },
+    {
+      "name": "perl-openssl-defaults",
+      "version": "5build2"
+    },
+    {
+      "name": "pinentry-curses",
+      "version": "1.1.1-1build2"
+    },
+    {
+      "name": "pkexec",
+      "version": "0.105-33"
+    },
+    {
+      "name": "pkg-config",
+      "version": "0.29.2-1ubuntu3"
+    },
+    {
+      "name": "policykit-1",
+      "version": "0.105-33"
+    },
+    {
+      "name": "polkitd",
+      "version": "0.105-33"
+    },
+    {
+      "name": "procps",
+      "version": "2:3.3.17-6ubuntu2.1"
+    },
+    {
+      "name": "proj-bin",
+      "version": "8.2.1-1"
+    },
+    {
+      "name": "proj-data",
+      "version": "8.2.1-1"
+    },
+    {
+      "name": "psmisc",
+      "version": "23.4-2build3"
+    },
+    {
+      "name": "python-apt-common",
+      "version": "2.4.0ubuntu4"
+    },
+    {
+      "name": "python3",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "python3-apt",
+      "version": "2.4.0ubuntu4"
+    },
+    {
+      "name": "python3-blinker",
+      "version": "1.4+dfsg1-0.4"
+    },
+    {
+      "name": "python3-cffi-backend",
+      "version": "1.15.0-1build2"
+    },
+    {
+      "name": "python3-cryptography",
+      "version": "3.4.8-1ubuntu2.2"
+    },
+    {
+      "name": "python3-dbus",
+      "version": "1.2.18-3build1"
+    },
+    {
+      "name": "python3-dev",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "python3-distro",
+      "version": "1.7.0-1"
+    },
+    {
+      "name": "python3-distutils",
+      "version": "3.10.8-1~22.04"
+    },
+    {
+      "name": "python3-gdal",
+      "version": "3.4.1+dfsg-1build4"
+    },
+    {
+      "name": "python3-gi",
+      "version": "3.42.1-0ubuntu1"
+    },
+    {
+      "name": "python3-git",
+      "version": "3.1.24-1"
+    },
+    {
+      "name": "python3-gitdb",
+      "version": "4.0.9-1"
+    },
+    {
+      "name": "python3-httplib2",
+      "version": "0.20.2-2"
+    },
+    {
+      "name": "python3-importlib-metadata",
+      "version": "4.6.4-1"
+    },
+    {
+      "name": "python3-jeepney",
+      "version": "0.7.1-3"
+    },
+    {
+      "name": "python3-jwt",
+      "version": "2.3.0-1ubuntu0.2"
+    },
+    {
+      "name": "python3-keyring",
+      "version": "23.5.0-1"
+    },
+    {
+      "name": "python3-launchpadlib",
+      "version": "1.10.16-1"
+    },
+    {
+      "name": "python3-lazr.restfulclient",
+      "version": "0.14.4-1"
+    },
+    {
+      "name": "python3-lazr.uri",
+      "version": "1.0.6-2"
+    },
+    {
+      "name": "python3-lib2to3",
+      "version": "3.10.8-1~22.04"
+    },
+    {
+      "name": "python3-minimal",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "python3-more-itertools",
+      "version": "8.10.0-2"
+    },
+    {
+      "name": "python3-numpy",
+      "version": "1:1.21.5-1ubuntu22.04.1"
+    },
+    {
+      "name": "python3-oauthlib",
+      "version": "3.2.0-1ubuntu0.1"
+    },
+    {
+      "name": "python3-pip",
+      "version": "22.0.2+dfsg-1ubuntu0.7"
+    },
+    {
+      "name": "python3-pip-whl",
+      "version": "22.0.2+dfsg-1ubuntu0.7"
+    },
+    {
+      "name": "python3-pkg-resources",
+      "version": "59.6.0-1.2ubuntu0.22.04.3"
+    },
+    {
+      "name": "python3-pyparsing",
+      "version": "2.4.7-1"
+    },
+    {
+      "name": "python3-secretstorage",
+      "version": "3.3.1-1"
+    },
+    {
+      "name": "python3-semantic-version",
+      "version": "2.8.5-1"
+    },
+    {
+      "name": "python3-setuptools",
+      "version": "59.6.0-1.2ubuntu0.22.04.3"
+    },
+    {
+      "name": "python3-setuptools-whl",
+      "version": "59.6.0-1.2ubuntu0.22.04.3"
+    },
+    {
+      "name": "python3-six",
+      "version": "1.16.0-3ubuntu1"
+    },
+    {
+      "name": "python3-smmap",
+      "version": "5.0.0-1"
+    },
+    {
+      "name": "python3-software-properties",
+      "version": "0.99.22.9"
+    },
+    {
+      "name": "python3-tk",
+      "version": "3.10.8-1~22.04"
+    },
+    {
+      "name": "python3-venv",
+      "version": "3.10.6-1~22.04.1"
+    },
+    {
+      "name": "python3-wadllib",
+      "version": "1.3.6-1"
+    },
+    {
+      "name": "python3-wheel",
+      "version": "0.37.1-2ubuntu0.22.04.1"
+    },
+    {
+      "name": "python3-zipp",
+      "version": "1.0.0-3ubuntu0.1"
+    },
+    {
+      "name": "python3.10",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "python3.10-dev",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "python3.10-minimal",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "python3.10-venv",
+      "version": "3.10.12-1~22.04.18"
+    },
+    {
+      "name": "readline-common",
+      "version": "8.1.2-1"
+    },
+    {
+      "name": "ripgrep",
+      "version": "13.0.0-2ubuntu0.1"
+    },
+    {
+      "name": "rpcsvc-proto",
+      "version": "1.4.2-0ubuntu6"
+    },
+    {
+      "name": "rsync",
+      "version": "3.2.7-0ubuntu0.22.04.4"
+    },
+    {
+      "name": "sed",
+      "version": "4.8-1ubuntu2"
+    },
+    {
+      "name": "sensible-utils",
+      "version": "0.0.17"
+    },
+    {
+      "name": "shared-mime-info",
+      "version": "2.1-2"
+    },
+    {
+      "name": "software-properties-common",
+      "version": "0.99.22.9"
+    },
+    {
+      "name": "sudo",
+      "version": "1.9.9-1ubuntu2.5"
+    },
+    {
+      "name": "systemd",
+      "version": "249.11-0ubuntu3.17"
+    },
+    {
+      "name": "systemd-sysv",
+      "version": "249.11-0ubuntu3.17"
+    },
+    {
+      "name": "sysvinit-utils",
+      "version": "3.01-1ubuntu1"
+    },
+    {
+      "name": "tar",
+      "version": "1.34+dfsg-1ubuntu0.1.22.04.2"
+    },
+    {
+      "name": "telnet",
+      "version": "0.17-44build1"
+    },
+    {
+      "name": "tigervnc-common",
+      "version": "1.12.0+dfsg-4ubuntu0.22.04.1"
+    },
+    {
+      "name": "tigervnc-standalone-server",
+      "version": "1.12.0+dfsg-4ubuntu0.22.04.1"
+    },
+    {
+      "name": "tilix",
+      "version": "1.9.4-2build1"
+    },
+    {
+      "name": "tilix-common",
+      "version": "1.9.4-2build1"
+    },
+    {
+      "name": "tk8.6-blt2.5",
+      "version": "2.5.3+dfsg-4.1build2"
+    },
+    {
+      "name": "tmux",
+      "version": "3.2a-4ubuntu0.2"
+    },
+    {
+      "name": "tree",
+      "version": "2.0.2-1"
+    },
+    {
+      "name": "tshark",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "tzdata",
+      "version": "2025b-0ubuntu0.22.04.1"
+    },
+    {
+      "name": "ubuntu-keyring",
+      "version": "2021.03.26"
+    },
+    {
+      "name": "ubuntu-mono",
+      "version": "20.10-0ubuntu2"
+    },
+    {
+      "name": "ucf",
+      "version": "3.0043"
+    },
+    {
+      "name": "unixodbc-common",
+      "version": "2.3.9-5ubuntu0.1"
+    },
+    {
+      "name": "unixodbc-dev",
+      "version": "2.3.9-5ubuntu0.1"
+    },
+    {
+      "name": "unzip",
+      "version": "6.0-26ubuntu3.2"
+    },
+    {
+      "name": "usrmerge",
+      "version": "25ubuntu2"
+    },
+    {
+      "name": "util-linux",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "uuid-dev",
+      "version": "2.37.2-4ubuntu3.4"
+    },
+    {
+      "name": "vim",
+      "version": "2:8.2.3995-1ubuntu2.24"
+    },
+    {
+      "name": "vim-common",
+      "version": "2:8.2.3995-1ubuntu2.24"
+    },
+    {
+      "name": "vim-runtime",
+      "version": "2:8.2.3995-1ubuntu2.24"
+    },
+    {
+      "name": "wget",
+      "version": "1.21.2-2ubuntu1.1"
+    },
+    {
+      "name": "wireshark-common",
+      "version": "3.6.2-2"
+    },
+    {
+      "name": "wkhtmltopdf",
+      "version": "0.12.6-2"
+    },
+    {
+      "name": "x11-common",
+      "version": "1:7.7+23ubuntu2"
+    },
+    {
+      "name": "x11-utils",
+      "version": "7.7+5build2"
+    },
+    {
+      "name": "x11-xkb-utils",
+      "version": "7.7+5build4"
+    },
+    {
+      "name": "x11-xserver-utils",
+      "version": "7.7+9build1"
+    },
+    {
+      "name": "x11proto-dev",
+      "version": "2021.5-1"
+    },
+    {
+      "name": "xauth",
+      "version": "1:1.1-1build2"
+    },
+    {
+      "name": "xclip",
+      "version": "0.13-2"
+    },
+    {
+      "name": "xdg-utils",
+      "version": "1.1.3-4.1ubuntu3~22.04.1"
+    },
+    {
+      "name": "xdotool",
+      "version": "1:3.20160805.1-4"
+    },
+    {
+      "name": "xfonts-cyrillic",
+      "version": "1:1.0.5"
+    },
+    {
+      "name": "xfonts-encodings",
+      "version": "1:1.0.5-0ubuntu2"
+    },
+    {
+      "name": "xfonts-intl-chinese",
+      "version": "1.2.1-10.1"
+    },
+    {
+      "name": "xfonts-scalable",
+      "version": "1:1.0.3-1.2ubuntu1"
+    },
+    {
+      "name": "xfonts-utils",
+      "version": "1:7.7+6build2"
+    },
+    {
+      "name": "xfonts-wqy",
+      "version": "1.0.0~rc1-7"
+    },
+    {
+      "name": "xkb-data",
+      "version": "2.33-1"
+    },
+    {
+      "name": "xorg-sgml-doctools",
+      "version": "1:1.11-1.1"
+    },
+    {
+      "name": "xserver-common",
+      "version": "2:21.1.4-2ubuntu1.7~22.04.16"
+    },
+    {
+      "name": "xtrans-dev",
+      "version": "1.4.0-1"
+    },
+    {
+      "name": "xvfb",
+      "version": "2:21.1.4-2ubuntu1.7~22.04.16"
+    },
+    {
+      "name": "xxd",
+      "version": "2:8.2.3995-1ubuntu2.24"
+    },
+    {
+      "name": "xz-utils",
+      "version": "5.2.5-2ubuntu1"
+    },
+    {
+      "name": "zeek",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-btest",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-btest-data",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-client",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-core",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-core-dev",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-spicy-dev",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeek-zkg",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zeekctl",
+      "version": "8.2.2-0"
+    },
+    {
+      "name": "zip",
+      "version": "3.0-12build2"
+    },
+    {
+      "name": "zlib1g",
+      "version": "1:1.2.11.dfsg-2ubuntu9.2"
+    },
+    {
+      "name": "zlib1g-dev",
+      "version": "1:1.2.11.dfsg-2ubuntu9.2"
+    }
+  ]
+}

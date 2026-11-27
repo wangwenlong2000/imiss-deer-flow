@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "log_bytes": 378,
+  "log_sha256": "7598c5568354eb6a34d71ec985be57a63b293e5f48c4967f5c8885cafaebbae2",
+  "name": "rc4-primary-backup",
+  "report": {
+    "exit_code": 0,
+    "finished_at": "2026-11-27T02:15:46.336908+00:00",
+    "started_at": "2026-11-27T02:15:42.015957+00:00"
+  },
+  "required": true,
+  "source_passed": true
+}

@@ -1,0 +1,10 @@
+**
+!apps/
+!apps/onecityagent/
+!apps/onecityagent/requirements-core.txt
+!apps/onecityagent/requirements-core.lock
+!apps/onecityagent/onecityagent/**
+!apps/onecityagent/python_a2a/**
+!deploy/**
+**/__pycache__
+**/*.pyc

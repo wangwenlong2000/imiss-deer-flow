@@ -1,0 +1,731 @@
+[
+  {
+    "from": "docs/Linux服务器启动说明.md",
+    "to": "docs/operations/Linux服务器启动说明.md",
+    "sha256_before": "709245f0a7cb4f41c8300eb43916a887319c59a650da2639744623de410a57a2",
+    "size": 5607,
+    "mode": "0o664",
+    "sha256_after": "709245f0a7cb4f41c8300eb43916a887319c59a650da2639744623de410a57a2",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/UPLOAD_AND_MONITORING_GUIDE.md",
+    "to": "docs/operations/UPLOAD_AND_MONITORING_GUIDE.md",
+    "sha256_before": "55c6d8cf22863e2ce00eb1278e6aa7dafe9693cf384b281ae371eee383a8b2eb",
+    "size": 6210,
+    "mode": "0o664",
+    "sha256_after": "55c6d8cf22863e2ce00eb1278e6aa7dafe9693cf384b281ae371eee383a8b2eb",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/deerflow_sandbox_and_filesystem_mcp.md",
+    "to": "docs/operations/deerflow_sandbox_and_filesystem_mcp.md",
+    "sha256_before": "fff2e12f9736444592f310519d21c129e1a216ac2c5e63e0da0b4c1a64cf6d78",
+    "size": 13918,
+    "mode": "0o664",
+    "sha256_after": "fff2e12f9736444592f310519d21c129e1a216ac2c5e63e0da0b4c1a64cf6d78",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/no-sudo-no-docker-deploy-flow.md",
+    "to": "docs/operations/no-sudo-no-docker-deploy-flow.md",
+    "sha256_before": "6c5705488de917ad75d7d4e58a3cee6995f95c1fee55e385166f247a2b4ad07d",
+    "size": 2867,
+    "mode": "0o664",
+    "sha256_after": "6c5705488de917ad75d7d4e58a3cee6995f95c1fee55e385166f247a2b4ad07d",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/onecity-private-multiuser-deployment.md",
+    "to": "docs/operations/onecity-private-multiuser-deployment.md",
+    "sha256_before": "15f6e1fb2558aafa17654cb23cca66131ec923a9e42ef98bae260b4379f21c25",
+    "size": 10018,
+    "mode": "0o664",
+    "sha256_after": "15f6e1fb2558aafa17654cb23cca66131ec923a9e42ef98bae260b4379f21c25",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/opengrep-offline-downloads.md",
+    "to": "docs/operations/opengrep-offline-downloads.md",
+    "sha256_before": "b74c082de7fa88547147d3a82e1b3f1216da865643957d0d823338ee977b42a0",
+    "size": 4652,
+    "mode": "0o664",
+    "sha256_after": "b74c082de7fa88547147d3a82e1b3f1216da865643957d0d823338ee977b42a0",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/修改端口避免冲突操作文档.md",
+    "to": "docs/operations/修改端口避免冲突操作文档.md",
+    "sha256_before": "eeef32c8485254fa41ce36b9c03cb4c237dfa2fc60fdd38d90788874c8180f6e",
+    "size": 3939,
+    "mode": "0o664",
+    "sha256_after": "eeef32c8485254fa41ce36b9c03cb4c237dfa2fc60fdd38d90788874c8180f6e",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/启动命令与容器机制说明.md",
+    "to": "docs/operations/启动命令与容器机制说明.md",
+    "sha256_before": "9dd0ea6ba39df5d8d9f43d76c3c2b3f6833400093294f1874bc98c8364982dc3",
+    "size": 23450,
+    "mode": "0o664",
+    "sha256_after": "9dd0ea6ba39df5d8d9f43d76c3c2b3f6833400093294f1874bc98c8364982dc3",
+    "content_unchanged": true
+  },
+  {
+    "from": "SANDBOX_IMAGE_TUTORIAL.md",
+    "to": "docs/operations/SANDBOX_IMAGE_TUTORIAL.md",
+    "sha256_before": "a9ed5e4ad597e69e6409062f356db7cbcffc187b104bd580ac7a33c75a9966df",
+    "size": 8113,
+    "mode": "0o664",
+    "sha256_after": "049ea8ada01e7ffdd9d835043decf02f711a427f97f470feb874e6db21ba7590",
+    "content_unchanged": false
+  },
+  {
+    "from": "model-services启动说明.md",
+    "to": "docs/operations/model-services启动说明.md",
+    "sha256_before": "5212040b54938fdceee80401a8fbf4d5276b61a908d54bf9d45665dbcad48014",
+    "size": 7014,
+    "mode": "0o664",
+    "sha256_after": "5212040b54938fdceee80401a8fbf4d5276b61a908d54bf9d45665dbcad48014",
+    "content_unchanged": true
+  },
+  {
+    "from": "服务器配置登录GitHub教程.md",
+    "to": "docs/operations/服务器配置登录GitHub教程.md",
+    "sha256_before": "7b0cf3fe3e05343085c52dabfe7931d4925adfb1610448329e5c6d69efc9fef6",
+    "size": 5577,
+    "mode": "0o664",
+    "sha256_after": "7b0cf3fe3e05343085c52dabfe7931d4925adfb1610448329e5c6d69efc9fef6",
+    "content_unchanged": true
+  },
+  {
+    "from": "本地数据集类型接入教程.md",
+    "to": "docs/operations/本地数据集类型接入教程.md",
+    "sha256_before": "f5d2d2432d548b288508b9ee2ce6ae4f0d2cb1298c609bb7b987acbfadc08ce8",
+    "size": 10557,
+    "mode": "0o664",
+    "sha256_after": "f5d2d2432d548b288508b9ee2ce6ae4f0d2cb1298c609bb7b987acbfadc08ce8",
+    "content_unchanged": true
+  },
+  {
+    "from": "部署启动.md",
+    "to": "docs/operations/部署启动.md",
+    "sha256_before": "2883404bcd92efb5f7737a0743139edb7c7171787487ff0854a76370837f1586",
+    "size": 10406,
+    "mode": "0o664",
+    "sha256_after": "ef736157bba09ebf3a37e82294d19dd385d9b7d68c188c886e94ddc6256a1924",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/integration-onecity-20261125.md",
+    "to": "docs/design/integration-onecity-20261125.md",
+    "sha256_before": "b193f5c7378e12d7981a5486c8b62056b84f1f61a5da18a380c0d0317426da17",
+    "size": 6334,
+    "mode": "0o664",
+    "sha256_after": "390b8119dc006efc08d18d393a3d36cd621fc06a284bd1c3afbd3c3cb458066d",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/network-traffic-rag-implementation-plan.md",
+    "to": "docs/design/network-traffic-rag-implementation-plan.md",
+    "sha256_before": "c5fa73cb1f3c0f6541ec1ba47b18f7ccd72c93a2476240cfdc66841b49b2de37",
+    "size": 47689,
+    "mode": "0o664",
+    "sha256_after": "c5fa73cb1f3c0f6541ec1ba47b18f7ccd72c93a2476240cfdc66841b49b2de37",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/compliance-delivered-detectors-integration.md",
+    "to": "docs/compliance/compliance-delivered-detectors-integration.md",
+    "sha256_before": "27d1864bd07a15e23cc4a028453b916e3a4ef93d34bb3da741e2ae36f276ec39",
+    "size": 10627,
+    "mode": "0o664",
+    "sha256_after": "27d1864bd07a15e23cc4a028453b916e3a4ef93d34bb3da741e2ae36f276ec39",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/compliance-detection-agent-prompt.md",
+    "to": "docs/compliance/compliance-detection-agent-prompt.md",
+    "sha256_before": "d8ca97df8d9719b7fe2d1fb19ebe803733076a95adb56aeeb5eb405043f7b4e3",
+    "size": 10156,
+    "mode": "0o664",
+    "sha256_after": "255e8f7f688168bbd1752c4f2c6dcc740815703d1b9f5ed494a744340bb31112",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/compliance-detection-decisions.md",
+    "to": "docs/compliance/compliance-detection-decisions.md",
+    "sha256_before": "f8b059ab3a4ab1eeb9bb4d59e3af22a5e78167e1250bda2b1c5d7e83c432325d",
+    "size": 39171,
+    "mode": "0o664",
+    "sha256_after": "47d9ba4d29c35b167d19b7d004196b0b0ec06c013957ea7e9b2488ff1b8c1b96",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/compliance-detection-implementation-plan.md",
+    "to": "docs/compliance/compliance-detection-implementation-plan.md",
+    "sha256_before": "e707536e8bb095b399a1ffb2982952bed8ced2024ebef112e7bef409537d0123",
+    "size": 39130,
+    "mode": "0o664",
+    "sha256_after": "6a90ef115685ed3e6b4955ed8135d3e5680bd1656f51a56733443bd60156b530",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/compliance-detection-summary.md",
+    "to": "docs/compliance/compliance-detection-summary.md",
+    "sha256_before": "0a7e13edfd38a5ae4ff9dd23a4b6d570065516e5dad639ff977fb9d350a20963",
+    "size": 31897,
+    "mode": "0o664",
+    "sha256_after": "0a7e13edfd38a5ae4ff9dd23a4b6d570065516e5dad639ff977fb9d350a20963",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/compliance-detector-integration-guide.md",
+    "to": "docs/compliance/compliance-detector-integration-guide.md",
+    "sha256_before": "badcea11362e2b60f1308772803038430e9d9e6778b84cb31b6a47d23ef5ea05",
+    "size": 11613,
+    "mode": "0o664",
+    "sha256_after": "badcea11362e2b60f1308772803038430e9d9e6778b84cb31b6a47d23ef5ea05",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/compliance-e2e-verification.md",
+    "to": "docs/compliance/compliance-e2e-verification.md",
+    "sha256_before": "7ad8d79dd39d57e6d323430680f1b12f7177c9eab0dd362dde8f0fc534b4c605",
+    "size": 10835,
+    "mode": "0o664",
+    "sha256_after": "7ad8d79dd39d57e6d323430680f1b12f7177c9eab0dd362dde8f0fc534b4c605",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/compliance-evaluation-strategy-issues.md",
+    "to": "docs/compliance/compliance-evaluation-strategy-issues.md",
+    "sha256_before": "5616d7d1d31b8a97cc4ce3b472cc5647964376eddff1210db7dee89292404fc4",
+    "size": 14241,
+    "mode": "0o664",
+    "sha256_after": "bb4c56277894b52174abaa5569a9559a645fa6c2bae48c75daa08fac8b0f4514",
+    "content_unchanged": false
+  },
+  {
+    "from": "onecityagent-deerflow-compliance-contract.md",
+    "to": "docs/compliance/onecityagent-deerflow-compliance-contract.md",
+    "sha256_before": "e2249fa1ae7ecbf35832bf5d439c36fcef634f494444b2384da2fbef24244a7a",
+    "size": 11101,
+    "mode": "0o664",
+    "sha256_after": "e2249fa1ae7ecbf35832bf5d439c36fcef634f494444b2384da2fbef24244a7a",
+    "content_unchanged": true
+  },
+  {
+    "from": "合规检测实现与异构检测器接入指南.md",
+    "to": "docs/compliance/合规检测实现与异构检测器接入指南.md",
+    "sha256_before": "70759aa94cc4b263e4171bab85934d7623db570831fc37b0fd0f775cc4c3b8aa",
+    "size": 27896,
+    "mode": "0o664",
+    "sha256_after": "2aa4c8240633ef9c405d0ed308af16c078e74e06180268ca0ada2b26026e0a04",
+    "content_unchanged": false
+  },
+  {
+    "from": "合规评测标注指南7.23.docx",
+    "to": "docs/compliance/reference-materials/合规评测标注指南7.23.docx",
+    "sha256_before": "55f9eca83d0c176dbf59d15e44716174759ea8e4031cfe607e0534b377e2a442",
+    "size": 82312,
+    "mode": "0o664",
+    "sha256_after": "55f9eca83d0c176dbf59d15e44716174759ea8e4031cfe607e0534b377e2a442",
+    "content_unchanged": true
+  },
+  {
+    "from": "合规评测标注指南7.23_修订完成版.docx",
+    "to": "docs/compliance/reference-materials/合规评测标注指南7.23_修订完成版.docx",
+    "sha256_before": "2599b6158379b924d7f6d3dd9e133a8301a79f8734f728516ddca1aa5ba39fba",
+    "size": 67497,
+    "mode": "0o664",
+    "sha256_after": "2599b6158379b924d7f6d3dd9e133a8301a79f8734f728516ddca1aa5ba39fba",
+    "content_unchanged": true
+  },
+  {
+    "from": "违规类型详细说明  5.25.pdf",
+    "to": "docs/compliance/reference-materials/违规类型详细说明  5.25.pdf",
+    "sha256_before": "094e29d98f65959a08686b5567432f041bc0734b6924dfa1222b6aee6dabc718",
+    "size": 418915,
+    "mode": "0o664",
+    "sha256_after": "094e29d98f65959a08686b5567432f041bc0734b6924dfa1222b6aee6dabc718",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_NAME_CONFLICT_FIX.md",
+    "to": "docs/skills/SKILL_NAME_CONFLICT_FIX.md",
+    "sha256_before": "4073103fcd5590dc1355b9cbc29cb42016faec5d59f17004ca0f85c1ef79055a",
+    "size": 24765,
+    "mode": "0o664",
+    "sha256_after": "4073103fcd5590dc1355b9cbc29cb42016faec5d59f17004ca0f85c1ef79055a",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_PRD.md",
+    "to": "docs/skills/SKILL_ROUTER_PRD.md",
+    "sha256_before": "793949aca85a7dbe04e82449f4d9791b7417855a7ddeb974b3c140da144b3575",
+    "size": 54548,
+    "mode": "0o664",
+    "sha256_after": "793949aca85a7dbe04e82449f4d9791b7417855a7ddeb974b3c140da144b3575",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/Skill依赖版本清单_20261126.xlsx",
+    "to": "docs/skills/Skill依赖版本清单_20261126.xlsx",
+    "sha256_before": "30c5c0e1e4580d4096b295ea65b18071f8bc1493f7924107ccbcfff8237d0b2e",
+    "size": 103723,
+    "mode": "0o664",
+    "sha256_after": "30c5c0e1e4580d4096b295ea65b18071f8bc1493f7924107ccbcfff8237d0b2e",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/skill-migration-opengrep-code-business-dag.md",
+    "to": "docs/skills/skill-migration-opengrep-code-business-dag.md",
+    "sha256_before": "daa0cbabbc32a9f5057cf1da77c1b515d766e42c599bde28e93a1acea1ef83a0",
+    "size": 14592,
+    "mode": "0o664",
+    "sha256_after": "da45b02d59ee2038352baca2d1a28a47f32c04ce4c147e8f900a47f12e6b063c",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/skill_schema_envelope_retrieve_alignment.md",
+    "to": "docs/skills/skill_schema_envelope_retrieve_alignment.md",
+    "sha256_before": "0250ac5dd4b0be92978dc4d378bf71cb6837bee7eb083ec19e463eb28576fedb",
+    "size": 1148,
+    "mode": "0o664",
+    "sha256_after": "0250ac5dd4b0be92978dc4d378bf71cb6837bee7eb083ec19e463eb28576fedb",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/skill输入输出和router_card注册规范.md",
+    "to": "docs/skills/skill输入输出和router_card注册规范.md",
+    "sha256_before": "0def9b2f25c449bbd6c0706ef12c5c6ca72366be8ee102c63e41fc230f925066",
+    "size": 30960,
+    "mode": "0o664",
+    "sha256_after": "0def9b2f25c449bbd6c0706ef12c5c6ca72366be8ee102c63e41fc230f925066",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/skill输入输出规范改造指南.md",
+    "to": "docs/skills/skill输入输出规范改造指南.md",
+    "sha256_before": "d8ca363cbbf2bd0d565b50dc7f7a160a006bfdb55db52040401a20d4d090634d",
+    "size": 12945,
+    "mode": "0o664",
+    "sha256_after": "d8ca363cbbf2bd0d565b50dc7f7a160a006bfdb55db52040401a20d4d090634d",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/skill配置修改.md",
+    "to": "docs/skills/skill配置修改.md",
+    "sha256_before": "1a06afb8287049b63518ddb83e928edc850fc1199642e190140e0bd28b82110c",
+    "size": 5556,
+    "mode": "0o664",
+    "sha256_after": "1a06afb8287049b63518ddb83e928edc850fc1199642e190140e0bd28b82110c",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/deerflow-agent-skill-test.md",
+    "to": "docs/testing/deerflow-agent-skill-test.md",
+    "sha256_before": "6fc7596994456e54bdb418c38ae00e68d30345e5da2627027718cc6399369060",
+    "size": 16347,
+    "mode": "0o664",
+    "sha256_after": "6fc7596994456e54bdb418c38ae00e68d30345e5da2627027718cc6399369060",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/full-flow-service-check-20261022.md",
+    "to": "docs/testing/full-flow-service-check-20261022.md",
+    "sha256_before": "6193320072fcd4e9bac19a58d21550360ff7ae28facb43d66a240acfe193bccd",
+    "size": 13961,
+    "mode": "0o664",
+    "sha256_after": "3a85c164220921dd24a33f4594f4e72b0fe5249d4c284df53dfde3dc0f12785c",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/full-flow-thinking-service-check-20261027.md",
+    "to": "docs/testing/full-flow-thinking-service-check-20261027.md",
+    "sha256_before": "4453759d9dc502c451585ad70ce37d15301e36b25468306c124fbc5de6db84eb",
+    "size": 12087,
+    "mode": "0o664",
+    "sha256_after": "f444a19d54252e1dfbf1fd6d7ddc1b72d9ed55b2ff52e7dad3bbce624316bfd0",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/intent-live-service-check-20261022.md",
+    "to": "docs/testing/intent-live-service-check-20261022.md",
+    "sha256_before": "063f3db2b951f01568793119f36e2a03c6bc0084053023a2ecf56841bb956d9e",
+    "size": 5934,
+    "mode": "0o664",
+    "sha256_after": "9e79e72da6431b1ff859727c3dd14cbecdb47a4c5e6be722fcf62220b9347343",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/intent-realistic-service-check-20261022.md",
+    "to": "docs/testing/intent-realistic-service-check-20261022.md",
+    "sha256_before": "15a073e9b36818951a289d7c4b9dd39701a3ae76c1d5a02fd21becffbcc87d89",
+    "size": 12972,
+    "mode": "0o664",
+    "sha256_after": "a18313e2d1545d8f9177e2906e4b5f2d3cf6539ed8fb0f337bed86dbaf7951fb",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/intent-recognition-latency-analysis-20261022.md",
+    "to": "docs/testing/intent-recognition-latency-analysis-20261022.md",
+    "sha256_before": "008c8b3966457eab7308da5830d3e175577ef948d427b8d607077f4215a01d92",
+    "size": 12489,
+    "mode": "0o664",
+    "sha256_after": "000b94dc8adeedfd3b6e055caf6d09fce63bad0d444ca3c6b8b6a1c93b62c516",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/mobile-platform-compliance-sse-test-record-20260915.md",
+    "to": "docs/testing/mobile-platform-compliance-sse-test-record-20260915.md",
+    "sha256_before": "22fbdac705bfdc84c543b47ed7a5ad2559cc472184258d20344f6f9e17427e11",
+    "size": 8402,
+    "mode": "0o664",
+    "sha256_after": "22fbdac705bfdc84c543b47ed7a5ad2559cc472184258d20344f6f9e17427e11",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/mobile-platform-compliance-test-plan.md",
+    "to": "docs/testing/mobile-platform-compliance-test-plan.md",
+    "sha256_before": "5ca6e43e6111511b645fd9352bbf8690c7e5876ad06d9bb5e1b6409dd763b5f5",
+    "size": 9916,
+    "mode": "0o664",
+    "sha256_after": "5ca6e43e6111511b645fd9352bbf8690c7e5876ad06d9bb5e1b6409dd763b5f5",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/mobile-platform-live-test-cases.md",
+    "to": "docs/testing/mobile-platform-live-test-cases.md",
+    "sha256_before": "dc9d668bc2339dfafdc75ef00e532ad0bf980e0313778a913e5715009433748b",
+    "size": 9604,
+    "mode": "0o664",
+    "sha256_after": "dc9d668bc2339dfafdc75ef00e532ad0bf980e0313778a913e5715009433748b",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/mobile-platform-manual-ui-sse-record-20260916.md",
+    "to": "docs/testing/mobile-platform-manual-ui-sse-record-20260916.md",
+    "sha256_before": "98f594359d3d38abdd16c45c6c35ff0dd38adf40841e4377782a1e581ffe7c6e",
+    "size": 6509,
+    "mode": "0o664",
+    "sha256_after": "98f594359d3d38abdd16c45c6c35ff0dd38adf40841e4377782a1e581ffe7c6e",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/video-surveillance-qwen35b-test-report.md",
+    "to": "docs/testing/video-surveillance-qwen35b-test-report.md",
+    "sha256_before": "d91021056cecf45d6bbad5e578d492b84efdf6718ed12f392c7d471553fc10cd",
+    "size": 7209,
+    "mode": "0o664",
+    "sha256_after": "d91021056cecf45d6bbad5e578d492b84efdf6718ed12f392c7d471553fc10cd",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/video-surveillance-routing-questions-test-20260726.md",
+    "to": "docs/testing/video-surveillance-routing-questions-test-20260726.md",
+    "sha256_before": "988b1c50d1fb8005a02d64186c0663b141a78741b02876cf2a4e20f43c9f6601",
+    "size": 12035,
+    "mode": "0o664",
+    "sha256_after": "cae0ec5eda6bbfa7fbfabcc3cc87f35ee32109f18f21f5145f1be3887118f13a",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/video-surveillance-skill-routing-questions.md",
+    "to": "docs/testing/video-surveillance-skill-routing-questions.md",
+    "sha256_before": "3ed616cc12621ec1e4b714dd271178c268bba9732a0f810ea82b024ef39e11c4",
+    "size": 6876,
+    "mode": "0o664",
+    "sha256_after": "0897161c95a0c4d6022e1e8c0ff51b3358f40827c21e1ff499c0a9db43db0786",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/video-surveillance-skill-test-20260726.md",
+    "to": "docs/testing/video-surveillance-skill-test-20260726.md",
+    "sha256_before": "91e89fe885b896bf1b542dd87c40c2b88f2c76986f06e347bcec0ec9bb46bc16",
+    "size": 41516,
+    "mode": "0o664",
+    "sha256_after": "a792c9c45af581dcaa212836cf941b296165f3c4351dc78653cd80f31cd91fd4",
+    "content_unchanged": false
+  },
+  {
+    "from": "网络流量分析示例问题清单.md",
+    "to": "docs/testing/网络流量分析示例问题清单.md",
+    "sha256_before": "9ecab920b516a386a0cef332f92c11c46dd010e2fa1968092a9d6553a422241a",
+    "size": 7455,
+    "mode": "0o664",
+    "sha256_after": "9ecab920b516a386a0cef332f92c11c46dd010e2fa1968092a9d6553a422241a",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "to": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "sha256_before": "6a492f0ee6a976081db9c8d6f8c19efa75ab2d25d787fc79f5aabf6495bff724",
+    "size": 34075,
+    "mode": "0o664",
+    "sha256_after": "6a492f0ee6a976081db9c8d6f8c19efa75ab2d25d787fc79f5aabf6495bff724",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/concurrency-implementation-20261029.md",
+    "to": "docs/history/concurrency-implementation-20261029.md",
+    "sha256_before": "2a5db4a0fab962459664e9d4a301341b04c8024c13539d40fdacb6b5ad8024ea",
+    "size": 8785,
+    "mode": "0o664",
+    "sha256_after": "85c7179450c1ce6c09ee1483e16015770b47c90dfa11b298a391b110e0c8417c",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/duplicate-answer-display-fix-20261029.md",
+    "to": "docs/history/duplicate-answer-display-fix-20261029.md",
+    "sha256_before": "f1633c0c23798174fedc6de01ededec6e46ea5bb75b81cb7915269bfd0f3dfdd",
+    "size": 2354,
+    "mode": "0o664",
+    "sha256_after": "398382db2d88b230447dd4c4471b07011ff56aa93ac17e8676270fdf87ceb25b",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/full-flow-fixes-20261022.md",
+    "to": "docs/history/full-flow-fixes-20261022.md",
+    "sha256_before": "e720dfb8914f0b2496fc24e502eaece040fcaaa8304d91408a0b07024bf181ca",
+    "size": 9654,
+    "mode": "0o664",
+    "sha256_after": "31001d3a22ab7bab1d6728c4420cb638e7871e4a96ff38e4dc253dbd3f0720f7",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/intent-recognition-optimization-20261022.md",
+    "to": "docs/history/intent-recognition-optimization-20261022.md",
+    "sha256_before": "155cd90789d39697d9ff22f461a77b68f45e56b8427818db61d172c11f5e23e6",
+    "size": 10271,
+    "mode": "0o664",
+    "sha256_after": "8827449119db68d43db3d8d79bcfb45d7ec8a3cff2a2ce4dc654928186f54a32",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/intent-semantic-routing-20261022.md",
+    "to": "docs/history/intent-semantic-routing-20261022.md",
+    "sha256_before": "7d7186fd8884bec0db391c052d0dbd2084bae3f27c4e025e4e670b13f149c230",
+    "size": 12139,
+    "mode": "0o664",
+    "sha256_after": "891f6e9df1c0da8cf761c6c1908086b0e6e7979e53766bb974c47b758091008c",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/multi-user-concurrency-20261029.md",
+    "to": "docs/history/multi-user-concurrency-20261029.md",
+    "sha256_before": "4c7033dd57979667e180d1c96e40213910afd0aa448dd2cd33dfa08c00c26d57",
+    "size": 4911,
+    "mode": "0o664",
+    "sha256_after": "4c7033dd57979667e180d1c96e40213910afd0aa448dd2cd33dfa08c00c26d57",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/optimization-summary-20261028.md",
+    "to": "docs/history/optimization-summary-20261028.md",
+    "sha256_before": "d1b5dd455702109772aba1ccfba4371394077aa2ac76a32b6254a29fc0b9fdc5",
+    "size": 9413,
+    "mode": "0o664",
+    "sha256_after": "641199ff57cbbeae78aa9d6d2c58eea4324b896089716979f962e49c4f59dbda",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/release-concurrency-20261029.md",
+    "to": "docs/history/release-concurrency-20261029.md",
+    "sha256_before": "4bb3af6d533726b17bba11d095ea3d5892b250a69c54333d91c33a82752b9711",
+    "size": 3140,
+    "mode": "0o664",
+    "sha256_after": "4bb3af6d533726b17bba11d095ea3d5892b250a69c54333d91c33a82752b9711",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/remaining-quality-fixes-20261028.md",
+    "to": "docs/history/remaining-quality-fixes-20261028.md",
+    "sha256_before": "3baeccfc80b6514da0ea1498aa4ced0c20a2298afa19ea006ab048446c6babf0",
+    "size": 9848,
+    "mode": "0o664",
+    "sha256_after": "1c777ab27bcc29e90976eb7cb6ca570666955e5cafee0605ee79b86f400a7fbb",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/stage-thinking-policy-20261027.md",
+    "to": "docs/history/stage-thinking-policy-20261027.md",
+    "sha256_before": "d01cba789fd3c81380b09bf2f470c1f0152e0b85fdd1e3c539bd03fcfbadb59d",
+    "size": 3856,
+    "mode": "0o664",
+    "sha256_after": "5bc28cef537188e932005c9214047b446771a00c6c421df491094a724bd82cf7",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/turn-contract-fixes-20261027.md",
+    "to": "docs/history/turn-contract-fixes-20261027.md",
+    "sha256_before": "71aec81586a69c7acc6c1064534ea3b94df0ce7f45cf5970731c95a2b87b4bd1",
+    "size": 16298,
+    "mode": "0o664",
+    "sha256_after": "bd59925d9a9d56faba6447d38fc3f465569b5d794bdd383124232ec4fea36c35",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/user-access-and-concurrency-20261112.md",
+    "to": "docs/history/user-access-and-concurrency-20261112.md",
+    "sha256_before": "55d302345c11e4ad40842199bd0a377b2edbfbeea50f2a0575f7f1e00c326e92",
+    "size": 8570,
+    "mode": "0o664",
+    "sha256_after": "cab065d5bcc8ed8543b562123753831dc9fcd2b2ed3d24b3dd6d2400a4ccc30d",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/video-surveillance-backend-followups.md",
+    "to": "docs/history/video-surveillance-backend-followups.md",
+    "sha256_before": "3f7584763dada3b1bc2f34394b35f30e3a3e944a2784681aa517370440be34d5",
+    "size": 8278,
+    "mode": "0o664",
+    "sha256_after": "ce8a680d92ebd5f2093384488a1a54f44cc4b5e9ef525dbb0e59a7053697e66c",
+    "content_unchanged": false
+  },
+  {
+    "from": "9月24工作增量.md",
+    "to": "docs/history/9月24工作增量.md",
+    "sha256_before": "b712c8264f681fc042bc12cac7410c945ccfdb8fb27fc62f002597b07489eaaa",
+    "size": 14182,
+    "mode": "0o664",
+    "sha256_after": "b712c8264f681fc042bc12cac7410c945ccfdb8fb27fc62f002597b07489eaaa",
+    "content_unchanged": true
+  },
+  {
+    "from": "笔记.md",
+    "to": "docs/history/笔记.md",
+    "sha256_before": "33cb4336037b03c3755ba7d0b7cfbc2881f21f49124a58da08e83409724859c7",
+    "size": 25855,
+    "mode": "0o664",
+    "sha256_after": "33cb4336037b03c3755ba7d0b7cfbc2881f21f49124a58da08e83409724859c7",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/NDBC2026海报内容与排版规划.md",
+    "to": "docs/project-materials/NDBC2026海报内容与排版规划.md",
+    "sha256_before": "54082e7784420828285b1ec2626f8f9e6f109b9118f11471bfde983b43e6636c",
+    "size": 26182,
+    "mode": "0o664",
+    "sha256_after": "db81adbfccf7a5114d7ba4c034f0b502580feb1ab3fa5de547ec58ef973f5a9f",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/user-access-concurrency-demo.md",
+    "to": "docs/project-materials/user-access-concurrency-demo.md",
+    "sha256_before": "a0c4ceead5779b111c3bb90c1295a96a5565763c022de3128c9a376317b40389",
+    "size": 2044,
+    "mode": "0o664",
+    "sha256_after": "a0c4ceead5779b111c3bb90c1295a96a5565763c022de3128c9a376317b40389",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/项目环境说明_外部验收_20261126.md",
+    "to": "docs/project-materials/项目环境说明_外部验收_20261126.md",
+    "sha256_before": "f47cf153a178b3ff62d18a444cd5e221004f1fd5c95b2021cd2854432643eea6",
+    "size": 22602,
+    "mode": "0o664",
+    "sha256_after": "f7e48c0a30a41726ddc6a71120ea2a49b25e27869ae9b8145a6a6e984cc76769",
+    "content_unchanged": false
+  },
+  {
+    "from": "docs/项目环境说明_外部验收_20261126.docx",
+    "to": "docs/project-materials/项目环境说明_外部验收_20261126.docx",
+    "sha256_before": "0d3291ad898a8d5cbeea481dc1d0e49c87e5b8d5d04d937d0e2149ad3ddb4a64",
+    "size": 22599,
+    "mode": "0o664",
+    "sha256_after": "31e6866cb26666c0796e0377a8470ec4db344a6a107409d363d1c3594a4184ce",
+    "content_unchanged": false
+  },
+  {
+    "from": "202601016-课题2项目进展.pptx",
+    "to": "docs/project-materials/202601016-课题2项目进展.pptx",
+    "sha256_before": "1ace8523beb7763ec59d1e61810d1ba3790ade0b3c50e5311a30e66496e12287",
+    "size": 4434184,
+    "mode": "0o664",
+    "sha256_after": "1ace8523beb7763ec59d1e61810d1ba3790ade0b3c50e5311a30e66496e12287",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/00_README_分工总览.md",
+    "to": "docs/skills/skill-router-design/00_README_分工总览.md",
+    "sha256_before": "7c029289467843c0248deaee03f1f6a00cd58dc9c504a03386b9022f10d9c21a",
+    "size": 5145,
+    "mode": "0o664",
+    "sha256_after": "7c029289467843c0248deaee03f1f6a00cd58dc9c504a03386b9022f10d9c21a",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师A_公共契约_Schema_配置.md",
+    "to": "docs/skills/skill-router-design/工程师A_公共契约_Schema_配置.md",
+    "sha256_before": "3bb28edae66d643be285cf7a848b53a22c5ad6736e6b9556166fcf37b829a739",
+    "size": 7475,
+    "mode": "0o664",
+    "sha256_after": "3bb28edae66d643be285cf7a848b53a22c5ad6736e6b9556166fcf37b829a739",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师B_RouterCard生成_Registry.md",
+    "to": "docs/skills/skill-router-design/工程师B_RouterCard生成_Registry.md",
+    "sha256_before": "f48049efda15cb294f67ccdea5dda96bc9256e4dff3bbaed1fe61d07b34d6671",
+    "size": 6022,
+    "mode": "0o664",
+    "sha256_after": "f48049efda15cb294f67ccdea5dda96bc9256e4dff3bbaed1fe61d07b34d6671",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师C_Embedding_Reranker_ES索引.md",
+    "to": "docs/skills/skill-router-design/工程师C_Embedding_Reranker_ES索引.md",
+    "sha256_before": "fb512543d961ebc07aeadc87b8e8c85cff56b734225d04220973ceca5c18b040",
+    "size": 5942,
+    "mode": "0o664",
+    "sha256_after": "fb512543d961ebc07aeadc87b8e8c85cff56b734225d04220973ceca5c18b040",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师D_SkillRouterMiddleware.md",
+    "to": "docs/skills/skill-router-design/工程师D_SkillRouterMiddleware.md",
+    "sha256_before": "b121144b480b096c64b41f571dbea6a48c043f09d478c8eba32734b86b937059",
+    "size": 6302,
+    "mode": "0o664",
+    "sha256_after": "b121144b480b096c64b41f571dbea6a48c043f09d478c8eba32734b86b937059",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师E_Agent集成_ThreadState_Todo_Loader.md",
+    "to": "docs/skills/skill-router-design/工程师E_Agent集成_ThreadState_Todo_Loader.md",
+    "sha256_before": "2d010f3dfd06d370b9c54b476987d834a42e5facf2a78fcf3145d573705639e7",
+    "size": 20260,
+    "mode": "0o664",
+    "sha256_after": "2d010f3dfd06d370b9c54b476987d834a42e5facf2a78fcf3145d573705639e7",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师F_SkillCreator自动更新_冲突检测_测试.md",
+    "to": "docs/skills/skill-router-design/工程师F_SkillCreator自动更新_冲突检测_测试.md",
+    "sha256_before": "04c23bcff3f3ce9d9ddd114982a868f826fc6824d6014d3dd2ab269eb95b07cf",
+    "size": 6978,
+    "mode": "0o664",
+    "sha256_after": "04c23bcff3f3ce9d9ddd114982a868f826fc6824d6014d3dd2ab269eb95b07cf",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师G_生产就绪_可观测性_CI.md",
+    "to": "docs/skills/skill-router-design/工程师G_生产就绪_可观测性_CI.md",
+    "sha256_before": "88619e9f41f94c9d2c8b67758aa7c570d84e06749eb4ecc6963a31b5d394f8b1",
+    "size": 9611,
+    "mode": "0o664",
+    "sha256_after": "88619e9f41f94c9d2c8b67758aa7c570d84e06749eb4ecc6963a31b5d394f8b1",
+    "content_unchanged": true
+  },
+  {
+    "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/集成负责人_合并顺序_验收清单.md",
+    "to": "docs/skills/skill-router-design/集成负责人_合并顺序_验收清单.md",
+    "sha256_before": "03344205dd2d89871ae880b9a16df75bbecba6b2da61c9382deee8263b8d118d",
+    "size": 6315,
+    "mode": "0o664",
+    "sha256_after": "03344205dd2d89871ae880b9a16df75bbecba6b2da61c9382deee8263b8d118d",
+    "content_unchanged": true
+  }
+]

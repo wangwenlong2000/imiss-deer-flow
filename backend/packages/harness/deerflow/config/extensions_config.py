@@ -1,5 +1,6 @@
 """Unified extensions configuration for MCP servers and skills."""
 
+import copy
 import json
 import os
 from pathlib import Path
@@ -128,20 +129,67 @@ class ExtensionsConfig(BaseModel):
         Returns:
             ExtensionsConfig: The loaded config, or empty config if file not found.
         """
-        resolved_path = cls.resolve_config_path(config_path)
-        if resolved_path is None:
-            # Return empty config if extensions config file is not found
-            return cls(mcp_servers={}, skills={})
-
         try:
-            with open(resolved_path, encoding="utf-8") as f:
-                config_data = json.load(f)
+            config_data = cls.read_raw_config(config_path)
             cls.resolve_env_variables(config_data)
             return cls.model_validate(config_data)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Extensions config file at {resolved_path} is not valid JSON: {e}") from e
+            raise ValueError("Extensions configuration is not valid JSON") from e
         except Exception as e:
-            raise RuntimeError(f"Failed to load extensions config from {resolved_path}: {e}") from e
+            raise RuntimeError(f"Failed to load extensions configuration ({type(e).__name__})") from e
+
+    @classmethod
+    def resolve_state_path(cls) -> Path | None:
+        """Optional writable management state, separate from release configuration."""
+        value = os.getenv("DEER_FLOW_EXTENSIONS_STATE_PATH")
+        return Path(value) if value else None
+
+    @staticmethod
+    def read_json_object(path: Path) -> dict[str, Any]:
+        with path.open(encoding="utf-8") as stream:
+            data = json.load(stream)
+        if not isinstance(data, dict):
+            raise ValueError("Extensions configuration must be a JSON object")
+        return data
+
+    @classmethod
+    def read_raw_config(cls, config_path: str | None = None) -> dict[str, Any]:
+        """Merge raw references before resolving secrets; never persist resolved values."""
+        base_path = cls.resolve_config_path(config_path)
+        base = cls.read_json_object(base_path) if base_path else {}
+        state_path = cls.resolve_state_path()
+        if state_path is None:
+            return base
+        if base_path is not None and base_path.resolve() == state_path.resolve():
+            raise ValueError("Extensions base configuration and runtime state must use different paths")
+        if not state_path.exists():
+            return base
+        state = cls.read_json_object(state_path)
+        if set(state) - {"mcpServers", "skills"}:
+            raise ValueError("Runtime extensions state may only contain MCP and Skill settings")
+        cls.model_validate(copy.deepcopy(state))
+        if "mcpServers" in state:
+            # The management API replaces the server collection, including deletes.
+            base["mcpServers"] = state["mcpServers"]
+            base.pop("mcp_servers", None)
+        if "skills" in state:
+            base["skills"] = {**base.get("skills", {}), **state["skills"]}
+        return base
+
+    @classmethod
+    def config_revision(cls, config_path: str | None = None) -> tuple:
+        """Detect creation, deletion and atomic replacement across backend processes."""
+        result = []
+        for path in (cls.resolve_config_path(config_path), cls.resolve_state_path()):
+            if path is None:
+                result.append(None)
+                continue
+            try:
+                stat = path.stat()
+                result.append((str(path.absolute()), stat.st_mtime_ns, stat.st_size, stat.st_ino))
+            except FileNotFoundError:
+                result.append((str(path.absolute()), None))
+        return tuple(result)
 
     @classmethod
     def resolve_env_variables(cls, config: dict[str, Any]) -> dict[str, Any]:
@@ -200,6 +248,7 @@ class ExtensionsConfig(BaseModel):
 
 
 _extensions_config: ExtensionsConfig | None = None
+_extensions_revision: tuple | None = None
 
 
 def get_extensions_config() -> ExtensionsConfig:
@@ -211,9 +260,11 @@ def get_extensions_config() -> ExtensionsConfig:
     Returns:
         The cached ExtensionsConfig instance.
     """
-    global _extensions_config
-    if _extensions_config is None:
+    global _extensions_config, _extensions_revision
+    revision = ExtensionsConfig.config_revision()
+    if _extensions_config is None or _extensions_revision != revision:
         _extensions_config = ExtensionsConfig.from_file()
+        _extensions_revision = revision
     return _extensions_config
 
 
@@ -230,8 +281,10 @@ def reload_extensions_config(config_path: str | None = None) -> ExtensionsConfig
     Returns:
         The newly loaded ExtensionsConfig instance.
     """
-    global _extensions_config
+    global _extensions_config, _extensions_revision
+    revision = ExtensionsConfig.config_revision(config_path)
     _extensions_config = ExtensionsConfig.from_file(config_path)
+    _extensions_revision = revision
     return _extensions_config
 
 
@@ -242,8 +295,9 @@ def reset_extensions_config() -> None:
     `get_extensions_config()` to reload from file. Useful for testing
     or when switching between different configurations.
     """
-    global _extensions_config
+    global _extensions_config, _extensions_revision
     _extensions_config = None
+    _extensions_revision = None
 
 
 def set_extensions_config(config: ExtensionsConfig) -> None:
@@ -254,5 +308,6 @@ def set_extensions_config(config: ExtensionsConfig) -> None:
     Args:
         config: The ExtensionsConfig instance to use.
     """
-    global _extensions_config
+    global _extensions_config, _extensions_revision
     _extensions_config = config
+    _extensions_revision = ExtensionsConfig.config_revision()

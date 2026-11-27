@@ -1,0 +1,11 @@
+{
+  "python": "3.12.13 (main, Apr  7 2026, 02:23:40) [GCC 14.2.0]",
+  "packages": {
+    "langchain": "1.2.3",
+    "langgraph": "1.0.10",
+    "langchain-openai": "1.1.7",
+    "openai": "2.15.0",
+    "networkx": "3.6.1",
+    "pydantic": "2.12.5"
+  }
+}

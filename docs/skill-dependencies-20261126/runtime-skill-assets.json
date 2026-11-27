@@ -1,0 +1,10 @@
+{
+  "opengrep": {
+    "path": "/app/skills/custom/program_snippet/opengrep-compliance/vendor/opengrep/linux/opengrep",
+    "exists": true,
+    "size": 40686116,
+    "mode": "0o664",
+    "executable": false
+  },
+  "rules_exists": true
+}

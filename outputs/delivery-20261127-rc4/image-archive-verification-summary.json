@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "operation": "read_only_streamed_image_archive_verification",
+  "verified_at": "2026-11-27T02:27:52.949195+00:00",
+  "passed": true,
+  "package_modified": false,
+  "extraction_performed": false,
+  "docker_calls_performed": false,
+  "boundaries": [
+    "Checks tar logical members after extended-header resolution; does not inspect files inside filesystem layer tar blobs.",
+    "Checks every stored blobs/sha256 payload hash, compressed archive hash/size, and exact Docker RepoTags coverage.",
+    "Image ID association is reported separately for OCI manifest/index digests and legacy config identifiers.",
+    "Absent or unsupported OCI descriptors and incomplete image-identity linkage remain explicit; use --require-manifest-identities for a strict identity gate.",
+    "Does not docker load, execute images, audit all image secrets, verify a signature, or replace business/recovery acceptance."
+  ],
+  "release_version": "20261127-rc4",
+  "platform": "linux/amd64",
+  "archive_integrity_passed": true,
+  "archive_matches_release_manifest": true,
+  "release_manifest_sha256": "89bd2912c47ac0ab8839d3ede37fcb351a9c4df71a52b5bd3734017c767d5ce3",
+  "release_manifest_stat_unchanged": true,
+  "member_count": 142,
+  "regular_file_count": 140,
+  "uncompressed_member_bytes": 5142895176,
+  "compressed_bytes": 4979118035,
+  "archive_sha256": "b131961e7aa45276b50e996d4020f0dfd8cb5ff9cb0fe62d50a34c86e19d5b72",
+  "sha256_blobs_verified": 137,
+  "gzip_crc_and_eof_verified": true,
+  "tar_logical_paths_safe_and_unique": true,
+  "tar_trailing_bytes_all_zero": true,
+  "input_stat_unchanged": true,
+  "input_stat": {
+    "st_dev": 2064,
+    "st_ino": 124327691,
+    "st_size": 4979118035,
+    "st_mtime_ns": 1795746415372395833,
+    "st_ctime_ns": 1795746415372395833
+  },
+  "docker_manifest_entry_count": 6,
+  "docker_repo_tags_exact": true,
+  "docker_repo_tags_unique": true,
+  "references": [
+    "citybrain-deerflow:20261127-rc4",
+    "citybrain-edge:20261127-rc4",
+    "citybrain-onecity:20261127-rc4",
+    "citybrain-sandbox:20261126-compat",
+    "citybrain-toolbox:20261127-rc4",
+    "mysql:8.0.39"
+  ],
+  "oci_root_index_present": true,
+  "oci_metadata_nodes": 10,
+  "oci_referenced_sha256_descriptors_missing": [
+    "sha256:a1f202a397782b7e2a98359b3f476132189b179e04f9123d4750d527e937f138",
+    "sha256:a6d695f7a070073444060075e10a7955ab9abf0f744f1ede6544ea76222376aa"
+  ],
+  "oci_descriptor_algorithms_unsupported": [],
+  "identity_verified_count": 6,
+  "manifest_or_index_id_verified_count": 6,
+  "all_image_ids_linked": true,
+  "all_manifest_or_index_ids_linked": true,
+  "identities": [
+    {
+      "reference": "citybrain-deerflow:20261127-rc4",
+      "expected_image_id": "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59",
+      "archive_config_digest": "sha256:cc9e566dab065602e8ce43ace02517834d7aa61e0fe952183f0f03847960bc27",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_manifest_digest",
+      "selected_manifest_digests": [
+        "sha256:18154f3a763802313db14417978cf3ff320bb07f659c6884699ae6e11e9ecd59"
+      ]
+    },
+    {
+      "reference": "citybrain-edge:20261127-rc4",
+      "expected_image_id": "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4",
+      "archive_config_digest": "sha256:67ff5ca1b9a8e4671f0160f215942a1c15648117183c2be9991496a841f27eb2",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_manifest_digest",
+      "selected_manifest_digests": [
+        "sha256:aa1ac8f1220c26760683452b34686e2c353bbbd58c595feb16e4b9cee3033db4"
+      ]
+    },
+    {
+      "reference": "citybrain-onecity:20261127-rc4",
+      "expected_image_id": "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f",
+      "archive_config_digest": "sha256:995a852d46a683909c263b32bdda6fa61b86bc53b8ea5cc8c3a1f57b61bea825",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_manifest_digest",
+      "selected_manifest_digests": [
+        "sha256:36b63076e0a08cdfd6102e696d42d00e38735504d528c76eeb0ed46e90adad4f"
+      ]
+    },
+    {
+      "reference": "citybrain-sandbox:20261126-compat",
+      "expected_image_id": "sha256:89847f269c6355162a02c0acf4bb54e5b5753c2c12608c514f7d88aba52da672",
+      "archive_config_digest": "sha256:eef9445b8503e74d8b7801e5ffa5ac11a5eaf9a0c4bd2390b1bfae58410e8072",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_index_digest",
+      "selected_manifest_digests": [
+        "sha256:9536c87b78ee94b40472eb8b5caad7c313dd1b288878a845549ce983fe671878"
+      ]
+    },
+    {
+      "reference": "citybrain-toolbox:20261127-rc4",
+      "expected_image_id": "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7",
+      "archive_config_digest": "sha256:7abedd17a418685e102357f0ec7aac040c3f0cccd05894800cc5f78ca289f905",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_manifest_digest",
+      "selected_manifest_digests": [
+        "sha256:e5c0bf78378e9d27d77bf3b72c0252a41e389ad5d1cc1f21be6b7b0d983480b7"
+      ]
+    },
+    {
+      "reference": "mysql:8.0.39",
+      "expected_image_id": "sha256:ccb8f749bb5e59f9f8f03bf7282c7ef27a93a1814a24f0a8a926fb4e19b7fb97",
+      "archive_config_digest": "sha256:f5da8fc4b539c8ff9005b316b41b09d99b6ef6cdf55b5abbfcfd40dd3547f845",
+      "docker_manifest_payload_files_present": true,
+      "identity_verified": true,
+      "manifest_or_index_id_verified": true,
+      "association_kind": "oci_index_digest",
+      "selected_manifest_digests": [
+        "sha256:6b143fc1f4eab6fc9d20f383cd108c680170ff22678c5cd28551d35247fed0b3"
+      ]
+    }
+  ],
+  "seconds": 31.721
+}

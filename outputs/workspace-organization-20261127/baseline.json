@@ -1,0 +1,3572 @@
+{
+  "date": "2026-11-27",
+  "timezone": "Asia/Shanghai",
+  "moves": [
+    {
+      "from": "docs/Linux服务器启动说明.md",
+      "to": "docs/operations/Linux服务器启动说明.md",
+      "sha256_before": "709245f0a7cb4f41c8300eb43916a887319c59a650da2639744623de410a57a2",
+      "size": 5607,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/UPLOAD_AND_MONITORING_GUIDE.md",
+      "to": "docs/operations/UPLOAD_AND_MONITORING_GUIDE.md",
+      "sha256_before": "55c6d8cf22863e2ce00eb1278e6aa7dafe9693cf384b281ae371eee383a8b2eb",
+      "size": 6210,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/deerflow_sandbox_and_filesystem_mcp.md",
+      "to": "docs/operations/deerflow_sandbox_and_filesystem_mcp.md",
+      "sha256_before": "fff2e12f9736444592f310519d21c129e1a216ac2c5e63e0da0b4c1a64cf6d78",
+      "size": 13918,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/no-sudo-no-docker-deploy-flow.md",
+      "to": "docs/operations/no-sudo-no-docker-deploy-flow.md",
+      "sha256_before": "6c5705488de917ad75d7d4e58a3cee6995f95c1fee55e385166f247a2b4ad07d",
+      "size": 2867,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/onecity-private-multiuser-deployment.md",
+      "to": "docs/operations/onecity-private-multiuser-deployment.md",
+      "sha256_before": "15f6e1fb2558aafa17654cb23cca66131ec923a9e42ef98bae260b4379f21c25",
+      "size": 10018,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/opengrep-offline-downloads.md",
+      "to": "docs/operations/opengrep-offline-downloads.md",
+      "sha256_before": "b74c082de7fa88547147d3a82e1b3f1216da865643957d0d823338ee977b42a0",
+      "size": 4652,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/修改端口避免冲突操作文档.md",
+      "to": "docs/operations/修改端口避免冲突操作文档.md",
+      "sha256_before": "eeef32c8485254fa41ce36b9c03cb4c237dfa2fc60fdd38d90788874c8180f6e",
+      "size": 3939,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/启动命令与容器机制说明.md",
+      "to": "docs/operations/启动命令与容器机制说明.md",
+      "sha256_before": "9dd0ea6ba39df5d8d9f43d76c3c2b3f6833400093294f1874bc98c8364982dc3",
+      "size": 23450,
+      "mode": "0o664"
+    },
+    {
+      "from": "SANDBOX_IMAGE_TUTORIAL.md",
+      "to": "docs/operations/SANDBOX_IMAGE_TUTORIAL.md",
+      "sha256_before": "a9ed5e4ad597e69e6409062f356db7cbcffc187b104bd580ac7a33c75a9966df",
+      "size": 8113,
+      "mode": "0o664"
+    },
+    {
+      "from": "model-services启动说明.md",
+      "to": "docs/operations/model-services启动说明.md",
+      "sha256_before": "5212040b54938fdceee80401a8fbf4d5276b61a908d54bf9d45665dbcad48014",
+      "size": 7014,
+      "mode": "0o664"
+    },
+    {
+      "from": "服务器配置登录GitHub教程.md",
+      "to": "docs/operations/服务器配置登录GitHub教程.md",
+      "sha256_before": "7b0cf3fe3e05343085c52dabfe7931d4925adfb1610448329e5c6d69efc9fef6",
+      "size": 5577,
+      "mode": "0o664"
+    },
+    {
+      "from": "本地数据集类型接入教程.md",
+      "to": "docs/operations/本地数据集类型接入教程.md",
+      "sha256_before": "f5d2d2432d548b288508b9ee2ce6ae4f0d2cb1298c609bb7b987acbfadc08ce8",
+      "size": 10557,
+      "mode": "0o664"
+    },
+    {
+      "from": "部署启动.md",
+      "to": "docs/operations/部署启动.md",
+      "sha256_before": "2883404bcd92efb5f7737a0743139edb7c7171787487ff0854a76370837f1586",
+      "size": 10406,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/integration-onecity-20261125.md",
+      "to": "docs/design/integration-onecity-20261125.md",
+      "sha256_before": "b193f5c7378e12d7981a5486c8b62056b84f1f61a5da18a380c0d0317426da17",
+      "size": 6334,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/network-traffic-rag-implementation-plan.md",
+      "to": "docs/design/network-traffic-rag-implementation-plan.md",
+      "sha256_before": "c5fa73cb1f3c0f6541ec1ba47b18f7ccd72c93a2476240cfdc66841b49b2de37",
+      "size": 47689,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-delivered-detectors-integration.md",
+      "to": "docs/compliance/compliance-delivered-detectors-integration.md",
+      "sha256_before": "27d1864bd07a15e23cc4a028453b916e3a4ef93d34bb3da741e2ae36f276ec39",
+      "size": 10627,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-detection-agent-prompt.md",
+      "to": "docs/compliance/compliance-detection-agent-prompt.md",
+      "sha256_before": "d8ca97df8d9719b7fe2d1fb19ebe803733076a95adb56aeeb5eb405043f7b4e3",
+      "size": 10156,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-detection-decisions.md",
+      "to": "docs/compliance/compliance-detection-decisions.md",
+      "sha256_before": "f8b059ab3a4ab1eeb9bb4d59e3af22a5e78167e1250bda2b1c5d7e83c432325d",
+      "size": 39171,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-detection-implementation-plan.md",
+      "to": "docs/compliance/compliance-detection-implementation-plan.md",
+      "sha256_before": "e707536e8bb095b399a1ffb2982952bed8ced2024ebef112e7bef409537d0123",
+      "size": 39130,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-detection-summary.md",
+      "to": "docs/compliance/compliance-detection-summary.md",
+      "sha256_before": "0a7e13edfd38a5ae4ff9dd23a4b6d570065516e5dad639ff977fb9d350a20963",
+      "size": 31897,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-detector-integration-guide.md",
+      "to": "docs/compliance/compliance-detector-integration-guide.md",
+      "sha256_before": "badcea11362e2b60f1308772803038430e9d9e6778b84cb31b6a47d23ef5ea05",
+      "size": 11613,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-e2e-verification.md",
+      "to": "docs/compliance/compliance-e2e-verification.md",
+      "sha256_before": "7ad8d79dd39d57e6d323430680f1b12f7177c9eab0dd362dde8f0fc534b4c605",
+      "size": 10835,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/compliance-evaluation-strategy-issues.md",
+      "to": "docs/compliance/compliance-evaluation-strategy-issues.md",
+      "sha256_before": "5616d7d1d31b8a97cc4ce3b472cc5647964376eddff1210db7dee89292404fc4",
+      "size": 14241,
+      "mode": "0o664"
+    },
+    {
+      "from": "onecityagent-deerflow-compliance-contract.md",
+      "to": "docs/compliance/onecityagent-deerflow-compliance-contract.md",
+      "sha256_before": "e2249fa1ae7ecbf35832bf5d439c36fcef634f494444b2384da2fbef24244a7a",
+      "size": 11101,
+      "mode": "0o664"
+    },
+    {
+      "from": "合规检测实现与异构检测器接入指南.md",
+      "to": "docs/compliance/合规检测实现与异构检测器接入指南.md",
+      "sha256_before": "70759aa94cc4b263e4171bab85934d7623db570831fc37b0fd0f775cc4c3b8aa",
+      "size": 27896,
+      "mode": "0o664"
+    },
+    {
+      "from": "合规评测标注指南7.23.docx",
+      "to": "docs/compliance/reference-materials/合规评测标注指南7.23.docx",
+      "sha256_before": "55f9eca83d0c176dbf59d15e44716174759ea8e4031cfe607e0534b377e2a442",
+      "size": 82312,
+      "mode": "0o664"
+    },
+    {
+      "from": "合规评测标注指南7.23_修订完成版.docx",
+      "to": "docs/compliance/reference-materials/合规评测标注指南7.23_修订完成版.docx",
+      "sha256_before": "2599b6158379b924d7f6d3dd9e133a8301a79f8734f728516ddca1aa5ba39fba",
+      "size": 67497,
+      "mode": "0o664"
+    },
+    {
+      "from": "违规类型详细说明  5.25.pdf",
+      "to": "docs/compliance/reference-materials/违规类型详细说明  5.25.pdf",
+      "sha256_before": "094e29d98f65959a08686b5567432f041bc0734b6924dfa1222b6aee6dabc718",
+      "size": 418915,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_NAME_CONFLICT_FIX.md",
+      "to": "docs/skills/SKILL_NAME_CONFLICT_FIX.md",
+      "sha256_before": "4073103fcd5590dc1355b9cbc29cb42016faec5d59f17004ca0f85c1ef79055a",
+      "size": 24765,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_PRD.md",
+      "to": "docs/skills/SKILL_ROUTER_PRD.md",
+      "sha256_before": "793949aca85a7dbe04e82449f4d9791b7417855a7ddeb974b3c140da144b3575",
+      "size": 54548,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/Skill依赖版本清单_20261126.xlsx",
+      "to": "docs/skills/Skill依赖版本清单_20261126.xlsx",
+      "sha256_before": "30c5c0e1e4580d4096b295ea65b18071f8bc1493f7924107ccbcfff8237d0b2e",
+      "size": 103723,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/skill-migration-opengrep-code-business-dag.md",
+      "to": "docs/skills/skill-migration-opengrep-code-business-dag.md",
+      "sha256_before": "daa0cbabbc32a9f5057cf1da77c1b515d766e42c599bde28e93a1acea1ef83a0",
+      "size": 14592,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/skill_schema_envelope_retrieve_alignment.md",
+      "to": "docs/skills/skill_schema_envelope_retrieve_alignment.md",
+      "sha256_before": "0250ac5dd4b0be92978dc4d378bf71cb6837bee7eb083ec19e463eb28576fedb",
+      "size": 1148,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/skill输入输出和router_card注册规范.md",
+      "to": "docs/skills/skill输入输出和router_card注册规范.md",
+      "sha256_before": "0def9b2f25c449bbd6c0706ef12c5c6ca72366be8ee102c63e41fc230f925066",
+      "size": 30960,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/skill输入输出规范改造指南.md",
+      "to": "docs/skills/skill输入输出规范改造指南.md",
+      "sha256_before": "d8ca363cbbf2bd0d565b50dc7f7a160a006bfdb55db52040401a20d4d090634d",
+      "size": 12945,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/skill配置修改.md",
+      "to": "docs/skills/skill配置修改.md",
+      "sha256_before": "1a06afb8287049b63518ddb83e928edc850fc1199642e190140e0bd28b82110c",
+      "size": 5556,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/deerflow-agent-skill-test.md",
+      "to": "docs/testing/deerflow-agent-skill-test.md",
+      "sha256_before": "6fc7596994456e54bdb418c38ae00e68d30345e5da2627027718cc6399369060",
+      "size": 16347,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/full-flow-service-check-20261022.md",
+      "to": "docs/testing/full-flow-service-check-20261022.md",
+      "sha256_before": "6193320072fcd4e9bac19a58d21550360ff7ae28facb43d66a240acfe193bccd",
+      "size": 13961,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/full-flow-thinking-service-check-20261027.md",
+      "to": "docs/testing/full-flow-thinking-service-check-20261027.md",
+      "sha256_before": "4453759d9dc502c451585ad70ce37d15301e36b25468306c124fbc5de6db84eb",
+      "size": 12087,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/intent-live-service-check-20261022.md",
+      "to": "docs/testing/intent-live-service-check-20261022.md",
+      "sha256_before": "063f3db2b951f01568793119f36e2a03c6bc0084053023a2ecf56841bb956d9e",
+      "size": 5934,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/intent-realistic-service-check-20261022.md",
+      "to": "docs/testing/intent-realistic-service-check-20261022.md",
+      "sha256_before": "15a073e9b36818951a289d7c4b9dd39701a3ae76c1d5a02fd21becffbcc87d89",
+      "size": 12972,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/intent-recognition-latency-analysis-20261022.md",
+      "to": "docs/testing/intent-recognition-latency-analysis-20261022.md",
+      "sha256_before": "008c8b3966457eab7308da5830d3e175577ef948d427b8d607077f4215a01d92",
+      "size": 12489,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/mobile-platform-compliance-sse-test-record-20260915.md",
+      "to": "docs/testing/mobile-platform-compliance-sse-test-record-20260915.md",
+      "sha256_before": "22fbdac705bfdc84c543b47ed7a5ad2559cc472184258d20344f6f9e17427e11",
+      "size": 8402,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/mobile-platform-compliance-test-plan.md",
+      "to": "docs/testing/mobile-platform-compliance-test-plan.md",
+      "sha256_before": "5ca6e43e6111511b645fd9352bbf8690c7e5876ad06d9bb5e1b6409dd763b5f5",
+      "size": 9916,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/mobile-platform-live-test-cases.md",
+      "to": "docs/testing/mobile-platform-live-test-cases.md",
+      "sha256_before": "dc9d668bc2339dfafdc75ef00e532ad0bf980e0313778a913e5715009433748b",
+      "size": 9604,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/mobile-platform-manual-ui-sse-record-20260916.md",
+      "to": "docs/testing/mobile-platform-manual-ui-sse-record-20260916.md",
+      "sha256_before": "98f594359d3d38abdd16c45c6c35ff0dd38adf40841e4377782a1e581ffe7c6e",
+      "size": 6509,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/video-surveillance-qwen35b-test-report.md",
+      "to": "docs/testing/video-surveillance-qwen35b-test-report.md",
+      "sha256_before": "d91021056cecf45d6bbad5e578d492b84efdf6718ed12f392c7d471553fc10cd",
+      "size": 7209,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/video-surveillance-routing-questions-test-20260726.md",
+      "to": "docs/testing/video-surveillance-routing-questions-test-20260726.md",
+      "sha256_before": "988b1c50d1fb8005a02d64186c0663b141a78741b02876cf2a4e20f43c9f6601",
+      "size": 12035,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/video-surveillance-skill-routing-questions.md",
+      "to": "docs/testing/video-surveillance-skill-routing-questions.md",
+      "sha256_before": "3ed616cc12621ec1e4b714dd271178c268bba9732a0f810ea82b024ef39e11c4",
+      "size": 6876,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/video-surveillance-skill-test-20260726.md",
+      "to": "docs/testing/video-surveillance-skill-test-20260726.md",
+      "sha256_before": "91e89fe885b896bf1b542dd87c40c2b88f2c76986f06e347bcec0ec9bb46bc16",
+      "size": 41516,
+      "mode": "0o664"
+    },
+    {
+      "from": "网络流量分析示例问题清单.md",
+      "to": "docs/testing/网络流量分析示例问题清单.md",
+      "sha256_before": "9ecab920b516a386a0cef332f92c11c46dd010e2fa1968092a9d6553a422241a",
+      "size": 7455,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/CODE_CHANGE_SUMMARY_BY_FILE.md",
+      "to": "docs/history/CODE_CHANGE_SUMMARY_BY_FILE.md",
+      "sha256_before": "6a492f0ee6a976081db9c8d6f8c19efa75ab2d25d787fc79f5aabf6495bff724",
+      "size": 34075,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/concurrency-implementation-20261029.md",
+      "to": "docs/history/concurrency-implementation-20261029.md",
+      "sha256_before": "2a5db4a0fab962459664e9d4a301341b04c8024c13539d40fdacb6b5ad8024ea",
+      "size": 8785,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/duplicate-answer-display-fix-20261029.md",
+      "to": "docs/history/duplicate-answer-display-fix-20261029.md",
+      "sha256_before": "f1633c0c23798174fedc6de01ededec6e46ea5bb75b81cb7915269bfd0f3dfdd",
+      "size": 2354,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/full-flow-fixes-20261022.md",
+      "to": "docs/history/full-flow-fixes-20261022.md",
+      "sha256_before": "e720dfb8914f0b2496fc24e502eaece040fcaaa8304d91408a0b07024bf181ca",
+      "size": 9654,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/intent-recognition-optimization-20261022.md",
+      "to": "docs/history/intent-recognition-optimization-20261022.md",
+      "sha256_before": "155cd90789d39697d9ff22f461a77b68f45e56b8427818db61d172c11f5e23e6",
+      "size": 10271,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/intent-semantic-routing-20261022.md",
+      "to": "docs/history/intent-semantic-routing-20261022.md",
+      "sha256_before": "7d7186fd8884bec0db391c052d0dbd2084bae3f27c4e025e4e670b13f149c230",
+      "size": 12139,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/multi-user-concurrency-20261029.md",
+      "to": "docs/history/multi-user-concurrency-20261029.md",
+      "sha256_before": "4c7033dd57979667e180d1c96e40213910afd0aa448dd2cd33dfa08c00c26d57",
+      "size": 4911,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/optimization-summary-20261028.md",
+      "to": "docs/history/optimization-summary-20261028.md",
+      "sha256_before": "d1b5dd455702109772aba1ccfba4371394077aa2ac76a32b6254a29fc0b9fdc5",
+      "size": 9413,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/release-concurrency-20261029.md",
+      "to": "docs/history/release-concurrency-20261029.md",
+      "sha256_before": "4bb3af6d533726b17bba11d095ea3d5892b250a69c54333d91c33a82752b9711",
+      "size": 3140,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/remaining-quality-fixes-20261028.md",
+      "to": "docs/history/remaining-quality-fixes-20261028.md",
+      "sha256_before": "3baeccfc80b6514da0ea1498aa4ced0c20a2298afa19ea006ab048446c6babf0",
+      "size": 9848,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/stage-thinking-policy-20261027.md",
+      "to": "docs/history/stage-thinking-policy-20261027.md",
+      "sha256_before": "d01cba789fd3c81380b09bf2f470c1f0152e0b85fdd1e3c539bd03fcfbadb59d",
+      "size": 3856,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/turn-contract-fixes-20261027.md",
+      "to": "docs/history/turn-contract-fixes-20261027.md",
+      "sha256_before": "71aec81586a69c7acc6c1064534ea3b94df0ce7f45cf5970731c95a2b87b4bd1",
+      "size": 16298,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/user-access-and-concurrency-20261112.md",
+      "to": "docs/history/user-access-and-concurrency-20261112.md",
+      "sha256_before": "55d302345c11e4ad40842199bd0a377b2edbfbeea50f2a0575f7f1e00c326e92",
+      "size": 8570,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/video-surveillance-backend-followups.md",
+      "to": "docs/history/video-surveillance-backend-followups.md",
+      "sha256_before": "3f7584763dada3b1bc2f34394b35f30e3a3e944a2784681aa517370440be34d5",
+      "size": 8278,
+      "mode": "0o664"
+    },
+    {
+      "from": "9月24工作增量.md",
+      "to": "docs/history/9月24工作增量.md",
+      "sha256_before": "b712c8264f681fc042bc12cac7410c945ccfdb8fb27fc62f002597b07489eaaa",
+      "size": 14182,
+      "mode": "0o664"
+    },
+    {
+      "from": "笔记.md",
+      "to": "docs/history/笔记.md",
+      "sha256_before": "33cb4336037b03c3755ba7d0b7cfbc2881f21f49124a58da08e83409724859c7",
+      "size": 25855,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/NDBC2026海报内容与排版规划.md",
+      "to": "docs/project-materials/NDBC2026海报内容与排版规划.md",
+      "sha256_before": "54082e7784420828285b1ec2626f8f9e6f109b9118f11471bfde983b43e6636c",
+      "size": 26182,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/user-access-concurrency-demo.md",
+      "to": "docs/project-materials/user-access-concurrency-demo.md",
+      "sha256_before": "a0c4ceead5779b111c3bb90c1295a96a5565763c022de3128c9a376317b40389",
+      "size": 2044,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/项目环境说明_外部验收_20261126.md",
+      "to": "docs/project-materials/项目环境说明_外部验收_20261126.md",
+      "sha256_before": "f47cf153a178b3ff62d18a444cd5e221004f1fd5c95b2021cd2854432643eea6",
+      "size": 22602,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/项目环境说明_外部验收_20261126.docx",
+      "to": "docs/project-materials/项目环境说明_外部验收_20261126.docx",
+      "sha256_before": "0d3291ad898a8d5cbeea481dc1d0e49c87e5b8d5d04d937d0e2149ad3ddb4a64",
+      "size": 22599,
+      "mode": "0o664"
+    },
+    {
+      "from": "202601016-课题2项目进展.pptx",
+      "to": "docs/project-materials/202601016-课题2项目进展.pptx",
+      "sha256_before": "1ace8523beb7763ec59d1e61810d1ba3790ade0b3c50e5311a30e66496e12287",
+      "size": 4434184,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/00_README_分工总览.md",
+      "to": "docs/skills/skill-router-design/00_README_分工总览.md",
+      "sha256_before": "7c029289467843c0248deaee03f1f6a00cd58dc9c504a03386b9022f10d9c21a",
+      "size": 5145,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师A_公共契约_Schema_配置.md",
+      "to": "docs/skills/skill-router-design/工程师A_公共契约_Schema_配置.md",
+      "sha256_before": "3bb28edae66d643be285cf7a848b53a22c5ad6736e6b9556166fcf37b829a739",
+      "size": 7475,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师B_RouterCard生成_Registry.md",
+      "to": "docs/skills/skill-router-design/工程师B_RouterCard生成_Registry.md",
+      "sha256_before": "f48049efda15cb294f67ccdea5dda96bc9256e4dff3bbaed1fe61d07b34d6671",
+      "size": 6022,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师C_Embedding_Reranker_ES索引.md",
+      "to": "docs/skills/skill-router-design/工程师C_Embedding_Reranker_ES索引.md",
+      "sha256_before": "fb512543d961ebc07aeadc87b8e8c85cff56b734225d04220973ceca5c18b040",
+      "size": 5942,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师D_SkillRouterMiddleware.md",
+      "to": "docs/skills/skill-router-design/工程师D_SkillRouterMiddleware.md",
+      "sha256_before": "b121144b480b096c64b41f571dbea6a48c043f09d478c8eba32734b86b937059",
+      "size": 6302,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师E_Agent集成_ThreadState_Todo_Loader.md",
+      "to": "docs/skills/skill-router-design/工程师E_Agent集成_ThreadState_Todo_Loader.md",
+      "sha256_before": "2d010f3dfd06d370b9c54b476987d834a42e5facf2a78fcf3145d573705639e7",
+      "size": 20260,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师F_SkillCreator自动更新_冲突检测_测试.md",
+      "to": "docs/skills/skill-router-design/工程师F_SkillCreator自动更新_冲突检测_测试.md",
+      "sha256_before": "04c23bcff3f3ce9d9ddd114982a868f826fc6824d6014d3dd2ab269eb95b07cf",
+      "size": 6978,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师G_生产就绪_可观测性_CI.md",
+      "to": "docs/skills/skill-router-design/工程师G_生产就绪_可观测性_CI.md",
+      "sha256_before": "88619e9f41f94c9d2c8b67758aa7c570d84e06749eb4ecc6963a31b5d394f8b1",
+      "size": 9611,
+      "mode": "0o664"
+    },
+    {
+      "from": "docs/SKILL_ROUTER_Engineer Division of Labor Document/集成负责人_合并顺序_验收清单.md",
+      "to": "docs/skills/skill-router-design/集成负责人_合并顺序_验收清单.md",
+      "sha256_before": "03344205dd2d89871ae880b9a16df75bbecba6b2da61c9382deee8263b8d118d",
+      "size": 6315,
+      "mode": "0o664"
+    }
+  ],
+  "protected_files": {
+    "docs/installation/README.md": {
+      "sha256": "977f4b184e9d37a7ebe0c076c601cf65dd381b190e3b41936f1b2a113c958c78",
+      "size": 7562
+    },
+    "docs/intent-semantic-eval-20261022/semantic-v3-provided.summary.json": {
+      "sha256": "9366c951f1f1a35d5cdeb08a9101b400a60d845c830cd982511f426c9ebf8b87",
+      "size": 5057
+    },
+    "docs/intent-semantic-eval-20261022/semantic-holdout-v1.summary.json": {
+      "sha256": "466e099392c57643da8e3df8bc683e4ff4a41307f4d29c2fea954c7dc768f454",
+      "size": 1792
+    },
+    "docs/intent-semantic-eval-20261022/semantic-ten-regression.summary.json": {
+      "sha256": "4c353434647dc571fd536cf40206c49a90efac1193f0eeafb6e67e6f84601a36",
+      "size": 4603
+    },
+    "docs/intent-semantic-eval-20261022/semantic-v1.summary.json": {
+      "sha256": "43f5f5b354ffd716bdd762190e3da61dee7a40509c86a614077ad64f3a4bbe9f",
+      "size": 4520
+    },
+    "docs/intent-semantic-eval-20261022/semantic-ten-final-provided.summary.json": {
+      "sha256": "d4bec2343911767620bebb702f2a38d68d2019016665b4dacfa676ffc6555851",
+      "size": 5090
+    },
+    "docs/intent-semantic-eval-20261022/semantic-v3-probes.summary.json": {
+      "sha256": "6025eab181b0ac876a1fd2ed73d6ac3d5a4a3f3011cc12105d3dd4f519b58af3",
+      "size": 1741
+    },
+    "docs/intent-semantic-eval-20261022/semantic-ten-final-probes.summary.json": {
+      "sha256": "0e58eda04a9c0fbd1b545dd6b653eb5f77f5fe8a1a975c83bb038b4ec3c3fd44",
+      "size": 1789
+    },
+    "docs/intent-semantic-eval-20261022/summary.json": {
+      "sha256": "ea9bf263828663892614ba751b390f2f38398fbe956b3d7818f01f927d30243d",
+      "size": 5337
+    },
+    "docs/intent-semantic-eval-20261022/semantic-v3-regression.summary.json": {
+      "sha256": "b235b8276d2a75d8f0fc1b0fcfb6c6e7ae867fefff937be7949c1a8f9bb6a386",
+      "size": 4563
+    },
+    "docs/intent-semantic-eval-20261022/semantic-v3-contextual.summary.json": {
+      "sha256": "a97addeed3897ea31f10706cf2a71181e687730b9d84c16a0c9451595ee2fb11",
+      "size": 1806
+    },
+    "docs/remaining-quality-fixes-eval-20261028/audit-legacy.json": {
+      "sha256": "8bcc95ea5a90c3b6251906c3ead5567c9bc83c2f447296084eecdeb3c65f4e8b",
+      "size": 19149
+    },
+    "docs/remaining-quality-fixes-eval-20261028/current-scope-review.json": {
+      "sha256": "dcf97a6dae06b5193530852ad12a4487248b5537aadb800b944c3f9a39d82833",
+      "size": 2107
+    },
+    "docs/remaining-quality-fixes-eval-20261028/compliance-frozen-eval.json": {
+      "sha256": "23a7a3d232e145e00a3af54825e3d408d4ba7ddf1f6980b61a89b66e52557d82",
+      "size": 1077
+    },
+    "docs/remaining-quality-fixes-eval-20261028/audit.json": {
+      "sha256": "b876b296c83d692524cb8afb6c1579b1a02ff4c92aaebdbddfd2e816a38eda5c",
+      "size": 28450
+    },
+    "docs/remaining-quality-fixes-eval-20261028/residual-prose-evidence.json": {
+      "sha256": "7ec0a2b6f9573da6ba2c45da910d740cd67942c48a4d494a6f999373ddeed360",
+      "size": 820
+    },
+    "docs/remaining-quality-fixes-eval-20261028/manual-review-legacy.json": {
+      "sha256": "5038fe44cc52391ca6785564a00274ea7bdc7eebd7c0092a205d99ffa50ab1be",
+      "size": 3239
+    },
+    "docs/remaining-quality-fixes-eval-20261028/format-only-change.json": {
+      "sha256": "e9f6bc2f69d85d87d68cbb88717bc6a21da4d771657d4471b3bb1b4be68e9d5d",
+      "size": 433
+    },
+    "docs/remaining-quality-fixes-eval-20261028/batch-delivery-replay.json": {
+      "sha256": "b7bfdb641d44fc26ee11d8f79280497f7501b2f06f8fcb96152a4f6da32ab686",
+      "size": 288
+    },
+    "docs/remaining-quality-fixes-eval-20261028/delivery-integrity-summary.json": {
+      "sha256": "d0092f0d4286956e8ecb065861590eff60df0a033763045098298724c416b4c7",
+      "size": 20184
+    },
+    "docs/remaining-quality-fixes-eval-20261028/final-mobile-replay.json": {
+      "sha256": "19fd2a1ba13b27115a19651fac5e993a92e229bda30d91d48762fbb605fec78a",
+      "size": 6314
+    },
+    "docs/remaining-quality-fixes-eval-20261028/deterministic-comparison-replay.json": {
+      "sha256": "9fb283d78a67c7628895422965937b7af89ca1d27f9e1286b40d8b31c71adebe",
+      "size": 477
+    },
+    "docs/remaining-quality-fixes-eval-20261028/manual-review-thinking.json": {
+      "sha256": "746be3cc99c8290b07208ac72843ecfba5f9cfe842121811af31c232b099dca5",
+      "size": 5250
+    },
+    "docs/remaining-quality-fixes-eval-20261028/verification-summary.json": {
+      "sha256": "d185b7121b9880f83742e1525bc8c75eef63747f84e50119bb517792d9802dab",
+      "size": 5640
+    },
+    "docs/intent-recognition-eval-20261022/summary.json": {
+      "sha256": "5fca4d01369c0d3391cf102214bf363e2102f4d8fbc7b8117bb07d4ddd443e81",
+      "size": 7394
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/C.input.csv": {
+      "sha256": "f77fd964230e8cb3c9d2c02624a922d992373d4ecf0286b9c505a75e791f8c31",
+      "size": 194
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/C.report.csv": {
+      "sha256": "8e6e61e92d1887579193f3df2f052d855a71da819751b9bc1a9cb2655a032b42",
+      "size": 99
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/B.report.csv": {
+      "sha256": "aec82a1b72890535f42f22eefdbc12088e801220e3de1e35f32439853418c4a6",
+      "size": 97
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/B.input.csv": {
+      "sha256": "21d36a17f623bd7c0ac310c3ff325e7e26d5346f1d8820df468cf50ffd8aaf7c",
+      "size": 194
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/A.input.csv": {
+      "sha256": "ce895c87492ef44c86eeec8a5205684f0f2c6903a989bae08a156970c47fe17c",
+      "size": 194
+    },
+    "docs/concurrency-implementation-eval-20261029/real-business/A.report.csv": {
+      "sha256": "50cbd7186f346e46f646a2365370644590279465adb72debcbf034a39d5a7e1b",
+      "size": 97
+    },
+    "docs/turn-contract-fixes-eval-20261027/nonthinking-legacy/road-turn-1.answer.md": {
+      "sha256": "94015e21b8e9c38e87312c7fd46c26dcaf872f46e7e01387b54b695a5fba40ee",
+      "size": 621
+    },
+    "docs/acceptance/20261127-rc3.md": {
+      "sha256": "c5131b5dd1e2655cfcde749da61cd517c1af0e24eb99a5aa5fcc3e6aafdf514e",
+      "size": 2727
+    },
+    "docs/acceptance/20261127-rc4.md": {
+      "sha256": "3582d99739adf83df39459bc637a29e59384f54fb6f55979aab6169c26180c56",
+      "size": 6163
+    },
+    "docs/acceptance/20261127-rc2.md": {
+      "sha256": "19eb46a49b1dbf1f74f84158db4893b8275d79f398b35fb55d1bf8a88f52f005",
+      "size": 2774
+    },
+    "docs/intent-live-service-eval-20261022/summary.json": {
+      "sha256": "2c1152cfed4982779a97322cc4fc903a33a92cdd0bdc9f28e5893871d8299291",
+      "size": 4095
+    },
+    "docs/skill-dependencies-20261126/sandbox-installed-versions.txt": {
+      "sha256": "c09f1c69e23b09ddf58a378cfe4b759d5eeb4d2c84f56b004b53f99836016498",
+      "size": 7351
+    },
+    "docs/skill-dependencies-20261126/dependencies.csv": {
+      "sha256": "736b1c64c1f4022d0581ee1f3cc021e776ba335e8ca29cb5f8502a1dda888df6",
+      "size": 144007
+    },
+    "docs/skill-dependencies-20261126/runtime-mounted-skills.json": {
+      "sha256": "68866d6f5f94b932aa92a715708bb90043763d219744fe81f2c5e6d8faf24e37",
+      "size": 15582
+    },
+    "docs/skill-dependencies-20261126/workbook-data.json": {
+      "sha256": "f8fa821009b39bb9d371205b41e2b0e98d2751538d89acbac2b8456ed79aed10",
+      "size": 440559
+    },
+    "docs/skill-dependencies-20261126/runtime-skill-assets.json": {
+      "sha256": "9c55af47f83770c11c8f0044f0b97949bc96b29537ac9f6dd33d993e8501a35e",
+      "size": 236
+    },
+    "docs/skill-dependencies-20261126/skills.json": {
+      "sha256": "48e578bca61baea91341b8bb7c8c58fce47de951dade4fe383b63798763a0d8f",
+      "size": 366286
+    },
+    "docs/skill-dependencies-20261126/runtime-backend.json": {
+      "sha256": "58fadcb99260f2997492e3caffbd1ec052864d26193bc3e35215491c2a35240c",
+      "size": 250
+    },
+    "docs/skill-dependencies-20261126/runtime-sandbox.json": {
+      "sha256": "1f8ecc0cfb9663d8aab16d7c38295b4e1c92d84c3cd6dc6b6ea1df0f36c33d00",
+      "size": 166220
+    },
+    "docs/intent-realistic-service-eval-20261022/history-comparison.summary.json": {
+      "sha256": "6b9dbb7e968b1968c4effcaac817a216b79a7bb9e451f72eddb376c0a796232d",
+      "size": 1219
+    },
+    "docs/intent-realistic-service-eval-20261022/replication-2.summary.json": {
+      "sha256": "a88910ca49c1b4e89c1a8b5ad190962d642ae568078fde562008fa38782ce3b8",
+      "size": 2760
+    },
+    "docs/intent-realistic-service-eval-20261022/replication-3.summary.json": {
+      "sha256": "e26fa19a50415493b1768981f1dad500d09f7c1af8b31612097fc71092f39bec",
+      "size": 2784
+    },
+    "docs/intent-realistic-service-eval-20261022/raster-recheck.summary.json": {
+      "sha256": "4c00ba77c1b66aef90b3aa7719516e747c4071225338dfcbc8b9929543510e30",
+      "size": 1152
+    },
+    "docs/intent-realistic-service-eval-20261022/replication-1.summary.json": {
+      "sha256": "d66ef723ce31fc8329408fc1225a8a64f5bdadffb6fbb5fe21fb23df8713bf7a",
+      "size": 2756
+    },
+    "docs/intent-realistic-service-eval-20261022/pilot.summary.json": {
+      "sha256": "51d9b3f4043d8153e6c9990523b10684111116d517cebdb0d30a9a19127ce688",
+      "size": 2209
+    },
+    "docs/intent-realistic-service-eval-20261022/photo-recheck.summary.json": {
+      "sha256": "4a187676869c3da7ca53077a5f26571216df9fd573c37dfe07d8cbe32729eb0d",
+      "size": 1148
+    },
+    "docs/intent-realistic-service-eval-20261022/results.summary.json": {
+      "sha256": "91bc485436dfd73683377ff85bcf04c2cf3cfbfca841eecaa06a72d05509a36b",
+      "size": 4954
+    },
+    "docs/full-flow-thinking-eval-20261027/run_full_flow.py": {
+      "sha256": "f6fd9395430ac67bb2d251bcb37085c69ba9e0a403551e660c88fb1fb0334f9e",
+      "size": 11601
+    },
+    "docs/full-flow-thinking-eval-20261027/cases.json": {
+      "sha256": "637b09ea28b5ffcfc696e69da31305368e82a0c2d56220b84f18542611643840",
+      "size": 10696
+    },
+    "docs/full-flow-thinking-eval-20261027/fixtures/gps_unsorted.csv": {
+      "sha256": "e36b1f520e01ea6f1262054897a3c73b11459656e64d698123047a6ce961aca0",
+      "size": 377
+    },
+    "docs/full-flow-thinking-eval-20261027/fixtures/session_new.flow.csv": {
+      "sha256": "1f75ce3f013b654bfa45aec3e9feb345f32b5c5cc78c0e987bc844f05eb56482",
+      "size": 402
+    },
+    "docs/full-flow-thinking-eval-20261027/fixtures/city_zero_base.csv": {
+      "sha256": "a18c7682302ca8c36f413a1faf86c32c1b8cf90783a66f5e2e87f92de5f6a5ff",
+      "size": 64
+    },
+    "docs/full-flow-thinking-eval-20261027/fixtures/traffic_days.csv": {
+      "sha256": "c411840b80583f0e8ed55532b90b79bb731b50707f6718c892a4f33ef55b395f",
+      "size": 335
+    },
+    "docs/full-flow-service-eval-20261022/run_full_flow.py": {
+      "sha256": "39999f7e664268355a151efc4ece307dbf56123efa9d88ac65fb06e4a690ef29",
+      "size": 11537
+    },
+    "docs/full-flow-service-eval-20261022/cases.json": {
+      "sha256": "f3562882932424ddccc934268242bf184d4c6fc59f45612c835f8e1b32abc09f",
+      "size": 5865
+    },
+    "docs/full-flow-service-eval-20261022/fixtures/city_yearbook.csv": {
+      "sha256": "b0c056ce20f266192ee69ba1d26fa62b99b395e960367d423207de33fab79a49",
+      "size": 65
+    },
+    "docs/full-flow-service-eval-20261022/fixtures/gps_stays.csv": {
+      "sha256": "3eee4cae3cd9407baff8d0b93d31ccf2b65ee370ce2d827e678842066e6f0981",
+      "size": 370
+    },
+    "docs/full-flow-service-eval-20261022/fixtures/road_counts.csv": {
+      "sha256": "19926d62643c757107fbd0f5486b007fa622bf32340f62c346ab6bfef243b392",
+      "size": 251
+    },
+    "docs/full-flow-service-eval-20261022/fixtures/traffic.flow.csv": {
+      "sha256": "af7928d78e2583bbeb6447a69899fc610ae885cbcc354a6d9e8d3cbaa2124131",
+      "size": 462
+    },
+    "outputs/latency_thinking_quality_probe.py": {
+      "sha256": "d695e31b4f4ec4138445f6a1d97f3537f57bb02aba032a3170e1bebbc647f334",
+      "size": 4452
+    },
+    "outputs/latency_analyze.py": {
+      "sha256": "f0d19ba70f66dffe2108c8e19d856991f4afed55f564ffa26c16b3ce127cbca8",
+      "size": 5274
+    },
+    "outputs/latency-real-single-analysis.json": {
+      "sha256": "f14369c52e592ac28b7b362714ba09aa38c67420b56652bb865bf398feb1a084",
+      "size": 3107
+    },
+    "outputs/latency-think-on-wide-scene-result.json": {
+      "sha256": "ae33d2f63b9a7ce2494e0678ee5ada24f1e6715a753d2f5d3a398f75b015cd4f",
+      "size": 578
+    },
+    "outputs/latency-fake-model-calls.jsonl": {
+      "sha256": "5b9d141d6b6062dff7c965f00f8941c4fed75bff99bdf50b294b70afe2a9254f",
+      "size": 14863
+    },
+    "outputs/latency-breakdown-report-2026-10-15.md": {
+      "sha256": "36f4d2e3664fba0a135f027a8e9383cd30f64d9c38cc415e0628fff42650a34c",
+      "size": 8207
+    },
+    "outputs/latency-fake-warm-runs.json": {
+      "sha256": "85abbdb778b39457074e76be302dee12c9c9de82f9351da1327040e79170d475",
+      "size": 1698
+    },
+    "outputs/latency-direct-parallel-control.json": {
+      "sha256": "48d217756c102202ba07a2344303e79995124150944858a691452a6d6b183bcf",
+      "size": 914
+    },
+    "outputs/real_request_concurrency_probe.py": {
+      "sha256": "02af48f874de5f2ef5e89f7aa8f97ed806cc9c093059691fd9f8d076414e66b3",
+      "size": 5592
+    },
+    "outputs/real-request-concurrency-report-2026-10-15.md": {
+      "sha256": "749898b821fae10bc3354001d6aa83a0a8e6dd4953dd479f6701c936f044aaf9",
+      "size": 4188
+    },
+    "outputs/latency-thinking-quality-report-2026-10-15.md": {
+      "sha256": "08268d61a3a3a583d52f3755081d3f93fd5bf9659faaec83f8cb23fe353dc373",
+      "size": 3505
+    },
+    "outputs/latency-real-concurrent-analysis.json": {
+      "sha256": "ccd8633f0b144bc30ecf86db202b1f04a63a2b91c4fa4ee12e2d56c0db44018f",
+      "size": 9347
+    },
+    "outputs/concurrency-test-report-2026-10-15.md": {
+      "sha256": "22fca0ae85559d19708ca1f3a77174d484019bb8c4bd31f85cd72d004fed4a9a",
+      "size": 5130
+    },
+    "outputs/concurrency-results.json": {
+      "sha256": "e129114652f66e179c4de047cde0836d454d7140cdd1116df700d85da22522a3",
+      "size": 770
+    },
+    "outputs/latency-real-single-runs.json": {
+      "sha256": "aac1ece1a73943273e74f51549c677178a0c95fa6640eabe91d92221f5cb73d4",
+      "size": 570
+    },
+    "outputs/latency-model-call-timeline.csv": {
+      "sha256": "7b12d9349de2c136c632d7227c85f358e69063a4e3cc6a4cfcaf6d3e402e331e",
+      "size": 15312
+    },
+    "outputs/latency-real-concurrent-runs.json": {
+      "sha256": "6331b10850c5e8bf3aaa1818f0503737e037c10b57d307a5f571b69003804420",
+      "size": 1704
+    },
+    "outputs/real-request-concurrency-results.json": {
+      "sha256": "9ea03238a7add0885556d23d3b302b5b49d364415d756eb4b7ef03d50a9d0ce6",
+      "size": 1541
+    },
+    "outputs/latency-real-model-calls.jsonl": {
+      "sha256": "9d86de2b4e305d477c5e8a7dd9a6f2e2c6625dff49c881db31e431867990f566",
+      "size": 11795
+    },
+    "outputs/latency-fake-analysis.json": {
+      "sha256": "9a7a1dabd24e929c19162e38340bc742c48a6feaac975d20a2b2128a77d700a8",
+      "size": 9224
+    },
+    "outputs/latency-think-off-street-alert-calls.jsonl": {
+      "sha256": "6f609088b7a2370aba837738ce3fed6654206718ebc48725692433a3ed12ecf5",
+      "size": 5167
+    },
+    "outputs/latency-thinking-control.json": {
+      "sha256": "c99a71fc103528d1e91fb19a76784e6de989c9598f71256a636f06e3e50caacb",
+      "size": 618
+    },
+    "outputs/latency-think-on-street-alert-calls.jsonl": {
+      "sha256": "0ea22b6e51957873e3a779eb3b1780475f20745f5a8562e7ea9942d4cb431e0a",
+      "size": 4582
+    },
+    "outputs/latency-fake-warm-analysis.json": {
+      "sha256": "ed956a98896fa69c118785ab0816bda1b87ce545ce5dd11e584cc9b51c808821",
+      "size": 9212
+    },
+    "outputs/latency_model_proxy.py": {
+      "sha256": "243324ae317fd13f0c815482029cb1145cac58d3631dbf9d662cd7074c5bf88b",
+      "size": 11697
+    },
+    "outputs/latency_run_driver.py": {
+      "sha256": "e20074730ca788037515c1ac0cfad5d0949f0709150196e87ff94c7ddd13d056",
+      "size": 5749
+    },
+    "outputs/latency-fake-runs.json": {
+      "sha256": "e9b72590aaea5567d337e34ea97fc4e304220953f7433b39ea73869b4c73d87e",
+      "size": 1698
+    },
+    "outputs/latency-think-on-wide-scene-calls.jsonl": {
+      "sha256": "a813db6e5be3663d683031f604ffc49b09f3e2da1dbb3c9090f497f4f741996b",
+      "size": 7774
+    },
+    "outputs/concurrency_probe.py": {
+      "sha256": "6925992129271161049d20777682502e8b1fad1adade925efd9c2c7db288c8ca",
+      "size": 6431
+    },
+    "outputs/latency_direct_model_probe.py": {
+      "sha256": "4c2bbdb55e2372a0651801b4d36d59f291d09f67c18424c071ceffe6861c0a89",
+      "size": 3498
+    },
+    "outputs/latency-think-on-street-alert-result.json": {
+      "sha256": "d692c69159e18dd9bb38f7de1e857dd54cbd6cab34633edf4c1f82fd5a0f0c57",
+      "size": 851
+    },
+    "outputs/latency-think-off-street-alert-result.json": {
+      "sha256": "f92eae76a5e24625e941d9d4a910668bedc31704bb0641be64d05ae698e2f190",
+      "size": 891
+    },
+    "outputs/ppt-materials-20261112/近期研发成果_PPT汇报语料.docx": {
+      "sha256": "ed5b2423ad0fe731bf465eb223fa8a43ec7d95fc6d2adf77067397500c62a3aa",
+      "size": 20065
+    },
+    "outputs/ppt-materials-20261112/近期研发成果_PPT汇报语料.md": {
+      "sha256": "c88f71153607c4fa02ea2ec675bf526052c5f8c868a54945e64925992264ea50",
+      "size": 34736
+    },
+    "outputs/ppt-materials-20261112/近两周研发进展_功能汇报版.md": {
+      "sha256": "6464032d495c922bd5902ec1b1ce917928e3c61e98961d8538fdadcb4173e112",
+      "size": 5100
+    },
+    "outputs/ppt-materials-20261112/近两周研发进展_功能汇报版.docx": {
+      "sha256": "1ffa7f935355c4adfebdc2cab8e58ca916cc3aaa7c9e432d2485b1a47fac75c2",
+      "size": 5066
+    },
+    "outputs/delivery-20261126-rc1/primary-basic.log": {
+      "sha256": "57d20fcd77eae183796ddc904bb1065b5bbe5050b81df0dd06d8a73a7da9e75e",
+      "size": 1592
+    },
+    "outputs/delivery-20261126-rc1/build-toolbox.log": {
+      "sha256": "48f777a3b058b6fa46b4701432f64467e1f50bb68bf6766ea0e1f6b1141e54ea",
+      "size": 1604
+    },
+    "outputs/delivery-20261126-rc1/preinstall-check.log": {
+      "sha256": "9dad2a31afc4731dacd58a696f7bfac64ac5c2aaab47a5aca99f9b37664832cb",
+      "size": 1895
+    },
+    "outputs/delivery-20261126-rc1/regression-source-update-after-graph-coordinator-fix.json": {
+      "sha256": "6c2d2551f6f5611d33df1992d2f2f05e3da551fd8dfea945377c35407d02f3c3",
+      "size": 874
+    },
+    "outputs/delivery-20261126-rc1/compose-summary.json": {
+      "sha256": "5680ac7fd42d9edb54cf0df82c1e8c6a2d1ee21dcd77fc9bd45a6f6e74df30d2",
+      "size": 8201
+    },
+    "outputs/delivery-20261126-rc1/report-draft.md": {
+      "sha256": "5f2720e29f21506d5fa394956b6644944e69a714ab83e26f48faf079007e143e",
+      "size": 11055
+    },
+    "outputs/delivery-20261126-rc1/initial-installed-runtime.json": {
+      "sha256": "3e66b2747efbc569ec1661a37057a1c736021a53797e8fd55494297a210f679f",
+      "size": 17310
+    },
+    "outputs/delivery-20261126-rc1/commands.jsonl": {
+      "sha256": "7db32052bcd0c948ee64978159a4a97e3706be8187d77f7f15a528fb1b3a8045",
+      "size": 6982
+    },
+    "outputs/delivery-20261126-rc1/primary-full.log": {
+      "sha256": "45fc890feb979bab87dec42c7682e153e368d6e83d3d4f826407c2ecc5299f91",
+      "size": 2689
+    },
+    "outputs/delivery-20261126-rc1/regression-nogit-release-probe.json": {
+      "sha256": "723468978c6e6095fe687da9b5d4c7ee6b4c8b75820ac71c86c19e8fe7302d85",
+      "size": 1171
+    },
+    "outputs/delivery-20261126-rc1/initial-site-inspection.json": {
+      "sha256": "8a2811d4d540fe504181ef85652a5a7c6760556b374edfecbc19649a612a7085",
+      "size": 1842
+    },
+    "outputs/delivery-20261126-rc1/install-idempotency.json": {
+      "sha256": "e8cebb755fbb6c9318886548b6ca24a6614500fc3f9af4c2760b83f62f07f4f5",
+      "size": 157
+    },
+    "outputs/delivery-20261126-rc1/primary-interfaces.log": {
+      "sha256": "c93005b5153c8b959da2ad53dc410af7ca25f62efc58a870fb2226c408c6c923",
+      "size": 2560
+    },
+    "outputs/delivery-20261126-rc1/git-status-before.txt": {
+      "sha256": "a5fae6333db85cbae75b0850ac993edc8d3d7fc8090ea654d6f455edfa22eab9",
+      "size": 5666
+    },
+    "outputs/delivery-20261126-rc1/regression-source-update-after-git-fix.json": {
+      "sha256": "a9ae1b0a9246f50442913135af446a6c45cb018f2e7a47dd20331587f6f75547",
+      "size": 402
+    },
+    "outputs/delivery-20261126-rc1/regression-execution.json": {
+      "sha256": "993377acb5c47051fb591bed19b11271300326d15267420dbde6c3c2501f86d9",
+      "size": 9981
+    },
+    "outputs/delivery-20261126-rc1/run_step.py": {
+      "sha256": "d6f2669e5de83505d2976ba2506e3944baee8a91e06e5a2d8c67a90adda0de46",
+      "size": 1292
+    },
+    "outputs/delivery-20261126-rc1/install-repeat.log": {
+      "sha256": "8a5b3ce044a4494e4d8163be54672ecfe09c74218c8c32f1a3dc63720819fef7",
+      "size": 266
+    },
+    "outputs/delivery-20261126-rc1/install-first.log": {
+      "sha256": "3ccb5e5227388c8f996e787a064c49b34d24ca7c73186b53eb2b96fa90b20757",
+      "size": 105
+    },
+    "outputs/delivery-20261126-rc1/build-onecity-runtime-fix.log": {
+      "sha256": "2adaa2cb4ac0e62510058e6e613954378001148fcab6586e5bad167f7e87bf57",
+      "size": 1562
+    },
+    "outputs/delivery-20261126-rc1/regression_nogit_release_probe.py": {
+      "sha256": "2c77a08ce7fd71f6186e36b7cb5eb8917b4bf69049735399f0802a5754b375d7",
+      "size": 3965
+    },
+    "outputs/delivery-20261126-rc1/regression-deploy-initial-missing-git.log": {
+      "sha256": "d048efda21b778cc4ac09775e7e2d6fe5bed09b5ae848932b2594dc54571488c",
+      "size": 43833
+    },
+    "outputs/delivery-20261126-rc1/images-before.json": {
+      "sha256": "f0286bdd089ded9c95f8d589d930e8d83e928196a37848621176f24ccb904f87",
+      "size": 2577
+    },
+    "outputs/delivery-20261126-rc1/regression-coordinator-before-fix.log": {
+      "sha256": "4cc9a32d5539ba136af16b2d3a01910ed79b770781a4503c193d33027af8302e",
+      "size": 3713
+    },
+    "outputs/delivery-20261126-rc1/regression-deerflow-initial-env-path.log": {
+      "sha256": "e0a565ca9eb12e6ffa1f376fb19f6cbc545e9c524167c3a3094b56b4dcbfc797",
+      "size": 8988
+    },
+    "outputs/delivery-20261126-rc1/collect_runtime.py": {
+      "sha256": "92500de545c9fd746f72583abc8025306f5792bb50ef2d12259c533a9c325e6e",
+      "size": 2469
+    },
+    "outputs/delivery-20261126-rc1/regression-runner-wheels-sha256.json": {
+      "sha256": "a13617570295cccf4e42a2920cc2a548ea04ea197e1222bf220e67661c41f6dd",
+      "size": 526
+    },
+    "outputs/delivery-20261126-rc1/sites.json": {
+      "sha256": "e0f54374826201bbef8cf199fc96c3dd844cd2d829e1ce2fa8c990ce8c6ba335",
+      "size": 439
+    },
+    "outputs/delivery-20261126-rc1/regression-deploy-start-guard-20261127.log": {
+      "sha256": "471fd7ade1c014a8834355aec55aa1d280c06e0951a50d78fcee248469d79656",
+      "size": 27467
+    },
+    "outputs/delivery-20261126-rc1/source-build-inventory.json": {
+      "sha256": "1754da17e00e4d13d986f123192841be594eb87f02bd3407013c8d70db0cd479",
+      "size": 1090206
+    },
+    "outputs/delivery-20261126-rc1/initial-render.json": {
+      "sha256": "637748c8776828767347d7a34029a4ac38fc54ce9f7f5c5e06a64ad9af4ff054",
+      "size": 159
+    },
+    "outputs/delivery-20261126-rc1/regression-nogit-release-probe.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "outputs/delivery-20261126-rc1/regression-nogit-image-inventory.json": {
+      "sha256": "e336623de63d9af5175e7c79d3e2867bdc8ee9d727885ef731f45008b33c83fd",
+      "size": 2281
+    },
+    "outputs/delivery-20261126-rc1/model-diagnostic.json": {
+      "sha256": "1c93e3a13a640cca8c3d63e61ec35295a592349d5da145b39d3da811e1402b05",
+      "size": 167
+    },
+    "outputs/delivery-20261126-rc1/regression-graph-cli-contract.json": {
+      "sha256": "3a0edbcf71ef221babea6982cb98b2ef65ba284e9a259724a2a6fe34e971612d",
+      "size": 592
+    },
+    "outputs/delivery-20261126-rc1/build-onecity-final.log": {
+      "sha256": "b2f8493a2cf7c05566cfc0db4f047ab6974915af2f7f35b8184d643a6c4cc430",
+      "size": 1580
+    },
+    "outputs/delivery-20261126-rc1/diff-check-initial.txt": {
+      "sha256": "a1df8da094f8b31520cbdd243f0db78659ecefdc2fc842f3af8227a555af5aef",
+      "size": 6646
+    },
+    "outputs/delivery-20261126-rc1/regression-deerflow.log": {
+      "sha256": "ecd7322dd9cf3b223ea03373303dcc051ae4f0d916c46b21fcdf268628bbc060",
+      "size": 4564
+    },
+    "outputs/delivery-20261126-rc1/coordinator-initial.private.log": {
+      "sha256": "cef6cf811afd928c0828414a53dd82a768ddfc1e9611a6302e0b028c5689e267",
+      "size": 3625
+    },
+    "outputs/delivery-20261126-rc1/containers-before.json": {
+      "sha256": "cd858fc5846b6071ab06e55059a04a44c127af09a0d1b52bb147590132b58615",
+      "size": 20304
+    },
+    "outputs/delivery-20261126-rc1/image-source-verification-final.json": {
+      "sha256": "5911c5ce7fadd3e50a66d248c4526e93b01afec7cbf21d3e0fe41d2bd4ceb581",
+      "size": 304029
+    },
+    "outputs/delivery-20261126-rc1/primary-ready-runtime.json": {
+      "sha256": "6e2e2c3009c74ce6c82e7f83e2443fef57312ec84f52de0fc77ccb192f60b098",
+      "size": 17762
+    },
+    "outputs/delivery-20261126-rc1/build-toolbox-final.log": {
+      "sha256": "8df75d4a7860131fe2d82a3829884e159687c32855b778a622bb4e4493a45b2a",
+      "size": 1604
+    },
+    "outputs/delivery-20261126-rc1/build-toolbox-runtime-fix.log": {
+      "sha256": "5aa2971f61a8d75944ba42b23848769c2bd474393f62f4835ab3cf110c85774f",
+      "size": 1604
+    },
+    "outputs/delivery-20261126-rc1/build-onecity.log": {
+      "sha256": "6189fd4d0fdd9ed0760929f671391cdccd1fbbc371b9293ae91493a4b05bfa8f",
+      "size": 1562
+    },
+    "outputs/delivery-20261126-rc1/regression-graph-cli-contract.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "outputs/delivery-20261126-rc1/regression-checksums.sha256": {
+      "sha256": "8fd92283420996f84f64ca1b3dccf3713f94eaebf99ecb93dbc40d98d6e46019",
+      "size": 2131
+    },
+    "outputs/delivery-20261126-rc1/graph-initial.private.log": {
+      "sha256": "a96278376263934a7984f629eb0a65f37983717de746e87fbf1735df5d81d53e",
+      "size": 17015
+    },
+    "outputs/delivery-20261126-rc1/build-deerflow-runtime-fix.log": {
+      "sha256": "19137cf86a24f7177019f624641778791a5536a70db9dcd8155c755875c5a421",
+      "size": 2227
+    },
+    "outputs/delivery-20261126-rc1/primary-migration-status.log": {
+      "sha256": "1ff0872e3f2b3ac899bdcd4968be824cfba17feac65cba21b9429f813bfb0b08",
+      "size": 55
+    },
+    "outputs/delivery-20261126-rc1/all-image-identities-before.jsonl": {
+      "sha256": "1cd5a7bee84d42a3c225cfa22b24d8bcdd5ada5937a869ace02ccc082c370e06",
+      "size": 22260
+    },
+    "outputs/delivery-20261126-rc1/build-deerflow-final.log": {
+      "sha256": "647b47020008b1c59dfc746abd3c288f112a5f6af972d914026afbad0c0c7161",
+      "size": 2227
+    },
+    "outputs/delivery-20261126-rc1/regression-summary.json": {
+      "sha256": "924a9a4ced78b87c7503cbb3d154c44eae2b5a1852bf94842049a40047a5775a",
+      "size": 4293
+    },
+    "outputs/delivery-20261126-rc1/regression-coordinator-runner-initial.json": {
+      "sha256": "ede82bab92efea12243ffdfad46c99231c05c5eece6452e738652e5a0a204e57",
+      "size": 401
+    },
+    "outputs/delivery-20261126-rc1/regression-onecity-connections-final.log": {
+      "sha256": "7fcb30b69074350e3803bd676077e0f5fd77da03791c3ee27a187dee87922e21",
+      "size": 249
+    },
+    "outputs/delivery-20261126-rc1/install-fresh-final.log": {
+      "sha256": "8a5b3ce044a4494e4d8163be54672ecfe09c74218c8c32f1a3dc63720819fef7",
+      "size": 266
+    },
+    "outputs/delivery-20261126-rc1/git-diff-before.stat": {
+      "sha256": "065a5af18873784d061905f04ab5a8dcc61872675c7b41fda97d0635524ef7cc",
+      "size": 4131
+    },
+    "outputs/delivery-20261126-rc1/build-edge.log": {
+      "sha256": "c182a13a81e9dac5eb93421a7df69d912da1814dd99655ade827c831a363ef0b",
+      "size": 1377
+    },
+    "outputs/delivery-20261126-rc1/regression-frontend-login-key.log": {
+      "sha256": "925b19e7200c12c4a0e598e6da44d28ecec98c005277d9d43d11f87ce0919950",
+      "size": 91
+    },
+    "outputs/delivery-20261126-rc1/primary-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261126-rc1/regression-source-sha256.json": {
+      "sha256": "36382eb381223a288bd64c05a9b0edea268dc32e474519da90897eb6eb33b41e",
+      "size": 17656
+    },
+    "outputs/delivery-20261126-rc1/regression-onecity.log": {
+      "sha256": "2baabea524f7e6624689318461f95c19a32a6137d1fe6b00d7c4041d90c8207c",
+      "size": 12344
+    },
+    "outputs/delivery-20261126-rc1/build-deerflow.log": {
+      "sha256": "71873f3b7c5a0b40e6be715a9f38bccab8fd8fd0e90d8b62b29106bb9b0a809d",
+      "size": 11951
+    },
+    "outputs/delivery-20261126-rc1/regression-deploy.log": {
+      "sha256": "b261fa746e73038436fc4845f91df9544ac5eb3d40548e6f7213ee7b11ac3d8a",
+      "size": 25394
+    },
+    "outputs/delivery-20261126-rc1/initial-check.json": {
+      "sha256": "01c0e713c43a7f907d08178fcb8448228799d582d92fe734c7086fbbd4851fd7",
+      "size": 1896
+    },
+    "outputs/delivery-20261126-rc1/fresh-root-config.json": {
+      "sha256": "42028aa440670e85a7e48bca84fc963828c75221b0df2f1ab806f5bbb9ba1e33",
+      "size": 163
+    },
+    "outputs/delivery-20261126-rc1/fresh-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261126-rc1/fresh-root-init.log": {
+      "sha256": "138f8ff28c3aa1e3e93123f7746492a3573a39f9f38d2ffd70b6c1cfa02eeda8",
+      "size": 207
+    },
+    "outputs/delivery-20261126-rc1/regression-coordinator-explicit-connection.log": {
+      "sha256": "2a954104ff6bb6a38fd3229eb71914caa82187a5b6b221cf31bded9d18af85fe",
+      "size": 168
+    },
+    "outputs/delivery-20261126-rc1/failed-site-stop.log": {
+      "sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "size": 80
+    },
+    "outputs/delivery-20261126-rc1/model-credential-repair.json": {
+      "sha256": "41f415c658b8e266076bdfba49d8357b4444a6ac298bc490b58a7341abd1789c",
+      "size": 527
+    },
+    "outputs/delivery-20261126-rc1/verify_image_sources.py": {
+      "sha256": "431d29cc3586af15196fc4e17af513894210978da65cc9378be35cc43289f405",
+      "size": 12716
+    },
+    "outputs/delivery-20261126-rc1/image-source-verification-initial.json": {
+      "sha256": "2512557716882e813b600638923431e2845e489bcda2a6d6b4738811fe62640d",
+      "size": 89440
+    },
+    "outputs/delivery-20261126-rc1/image-source-verification-runtime-final.json": {
+      "sha256": "aa6f23b2ca713cf0bb33d0a4bfc23724c15eeda683ae34852cb30bd4b7b710be",
+      "size": 304029
+    },
+    "outputs/recording-handoff-20261112/expected-results.json": {
+      "sha256": "b4a042f27c33e751742cb8699f266991428d8c7bee978920ec256c0579cc0062",
+      "size": 594
+    },
+    "outputs/recording-handoff-20261112/两分钟录制脚本.md": {
+      "sha256": "03c577eabd7a4d8ad3f582dcc78d2e8c57cb224f6cc43f9e71ce353db7bcbff2",
+      "size": 6252
+    },
+    "outputs/recording-handoff-20261112/verify-permission-in-browser.js": {
+      "sha256": "e003df871cd5ac1c7bdad7f88486fea4c45adf2e89cf549170eb6db2f33a0b70",
+      "size": 1519
+    },
+    "outputs/recording-handoff-20261112/桌面Codex录制交接包.zip": {
+      "sha256": "b49bf37c03655c5c61763294a56d7dbae91765ae9a17ccd82cca5b94024fc676",
+      "size": 13644
+    },
+    "outputs/recording-handoff-20261112/桌面Codex录制操作流程.md": {
+      "sha256": "93c885f6362060bc68fff35de20af68c03d83e9dfad534a07b7621bbab5602f6",
+      "size": 8593
+    },
+    "outputs/recording-handoff-20261112/录制提问清单.md": {
+      "sha256": "6b30dda31bb7c45e6807f8bf6794b135d709566dd45f0e4217b1fca9efd7bb69",
+      "size": 4403
+    },
+    "outputs/recording-handoff-20261112/录制测试资料.zip": {
+      "sha256": "689e2807c9dae85b7999c62d7a5c7f79496596bdf040f1ac432714fd2862add5",
+      "size": 710
+    },
+    "outputs/recording-handoff-20261112/setup.json": {
+      "sha256": "6fec877d50f45ed24324f0e811a1e96582f122dab8b4bfc8ebfa46aff940c1a5",
+      "size": 4068
+    },
+    "outputs/recording-handoff-20261112/recording-readiness.json": {
+      "sha256": "50604b9fc6937352c947e6f0443b2d5398bffb7668c4008a2d4a755a705e896f",
+      "size": 866
+    },
+    "outputs/recording-handoff-20261112/assets/用户C/业务数据.csv": {
+      "sha256": "c12a3808b41ae507ae2b02cd07e6cc54ed8f7220ba0f5165651e4c7b2cd6782e",
+      "size": 44
+    },
+    "outputs/recording-handoff-20261112/assets/用户D/业务数据.csv": {
+      "sha256": "ec6bc50959bf7e17b2685304ff0d8d5935696a82166810f362620f0a94e0f82f",
+      "size": 44
+    },
+    "outputs/recording-handoff-20261112/assets/用户A/业务数据.csv": {
+      "sha256": "8ba2ac4006d673dd3edde3aed0170dd0e34e3656de358e381370205fe72a00c5",
+      "size": 44
+    },
+    "outputs/recording-handoff-20261112/assets/用户B/业务数据.csv": {
+      "sha256": "2afa4e7ad2930a6bbfecf9f81e9df3048115bb530b626ddb37af1c2e62c24abb",
+      "size": 44
+    },
+    "outputs/onecity-multiuser-integration-20261112/production-smoke-cleanup-v2.json": {
+      "sha256": "6d3bd12f990162eb8f832a55fe86368154364a8dd916616d73b0a502db864895",
+      "size": 728
+    },
+    "outputs/onecity-multiuser-integration-20261112/production-smoke-prepare-v2.json": {
+      "sha256": "3a24222c09429741094ccb7b51ee91904963b21f63b23f804245da2a3d4566db",
+      "size": 970
+    },
+    "outputs/onecity-multiuser-integration-20261112/production-smoke-cleanup.json": {
+      "sha256": "f1ac34429a8e14b18228625829ecd1bbddd90edc202ef2a34cef188cb025b0a1",
+      "size": 725
+    },
+    "outputs/onecity-multiuser-integration-20261112/real-http-summary.json": {
+      "sha256": "e7a15b10e9e297548aa755c95898d7ac66d6e28e7df2ed270a674dca5e8381f5",
+      "size": 2496
+    },
+    "outputs/onecity-multiuser-integration-20261112/deployment-summary.json": {
+      "sha256": "3569826105cac0d68b42697fac71b924e4df05d99bea15e24973839a46da3269",
+      "size": 1449
+    },
+    "outputs/onecity-multiuser-integration-20261112/production-smoke.json": {
+      "sha256": "3dabdb37f2d3ccc3d6b76b8aa3d1149d5a10d6fb83f24258b52e66847e82438b",
+      "size": 6054
+    },
+    "outputs/delivery-20261127-final/primary-basic.log": {
+      "sha256": "aec70ed9181afaf714ecb5d259aaaac82c71f6e4e18f1a6a7bb85403f69379af",
+      "size": 1597
+    },
+    "outputs/delivery-20261127-final/build-toolbox.log": {
+      "sha256": "955b2f482db44aff743250b3f613fddf0d8c3c9428ac063141c04e98fe7f080e",
+      "size": 1604
+    },
+    "outputs/delivery-20261127-final/login-transaction-independent-audit.log": {
+      "sha256": "bc5fd219932534bb77c51996a2044ab99a0bfe693a571c43c1937e9aed2bd9ca",
+      "size": 4396
+    },
+    "outputs/delivery-20261127-final/primary-final-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-final/primary-attempt1-runtime.json": {
+      "sha256": "e36eacadaedc0a2bd64d723fbcdec504bee96967970cd17b413de5d0577f7036",
+      "size": 22439
+    },
+    "outputs/delivery-20261127-final/independent-frontend-source-review.json": {
+      "sha256": "1dbace60bcc173a7b96335d3a3875b3f806ebf8c2d49740c600aee929f367f8a",
+      "size": 6029
+    },
+    "outputs/delivery-20261127-final/primary-install.log": {
+      "sha256": "8bb0a27222f64a61dd5fed1f33678e106d3349a3f3877a2532d690332dc8f9eb",
+      "size": 266
+    },
+    "outputs/delivery-20261127-final/commands.jsonl": {
+      "sha256": "d326003da491530f6e70ebf4f50dc786148c5418486fa1d1e29ed1d421cc8f66",
+      "size": 11585
+    },
+    "outputs/delivery-20261127-final/primary-start.log": {
+      "sha256": "e9f93de1968fab165e73eacff4934dd1acd2c31d7c5f65364fdeede628814b0e",
+      "size": 22
+    },
+    "outputs/delivery-20261127-final/primary-full.log": {
+      "sha256": "f19a9aadf7de7340b7b255697ed2183b26d42950822885e239d969778612e16e",
+      "size": 4277
+    },
+    "outputs/delivery-20261127-final/primary-interfaces.log": {
+      "sha256": "f4b07ea094e3e80dccc64e5ae1e7d47c1ea7c1d15df8f9a339436f844f2bb207",
+      "size": 3196
+    },
+    "outputs/delivery-20261127-final/primary-check.log": {
+      "sha256": "25e7d13a6f2ef8b4cde2415a4c239068ce6a685d296e947a2c1b99553216c6ff",
+      "size": 1915
+    },
+    "outputs/delivery-20261127-final/git-status-before.txt": {
+      "sha256": "a5fae6333db85cbae75b0850ac993edc8d3d7fc8090ea654d6f455edfa22eab9",
+      "size": 5666
+    },
+    "outputs/delivery-20261127-final/skill-release-static-after.json": {
+      "sha256": "375675a56748b7a83a8df8905e3f5040c1238cc7cdd5a7b9e4b1ad751b42b6a5",
+      "size": 720
+    },
+    "outputs/delivery-20261127-final/graph-model-failure-metadata.json": {
+      "sha256": "253ccf5881f3c831c33b44c52d5dac2da8c59c55dfca30feeaad2fd380e1b63c",
+      "size": 1188
+    },
+    "outputs/delivery-20261127-final/primary-migration-onecity.log": {
+      "sha256": "1ff0872e3f2b3ac899bdcd4968be824cfba17feac65cba21b9429f813bfb0b08",
+      "size": 55
+    },
+    "outputs/delivery-20261127-final/image-source-verification-summary.json": {
+      "sha256": "70017ff7c59888d0eedeaa27ac6eba023c113e7f638d923ebba6f8b8f4a7353d",
+      "size": 6857
+    },
+    "outputs/delivery-20261127-final/run_step.py": {
+      "sha256": "d6f2669e5de83505d2976ba2506e3944baee8a91e06e5a2d8c67a90adda0de46",
+      "size": 1292
+    },
+    "outputs/delivery-20261127-final/primary-idempotency-snapshot.log": {
+      "sha256": "489cc17993eba5498a2562a50859bb54d39512ee08b4834be8d5d7d7f0f8f0c5",
+      "size": 58
+    },
+    "outputs/delivery-20261127-final/skill-release-static-before.json": {
+      "sha256": "fdddf2608fe69f29f42bf199023da4569720d8a3db309c13368ded687c8e7b8f",
+      "size": 2592
+    },
+    "outputs/delivery-20261127-final/images-before.json": {
+      "sha256": "211d961f97f06937a287af006b2483897523b2613cc773aa29122ad1883be143",
+      "size": 63592
+    },
+    "outputs/delivery-20261127-final/independent-frontend-reproduction.sh": {
+      "sha256": "4a348c38c149493f672c938fa88db3fcb3ee63c3b99468100a5205662da16461",
+      "size": 1776
+    },
+    "outputs/delivery-20261127-final/upload-diagnostic-public.json": {
+      "sha256": "08709b627b09a43ef4fc99cc62cfd11e4d4aa9ca50906afacdba748fc2455ca0",
+      "size": 2041
+    },
+    "outputs/delivery-20261127-final/regression-deploy-final-summary.json": {
+      "sha256": "d17494e3058cab80ac6157513a3e69ba496443451ab14b75825203ad4026f1e9",
+      "size": 5570
+    },
+    "outputs/delivery-20261127-final/primary-init.log": {
+      "sha256": "ca555238c057fb493a5454d2f39fdadba302a7c5048c741b232b16e3a7ad4f41",
+      "size": 215
+    },
+    "outputs/delivery-20261127-final/collect_runtime.py": {
+      "sha256": "92500de545c9fd746f72583abc8025306f5792bb50ef2d12259c533a9c325e6e",
+      "size": 2469
+    },
+    "outputs/delivery-20261127-final/previous-final-stop.log": {
+      "sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "size": 80
+    },
+    "outputs/delivery-20261127-final/sites.json": {
+      "sha256": "b9c433074e3c67d5e5d5ea778aa84da76626d478347398e8c6e972a6fccf0869",
+      "size": 490
+    },
+    "outputs/delivery-20261127-final/regression-deploy-start-guard-20261127.log": {
+      "sha256": "471fd7ade1c014a8834355aec55aa1d280c06e0951a50d78fcee248469d79656",
+      "size": 27467
+    },
+    "outputs/delivery-20261127-final/primary-install-repeat.log": {
+      "sha256": "8bb0a27222f64a61dd5fed1f33678e106d3349a3f3877a2532d690332dc8f9eb",
+      "size": 266
+    },
+    "outputs/delivery-20261127-final/coordinator-diagnostic.private.log": {
+      "sha256": "b8e32a447fddaba7848a854f5840c99564e15af002f8c69dbb055a72457e013a",
+      "size": 24300
+    },
+    "outputs/delivery-20261127-final/attempt1-status.json": {
+      "sha256": "0f0cb5a429e46aa85b8563b9689260a711c85d834f83a0dca81dc1524d172ac2",
+      "size": 793
+    },
+    "outputs/delivery-20261127-final/primary-idempotency-result.log": {
+      "sha256": "e9bbf0876339f0eb8cc18c52fe046b7e73a3dbd65540bb26a3b483b38e03a530",
+      "size": 111
+    },
+    "outputs/delivery-20261127-final/upload-provenance-regression.log": {
+      "sha256": "13870d7c388ac47a1ae7a8c2387357ee219ffaef2d255afdd795d39b4bb3c451",
+      "size": 19723
+    },
+    "outputs/delivery-20261127-final/images-final.json": {
+      "sha256": "19491c3c867dce4fb76150bb771f38aa312dbdcd0ef208209c574729b9a7aa73",
+      "size": 2375
+    },
+    "outputs/delivery-20261127-final/source-build-inventory.json": {
+      "sha256": "edcb50d764b057786aadda48ee79925f845f6f144113595b3901e6a13a0d4f04",
+      "size": 1155676
+    },
+    "outputs/delivery-20261127-final/regression-semantic-qa.log": {
+      "sha256": "e5a5c59b9c918db6d75135ea603b6c66cf9c778ecb191542200ce33f381a3d11",
+      "size": 4549
+    },
+    "outputs/delivery-20261127-final/old-identity-start-rejection.log": {
+      "sha256": "7c170b08bc08a60d5f3ea669d3d2b16336a1a8492d4785eb7ffa6d4f9edc6094",
+      "size": 73
+    },
+    "outputs/delivery-20261127-final/frontend-login-key-audit.log": {
+      "sha256": "925b19e7200c12c4a0e598e6da44d28ecec98c005277d9d43d11f87ce0919950",
+      "size": 91
+    },
+    "outputs/delivery-20261127-final/upload-provenance-summary.json": {
+      "sha256": "2a62f4df55403c45455895a0ef1b1a030d37c91e347dbdf009e798253403144d",
+      "size": 7085
+    },
+    "outputs/delivery-20261127-final/regression-deerflow.log": {
+      "sha256": "a05e0cec43203e32a53ae0d7d7c486e4ba372989ff57f8b8d77d28c73b931d24",
+      "size": 99
+    },
+    "outputs/delivery-20261127-final/containers-before.json": {
+      "sha256": "6d0b324d6d210a5f6527ad766f367033231a0b551af2a9f9691c9dd6e5fa1122",
+      "size": 99734
+    },
+    "outputs/delivery-20261127-final/regression-semantic-qa-summary.json": {
+      "sha256": "7f78061c1476e65ae25cfee7cb22ebe555b4ad06781a24e03ac395884b50aa0d",
+      "size": 1062
+    },
+    "outputs/delivery-20261127-final/gateway-full-failure.private.log": {
+      "sha256": "f2eab6d3a2859cc7acc789ff38c781d6900b667c85a87637631548d7fc786c89",
+      "size": 13936
+    },
+    "outputs/delivery-20261127-final/primary-ready-runtime.json": {
+      "sha256": "7ccde0edeb3ee3dd1e4d5a34f17488d693d187b1ebdcecebfaa4369cc7cbdc3a",
+      "size": 18057
+    },
+    "outputs/delivery-20261127-final/primary-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-final/build-onecity.log": {
+      "sha256": "04806356a3e4cb87e5ce893e529a5b9cc903210ea1b961d5984f5db46903e75f",
+      "size": 1562
+    },
+    "outputs/delivery-20261127-final/upload-provenance-focused.log": {
+      "sha256": "0143433f88b6670b58a78e3986800d43248147f477af14182c6870f2f1723a42",
+      "size": 2271
+    },
+    "outputs/delivery-20261127-final/upload_model_ab.py": {
+      "sha256": "e1ac692eee18df4c2f6098cd4db59ca792eaf936917ce24112feac3b7763b78c",
+      "size": 3267
+    },
+    "outputs/delivery-20261127-final/compose-projects-before.json": {
+      "sha256": "10354df26b348c31fd009710749943826843aa6498fdb88951eab399cdae1e3d",
+      "size": 1980
+    },
+    "outputs/delivery-20261127-final/upload-model-ab-after.json": {
+      "sha256": "c684c04e4df1459ad716a90db9f4072a2f476f89b3ba65fd365980b71f548690",
+      "size": 42445
+    },
+    "outputs/delivery-20261127-final/frontend-multi-user-client-audit.log": {
+      "sha256": "41752f0c1fb65e613ac1ec0553fa3e50ea418227f61f977929301198fb3b0793",
+      "size": 147
+    },
+    "outputs/delivery-20261127-final/primary-config-summary.json": {
+      "sha256": "41c1c14c021aec7056048c4b456b2bda0f73067f61f861a062ab0619ff7146b2",
+      "size": 237
+    },
+    "outputs/delivery-20261127-final/graph-full-failure.private.log": {
+      "sha256": "ec49e3e7a3ff55ada0df4e395a5a929db1c7d663f62b8c3609862b7625a98429",
+      "size": 12990
+    },
+    "outputs/delivery-20261127-final/primary-asset-refresh.log": {
+      "sha256": "7a68b6e65cfe1ade6426673bd3352e346524563f745106dfa1599a91c7b9c596",
+      "size": 130
+    },
+    "outputs/delivery-20261127-final/regression-summary.json": {
+      "sha256": "aee3f2cdb3ce967ade4790cb7e0bae330b1d35adc0ff533489f92df91a96837b",
+      "size": 1444
+    },
+    "outputs/delivery-20261127-final/coordinator-full-failure.private.log": {
+      "sha256": "28a48cccf86ca88c1461edca6fed0e87ffebfa41a69ae477e94162ca931f727f",
+      "size": 9707
+    },
+    "outputs/delivery-20261127-final/sites-before.json": {
+      "sha256": "feb6ca96780f5dd59ba69cc3b085280cf75ecf0a950552f5fd5a46fd2d5e1ec9",
+      "size": 28859
+    },
+    "outputs/delivery-20261127-final/skill-release-regression-summary.json": {
+      "sha256": "d65b1479699bde7276fa5f664d4f0033763212fe8d5bf0f2589c4cab34a135fe",
+      "size": 1513
+    },
+    "outputs/delivery-20261127-final/regression-onecity-connections-final.log": {
+      "sha256": "7fcb30b69074350e3803bd676077e0f5fd77da03791c3ee27a187dee87922e21",
+      "size": 249
+    },
+    "outputs/delivery-20261127-final/graph-model-failure-summary.json": {
+      "sha256": "2aea5ecfde743f893045c5dcc8941b9995ecb7c7fff402c0ad369e4e960209b0",
+      "size": 3064
+    },
+    "outputs/delivery-20261127-final/git-diff-before.stat": {
+      "sha256": "ad32104836998d6c8d28bad03be059401362202e1b21a23f2af8f2d420c04dbb",
+      "size": 4131
+    },
+    "outputs/delivery-20261127-final/primary-prebuild-check.log": {
+      "sha256": "930ebdaa421b700d8fa55d549d57c3252c626b03dec133e6df2d0c51cc4fd200",
+      "size": 1915
+    },
+    "outputs/delivery-20261127-final/diagnose_upload.py": {
+      "sha256": "60d81d85a274cf73f02fb84a75265f4d89b03a91a893aad14d5be772e23751fb",
+      "size": 4461
+    },
+    "outputs/delivery-20261127-final/build-edge.log": {
+      "sha256": "4be32a4b8b7da9cf29a11dade3a9b2e6ea014c1c95963cad6a696adf4e023353",
+      "size": 1377
+    },
+    "outputs/delivery-20261127-final/model-guard-terminal-diagnostic.json": {
+      "sha256": "989ce9b412dd7ee4be6ca288f144c7b127eae804c4f556560cbb44f654287ae3",
+      "size": 683
+    },
+    "outputs/delivery-20261127-final/primary-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-final/execution-boundaries.json": {
+      "sha256": "58a98c570724b16542106c94321eb52828f55b4c272c42956c222393e511a7fb",
+      "size": 537
+    },
+    "outputs/delivery-20261127-final/build-deerflow.log": {
+      "sha256": "3a9ab174e9ec73f61512a81b941e71b9ba6752cec251178b12f5537e0018d7ec",
+      "size": 2227
+    },
+    "outputs/delivery-20261127-final/upload-model-ab.json": {
+      "sha256": "630787bb5fd34a9133bef5b37217d30c789f023f95c35749b8df6b66908996b1",
+      "size": 41946
+    },
+    "outputs/delivery-20261127-final/api-diagnostic.private.log": {
+      "sha256": "8c25574c07831cf73364b6b299a94cbfa5b5613c300b9830bce0607ad7e74a03",
+      "size": 22900
+    },
+    "outputs/delivery-20261127-final/image-source-verification.json": {
+      "sha256": "a93ab51ff25c7f4eb7c817c9907d80ab240519e8cd127af2546656b3e53c74b0",
+      "size": 303974
+    },
+    "outputs/delivery-20261127-final/acceptance_steps.py": {
+      "sha256": "1b64c87c75dff78a4a7ec997170d9ce6ed972ff451a74dad9a67a3d08fb6c430",
+      "size": 5564
+    },
+    "outputs/delivery-20261127-final/git-diff-check-before.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "outputs/delivery-20261127-final/verify_image_sources.py": {
+      "sha256": "431d29cc3586af15196fc4e17af513894210978da65cc9378be35cc43289f405",
+      "size": 12716
+    },
+    "outputs/delivery-20261127-final/image-export-size-measurement.json": {
+      "sha256": "10c6f89700fe0496dda6201a5083774202e312059317e0f947fe9861e7030b8c",
+      "size": 5377
+    },
+    "outputs/delivery-20261127-final/login-errors.private.log": {
+      "sha256": "d384cbfb2420dd9288966bab520d07198177a0dbc89593802151f7d4672daa0a",
+      "size": 6081
+    },
+    "outputs/delivery-20261127-final/regression-deploy-final.log": {
+      "sha256": "c2300962827ba8e2b3e88e90d18b3f2bab0793a7b16cdca387d57cd7ee725eb0",
+      "size": 29080
+    },
+    "outputs/delivery-20261127-final/git-diff-working-check.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "outputs/delivery-20261127-final/primary-migration-gateway.log": {
+      "sha256": "96e34b63409648498df93f11fd22158d64988f9d5dafa157483e93946cb6dea8",
+      "size": 181
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-install.log": {
+      "sha256": "6a9a87963603d2688b0f2882e123cf4c6c5eae113c27a6ae4e2218dc77d39ef8",
+      "size": 266
+    },
+    "outputs/delivery-20261127-rc4/rc4-regression-onecity-rc4.log": {
+      "sha256": "85fdf3b77ac54f0d5ea0985678b9b926d89ef7df2b3e0452a16e8c818d741c17",
+      "size": 181
+    },
+    "outputs/delivery-20261127-rc4/rc4-build-deerflow.log": {
+      "sha256": "c0afacfc77d68eb53112362d76010ca9fe9c267e902cf4a5e3bda94010faaf11",
+      "size": 2227
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-gateway.log": {
+      "sha256": "19166b7b2023b5f16b56272eef1a5240e43592bf4591dfd5176b1daff07e3662",
+      "size": 2746
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-basic.log": {
+      "sha256": "6ac7c3dd1a174ec9ba844985220bba10dc3c4ca6fd6718b10c28630cd719f8f7",
+      "size": 1597
+    },
+    "outputs/delivery-20261127-rc4/release-source-consistency-r2.json": {
+      "sha256": "61d66df8fe51d2762a715c033299070bd14be7ded023543877cdece69f40ce5f",
+      "size": 1228
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-sealed-source-before.json": {
+      "sha256": "d5140765218c644ea2f730c8282d8636728ff00527510dd3ae8f1724ecb8dac4",
+      "size": 1156228
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-start.log": {
+      "sha256": "e9f93de1968fab165e73eacff4934dd1acd2c31d7c5f65364fdeede628814b0e",
+      "size": 22
+    },
+    "outputs/delivery-20261127-rc4/edge-builder-provenance.json": {
+      "sha256": "23e178b8415f3c3a73d0992ceb513cf3ab0d9dec3b58b0490138e0c8b5a98cc0",
+      "size": 347269
+    },
+    "outputs/delivery-20261127-rc4/runtime-health-summary.json": {
+      "sha256": "fb6d05ca44de8ae79a242462a7833f71e21b12799aca3779157814461184d38b",
+      "size": 4244
+    },
+    "outputs/delivery-20261127-rc4/commands.jsonl": {
+      "sha256": "2aa64526174961c9278739d7089e0c3fd8ff17daf543c4ad0d69f678fde3600b",
+      "size": 40214
+    },
+    "outputs/delivery-20261127-rc4/image-build-summary.json": {
+      "sha256": "8fcd7beb15ff3719e0f96e857eb67383740f2ef57f3ab58af6bbe980690f894e",
+      "size": 1953
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-gateway.log": {
+      "sha256": "ed344daa29113c7e1b09e131747e63aebb1880f16848bb536651189656ebe879",
+      "size": 6742
+    },
+    "outputs/delivery-20261127-rc4/image-source-verification-summary.json": {
+      "sha256": "774306bd4e49e205d7fea9530c97d23dd964389a25ff0d44631e8793b6d3c992",
+      "size": 6853
+    },
+    "outputs/delivery-20261127-rc4/run_step.py": {
+      "sha256": "56247514962cea32c08daef2a8e8a60b35cdd3e72565e60e4f0e1b8e1ac45c04",
+      "size": 1535
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-install.log": {
+      "sha256": "b1da1dbea426a5ba250980131ead25854b38d91f35e2b7882ace7fb548a4b993",
+      "size": 266
+    },
+    "outputs/delivery-20261127-rc4/README.md": {
+      "sha256": "c65a1c18cf868bd78bf2439c5c564254612b614e2d8ab79020c04d8b22784680",
+      "size": 5992
+    },
+    "outputs/delivery-20261127-rc4/commands-acceptance-snapshot.jsonl": {
+      "sha256": "4332e7242c8c65dd6f230980e8990bf8d15357e6f38bb2ae36671f88181e02fd",
+      "size": 24591
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-stop.log": {
+      "sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "size": 80
+    },
+    "outputs/delivery-20261127-rc4/rc4-release-check.log": {
+      "sha256": "cd3e628a35f9db58a98a53116ce36c26ff117a6b506e53907a736b282c866d97",
+      "size": 264
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-export-evidence.log": {
+      "sha256": "777f6d3bf2fa29efec819a0126e2b092505ed4864e2a1b8e7c4fdd3cf0f48bc1",
+      "size": 220
+    },
+    "outputs/delivery-20261127-rc4/sites.json": {
+      "sha256": "38f231c7eb566f70baea1b0954db4cfdd17aa778eb03f1e7a41cecd80b643770",
+      "size": 438
+    },
+    "outputs/delivery-20261127-rc4/image-archive-verification-summary.json": {
+      "sha256": "cbce8beae51e068e22c8acfcd8063689906e3719c696f31f4114256189e6af40",
+      "size": 6110
+    },
+    "outputs/delivery-20261127-rc4/source-release-freeze.json": {
+      "sha256": "e59a272ef6800b840daa0de2c0ad6050744389e4bdb471bf7041810397ad48b8",
+      "size": 1157162
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-full.log": {
+      "sha256": "1d9d0eb07e00166444a878474864e7f092f047b7dbaeb105b47d9336522f393c",
+      "size": 7548
+    },
+    "outputs/delivery-20261127-rc4/rc4-release-checksums.log": {
+      "sha256": "11e7c058ec1fedf2c167f82f3ab3f8fc2a340061b714f83919d8ff8c90e82335",
+      "size": 478239
+    },
+    "outputs/delivery-20261127-rc4/source-build-inventory.json": {
+      "sha256": "2cd4e59265f90df83fc27eebc8c9cae5603cbb2abb7badecd2bdcbdbfd1070f9",
+      "size": 1156071
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-backup.log": {
+      "sha256": "7598c5568354eb6a34d71ec985be57a63b293e5f48c4967f5c8885cafaebbae2",
+      "size": 378
+    },
+    "outputs/delivery-20261127-rc4/rc4-image-archive-target-platform-verification.log": {
+      "sha256": "90cd8e46a6d1949d071a9eabf6a335cb1eefd9db49a7bd8f96c0573bff194f1b",
+      "size": 749
+    },
+    "outputs/delivery-20261127-rc4/finalize_delivery.py": {
+      "sha256": "7fcaa695701e4cffb3687455b35618db94b599e0bc64a3b2e38163851b398ea8",
+      "size": 10903
+    },
+    "outputs/delivery-20261127-rc4/verify_edge_provenance.py": {
+      "sha256": "e8276d5e92731b5ee404699b5c117606ce6d4077452382306d5ebb37265894da",
+      "size": 7498
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-verify-restored.log": {
+      "sha256": "b34022787096e217f1ddd04ff09691d205e9411fed8c02d909c0ccedb5aebec4",
+      "size": 4466
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-interfaces.log": {
+      "sha256": "bca7fb7927ce6f90e2187b71821915ddb50e0e8606704c32517b877aeb57455e",
+      "size": 3199
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-sealed.log": {
+      "sha256": "53febc97bb836a766c02b2844f7561e1af67eea47fc58c0b014bfdec2ae5199d",
+      "size": 30446
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-idempotency-result.log": {
+      "sha256": "e9bbf0876339f0eb8cc18c52fe046b7e73a3dbd65540bb26a3b483b38e03a530",
+      "size": 111
+    },
+    "outputs/delivery-20261127-rc4/verify_source_freeze.py": {
+      "sha256": "5e42a5e75953d172e633b68dc3507a85a93643c22311d223303d334ce449cfc0",
+      "size": 1924
+    },
+    "outputs/delivery-20261127-rc4/collect_gateway_attempt_history.py": {
+      "sha256": "49e1ac038574ea9b2f633364738db8858ec5cf5fb6e9fbd5ae6c451e88b55814",
+      "size": 20811
+    },
+    "outputs/delivery-20261127-rc4/release-delivery-summary.json": {
+      "sha256": "b71f98ebb39392326ed03d40f7cc8cb1676466bb60d80ce7e574b377fc77e17f",
+      "size": 27628
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-idempotency-snapshot.log": {
+      "sha256": "489cc17993eba5498a2562a50859bb54d39512ee08b4834be8d5d7d7f0f8f0c5",
+      "size": 58
+    },
+    "outputs/delivery-20261127-rc4/rc4-build-edge.log": {
+      "sha256": "66cb118531d35196df3f02b9fd59e08cf4c9f02f0d229ec6daafb77861c2d484",
+      "size": 1377
+    },
+    "outputs/delivery-20261127-rc4/rc4-regression-compliance-rc4.log": {
+      "sha256": "5e701ba06b3d92d8be965b8c4d579374d3b88d95aa3f7faf9757ca954dbd5723",
+      "size": 271
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-sealed-source-after.json": {
+      "sha256": "d5140765218c644ea2f730c8282d8636728ff00527510dd3ae8f1724ecb8dac4",
+      "size": 1156228
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-full.log": {
+      "sha256": "559f8c32f5ac1bd878594d045d78a3c8a53332bb2098d68e4a302be4d3450ef0",
+      "size": 7517
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-install-repeat.log": {
+      "sha256": "b1da1dbea426a5ba250980131ead25854b38d91f35e2b7882ace7fb548a4b993",
+      "size": 266
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-seed.log": {
+      "sha256": "1436c9e8810c3bf12cfe0cb1e3cd5ab8df33af56923ba8e860a7c00b05005f8a",
+      "size": 3514
+    },
+    "outputs/delivery-20261127-rc4/collect_delivery_evidence.py": {
+      "sha256": "d8e57cdb4134b60ff84497e19029b81608b490576be0a41fc73e9bca419883d3",
+      "size": 42622
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-seed.log": {
+      "sha256": "a3fe65d59eda4f9cc58dfca10bc01c925c325325f43390f2b9e2190a2ccfc9e6",
+      "size": 3485
+    },
+    "outputs/delivery-20261127-rc4/rc4-verify-image-sources.log": {
+      "sha256": "774306bd4e49e205d7fea9530c97d23dd964389a25ff0d44631e8793b6d3c992",
+      "size": 6853
+    },
+    "outputs/delivery-20261127-rc4/rc4-image-archive-descriptor-diagnostic.log": {
+      "sha256": "00cdecb51fbbe62938937aca135d04152bc072efac010550ea3d3868c03e949e",
+      "size": 5344
+    },
+    "outputs/delivery-20261127-rc4/collector-synthetic-smoke.json": {
+      "sha256": "559e310520c54fed922d98cba03312a2afd54b281391b105199b1c50a63013a1",
+      "size": 681
+    },
+    "outputs/delivery-20261127-rc4/image-archive-target-platform-summary.json": {
+      "sha256": "e58765dbf7d79768be0c3e66abbcc27f65a54eb57a14d1c9712bb41caa7ece35",
+      "size": 79972
+    },
+    "outputs/delivery-20261127-rc4/release-pack-space-monitor.json": {
+      "sha256": "d2b5fe8c6ad93e74314fb4a50d56bf09efcff152606654f33f0d5b8e701474c3",
+      "size": 711
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-final.json": {
+      "sha256": "4ec524a89ddec42d927b8fdbf6591218e1ab89bb8dd5988c8ba9dbee23691176",
+      "size": 806234
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-sealed-summary.json": {
+      "sha256": "1e6e303d5268b225e8ffb044c713a97b4f468b08236bd86c61df31c21733af04",
+      "size": 13045
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-basic.log": {
+      "sha256": "9e427965b46c54b607bcbc8625cdb1b8030f27657dd6e1e3219e65288182da9e",
+      "size": 1606
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-configure.log": {
+      "sha256": "1abdb9ef28f527d13052be1e22771735e2dd6391089df7126045e09cbc935b08",
+      "size": 265
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-restore.log": {
+      "sha256": "f3b3142a6c4d9ae7c72e4a2193430bf92deff874896ac180f7096ea5dd9c3cce",
+      "size": 400
+    },
+    "outputs/delivery-20261127-rc4/gateway-initial-failure-diagnostic.json": {
+      "sha256": "16298ab11ed7e8b84ecf48de8996691b394a52242fe13c6bd8e277155c44933a",
+      "size": 1539
+    },
+    "outputs/delivery-20261127-rc4/regression-summary.json": {
+      "sha256": "166abb1c1397e8e5d775bef0d5f0d1b039ba831087ed1328ef6b78e84e0e8f4c",
+      "size": 1218
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-check.log": {
+      "sha256": "a5a7c5e8b847c0a092c4946756717521b9c381f090c454adf229ba484ceb3f21",
+      "size": 1913
+    },
+    "outputs/delivery-20261127-rc4/pack_release_monitored.py": {
+      "sha256": "c3a255478d55fa5569dfd0bf84b3fe7b996961a33cb7b8e0935db008abb806bb",
+      "size": 3483
+    },
+    "outputs/delivery-20261127-rc4/gateway-attempt-history.json": {
+      "sha256": "766fc0ff6576826c2b2aeda991f7a6735f0fd25e250dfa0fc9f5bcd4a9f360c1",
+      "size": 7240
+    },
+    "outputs/delivery-20261127-rc4/gateway-history-synthetic-smoke.json": {
+      "sha256": "c0d54da84cb03222e874373f1ab6d49e86cfee24c8dc0490f4949356f151b356",
+      "size": 681
+    },
+    "outputs/delivery-20261127-rc4/rc4-build-onecity.log": {
+      "sha256": "674dd75eae1e1b9f766787165185cc1d2459f62da0231761bb77bba7b1acbfd3",
+      "size": 1580
+    },
+    "outputs/delivery-20261127-rc4/rc4-public-evidence-checksums.log": {
+      "sha256": "61e30b229b6eb4e5b85157f531a340660323d281d471abb01ae6e4a9bc947d65",
+      "size": 1199
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-init.log": {
+      "sha256": "62cb12ce40e6b39db7dc52407d6a1d8b50cc7f9e20792b0f3cbfd803c56df3b1",
+      "size": 213
+    },
+    "outputs/delivery-20261127-rc4/release-source-consistency.json": {
+      "sha256": "81e09097cd298c919efc3478c7d41467e4ac6b773e3ea6aa9c2722b9359a1bcc",
+      "size": 917
+    },
+    "outputs/delivery-20261127-rc4/rc4-primary-gateway-r2.log": {
+      "sha256": "44dbd85cb8398b8fb4eab4e50ed01e7395e3f9217f83da20911aedb952c93c70",
+      "size": 6734
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-sandbox-range.log": {
+      "sha256": "7d1c30b378f5f5fcb4788422171a37f205e2aa1bf20c4407b8c1fc0ec6d71d18",
+      "size": 42
+    },
+    "outputs/delivery-20261127-rc4/image-source-verification.json": {
+      "sha256": "0959723d5b0221584f1f3a67f595a6690af0d7eb11afac48e48bd08dfb066ac7",
+      "size": 303970
+    },
+    "outputs/delivery-20261127-rc4/acceptance_steps.py": {
+      "sha256": "4308df81f6600cd53720ff7077b731c57d08fb9396d8803c71fd6c26e72c031e",
+      "size": 6964
+    },
+    "outputs/delivery-20261127-rc4/rc4-release-pack.log": {
+      "sha256": "475f09d4a2c8b34cc3e80874dcddf8baae36e76dbee5fc23e2eda70acb10bd2c",
+      "size": 333
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-rc4/verify_image_sources.py": {
+      "sha256": "431d29cc3586af15196fc4e17af513894210978da65cc9378be35cc43289f405",
+      "size": 12716
+    },
+    "outputs/delivery-20261127-rc4/rc4-image-archive-verification.log": {
+      "sha256": "5430f6b4af3ed497449c1ca5a48d33de690e727c2c91c6eea17431127d7d9c87",
+      "size": 406
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-export-evidence.log": {
+      "sha256": "7a1dac8d2f15e69f31fe808972ebadbc47d2098b709a802bf35f3fd5b5e8ff83",
+      "size": 220
+    },
+    "outputs/delivery-20261127-rc4/rc4-restore-interfaces.log": {
+      "sha256": "2841655418d987b4379d5cb51dbeafe0be56ca9ff48281ef4ba32a39cf1c0be3",
+      "size": 3204
+    },
+    "outputs/delivery-20261127-rc4/regression-deploy-final.log": {
+      "sha256": "900088e12d9e43e6774a144e613ee721766bf47d7481525c265099e39be6b961",
+      "size": 30277
+    },
+    "outputs/delivery-20261127-rc4/rc4-build-toolbox.log": {
+      "sha256": "f14513be6bd9b6c328eacffaa64a9305a87effb2288aff50836ca8f0a1c9a022",
+      "size": 1604
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/README.md": {
+      "sha256": "f7f1134d979325f00e317f5e91b32ebe63cf24d0a50ba13c03895dcac43c2fad",
+      "size": 2082
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/index.json": {
+      "sha256": "a94af054ea80c94b9ed33ea745dc756760265e0985ba7afcd8b41f425c4cf234",
+      "size": 5670
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/checksums.sha256": {
+      "sha256": "65aee3f4555225972b6f2f590dc1f26fc7a8a2d986035167572e856c31214819",
+      "size": 3369
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/summary.json": {
+      "sha256": "3b91b43a4735063d293e5c5e3b153750b9f19d71f3844066e7552335185dc7da",
+      "size": 586
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/command-journal.json": {
+      "sha256": "703fbbee9c9c3238ffba2ccbee4297cbdeab2bfbc13b0f59c53dbb1604fcfd16",
+      "size": 218
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-restore-status.json": {
+      "sha256": "7e8fe9371d48fe7a9275507f094eb1e1f7117c51b832a4a7f2980d68573e76b1",
+      "size": 361
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-primary-stop.json": {
+      "sha256": "1ce48e8976d3ce60504fe06ed55357de530ef365d4937037ab8a020e1df625f3",
+      "size": 358
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/collection.json": {
+      "sha256": "a276586f3e36d82611264fcbcf1d78b692aa6a883dd780e0c0b89eeffbf1f6c5",
+      "size": 3883
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-primary-backup.json": {
+      "sha256": "5b9a4ae32ab6d9856f4e72c14a97a2d6bbccca74c5dce8ea1c2ba5f455c34c9f",
+      "size": 360
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-restore-sandbox-range.json": {
+      "sha256": "13dc1a5ca54d12b75d3f6f1aeeda18ecd3f09e8a20fa7451a8d98b502e0604f4",
+      "size": 367
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-primary-start.json": {
+      "sha256": "8fc7102edb6d4dfb30951eec94e78df843039558cc7fd0e22edfa7eaedbd351b",
+      "size": 359
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-restore-install.json": {
+      "sha256": "a39b9646d3dbc16a78491127cb7fb0dc01640aeafd2f6e95a6d849615cfcdfb0",
+      "size": 362
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-restore-assets-import.json": {
+      "sha256": "00a35528bc0c88b349d75bdb78b98f609c996da9c02913b09d56c3d9633e4afd",
+      "size": 368
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/lifecycle/rc4-restore-restore.json": {
+      "sha256": "75f38e7f94dbea07bdd9390e8617fbb93e783f88cd09855b8153e8bc6221cb76",
+      "size": 361
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/recovery-summary.json": {
+      "sha256": "600c3e68f56e3ac2863d13cc1428288a22d0f4de501fb5c15d24e0b78097296b",
+      "size": 126
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/verification-0003.json": {
+      "sha256": "c9236f2876d3423e7e1ec882f6577775313863f55748028d3ee8a4017908f8f9",
+      "size": 5974
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/verification-0004.json": {
+      "sha256": "63f05b4c38304db121e21b31e1667b1f144c00b5382851b267b35d89dfcfa600",
+      "size": 1703
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/collection.json": {
+      "sha256": "f0f0377dd95c88d4674ffac38847094d0bd2aebbfa09e8cb49a440b8cc61ff7a",
+      "size": 27695
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/verification-0001.json": {
+      "sha256": "50b4781537c72c7dd4d953f20a1c767b82d56d7488f383107fead3ef764cc7d4",
+      "size": 3094
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/delivery-gateway.json": {
+      "sha256": "e152bc9f1f30fb5424c5b215a70812bfa583c689baf54bee63c66232754d43d4",
+      "size": 5076
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/delivery-seed.json": {
+      "sha256": "9247ea0f3cfa019c1ac76733089b9b939f15bff1f699c2cdf50a03da1f79c95e",
+      "size": 3294
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/delivery-verify-restored.json": {
+      "sha256": "686d3241a87083ceebb254c220a17b881f01991eb795a56c6a98e9b1ff93c2f8",
+      "size": 98
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/verification-0005.json": {
+      "sha256": "668285c6b26322873e05382bb620441b226027c13bf985e1c6f8a5ea5d87be95",
+      "size": 1703
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/verification-0002.json": {
+      "sha256": "7f2c4a152aa5d330e0c31bd13e74d1ce4acb3b3481df44847be8ec9c7f69442b",
+      "size": 1703
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/primary/persistent-state-integrity.json": {
+      "sha256": "3f71b9b231b3ff09039aaa7356549094675cf6058643fcbe50c5ea5f32655481",
+      "size": 1201
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/recovery-summary.json": {
+      "sha256": "600c3e68f56e3ac2863d13cc1428288a22d0f4de501fb5c15d24e0b78097296b",
+      "size": 126
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/verification-0003.json": {
+      "sha256": "13ac21bb37b409668715539c5b80d564056685cdef21d8806b6e943dbaeb4428",
+      "size": 1703
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/verification-0004.json": {
+      "sha256": "5bc0e92ce00da91da1b865f52b2a4ac35e550f9dd9cb4d145951f381a430c60f",
+      "size": 3094
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/collection.json": {
+      "sha256": "e1e31d84721cb22f320be1e6b979bfe137bce55220a9a32de7acac66f9a76f41",
+      "size": 30596
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/verification-0001.json": {
+      "sha256": "a1243a1433fe73d690ea1aa51fe83c0c24f741641cd1904eeff5788a5a1efd0a",
+      "size": 5930
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/delivery-gateway.json": {
+      "sha256": "58c595ce775279d809d25b8a9cb3c29ae23ff5150ebce81be1354a73bfd78ce6",
+      "size": 5076
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/delivery-seed.json": {
+      "sha256": "a238669672c7a40849d3a85a8cf9cbeec58c62a5db90ffe28e0f9237d21d710f",
+      "size": 3317
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/delivery-verify-restored.json": {
+      "sha256": "ab9c0d80db40962ed6f5da616afd03179960da096ec16cb8a30a4395956dd8c6",
+      "size": 4044
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/verification-0002.json": {
+      "sha256": "9739988f74422f10d453d2720f06d35c39aa7130c544465200cb9d5777c838e1",
+      "size": 1703
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/last-restore.json": {
+      "sha256": "c061fb17223cb71bdc359cc69f7a0a7d4851958c5216c13b5cf45ebbc2b95655",
+      "size": 347
+    },
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/restore/persistent-state-integrity.json": {
+      "sha256": "79c3ab26a7db4ccb799b1ee8bc98d8fa712a07d680d2e94a71e81b66faa040af",
+      "size": 1201
+    },
+    "outputs/delivery-20261127-rc4/restore-export/manifest.json": {
+      "sha256": "ed512f5513c76a465fb241d67bf8134272b06ba6ea89ff3dc13fa937ee9c03aa",
+      "size": 1502
+    },
+    "outputs/delivery-20261127-rc4/restore-export/checksums.sha256": {
+      "sha256": "cd5eac0dda7d6b86376f99d8e2b48475914b9bae14161ef157cd009b9bc4ae84",
+      "size": 781
+    },
+    "outputs/delivery-20261127-rc4/restore-export/installation.json": {
+      "sha256": "b9f7cdd71d0838f852b927771603191bd5df666878369bca4bc36f5dc4ed6abe",
+      "size": 2054
+    },
+    "outputs/delivery-20261127-rc4/restore-export/reports/preflight.json": {
+      "sha256": "b73da7af555820de08d8af234a93e04dd42aa9ad46c4bcb5472137e689dde40c",
+      "size": 1921
+    },
+    "outputs/delivery-20261127-rc4/restore-export/reports/verification/289addb1fb3f46de8911dffe68fdb175/report.json": {
+      "sha256": "d1bcea14c9f86193a8ad892fb363839d7f25fa085c490808b924032a059cdab2",
+      "size": 7517
+    },
+    "outputs/delivery-20261127-rc4/restore-export/reports/verification/f5df060911ad47189563e1d4377ffbb9/report.json": {
+      "sha256": "496c49e51081e529da032f34c6c2dd005cc02e4fe3d8e9a012f68ac713b44a20",
+      "size": 1606
+    },
+    "outputs/delivery-20261127-rc4/restore-export/reports/verification/fec5d42c9d4a44d7837ef1afe66bf072/report.json": {
+      "sha256": "87dc949e4ce4711428afb6b467891e865fc7c0aa9816ecd00124a00c5c250970",
+      "size": 3204
+    },
+    "outputs/delivery-20261127-rc4/restore-export/reports/verification/664d96df9e544801bb2a2f144a3e1ff0/report.json": {
+      "sha256": "d99f946eba8392bdc5df846f7a9e682176c1f2013f975c87e6603815b6f46ac0",
+      "size": 1606
+    },
+    "outputs/delivery-20261127-rc4/primary-export/manifest.json": {
+      "sha256": "97dcfca517d575f3bb3a18ddeb7db21338e27dd207c396d9da7e332e09b904d4",
+      "size": 1720
+    },
+    "outputs/delivery-20261127-rc4/primary-export/checksums.sha256": {
+      "sha256": "b6d2329bc17d0487754f22e0a7c309a4e72c162ff2da571dcc8b350a1e874dca",
+      "size": 913
+    },
+    "outputs/delivery-20261127-rc4/primary-export/installation.json": {
+      "sha256": "8f288371d4a4e81f256ad65529c615880604f36d565baf7fb303f4949806a5a0",
+      "size": 2021
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/preflight.json": {
+      "sha256": "67822416525e082fde11172c35027f8278c5c1f9818afe8bb51a642a45bcd30a",
+      "size": 1913
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/verification/7ff9ff4377e546968e10e77821473cbe/report.json": {
+      "sha256": "86f6239f7710c668c77039bdeb7946f848c324b7931f651c2f08a8b878034c02",
+      "size": 1597
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/verification/a6146b463d0f4928a979d9df32485bb0/report.json": {
+      "sha256": "dc160d1c961e5508ba599f0722283bef05f46e206823a9d22a6c05b9ac91f305",
+      "size": 1597
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/verification/73136d3cefa5432ab87f3e451be0ab78/report.json": {
+      "sha256": "3742c0a39313434640df811c0a9dc040e94bf5624602deb307da2fe412bc206d",
+      "size": 3199
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/verification/db1245946a0f4890afaf3c2d41d70240/report.json": {
+      "sha256": "d5e9da629588838be905bb9ebca49c9882792dcd3810fd6ecc8c13fbf03bc858",
+      "size": 1597
+    },
+    "outputs/delivery-20261127-rc4/primary-export/reports/verification/9e7f2091b17d4cf2b5ccc858c9226c8b/report.json": {
+      "sha256": "15fccae3a5b5fa7bb6ce080801533f3f6b19fe81fe767c32ad2f14e84099052f",
+      "size": 7548
+    },
+    "outputs/delivery-20261127-base/commands.jsonl": {
+      "sha256": "8c157fe0e5c7c01e07262b94e34168353bf7d0f292e06463821d50cb6a9f264a",
+      "size": 2180
+    },
+    "outputs/delivery-20261127-base/run_step.py": {
+      "sha256": "d6f2669e5de83505d2976ba2506e3944baee8a91e06e5a2d8c67a90adda0de46",
+      "size": 1292
+    },
+    "outputs/delivery-20261127-base/primary-init.log": {
+      "sha256": "c81aae330d1bc7abe07629e40095684a8e715d4f0bceb4fb65264546e2b04e5b",
+      "size": 227
+    },
+    "outputs/delivery-20261127-base/collect_runtime.py": {
+      "sha256": "92500de545c9fd746f72583abc8025306f5792bb50ef2d12259c533a9c325e6e",
+      "size": 2469
+    },
+    "outputs/delivery-20261127-base/sites.json": {
+      "sha256": "3011402b1324a73eebd75da4b9d19aa1477cd38d741baf3274fcc2fb6faff6a9",
+      "size": 706
+    },
+    "outputs/delivery-20261127-base/primary-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-base/primary-configure.log": {
+      "sha256": "268d0ec51ec69cd6f624afea037a790cb4732feb592df57875b074838bc86eef",
+      "size": 190
+    },
+    "outputs/delivery-20261127-base/acceptance_steps.py": {
+      "sha256": "1b64c87c75dff78a4a7ec997170d9ce6ed972ff451a74dad9a67a3d08fb6c430",
+      "size": 5564
+    },
+    "outputs/delivery-20261127-base/verify_image_sources.py": {
+      "sha256": "431d29cc3586af15196fc4e17af513894210978da65cc9378be35cc43289f405",
+      "size": 12716
+    },
+    "outputs/delivery-20261127-continuation/primary-basic.log": {
+      "sha256": "d505ea30a84c14d2c413321020181bcd6cfafbf6e55c966be1720289e51df0a0",
+      "size": 1601
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-mysqldump-help.log": {
+      "sha256": "4dd0d7dc51d5cca8175221676b75929b089c8727c1144cdb9232b5284567705c",
+      "size": 24193
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-focused-final-summary.json": {
+      "sha256": "b49f275aaf64a63a3e0caf28300293d29f51f382abf7899e9f50b90c3bd1f9ff",
+      "size": 5617
+    },
+    "outputs/delivery-20261127-continuation/build-toolbox.log": {
+      "sha256": "ddbf70c7abbc58436901775c304f73edb84ad11a4224c8f9ee024f0afd3086bd",
+      "size": 1604
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-sandbox-range.log": {
+      "sha256": "7d2455dca1b9e49b0f3edfd8754f721215e2ea1e05c8c9312b3f50909f4dcd06",
+      "size": 42
+    },
+    "outputs/delivery-20261127-continuation/primary-install.log": {
+      "sha256": "48f17901ec7b5fcd28c8a29ff5fae80db466bbc03af0d81681d702a0ced8b725",
+      "size": 266
+    },
+    "outputs/delivery-20261127-continuation/edge-builder-provenance.json": {
+      "sha256": "ab219c34cc86191f66207e65a6aaf37e1d9c28f748beef597acc195dcd1d77c2",
+      "size": 196066
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-full.log": {
+      "sha256": "3e1c930fad13d6ad1233e5952501967f1c691bed1e70052c68378176c82a82d3",
+      "size": 7510
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-install-repeat.log": {
+      "sha256": "d24868f767f73ce54ed058c8a03c5317b9811fbb674eac116db908b89f107f21",
+      "size": 266
+    },
+    "outputs/delivery-20261127-continuation/commands.jsonl": {
+      "sha256": "efaf3c8192cad688cc6e15eb7d47a929f5ada613c7edac07ea09557e084d9469",
+      "size": 31454
+    },
+    "outputs/delivery-20261127-continuation/primary-full.log": {
+      "sha256": "aaf5b0f1cccea92c3e3c8fc6647af99ce675bd43dd59d063a823533262369772",
+      "size": 7490
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-continuation/rc3-persistent-state-completeness.json": {
+      "sha256": "ed6296aad09b0651d0e3531a7f3a85f34c6707f3da53c108d600f94577705265",
+      "size": 338
+    },
+    "outputs/delivery-20261127-continuation/primary-interfaces.log": {
+      "sha256": "cf2c235b7aa46ffe633fedb4154a32702a9e4549e45ea582fc5579ea0fb8bd17",
+      "size": 3201
+    },
+    "outputs/delivery-20261127-continuation/primary-check.log": {
+      "sha256": "4bcede2d266b301d57fdd4d515dd2ef9427234db44601f2eb06b55d80d8586c1",
+      "size": 1921
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all-concurrent-failure-summary.json": {
+      "sha256": "5afef1602ac83ae76cee5bc88cd82abb388894a058fdc68f99c6d6cb2073c1a6",
+      "size": 2222
+    },
+    "outputs/delivery-20261127-continuation/image-source-verification-summary.json": {
+      "sha256": "368d0236d52b5865184bc2221ffd00d6a124edaba2155660093d5ed795bc97a2",
+      "size": 6864
+    },
+    "outputs/delivery-20261127-continuation/run_step.py": {
+      "sha256": "56247514962cea32c08daef2a8e8a60b35cdd3e72565e60e4f0e1b8e1ac45c04",
+      "size": 1535
+    },
+    "outputs/delivery-20261127-continuation/rc3-build-onecity.log": {
+      "sha256": "0ec9fab037f25e7153fb9ff8b8dd862f9332632171039d4991e344ec8adc5979",
+      "size": 1580
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-continuation/README.md": {
+      "sha256": "674435b131a506e16128552a0b9429349c23da25f08eec2d80481d965214beac",
+      "size": 2288
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-install.log": {
+      "sha256": "d24868f767f73ce54ed058c8a03c5317b9811fbb674eac116db908b89f107f21",
+      "size": 266
+    },
+    "outputs/delivery-20261127-continuation/primary-idempotency-snapshot.log": {
+      "sha256": "489cc17993eba5498a2562a50859bb54d39512ee08b4834be8d5d7d7f0f8f0c5",
+      "size": 58
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-generated-mysqldump-help.log": {
+      "sha256": "4cf8f08196d5bd5fa2325133a2185d48b488ad35c2549b463156ea8aa54a8f7e",
+      "size": 24184
+    },
+    "outputs/delivery-20261127-continuation/primary-seed.log": {
+      "sha256": "1e910276d3c0f261ac2c934d439e1aa776361ffb3ab5577e80966b0c4ef50c51",
+      "size": 1879
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all-final-summary.json": {
+      "sha256": "f7efc3b479e4791f7f3c2bece0492a82a5ad913505e6bf0df9a2a99ec2fc0b00",
+      "size": 5693
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all-summary.json": {
+      "sha256": "5afef1602ac83ae76cee5bc88cd82abb388894a058fdc68f99c6d6cb2073c1a6",
+      "size": 2222
+    },
+    "outputs/delivery-20261127-continuation/old-image-dependency-audit.md": {
+      "sha256": "70cc8d19eda176df39e0fd83c9bde4d1b4df94c1fe61c61381ee357032c1ede1",
+      "size": 1266
+    },
+    "outputs/delivery-20261127-continuation/rc2-intermediate-cleanup-result.json": {
+      "sha256": "ee5447dff01c51750026940441e03b9fee1d70ea525a2c56e184f114dd6bc521",
+      "size": 479
+    },
+    "outputs/delivery-20261127-continuation/primary-init.log": {
+      "sha256": "1481e567f8c78067146e9c5a2fb63dcf9a11697b98721dbe01fdd038dae54a3f",
+      "size": 221
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-focused-final.log": {
+      "sha256": "5979ea74faeec715ebf3c51724e55bdc3f6d5fae5f60d89ee2ca5579ff74900a",
+      "size": 1926
+    },
+    "outputs/delivery-20261127-continuation/release-audit.md": {
+      "sha256": "e17c0c006c9e513e0ad42bc6c4c5c6bebaa6db9a31fe336ff808a1fe0d1d61e6",
+      "size": 5255
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-focused-summary.json": {
+      "sha256": "adef82a423b15dc3aa67762d69819daefeeedbda4b66abdeda734646e0579739",
+      "size": 2145
+    },
+    "outputs/delivery-20261127-continuation/rc3-build-toolbox.log": {
+      "sha256": "e5fcef74bd4784aa0e58a353733b2e50e97893f014e80849a9fdcc5f82f3581a",
+      "size": 1604
+    },
+    "outputs/delivery-20261127-continuation/sites.json": {
+      "sha256": "9dd4f0d9491660f50bbd3bee235d2103b4f6e3a086cae010e894d737b7f4a321",
+      "size": 444
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-gateway.log": {
+      "sha256": "21d0e3a45f0268ed8dd2abaabbba8dbe33c06ca9d9451b72fa8771af9fe70ed2",
+      "size": 6744
+    },
+    "outputs/delivery-20261127-continuation/primary-install-repeat.log": {
+      "sha256": "48f17901ec7b5fcd28c8a29ff5fae80db466bbc03af0d81681d702a0ced8b725",
+      "size": 266
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-idempotency-snapshot.log": {
+      "sha256": "489cc17993eba5498a2562a50859bb54d39512ee08b4834be8d5d7d7f0f8f0c5",
+      "size": 58
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all-concurrent-failure.log": {
+      "sha256": "35a104e3d7e3efd38ffd761b2794dbd3081381b4890c28ca025a8f33f41a6d2e",
+      "size": 30773
+    },
+    "outputs/delivery-20261127-continuation/primary-idempotency-result.log": {
+      "sha256": "e9bbf0876339f0eb8cc18c52fe046b7e73a3dbd65540bb26a3b483b38e03a530",
+      "size": 111
+    },
+    "outputs/delivery-20261127-continuation/regression-deploy-summary.json": {
+      "sha256": "63814f69c7eff03ca03126565d462bbe68c8c8866ac1514c45ce604df9730a27",
+      "size": 5749
+    },
+    "outputs/delivery-20261127-continuation/source-build-inventory.json": {
+      "sha256": "d693f7e2dc199b4629e9492f8c0eed6c1e9826cc842113e4bc7ba715a379c048",
+      "size": 1155676
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-init.log": {
+      "sha256": "ba3a4cacc52b78f821cc52609eca17025b50d36f13f5cfbce9453c1716ac26f1",
+      "size": 217
+    },
+    "outputs/delivery-20261127-continuation/source-build-inventory-rc3.json": {
+      "sha256": "1568c2d784f05be771169e64f34dd6e5575b9d1262aa5f76a3da46545fdf5da9",
+      "size": 1156044
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-gateway-r2.log": {
+      "sha256": "3d4eb63d7cd8375574f331d6aa2033d9419c93d400d63bc109ac1c0788428542",
+      "size": 6738
+    },
+    "outputs/delivery-20261127-continuation/rc2-stop-after-probe-failure.log": {
+      "sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "size": 80
+    },
+    "outputs/delivery-20261127-continuation/compliance-review-full-regression.log": {
+      "sha256": "9a0a435dddb98c175c7ac0934f3a324d948f1b9b136d051d43aa671593a12654",
+      "size": 19723
+    },
+    "outputs/delivery-20261127-continuation/compliance-review-full-regression.json": {
+      "sha256": "d005964e04452f52baf1966e6e1b4704a508afddb24020568fa823e7d59a0863",
+      "size": 2382
+    },
+    "outputs/delivery-20261127-continuation/image-source-verification-rc3.json": {
+      "sha256": "f6146e4450eeab333a9c50f5846cfd1223f1fbbf635b2c9c5edb48eb41f4863a",
+      "size": 303985
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-backup-r2.log": {
+      "sha256": "754e7d973e338ebf292ac1e9a82b5167e00ac291221651ce7acb92287cdea6f4",
+      "size": 380
+    },
+    "outputs/delivery-20261127-continuation/space-after-cleanup.json": {
+      "sha256": "29dced3ea2660b72e05e0ac1b5db9b5a793415273d8a152b76096943efc2b6bb",
+      "size": 268
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-basic.log": {
+      "sha256": "ecf9df79fcc032ad1af2a78b289a21e7afdf8520b6351770ceab154048734620",
+      "size": 1608
+    },
+    "outputs/delivery-20261127-continuation/probe-recovery-review.md": {
+      "sha256": "beaee0f06613b6e8de11c00b27516a36c2d4a428c8ddc671ddbacd955c1de11b",
+      "size": 4018
+    },
+    "outputs/delivery-20261127-continuation/gateway-hints-focused-summary.json": {
+      "sha256": "5259f40eb2bf87eb65a610f805a4026bf3391c89c8f2058545b20de8200454c5",
+      "size": 1993
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all.log": {
+      "sha256": "35a104e3d7e3efd38ffd761b2794dbd3081381b4890c28ca025a8f33f41a6d2e",
+      "size": 30773
+    },
+    "outputs/delivery-20261127-continuation/retired-rc2-attempt.json": {
+      "sha256": "3fd3f5aa7bcb96ef659d4da517722cd2f1df993eb7463f92cc1e73994bc6aefa",
+      "size": 759
+    },
+    "outputs/delivery-20261127-continuation/compliance-review-regression.log": {
+      "sha256": "e5d3bcf311bc9460c1395a474e77b521815effe32b62ca4d50686f6fdf62be91",
+      "size": 11204
+    },
+    "outputs/delivery-20261127-continuation/primary-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-continuation/build-onecity.log": {
+      "sha256": "b953576978625c76c74abc3047d371bab2cc5c9b6ce5e74c627c4c79b400726c",
+      "size": 1580
+    },
+    "outputs/delivery-20261127-continuation/compliance-review.md": {
+      "sha256": "1b02836b9246d9a2973bf528b07a4f8e5baed04d8bf7bd1e4e41dad5ea8fb4e5",
+      "size": 2031
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-check.log": {
+      "sha256": "f40df1299ccdbe0f5cfdd7e806904bab5f4b6c42e2a9f2eabe67d44ff78a5648",
+      "size": 1917
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-basic.log": {
+      "sha256": "06dcc6a4feb7dbb83dbead58f15feed3942781bedda3dc6b7237d2d64f0cceb6",
+      "size": 1599
+    },
+    "outputs/delivery-20261127-continuation/rc3-build-edge.log": {
+      "sha256": "f15160cb15144e0f68ad0e624c652aef115d27f9512e55c06a7877ff084f8cb4",
+      "size": 1377
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-stop.log": {
+      "sha256": "b0105dabd2f389ac2fe5f9a2018f0d22cc497dc7f33f1050480fd3c0171cfc18",
+      "size": 80
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-focused-summary.json": {
+      "sha256": "c0ce03913ab4a03bbe7142aea624ebb38b2652c0f447229aeba6ef9b7e428c7c",
+      "size": 862
+    },
+    "outputs/delivery-20261127-continuation/gateway-hints-focused.log": {
+      "sha256": "b89c7ff89c6fa7ba9ed05fb84d9eec931aa6547b858ffeeb0e63610af95b08cd",
+      "size": 2354
+    },
+    "outputs/delivery-20261127-continuation/primary-configure.log": {
+      "sha256": "25422e0ba6a0d3d791868348d73c0aefe5562c36739ccfafcec9ec35ae6d695a",
+      "size": 273
+    },
+    "outputs/delivery-20261127-continuation/compliance-review-regression.json": {
+      "sha256": "a39a3aabf8401c1cb8852b8ae5f7a979acfb4a9e14f00ebc447774412690ff75",
+      "size": 2245
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-supported-flags.json": {
+      "sha256": "fe2df315ba7ab4b84e14d754fab791ecf6f504d1ca768a32ec8038945a8b1398",
+      "size": 585
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-configure.log": {
+      "sha256": "7190ca2366edd4596a2c05575005cba57eb749092b7e37b50705f2fdb6511304",
+      "size": 269
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-restore-r2.log": {
+      "sha256": "4634b947bff4baff03ccd04e86cfa0dfb97510b2a13af9b5a3e1297e89ff602c",
+      "size": 402
+    },
+    "outputs/delivery-20261127-continuation/rc2-intermediate-cleanup-all-result.json": {
+      "sha256": "7d902427baac782d6e6a45eec97afcdcc6beb3d7e77d34874f7b4a1aa8e6cb74",
+      "size": 2046
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-assets-import.log": {
+      "sha256": "c624d9c3f0f486a0ab91519f5773793b1d5357035bf69b94bb15734bc3358061",
+      "size": 201
+    },
+    "outputs/delivery-20261127-continuation/pack_release_monitored.py": {
+      "sha256": "843861e5f3d183df145f063b4a3b0ff5d09049eb981502072b087071207c38cf",
+      "size": 2741
+    },
+    "outputs/delivery-20261127-continuation/verify_image_archive.py": {
+      "sha256": "f56661c8b58bb43a14a6eb47111a85519500d98ad77546dd88df4c869675ff40",
+      "size": 22519
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-interfaces.log": {
+      "sha256": "9104a97c6ca80f7f2021828cf2c5e9a05bd42b294feb8403d95892514296204c",
+      "size": 3208
+    },
+    "outputs/delivery-20261127-continuation/rc2-intermediate-cleanup-audit.json": {
+      "sha256": "2d21dae436a8ed05cbe9cb88e0fad114cfc82cae8d4ec6b8707a5426f6c96e34",
+      "size": 37381
+    },
+    "outputs/delivery-20261127-continuation/space-before-cleanup.json": {
+      "sha256": "d32dac2c9f74537fd588f2853e666dda4461e7378ff788d8426e8eb38db0b213",
+      "size": 173
+    },
+    "outputs/delivery-20261127-continuation/build-edge.log": {
+      "sha256": "f58ee5c08221105167a22628edfa711008b4e9bdb2d85104781dcfa9466cf03d",
+      "size": 1377
+    },
+    "outputs/delivery-20261127-continuation/image-source-verification-rc3-summary.json": {
+      "sha256": "3f325c5b8910fa0b7dd99a4ef7ccd9426809e3d65aebd4589ded4774f995485b",
+      "size": 6868
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-interfaces.log": {
+      "sha256": "9fa4420834a92f218bc74b038a5b6cc7b398d7fb91a5ebce3b3851d10fc85058",
+      "size": 3199
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-continuation/primary-status.log": {
+      "sha256": "4f5412f6ed21ef6507eb54fbc0455b08993abfbca4489c3e170148109bbb5f41",
+      "size": 574
+    },
+    "outputs/delivery-20261127-continuation/compliance-review-model-ab.json": {
+      "sha256": "c684c04e4df1459ad716a90db9f4072a2f476f89b3ba65fd365980b71f548690",
+      "size": 42445
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-idempotency-result.log": {
+      "sha256": "e9bbf0876339f0eb8cc18c52fe046b7e73a3dbd65540bb26a3b483b38e03a530",
+      "size": 111
+    },
+    "outputs/delivery-20261127-continuation/build-deerflow.log": {
+      "sha256": "4796a1b9c26969428a80d3dc6043490366c990a270e15cd7a4ae2aec77b50e57",
+      "size": 13750
+    },
+    "outputs/delivery-20261127-continuation/regression-deploy.log": {
+      "sha256": "02e0bbf07e06da2c721051b0ccbaf19838d44373f92a7d83418b911b46bbacf3",
+      "size": 29249
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-focused.log": {
+      "sha256": "5979ea74faeec715ebf3c51724e55bdc3f6d5fae5f60d89ee2ca5579ff74900a",
+      "size": 1926
+    },
+    "outputs/delivery-20261127-continuation/regression-probe-url-all-final.log": {
+      "sha256": "cdbf7ed68e72df5d607957588b6feb56f74a3c0fa4711cf4c3c3250198ec6253",
+      "size": 29823
+    },
+    "outputs/delivery-20261127-continuation/sites-attempt-rc2.json": {
+      "sha256": "58e7a160fb8e480b6e289518a3d5c0e08459d2884869a8c414b492f4b80cf91d",
+      "size": 464
+    },
+    "outputs/delivery-20261127-continuation/old-image-dependency-audit.json": {
+      "sha256": "265870d04cc82cc7b7f928d8bec7a16e1f5e35c3e37bd2621540481f568b18c1",
+      "size": 2252
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-seed.log": {
+      "sha256": "e1434206ef5e6201a31b2cd78d435829f28021c1266fbc9576b08eeb110a3291",
+      "size": 3470
+    },
+    "outputs/delivery-20261127-continuation/compliance-review.json": {
+      "sha256": "4f34037bb4a23212aec8fdf5d899fd93ccef141d9cf12144e65db7c1a0d78df7",
+      "size": 2710
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-install.log": {
+      "sha256": "9de90c0660568b5bee8f5d77c1e792aa1692211337bd24e81d1b140361757ec0",
+      "size": 266
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-backup.log": {
+      "sha256": "3ccb5e5227388c8f996e787a064c49b34d24ca7c73186b53eb2b96fa90b20757",
+      "size": 105
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-gateway.log": {
+      "sha256": "ec3c733d659cb4a7d728f9757d74880a2bd42ac87112b6be9952d88d37d0363c",
+      "size": 614
+    },
+    "outputs/delivery-20261127-continuation/rc3-build-deerflow.log": {
+      "sha256": "2c952e94a73f1d2a250cbb6cc900a858e386dc266294359ba2ec957d550ad117",
+      "size": 13116
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-mysql-help.log": {
+      "sha256": "a38ec2270ac4e5cdf4f225db66e905fe60fd2fd3cd4fcb3df184cb13cb679431",
+      "size": 15483
+    },
+    "outputs/delivery-20261127-continuation/backup-fix-focused.log": {
+      "sha256": "027bbea25d3f51af9de9428517ce02b417e87e1063b9cdc718cf13c0dee807b9",
+      "size": 2723
+    },
+    "outputs/delivery-20261127-continuation/image-source-verification.json": {
+      "sha256": "2f1c0b7031576e6c18111ca234e048a596415a7c04fd013d613b4e2fdd90c766",
+      "size": 303981
+    },
+    "outputs/delivery-20261127-continuation/acceptance_steps.py": {
+      "sha256": "ab19350151cdd9c5f986f06d7c33a43d74559517814635e1ac3fede9931eedbb",
+      "size": 7183
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-verify-restored.log": {
+      "sha256": "70d613eee18f82165df2bd2ad164f04ac20b5ebc5aa87d325b06a33f72d75ece",
+      "size": 4447
+    },
+    "outputs/delivery-20261127-continuation/rc3-primary-start.log": {
+      "sha256": "e9f93de1968fab165e73eacff4934dd1acd2c31d7c5f65364fdeede628814b0e",
+      "size": 22
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-restore.log": {
+      "sha256": "b35c612bd3b9b819d884b7aa67a0fe866e83c938f12cd225ac1c20225c87a94d",
+      "size": 51
+    },
+    "outputs/delivery-20261127-continuation/rc3-restore-seed.log": {
+      "sha256": "970eb9a98de92a1d2445cf6aae3b63e39f9ec821bd53123eede58abfddaea420",
+      "size": 3516
+    },
+    "outputs/delivery-20261127-continuation/cleanup-unreferenced-own-build.log": {
+      "sha256": "004550891214fc905e9cfdcda9eb4f1b2dd82ea9b950e3e3f9ab2bc52bce8345",
+      "size": 1296
+    },
+    "outputs/compliance-eval/unified-ten-type-manual-review.jsonl": {
+      "sha256": "8ae81fa64032a474cf2ef6ba5d5b4896249bae4bda836baa93dc2dbf1b3beb03",
+      "size": 41977
+    },
+    "outputs/compliance-eval/model-cross-source.json": {
+      "sha256": "2fd5f12d3442bd91096ac7c256246e243d5c16f2bcaad28e3aa578b96ca9f279",
+      "size": 15550
+    },
+    "outputs/compliance-eval/unified-ten-type-predictions.jsonl": {
+      "sha256": "e65ed0215ad7db43e0b59b079a704d216911b01021da2af613b93e222c6ecee1",
+      "size": 870539
+    },
+    "outputs/compliance-eval/unified-ten-type.json": {
+      "sha256": "0648af08ead6b37e349d47ff225d0889434d0fc1eda6f71211f7ccd722c77fb1",
+      "size": 47924
+    },
+    "outputs/compliance-eval/gate-scene-eval-predictions.jsonl": {
+      "sha256": "a76291f33990f05e737a6b4b5f8518bb5efed4bc2632638db4fd18534c67f6cd",
+      "size": 75733
+    },
+    "outputs/compliance-eval/gate-scene-eval.json": {
+      "sha256": "6f2b8740271ef81097b61926358dae588ba2758c636614682b6326a31426aeb9",
+      "size": 204417
+    },
+    "outputs/compliance-eval/20260918-053037/predictions.jsonl": {
+      "sha256": "50afb18ac33f40e97e36c1c74f45a933631bc217b7cf0789a230565655075a97",
+      "size": 15799
+    },
+    "outputs/compliance-eval/20260918-053037/report.json": {
+      "sha256": "f2add55d30c96fd72005923ff9929d842567df53c9665c0ab5d5bd22c7a0e853",
+      "size": 13139
+    },
+    "outputs/compliance-eval/20260918-031623/predictions.jsonl": {
+      "sha256": "50afb18ac33f40e97e36c1c74f45a933631bc217b7cf0789a230565655075a97",
+      "size": 15799
+    },
+    "outputs/compliance-eval/20260918-031623/report.json": {
+      "sha256": "075c1af434916abec2f0df067f97bd9fe32af19b524b134319cefd0f51dae527",
+      "size": 13237
+    },
+    "outputs/compliance-eval/current-workspace/predictions.jsonl": {
+      "sha256": "aa4345b45735630e7b8f555fbb1912f1b8698d5505f264d52a9ada5254aa4445",
+      "size": 15796
+    },
+    "outputs/compliance-eval/current-workspace/report.json": {
+      "sha256": "098b59443a2c0d6c03568d7697fe7e390b480f118e13e7dca00c4a7ff2bc11c6",
+      "size": 13261
+    },
+    "outputs/compliance-eval/after-compliance-repair/predictions.jsonl": {
+      "sha256": "aa505c66e3c98ead115f18121fdef7d8729ac75c080de0932b46c32827557051",
+      "size": 15061
+    },
+    "outputs/compliance-eval/after-compliance-repair/report.json": {
+      "sha256": "d699f5c89abef69e60c46449c3a4c2970fbc7222195e0b0d849d81ff98e44b06",
+      "size": 13729
+    },
+    "outputs/compliance-eval/reproduction-records/reproduction.json": {
+      "sha256": "9cfe03c86ac298c19c5a2f7079c437389c4da83c390ee91c047a8debb6eed8d1",
+      "size": 8346
+    },
+    "outputs/compliance-eval/reproduction-records/audit/compliance-20260920.jsonl": {
+      "sha256": "f9d93f9684b7ff69c858e3868cc7b65758b65b7c819f9b70712790a6e4c31458",
+      "size": 2121
+    },
+    "合规检测/violation_detection_model_normalized_723_README.md": {
+      "sha256": "cb6211365c268ff541d8d2b015db5b4449058a12329325547cc1ca4dc8c2fe90",
+      "size": 4531
+    },
+    "合规检测/合规评测标注指南7.23.docx": {
+      "sha256": "55f9eca83d0c176dbf59d15e44716174759ea8e4031cfe607e0534b377e2a442",
+      "size": 82312
+    },
+    "合规检测/提交.docx": {
+      "sha256": "9c2c4785a1401eeecdce97cad88bab1e0d9770496bb5390c4a13ab185f8a04ef",
+      "size": 30956
+    },
+    "合规检测/三个检测器规则修改汇总报告.md": {
+      "sha256": "37f759bcfdd954416d52dc790ea5c841da7e4330b2e69326de04dd7b07e22cee",
+      "size": 9396
+    },
+    "合规检测/类型3-hardcoded_cred整改/latest_metrics.json": {
+      "sha256": "e05862479482f95099d38c2c8fa1280aead94a286e5137156d7174bcd2771dc9",
+      "size": 1936
+    },
+    "合规检测/类型3-hardcoded_cred整改/修改报告.md": {
+      "sha256": "9bc49d00c21b9be58df4067cb851fe2160e9a9cd23fb3ddfc812be8d9a173d2c",
+      "size": 2867
+    },
+    "合规检测/类型3-hardcoded_cred整改/program_code_type3_regression.jsonl": {
+      "sha256": "cddb2e71acd6a345c57babfcf5d1704dc3e2c8bdadd655a55695c6f6da7fc92d",
+      "size": 453533
+    },
+    "合规检测/合规评测全部十类违规类型数据/spatiotemporal_compliance_all_225.jsonl": {
+      "sha256": "bbb56fe04ef35a3c9ea27824f9543bfa350860334c5e335fb21acd9dce25b882",
+      "size": 436502
+    },
+    "合规检测/合规评测全部十类违规类型数据/street_view_200.jsonl": {
+      "sha256": "5ffcaead020456ecc4a1f292b22e555076d44fba4d51f22c15e9ee7f5b7c2f93",
+      "size": 418312
+    },
+    "合规检测/合规评测全部十类违规类型数据/phone_network.jsonl": {
+      "sha256": "d4ce0ef480a807f1a1d1a0302b43fa17cafad893ee5ba3b92e38c2a28ead385d",
+      "size": 323246
+    },
+    "合规检测/合规评测全部十类违规类型数据/compliance_annotations_250.jsonl": {
+      "sha256": "5de90dfd3abc8cbcc085294cc8937b283d54b56f54af598c9129a6e13bd38587",
+      "size": 644655
+    },
+    "合规检测/合规评测全部十类违规类型数据/repair_traffic_flow_samples_150.jsonl": {
+      "sha256": "859f7f195764ec27267df4491b9a6f655080654a8dbc1a1abef501b01e640638",
+      "size": 241945
+    },
+    "合规检测/合规评测全部十类违规类型数据/video_monitoring_200.jsonl": {
+      "sha256": "3fc5b14cf673007116e0530634fa9f90312fcd00e539ee4adcf109813e9701df",
+      "size": 537593
+    },
+    "合规检测/合规评测全部十类违规类型数据/network_flow_compliance_annotations_150.jsonl": {
+      "sha256": "c1842094b03a821e28e6fed1f06dd4d0071f013abc9becde22b39b44a29f959e",
+      "size": 260462
+    },
+    "合规检测/合规评测全部十类违规类型数据/program_code.jsonl": {
+      "sha256": "417b8e386e9271ab9cbd27aa6ceafbbbf1d491c704000bed2b5340e9718ce530",
+      "size": 412214
+    },
+    "合规检测/合规评测全部十类违规类型数据/policy_regulation.jsonl": {
+      "sha256": "a7f2d5e23c43bcd83cda1aecab68324134015e6f6b93b48cebecc338b3b03f4b",
+      "size": 828852
+    },
+    "合规检测/合规评测全部十类违规类型数据/remote_sensing_all_120.jsonl": {
+      "sha256": "3e352e766e830bd32ade496e2f8a8e58e240d50e2a1c088fa8565fc4cc1d82bb",
+      "size": 590304
+    },
+    "合规检测/类型7-confidential整改/dev_metrics.json": {
+      "sha256": "8ed65832f135f447a524832e57f61ee9679f49c54925beb47d1a5227340b1814",
+      "size": 4593
+    },
+    "合规检测/类型7-confidential整改/confidential_type7_regression.jsonl": {
+      "sha256": "e3164a255be40f330046fcb70b29101678f0fa7f1fdcaf8097cceecce9793ae4",
+      "size": 575155
+    },
+    "合规检测/类型7-confidential整改/confidential_type7_test_split.jsonl": {
+      "sha256": "9f0572962467565bc5a9e0b281610ca5fe41e565b720f50f66d67c3dc29a40df",
+      "size": 458563
+    },
+    "合规检测/类型7-confidential整改/latest_metrics.json": {
+      "sha256": "d6561f445280e90efc175999e4b2be546328b943a9abc0455f682b75ac244150",
+      "size": 7206
+    },
+    "合规检测/类型7-confidential整改/修改报告.md": {
+      "sha256": "52614501c4035de72064eaa498b928af4eab445135edbda970f2e430f5696d04",
+      "size": 4501
+    },
+    "合规检测/类型7-confidential整改/dev_predictions.jsonl": {
+      "sha256": "f1d78a82f038a3da3c3f9c6eb59f44ab99ae90b6cc2aed28ca6a915d26e1b70e",
+      "size": 13642
+    },
+    "合规检测/类型7-confidential整改/latest_predictions.jsonl": {
+      "sha256": "134d5f05ce2aeb1a85f1c2f8f792c29efa6b8dc836036ac900e3086ebd3c2e48",
+      "size": 54617
+    },
+    "合规检测/类型6-text_id整改/split_manifest.json": {
+      "sha256": "bdcf61e20e56bd8b1df08ec058372720d169725d77d34038e0d0db3fe11b6eed",
+      "size": 10122
+    },
+    "合规检测/类型6-text_id整改/text_id_type6_test_80.jsonl": {
+      "sha256": "ea9ec40013531862180519b3cf8a55a2186a5e3ff7c064df006cdbe155e57672",
+      "size": 415980
+    },
+    "合规检测/类型6-text_id整改/text_id_type6_development_20.jsonl": {
+      "sha256": "bec5804b3dc13d966ea8f5901b74da13ba6094eb167c754886f680c5667c00a4",
+      "size": 103922
+    },
+    "合规检测/类型6-text_id整改/development_predictions.jsonl": {
+      "sha256": "b44fd5202289cf11240fb64fd96f637aa397263e5a7be3a925b4cad310b88094",
+      "size": 82482
+    },
+    "合规检测/类型6-text_id整改/latest_metrics.json": {
+      "sha256": "2000ff27d14a7e823a4cf69c682f86e0444ace4bfb82291a9697083c5f11474f",
+      "size": 3173
+    },
+    "合规检测/类型6-text_id整改/修改报告.md": {
+      "sha256": "14d5bd76b9a431ef20f93a75ec6213cbbb401a4c6ed046660c111d2896df7bdb",
+      "size": 7711
+    },
+    "合规检测/类型6-text_id整改/text_id_type6_regression.jsonl": {
+      "sha256": "2c8bd2c27fa4f363a056ed70999c95ed735640f2bd6e5c02b3a4bc896c8325fe",
+      "size": 519902
+    },
+    "合规检测/类型6-text_id整改/latest_predictions.jsonl": {
+      "sha256": "734f5c98bda12fb258dd5565b831c4a80c36141b9f7c2ecef30cc0158e468d73",
+      "size": 349720
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/fresh_text_id_100.jsonl": {
+      "sha256": "8c08139ed9c0a9916d8fb5d8714f523b74b560b750d8be0995480c4dcfd4d0ce",
+      "size": 88113
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/test_metrics.json": {
+      "sha256": "7c556b8be7dbe0757e1525b977438ac83fc638a945bc48c9498ab41d9d958d50",
+      "size": 673
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/split_manifest.json": {
+      "sha256": "5b2855949bdbcda4398e6bce83005ca0a469ae5255276e7dd6f79cb6d4f2e8d8",
+      "size": 4200
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/development_predictions.jsonl": {
+      "sha256": "e65f626107f3928d55bde70d8e81b7345e8864527dc1bc77635af1e92156058c",
+      "size": 23642
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/frozen_rule.json": {
+      "sha256": "05e0329b5c1b560022565dabf24fa5bd98c04850014c04f1c21a0364a3f6ede4",
+      "size": 489
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/development_metrics.json": {
+      "sha256": "e8e63888ee391410d8a287812bbe7e06927cb0e39ec5ac83200229c3a7bf133e",
+      "size": 478
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/test_80.jsonl": {
+      "sha256": "2116bff3b3954a947cad2e4e6885e335d80c1912f7f25205dcd982b12883261b",
+      "size": 70456
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/development_20.jsonl": {
+      "sha256": "478399cb2626b11a7bd095a3ee212049cb95889eae6aee86de48ce6d4271500f",
+      "size": 17657
+    },
+    "合规检测/类型6-text_id整改/新批次独立评测/test_predictions.jsonl": {
+      "sha256": "9a67798a180337135b317efe923c4d7db57540c41ecef9c8e3985df32c762aef",
+      "size": 95377
+    }
+  },
+  "markdown_files": [
+    "网络流量分析示例问题清单.md",
+    "outputs/concurrency-test-report-2026-10-15.md",
+    "outputs/recording-handoff-20261112/录制提问清单.md",
+    "outputs/recording-handoff-20261112/桌面Codex录制操作流程.md",
+    "outputs/recording-handoff-20261112/两分钟录制脚本.md",
+    "outputs/delivery-20261127-continuation/old-image-dependency-audit.md",
+    "outputs/delivery-20261127-continuation/release-audit.md",
+    "outputs/delivery-20261127-continuation/README.md",
+    "outputs/delivery-20261126-rc1/report-draft.md",
+    "outputs/real-request-concurrency-report-2026-10-15.md",
+    "outputs/latency-thinking-quality-report-2026-10-15.md",
+    "outputs/latency-breakdown-report-2026-10-15.md",
+    "合规检测实现与异构检测器接入指南.md",
+    "CONTRIBUTING.md",
+    "outputs/delivery-20261127-continuation/probe-recovery-review.md",
+    "outputs/delivery-20261127-continuation/compliance-review.md",
+    "outputs/ppt-materials-20261112/近两周研发进展_功能汇报版.md",
+    "outputs/ppt-materials-20261112/近期研发成果_PPT汇报语料.md",
+    "服务器配置登录GitHub教程.md",
+    "onecityagent-deerflow-compliance-contract.md",
+    "部署启动.md",
+    "outputs/delivery-20261127-rc4/delivery-evidence-public/README.md",
+    "outputs/delivery-20261127-rc4/README.md",
+    "deploy/assets/capabilities.md",
+    "SANDBOX_IMAGE_TUTORIAL.md",
+    "SECURITY.md",
+    "笔记.md",
+    "本地数据集类型接入教程.md",
+    "docker/provisioner/README.md",
+    "contracts/onecity-deerflow/v1/README.md",
+    "README.md",
+    "9月24工作增量.md",
+    "docs/remaining-quality-fixes-20261028.md",
+    "合规检测/violation_detection_model_normalized_723_README.md",
+    "docs/compliance-detector-integration-guide.md",
+    "docs/full-flow-fixes-20261022.md",
+    "合规检测/类型6-text_id整改/修改报告.md",
+    "docs/NDBC2026海报内容与排版规划.md",
+    "docs/CODE_CHANGE_SUMMARY_BY_FILE.md",
+    "skills/public/chart-visualization/references/generate_violin_chart.md",
+    "skills/public/chart-visualization/references/generate_liquid_chart.md",
+    "docs/compliance-detection-agent-prompt.md",
+    "skills/public/chart-visualization/references/generate_flow_diagram.md",
+    "docs/compliance-detection-decisions.md",
+    "docs/deerflow-agent-skill-test.md",
+    "skills/public/chart-visualization/references/generate_organization_chart.md",
+    "skills/public/chart-visualization/references/generate_pie_chart.md",
+    "docs/修改端口避免冲突操作文档.md",
+    "docs/no-sudo-no-docker-deploy-flow.md",
+    "skills/public/chart-visualization/references/generate_mind_map.md",
+    "skills/public/chart-visualization/references/generate_network_graph.md",
+    "skills/public/chart-visualization/references/generate_histogram_chart.md",
+    "skills/public/data-analysis/SKILL.md",
+    "docs/跨机器迁移与Docker部署指南_20261126.md",
+    "docs/user-access-and-concurrency-20261112.md",
+    "skills/public/podcast-generation/SKILL.md",
+    "skills/public/chart-visualization/references/generate_column_chart.md",
+    "skills/public/chart-visualization/references/generate_venn_chart.md",
+    "skills/public/web-design-guidelines/SKILL.md",
+    "skills/public/chart-visualization/references/generate_line_chart.md",
+    "skills/public/chart-visualization/references/generate_path_map.md",
+    "skills/public/chart-visualization/references/generate_bar_chart.md",
+    "docs/acceptance/20261127-rc2.md",
+    "docs/acceptance/20261127-rc4.md",
+    "skills/public/chart-visualization/references/generate_district_map.md",
+    "skills/public/chart-visualization/references/generate_word_cloud_chart.md",
+    "docs/skill配置修改.md",
+    "docs/acceptance/20261127-rc3.md",
+    "skills/public/chart-visualization/references/generate_treemap_chart.md",
+    "skills/public/chart-visualization/references/generate_spreadsheet.md",
+    "skills/public/deep-research/SKILL.md",
+    "skills/public/chart-visualization/references/generate_boxplot_chart.md",
+    "frontend/AGENTS.md",
+    "docs/intent-recognition-latency-analysis-20261022.md",
+    "skills/public/chart-visualization/references/generate_dual_axes_chart.md",
+    "skills/public/chart-visualization/references/generate_radar_chart.md",
+    "docs/onecity-private-multiuser-deployment.md",
+    "docs/network-traffic-rag-implementation-plan.md",
+    "skills/public/chart-visualization/references/generate_funnel_chart.md",
+    "skills/public/chart-visualization/references/generate_sankey_chart.md",
+    "skills/public/chart-visualization/references/generate_pin_map.md",
+    "skills/public/chart-visualization/references/generate_fishbone_diagram.md",
+    "skills/public/chart-visualization/references/generate_scatter_chart.md",
+    "frontend/README.md",
+    "skills/public/podcast-generation/templates/tech-explainer.md",
+    "skills/public/chart-visualization/references/generate_area_chart.md",
+    "docs/compliance-detection-implementation-plan.md",
+    "docs/UPLOAD_AND_MONITORING_GUIDE.md",
+    "docs/启动命令与容器机制说明.md",
+    "docs/deerflow_sandbox_and_filesystem_mcp.md",
+    "docs/release-concurrency-20261029.md",
+    "docs/compliance-e2e-verification.md",
+    "docs/SKILL_NAME_CONFLICT_FIX.md",
+    "docs/video-surveillance-backend-followups.md",
+    "docs/skill输入输出和router_card注册规范.md",
+    "frontend/CLAUDE.md",
+    "backend/AGENTS.md",
+    "docs/mobile-platform-live-test-cases.md",
+    "skills/custom/spatiotemporal_trajectory/measure_spatiotemporal_entropy/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_region_heat/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_region_heat/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/measure_spatiotemporal_entropy/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_od_flow/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_od_flow/SKILL.md",
+    "skills/custom/road-traffic-analysis/references/anomaly-detection.md",
+    "skills/custom/road-traffic-analysis/references/local-csv-db.md",
+    "skills/custom/road-traffic-analysis/references/data-analysis.md",
+    "skills/custom/road-traffic-analysis/references/rag.md",
+    "skills/custom/road-traffic-analysis/references/realtime.md",
+    "skills/custom/road-traffic-analysis/references/examples.md",
+    "skills/custom/road-traffic-analysis/references/forecasting.md",
+    "skills/custom/street_view_image/location-matcher/SKILL.md",
+    "backend/CONTRIBUTING.md",
+    "skills/custom/spatiotemporal_trajectory/fuse_spatial_evidence/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/fuse_spatial_evidence/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/detect_trajectory_cooccurrence/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/forecast_region_flow/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/forecast_region_flow/references/usage.md",
+    "backend/packages/harness/deerflow/compliance/detectors/_template_detector/README.md",
+    "backend/packages/harness/deerflow/compliance/detectors/rule_illegal_political_v4/README.md",
+    "backend/packages/harness/deerflow/compliance/detectors/delivered_rules/vendor/README.md",
+    "backend/packages/harness/deerflow/compliance/detectors/model_tfidf_knn/vendor/model_detectors/README.md",
+    "skills/custom/street_view_image/location-matcher/scripts/model_service_doc.md",
+    "frontend/src/components/workspace/settings/about.md",
+    "skills/custom/spatiotemporal_trajectory/detect_trajectory_cooccurrence/references/usage.md",
+    "skills/custom/street_view_image/location-matcher/scripts/test/TEST_SUMMARY.md",
+    "skills/custom/street_view_image/location-matcher/scripts/test/CHANGES.md",
+    "skills/custom/street_view_image/location-matcher/scripts/test/README.md",
+    "skills/custom/street_view_image/location-matcher/scripts/test/QUICKSTART.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_spatiotemporal_accessibility/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/clean_trajectory/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/profile_urban_region/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/predict_next_location/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/clean_trajectory/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_spatiotemporal_accessibility/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/profile_urban_region/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/map_spatial_grid/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/predict_next_location/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/anonymize_trajectory_data/SKILL.md",
+    "backend/CLAUDE.md",
+    "skills/custom/spatiotemporal_trajectory/map_spatial_grid/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/mine_trajectory_patterns/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/anonymize_trajectory_data/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/extract_stay_points/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/mine_trajectory_patterns/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/extract_stay_points/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/detect_flow_anomaly/SKILL.md",
+    "skills/custom/road-traffic-analysis/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/detect_flow_anomaly/references/usage.md",
+    "docs/intent-semantic-routing-20261022.md",
+    "skills/custom/spatiotemporal_trajectory/classify_trajectory_state/SKILL.md",
+    "skills/custom/remote_sensing_image/urban-expansion-analysis/SKILL.md",
+    "docs/integration-onecity-20261125.md",
+    "skills/custom/spatiotemporal_trajectory/classify_trajectory_state/references/usage.md",
+    "skills/custom/spatiotemporal_trajectory/search_similar_trajectory/SKILL.md",
+    "skills/custom/remote_sensing_image/illegal-dumping-detection/SKILL.md",
+    "docs/full-flow-thinking-service-check-20261027.md",
+    "skills/custom/remote_sensing_image/space-data-processing/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/search_similar_trajectory/references/usage.md",
+    "docs/video-surveillance-routing-questions-test-20260726.md",
+    "docs/compliance-detection-summary.md",
+    "skills/custom/remote_sensing_image/urban-heat-assessment/SKILL.md",
+    "skills/custom/remote_sensing_image/space-data-processing/references/patterns.md",
+    "skills/custom/remote_sensing_image/space-data-processing/references/validations.md",
+    "skills/custom/remote_sensing_image/building-footprint-extraction/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_event_impact/references/usage.md",
+    "skills/custom/remote_sensing_image/urban-greenspace-assessment/SKILL.md",
+    "skills/custom/remote_sensing_image/urban-greenspace-assessment/templates/greenspace-assessment-report.md",
+    "skills/custom/remote_sensing_image/urban-greenspace-assessment/references/data-quality.md",
+    "skills/custom/remote_sensing_image/urban-greenspace-assessment/references/greenspace-assessment-guide.md",
+    "skills/custom/remote_sensing_image/write-proposal/SKILL.md",
+    "skills/custom/remote_sensing_image/water-quality-monitoring/SKILL.md",
+    "skills/custom/remote_sensing_image/write-proposal/assets/proposal-template.md",
+    "skills/custom/remote_sensing_image/green-space-monitoring/SKILL.md",
+    "skills/custom/remote_sensing_image/write-proposal/生成示例/海岸带变化监测解决方案.md",
+    "skills/custom/remote_sensing_image/urban-change-detection/SKILL.md",
+    "skills/custom/remote_sensing_image/write-proposal/references/outline-guide.md",
+    "skills/custom/spatiotemporal_trajectory/analyze_event_impact/SKILL.md",
+    "skills/custom/remote_sensing_image/space-data-processing/references/sharp_edges.md",
+    "skills/custom/remote_sensing_image/road-damage-assessment/SKILL.md",
+    "skills/custom/remote_sensing_image/impervious-surface-mapping/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/detect_route_anomaly/SKILL.md",
+    "skills/custom/remote_sensing_image/disaster-risk-assessment/SKILL.md",
+    "skills/custom/remote_sensing_image/flood-risk-mapping/SKILL.md",
+    "skills/custom/spatiotemporal_trajectory/search_spatiotemporal/SKILL.md",
+    "docs/user-access-concurrency-demo.md",
+    "docs/optimization-summary-20261028.md",
+    "docs/intent-recognition-optimization-20261022.md",
+    "backend/docs/TODO.md",
+    "backend/docs/README.md",
+    "backend/docs/MCP_SERVER.md",
+    "backend/docs/PATH_EXAMPLES.md",
+    "backend/docs/意图识别，skill路由，todo中间件，添加新的场景.md",
+    "backend/docs/API.md",
+    "backend/docs/task_tool_improvements.md",
+    "backend/docs/MEMORY_IMPROVEMENTS_SUMMARY.md",
+    "backend/docs/APPLE_CONTAINER.md",
+    "backend/docs/SKILL_ROUTER_SCOPE_AND_PROMPT_DESIGN.md",
+    "backend/docs/FILE_UPLOAD.md",
+    "backend/docs/summarization.md",
+    "backend/docs/plan_mode_usage.md",
+    "backend/docs/AUTO_TITLE_GENERATION.md",
+    "backend/docs/SETUP.md",
+    "skills/custom/spatiotemporal_trajectory/detect_route_anomaly/references/usage.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师B_RouterCard生成_Registry.md",
+    "backend/docs/TITLE_GENERATION_IMPLEMENTATION.md",
+    "backend/docs/ARCHITECTURE.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师D_SkillRouterMiddleware.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师C_Embedding_Reranker_ES索引.md",
+    "backend/docs/MEMORY_IMPROVEMENTS.md",
+    "backend/docs/CONFIGURATION.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师A_公共契约_Schema_配置.md",
+    "backend/docs/HARNESS_APP_SPLIT.md",
+    "skills/custom/spatiotemporal_trajectory/search_spatiotemporal/references/usage.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/集成负责人_合并顺序_验收清单.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师E_Agent集成_ThreadState_Todo_Loader.md",
+    "docs/skill-dependencies-20261126/README.md",
+    "backend/README.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师F_SkillCreator自动更新_冲突检测_测试.md",
+    "docs/opengrep-offline-downloads.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/00_README_分工总览.md",
+    "docs/compliance-delivered-detectors-integration.md",
+    "docs/stage-thinking-policy-20261027.md",
+    "docs/full-flow-service-check-20261022.md",
+    "docs/intent-live-service-check-20261022.md",
+    "skills/public/vercel-deploy-claimable/SKILL.md",
+    "docs/SKILL_ROUTER_Engineer Division of Labor Document/工程师G_生产就绪_可观测性_CI.md",
+    "docs/skill_schema_envelope_retrieve_alignment.md",
+    "docs/Linux服务器启动说明.md",
+    "docs/SKILL_ROUTER_PRD.md",
+    "docs/video-surveillance-qwen35b-test-report.md",
+    "docs/compliance-evaluation-strategy-issues.md",
+    "docs/video-surveillance-skill-test-20260726.md",
+    "skills/custom/video_surveillance/roi-mapping/SKILL.md",
+    "docs/compliance/type12_type8910_joint_budget_gap_report.md",
+    "docs/compliance/new_detector_onboarding_guide.md",
+    "docs/compliance/type12_final_handoff.md",
+    "docs/compliance/onecity_deerflow_compliance_contract.md",
+    "skills/custom/phone-network-analysis/sichuan-shaanxi-comparison/SKILL.md",
+    "skills/custom/video_surveillance/README.md",
+    "frontend/public/demo/threads/7f9dc56c-e49c-4671-a3d2-c492ff4dce0c/user-data/outputs/leica-master-photography-article.md",
+    "skills/custom/phone-network-analysis/single-number-analysis/SKILL.md",
+    "skills/custom/phone-network-analysis/gang-cluster-analysis/SKILL.md",
+    "skills/custom/video_surveillance/video-segment-extraction/SKILL.md",
+    "skills/custom/phone-network-analysis/topn-high-risk-discovery/SKILL.md",
+    "skills/custom/phone-network-analysis/graph-operator/SKILL.md",
+    "skills/custom/video_surveillance/object-tracking/SKILL.md",
+    "skills/custom/phone-network-analysis/association-path-analysis/SKILL.md",
+    "skills/custom/phone-network-analysis/graph-operator/references/algorithms.md",
+    "skills/custom/phone-network-analysis/time-series-anomaly-analysis/SKILL.md",
+    "skills/custom/phone-network-analysis/graph-operator/references/graph-basics.md",
+    "skills/custom/phone-network-analysis/graph-operator/references/README_SHORT.md",
+    "skills/custom/phone-network-analysis/graph-operator/references/io.md",
+    "skills/custom/video_surveillance/video-stream-ingestion/SKILL.md",
+    "skills/custom/phone-network-analysis/overlap-analysis/SKILL.md",
+    "skills/custom/video_surveillance/camera-health-check/SKILL.md",
+    "skills/custom/phone-network-analysis/group-risk-analysis/SKILL.md",
+    "skills/custom/video_surveillance/video-search/SKILL.md",
+    "skills/custom/video_surveillance/evidence-package-generation/SKILL.md",
+    "skills/custom/video_surveillance/city-video-intelligence/references/capability-map.md",
+    "skills/custom/phone-network-analysis/dataset-onboarding-graph-preprocess/SKILL.md",
+    "skills/custom/phone-network-analysis/overlap-analysis/references/common_neighbor.md",
+    "skills/custom/phone-network-analysis/shared-device-analysis/SKILL.md",
+    "skills/custom/phone-network-analysis/overlap-analysis/references/graph_query.md",
+    "skills/custom/video_surveillance/DEERFLOW_BUNDLE.md",
+    "skills/custom/video_surveillance/batch-video-ingestion/SKILL.md",
+    "skills/custom/video_surveillance/object-statistics/SKILL.md",
+    "skills/custom/video_surveillance/single-video-event-analysis/SKILL.md",
+    "skills/custom/video_surveillance/ffmpeg-utils/SKILL.md",
+    "skills/custom/video_surveillance/city-video-intelligence/SKILL.md",
+    "skills/custom/video_surveillance/frame-sampling/SKILL.md",
+    "skills/custom/video_surveillance/video-embedding-index/SKILL.md",
+    "skills/custom/video_surveillance/object-detection/SKILL.md",
+    "skills/custom/phone-network-analysis/common/yigraph_reuse_notes.md",
+    "skills/custom/phone-network-analysis/yigraph_source_reference/docs/path.md",
+    "skills/custom/phone-network-analysis/yigraph_source_reference/docs/graph_query.md",
+    "skills/custom/video_surveillance/human-review-routing/SKILL.md",
+    "skills/custom/video_surveillance/video-object-analytics/SKILL.md",
+    "skills/custom/video_surveillance/analyze-video/SKILL.md",
+    "skills/custom/phone-network-analysis/condition-based-screening/SKILL.md",
+    "skills/custom/video_surveillance/evidence-snapshot/SKILL.md",
+    "skills/custom/phone-network-analysis/association-path-analysis/references/graph_query.md",
+    "skills/custom/video_surveillance/roi-transit-statistics/SKILL.md",
+    "skills/custom/phone-network-analysis/association-path-analysis/references/path.md",
+    "skills/custom/video_surveillance/video-privacy-masking/SKILL.md",
+    "skills/custom/phone-network-analysis/risk-evidence-pack/SKILL.md",
+    "skills/custom/phone-network-analysis/dataset-quality-and-linkability-diagnostic/SKILL.md",
+    "skills/custom/video_surveillance/duplicate-event-merge/SKILL.md",
+    "frontend/public/demo/threads/3823e443-4e2b-4679-b496-a9506eae462b/user-data/outputs/fei-fei-li-podcast-timeline.md",
+    "docs/compliance/type12_intent_inputgate_integration.md",
+    "skills/custom/phone-network-analysis/dataset-overview-analysis/SKILL.md",
+    "frontend/public/demo/threads/d3e5adaf-084c-4dd5-9d29-94f1d6bccd98/user-data/outputs/diana_hu_research.md",
+    "frontend/public/demo/threads/fe3f7974-1bcb-4a01-a950-79673baafefd/user-data/outputs/research_deerflow_20260201.md",
+    "skills/custom/phone-network-analysis/subgraph-extraction-analysis/SKILL.md",
+    "skills/custom/video_surveillance/privacy-masking/SKILL.md",
+    "skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_device_case_unified.md",
+    "skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_unlabeled_case_unified.md",
+    "skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_mixed_case_unified.md",
+    "skills/custom/phone-network-analysis/condition-based-screening/scripts/condition_based_screening_testdata/outputs/condition_screening_report_night_case_unified.md",
+    "docs/项目架构整理与易安装改造计划_20261126.md",
+    "docs/concurrency-implementation-20261029.md",
+    "docs/intent-realistic-service-check-20261022.md",
+    "docs/mobile-platform-manual-ui-sse-record-20260916.md",
+    "docs/turn-contract-fixes-20261027.md",
+    "apps/onecityagent/SECURITY.md",
+    "apps/onecityagent/HANDOFF.md",
+    "skills/custom/network-traffic-analysis/references/input-output-contract.md",
+    "skills/custom/network-traffic-analysis/references/rag-indexing-and-rebuild.md",
+    "skills/custom/network-traffic-analysis/references/advanced-actions.md",
+    "skills/custom/network-traffic-analysis/references/command-patterns.md",
+    "skills/custom/network-traffic-analysis/references/capability-catalog.md",
+    "skills/custom/network-traffic-analysis/references/playbooks.md",
+    "skills/custom/network-traffic-analysis/references/preprocessing-and-time-semantics.md",
+    "skills/custom/network-traffic-analysis/references/field-dictionary.md",
+    "skills/custom/network-traffic-analysis/references/workflow-routing.md",
+    "skills/custom/network-traffic-analysis/SKILL.md",
+    "apps/onecityagent/README.md",
+    "apps/onecityagent/docs/production-runtime.md",
+    "docs/multi-user-concurrency-20261029.md",
+    "docs/skill输入输出规范改造指南.md",
+    "skills/public/chart-visualization/SKILL.md",
+    "skills/public/image-generation/SKILL.md",
+    "skills/public/video-generation/SKILL.md",
+    "skills/public/image-generation/templates/doraemon.md",
+    "skills/public/bootstrap/SKILL.md",
+    "skills/public/consulting-analysis/SKILL.md",
+    "skills/public/ppt-generation/SKILL.md",
+    "skills/public/skill-creator/SKILL.md",
+    "skills/public/skill-creator/references/output-patterns.md",
+    "skills/public/skill-creator/references/schemas.md",
+    "skills/public/skill-creator/agents/grader.md",
+    "skills/public/skill-creator/agents/analyzer.md",
+    "skills/public/bootstrap/templates/SOUL.template.md",
+    "skills/public/frontend-design/SKILL.md",
+    "skills/public/skill-creator/references/workflows.md",
+    "skills/public/bootstrap/references/conversation-guide.md",
+    "skills/public/skill-creator/agents/comparator.md",
+    "docs/项目环境说明_外部验收_20261126.md",
+    "docs/mobile-platform-compliance-test-plan.md",
+    "docs/video-surveillance-skill-routing-questions.md",
+    "docs/duplicate-answer-display-fix-20261029.md",
+    "docs/skill-migration-opengrep-code-business-dag.md",
+    "docs/mobile-platform-compliance-sse-test-record-20260915.md",
+    "docs/Skill依赖版本盘点_20261126.md",
+    "合规检测/三个检测器规则修改汇总报告.md",
+    "skills/public/find-skills/SKILL.md",
+    "skills/public/claude-to-deerflow/SKILL.md",
+    "合规检测/类型7-confidential整改/修改报告.md",
+    "skills/custom/program_snippet/pipeline-reasoner/SKILL.md",
+    "skills/public/surprise-me/SKILL.md",
+    "docs/installation/README.md",
+    "skills/public/github-deep-research/SKILL.md",
+    "合规检测/类型3-hardcoded_cred整改/修改报告.md",
+    "skills/public/github-deep-research/assets/report_template.md",
+    "model-services启动说明.md",
+    "docs/releases/20261125-street-workflow.md",
+    "skills/custom/policies-regulations/patent-analysis/SKILL.md",
+    "skills/custom/policies-regulations/patent-analysis/CHANGELOG.md",
+    "docs/releases/20261028-intent-full-flow.md",
+    "skills/custom/program_snippet/code-splitter-adapter/README.md",
+    "services/streetmodel/README.md",
+    "skills/custom/program_snippet/dataflow-extractor/README.md",
+    "skills/custom/program_snippet/code-business-dag-analysis-pipeline/README_zh.md",
+    "skills/custom/program_snippet/dataflow-extractor/SKILL.md",
+    "skills/custom/policies-regulations/official-document-writer/SKILL.md",
+    "skills/custom/policies-regulations/official-document-writer/README.md",
+    "skills/custom/program_snippet/code-semantic-labeler/README.md",
+    "skills/custom/program_snippet/deerflow-pipeline-runtime/README.md",
+    "skills/custom/program_snippet/code-business-dag-analysis-pipeline/SKILL.md",
+    "skills/custom/program_snippet/code-splitter-adapter/SKILL.md",
+    "skills/custom/program_snippet/pipeline-graph-builder/SKILL.md",
+    "skills/custom/policies-regulations/patent-analysis/references/01-single-patent-summary.md",
+    "skills/custom/policies-regulations/patent-analysis/references/03-infringement-comparison.md",
+    "skills/custom/policies-regulations/patent-analysis/references/05-fto-analysis.md",
+    "skills/custom/policies-regulations/china-contract-review/SKILL.md",
+    "skills/custom/policies-regulations/china-contract-review/README.md",
+    "skills/custom/policies-regulations/patent-analysis/references/06-design-around.md",
+    "skills/custom/policies-regulations/patent-analysis/references/07-patent-valuation.md",
+    "skills/custom/policies-regulations/patent-analysis/references/02-multi-patent-comparison.md",
+    "skills/custom/program_snippet/opengrep-compliance/README.md",
+    "skills/custom/policies-regulations/patent-analysis/references/04-validity-analysis.md",
+    "skills/custom/program_snippet/code-semantic-labeler/SKILL.md",
+    "skills/custom/policies-regulations/official-document-writer/references/policy-sources.md",
+    "skills/custom/policies-regulations/wechat-article-fetch/CHANGELOG.md",
+    "skills/custom/policies-regulations/law-local-retrieval/SKILL.md",
+    "skills/custom/policies-regulations/official-document-writer/references/gbwriting-standards.md",
+    "skills/custom/policies-regulations/official-document-writer/references/doc-templates.md",
+    "skills/custom/policies-regulations/official-document-writer/references/writing-style-guide.md",
+    "skills/custom/policies-regulations/china-legal-consultation/SKILL.md",
+    "skills/custom/policies-regulations/legal-briefing/references/12-tort-dispute.md",
+    "skills/custom/policies-regulations/legal-briefing/references/14-enterprise-compliance.md",
+    "skills/custom/policies-regulations/wechat-article-fetch/DEPENDENCIES.md",
+    "skills/custom/policies-regulations/legal-briefing/references/10-labor-dispute.md",
+    "skills/custom/policies-regulations/legal-briefing/references/13-family-and-inheritance.md",
+    "skills/custom/policies-regulations/legal-briefing/references/11-contract-dispute.md",
+    "skills/custom/policies-regulations/litigation-analysis/SKILL.md",
+    "skills/custom/policies-regulations/litigation-analysis/CHANGELOG.md",
+    "skills/custom/policies-regulations/wechat-article-fetch/SKILL.md",
+    "skills/custom/policies-regulations/trademark-assistant/SKILL.md",
+    "skills/custom/policies-regulations/chinese-policy-analysis/SKILL.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/judgment-first-instance-extraction.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/complaint-evidence-extraction.md",
+    "skills/custom/policies-regulations/legal-document-assistant/SKILL.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/domains/01-ip-case-dimensions.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/SKILL.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/domains/00-HOW-TO-ADD-NEW-DOMAIN.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/README.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/CHANGELOG.md",
+    "skills/custom/policies-regulations/china-contract-review/references/domains/litigation-arbitration.md",
+    "skills/custom/policies-regulations/china-contract-review/references/domains/contract-law.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/core/process.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/core/priority-rules.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/core/philosophy.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/classification-planning-guide.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/core/frameworks-core.md",
+    "skills/custom/policies-regulations/legal-document-assistant/assets/traffic-accident-claim.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/output-contract.md",
+    "skills/custom/policies-regulations/china-contract-review/references/shared/methods/legal-research.md",
+    "skills/custom/policies-regulations/legal-document-assistant/references/legal-document-guide.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/contract-law.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-infringement-criteria-interpretation-and-application.md",
+    "skills/custom/policies-regulations/legal-document-assistant/assets/labor-dispute-complaint.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/tort-law.md",
+    "skills/custom/policies-regulations/legal-document-assistant/assets/divorce-agreement.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-description-guide.md",
+    "skills/custom/policies-regulations/legal-document-assistant/assets/employment-contract.md",
+    "skills/custom/policies-regulations/legal-document-assistant/assets/rental-agreement.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/data/README.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/contract-law.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/construction-law.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/ip-law.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/legal-basis-index.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/tort-law.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/shared/methods/legal-research.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/ip-law.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/investment-law.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/construction-law.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/SKILL.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/investment-law.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/litigation-arbitration.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-infringement-criteria.md",
+    "skills/custom/policies-regulations/legal-document-assistant/references/dispute-resolution-guide.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/extraction-rules.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/review-checklist.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/batch-processing-rules.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/registrability-prescreen-guide.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/benchmark-rubric.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/intake-checklist.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/service-intake-checklist.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/labor-law.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/labor-law.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/domains/corporate-law.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/references/output-template.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/litigation-arbitration.md",
+    "skills/custom/policies-regulations/china-legal-consultation/references/domains/corporate-law.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-04.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-42.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-40.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-07.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-44.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-06.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-27.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-35.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-12.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-17.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/data/README.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/shared/verification/automated-checklist.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-10.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/core/priority-rules.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/core/philosophy.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/shared/methods/legal-research.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/core/process.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/core/frameworks-core.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-28.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-14.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-36.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-13.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-21.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-20.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-24.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-23.md",
+    "skills/custom/policies-regulations/trademark-assistant/CHANGELOG.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-27.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/security-law-2020/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-17.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-18.md",
+    "skills/custom/policies-regulations/litigation-analysis/templates/template-internal.md",
+    "skills/custom/policies-regulations/litigation-analysis/templates/template-client.md",
+    "skills/custom/policies-regulations/wechat-article-search/SKILL.md",
+    "skills/custom/policies-regulations/litigation-analysis/templates/template-research.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-21.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/security-law-2020/index.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-24.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-29.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/nice-classification-v12-2025-index.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-21.md",
+    "skills/custom/policies-regulations/china-contract-review/references/shared/verification/automated-checklist.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-08.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-32.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-41.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-20.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-03.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-33.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-23.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-09.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/judgment-second-instance-extraction.md",
+    "skills/custom/policies-regulations/litigation-analysis/references/hearing-transcript-extraction.md",
+    "skills/custom/policies-regulations/policy-rag/SKILL.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-11.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/01-single-issue.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-30.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-35.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-03.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-12.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-31.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-13.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-34.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-26.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-28.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-15.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-14.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/03-same-issue-repeated.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-22.md",
+    "skills/custom/policies-regulations/china-legal-issue-analysis/references/interpretations/contract-general-2023/index.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/04-follow-up-questions.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/references/modules.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-23.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/references/visualization.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/05-proactive-risk-reminder.md",
+    "skills/custom/policies-regulations/china-contract-review/references/core/frameworks-core.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-32.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-37.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-05.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/08-batch-mixed-directory.md",
+    "skills/custom/policies-regulations/china-contract-review/references/core/process.md",
+    "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/README.md",
+    "skills/custom/policies-regulations/china-contract-review/references/interpretations/security-law-2020/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-04.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-42.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-06.md",
+    "skills/custom/policies-regulations/china-contract-review/references/interpretations/security-law-2020/index.md",
+    "skills/custom/policies-regulations/china-contract-review/references/core/priority-rules.md",
+    "skills/custom/policies-regulations/china-contract-review/references/core/philosophy.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-30.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-37.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/02-multi-issue-switching.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-19.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/06-admin-heavy.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-11.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-33.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-18.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-27.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-40.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-06.md",
+    "skills/custom/policies-regulations/china-contract-review/references/interpretations/contract-general-2023/index.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-40.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-07.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/trademark-examination-and-adjudication-guidelines-index.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-13.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-22.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-25.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-16.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-44.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-39.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-24.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-02.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-28.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-43.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-17.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-25.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-07.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-14.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-39.md",
+    "skills/custom/policies-regulations/legal-qa-extractor/assets/benchmarks/07-incomplete-answer.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-04.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-10.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-19.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-36.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-12.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-36.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-43.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/SKILL.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/CHANGELOG.md",
+    "skills/custom/policies-regulations/china-legal-consultation/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-18.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-33.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-38.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-41.md",
+    "skills/custom/policies-regulations/legal-briefing/SKILL.md",
+    "skills/custom/policies-regulations/legal-briefing/README.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-03.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-34.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-38.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-20.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/nice-classification-v13-2026-index.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-37.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/service-proposal.md",
+    "skills/custom/policies-regulations/legal-text-format/CHANGELOG.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-02.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-01.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-31.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-26.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-29.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/internal-communication-report.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-05.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-32.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-15.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/non-litigation-proposal.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-34.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-45.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-10.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-35.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-22.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/case-analysis-summary.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/consultation-report.md",
+    "skills/custom/policies-regulations/legal-text-format/SKILL.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-42.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-39.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-31.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-05.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-30.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-16.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-01.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-09.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-15.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/litigation-proposal.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/trademark-examination-and-adjudication-guidelines/chapter-16.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v12-2025/class-08.md",
+    "skills/custom/policies-regulations/legal-proposal-generator/templates/communication-report.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-25.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-19.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-43.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-41.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-11.md",
+    "skills/custom/program_snippet/opengrep-compliance/SKILL.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-08.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-02.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-26.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-38.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-01.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-29.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-45.md",
+    "skills/custom/policies-regulations/trademark-assistant/references/nice-classification-v13-2026/class-09.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/official/opengrep-rules/README.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/trailofbits-semgrep-rules/README.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/trailofbits-semgrep-rules/IMPORT_NOTES.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/trailofbits-semgrep-rules/CONTRIBUTING.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/official/opengrep-rules/IMPORT_NOTES.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/official/opengrep-rules/SECURITY.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/apiiro-malicious-code-ruleset/CONTRIBUTING.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/apiiro-malicious-code-ruleset/IMPORT_NOTES.md",
+    "skills/custom/policies-regulations/legal-text-format/references/examples.md",
+    "skills/custom/program_snippet/opengrep-compliance/rules/community/apiiro-malicious-code-ruleset/README.md",
+    "skills/custom/policies-regulations/code2patent/references/project-analysis-spec.md",
+    "skills/custom/policies-regulations/code2patent/references/patent-drafting-quick-reference.md",
+    "skills/custom/policies-regulations/code2patent/references/patent-drafting-spec.md",
+    "skills/custom/policies-regulations/code2patent/references/code-extraction-spec.md",
+    "skills/custom/program_snippet/code-to-ast-new/SKILL.md",
+    "skills/custom/policies-regulations/code2patent/SKILL.md",
+    "skills/custom/policies-regulations/code2patent/CHANGELOG.md",
+    "skills/custom/program_snippet/code-to-ast-new/README.md",
+    "skills/custom/policies-regulations/code2patent/templates/invention-patent-draft-self-check-template.md",
+    "skills/custom/policies-regulations/code2patent/templates/invention-patent-draft-template.md",
+    "skills/custom/policies-regulations/code2patent/templates/invention-patent-claim-layout-template.md",
+    "skills/custom/policies-regulations/code2patent/templates/invention-patent-disclosure-template.md",
+    "skills/custom/policies-regulations/code2patent/templates/invention-patent-claim-evidence-matrix-template.md"
+  ],
+  "comment_files": [
+    "config.example.yaml",
+    "config/compliance/detectors.yaml",
+    "backend/packages/harness/deerflow/compliance/__init__.py",
+    "scripts/test_video_surveillance_skills.py"
+  ]
+}

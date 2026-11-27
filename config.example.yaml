@@ -319,6 +319,14 @@ sandbox:
 #   # Optional: Prefix for container names (default: deer-flow-sandbox)
 #   # container_prefix: deer-flow-sandbox
 #
+#   # Optional: attach dynamically created sandboxes to an existing Docker network.
+#   # This makes selected Compose services resolvable by DNS from the sandbox.
+#   # network: citybrain-internal
+#
+#   # Optional: explicit host mappings for services on the Docker host.
+#   # extra_hosts:
+#   #   host.docker.internal: host-gateway
+#
 #   # Optional: Additional mount directories from host to container
 #   # NOTE: Skills directory is automatically mounted from skills.path to skills.container_path
 #   # mounts:
@@ -553,7 +561,7 @@ checkpointer:
 # Compliance Violation Detection
 # ==============================================================================
 # One engine, one detector set, one disposition matrix, three gates.
-# See docs/compliance-detector-integration-guide.md to add a detector.
+# See docs/compliance/compliance-detector-integration-guide.md to add a detector.
 #
 # Disabled by default: a half-configured compliance gate that blocks real
 # traffic is worse than one that is switched off, so turning it on is deliberate.

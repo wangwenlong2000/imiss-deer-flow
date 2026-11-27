@@ -6,8 +6,11 @@ Handles container lifecycle, port allocation, and cross-process container discov
 
 from __future__ import annotations
 
+import ipaddress
 import logging
 import os
+from pathlib import Path
+import re
 import subprocess
 
 from deerflow.utils.network import get_free_port, release_port
@@ -41,6 +44,8 @@ class LocalContainerBackend(SandboxBackend):
         environment: dict[str, str],
         writable_uid: int = 1000,
         writable_gid: int = 1000,
+        network: str | None = None,
+        extra_hosts: dict[str, str] | None = None,
     ):
         """Initialize the local container backend.
 
@@ -58,6 +63,33 @@ class LocalContainerBackend(SandboxBackend):
         self._environment = environment
         self._writable_uid = writable_uid
         self._writable_gid = writable_gid
+        if network is not None and not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*", network):
+            raise ValueError("Sandbox network must be an existing Docker network name")
+        self._network = network
+        self._deployment_labels = {}
+        host_base = os.environ.get("DEER_FLOW_HOST_BASE_DIR", "")
+        project = container_prefix.removesuffix("-sandbox")
+        # Reuse the explicit single-site deployment paths/network. Development
+        # backends without this combination keep their existing behavior.
+        if host_base and container_prefix == project + "-sandbox" and network == project + "-services":
+            base = Path(host_base)
+            if (not base.is_absolute() or base.parts[-2:] != ("data", "deerflow")
+                    or ".." in base.parts or "." in base.parts or base.parents[1] == Path("/")):
+                raise ValueError("Managed sandbox host data path must identify an installation root")
+            self._deployment_labels = {
+                "io.citybrain.root": str(base.parents[1]),
+                "io.citybrain.project": project,
+                "io.citybrain.role": "sandbox",
+            }
+        self._extra_hosts = dict(extra_hosts or {})
+        for hostname, address in self._extra_hosts.items():
+            if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*", hostname):
+                raise ValueError("Invalid sandbox extra-host name")
+            if address != "host-gateway":
+                try:
+                    ipaddress.ip_address(address)
+                except ValueError as exc:
+                    raise ValueError(f"Invalid address for sandbox extra-host {hostname}") from exc
         self._runtime = self._detect_runtime()
 
     @property
@@ -278,6 +310,14 @@ class LocalContainerBackend(SandboxBackend):
             # AIO sandbox images are deployment artifacts. Never let a user
             # request trigger an implicit registry pull at runtime.
             cmd.extend(["--pull", "never", "--security-opt", "seccomp=unconfined"])
+            if self._network:
+                cmd.extend(["--network", self._network])
+            for name, value in self._deployment_labels.items():
+                cmd.extend(["--label", f"{name}={value}"])
+            for hostname, address in self._extra_hosts.items():
+                cmd.extend(["--add-host", f"{hostname}:{address}"])
+        elif self._network or self._extra_hosts:
+            raise RuntimeError("Explicit sandbox network/extra_hosts require the Docker backend")
 
         cmd.extend(
             [

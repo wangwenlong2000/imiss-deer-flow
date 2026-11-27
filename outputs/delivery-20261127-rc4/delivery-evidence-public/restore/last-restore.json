@@ -1,0 +1,13 @@
+{
+  "availability": "present",
+  "name": "last-restore",
+  "report": {
+    "assets_verified": true,
+    "completed_at": "2026-11-27T02:16:16.959716+00:00",
+    "database_restored": true
+  },
+  "required": true,
+  "source_bytes": 164,
+  "source_passed": true,
+  "source_sha256": "3327631707501493b597ee6ef91110e393142bbd003b31fe84c4ac85388c5271"
+}

@@ -35,6 +35,15 @@ class SandboxConfig(BaseModel):
         default=None,
         description="Docker image to use for the sandbox container",
     )
+    network: str | None = Field(
+        default=None,
+        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$",
+        description="Explicit Docker network for dynamically created sandboxes; must already exist",
+    )
+    extra_hosts: dict[str, str] = Field(
+        default_factory=dict,
+        description="Docker host mappings, for example host.docker.internal: host-gateway",
+    )
     port: int | None = Field(
         default=None,
         description="Base port for sandbox containers",

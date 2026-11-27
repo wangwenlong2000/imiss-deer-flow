@@ -1,0 +1,36 @@
+schema_version: 1
+release: local
+project: citybrain
+public_url: http://localhost:8086
+http_port: 8086
+capabilities: [basic]
+bootstrap_admin:
+  email: admin@example.invalid
+  nickname: Administrator
+model:
+  name: qwen3.6-35b-a3b
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+images:
+  onecity: citybrain-onecity:local
+  deerflow: citybrain-deerflow:local
+  edge: citybrain-edge:local
+  sandbox: citybrain-sandbox:local
+  mysql: mysql:8.0.39
+  elasticsearch: docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+mysql:
+  mode: local
+  host: mysql
+  port: 3306
+  database: onecityagent
+  user: onecity
+elasticsearch:
+  mode: disabled
+  url: http://elasticsearch:9200
+sandbox:
+  port_start: 18481
+  replicas: 3
+capacity:
+  jobs: 3
+  max_inflight: 6
+  per_user: 2
+services: {}

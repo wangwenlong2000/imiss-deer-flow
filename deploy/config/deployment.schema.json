@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release",
+    "project",
+    "public_url",
+    "http_port",
+    "capabilities",
+    "model",
+    "images",
+    "mysql",
+    "elasticsearch",
+    "sandbox",
+    "capacity",
+    "services",
+    "bootstrap_admin"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "release": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+    },
+    "project": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,38}$"
+    },
+    "public_url": {
+      "type": "string",
+      "pattern": "^https?://[^\\s]+$"
+    },
+    "http_port": {
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 65535
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "basic",
+          "street",
+          "video",
+          "network",
+          "remote_sensing",
+          "phone",
+          "traffic",
+          "trajectory",
+          "legal",
+          "code",
+          "public"
+        ]
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "base_url"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "base_url": {
+          "type": "string",
+          "pattern": "^https?://[^\\s]+$"
+        }
+      }
+    },
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "onecity",
+        "deerflow",
+        "edge",
+        "sandbox",
+        "mysql",
+        "elasticsearch"
+      ],
+      "properties": {
+        "onecity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deerflow": {
+          "type": "string",
+          "minLength": 1
+        },
+        "edge": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sandbox": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mysql": {
+          "type": "string",
+          "minLength": 1
+        },
+        "elasticsearch": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "mysql": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "host",
+        "port",
+        "database",
+        "user"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "local",
+            "external"
+          ]
+        },
+        "host": {
+          "type": "string",
+          "minLength": 1
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "database": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "user": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "elasticsearch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "url"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "local",
+            "external",
+            "disabled"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://[^\\s]+$"
+        }
+      }
+    },
+    "sandbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "port_start",
+        "replicas"
+      ],
+      "properties": {
+        "port_start": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 65000
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        }
+      }
+    },
+    "capacity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "jobs",
+        "max_inflight",
+        "per_user"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "max_inflight": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "per_user": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "streetmodel_url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "embedding_url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nas_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "bootstrap_admin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "nickname"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+        },
+        "nickname": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
